@@ -1,7 +1,15 @@
 import { Action } from '../types';
 import { GameEngine } from '../engine';
 
+export type Rng = () => number;
+
 export class HeuristicAI {
+    private rng: Rng;
+
+    constructor(rng?: Rng) {
+        this.rng = rng ?? Math.random;
+    }
+
     public getAction(engine: GameEngine, playerId: number): Action {
         const actions = engine.getLegalActions(playerId);
         
@@ -24,7 +32,7 @@ export class HeuristicAI {
                     if (newEnemyCount < oldEnemyCount) {
                         score += 5000;
                     }
-                    score += Math.random() * 100;
+                    score += this.rng() * 100;
                     break;
                 case 'capture':
                     score = 800;
@@ -36,7 +44,7 @@ export class HeuristicAI {
                     score = 200;
                     break;
                 case 'move':
-                    score = 10 + Math.random() * 10;
+                    score = 10 + this.rng() * 10;
                     break;
                 case 'wait':
                     score = 0; 

@@ -1,7 +1,9 @@
+import { Ability, UnitClass } from "./types";
+
 export type AttackType = "physical" | "magic";
 
 export interface UnitConfig {
-  key: string;
+  key: UnitClass;
   name: string;
   cost: number | null;
   attack: number;
@@ -12,11 +14,11 @@ export interface UnitConfig {
   maxRange: number;
   move: number;
   population: number;
-  abilities: string[];
+  abilities: Ability[];
   upgrade: string;
 }
 
-export const UNIT_CONFIGS: Record<string, UnitConfig> = {
+export const UNIT_CONFIGS: Record<UnitClass, UnitConfig> = {
   soldier: { key: "soldier", name: "士兵", cost: 150, attack: 55, attackType: "physical", physicalDefense: 5, magicDefense: 5, minRange: 1, maxRange: 1, move: 4, population: 1, abilities: ["village_capturer", "repairer"], upgrade: "" },
   ghost: { key: "ghost", name: "幽灵", cost: 200, attack: 50, attackType: "magic", physicalDefense: 5, magicDefense: 15, minRange: 1, maxRange: 1, move: 4, population: 1, abilities: ["flying", "undead", "death_reaper"], upgrade: "" },
   mermaid: { key: "mermaid", name: "人鱼", cost: 200, attack: 40, attackType: "physical", physicalDefense: 0, magicDefense: 0, minRange: 1, maxRange: 2, move: 4, population: 1, abilities: ["village_capturer", "repairer", "water_child"], upgrade: "" },

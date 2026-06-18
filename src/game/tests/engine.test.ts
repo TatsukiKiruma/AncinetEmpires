@@ -369,8 +369,7 @@ describe('GameEngine Rules', () => {
         state.units[0].unitClass = 'wolf';
         state.units[1].unitClass = 'soldier'; // 确保无 poisoner 
         
-        const engine = new GameEngine(state);
-        engine.bypassValidation = true;
+        const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
         engine.step({ type: 'attack', attackerId: state.units[0].id, targetId: state.units[1].id });
         
         const target = engine.getState().units.find(u => u.id === state.units[1].id)!;
@@ -553,8 +552,7 @@ describe('GameEngine Rules', () => {
             ghostFriend.hp = 80;
             ghostFriend.maxHp = 100;
 
-            const engine = new GameEngine(state);
-            engine.bypassValidation = true;
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
             engine.step({ type: 'heal', healerId: paladin.id, targetId: ghostFriend.id });
 
             const finalState = engine.getState();
@@ -979,8 +977,7 @@ describe('GameEngine Rules', () => {
             const defender = state.units[1];
             defender.hp = 100;
 
-            const engine = new GameEngine(state);
-            engine.bypassValidation = true;
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 120
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
@@ -999,8 +996,7 @@ describe('GameEngine Rules', () => {
             const defender = state.units[1];
             defender.hp = 100;
 
-            const engine = new GameEngine(state);
-            engine.bypassValidation = true;
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 310
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
@@ -1018,8 +1014,7 @@ describe('GameEngine Rules', () => {
             const defender = state.units[1];
             defender.hp = 100;
 
-            const engine = new GameEngine(state);
-            engine.bypassValidation = true;
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 610
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
@@ -1115,6 +1110,135 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             const diffG = finalState.players[0].gold - prevGold;
             expect(diffG).toBe(125);
+        });
+    });
+
+    describe('核心规则回归测试', () => {
+        it('1. 非法动作 - 非当前玩家单位不能行动', () => {
+            const state = createDemoState();
+            const engine = new GameEngine(state);
+            const enemyUnit = state.units.find(u => u.ownerId === 1)!;
+            const res = engine.step({ type: 'move', unitId: enemyUnit.id, to: { x: enemyUnit.pos.x + 1, y: enemyUnit.pos.y } });
+            expect(res.info).toContain('非法动作');
+            expect(engine.getState()).toEqual(state);
+        });
+
+        it('2. 非法动作 - 已行动单位不能再次普通行动', () => {
+            const state = createDemoState();
+            const engine = new GameEngine(state);
+            const unit = state.units.find(u => u.ownerId === 0)!;
+            // 第一次普通行动：wait
+            engine.step({ type: 'wait', unitId: unit.id });
+            const stateAfterMove = engine.getState();
+            // 第二次想普通行动
+            const res = engine.step({ type: 'wait', unitId: unit.id });
+            expect(res.info).toContain('非法动作');
+            expect(engine.getState()).toEqual(stateAfterMove);
+        });
+
+        it('3-4. 非法动作 - 非法移动/越界不改变坐标和状态', () => {
+            const state = createDemoState();
+            const engine = new GameEngine(state);
+            const unit = state.units.find(u => u.ownerId === 0)!;
+            const res1 = engine.step({ type: 'move', unitId: unit.id, to: { x: 999, y: 999 } });
+            expect(res1.info).toContain('非法动作');
+            expect(engine.getState()).toEqual(state);
+        });
+
+        it('5. 非法动作 - 非法招募', () => {
+            const state = createDemoState();
+            const engine = new GameEngine(state);
+            const res = engine.step({ type: 'recruit', unitClass: 'dragon', castlePos: {x:0, y:0}, spawnPos: {x:0, y:1} });
+            expect(res.info).toContain('非法动作');
+            expect(engine.getState()).toEqual(state);
+        });
+
+        it('6-10. 非法动作 - 非对应能力不能执行特殊动作', () => {
+            const state = createDemoState();
+            const engine = new GameEngine(state);
+            const unit = state.units.find(u => u.ownerId === 0)!; 
+            const target = state.units.find(u => u.ownerId === 1)!;
+            
+            expect(engine.step({ type: 'heal', healerId: unit.id, targetId: unit.id }).info).toContain('非法动作');
+            expect(engine.step({ type: 'summon', summonerId: unit.id, graveId: 'g1', spawnPos: {x:0,y:0} }).info).toContain('非法动作');
+            expect(engine.step({ type: 'support', supporterId: unit.id, targetId: unit.id }).info).toContain('非法动作');
+        });
+
+        it('11. 投石车不能破坏城堡', () => {
+            const state = createDemoState();
+            const catapult = state.units[0];
+            catapult.unitClass = 'catapult';
+            state.map.tiles[catapult.pos.y][catapult.pos.x].terrainId = 10; // 城堡
+            const engine = new GameEngine(state);
+            const res = engine.step({ type: 'destroy_town', unitId: catapult.id });
+            expect(res.info).toContain('非法动作');
+        });
+
+        it('确定性 - 同一初始状态和合法动作产生同样结果', () => {
+            const state = createDemoState();
+            const e1 = new GameEngine(state);
+            const e2 = new GameEngine(state);
+            const a = { type: 'move', unitId: state.units[0].id, to: { x: state.units[0].pos.x, y: state.units[0].pos.y+1 } } as any;
+            e1.step(a);
+            e2.step(a);
+            expect(e1.getState()).toEqual(e2.getState());
+        });
+
+        it('能力规则 - counter_storm 和反击', () => {
+            const state = createDemoState();
+            const b = state.units[0];
+            b.unitClass = 'berserker'; 
+            const a = state.units[1];
+            a.unitClass = 'archer'; 
+            a.pos = { x: b.pos.x + 2, y: b.pos.y };
+            
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            engine.step({ type: 'attack', attackerId: a.id, targetId: b.id });
+            const finalA = engine.getState().units.find(u => u.id === a.id);
+            if (finalA) {
+               expect(finalA.hp).toBeLessThan(100);
+            }
+        });
+
+        it('突击部队 - 移动力等于有效移动力', () => {
+            const state = createDemoState();
+            const wolf = state.units[0];
+            wolf.unitClass = 'wolf';
+            const enemy = state.units[1];
+            enemy.pos = { x: wolf.pos.x + 1, y: wolf.pos.y };
+            
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: wolf.id, targetId: enemy.id });
+            const finalWolf = engine.getState().units.find(u=>u.id === wolf.id)!;
+            expect(finalWolf.movementRemaining).toBe(6); 
+        });
+
+        it('神庙结算 - 回血机制', () => {
+             const state = createDemoState();
+             const soldier = state.units[0];
+             soldier.hp = 20;
+             soldier.status = { type: 'poisoned', remainingTicks: 2 };
+             state.map.tiles[soldier.pos.y][soldier.pos.x].terrainId = 12; 
+             const engine = new GameEngine(state);
+             engine.step({ type: 'end_turn' });
+             engine.step({ type: 'end_turn' }); 
+
+             const s = engine.getState().units.find(u => u.id === soldier.id);
+             expect(s!.status).toBeUndefined(); 
+             expect(s!.hp).toBe(10 + 20); 
+        });
+        
+        it('神庙结算 - 虚弱单位在神庙消除虚弱', () => {
+             const state = createDemoState();
+             const soldier = state.units[0];
+             soldier.status = { type: 'weakened', remainingTurns: 1 };
+             state.map.tiles[soldier.pos.y][soldier.pos.x].terrainId = 12; 
+             const engine = new GameEngine(state);
+             engine.step({ type: 'end_turn' });
+             engine.step({ type: 'end_turn' }); 
+
+             const s = engine.getState().units.find(u => u.id === soldier.id);
+             expect(s!.status).toBeUndefined(); 
         });
     });
 });

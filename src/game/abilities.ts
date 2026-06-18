@@ -1,13 +1,11 @@
-import { GameState, Unit } from './types';
+import { GameState, Unit, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
-
-export type AbilityKey = string;
 
 /**
  * 检查单位是否拥有特定能力
  */
-export function hasAbility(unit: Unit, ability: AbilityKey): boolean {
+export function hasAbility(unit: Unit, ability: Ability): boolean {
     const config = UNIT_CONFIGS[unit.unitClass];
     return config?.abilities.includes(ability) || false;
 }

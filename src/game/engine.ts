@@ -62,12 +62,19 @@ function areActionsEqual(a1: Action, a2: Action): boolean {
     }
 }
 
+export interface GameEngineOptions {
+    unsafeBypassValidationForTests?: boolean;
+}
+
 export class GameEngine {
     private state: GameState;
-    public bypassValidation: boolean = false;
+    private unsafeBypassValidationForTests: boolean = false;
 
-    constructor(initialState: GameState) {
+    constructor(initialState: GameState, options?: GameEngineOptions) {
         this.state = JSON.parse(JSON.stringify(initialState)); // deep copy
+        if (options?.unsafeBypassValidationForTests) {
+            this.unsafeBypassValidationForTests = true;
+        }
     }
 
     public getState(): GameState {
@@ -76,7 +83,7 @@ export class GameEngine {
     }
 
     public clone(): GameEngine {
-        return new GameEngine(this.state);
+        return new GameEngine(this.state, { unsafeBypassValidationForTests: this.unsafeBypassValidationForTests });
     }
 
     public getLegalActions(playerId: number): Action[] {
@@ -148,7 +155,7 @@ export class GameEngine {
         }
 
         // 合法性校验
-        if (!this.bypassValidation) {
+        if (!this.unsafeBypassValidationForTests) {
             const legalActions = getLegalActions(this.state, this.state.currentPlayer);
             const isLegal = legalActions.some(la => areActionsEqual(la, action));
 
