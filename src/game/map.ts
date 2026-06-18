@@ -164,3 +164,96 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
     const cost = reachable.get(`${to.x},${to.y}`);
     return cost !== undefined ? cost : 999;
 }
+
+export function getRecruitDeployPositions(
+    state: GameState,
+    ownerId: number,
+    unitClass: UnitClass,
+    castlePos: Position
+): Position[] {
+    const stats = UNIT_CONFIGS[unitClass];
+    let maxMove = stats.move;
+
+    // Create a virtual unit to use with generic functions like isFlying and getMoveCostForUnit
+    const virtualUnit = {
+        id: 'virtual_recruit',
+        ownerId: ownerId,
+        unitClass: unitClass,
+        pos: { ...castlePos },
+        hp: stats.hp !== undefined ? stats.hp : 100,
+        maxHp: stats.hp !== undefined ? stats.hp : 100,
+        hasMoved: false,
+        hasActed: false
+    };
+
+    const reachable = new Map<string, number>();
+    const queue: { pos: Position; cost: number }[] = [];
+
+    const startKey = `${castlePos.x},${castlePos.y}`;
+    reachable.set(startKey, 0);
+    queue.push({ pos: castlePos, cost: 0 });
+
+    const unitsMap = new Map<string, number>();
+    for (const u of state.units) {
+        unitsMap.set(`${u.pos.x},${u.pos.y}`, u.ownerId);
+    }
+
+    const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+    while (queue.length > 0) {
+        queue.sort((a, b) => a.cost - b.cost);
+        const cur = queue.shift()!;
+
+        if (cur.cost > reachable.get(`${cur.pos.x},${cur.pos.y}`)!) continue;
+
+        for (const [dx, dy] of dirs) {
+            const nx = cur.pos.x + dx;
+            const ny = cur.pos.y + dy;
+            const nPos = { x: nx, y: ny };
+            const nKey = `${nx},${ny}`;
+
+            if (!isWithinBounds(state, nPos)) continue;
+
+            const occupyOwner = unitsMap.get(nKey);
+            if (occupyOwner !== undefined && occupyOwner !== ownerId) {
+                const enemyUnit = state.units.find(u => u.pos.x === nx && u.pos.y === ny);
+                if (isFlying(virtualUnit as any) && enemyUnit && !isFlying(enemyUnit)) {
+                    // 飞越
+                } else {
+                    continue;
+                }
+            }
+
+            const tile = state.map.tiles[ny][nx];
+            const terrainCost = getMoveCostForUnit(state, virtualUnit as any, tile);
+            const nextCost = cur.cost + terrainCost;
+
+            if (nextCost <= maxMove) {
+                const existingCost = reachable.get(nKey);
+                if (existingCost === undefined || nextCost < existingCost) {
+                    reachable.set(nKey, nextCost);
+                    queue.push({ pos: nPos, cost: nextCost });
+                }
+            }
+        }
+    }
+
+    const validPositions: Position[] = [];
+    for (const key of reachable.keys()) {
+        const [x, y] = key.split(',').map(Number);
+        
+        // Cannot deploy to the starting castle itself
+        if (x === castlePos.x && y === castlePos.y) {
+            continue;
+        }
+
+        // Cannot deploy to occupied tiles
+        if (unitsMap.has(key)) {
+            continue;
+        }
+        
+        validPositions.push({ x, y });
+    }
+
+    return validPositions;
+}

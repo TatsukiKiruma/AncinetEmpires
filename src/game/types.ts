@@ -62,6 +62,7 @@ export interface GameState {
     graves?: Grave[];        // 墓碑中立列表
     nextUnitId?: number;     // 确定性单位ID计数
     nextGraveId?: number;    // 确定性墓碑ID计数
+    pendingUnitId?: string;  // 当前待处理单位ID (例如刚从城堡招募出来，必须优先行动)
 }
 
 /** 动作必须是结构化对象 */
@@ -71,7 +72,8 @@ export type Action =
     | { type: 'capture'; unitId: string }
     | { type: 'repair'; unitId: string }
     | { type: 'wait'; unitId: string }
-    | { type: 'recruit'; unitClass: UnitClass; castlePos: Position; spawnPos: Position } 
+    | { type: 'recruit_to_castle'; unitClass: UnitClass; castlePos: Position } 
+    | { type: 'recruit_and_deploy'; unitClass: UnitClass; castlePos: Position; to: Position } 
     | { type: 'heal'; healerId: string; targetId: string }
     | { type: 'summon'; summonerId: string; graveId: string; spawnPos: Position }
     | { type: 'support'; supporterId: string; targetId: string }

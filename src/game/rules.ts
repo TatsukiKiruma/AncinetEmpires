@@ -1,6 +1,6 @@
 import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
-import { getDistance, getReachablePositions, isWithinBounds } from './map';
+import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
 
 /**
@@ -84,25 +84,39 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
 export function getLegalActions(state: GameState, playerId: number): Action[] {
     const actions: Action[] = [];
     
+    // 如果有 pendingUnitId，只能执行该 unit 的操作，并且不能招募，通常也不能 end_turn (如果可能的话最好限制)
+    const pendingUnitId = state.pendingUnitId;
+    
     // 只属于当前玩家的未行动完的单位
-    const validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed);
+    let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed);
+    if (pendingUnitId) {
+        validUnits = validUnits.filter(u => u.id === pendingUnitId);
+    }
+
     // 突击部队可在攻击后未进行突击移动时再移动一次
-    const assaultUnits = state.units.filter(u => 
+    let assaultUnits = state.units.filter(u => 
         u.ownerId === playerId && 
         u.hasActed && 
         hasAbi(u, 'assault_troop') && 
         (u.movementRemaining ?? 0) > 0 && 
         !u.hasPostAttackMoved
     );
+    if (pendingUnitId) {
+        assaultUnits = assaultUnits.filter(u => u.id === pendingUnitId);
+    }
 
     const enemyUnits = state.units.filter(u => u.ownerId !== playerId);
     const friendUnits = state.units.filter(u => u.ownerId === playerId);
 
     // 1. 突击二次移动作为专用合法指令生成
     for (const unit of assaultUnits) {
+        // 由于突击后移动逻辑本身可能没有使用 getRecruitDeployPositions，我们可以直接用原本的即可
         const reachable = getReachablePositions(state, unit.id, unit.movementRemaining);
         for (const pos of reachable) {
-            actions.push({ type: 'post_attack_move', unitId: unit.id, to: pos });
+            // 不能发呆在原位
+            if (pos.x !== unit.pos.x || pos.y !== unit.pos.y) {
+                actions.push({ type: 'post_attack_move', unitId: unit.id, to: pos });
+            }
         }
     }
 
@@ -122,7 +136,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
             }
         }
 
-        // 2.2 攻击动作 (已经完美配合 blindness 导致致盲时 range 为 0)
+        // 2.2 攻击动作
         if (eff.maxRange > 0) {
             for (const enemy of enemyUnits) {
                 if (inRange(unit.pos, enemy.pos, eff.minRange, eff.maxRange)) {
@@ -198,44 +212,52 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         actions.push({ type: 'wait', unitId: unit.id });
     }
 
-    // 3. 招募: 只有指挥官位于友方城堡时，才能招募。
-    const commanders = state.units.filter(u => u.ownerId === playerId && u.unitClass === 'commander');
-    const unitPositions = new Set(state.units.map(u => `${u.pos.x},${u.pos.y}`));
-    const playerGold = state.players.find(p => p.id === playerId)?.gold || 0;
-
-    for (const commander of commanders) {
-        const tile = state.map.tiles[commander.pos.y][commander.pos.x];
-        const tConfig = TERRAIN_CONFIG[tile.terrainId];
-        if (tConfig.key === 'castle' && tile.ownerId === playerId) {
-            const dirs = [[0,1], [0,-1], [1,0], [-1,0], [1,1], [1,-1], [-1,1], [-1,-1]];
-            const validSpawns: Position[] = [];
-            
-            for (const [dx, dy] of dirs) {
-                const spx = commander.pos.x + dx;
-                const spy = commander.pos.y + dy;
-                const sp = {x: spx, y: spy};
-                if (isWithinBounds(state, sp) && !unitPositions.has(`${spx},${spy}`)) {
-                    const spawnTile = state.map.tiles[spy][spx];
-                    const spawnCost = TERRAIN_CONFIG[spawnTile.terrainId].moveCost || 1;
-                    if (spawnCost <= 4) {
-                        validSpawns.push(sp);
-                    }
-                }
-            }
-
-            for (const spawnPos of validSpawns) {
-                const classes = Object.keys(UNIT_CONFIGS).filter(c => c !== 'commander' && UNIT_CONFIGS[c].cost !== null) as UnitClass[];
-                for (const c of classes) {
-                    if (playerGold >= UNIT_CONFIGS[c].cost!) {
-                        actions.push({ type: 'recruit', unitClass: c, spawnPos, castlePos: { ...commander.pos } });
+    // 3. 招募: 只有在没有 pendingUnitId 时才能招募。
+    if (!pendingUnitId) {
+        const playerGold = state.players.find(p => p.id === playerId)?.gold || 0;
+        const recruitClasses = Object.keys(UNIT_CONFIGS).filter(c => c !== 'commander' && UNIT_CONFIGS[c].cost !== null) as UnitClass[];
+        
+        // Find all castles owned by player
+        for (let y = 0; y < state.map.height; y++) {
+            for (let x = 0; x < state.map.width; x++) {
+                const tile = state.map.tiles[y][x];
+                if (TERRAIN_CONFIG[tile.terrainId].key === 'castle' && tile.ownerId === playerId) {
+                    const occupant = state.units.find(u => u.pos.x === x && u.pos.y === y);
+                    
+                    if (!occupant) {
+                        // 城堡为空：使用 recruit_to_castle
+                        for (const c of recruitClasses) {
+                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
+                                actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
+                            }
+                        }
+                    } else if (occupant.ownerId === playerId && occupant.unitClass === 'commander') {
+                        // 城堡上有己方指挥官：使用 recruit_and_deploy
+                        for (const c of recruitClasses) {
+                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
+                                // 检查可部署的位置
+                                const validSpawns = getRecruitDeployPositions(state, playerId, c, { x, y });
+                                for (const to of validSpawns) {
+                                    actions.push({ type: 'recruit_and_deploy', unitClass: c, castlePos: { x, y }, to });
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 
-    // 4. 结束回合
-    actions.push({ type: 'end_turn' });
+    // 4. 结束回合: 仅在无 pendingUnitId 或该单位已完成行动(但还没被engine清理，理论上清理会在动作结束时发生)时允许
+    if (!pendingUnitId) {
+        actions.push({ type: 'end_turn' });
+    } else {
+        // 安全起见，如果 pendingUnit 死活无法行动，或者已经行动，还是允许 end_turn 防止卡死
+        const unit = state.units.find(u => u.id === pendingUnitId);
+        if (!unit || unit.hasActed) {
+             actions.push({ type: 'end_turn' });
+        }
+    }
 
     return actions;
 }

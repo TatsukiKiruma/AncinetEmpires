@@ -50,7 +50,7 @@ describe('GameEngine Rules', () => {
         const actions = engine.getLegalActions(0);
         
         // Cannot recruit
-        const recruitActions = actions.filter(a => a.type === 'recruit');
+        const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
         expect(recruitActions.length).toBe(0);
         
         // Cannot capture
@@ -90,31 +90,87 @@ describe('GameEngine Rules', () => {
         expect(finalState.units.find(u => u.id === 'u2')!.hp).toBe(150);
     });
 
-    it('非指挥官站在城堡时不生成 recruit 动作', () => {
+    it('非指挥官站在城堡时不生成 recruit_and_deploy 动作，但如果城堡己方可以生成 recruit_to_castle (如果原本为空，这里由于有人而不会生成空堡招募)', () => {
         const state = createDemoState();
         // Replace P0 commander with infantry on the castle
         state.units[0].unitClass = 'soldier';
         const engine = new GameEngine(state);
         const actions = engine.getLegalActions(0);
-        const recruitActions = actions.filter(a => a.type === 'recruit');
+        // 不应该有任何招募行为，因为被自己的普通士兵占了
+        const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
         expect(recruitActions.length).toBe(0);
     });
 
-    it('指挥官站在己方城堡可产生 recruit 动作且生成不在城堡原地', () => {
+    it('指挥官站在己方城堡可产生 recruit_and_deploy 动作且生成不在城堡原地', () => {
         const engine = new GameEngine(createDemoState());
         const actions = engine.getLegalActions(0);
-        const recruitActions = actions.filter(a => a.type === 'recruit');
+        const recruitActions = actions.filter(a => a.type === 'recruit_and_deploy');
         expect(recruitActions.length).toBeGreaterThan(0);
         
         const act = recruitActions[0];
-        if (act.type === 'recruit') {
+        if (act.type === 'recruit_and_deploy') {
             // 生成格子必须与城堡不处于同一格
-            expect(act.spawnPos.x !== act.castlePos.x || act.spawnPos.y !== act.castlePos.y).toBe(true);
+            expect(act.to.x !== act.castlePos.x || act.to.y !== act.castlePos.y).toBe(true);
             engine.step(act);
             // 新兵已处于目标格子且不能移动
-            const newUnits = engine.getState().units.filter(u => u.pos.x === act.spawnPos.x && u.pos.y === act.spawnPos.y);
+            const newUnits = engine.getState().units.filter(u => u.pos.x === act.to.x && u.pos.y === act.to.y);
             expect(newUnits.length).toBe(1);
             expect(newUnits[0].hasMoved).toBe(true);
+            expect(newUnits[0].movementRemaining).toBe(0);
+            expect(newUnits[0].hasActed).toBe(false);
+            expect(engine.getState().pendingUnitId).toBe(newUnits[0].id);
+
+            // pending 状态下，合法动作只能是该单位的 wait 或 attack / capture / healing (如果合法) 或 end_turn (用于安全逃逸或兜底)
+            const subsequentActions = engine.getLegalActions(0);
+            
+            // 没有其他单位的动作
+            const otherUnitsActions = subsequentActions.filter(a => (a as any).unitId && (a as any).unitId !== newUnits[0].id);
+            expect(otherUnitsActions.length).toBe(0);
+
+            // 没有招募的动作
+            const recruitAgain = subsequentActions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            expect(recruitAgain.length).toBe(0);
+
+            // 让这个新兵 wait
+            const waitAct = subsequentActions.find(a => a.type === 'wait');
+            expect(waitAct).toBeDefined();
+            engine.step(waitAct!);
+
+            // pending 应该清除了
+            expect(engine.getState().pendingUnitId).toBeUndefined();
+        }
+    });
+
+    it('空城堡可产生 recruit_to_castle 动作，生成的单位可以马上移动和行动', () => {
+        const state = createDemoState();
+        // 让 P0 城堡上的人走开 (Commander 走到旁边)
+        state.units[0].pos = { x: 2, y: 2 };
+        const engine = new GameEngine(state);
+        const actions = engine.getLegalActions(0);
+        const recruitActions = actions.filter(a => a.type === 'recruit_to_castle');
+        expect(recruitActions.length).toBeGreaterThan(0);
+
+        const act = recruitActions[0];
+        if (act.type === 'recruit_to_castle') {
+            engine.step(act);
+            const newState = engine.getState();
+            const newUnits = newState.units.filter(u => u.pos.x === act.castlePos.x && u.pos.y === act.castlePos.y);
+            expect(newUnits.length).toBe(1);
+            expect(newUnits[0].hasMoved).toBe(false);
+            expect(newUnits[0].hasActed).toBe(false);
+            expect(newState.pendingUnitId).toBe(newUnits[0].id);
+
+            // 具有 pendingUnitId，只能该单位动
+            const subActions = engine.getLegalActions(0);
+            const canMove = subActions.some(a => a.type === 'move' && a.unitId === newUnits[0].id);
+            expect(canMove).toBe(true);
+
+            // 执行移动，然后依然 pending (因为移动没有 hasActed)？
+            // 移动以后 pending 还会在吗？
+            // 引擎里面 step(move) 并未改变 hasActed, 而且因为 action 不是 end_turn, pendingUnit 依然有，所以依然锁住! 这是正确的，符合要求。
+            const moveAct = subActions.find(a => a.type === 'move')!;
+            engine.step(moveAct);
+            expect(engine.getState().pendingUnitId).toBe(newUnits[0].id);
         }
     });
 
@@ -1148,7 +1204,7 @@ describe('GameEngine Rules', () => {
         it('5. 非法动作 - 非法招募', () => {
             const state = createDemoState();
             const engine = new GameEngine(state);
-            const res = engine.step({ type: 'recruit', unitClass: 'dragon', castlePos: {x:0, y:0}, spawnPos: {x:0, y:1} });
+            const res = engine.step({ type: 'recruit_to_castle', unitClass: 'dragon', castlePos: {x:0, y:0} });
             expect(res.info).toContain('非法动作');
             expect(engine.getState()).toEqual(state);
         });

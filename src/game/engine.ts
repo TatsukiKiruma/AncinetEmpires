@@ -50,10 +50,15 @@ function areActionsEqual(a1: Action, a2: Action): boolean {
             const m2 = a2 as { type: 'capture' | 'repair' | 'destroy_town' | 'wait'; unitId: string };
             return m1.unitId === m2.unitId;
         }
-        case 'recruit': {
-            const m1 = a1 as { type: 'recruit'; unitClass: UnitClass; castlePos: Position; spawnPos: Position };
-            const m2 = a2 as { type: 'recruit'; unitClass: UnitClass; castlePos: Position; spawnPos: Position };
-            return m1.unitClass === m2.unitClass && isSamePos(m1.castlePos, m2.castlePos) && isSamePos(m1.spawnPos, m2.spawnPos);
+        case 'recruit_to_castle': {
+            const m1 = a1 as { type: 'recruit_to_castle'; unitClass: UnitClass; castlePos: Position; };
+            const m2 = a2 as { type: 'recruit_to_castle'; unitClass: UnitClass; castlePos: Position; };
+            return m1.unitClass === m2.unitClass && isSamePos(m1.castlePos, m2.castlePos);
+        }
+        case 'recruit_and_deploy': {
+            const m1 = a1 as { type: 'recruit_and_deploy'; unitClass: UnitClass; castlePos: Position; to: Position };
+            const m2 = a2 as { type: 'recruit_and_deploy'; unitClass: UnitClass; castlePos: Position; to: Position };
+            return m1.unitClass === m2.unitClass && isSamePos(m1.castlePos, m2.castlePos) && isSamePos(m1.to, m2.to);
         }
         case 'end_turn':
             return true;
@@ -462,7 +467,7 @@ export class GameEngine {
                 }
                 break;
             }
-            case 'recruit': {
+            case 'recruit_to_castle': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
                 if (player) {
                     const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
@@ -474,15 +479,43 @@ export class GameEngine {
                         id: newUnitId,
                         ownerId: this.state.currentPlayer,
                         unitClass: action.unitClass,
-                        pos: { ...action.spawnPos },
+                        pos: { ...action.castlePos },
                         hp: 100,
                         maxHp: 100,
-                        hasMoved: true, 
-                        hasActed: true,
+                        hasMoved: false, 
+                        hasActed: false,
                         level: 0,
                         exp: 0
                     });
-                    info = `Recruited ${action.unitClass} at ${action.spawnPos.x},${action.spawnPos.y}`;
+                    this.state.pendingUnitId = newUnitId;
+                    info = `招募单位进入待行动状态 at ${action.castlePos.x},${action.castlePos.y}`;
+                    reward += 1; 
+                }
+                break;
+            }
+            case 'recruit_and_deploy': {
+                const player = this.state.players.find(p => p.id === this.state.currentPlayer);
+                if (player) {
+                    const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
+                    player.gold -= cost;
+                    const nextId = this.state.nextUnitId ?? 100;
+                    const newUnitId = `u_${nextId}`;
+                    this.state.nextUnitId = nextId + 1;
+                    this.state.units.push({
+                        id: newUnitId,
+                        ownerId: this.state.currentPlayer,
+                        unitClass: action.unitClass,
+                        pos: { ...action.to },
+                        hp: 100,
+                        maxHp: 100,
+                        hasMoved: true, 
+                        hasActed: false,
+                        movementRemaining: 0,
+                        level: 0,
+                        exp: 0
+                    });
+                    this.state.pendingUnitId = newUnitId;
+                    info = `招募单位已部署，等待完成行动 at ${action.to.x},${action.to.y}`;
                     reward += 1; 
                 }
                 break;
@@ -643,6 +676,14 @@ export class GameEngine {
         if (this.state.units.length < preLen) {
             info += ` Unit(s) died.`;
             reward += (preLen - this.state.units.length) * 10; 
+        }
+
+        // 清理 pendingUnitId：如果指定的单位已经执行完动作(hasActed) 或 死亡(不存在)，或者当前回合结束了，或它是非法状态
+        if (this.state.pendingUnitId) {
+            const pendingUnit = this.state.units.find(u => u.id === this.state.pendingUnitId);
+            if (!pendingUnit || pendingUnit.hasActed || action.type === 'end_turn') {
+                delete this.state.pendingUnitId;
+            }
         }
 
         this.checkWinConditions();

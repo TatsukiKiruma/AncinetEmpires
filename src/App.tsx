@@ -53,6 +53,7 @@ export default function App() {
   ]);
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedCastlePos, setSelectedCastlePos] = useState<Position | null>(null);
+  const [selectedRecruitUnitClass, setSelectedRecruitUnitClass] = useState<UnitClass | null>(null);
   const bottomSandboxRef = useRef<HTMLDivElement>(null);
 
   // 滚动至最新日志
@@ -90,6 +91,7 @@ export default function App() {
     setSandboxGameState(createDemoState());
     setSelectedUnitId(null);
     setSelectedCastlePos(null);
+    setSelectedRecruitUnitClass(null);
     setSandboxLogs(prev => [...prev, "[系统] 沙盒已重置为初始状态！"]);
   };
 
@@ -120,12 +122,14 @@ export default function App() {
       case 'repair': actionDesc = `修理: 单位 ${action.unitId} 修理当前城镇`; break;
       case 'destroy_town': actionDesc = `破坏: 单位 ${action.unitId} 袭击损坏了当前城镇`; break;
       case 'wait': actionDesc = `待命: 单位 ${action.unitId} 在原地结束了本回合行动`; break;
-      case 'recruit': actionDesc = `招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 招募了 [${UNIT_CONFIGS[action.unitClass]?.name}]`; break;
+      case 'recruit_to_castle': actionDesc = `招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 招募了 [${UNIT_CONFIGS[action.unitClass]?.name}]`; break;
+      case 'recruit_and_deploy': actionDesc = `空投招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 空投招募了 [${UNIT_CONFIGS[action.unitClass]?.name}] 至 (${action.to.x}, ${action.to.y})`; break;
       case 'end_turn': actionDesc = `回合结束：交替行动控制权`; break;
     }
 
     const result = engine.step(action);
     setSandboxGameState(result.state);
+    setSelectedRecruitUnitClass(null);
     
     if (result.info) {
       setSandboxLogs(prev => [...prev, `[动作] ${actionDesc} | ${result.info}`]);
@@ -161,8 +165,15 @@ export default function App() {
   const unitDestroyAction = selectedUnitId ? sandboxLegalActions.find(a => a.type === 'destroy_town' && a.unitId === selectedUnitId) : undefined;
 
   // 针对选中城堡位置的招募动作集合
-  const castleRecruits = selectedCastlePos 
-    ? sandboxLegalActions.filter(a => a.type === 'recruit' && a.castlePos.x === selectedCastlePos.x && a.castlePos.y === selectedCastlePos.y) 
+  const castleRecruitsToCastle = selectedCastlePos 
+    ? sandboxLegalActions.filter(a => a.type === 'recruit_to_castle' && a.castlePos.x === selectedCastlePos.x && a.castlePos.y === selectedCastlePos.y) 
+    : [];
+  const castleRecruitsAndDeploy = selectedCastlePos
+    ? sandboxLegalActions.filter(a => a.type === 'recruit_and_deploy' && a.castlePos.x === selectedCastlePos.x && a.castlePos.y === selectedCastlePos.y)
+    : [];
+
+  const deploySpawns = selectedRecruitUnitClass && selectedCastlePos
+    ? castleRecruitsAndDeploy.filter(a => (a as any).unitClass === selectedRecruitUnitClass)
     : [];
 
   // 获取格子对应的地形色彩
@@ -188,6 +199,18 @@ export default function App() {
 
   // 棋盘上每格的点击处理器（手动沙盒模式下生效）
   const handleTileClick = (x: number, y: number) => {
+    // 0.5 如果处于招募部署状态，判断点击的地方是否能部署
+    if (selectedRecruitUnitClass && deploySpawns.length > 0) {
+      const matchSpawn = deploySpawns.find(s => (s as any).to.x === x && (s as any).to.y === y);
+      if (matchSpawn) {
+        executeSandboxAction(matchSpawn);
+        return;
+      } else {
+        // 点错取消招募选择
+        setSelectedRecruitUnitClass(null);
+      }
+    }
+
     // 1. 如果玩家点击的是高亮可移动的目标点
     const matchMove = unitMoves.find(m => (m as any).to.x === x && (m as any).to.y === y);
     if (matchMove) {
@@ -416,6 +439,7 @@ export default function App() {
                     const canHealTarget = u && unitHeals.some(h => (h as any).targetId === u.id);
                     const canSupportTarget = u && unitSupports.some(s => (s as any).targetId === u.id);
                     const canSummonTo = unitSummons.some(s => (s as any).spawnPos.x === x && (s as any).spawnPos.y === y);
+                    const canDeployTo = selectedRecruitUnitClass && deploySpawns.some(s => (s as any).to.x === x && (s as any).to.y === y);
 
                     // 高亮类名的累加决定器
                     let overlayClass = '';
@@ -423,6 +447,8 @@ export default function App() {
                       overlayClass = 'ring-2 ring-white z-20 scale-105';
                     } else if (canMoveTo) {
                       overlayClass = 'ring-2 ring-yellow-400/80 cursor-pointer bg-yellow-500/10 z-10';
+                    } else if (canDeployTo) {
+                      overlayClass = 'ring-2 ring-blue-400/80 cursor-pointer bg-blue-500/10 z-10';
                     } else if (canPostMoveTo) {
                       overlayClass = 'ring-2 ring-cyan-400/80 cursor-pointer bg-cyan-500/10 z-10';
                     } else if (canAttackTarget) {
@@ -470,6 +496,7 @@ export default function App() {
                         
                         {/* 地图内辅助功能小气泡（提示动作） */}
                         {canMoveTo && <span className="absolute text-[8px] text-yellow-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">移动</span>}
+                        {canDeployTo && <span className="absolute text-[8px] text-blue-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">建</span>}
                         {canAttackTarget && <span className="absolute text-[8px] text-red-500 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">击</span>}
                         {canHealTarget && <span className="absolute text-[8px] text-green-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">加</span>}
                         {canSummonTo && <span className="absolute text-[8px] text-purple-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">召</span>}
@@ -643,25 +670,45 @@ export default function App() {
                   </span>
 
                   <div className="grid grid-cols-2 gap-1.5 max-h-[160px] overflow-y-auto pr-1">
-                    {castleRecruits.length === 0 ? (
+                    {castleRecruitsToCastle.length === 0 && castleRecruitsAndDeploy.length === 0 ? (
                       <div className="col-span-2 text-center py-4 text-gray-600 text-[10px]">
                         无可招募动作，可能该城堡周边的空降点全部被占据或您的阵营金币不够。
                       </div>
                     ) : (
-                      castleRecruits.map((act, i) => {
-                        const rec = act as any;
-                        const config = UNIT_CONFIGS[rec.unitClass];
-                        return (
-                          <button
-                            key={i}
-                            onClick={() => executeSandboxAction(rec)}
-                            className="p-1 px-2 border border-[#3C3C46] hover:border-yellow-500 bg-[#25252D] text-[11px] font-bold text-zinc-300 rounded text-left transition-all"
-                          >
-                            ➕ {config?.name} ({config?.cost}G)
-                            <div className="text-[8px] text-gray-500 font-normal">在 ({rec.spawnPos.x}, {rec.spawnPos.y}) 空降</div>
-                          </button>
-                        );
-                      })
+                      <>
+                        {castleRecruitsToCastle.map((act, i) => {
+                          const rec = act as any;
+                          const config = UNIT_CONFIGS[rec.unitClass];
+                          return (
+                            <button
+                              key={`t_${i}`}
+                              onClick={() => executeSandboxAction(rec)}
+                              className="p-1 px-2 border border-[#3C3C46] hover:border-yellow-500 bg-[#25252D] text-[11px] font-bold text-zinc-300 rounded text-left transition-all"
+                            >
+                              ➕ {config?.name} ({config?.cost}G)
+                              <div className="text-[8px] text-gray-500 font-normal">立刻进驻</div>
+                            </button>
+                          );
+                        })}
+                        {/* 提炼出唯一兵种 */}
+                        {Array.from(new Set(castleRecruitsAndDeploy.map(a => (a as any).unitClass))).map((uclass, i) => {
+                           const cName = uclass as string;
+                           const config = UNIT_CONFIGS[cName];
+                           const isSelected = selectedRecruitUnitClass === cName;
+                           return (
+                              <button
+                                key={`d_${i}`}
+                                onClick={() => setSelectedRecruitUnitClass(cName as UnitClass)}
+                                className={`p-1 px-2 border ${isSelected ? 'border-blue-500 bg-blue-900/30' : 'border-[#3C3C46] hover:border-blue-400 bg-[#25252D]'} text-[11px] font-bold text-zinc-300 rounded text-left transition-all`}
+                              >
+                                🗺️ {config?.name} ({config?.cost}G)
+                                <div className={`text-[8px] ${isSelected ? 'text-blue-300 font-bold' : 'text-gray-500 font-normal'}`}>
+                                  {isSelected ? '已选：请在地图点击部署点' : '准备空投部署'}
+                                </div>
+                              </button>
+                           );
+                        })}
+                      </>
                     )}
                   </div>
                 </div>

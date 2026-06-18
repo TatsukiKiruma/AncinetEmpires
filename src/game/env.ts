@@ -261,7 +261,8 @@ export function encodeAction(action: Action): string {
         case 'heal': return `heal:${action.healerId}:${action.targetId}`;
         case 'support': return `support:${action.supporterId}:${action.targetId}`;
         case 'summon': return `summon:${action.summonerId}:${action.graveId}:${action.spawnPos.x},${action.spawnPos.y}`;
-        case 'recruit': return `recruit:${action.unitClass}:${action.castlePos.x},${action.castlePos.y}:${action.spawnPos.x},${action.spawnPos.y}`;
+        case 'recruit_to_castle': return `recruit_to_castle:${action.unitClass}:${action.castlePos.x},${action.castlePos.y}`;
+        case 'recruit_and_deploy': return `recruit_and_deploy:${action.unitClass}:${action.castlePos.x},${action.castlePos.y}:${action.to.x},${action.to.y}`;
         case 'capture': return `capture:${action.unitId}`;
         case 'repair': return `repair:${action.unitId}`;
         case 'destroy_town': return `destroy_town:${action.unitId}`;
@@ -290,10 +291,14 @@ export function decodeAction(code: string): Action | null {
             const [x, y] = parts[3].split(',').map(Number);
             return { type: 'summon', summonerId: parts[1], graveId: parts[2], spawnPos: { x, y } };
         }
-        case 'recruit': {
+        case 'recruit_to_castle': {
+            const [cx, cy] = parts[2].split(',').map(Number);
+            return { type: 'recruit_to_castle', unitClass: parts[1] as any, castlePos: { x: cx, y: cy } };
+        }
+        case 'recruit_and_deploy': {
             const [cx, cy] = parts[2].split(',').map(Number);
             const [sx, sy] = parts[3].split(',').map(Number);
-            return { type: 'recruit', unitClass: parts[1] as any, castlePos: { x: cx, y: cy }, spawnPos: { x: sx, y: sy } };
+            return { type: 'recruit_and_deploy', unitClass: parts[1] as any, castlePos: { x: cx, y: cy }, to: { x: sx, y: sy } };
         }
         case 'capture': return { type: 'capture', unitId: parts[1] };
         case 'repair': return { type: 'repair', unitId: parts[1] };
