@@ -1,11 +1,70 @@
-import { Action, GameState, StepResult, Unit } from './types';
+import { Action, GameState, StepResult, Unit, Position, UnitClass } from './types';
 import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
 
+function isSamePos(p1?: Position, p2?: Position): boolean {
+    if (!p1 || !p2) return p1 === p2;
+    return p1.x === p2.x && p1.y === p2.y;
+}
+
+function areActionsEqual(a1: Action, a2: Action): boolean {
+    if (a1.type !== a2.type) return false;
+    switch (a1.type) {
+        case 'move': {
+            const m1 = a1 as { type: 'move'; unitId: string; to: Position };
+            const m2 = a2 as { type: 'move'; unitId: string; to: Position };
+            return m1.unitId === m2.unitId && isSamePos(m1.to, m2.to);
+        }
+        case 'post_attack_move': {
+            const m1 = a1 as { type: 'post_attack_move'; unitId: string; to: Position };
+            const m2 = a2 as { type: 'post_attack_move'; unitId: string; to: Position };
+            return m1.unitId === m2.unitId && isSamePos(m1.to, m2.to);
+        }
+        case 'attack': {
+            const m1 = a1 as { type: 'attack'; attackerId: string; targetId: string };
+            const m2 = a2 as { type: 'attack'; attackerId: string; targetId: string };
+            return m1.attackerId === m2.attackerId && m1.targetId === m2.targetId;
+        }
+        case 'heal': {
+            const m1 = a1 as { type: 'heal'; healerId: string; targetId: string };
+            const m2 = a2 as { type: 'heal'; healerId: string; targetId: string };
+            return m1.healerId === m2.healerId && m1.targetId === m2.targetId;
+        }
+        case 'support': {
+            const m1 = a1 as { type: 'support'; supporterId: string; targetId: string };
+            const m2 = a2 as { type: 'support'; supporterId: string; targetId: string };
+            return m1.supporterId === m2.supporterId && m1.targetId === m2.targetId;
+        }
+        case 'summon': {
+            const m1 = a1 as { type: 'summon'; summonerId: string; graveId: string; spawnPos: Position };
+            const m2 = a2 as { type: 'summon'; summonerId: string; graveId: string; spawnPos: Position };
+            return m1.summonerId === m2.summonerId && m1.graveId === m2.graveId && isSamePos(m1.spawnPos, m2.spawnPos);
+        }
+        case 'capture':
+        case 'repair':
+        case 'destroy_town':
+        case 'wait': {
+            const m1 = a1 as { type: 'capture' | 'repair' | 'destroy_town' | 'wait'; unitId: string };
+            const m2 = a2 as { type: 'capture' | 'repair' | 'destroy_town' | 'wait'; unitId: string };
+            return m1.unitId === m2.unitId;
+        }
+        case 'recruit': {
+            const m1 = a1 as { type: 'recruit'; unitClass: UnitClass; castlePos: Position; spawnPos: Position };
+            const m2 = a2 as { type: 'recruit'; unitClass: UnitClass; castlePos: Position; spawnPos: Position };
+            return m1.unitClass === m2.unitClass && isSamePos(m1.castlePos, m2.castlePos) && isSamePos(m1.spawnPos, m2.spawnPos);
+        }
+        case 'end_turn':
+            return true;
+        default:
+            return false;
+    }
+}
+
 export class GameEngine {
     private state: GameState;
+    public bypassValidation: boolean = false;
 
     constructor(initialState: GameState) {
         this.state = JSON.parse(JSON.stringify(initialState)); // deep copy
@@ -88,6 +147,21 @@ export class GameEngine {
             return { state: this.getState(), reward: 0, done: true, info: 'Game already ended' };
         }
 
+        // 合法性校验
+        if (!this.bypassValidation) {
+            const legalActions = getLegalActions(this.state, this.state.currentPlayer);
+            const isLegal = legalActions.some(la => areActionsEqual(la, action));
+
+            if (!isLegal) {
+                return {
+                    state: this.getState(),
+                    reward: 0,
+                    done: this.isTerminal(),
+                    info: `非法动作：当前玩家无法执行该动作`
+                };
+            }
+        }
+
         const prevCurrentPlayer = this.state.currentPlayer;
         
         let reward = 0;
@@ -153,6 +227,11 @@ export class GameEngine {
                 const attacker = this.state.units.find(u => u.id === action.attackerId);
                 const target = this.state.units.find(u => u.id === action.targetId);
                 if (attacker && target) {
+                    // 如果是具有 assault_troop 特性的突击部队，在攻击前如果还没初始化 movementRemaining，应按有效移动力初始化
+                    if (hasAbility(attacker, 'assault_troop') && attacker.movementRemaining === undefined) {
+                        attacker.movementRemaining = getEffectiveStats(attacker).move;
+                    }
+
                     const dmg = calculateDamage(this.state, attacker.id, target.id);
                     target.hp -= dmg;
                     info = `Unit ${attacker.id} attacked ${target.id} for ${dmg} dmg.`;
@@ -173,7 +252,10 @@ export class GameEngine {
                     // 如果被攻击方存活，则可能反击
                     if (target.hp > 0) {
                         const targetStats = getEffectiveStats(target);
-                        if (inRange(target.pos, attacker.pos, targetStats.minRange, targetStats.maxRange)) {
+                        const isCounterStorm = hasAbility(target, 'counter_storm') && getDistance(target.pos, attacker.pos) <= 2;
+                        const canCounter = isCounterStorm || inRange(target.pos, attacker.pos, targetStats.minRange, targetStats.maxRange);
+
+                        if (canCounter) {
                             const counterDmg = calculateDamage(this.state, target.id, attacker.id);
                             attacker.hp -= counterDmg;
                             info += ` Target counterattacked for ${counterDmg} dmg.`;
@@ -189,11 +271,13 @@ export class GameEngine {
                                 if (!isUndead(attacker)) {
                                     this.state.graves = this.state.graves || [];
                                     if (!this.state.graves.some(g => g.pos.x === attacker.pos.x && g.pos.y === attacker.pos.y)) {
+                                        const ngId = this.state.nextGraveId ?? 100;
                                         this.state.graves.push({
-                                            id: `g_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                                            id: `g_${ngId}`,
                                             pos: { ...attacker.pos },
                                             remainingTurns: 2
                                         });
+                                        this.state.nextGraveId = ngId + 1;
                                     }
                                 }
                             }
@@ -206,11 +290,13 @@ export class GameEngine {
                         if (!isUndead(target)) {
                             this.state.graves = this.state.graves || [];
                             if (!this.state.graves.some(g => g.pos.x === target.pos.x && g.pos.y === target.pos.y)) {
+                                const ngId = this.state.nextGraveId ?? 100;
                                 this.state.graves.push({
-                                    id: `g_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+                                    id: `g_${ngId}`,
                                     pos: { ...target.pos },
                                     remainingTurns: 2
                                 });
+                                this.state.nextGraveId = ngId + 1;
                             }
                         }
                     }
@@ -259,7 +345,9 @@ export class GameEngine {
                 const summoner = this.state.units.find(u => u.id === action.summonerId);
                 if (summoner) {
                     const level = summoner.level ?? 0;
-                    const newUnitId = `u_${Date.now()}_s_${Math.floor(Math.random() * 1000)}`;
+                    const nextId = this.state.nextUnitId ?? 100;
+                    const newUnitId = `u_${nextId}`;
+                    this.state.nextUnitId = nextId + 1;
                     
                     this.state.units.push({
                         id: newUnitId,
@@ -372,7 +460,9 @@ export class GameEngine {
                 if (player) {
                     const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
                     player.gold -= cost;
-                    const newUnitId = `u${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+                    const nextId = this.state.nextUnitId ?? 100;
+                    const newUnitId = `u_${nextId}`;
+                    this.state.nextUnitId = nextId + 1;
                     this.state.units.push({
                         id: newUnitId,
                         ownerId: this.state.currentPlayer,
@@ -488,10 +578,19 @@ export class GameEngine {
                             return; 
                         }
 
+                        const tile = this.state.map.tiles[u.pos.y][u.pos.x];
+
+                        // 站在神庙(12)清负面
+                        if (tile.terrainId === 12) {
+                            clearNegativeStatus(u);
+                            // 若清除了 weakened，可能恢复移动力，重新更新 movementRemaining
+                            const updatedEff = getEffectiveStats(u);
+                            u.movementRemaining = updatedEff.move;
+                        }
+
                         // 中毒期间普通地形回复及地形回血失效（自我修复不受影响）
                         const isCurrentlyPoisoned = u.status && u.status.type === 'poisoned';
 
-                        const tile = this.state.map.tiles[u.pos.y][u.pos.x];
                         const tConfig = TERRAIN_CONFIG[tile.terrainId];
                         
                         let healAmount = 0;

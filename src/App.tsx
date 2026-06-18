@@ -6,10 +6,26 @@ import { GameState } from './game/types';
 import { TERRAIN_CONFIG } from './game/constants';
 
 const unitNameMap: Record<string, string> = {
-  INFANTRY: '步',
-  CAVALRY: '骑',
-  ARCHER: '射',
-  COMMANDER: '帅'
+  soldier: '兵',
+  ghost: '幽',
+  mermaid: '鱼',
+  archer: '弓',
+  slime: '泥',
+  water_elemental: '水',
+  dark_mage: '黑',
+  witch: '巫',
+  paladin: '骑',
+  elf: '精',
+  berserker: '狂',
+  wolf: '狼',
+  golem: '石',
+  ice_elemental: '冰',
+  druid: '德',
+  catapult: '炮',
+  wolf_archer: '狼弓',
+  dragon: '龙',
+  commander: '帅',
+  skeleton: '骷',
 };
 
 export default function App() {

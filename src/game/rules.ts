@@ -33,6 +33,9 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     if (hasAbi(attacker, 'destroyer') && defTerrain.key === 'town') {
         extraAttack += 10;
     }
+    if (hasAbi(attacker, 'death_reaper') && defender.status && (defender.status.type === 'poisoned' || defender.status.type === 'blinded' || defender.status.type === 'weakened')) {
+        extraAttack += 20;
+    }
 
     // 地形防御加成
     const defBonus = isFlying(defender) ? 0 : defTerrain.defenseBonus;

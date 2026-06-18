@@ -46,6 +46,8 @@ export function createDemoState(): GameState {
             { id: 0, gold: 500, isAlive: true, commanderDeathCount: 0 },
             { id: 1, gold: 500, isAlive: true, commanderDeathCount: 0 }
         ],
-        winner: null
+        winner: null,
+        nextUnitId: 100,
+        nextGraveId: 100
     };
 }

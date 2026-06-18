@@ -370,6 +370,7 @@ describe('GameEngine Rules', () => {
         state.units[1].unitClass = 'soldier'; // 确保无 poisoner 
         
         const engine = new GameEngine(state);
+        engine.bypassValidation = true;
         engine.step({ type: 'attack', attackerId: state.units[0].id, targetId: state.units[1].id });
         
         const target = engine.getState().units.find(u => u.id === state.units[1].id)!;
@@ -553,6 +554,7 @@ describe('GameEngine Rules', () => {
             ghostFriend.maxHp = 100;
 
             const engine = new GameEngine(state);
+            engine.bypassValidation = true;
             engine.step({ type: 'heal', healerId: paladin.id, targetId: ghostFriend.id });
 
             const finalState = engine.getState();
@@ -978,6 +980,7 @@ describe('GameEngine Rules', () => {
             defender.hp = 100;
 
             const engine = new GameEngine(state);
+            engine.bypassValidation = true;
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 120
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
@@ -997,6 +1000,7 @@ describe('GameEngine Rules', () => {
             defender.hp = 100;
 
             const engine = new GameEngine(state);
+            engine.bypassValidation = true;
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 310
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
@@ -1015,6 +1019,7 @@ describe('GameEngine Rules', () => {
             defender.hp = 100;
 
             const engine = new GameEngine(state);
+            engine.bypassValidation = true;
             engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id }); // +30 exp, total 610
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;

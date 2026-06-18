@@ -60,6 +60,8 @@ export interface GameState {
     players: PlayerState[];  // 玩家状态
     winner: number | null;   // 获胜玩家ID, 游戏未结束则为null
     graves?: Grave[];        // 墓碑中立列表
+    nextUnitId?: number;     // 确定性单位ID计数
+    nextGraveId?: number;    // 确定性墓碑ID计数
 }
 
 /** 动作必须是结构化对象 */
