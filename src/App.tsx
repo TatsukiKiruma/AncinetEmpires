@@ -54,6 +54,7 @@ export default function App() {
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedCastlePos, setSelectedCastlePos] = useState<Position | null>(null);
   const [selectedRecruitUnitClass, setSelectedRecruitUnitClass] = useState<UnitClass | null>(null);
+  const [hoveredTilePos, setHoveredTilePos] = useState<Position | null>(null);
   const bottomSandboxRef = useRef<HTMLDivElement>(null);
 
   // 滚动至最新日志
@@ -197,6 +198,88 @@ export default function App() {
     }
   };
 
+  const renderHoveredTilePanel = () => {
+    if (!hoveredTilePos) {
+      return (
+        <div className="bg-[#111116]/80 border border-[#22222A] p-4 rounded-md text-xs w-full max-w-sm h-36 flex items-center justify-center text-center text-zinc-500 select-none shadow-inner">
+          <div className="space-y-1">
+            <span className="text-lg block">🔭</span>
+            <span className="text-[11px]">将鼠标悬停在上方任意地图格子上<br />即可查看地形及底座单位的详细数据参数</span>
+          </div>
+        </div>
+      );
+    }
+    const { x, y } = hoveredTilePos;
+    const displayGameState = activeTab === 'auto' ? autoGameState : sandboxGameState;
+    
+    // 越界保护
+    if (y >= displayGameState.map.tiles.length || x >= displayGameState.map.tiles[y]?.length) return null;
+    
+    const tile = displayGameState.map.tiles[y][x];
+    const u = displayGameState.units.find(u => u.pos.x === x && u.pos.y === y);
+    const terrainConf = TERRAIN_CONFIG[tile.terrainId];
+
+    return (
+      <div className="bg-[#111116]/95 border border-zinc-700/60 p-3 rounded-md text-xs space-y-2 w-full max-w-sm h-36 shrink-0 shadow-lg backdrop-blur text-gray-300">
+         <div className="flex justify-between items-center pb-1 border-b border-zinc-850">
+           <span className="font-extrabold text-blue-400 text-[11px] flex items-center space-x-1">
+             <span>🕵️ 战地检视 [X: {x}, Y: {y}]</span>
+           </span>
+           <span className="text-[9px] text-zinc-500 font-mono tracking-tighter">TILE INSPECTOR</span>
+         </div>
+         
+         <div className="space-y-1 text-[11px]">
+           <div className="flex justify-between">
+             <span>地形: <strong className="text-white font-black">{terrainConf?.name || '未知地形'}</strong></span>
+             <span className="text-zinc-400">地形防御加成: <strong className="text-yellow-500 bg-yellow-500/10 px-1 rounded">+{terrainConf?.defenseBonus}%</strong></span>
+           </div>
+           <div className="flex justify-between text-[11px] text-zinc-400">
+             <span>常规消耗: <strong className="text-cyan-400">{terrainConf?.moveCost}</strong></span>
+             {terrainConf && terrainConf.healPerTurn > 0 && (
+               <span>回复: <strong className="text-green-400">+{terrainConf.healPerTurn}HP</strong></span>
+             )}
+             {terrainConf && terrainConf.incomePerTurn > 0 && (
+               <span>金币收益: <strong className="text-yellow-400">+{terrainConf.incomePerTurn}H</strong></span>
+             )}
+           </div>
+           {tile.ownerId !== null && (
+             <div className="text-[11px] text-zinc-400">
+               据点势力: <strong className={tile.ownerId === 0 ? "text-red-400 font-bold" : "text-blue-400 font-bold"}>{tile.ownerId === 0 ? "红方 (P0)" : "蓝方 (P1)"}</strong>
+             </div>
+           )}
+         </div>
+
+         {u ? (
+           <div className="pt-1 border-t border-dashed border-zinc-800 space-y-1">
+             <div className="flex justify-between items-center leading-none">
+               <span className={`font-black text-[11px] ${u.ownerId === 0 ? 'text-red-400' : 'text-blue-400'}`}>
+                 [{u.ownerId === 0 ? '红方' : '蓝方'}] {UNIT_CONFIGS[u.unitClass]?.name} {u.hasActed ? ' (已行动)' : ''}
+               </span>
+               <span className="text-yellow-500 text-[9px] font-bold bg-yellow-500/10 px-1 rounded scale-90">Lv.{u.level || 0}</span>
+             </div>
+
+             <div className="grid grid-cols-4 gap-1 text-[10px] text-zinc-400 leading-tight">
+               <div>生命:<span className="font-bold text-green-400 ml-0.5">{u.hp}</span></div>
+               <div>攻击:<span className="font-bold text-red-400 ml-0.5">{getEffectiveStats(u).attack}</span></div>
+               <div>物防:<span className="font-bold text-orange-400 ml-0.5">{getEffectiveStats(u).physicalDefense}</span></div>
+               <div>射程:<span className="font-bold text-yellow-500 ml-0.5">{getEffectiveStats(u).minRange}-{getEffectiveStats(u).maxRange}</span></div>
+             </div>
+
+             {u.status && (
+               <div className="text-[9px] text-orange-400 bg-orange-950/20 px-1 rounded border border-orange-900/30 w-fit scale-95 origin-left">
+                 ⚠️ 异常: <span className="font-bold">{statusNameMap[u.status.type]}</span>
+               </div>
+             )}
+           </div>
+         ) : (
+           <div className="text-[9px] text-zinc-600 text-center py-0.5 bg-black/10 rounded border border-zinc-900/40">
+             无驻守单位
+           </div>
+         )}
+      </div>
+    );
+  };
+
   // 棋盘上每格的点击处理器（手动沙盒模式下生效）
   const handleTileClick = (x: number, y: number) => {
     // 0.5 如果处于招募部署状态，判断点击的地方是否能部署
@@ -336,7 +419,12 @@ export default function App() {
                     const terrainConf = TERRAIN_CONFIG[tile.terrainId];
 
                     return (
-                      <div key={`${x}-${y}`} className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e24] ${getTerrainColor(tile.terrainId)}`}>
+                      <div 
+                        key={`${x}-${y}`} 
+                        onMouseEnter={() => setHoveredTilePos({ x, y })}
+                        onMouseLeave={() => setHoveredTilePos(null)}
+                        className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e24] ${getTerrainColor(tile.terrainId)}`}
+                      >
                         {!u && !isBuilding && <span className="text-[9px] text-[#ffffff1D]">{terrainConf?.name?.substring(0,3)}</span>}
 
                         {isBuilding && (
@@ -372,6 +460,10 @@ export default function App() {
                     <strong className="text-white mb-1">回合 {autoGameState.turn}</strong>
                     <span className={autoGameState.currentPlayer === 0 ? "text-red-500" : "text-blue-400"}>当前行动: P{autoGameState.currentPlayer}</span>
                 </div>
+            </div>
+
+            <div className="mt-4 w-full flex justify-center">
+              {renderHoveredTilePanel()}
             </div>
           </div>
 
@@ -465,7 +557,9 @@ export default function App() {
                       <div 
                         key={`${x}-${y}`} 
                         onClick={() => handleTileClick(x, y)}
-                        className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e25] transition-all duration-150 ${getTerrainColor(tile.terrainId)} ${overlayClass}`}
+                        onMouseEnter={() => setHoveredTilePos({ x, y })}
+                        onMouseLeave={() => setHoveredTilePos(null)}
+                        className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e25] cursor-pointer transition-all duration-150 ${getTerrainColor(tile.terrainId)} ${overlayClass}`}
                       >
                         {/* 如果是空地，印一个微弱的地形名称做底 */}
                         {!u && !isBuilding && <span className="text-[8px] text-[#ffffff20] select-none pointer-events-none">{terrainConf?.name?.substring(0,3)}</span>}
@@ -521,6 +615,10 @@ export default function App() {
               >
                 🔄 重置沙盒
               </button>
+            </div>
+
+            <div className="mt-4 w-full flex justify-center">
+              {renderHoveredTilePanel()}
             </div>
           </div>
 
