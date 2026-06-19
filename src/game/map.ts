@@ -180,8 +180,8 @@ export function getRecruitDeployPositions(
         ownerId: ownerId,
         unitClass: unitClass,
         pos: { ...castlePos },
-        hp: stats.hp !== undefined ? stats.hp : 100,
-        maxHp: stats.hp !== undefined ? stats.hp : 100,
+        hp: 100,
+        maxHp: 100,
         hasMoved: false,
         hasActed: false
     };

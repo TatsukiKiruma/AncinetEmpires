@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameEngine } from './game/engine';
 import { createDemoState } from './game/demo_map';
 import { playAutoGame } from './game/ai/play';
-import { GameState, Action, Position, Unit } from './game/types';
+import { GameState, Action, Position, Unit, UnitClass } from './game/types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './game/constants';
 import { getLegalActions } from './game/rules';
 import { getEffectiveStats } from './game/abilities';

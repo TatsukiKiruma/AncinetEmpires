@@ -40,7 +40,8 @@ export class HeuristicAI {
                 case 'repair':
                     score = 750;
                     break;
-                case 'recruit':
+                case 'recruit_to_castle':
+                case 'recruit_and_deploy':
                     score = 200;
                     break;
                 case 'move':
