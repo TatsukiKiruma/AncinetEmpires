@@ -231,7 +231,7 @@ export default function App() {
          <div className="space-y-1 text-[11px]">
            <div className="flex justify-between">
              <span>地形: <strong className="text-white font-black">{terrainConf?.name || '未知地形'}</strong></span>
-             <span className="text-zinc-400">地形防御加成: <strong className="text-yellow-500 bg-yellow-500/10 px-1 rounded">+{terrainConf?.defenseBonus}%</strong></span>
+             <span className="text-zinc-400">地形防御加成: <strong className="text-yellow-500 bg-yellow-500/10 px-1 rounded">+{terrainConf?.defenseBonus}点</strong></span>
            </div>
            <div className="flex justify-between text-[11px] text-zinc-400">
              <span>常规消耗: <strong className="text-cyan-400">{terrainConf?.moveCost}</strong></span>
