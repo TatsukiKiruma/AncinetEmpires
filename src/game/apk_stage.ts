@@ -1,5 +1,6 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
+import { getDistance as getMapDistance } from './map';
 import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
 import { TERRAIN_CONFIG } from './terrain';
 import { GameState, Position, RuleConfig, TeamRuleConfig, Unit, UnitClass, UnitLevel, UnitStatus } from './types';
@@ -14,6 +15,17 @@ function ensureTeamRules(state: GameState, teamId: number): TeamRuleConfig {
     rules.teams ??= {};
     rules.teams[teamId] ??= {};
     return rules.teams[teamId];
+}
+
+function ensureScriptState(state: GameState) {
+    state.apkScriptState ??= {};
+    return state.apkScriptState;
+}
+
+function normalizeScriptName(name: string): string | null {
+    if (typeof name !== 'string') return null;
+    const normalized = name.trim();
+    return normalized === '' ? null : normalized;
 }
 
 function findUnitAt(state: GameState, pos: Position): Unit | undefined {
@@ -85,6 +97,42 @@ export function checkPlayerTeam(state: GameState, teamId: number): boolean {
 
 export function getAliveAlliances(state: GameState): number[] {
     return getAliveAllianceIds(state);
+}
+
+export function getDistance(from: Position, to: Position): number {
+    return getMapDistance(from, to);
+}
+
+export function putBoolean(state: GameState, name: string, value: boolean): boolean {
+    const normalized = normalizeScriptName(name);
+    if (!normalized || typeof value !== 'boolean') return false;
+
+    const scriptState = ensureScriptState(state);
+    scriptState.booleans ??= {};
+    scriptState.booleans[normalized] = value;
+    return true;
+}
+
+export function getBoolean(state: GameState, name: string, defaultValue = false): boolean {
+    const normalized = normalizeScriptName(name);
+    if (!normalized) return defaultValue;
+    return state.apkScriptState?.booleans?.[normalized] ?? defaultValue;
+}
+
+export function putInteger(state: GameState, name: string, value: number): boolean {
+    const normalized = normalizeScriptName(name);
+    if (!normalized || !Number.isInteger(value)) return false;
+
+    const scriptState = ensureScriptState(state);
+    scriptState.integers ??= {};
+    scriptState.integers[normalized] = value;
+    return true;
+}
+
+export function getInteger(state: GameState, name: string, defaultValue = 0): number {
+    const normalized = normalizeScriptName(name);
+    if (!normalized) return defaultValue;
+    return state.apkScriptState?.integers?.[normalized] ?? defaultValue;
 }
 
 export function syncSetGold(state: GameState, gold: number): boolean {

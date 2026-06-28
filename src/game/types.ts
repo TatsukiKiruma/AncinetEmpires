@@ -59,6 +59,11 @@ export interface GameMetadata {
     apkTailTemplate?: string;    // AEM 推荐金币后的尾部模板名
 }
 
+export interface ApkScriptState {
+    booleans?: Record<string, boolean>; // APK Stage.PutBoolean/GetBoolean 脚本变量
+    integers?: Record<string, number>;  // APK Stage.PutInteger/GetInteger 脚本变量
+}
+
 export interface TeamRuleConfig {
     initialGold?: number;        // 队伍初始金币
     unitLimit?: number;          // 队伍单位数量上限
@@ -106,6 +111,7 @@ export interface GameState {
     pendingUnitId?: string;  // 当前待处理单位ID (例如刚从城堡招募出来，必须优先行动)
     rules?: RuleConfig;      // APK/关卡层可覆盖的规则配置
     metadata?: GameMetadata;  // 地图/来源元数据，不参与规则判定
+    apkScriptState?: ApkScriptState; // APK 脚本变量状态，仅供 Stage 查询/目标判断适配使用
 }
 
 /** 动作必须是结构化对象 */

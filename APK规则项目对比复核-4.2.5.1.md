@@ -363,14 +363,14 @@ skirmish 训练映射：
 | `Stage.AsyncMapFocus` | 67 | 未实现，演出/UI 层 |
 | `Stage.SyncSetUnitStaticWithCode` | 57 | 未实现，战役特殊单位层 |
 | `Stage.AsyncReinforce` | 51 | 未实现，战役增援层 |
-| `Stage.PutBoolean` | 44 | 未实现，脚本变量层 |
-| `Stage.GetBoolean` | 42 | 未实现，脚本变量层 |
+| `Stage.PutBoolean` | 44 | 已有脚本变量基础适配 |
+| `Stage.GetBoolean` | 42 | 已有脚本变量基础适配 |
 | `Stage.SyncSetUnitCode` | 40 | code 元数据已基础适配；static/targeted/head 仍未实现 |
 | `Stage.SyncSetUnitLevel` | 35 | 基础适配已实现 |
 | `Stage.SyncSetUnitLimit` | 25 | 基础适配已实现 |
 | `Stage.CountUnit` | 25 | 基础适配已实现 |
 | `Stage.GetUnit` | 18 | 已支持按 code 或坐标查询 |
-| `Stage.PutInteger` | 17 | 未实现，脚本变量层 |
+| `Stage.PutInteger` | 17 | 已有脚本变量基础适配 |
 | `Stage.CheckCommander` | 16 | 基础适配已实现 |
 | `Stage.SyncSetGold` | 16 | 基础适配已实现 |
 | `Stage.AsyncDestroyUnit` | 16 | 未实现，演出/战役层 |
@@ -384,12 +384,13 @@ skirmish 训练映射：
 - `src/game/apk_rule.ts`
 - DEX 暴露的坐标查询 `CheckCastle`、`CheckVillage`、`GetTileTeam` 已补到 `apk_stage.ts`，用于建筑/地块归属目标判断。
 - 解密脚本实际调用的 `SyncSetUnitCode(x,y,code)`、`GetUnit(code)`、`GetUnit(x,y)`、`GetUnits(team)` 已基础适配，用作单位标识和目标查询。
+- 解密脚本实际调用的布尔/整数脚本变量和 `GetDistance` 已基础适配，用于后续承接目标判断状态。
 
 尚未覆盖的是完整战役执行器：
 
 - `Async*` 剧情和演出。
 - 增援创建、移动演出、地图聚焦。
-- 脚本变量存储。
+- 更完整的脚本变量生命周期和持久化。
 - 单位 code/head/static/targeted。
 - 水晶和特殊目标单位。
 - 关卡目标 UI 与失败条件展示。

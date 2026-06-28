@@ -223,9 +223,11 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.CountCastle` | 12 | 已有基础适配 |
 | `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | DEX 暴露 | 已有坐标查询适配 |
 | `Stage.SyncSetUnitCode` / `GetUnit` / `GetUnits` | 脚本实际调用 | 已有 code 元数据和单位查询适配 |
+| `Stage.PutBoolean` / `GetBoolean` / `PutInteger` / `GetInteger` | 脚本实际调用 | 已有脚本变量基础适配 |
+| `Stage.GetDistance` | 脚本实际调用 | 已有曼哈顿距离查询适配 |
 | `Stage.SyncSetCommander` | 2 | 已有基础适配，但参数语义仍需反编译校准 |
 
-项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
+项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
 ## 12. 明确未完成的差异
 

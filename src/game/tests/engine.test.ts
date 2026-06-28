@@ -11,7 +11,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, getTileTeam, getUnit, getUnits, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
@@ -2186,6 +2186,22 @@ describe('GameEngine Rules', () => {
             expect(getTileTeam(state, { x: 3, y: 3 })).toBeNull();
             expect(checkCastle(state, { x: -1, y: 0 })).toBe(false);
             expect(getTileTeam(state, { x: 99, y: 99 })).toBeNull();
+        });
+
+        it('APK Stage 查询适配器可以保存脚本变量并计算距离', () => {
+            const state = createDemoState();
+
+            expect(getBoolean(state, 'reinforced', false)).toBe(false);
+            expect(putBoolean(state, ' reinforced ', true)).toBe(true);
+            expect(getBoolean(state, 'reinforced', false)).toBe(true);
+            expect(putBoolean(state, '', true)).toBe(false);
+
+            expect(getInteger(state, 'counter', 7)).toBe(7);
+            expect(putInteger(state, ' counter ', 2)).toBe(true);
+            expect(getInteger(state, 'counter', 0)).toBe(2);
+            expect(putInteger(state, 'counter', 1.5)).toBe(false);
+
+            expect(getStageDistance({ x: 1, y: 2 }, { x: 4, y: 6 })).toBe(7);
         });
 
         it('APK Stage 查询适配器可以设置 code 并按 code、坐标或队伍查询单位', () => {

@@ -487,6 +487,9 @@ skirmish 训练导入映射：
 | `Stage.CountCastle` / `CountVillage` / `CountUnit` | 关卡统计条件 |
 | `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | 按坐标检查建筑和地块归属 |
 | `Stage.GetUnit` / `GetUnits` | 按 code/坐标/队伍查询单位 |
+| `Stage.PutBoolean` / `GetBoolean` | 脚本布尔变量读写，常带默认值 |
+| `Stage.PutInteger` / `GetInteger` | 脚本整数变量读写，常带默认值 |
+| `Stage.GetDistance` | 坐标曼哈顿距离查询 |
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
@@ -860,6 +863,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 解密脚本确认 `Stage.SyncSetUnitCode(x, y, code)`、`Stage.GetUnit(code)`、`Stage.GetUnit(x, y)` 和 `Stage.GetUnits(team)` 都有实际调用；其中 code 用于脚本目标判断和按名称查找剧情/目标单位。
 - `Unit` 新增可选 `apkUnitCode` 元数据；`src/game/apk_stage.ts` 新增 `syncSetUnitCode`、`getUnit`、`getUnits`，只负责查询和标识，不改变普通对战行为。
 - `SyncSetUnitStatic*`、`SyncSetUnitTargeted*`、`SyncSetUnitHead` 仍属于战役特殊单位/目标展示层，未并入对战训练规则。
+
+2026-06-29 APK Stage 脚本变量与距离查询适配器补充：
+
+- 解密脚本确认 `Stage.PutBoolean(name, value)`、`Stage.GetBoolean(name, default)`、`Stage.PutInteger(name, value)`、`Stage.GetInteger(name, default)` 高频出现，用于记录目标/增援/教程进度等脚本状态。
+- 解密脚本还确认 `Stage.GetDistance(x1, y1, x2, y2)` 至少在目标判断中出现；项目按既有 `getDistance` 的曼哈顿距离实现。
+- `GameState.apkScriptState` 新增可选脚本变量容器；这些变量只服务 Stage 查询/目标判断适配，不改变普通对战引擎结算。
 
 2026-06-29 APK skirmish 终局规则补充：
 
