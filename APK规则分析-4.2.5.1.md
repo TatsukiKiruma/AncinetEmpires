@@ -849,6 +849,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK skirmish 终局规则补充：
 
 - 解密 `SD/controller.js` 与 `SO/controller.js` 确认默认对战队伍摧毁条件为 `CountUnit(team) == 0 && CountCastle(team) == 0`，不是单独“无单位即淘汰”。
+- 同一脚本还确认：如果被摧毁的是当前行动队伍，且 `ValidateWinningState()` 尚未终局，则调用 `Stage.AsyncNextTurn()` 交给下一存活队伍。
 - `RuleConfig.defeatOnNoUnitsAndNoCastles` 新增为默认开启；`defeatOnNoUnits` 默认关闭，但仍可为特定目标配置开启。
 - `src/game/apk_stage.ts` 补充 `GetCurrentTeam`、`CheckPlayerTeam`、`GetAliveAlliances` 查询，以覆盖 SD/SO skirmish 控制脚本实际调用的 Stage API。
 - 文档同时记录 `SO/controller.js` 在 `OnGameStart` 中调用 `SyncSetRecruitUnits(0..8)`，该限制已可由现有 `syncSetRecruitUnits` 表达。
@@ -923,6 +924,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `createApkSkirmishGameState` 会额外写入 `apkSkirmishMode=SD/SO`，便于训练样本区分 SD 与 SO 规则入口。
 - `AncientEmpiresEnv.getObservation().metadata` 会把同一份元数据暴露给训练侧；这些字段只用于样本追踪和复现实验配置，不参与规则判定。
 - 验证项已覆盖 AEM 导入、SO skirmish 导入和 Observation 元数据输出。
+
+2026-06-29 APK skirmish 当前队伍摧毁后的回合推进补充：
+
+- SD/SO `ValidateTeamState(team)` 在 `SyncDestroyTeam(team)` 后会调用 `ValidateWinningState()`；若被摧毁队伍正是 `Stage.GetCurrentTeam()` 且未终局，则调用 `Stage.AsyncNextTurn()`。
+- `GameEngine.step` 在胜负条件结算后，如果当前队伍已失活且游戏未终局，会自动切到下一存活队伍，避免 AI 训练停留在无合法动作的死亡当前玩家上。
+- 新增 3 人对战回归测试：当前队伍最后单位主动攻击后被反击击杀，队伍被淘汰但未终局，回合自动交给下一存活队伍。
 
 ## 16. 本次复核记录
 

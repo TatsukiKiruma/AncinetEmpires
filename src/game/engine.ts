@@ -740,6 +740,10 @@ export class GameEngine {
         }
 
         this.checkWinConditions();
+        if (!this.isTerminal()) {
+            // APK SD/SO 控制脚本在当前队伍被摧毁且未终局时会 AsyncNextTurn。
+            this.ensureCurrentPlayerCanAct();
+        }
 
         return {
             state: this.getState(),

@@ -1810,6 +1810,37 @@ describe('GameEngine Rules', () => {
             expect(finalState.winner).toBe(0);
         });
 
+        it('APK skirmish 当前队伍被摧毁且未终局时自动交给下一存活队伍', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            state.players = [
+                { id: 0, gold: 0, isAlive: true, commanderDeathCount: 0 },
+                { id: 1, gold: 0, isAlive: true, commanderDeathCount: 0 },
+                { id: 2, gold: 0, isAlive: true, commanderDeathCount: 0 }
+            ];
+            state.units = [
+                { id: 'p0_last', ownerId: 0, unitClass: 'soldier', pos: { x: 0, y: 1 }, hp: 5, maxHp: 100, hasMoved: false, hasActed: false, level: 0, exp: 0 },
+                { id: 'p1_guard', ownerId: 1, unitClass: 'dragon', pos: { x: 1, y: 1 }, hp: 100, maxHp: 100, hasMoved: false, hasActed: false, level: 0, exp: 0 },
+                { id: 'p2_alive', ownerId: 2, unitClass: 'soldier', pos: { x: 2, y: 1 }, hp: 100, maxHp: 100, hasMoved: false, hasActed: false, level: 0, exp: 0 }
+            ];
+            state.currentPlayer = 0;
+            state.rules = { defeatOnNoUnitsAndNoCastles: true };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: 'p0_last', targetId: 'p1_guard' });
+
+            const finalState = engine.getState();
+            expect(finalState.players.find(player => player.id === 0)?.isAlive).toBe(false);
+            expect(finalState.units.some(unit => unit.ownerId === 0)).toBe(false);
+            expect(finalState.winner).toBeNull();
+            expect(finalState.currentPlayer).toBe(1);
+            expect(engine.getLegalActions(finalState.currentPlayer).length).toBeGreaterThan(0);
+        });
+
         it('目标配置仍可启用无单位即淘汰', () => {
             const state = createDemoState({ defeatOnNoUnits: true });
             state.units = state.units.filter(unit => unit.ownerId !== 1);

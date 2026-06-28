@@ -96,6 +96,7 @@
 
 - SD 与 SO 的队伍淘汰条件一致：队伍同时没有单位且没有城堡时，调用 `Stage.SyncDestroyTeam(team)`。
 - 胜利判断按存活联盟计算：仅剩一个联盟时 `Stage.SyncGameOver(alliance)`。
+- 如果被摧毁的是当前行动队伍，且胜利判断尚未终局，脚本会调用 `Stage.AsyncNextTurn()`。
 - SO 在开局调用 `Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8)`，即只开放 APK ID 0 到 8 的基础单位招募。
 
 短摘录：
@@ -116,6 +117,7 @@ Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8);
 
 - `src/game/apk_skirmish.ts` 已提供 `getApkSkirmishRuleConfig` 与 `createApkSkirmishGameState`。
 - SD/SO 的 skirmish 默认终局通过 `defeatOnNoUnitsAndNoCastles = true` 表达。
+- 当前队伍被摧毁且未终局时，引擎会跳到下一存活队伍，避免训练停在无合法动作的死亡队伍。
 - SO 的可招募限制已映射到 APK ID 0 到 8 对应的项目单位。
 
 ## 5. skirmish 地图复核

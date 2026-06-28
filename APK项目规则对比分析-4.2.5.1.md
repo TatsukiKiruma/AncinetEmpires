@@ -161,6 +161,7 @@ DEX 与脚本确认：
 skirmish 控制脚本结论：
 
 - `SD/controller.js` 与 `SO/controller.js` 的队伍摧毁逻辑为：某队同时没有单位且没有城堡时才 `SyncDestroyTeam`。
+- 若被摧毁队伍是当前队伍且游戏尚未结束，SD/SO 脚本会调用 `Stage.AsyncNextTurn()` 交给下一存活队伍；项目引擎已在结算后自动跳过失活当前玩家。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
 - 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；`SO` 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
 
