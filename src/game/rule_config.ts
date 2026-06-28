@@ -37,6 +37,17 @@ export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleC
     return getRuleConfig(state).teams[playerId] ?? {};
 }
 
+export function applyInitialRuleConfig(state: GameState): GameState {
+    const rules = getRuleConfig(state);
+    for (const player of state.players) {
+        const initialGold = rules.teams[player.id]?.initialGold;
+        if (initialGold !== undefined) {
+            player.gold = initialGold;
+        }
+    }
+    return state;
+}
+
 export function getUnitCost(state: GameState, playerId: number, unitClass: UnitClass): number | null {
     const rules = getRuleConfig(state);
     const priceOverride = rules.prices[unitClass];

@@ -50,6 +50,7 @@ export interface PlayerState {
 export type LevelCap = 0 | 1 | 2 | 3;
 
 export interface TeamRuleConfig {
+    initialGold?: number;        // 队伍初始金币
     unitLimit?: number;          // 队伍单位数量上限
     populationLimit?: number;    // 队伍人口上限
     recruitableUnits?: UnitClass[]; // 队伍允许招募的单位列表

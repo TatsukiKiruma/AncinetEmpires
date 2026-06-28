@@ -31,7 +31,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 
 仍未完成的关键差异：
 
-1. APK 明确存在初始金币等更多可配置规则；项目已接入单位上限、人口上限、可招募列表、收入、价格覆盖和等级上限配置，但 APK 默认值仍需反编译或实测确认。
+1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖和等级上限配置，但 APK 默认值仍需反编译或实测确认。
 2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程、默认费用和胜负关系仍需反编译或实测确认。
 3. APK 资源中的 `.aem/.js/.json` 尚未解码，地图/脚本数值仍不能作为已确认事实写入规则引擎。
 
@@ -277,36 +277,41 @@ APK 规则中涉及的加成：
    - 项目：已通过 `RuleConfig.teams[playerId].unitLimit/populationLimit` 接入招募合法性和执行阶段保护。
    - 状态：已实现配置层，APK 真实默认值待确认。
 
-2. 指挥官收入未完整建模
+2. 初始金币是队伍级可配置规则
+   - APK：dex 有 `Stage.SyncSetGoldForTeam`。
+   - 项目：已通过 `RuleConfig.teams[playerId].initialGold` 支持在创建初始状态时应用队伍初始金币。
+   - 状态：已实现配置层，APK 真实默认值待确认。
+
+3. 指挥官收入未完整建模
    - APK：Wiki 明确“保证指挥官存活”产生金币，dex 有 `SetIncomeCommanderBase` 和 `SetIncomeCommanderGrowth`。
    - 项目：已支持 `incomeCommanderBase + level * incomeCommanderGrowth`。默认仍保持旧项目行为：基础收入 0，每级 +25。
    - 状态：配置层已实现，APK 真实默认值待确认。
 
-3. 关卡级可招募单位列表
+4. 关卡级可招募单位列表
    - APK：dex 有 `SyncSetRecruitUnitsForTeam`。
    - 项目：已通过 `RuleConfig.teams[playerId].recruitableUnits` 限制合法招募动作。
    - 状态：已实现配置层。
 
-4. 单位价格是可配置规则
+5. 单位价格是可配置规则
    - APK：dex 有 `SetPrices`。
    - 项目：已通过 `RuleConfig.prices` 覆盖普通单位价格，并用于合法招募和实际扣费。
    - 状态：已实现配置层，APK 真实默认值待确认。
 
-5. 等级上限是可配置规则
+6. 等级上限是可配置规则
    - APK：dex 有 `SetLevelCap`。
    - 项目：已通过 `RuleConfig.levelCap` 控制经验升级上限，默认 3。
    - 状态：已实现配置层。
 
-6. 胜负淘汰条件需要可配置
+7. 胜负淘汰条件需要可配置
    - APK：教程确认“指挥官阵亡失败”；教程/沙盒/战役目标确认“消灭所有敌军”和“占领敌方/所有城堡”可作为目标。
    - 项目：已通过 `RuleConfig.defeatOnNoUnits/defeatOnCommanderDeath/defeatOnNoCastles` 接入可配置淘汰条件。
    - 状态：已实现配置层，默认仅启用无单位淘汰。
 
-7. 地形映射仍需校准
+8. 地形映射仍需校准
    - APK：大地之子说明“桥也是水面地形”。
    - 项目：当前没有明确 `bridge` 地形；`isWaterTerrain` 包含 `deep_water`、`water_temple`、`island`，但 `island` 在 terrain tags 中又标为 land/special。
 
-8. 招募待处理机制仍需与 APK 精确对齐
+9. 招募待处理机制仍需与 APK 精确对齐
    - 项目当前方向与 dex `stacked` 字符串吻合。
    - 但 APK 对部署后剩余移动力、是否可继续移动、UI 选择状态的精确行为仍需反编译或运行 APK 实测。
 
@@ -385,9 +390,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 1. 继续解码或反编译 APK 资源，确认真实数值和战役脚本规则。
 2. 用 APK 实测或反编译结果校准招募后的 stacked/pending 细节。
-3. 在规则引擎中补齐官方指挥官复活流程、初始金币配置和价格默认值等仍未落地的对战规则。
+3. 在规则引擎中补齐官方指挥官复活流程和价格默认值等仍未落地的对战规则。
 
-当前最值得继续落地的代码任务是：初始金币配置、官方指挥官复活流程，以及用 APK 实测或反编译结果校准招募 pending 细节。
+当前最值得继续落地的代码任务是：官方指挥官复活流程，以及用 APK 实测或反编译结果校准招募 pending 细节。
 
 ## 15. 实现记录
 
@@ -426,3 +431,10 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `RuleConfig.defeatOnNoCastles` 支持无己方城堡淘汰，对应 APK 沙盒/教程目标文案中的占领敌方城堡目标。
 - 胜负判断会忽略 `hp <= 0` 的待清理单位，避免死亡但尚未过滤的单位影响淘汰条件。
 - 验证：`npm test` 171 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 第五批 APK 队伍初始规则已落地：
+
+- `TeamRuleConfig.initialGold` 支持队伍初始金币配置，对应 APK dex 中的 `Stage.SyncSetGoldForTeam` 能力。
+- `createDemoState(rules)` 可接收规则配置，并在创建初始状态时应用初始金币。
+- 默认 demo 状态仍保持双方 500 金币，避免改变现有训练/测试基线。
+- 验证：`npm test` 172 个测试通过，`npm run lint` 通过，`npm run build` 通过。

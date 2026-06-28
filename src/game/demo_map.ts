@@ -1,6 +1,7 @@
-import { GameState } from './types';
+import { GameState, RuleConfig } from './types';
+import { applyInitialRuleConfig } from './rule_config';
 
-export function createDemoState(): GameState {
+export function createDemoState(rules?: RuleConfig): GameState {
     const width = 8;
     const height = 8;
     
@@ -28,7 +29,7 @@ export function createDemoState(): GameState {
         return { terrainId: terrainId as any, ownerId } as import('./terrain').Tile;
     }));
 
-    return {
+    const state: GameState = {
         turn: 1,
         currentPlayer: 0,
         map: {
@@ -50,4 +51,10 @@ export function createDemoState(): GameState {
         nextUnitId: 100,
         nextGraveId: 100
     };
+
+    if (rules) {
+        state.rules = rules;
+    }
+
+    return applyInitialRuleConfig(state);
 }

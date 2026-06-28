@@ -1269,6 +1269,23 @@ describe('GameEngine Rules', () => {
     });
 
     describe('RuleConfig 对战配置测试', () => {
+        it('队伍初始金币配置会在创建初始状态时生效', () => {
+            const defaultState = createDemoState();
+            expect(defaultState.players[0].gold).toBe(500);
+            expect(defaultState.players[1].gold).toBe(500);
+
+            const configuredState = createDemoState({
+                teams: {
+                    0: { initialGold: 700 },
+                    1: { initialGold: 900 }
+                }
+            });
+
+            expect(configuredState.players[0].gold).toBe(700);
+            expect(configuredState.players[1].gold).toBe(900);
+            expect(configuredState.rules?.teams?.[0].initialGold).toBe(700);
+        });
+
         it('可招募列表会限制合法招募动作', () => {
             const state = createDemoState();
             state.rules = {
