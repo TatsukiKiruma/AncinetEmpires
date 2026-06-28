@@ -75,6 +75,7 @@ export interface RuleConfig {
     defeatOnNoCastles?: boolean;      // 无己方城堡时淘汰
     alliances?: Record<number, number>; // 队伍到联盟 ID 的映射；未配置时每队自成联盟
     disabledTeams?: number[];         // 被脚本/配置禁用的队伍；禁用队伍不参与回合和胜负判定
+    commanderUnitIds?: Record<number, string>; // 脚本指定的队伍指挥官单位 ID；未配置时按 commander 兵种判断
     teams?: Record<number, TeamRuleConfig>;
 }
 

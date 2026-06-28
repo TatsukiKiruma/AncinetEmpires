@@ -3,7 +3,7 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getRuleConfig, getTerrainIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isFriendlyOrNeutralOwner } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTerrainIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -142,7 +142,7 @@ export class GameEngine {
 
     private recordCommanderDeaths(deadUnits: Unit[]) {
         for (const unit of deadUnits) {
-            if (unit.unitClass !== 'commander') continue;
+            if (!isCommanderUnit(this.state, unit)) continue;
             const player = this.state.players.find(p => p.id === unit.ownerId);
             if (player) {
                 player.commanderDeathCount += 1;
@@ -619,12 +619,12 @@ export class GameEngine {
                         }
                     }
                     
-                    // 指挥官升级后的每回合额外国外金币收益
-                    const cmdrs = this.state.units.filter(u => u.ownerId === nextPlayerId && u.unitClass === 'commander');
-                    cmdrs.forEach(c => {
-                        const lvl = c.level ?? 0;
+                    // 指挥官存活收入由 APK 规则配置驱动；脚本可把任意己方单位指定为指挥官。
+                    const commander = getCommanderUnit(this.state, nextPlayerId);
+                    if (commander) {
+                        const lvl = commander.level ?? 0;
                         totalIncome += ruleConfig.incomeCommanderBase + lvl * ruleConfig.incomeCommanderGrowth;
-                    });
+                    }
 
                     nextPlayer.gold += totalIncome;
                 }
@@ -755,7 +755,7 @@ export class GameEngine {
         for (const player of this.state.players) {
             if (!isActivePlayer(this.state, player.id)) continue;
             const hasUnits = this.state.units.some(u => u.ownerId === player.id && u.hp > 0);
-            const hasCommander = this.state.units.some(u => u.ownerId === player.id && u.unitClass === 'commander' && u.hp > 0);
+            const hasCommander = getCommanderUnit(this.state, player.id) !== null;
             const hasCastle = this.state.map.tiles.some(row => row.some(tile => (
                 tile.ownerId === player.id && TERRAIN_CONFIG[tile.terrainId].key === 'castle'
             )));

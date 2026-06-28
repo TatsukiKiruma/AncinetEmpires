@@ -12,10 +12,10 @@
 
 对比对象：
 
-- 当前项目规则代码：`demo/src/game`
+- 当前项目规则代码：`src/game`
 - 当前项目规则文档：`README.md`、`远古帝国AI训练规则整理.md`、`远古帝国AI训练项目上下文.md`
 
-初次 APK 分析只输出文档；后续实现记录见第 15 节，代码侧已逐步接入已确认规则。
+后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续补齐了 APK 脚本指定指挥官的基础对战语义。
 
 ## 2. 结论摘要
 
@@ -34,6 +34,20 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置，但 APK 默认值仍需反编译或实测确认。
 2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程、默认费用和胜负关系仍需反编译或实测确认。
 3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；但地图地形 ID 映射、脚本语义和战役特殊规则仍未完全转为项目配置。
+
+### 2.1 当前复核与覆盖结论
+
+本轮重新校验了 APK 文件、解包目录、`classes.dex` 字符串、语言表和当前 `src/game` 规则实现。当前对齐状态如下：
+
+| 规则域 | APK 证据 | 项目当前状态 | 仍需补齐 |
+| --- | --- | --- | --- |
+| 单位/能力/状态 | `zh.lang/en.lang`、`data.bin`、DEX 常量 | 21 个单位、26 个能力、4 个状态已建模；`crystal` 作为不可招募占位；APK ID 映射已存在 | `crystal` 的战役目标/静态行为仍需脚本层建模 |
+| 战斗数值 | Wiki 文案和 `data.bin` 数值 | 伤害公式、血量比例、空军对水中单位、鼓舞、虚弱、地形之子、近战大师、远程防御等已接入 | 治疗超过上限后的长期裁剪规则仍需实测 |
+| 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | APK 各关卡真实默认值需要从脚本全量归档 |
+| 回合/联盟/队伍 | `SyncSetCurrentTeam`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`、`SyncGameOver` | 多队伍轮转、联盟关系、禁用/恢复/销毁队伍和强制终局已有基础适配 | 仍缺完整战役脚本执行器和地图/队伍初始化导入 |
+| 指挥官 | `CheckCommander`、`GetCommander`、`SyncSetCommander`、指挥官收入文案 | 已支持队伍级 `commanderUnitIds`，`SyncSetCommander` 可按坐标把己方单位指定为指挥官；收入、死亡计数、重招募和指挥官阵亡淘汰使用同一模型 | APK 方法表显示 `SyncSetCommander(int team, int index)`，但错误字符串是坐标语义；当前按坐标落地，官方复活流程仍未确认 |
+| 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理 | 84 条 APK tile 到项目 `TerrainId` 的完整映射仍需校准 |
+| 战役脚本 | Rhino、`.js/.json/.aem`、大量 `Stage.*` API | 已有部分 Stage/Rule 同步适配函数和统计查询函数 | 异步剧情动作、目标系统、单位代码/头像/静态/目标标记、移动覆盖等仍未落地 |
 
 ## 3. APK 结构观察
 
@@ -311,6 +325,8 @@ APK 规则中涉及的加成：
 - 战意、反击风暴、自我修复、近战大师、远程防御、死亡收割者。
 - 城堡招募拆分为 `recruit_to_castle` / `recruit_and_deploy`，并通过 `pendingUnitId` 限制后续动作。
 - 空城堡招募到城堡本格，指挥官占城堡时招募并部署到可达空地。
+- `RuleConfig` 已覆盖金币、收入、价格、等级上限、单位/人口上限、可招募列表、联盟、禁用队伍和可配置淘汰条件。
+- `apk_rule.ts` / `apk_stage.ts` 已承接部分 APK 同步配置和查询 API，用于后续脚本配置导入。
 
 ## 11. 与当前项目的主要差异
 
@@ -353,9 +369,9 @@ APK 规则中涉及的加成：
    - 项目：已通过 `RuleConfig.teams[playerId].initialGold` 支持在创建初始状态时应用队伍初始金币。
    - 状态：已实现配置层，APK 真实默认值待确认。
 
-3. 指挥官收入未完整建模
+3. 指挥官收入默认值仍需确认
    - APK：Wiki 明确“保证指挥官存活”产生金币，dex 有 `SetIncomeCommanderBase` 和 `SetIncomeCommanderGrowth`。
-   - 项目：已支持 `incomeCommanderBase + level * incomeCommanderGrowth`。默认仍保持旧项目行为：基础收入 0，每级 +25。
+   - 项目：已支持 `incomeCommanderBase + level * incomeCommanderGrowth`，并能按脚本指定的队伍指挥官结算。默认仍保持旧项目行为：基础收入 0，每级 +25。
    - 状态：配置层已实现，APK 真实默认值待确认。
 
 4. 关卡级可招募单位列表
@@ -387,7 +403,7 @@ APK 规则中涉及的加成：
 9. 多队伍回合与禁用队伍需要进入训练规则
    - APK：内置地图存在 3/4 人地图；DEX 字符串确认 `SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`。
    - 项目：结束回合不再硬编码 P0/P1，而是按存活且启用的队伍 ID 升序轮转；`RuleConfig.disabledTeams` 可配置跳过队伍。
-   - 状态：已实现多队伍轮转与静态禁用队伍配置；脚本运行时恢复/销毁队伍的事件接口暂未建模。
+   - 状态：已实现多队伍轮转，并在 `apk_stage.ts` 提供设置当前队伍、禁用/恢复/销毁队伍的同步适配；仍缺完整脚本执行器。
 
 10. 地形映射仍需校准
    - APK：大地之子说明“桥也是水面地形”。
@@ -398,14 +414,19 @@ APK 规则中涉及的加成：
    - 项目当前方向与 dex `stacked` 字符串吻合。
    - 但 APK 对部署后剩余移动力、是否可继续移动、UI 选择状态的精确行为仍需反编译或运行 APK 实测。
 
+12. 脚本指定指挥官已接入基础规则层
+   - APK：DEX 暴露 `SyncSetCommander`，并有 `[Stage.SyncSetCommander] No unit at (`、`Unit at (` 等坐标相关错误字符串。
+   - 项目：`RuleConfig.commanderUnitIds` 可记录队伍指挥官单位 ID；`SyncSetCommander` 按坐标把己方单位设为指挥官；`CheckCommander`/`GetCommander`、指挥官收入、死亡计数和指挥官阵亡失败均复用该模型。
+   - 状态：基础对战规则已实现；APK 方法签名中的 `index` 与错误字符串中的坐标语义仍需更完整反编译校准。
+
 ### P2：战役/脚本层差异
 
 APK dex 还暴露了当前项目未建模的脚本能力：
 
-- 队伍联盟、禁用/恢复队伍、直接改变金币。
-- 改变单位阵营、等级、头像、状态、静态/目标标记。
-- 增援、搬运单位/旗帜、神圣裁决、地图聚焦。
-- 战役目标统计：单位、城堡、村庄数量。
+- `SyncSetCommander` 的参数细节校准，以及脚本指定指挥官与战役目标的边界行为。
+- 改变单位阵营、单位代码、头像、静态/目标标记、移动覆盖。
+- 异步创建单位、增援、搬运单位/旗帜、神圣裁决、地图聚焦。
+- 战役目标脚本、布尔/整数变量存取、剧情触发和关卡流程控制。
 
 这些对 AI 训练的基础 skirmish 不一定是第一优先级，但如果目标是让 demo 与实际应用游戏完全一致，后续需要建立“规则引擎 + 场景脚本适配层”的边界。
 
@@ -451,8 +472,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 8. 继续 APK 深入分析
    - 优先安装/使用 `jadx` 或 `apktool` 反编译 `classes.dex`。
-   - 找出资源解码逻辑，解码 `.aem`、`.js`、`.json`。
-   - 从战役脚本中提取真实价格、收入、单位上限、可招募列表和关卡特殊规则。
+   - 已确认 `.aem`、`.js`、`.json` 可用 `data.bin` 中的 DES key 解密；下一步应把解密结果结构化归档。
+   - 从战役脚本中提取真实价格、收入、单位上限、可招募列表、联盟、目标条件和关卡特殊规则。
 
 ## 13. 当前可信度分级
 
@@ -621,3 +642,19 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 新增计数函数：`CountUnit`、`CountCastle`、`CountVillage`；单位计数支持可选 APK 单位 ID 过滤。
 - 这些函数用于承接 APK 目标/统计 API 和 AI 训练目标评估，不引入战役脚本执行器。
 - 验证：`npm test` 195 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK 脚本指定指挥官规则补充：
+
+- `RuleConfig.commanderUnitIds` 新增队伍到单位 ID 的映射；未配置时仍按 `unitClass === 'commander'` 保持默认行为。
+- `src/game/apk_stage.ts` 新增 `SyncSetCommander` 适配；依据 DEX 错误字符串中的 `No unit at (` / `Unit at (` 语义，当前按坐标把己方单位指定为队伍指挥官。
+- `CheckCommander`、`GetCommander`、指挥官收入、指挥官死亡计数、指挥官重招募限制和 `defeatOnCommanderDeath` 均统一使用该指挥官模型。
+- 若某队已经配置指定指挥官，则该队原本的 `commander` 兵种不再自动视为指挥官，避免一队出现多个指挥官来源。
+- 验证：`npm test` 198 个测试通过。
+
+## 16. 本次复核记录
+
+2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
+
+- APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
+- 复核来源包括：`APK\_analysis\unpack\languages\zh.lang`、`languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
+- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则；当前最重要的差距仍是 APK 战役层：完整地图导入、脚本执行、目标流程和 84 条地形变体映射。

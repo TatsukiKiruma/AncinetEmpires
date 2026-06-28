@@ -1,6 +1,6 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { getAllianceId, getTurnPlayerIds, isActivePlayer } from './rule_config';
+import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
 import { TERRAIN_CONFIG } from './terrain';
 import { GameState, Position, RuleConfig, TeamRuleConfig, Unit, UnitClass, UnitLevel, UnitStatus } from './types';
 
@@ -125,6 +125,18 @@ export function syncSetAlliance(state: GameState, teamId: number, allianceId: nu
     return true;
 }
 
+export function syncSetCommander(state: GameState, teamId: number, pos: Position): boolean {
+    if (!state.players.some(player => player.id === teamId)) return false;
+
+    const unit = findUnitAt(state, pos);
+    if (!unit || unit.ownerId !== teamId) return false;
+
+    const rules = ensureRules(state);
+    rules.commanderUnitIds ??= {};
+    rules.commanderUnitIds[teamId] = unit.id;
+    return true;
+}
+
 export function syncSetUnitLimit(state: GameState, limit: number): boolean {
     if (!Number.isInteger(limit) || limit < 0) return false;
     ensureRules(state).unitLimit = limit;
@@ -191,12 +203,12 @@ export function checkTeamDestroyed(state: GameState, teamId: number): boolean {
 
 export function checkCommander(state: GameState, unitId: string, teamId?: number): boolean {
     const unit = state.units.find(entry => entry.id === unitId && entry.hp > 0);
-    if (!unit || unit.unitClass !== 'commander') return false;
-    return teamId === undefined || unit.ownerId === teamId;
+    if (!unit) return false;
+    return isCommanderUnit(state, unit, teamId);
 }
 
 export function getCommander(state: GameState, teamId: number): Unit | null {
-    return state.units.find(unit => unit.ownerId === teamId && unit.unitClass === 'commander' && unit.hp > 0) ?? null;
+    return getCommanderUnit(state, teamId);
 }
 
 export function countUnit(state: GameState, teamId: number, apkUnitId?: number): number {

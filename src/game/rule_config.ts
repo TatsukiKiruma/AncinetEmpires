@@ -1,4 +1,4 @@
-import { GameState, RuleConfig, TeamRuleConfig, UnitClass } from './types';
+import { GameState, RuleConfig, TeamRuleConfig, Unit, UnitClass } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { TerrainId } from './terrain';
 
@@ -20,6 +20,7 @@ export const DEFAULT_RULE_CONFIG = {
     defeatOnNoCastles: false,
     alliances: {},
     disabledTeams: [],
+    commanderUnitIds: {},
     teams: {}
 } satisfies Required<RuleConfig>;
 
@@ -37,6 +38,10 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
             ...(rules.alliances ?? {})
         },
         disabledTeams: [...(rules.disabledTeams ?? DEFAULT_RULE_CONFIG.disabledTeams)],
+        commanderUnitIds: {
+            ...DEFAULT_RULE_CONFIG.commanderUnitIds,
+            ...(rules.commanderUnitIds ?? {})
+        },
         teams: {
             ...DEFAULT_RULE_CONFIG.teams,
             ...(rules.teams ?? {})
@@ -79,6 +84,26 @@ export function getTurnPlayerIds(state: GameState): number[] {
         .filter(player => isActivePlayer(state, player.id))
         .map(player => player.id)
         .sort((a, b) => a - b);
+}
+
+export function isCommanderUnit(state: GameState, unit: Unit, teamId?: number): boolean {
+    if (teamId !== undefined && unit.ownerId !== teamId) return false;
+
+    const commanderUnitId = getRuleConfig(state).commanderUnitIds[unit.ownerId];
+    if (commanderUnitId !== undefined) {
+        return unit.id === commanderUnitId;
+    }
+
+    return unit.unitClass === 'commander';
+}
+
+export function getCommanderUnit(state: GameState, playerId: number): Unit | null {
+    const commanderUnitId = getRuleConfig(state).commanderUnitIds[playerId];
+    if (commanderUnitId !== undefined) {
+        return state.units.find(unit => unit.id === commanderUnitId && unit.ownerId === playerId && unit.hp > 0) ?? null;
+    }
+
+    return state.units.find(unit => unit.ownerId === playerId && unit.unitClass === 'commander' && unit.hp > 0) ?? null;
 }
 
 export function applyInitialRuleConfig(state: GameState): GameState {
@@ -136,7 +161,7 @@ export function canRecruitUnitClass(state: GameState, playerId: number, unitClas
     if (player.gold < unitCost) return false;
 
     if (unitClass === 'commander') {
-        const hasAliveCommander = state.units.some(unit => unit.ownerId === playerId && unit.unitClass === 'commander' && unit.hp > 0);
+        const hasAliveCommander = getCommanderUnit(state, playerId) !== null;
         if (hasAliveCommander) return false;
     }
 

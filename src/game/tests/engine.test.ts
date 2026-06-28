@@ -8,7 +8,7 @@ import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCommander, checkGameOver, checkTeamDestroyed, countCastle, countUnit, countVillage, getCommander, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCommander, checkGameOver, checkTeamDestroyed, countCastle, countUnit, countVillage, getCommander, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
 describe('GameEngine Rules', () => {
 
@@ -1492,6 +1492,48 @@ describe('GameEngine Rules', () => {
             expect(finalState.players[0].gold - prevGold).toBe(250);
         });
 
+        it('脚本指定的普通单位会成为队伍指挥官并用于收入结算', () => {
+            const state = createDemoState();
+            state.rules = {
+                incomeVillage: 0,
+                incomeCastle: 0,
+                incomeCommanderBase: 40,
+                incomeCommanderGrowth: 10
+            };
+
+            const soldier = state.units.find(u => u.id === 'u3')!;
+            soldier.level = 3;
+            expect(syncSetCommander(state, 0, soldier.pos)).toBe(true);
+
+            expect(getCommander(state, 0)?.id).toBe('u3');
+            expect(checkCommander(state, 'u3', 0)).toBe(true);
+            expect(checkCommander(state, 'u1', 0)).toBe(false);
+
+            const prevGold = state.players[0].gold;
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+            engine.step({ type: 'end_turn' });
+
+            expect(engine.getState().players[0].gold - prevGold).toBe(70);
+        });
+
+        it('脚本指定的指挥官站在城堡时允许招募并部署单位', () => {
+            const state = createDemoState();
+            const originalCommander = state.units.find(u => u.id === 'u1')!;
+            const soldier = state.units.find(u => u.id === 'u3')!;
+            originalCommander.pos = { x: 2, y: 2 };
+            soldier.pos = { x: 0, y: 0 };
+
+            expect(syncSetCommander(state, 0, soldier.pos)).toBe(true);
+            const actions = getLegalActions(state, 0);
+
+            expect(actions.some(action => (
+                action.type === 'recruit_and_deploy'
+                && action.castlePos.x === 0
+                && action.castlePos.y === 0
+            ))).toBe(true);
+        });
+
         it('价格配置会覆盖招募扣费', () => {
             const state = createDemoState();
             state.players[0].gold = 100;
@@ -1547,6 +1589,30 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             expect(finalState.players[1].isAlive).toBe(false);
             expect(finalState.winner).toBe(0);
+        });
+
+        it('脚本指定的指挥官阵亡会记录死亡次数并触发指挥官阵亡失败', () => {
+            const state = createDemoState({
+                defeatOnCommanderDeath: true
+            });
+            const attacker = state.units.find(u => u.id === 'u4')!;
+            attacker.unitClass = 'dragon';
+            attacker.pos = { x: 1, y: 1 };
+
+            const scriptedCommander = state.units.find(u => u.id === 'u3')!;
+            scriptedCommander.pos = { x: 1, y: 0 };
+            scriptedCommander.hp = 5;
+            expect(syncSetCommander(state, 0, scriptedCommander.pos)).toBe(true);
+
+            state.currentPlayer = 1;
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: scriptedCommander.id });
+
+            const finalState = engine.getState();
+            expect(finalState.players[0].commanderDeathCount).toBe(1);
+            expect(finalState.players[0].isAlive).toBe(false);
+            expect(finalState.winner).toBe(1);
+            expect(finalState.units.some(u => u.id === 'u1')).toBe(true);
         });
 
         it('配置开启后失去最后城堡会淘汰玩家', () => {

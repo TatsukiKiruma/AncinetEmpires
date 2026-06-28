@@ -2,7 +2,7 @@ import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, isActivePlayer } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, isActivePlayer, isCommanderUnit } from './rule_config';
 
 /**
  * 纯规则校验模块
@@ -234,7 +234,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
                         for (const c of recruitClasses) {
                             actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
                         }
-                    } else if (occupant.ownerId === playerId && occupant.unitClass === 'commander') {
+                    } else if (occupant.ownerId === playerId && isCommanderUnit(state, occupant, playerId)) {
                         // 城堡上有己方指挥官：使用 recruit_and_deploy
                         for (const c of recruitClasses) {
                             // 检查可部署的位置
