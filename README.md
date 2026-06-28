@@ -30,6 +30,10 @@ while (!initResult.done) {
 }
 ```
 
+### Observation 地形字段
+
+`observation.tiles` 会返回每个格子的 `terrainId/ownerId`，以及当前规则实际使用的 `defenseBonus/healPerTurn/moveCost`。如果状态来自 APK `.aem` 地图导入，还会包含 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，用于让 AI 观察到 APK 原始 tile 数值差异。
+
 ## Reward (奖励设定)
 
 当前的 Default Reward 为稀疏奖励（Sparse Reward），其值针对当前执行动作的玩家角度返回：

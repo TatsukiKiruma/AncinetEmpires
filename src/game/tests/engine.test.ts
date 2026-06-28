@@ -216,6 +216,16 @@ describe('GameEngine Rules', () => {
 
         const apkHighDefenseTile = { terrainId: 6 as const, ownerId: null, apkTerrainId: 33 };
         expect(getTileDefenseBonus(apkHighDefenseTile)).toBe(20);
+
+        const env = new AncientEmpiresEnv({ initialState: state });
+        const apkTileObservation = env.getObservation().tiles.find(tile => tile.x === 1 && tile.y === 0)!;
+        expect(apkTileObservation).toEqual(expect.objectContaining({
+            terrainId: 2,
+            apkTerrainId: 0,
+            moveCost: 16777215,
+            defenseBonus: 0,
+            healPerTurn: 3
+        }));
     });
 
     it('初始化与状态克隆不影响原状态', () => {

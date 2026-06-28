@@ -911,6 +911,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `getMoveCostForUnit`、战斗地形防御和回合开始地形回血已接入该辅助模块；占领、招募、收入、地形标签能力仍由项目 `terrainId` 控制。
 - 验证：`npm test` 205 个测试通过，`npm run lint` 通过；真实 APK 20 张 skirmish 地图导入后 `TILES_WITH_APK_ID 4207/4207`，可读到移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
+2026-06-29 APK tile 数值进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().tiles` 新增 `apkTerrainId/apkTerrainRaw/apkOwnerCode/defenseBonus/healPerTurn/moveCost` 字段。
+- 普通项目地图也会输出有效防御、回血、移动字段；APK 导入地图输出的是当前规则实际使用的 APK 原始 tile 数值，避免训练观察不到影响移动/防御/回血的隐藏状态。
+- 验证：真实 APK 20 张 skirmish 地图构造训练环境后，Observation 覆盖 `OBSERVED_APK_TILES 4207/4207`，输出移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

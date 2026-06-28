@@ -3,6 +3,7 @@ import { GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
+import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -29,6 +30,12 @@ export interface Observation {
     y: number;
     terrainId: number;
     ownerId: number | null;
+    apkTerrainId?: number;
+    apkTerrainRaw?: number;
+    apkOwnerCode?: number;
+    defenseBonus: number;
+    healPerTurn: number;
+    moveCost: number;
   }>;
   units: Array<{
     id: string;
@@ -243,7 +250,13 @@ export class AncientEmpiresEnv {
               x,
               y,
               terrainId: t.terrainId,
-              ownerId: t.ownerId
+              ownerId: t.ownerId,
+              apkTerrainId: t.apkTerrainId,
+              apkTerrainRaw: t.apkTerrainRaw,
+              apkOwnerCode: t.apkOwnerCode,
+              defenseBonus: getTileDefenseBonus(t),
+              healPerTurn: getTileHealPerTurn(t),
+              moveCost: getTileMoveCost(t)
           }))),
           units: state.units.map(u => ({
               id: u.id,
