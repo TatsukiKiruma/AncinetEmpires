@@ -50,6 +50,14 @@ export interface PlayerState {
 export type UnitLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type LevelCap = UnitLevel;
 
+export interface GameMetadata {
+    source?: 'demo' | 'apk_aem'; // 状态来源，用于训练样本追踪
+    apkMapName?: string;         // APK .aem 地图资源名
+    apkSkirmishMode?: 'SD' | 'SO'; // APK 对战模式
+    recommendedGold?: number | null; // AEM 推荐金币，null 表示 APK 未设置
+    apkTailTemplate?: string;    // AEM 推荐金币后的尾部模板名
+}
+
 export interface TeamRuleConfig {
     initialGold?: number;        // 队伍初始金币
     unitLimit?: number;          // 队伍单位数量上限
@@ -96,6 +104,7 @@ export interface GameState {
     nextGraveId?: number;    // 确定性墓碑ID计数
     pendingUnitId?: string;  // 当前待处理单位ID (例如刚从城堡招募出来，必须优先行动)
     rules?: RuleConfig;      // APK/关卡层可覆盖的规则配置
+    metadata?: GameMetadata;  // 地图/来源元数据，不参与规则判定
 }
 
 /** 动作必须是结构化对象 */

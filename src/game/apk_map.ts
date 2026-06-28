@@ -1,7 +1,7 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { mapKnownApkTerrainId, mapSkirmishApkTerrainId } from './apk_terrain';
 import { TerrainId } from './terrain';
-import { GameState, RuleConfig, Unit, UnitClass } from './types';
+import { GameMetadata, GameState, RuleConfig, Unit, UnitClass } from './types';
 
 export const APK_AEM_MAGIC = 365703;
 export const APK_AEM_TERRAIN_RECORD_SIZE = 4;
@@ -61,6 +61,8 @@ export interface CreateGameStateFromApkAemMapOptions {
     rules?: RuleConfig;
     strictTerrain?: boolean;
     fallbackTerrainId?: TerrainId;
+    mapName?: string;
+    metadata?: GameMetadata;
 }
 
 function requireBytes(data: Uint8Array, offset: number, length: number) {
@@ -343,6 +345,21 @@ function createUnitsFromApkAemMap(map: ApkAemMap): Unit[] {
     });
 }
 
+function createMetadataFromApkAemMap(map: ApkAemMap, options: CreateGameStateFromApkAemMapOptions): GameMetadata {
+    const metadata: GameMetadata = {
+        ...(options.metadata ?? {}),
+        source: 'apk_aem',
+        recommendedGold: map.recommendedGold,
+        apkTailTemplate: map.tail.template
+    };
+
+    if (options.mapName !== undefined) {
+        metadata.apkMapName = options.mapName;
+    }
+
+    return metadata;
+}
+
 export function createGameStateFromApkAemMap(
     map: ApkAemMap,
     options: CreateGameStateFromApkAemMapOptions = {}
@@ -393,6 +410,7 @@ export function createGameStateFromApkAemMap(
         winner: null,
         nextUnitId: map.units.length,
         nextGraveId: 100,
-        rules
+        rules,
+        metadata: createMetadataFromApkAemMap(map, options)
     };
 }

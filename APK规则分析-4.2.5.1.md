@@ -917,6 +917,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 普通项目地图也会输出有效防御、回血、移动字段；APK 导入地图输出的是当前规则实际使用的 APK 原始 tile 数值，避免训练观察不到影响移动/防御/回血的隐藏状态。
 - 验证：真实 APK 20 张 skirmish 地图构造训练环境后，Observation 覆盖 `OBSERVED_APK_TILES 4207/4207`，输出移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
+2026-06-29 APK 地图元数据进入 AI Observation：
+
+- `GameState.metadata` 新增来源元数据；APK AEM 导入会写入 `source=apk_aem`、`apkMapName`、`recommendedGold` 和 `apkTailTemplate`。
+- `createApkSkirmishGameState` 会额外写入 `apkSkirmishMode=SD/SO`，便于训练样本区分 SD 与 SO 规则入口。
+- `AncientEmpiresEnv.getObservation().metadata` 会把同一份元数据暴露给训练侧；这些字段只用于样本追踪和复现实验配置，不参与规则判定。
+- 验证项已覆盖 AEM 导入、SO skirmish 导入和 Observation 元数据输出。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

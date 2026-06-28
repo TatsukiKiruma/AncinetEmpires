@@ -32,7 +32,7 @@ export function createApkSkirmishGameState(
     map: ApkAemMap,
     options: CreateApkSkirmishGameStateOptions = {}
 ): GameState {
-    const { mode = 'SD', rules: overrideRules, ...stateOptions } = options;
+    const { mode = 'SD', rules: overrideRules, metadata: overrideMetadata, ...stateOptions } = options;
     const modeRules = getApkSkirmishRuleConfig(mode);
 
     return createGameStateFromApkAemMap(map, {
@@ -40,6 +40,10 @@ export function createApkSkirmishGameState(
         rules: {
             ...modeRules,
             ...(overrideRules ?? {})
+        },
+        metadata: {
+            ...(overrideMetadata ?? {}),
+            apkSkirmishMode: mode
         }
     });
 }

@@ -154,7 +154,7 @@ describe('GameEngine Rules', () => {
         expect(getApkAemTerrainUsage(map)).toEqual({ 2: 1, 27: 1, 36: 1, 37: 2, 72: 1 });
         expect(getUnmappedSkirmishApkTerrainIds(map)).toEqual([]);
 
-        const state = createGameStateFromApkAemMap(map);
+        const state = createGameStateFromApkAemMap(map, { mapName: '(2) Unit Test.aem' });
         expect(state.map.width).toBe(2);
         expect(state.map.height).toBe(3);
         expect(state.map.tiles[0][0]).toEqual(expect.objectContaining({ terrainId: 10, ownerId: 0, apkTerrainId: 37, apkOwnerCode: 0 }));
@@ -168,6 +168,12 @@ describe('GameEngine Rules', () => {
             '1:commander@1,2'
         ]);
         expect(state.rules?.defeatOnNoUnitsAndNoCastles).toBe(true);
+        expect(state.metadata).toEqual({
+            source: 'apk_aem',
+            apkMapName: '(2) Unit Test.aem',
+            recommendedGold: 300,
+            apkTailTemplate: 'none'
+        });
 
         const mapWithSkirmishTail = parseApkAemMap(new Uint8Array([...bytes, ...parseHex(APK_AEM_ZERO_SUFFIX_TAIL_HEX)]));
         expect(mapWithSkirmishTail.tail.template).toBe('zero_suffix_58');
@@ -185,8 +191,18 @@ describe('GameEngine Rules', () => {
             'catapult',
             'dragon'
         ]);
-        const soState = createApkSkirmishGameState(mapWithSkirmishTail, { mode: 'SO' });
+        const soState = createApkSkirmishGameState(mapWithSkirmishTail, { mode: 'SO', mapName: '(2) Unit Test.aem' });
         expect(soState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
+        expect(soState.metadata).toEqual({
+            source: 'apk_aem',
+            apkMapName: '(2) Unit Test.aem',
+            apkSkirmishMode: 'SO',
+            recommendedGold: 300,
+            apkTailTemplate: 'zero_suffix_58'
+        });
+
+        const env = new AncientEmpiresEnv({ initialState: soState });
+        expect(env.getObservation().metadata).toEqual(soState.metadata);
     });
 
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {

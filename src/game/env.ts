@@ -1,5 +1,5 @@
 import { GameEngine } from './engine';
-import { GameState, Action, StepResult } from './types';
+import { GameMetadata, GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
@@ -19,6 +19,7 @@ export interface Observation {
   turn: number;
   mapWidth: number;
   mapHeight: number;
+  metadata?: GameMetadata;
   players: Array<{
     id: number;
     gold: number;
@@ -240,6 +241,7 @@ export class AncientEmpiresEnv {
           turn: state.turn,
           mapWidth: state.map.width,
           mapHeight: state.map.height,
+          metadata: state.metadata ? { ...state.metadata } : undefined,
           players: state.players.map(p => ({
               id: p.id,
               gold: p.gold,
