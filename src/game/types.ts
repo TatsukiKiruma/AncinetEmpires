@@ -32,7 +32,7 @@ export interface Unit {
     hasMoved: boolean; // 本回合是否已移动
     hasActed: boolean; // 本回合是否已行动
     status?: UnitStatus; // 单位状态
-    level?: 0 | 1 | 2 | 3; // 经验等级
+    level?: UnitLevel; // 经验等级
     exp?: number;          // 经验值
     movementRemaining?: number; // 突击部队剩余移动力
     hasPostAttackMoved?: boolean; // 突击部队是否执行了攻击后移动
@@ -47,7 +47,8 @@ export interface PlayerState {
     commanderDeathCount: number; // 指挥官死亡次数
 }
 
-export type LevelCap = 0 | 1 | 2 | 3;
+export type UnitLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export type LevelCap = UnitLevel;
 
 export interface TeamRuleConfig {
     initialGold?: number;        // 队伍初始金币

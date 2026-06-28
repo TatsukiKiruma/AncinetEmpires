@@ -5,7 +5,7 @@ import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
-import { getMoveCostForUnit, isFlying, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats } from '../abilities';
+import { getMoveCostForUnit, isFlying, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 
 describe('GameEngine Rules', () => {
@@ -1158,6 +1158,13 @@ describe('GameEngine Rules', () => {
             expect(resSoldier.level).toBe(3);
         });
 
+        it('6.11b APK 经验阈值公式支持 9 级内部上限', () => {
+            expect(getExpThresholdForLevel(1)).toBe(100);
+            expect(getExpThresholdForLevel(2)).toBe(300);
+            expect(getExpThresholdForLevel(3)).toBe(600);
+            expect(getExpThresholdForLevel(9)).toBe(4500);
+        });
+
         it('6.12 一般单位升级后攻击 +10、防御 +5', () => {
             const state = createDemoState();
             const soldier = state.units[0];
@@ -1268,6 +1275,27 @@ describe('GameEngine Rules', () => {
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
             expect(resSoldier.level).toBe(1);
             expect(resSoldier.exp).toBe(610);
+        });
+
+        it('6.18 RuleConfig 可以扩展到 APK 内部 9 级范围', () => {
+            const state = createDemoState();
+            state.rules = { levelCap: 4 };
+
+            const soldier = state.units[0];
+            soldier.unitClass = 'soldier';
+            soldier.exp = 990;
+            soldier.level = 3;
+            soldier.hp = 50;
+
+            const defender = state.units[1];
+            defender.hp = 100;
+
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id });
+
+            const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
+            expect(resSoldier.level).toBe(4);
+            expect(resSoldier.exp).toBe(1020);
         });
     });
 

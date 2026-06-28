@@ -1,4 +1,4 @@
-import { GameState, LevelCap, Unit, Ability } from './types';
+import { GameState, LevelCap, Unit, Ability, UnitLevel } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
 
@@ -247,6 +247,11 @@ export function getEffectiveStats(unit: Unit): EffectiveStats {
     };
 }
 
+export function getExpThresholdForLevel(level: UnitLevel): number {
+    if (level <= 0) return 0;
+    return ((level + 1) * 100 * level) / 2;
+}
+
 export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): boolean {
     if (unit.level === undefined) unit.level = 0;
     if (unit.exp === undefined) unit.exp = 0;
@@ -257,9 +262,11 @@ export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): bool
     let upgraded = false;
     
     while (unit.level < levelCap) {
-        const threshold = unit.level === 0 ? 100 : (unit.level === 1 ? 300 : 600);
+        // APK 的单位配置类中使用同一公式计算等级经验阈值：1=100、2=300、3=600，最高内部检查到 9。
+        const nextLevel = (unit.level + 1) as UnitLevel;
+        const threshold = getExpThresholdForLevel(nextLevel);
         if (unit.exp >= threshold) {
-            unit.level = (unit.level + 1) as 0 | 1 | 2 | 3;
+            unit.level = nextLevel;
             upgraded = true;
             // 升级时回满血
             unit.hp = getEffectiveStats(unit).maxHp; 

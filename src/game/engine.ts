@@ -384,7 +384,7 @@ export class GameEngine {
                         maxHp: 100,
                         hasMoved: true,
                         hasActed: true,
-                        level: level as 0 | 1 | 2 | 3,
+                        level,
                         exp: 0
                     });
                     

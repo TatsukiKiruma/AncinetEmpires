@@ -243,6 +243,8 @@ APK 规则中涉及的加成：
 | `Lc/a/b/a/o` | `SyncSetUnitLimitForTeam(int team, int limit) -> void` | 设置指定队伍单位上限 |
 | `Lc/a/b/a/x/e` | `SetIncomeCommanderBase(int)` / `SetIncomeCommanderGrowth(int)` | 设置指挥官收入规则 |
 | `Lc/a/b/a/x/f` | `GetPrice() -> int` | 读取单位对象的价格字段；短方法字节码显示它直接读取 `Lc/a/b/a/x/f.e` |
+| `Lc/a/b/a/t/f` | `a(int level) -> int` | 等级经验阈值公式：`level <= 0` 为 0，否则 `(level + 1) * 100 * level / 2` |
+| `Lc/a/b/a/t/f` | `b(int exp) -> int` | 按经验反推等级，内部从 9 级向下检查，说明 APK 数据层至少支持 0-9 级 |
 
 当前 DEX 字符串和方法表没有发现通用的 `ReviveCommander`、`RespawnCommander` 一类 API；只发现战役剧情文本中的 `revive Saeth`。因此“官方指挥官复活流程”仍不能当作已确认规则写死，只能保留为可配置/待确认项。
 
@@ -318,8 +320,9 @@ APK 规则中涉及的加成：
 
 6. 等级上限是可配置规则
    - APK：dex 有 `SetLevelCap`。
-   - 项目：已通过 `RuleConfig.levelCap` 控制经验升级上限，默认 3。
-   - 状态：已实现配置层。
+   - APK：单位配置类的经验阈值公式确认 1/2/3 级分别是 100/300/600，且内部等级推导最高检查到 9。
+   - 项目：已通过 `RuleConfig.levelCap` 控制经验升级上限，默认 3；配置允许扩展到 9。
+   - 状态：已实现配置层和 APK 阈值公式。
 
 7. 胜负淘汰条件需要可配置
    - APK：教程确认“指挥官阵亡失败”；教程/沙盒/战役目标确认“消灭所有敌军”和“占领敌方/所有城堡”可作为目标。
@@ -479,3 +482,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `getLegalActions` 在存在 `pendingUnitId` 时不再生成 `end_turn`，只能处理该待处理单位的合法动作。
 - 继续保持 pending 状态下禁止招募，与 `Cannot recruit when stacked!` 一致。
 - 验证：`npm test` 174 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 等级阈值与内部上限修正：
+
+- APK DEX 中 `Lc/a/b/a/t/f.a(int)` 确认等级经验阈值公式：`level <= 0` 为 0，否则 `(level + 1) * 100 * level / 2`。
+- APK DEX 中 `Lc/a/b/a/t/f.b(int)` 从 9 级向下反推等级，说明数据层至少支持 0-9 级。
+- 项目默认 `levelCap` 仍保持 3，但 `RuleConfig.levelCap` 现在允许配置到 9；经验阈值改为 APK 公式。
