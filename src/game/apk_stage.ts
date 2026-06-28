@@ -1,6 +1,7 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { getTurnPlayerIds, isActivePlayer } from './rule_config';
+import { getAllianceId, getTurnPlayerIds, isActivePlayer } from './rule_config';
+import { TERRAIN_CONFIG } from './terrain';
 import { GameState, Position, RuleConfig, TeamRuleConfig, Unit, UnitClass, UnitLevel, UnitStatus } from './types';
 
 function ensureRules(state: GameState): RuleConfig {
@@ -45,6 +46,12 @@ function moveCurrentPlayerIfDisabled(state: GameState) {
     if (nextPlayerId !== undefined) {
         state.currentPlayer = nextPlayerId;
     }
+}
+
+function getAliveAllianceIds(state: GameState): number[] {
+    return [...new Set(state.players
+        .filter(player => isActivePlayer(state, player.id))
+        .map(player => getAllianceId(state, player.id)))];
 }
 
 export function syncSetGold(state: GameState, gold: number): boolean {
@@ -97,6 +104,14 @@ export function syncDestroyTeam(state: GameState, teamId: number): boolean {
     if (!player) return false;
     player.isAlive = false;
     moveCurrentPlayerIfDisabled(state);
+    return true;
+}
+
+export function syncGameOver(state: GameState, allianceId: number): boolean {
+    if (!Number.isInteger(allianceId) || !getAliveAllianceIds(state).includes(allianceId)) {
+        return false;
+    }
+    state.winner = allianceId;
     return true;
 }
 
@@ -163,4 +178,48 @@ export function syncSetUnitStatus(state: GameState, pos: Position, statusId: num
 
     unit.status = status;
     return true;
+}
+
+export function checkGameOver(state: GameState): boolean {
+    return state.winner !== null;
+}
+
+export function checkTeamDestroyed(state: GameState, teamId: number): boolean {
+    const player = state.players.find(entry => entry.id === teamId);
+    return !player || !player.isAlive;
+}
+
+export function checkCommander(state: GameState, unitId: string, teamId?: number): boolean {
+    const unit = state.units.find(entry => entry.id === unitId && entry.hp > 0);
+    if (!unit || unit.unitClass !== 'commander') return false;
+    return teamId === undefined || unit.ownerId === teamId;
+}
+
+export function getCommander(state: GameState, teamId: number): Unit | null {
+    return state.units.find(unit => unit.ownerId === teamId && unit.unitClass === 'commander' && unit.hp > 0) ?? null;
+}
+
+export function countUnit(state: GameState, teamId: number, apkUnitId?: number): number {
+    const unitClass = apkUnitId === undefined ? undefined : APK_UNIT_ID_TO_CLASS[apkUnitId];
+    if (apkUnitId !== undefined && !unitClass) return 0;
+
+    return state.units.filter(unit => (
+        unit.ownerId === teamId
+        && unit.hp > 0
+        && (unitClass === undefined || unit.unitClass === unitClass)
+    )).length;
+}
+
+export function countCastle(state: GameState, teamId: number): number {
+    return state.map.tiles
+        .flat()
+        .filter(tile => tile.ownerId === teamId && TERRAIN_CONFIG[tile.terrainId]?.key === 'castle')
+        .length;
+}
+
+export function countVillage(state: GameState, teamId: number): number {
+    return state.map.tiles
+        .flat()
+        .filter(tile => tile.ownerId === teamId && TERRAIN_CONFIG[tile.terrainId]?.key === 'town')
+        .length;
 }

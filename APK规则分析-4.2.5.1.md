@@ -613,3 +613,11 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已支持价格类：`SetPrices` / 单位价格覆盖，按 APK 单位 ID 映射到项目 `UnitClass` 后写入 `RuleConfig.prices`。
 - 该适配器只负责把脚本提取出的配置写入规则层，不执行战役流程。
 - 验证：`npm test` 193 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK Stage 查询/终局适配器补充：
+
+- `src/game/apk_stage.ts` 新增 `SyncGameOver` 适配，允许按当前存活联盟 ID 强制设置 `winner`。
+- 新增查询函数：`CheckGameOver`、`CheckTeamDestroyed`、`CheckCommander`、`GetCommander`。
+- 新增计数函数：`CountUnit`、`CountCastle`、`CountVillage`；单位计数支持可选 APK 单位 ID 过滤。
+- 这些函数用于承接 APK 目标/统计 API 和 AI 训练目标评估，不引入战役脚本执行器。
+- 验证：`npm test` 195 个测试通过，`npm run lint` 通过，`npm run build` 通过。

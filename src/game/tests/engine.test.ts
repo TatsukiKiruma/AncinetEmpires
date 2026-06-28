@@ -8,7 +8,7 @@ import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { syncChangeGold, syncDestroyTeam, syncDisableTeam, syncRestoreTeam, syncSetAlliance, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCommander, checkGameOver, checkTeamDestroyed, countCastle, countUnit, countVillage, getCommander, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
 describe('GameEngine Rules', () => {
 
@@ -1763,6 +1763,42 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'end_turn' });
             const after = engine.getState().units.find(unit => unit.id === soldier.id)!;
             expect(after.status).toBeUndefined();
+        });
+
+        it('APK Stage 查询适配器可以统计单位和建筑', () => {
+            const state = createDemoState();
+            state.map.tiles[1][1].terrainId = 9;
+            state.map.tiles[1][1].ownerId = 0;
+            state.map.tiles[2][2].terrainId = 10;
+            state.map.tiles[2][2].ownerId = 0;
+
+            expect(countUnit(state, 0)).toBe(2);
+            expect(countUnit(state, 0, 0)).toBe(1);
+            expect(countUnit(state, 0, 9)).toBe(1);
+            expect(countUnit(state, 0, 999)).toBe(0);
+            expect(countVillage(state, 0)).toBe(1);
+            expect(countCastle(state, 0)).toBe(2);
+        });
+
+        it('APK Stage 查询适配器可以检查指挥官、队伍摧毁和强制终局', () => {
+            const state = createDemoState({
+                alliances: { 0: 4, 1: 8 }
+            });
+
+            expect(checkGameOver(state)).toBe(false);
+            expect(checkCommander(state, 'u1')).toBe(true);
+            expect(checkCommander(state, 'u1', 0)).toBe(true);
+            expect(checkCommander(state, 'u1', 1)).toBe(false);
+            expect(getCommander(state, 0)?.id).toBe('u1');
+
+            expect(syncGameOver(state, 4)).toBe(true);
+            expect(checkGameOver(state)).toBe(true);
+            expect(state.winner).toBe(4);
+            expect(syncGameOver(state, 999)).toBe(false);
+
+            expect(checkTeamDestroyed(state, 1)).toBe(false);
+            expect(syncDestroyTeam(state, 1)).toBe(true);
+            expect(checkTeamDestroyed(state, 1)).toBe(true);
         });
 
         it('APK Rule 适配器可以设置收入和等级上限', () => {
