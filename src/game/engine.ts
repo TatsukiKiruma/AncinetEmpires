@@ -3,7 +3,7 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { canRecruitUnitClass, getRuleConfig, getTerrainIncome, getUnitCost } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getRuleConfig, getTerrainIncome, getUnitCost, isFriendlyOrNeutralOwner } from './rule_config';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -132,7 +132,7 @@ export class GameEngine {
             const healVal = 10 + level * 5; // 精灵升级后净化光环回血+5
             
             this.state.units.forEach(u => {
-                if (u.id !== unit.id && getDistance(unit.pos, u.pos) <= 2) {
+                if (u.id !== unit.id && areAlliedPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
                     if (isUndead(u)) {
                         u.hp = Math.max(0, u.hp - healVal);
                     } else {
@@ -147,7 +147,7 @@ export class GameEngine {
         // 2. 攻击光环 (attack_aura)
         if (hasAbility(unit, 'attack_aura')) {
             this.state.units.forEach(u => {
-                if (u.id !== unit.id && u.ownerId === unit.ownerId && getDistance(unit.pos, u.pos) <= 2) {
+                if (u.id !== unit.id && areAlliedPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
                     if (!u.status) {
                         u.status = { type: 'inspired', remainingTurns: 1 };
                     }
@@ -158,7 +158,7 @@ export class GameEngine {
         // 3. 虚弱光环 (weakness_aura)
         if (hasAbility(unit, 'weakness_aura')) {
             this.state.units.forEach(u => {
-                if (u.ownerId !== unit.ownerId && getDistance(unit.pos, u.pos) <= 2) {
+                if (areEnemyPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
                     if (!hasAbility(u, 'weakness_aura') && !u.status) {
                         u.status = { type: 'weakened', remainingTurns: 1 };
                     }
@@ -647,7 +647,7 @@ export class GameEngine {
                         let healAmount = 0;
                         
                         // 2. 地形回复
-                        if (!isCurrentlyPoisoned && (tile.ownerId === nextPlayerId || tile.ownerId === null) && tConfig.healPerTurn > 0) {
+                        if (!isCurrentlyPoisoned && isFriendlyOrNeutralOwner(this.state, nextPlayerId, tile.ownerId) && tConfig.healPerTurn > 0) {
                             healAmount += tConfig.healPerTurn;
                         }
                         
@@ -731,9 +731,10 @@ export class GameEngine {
         }
 
         const alivePlayers = this.state.players.filter(p => p.isAlive);
-        if (alivePlayers.length === 1) {
-            this.state.winner = alivePlayers[0].id;
-        } else if (alivePlayers.length === 0) {
+        const aliveAlliances = [...new Set(alivePlayers.map(player => getAllianceId(this.state, player.id)))];
+        if (aliveAlliances.length === 1) {
+            this.state.winner = aliveAlliances[0];
+        } else if (aliveAlliances.length === 0) {
             this.state.winner = -1; // Draw
         }
     }

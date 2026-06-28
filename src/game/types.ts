@@ -73,6 +73,7 @@ export interface RuleConfig {
     defeatOnNoUnits?: boolean;        // 无存活单位时淘汰
     defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰
     defeatOnNoCastles?: boolean;      // 无己方城堡时淘汰
+    alliances?: Record<number, number>; // 队伍到联盟 ID 的映射；未配置时每队自成联盟
     teams?: Record<number, TeamRuleConfig>;
 }
 
@@ -86,7 +87,7 @@ export interface GameState {
     };
     units: Unit[];           // 场上所有单位
     players: PlayerState[];  // 玩家状态
-    winner: number | null;   // 获胜玩家ID, 游戏未结束则为null
+    winner: number | null;   // 获胜联盟ID，未结束则为null，-1 表示平局
     graves?: Grave[];        // 墓碑中立列表
     nextUnitId?: number;     // 确定性单位ID计数
     nextGraveId?: number;    // 确定性墓碑ID计数

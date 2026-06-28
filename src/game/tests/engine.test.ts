@@ -1580,6 +1580,74 @@ describe('GameEngine Rules', () => {
             expect(finalState.units.some(u => u.ownerId === 0 && u.unitClass === 'commander')).toBe(true);
         });
 
+        it('联盟配置会阻止同盟单位互相攻击', () => {
+            const state = createDemoState({
+                alliances: { 0: 7, 1: 7 }
+            });
+            const unit = state.units.find(u => u.id === 'u3')!;
+            const ally = state.units.find(u => u.id === 'u4')!;
+            unit.pos = { x: 3, y: 3 };
+            ally.pos = { x: 3, y: 4 };
+
+            const actions = getLegalActions(state, 0);
+            expect(actions.some(a => a.type === 'attack' && a.attackerId === unit.id && a.targetId === ally.id)).toBe(false);
+        });
+
+        it('联盟单位会按友军接受治疗和攻击光环', () => {
+            const state = createDemoState({
+                alliances: { 0: 3, 1: 3 }
+            });
+            const actor = state.units.find(u => u.id === 'u3')!;
+            const ally = state.units.find(u => u.id === 'u4')!;
+            actor.unitClass = 'paladin';
+            actor.pos = { x: 3, y: 3 };
+            ally.pos = { x: 4, y: 3 };
+            ally.hp = 80;
+            ally.maxHp = 100;
+
+            const actions = getLegalActions(state, 0);
+            expect(actions.some(a => a.type === 'heal' && a.healerId === actor.id && a.targetId === ally.id)).toBe(true);
+
+            actor.unitClass = 'druid';
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: actor.id });
+            const inspiredAlly = engine.getState().units.find(u => u.id === ally.id)!;
+            expect(inspiredAlly.status?.type).toBe('inspired');
+        });
+
+        it('同盟单位可被穿过但不能被停留', () => {
+            const alliedState = createDemoState({
+                alliances: { 0: 1, 1: 1 }
+            });
+            alliedState.units = [
+                { id: 'p0', ownerId: 0, unitClass: 'soldier', pos: { x: 0, y: 0 }, hp: 100, maxHp: 100, hasMoved: false, hasActed: false },
+                { id: 'p1', ownerId: 1, unitClass: 'soldier', pos: { x: 1, y: 0 }, hp: 100, maxHp: 100, hasMoved: false, hasActed: false }
+            ];
+
+            const alliedReachable = getReachablePositions(alliedState, 'p0');
+            expect(alliedReachable.some(pos => pos.x === 1 && pos.y === 0)).toBe(false);
+            expect(alliedReachable.some(pos => pos.x === 2 && pos.y === 0)).toBe(true);
+
+            const enemyState = createDemoState();
+            enemyState.units = JSON.parse(JSON.stringify(alliedState.units));
+            const enemyReachable = getReachablePositions(enemyState, 'p0');
+            expect(enemyReachable.some(pos => pos.x === 2 && pos.y === 0)).toBe(false);
+        });
+
+        it('只剩同一联盟存活时会以联盟 ID 结束对局', () => {
+            const state = createDemoState({
+                alliances: { 0: 9, 1: 9, 2: 2 }
+            });
+            state.players.push({ id: 2, gold: 0, isAlive: true, commanderDeathCount: 0 });
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: 'u3' });
+
+            const finalState = engine.getState();
+            expect(finalState.players.find(p => p.id === 2)?.isAlive).toBe(false);
+            expect(finalState.winner).toBe(9);
+        });
+
         it('招募执行阶段也会拒绝不满足配置的单位', () => {
             const state = createDemoState();
             state.rules = {

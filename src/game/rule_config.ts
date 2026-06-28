@@ -18,6 +18,7 @@ export const DEFAULT_RULE_CONFIG = {
     defeatOnNoUnits: true,
     defeatOnCommanderDeath: false,
     defeatOnNoCastles: false,
+    alliances: {},
     teams: {}
 } satisfies Required<RuleConfig>;
 
@@ -30,6 +31,10 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
             ...DEFAULT_RULE_CONFIG.prices,
             ...(rules.prices ?? {})
         },
+        alliances: {
+            ...DEFAULT_RULE_CONFIG.alliances,
+            ...(rules.alliances ?? {})
+        },
         teams: {
             ...DEFAULT_RULE_CONFIG.teams,
             ...(rules.teams ?? {})
@@ -39,6 +44,23 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
 
 export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleConfig {
     return getRuleConfig(state).teams[playerId] ?? {};
+}
+
+export function getAllianceId(state: GameState, playerId: number): number {
+    const rules = getRuleConfig(state);
+    return rules.alliances[playerId] ?? playerId;
+}
+
+export function areAlliedPlayers(state: GameState, playerA: number, playerB: number): boolean {
+    return getAllianceId(state, playerA) === getAllianceId(state, playerB);
+}
+
+export function areEnemyPlayers(state: GameState, playerA: number, playerB: number): boolean {
+    return !areAlliedPlayers(state, playerA, playerB);
+}
+
+export function isFriendlyOrNeutralOwner(state: GameState, playerId: number, ownerId: number | null): boolean {
+    return ownerId === null || areAlliedPlayers(state, playerId, ownerId);
 }
 
 export function applyInitialRuleConfig(state: GameState): GameState {

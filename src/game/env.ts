@@ -2,7 +2,7 @@ import { GameEngine } from './engine';
 import { GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
-import { getUnitCost } from './rule_config';
+import { getAllianceId, getUnitCost } from './rule_config';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -166,7 +166,7 @@ export class AncientEmpiresEnv {
                   sparseReward = 0; // Draw
               }
           } else {
-              if (winner === currentPlayerBefore) {
+              if (winner === getAllianceId(this.engine.getState(), currentPlayerBefore)) {
                   sparseReward = 1;
               } else if (winner === -1) {
                   sparseReward = 0;

@@ -2,7 +2,7 @@ import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
-import { canRecruitUnitClass, getRecruitableUnits } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits } from './rule_config';
 
 /**
  * 纯规则校验模块
@@ -105,8 +105,8 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         assaultUnits = assaultUnits.filter(u => u.id === pendingUnitId);
     }
 
-    const enemyUnits = state.units.filter(u => u.ownerId !== playerId);
-    const friendUnits = state.units.filter(u => u.ownerId === playerId);
+    const enemyUnits = state.units.filter(u => areEnemyPlayers(state, u.ownerId, playerId));
+    const friendUnits = state.units.filter(u => areAlliedPlayers(state, u.ownerId, playerId));
 
     // 1. 突击二次移动作为专用合法指令生成
     for (const unit of assaultUnits) {
@@ -191,10 +191,11 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
 
         // 2.6 占领 (城镇和城堡)
-        if (terrainConfig.key === 'town' && tileUnder.ownerId !== playerId && hasAbi(unit, 'village_capturer')) {
+        const canCaptureOwner = tileUnder.ownerId === null || areEnemyPlayers(state, playerId, tileUnder.ownerId);
+        if (terrainConfig.key === 'town' && canCaptureOwner && hasAbi(unit, 'village_capturer')) {
             actions.push({ type: 'capture', unitId: unit.id });
         }
-        if (terrainConfig.key === 'castle' && tileUnder.ownerId !== playerId && hasAbi(unit, 'castle_capturer')) {
+        if (terrainConfig.key === 'castle' && canCaptureOwner && hasAbi(unit, 'castle_capturer')) {
             actions.push({ type: 'capture', unitId: unit.id });
         }
 
