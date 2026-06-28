@@ -1,4 +1,4 @@
-import { GameState, Unit, Ability } from './types';
+import { GameState, LevelCap, Unit, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
 
@@ -247,16 +247,16 @@ export function getEffectiveStats(unit: Unit): EffectiveStats {
     };
 }
 
-export function addExp(unit: Unit, amount: number): boolean {
+export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): boolean {
     if (unit.level === undefined) unit.level = 0;
     if (unit.exp === undefined) unit.exp = 0;
     
-    if (unit.level >= 3) return false; // 满级
+    if (unit.level >= levelCap) return false; // 满级
     
     unit.exp += amount;
     let upgraded = false;
     
-    while (unit.level < 3) {
+    while (unit.level < levelCap) {
         const threshold = unit.level === 0 ? 100 : (unit.level === 1 ? 300 : 600);
         if (unit.exp >= threshold) {
             unit.level = (unit.level + 1) as 0 | 1 | 2 | 3;

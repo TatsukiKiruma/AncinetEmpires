@@ -47,6 +47,23 @@ export interface PlayerState {
     commanderDeathCount: number; // 指挥官死亡次数
 }
 
+export type LevelCap = 0 | 1 | 2 | 3;
+
+export interface TeamRuleConfig {
+    unitLimit?: number;          // 队伍单位数量上限
+    populationLimit?: number;    // 队伍人口上限
+    recruitableUnits?: UnitClass[]; // 队伍允许招募的单位列表
+}
+
+export interface RuleConfig {
+    incomeVillage?: number;          // 村庄每回合收入
+    incomeCastle?: number;           // 城堡每回合收入
+    incomeCommanderBase?: number;    // 指挥官存活基础收入
+    incomeCommanderGrowth?: number;  // 指挥官每级收入成长
+    levelCap?: LevelCap;             // 等级上限
+    teams?: Record<number, TeamRuleConfig>;
+}
+
 export interface GameState {
     turn: number;            // 游戏总回合数
     currentPlayer: number;   // 当前行动的玩家ID (例如 0, 1)
@@ -62,6 +79,7 @@ export interface GameState {
     nextUnitId?: number;     // 确定性单位ID计数
     nextGraveId?: number;    // 确定性墓碑ID计数
     pendingUnitId?: string;  // 当前待处理单位ID (例如刚从城堡招募出来，必须优先行动)
+    rules?: RuleConfig;      // APK/关卡层可覆盖的规则配置
 }
 
 /** 动作必须是结构化对象 */

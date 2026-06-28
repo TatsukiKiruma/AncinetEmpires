@@ -1245,6 +1245,121 @@ describe('GameEngine Rules', () => {
             const diffG = finalState.players[0].gold - prevGold;
             expect(diffG).toBe(125);
         });
+
+        it('6.17 RuleConfig 可以限制等级上限', () => {
+            const state = createDemoState();
+            state.rules = { levelCap: 1 };
+
+            const soldier = state.units[0];
+            soldier.unitClass = 'soldier';
+            soldier.exp = 580;
+            soldier.level = 0;
+            soldier.hp = 50;
+
+            const defender = state.units[1];
+            defender.hp = 100;
+
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            engine.step({ type: 'attack', attackerId: soldier.id, targetId: defender.id });
+
+            const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
+            expect(resSoldier.level).toBe(1);
+            expect(resSoldier.exp).toBe(610);
+        });
+    });
+
+    describe('RuleConfig 对战配置测试', () => {
+        it('可招募列表会限制合法招募动作', () => {
+            const state = createDemoState();
+            state.rules = {
+                teams: {
+                    0: { recruitableUnits: ['soldier'] }
+                }
+            };
+
+            const actions = getLegalActions(state, 0);
+            const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+
+            expect(recruitActions.length).toBeGreaterThan(0);
+            for (const action of recruitActions) {
+                if (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy') {
+                    expect(action.unitClass).toBe('soldier');
+                }
+            }
+        });
+
+        it('单位数量上限会阻止继续招募', () => {
+            const state = createDemoState();
+            state.rules = {
+                teams: {
+                    0: { unitLimit: 2 }
+                }
+            };
+
+            const actions = getLegalActions(state, 0);
+            const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            expect(recruitActions.length).toBe(0);
+        });
+
+        it('人口上限会阻止超出人口的招募', () => {
+            const state = createDemoState();
+            state.rules = {
+                teams: {
+                    0: { populationLimit: 1 }
+                }
+            };
+
+            const actions = getLegalActions(state, 0);
+            const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            expect(recruitActions.length).toBe(0);
+        });
+
+        it('收入配置会覆盖城镇、城堡与指挥官收入', () => {
+            const state = createDemoState();
+            state.rules = {
+                incomeVillage: 70,
+                incomeCastle: 120,
+                incomeCommanderBase: 40,
+                incomeCommanderGrowth: 10
+            };
+
+            const commander = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            commander.level = 2;
+            state.map.tiles[1][1].terrainId = 9;
+            state.map.tiles[1][1].ownerId = 0;
+
+            const prevGold = state.players[0].gold;
+            const engine = new GameEngine(state);
+
+            engine.step({ type: 'end_turn' });
+            engine.step({ type: 'end_turn' });
+
+            const finalState = engine.getState();
+            expect(finalState.players[0].gold - prevGold).toBe(250);
+        });
+
+        it('招募执行阶段也会拒绝不满足配置的单位', () => {
+            const state = createDemoState();
+            state.rules = {
+                teams: {
+                    0: { recruitableUnits: ['soldier'] }
+                }
+            };
+
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            const before = engine.getState();
+            const result = engine.step({
+                type: 'recruit_and_deploy',
+                unitClass: 'dragon',
+                castlePos: { x: 0, y: 0 },
+                to: { x: 1, y: 1 }
+            });
+
+            const after = engine.getState();
+            expect(result.info).toContain('招募失败');
+            expect(after.players[0].gold).toBe(before.players[0].gold);
+            expect(after.units.length).toBe(before.units.length);
+        });
     });
 
     describe('核心规则回归测试', () => {

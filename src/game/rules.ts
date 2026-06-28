@@ -2,6 +2,7 @@ import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
+import { canRecruitUnitClass, getRecruitableUnits } from './rule_config';
 
 /**
  * 纯规则校验模块
@@ -213,8 +214,8 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
     // 3. 招募: 只有在没有 pendingUnitId 时才能招募。
     if (!pendingUnitId) {
-        const playerGold = state.players.find(p => p.id === playerId)?.gold || 0;
-        const recruitClasses = Object.keys(UNIT_CONFIGS).filter(c => c !== 'commander' && UNIT_CONFIGS[c].cost !== null) as UnitClass[];
+        const recruitClasses = getRecruitableUnits(state, playerId)
+            .filter(c => canRecruitUnitClass(state, playerId, c));
         
         // Find all castles owned by player
         for (let y = 0; y < state.map.height; y++) {
@@ -226,19 +227,15 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
                     if (!occupant) {
                         // 城堡为空：使用 recruit_to_castle
                         for (const c of recruitClasses) {
-                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
-                                actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
-                            }
+                            actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
                         }
                     } else if (occupant.ownerId === playerId && occupant.unitClass === 'commander') {
                         // 城堡上有己方指挥官：使用 recruit_and_deploy
                         for (const c of recruitClasses) {
-                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
-                                // 检查可部署的位置
-                                const validSpawns = getRecruitDeployPositions(state, playerId, c, { x, y });
-                                for (const to of validSpawns) {
-                                    actions.push({ type: 'recruit_and_deploy', unitClass: c, castlePos: { x, y }, to });
-                                }
+                            // 检查可部署的位置
+                            const validSpawns = getRecruitDeployPositions(state, playerId, c, { x, y });
+                            for (const to of validSpawns) {
+                                actions.push({ type: 'recruit_and_deploy', unitClass: c, castlePos: { x, y }, to });
                             }
                         }
                     }

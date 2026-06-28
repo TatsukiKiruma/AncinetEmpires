@@ -3,6 +3,7 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
+import { canRecruitUnitClass, getRuleConfig, getTerrainIncome } from './rule_config';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -180,6 +181,7 @@ export class GameEngine {
         
         let reward = 0;
         let info = '';
+        const ruleConfig = getRuleConfig(this.state);
 
         switch (action.type) {
             case 'move': {
@@ -252,7 +254,7 @@ export class GameEngine {
                     reward += dmg * 0.1; 
 
                     // 经验值：攻击者获得 30 经验
-                    addExp(attacker, 30);
+                    addExp(attacker, 30, ruleConfig.levelCap);
 
                     // 被动状态附加（反击不触发中毒和致盲）
                     if (target.hp > 0 && !target.status) {
@@ -275,11 +277,11 @@ export class GameEngine {
                             info += ` Target counterattacked for ${counterDmg} dmg.`;
 
                             // 经验值：反击者获得 10 经验
-                            addExp(target, 10);
+                            addExp(target, 10, ruleConfig.levelCap);
 
                             // 如果反击导致攻击者死亡
                             if (attacker.hp <= 0) {
-                                addExp(target, 60); // 击杀经验 +60
+                                addExp(target, 60, ruleConfig.levelCap); // 击杀经验 +60
                                 
                                 // 生成墓碑（若非亡灵）
                                 if (!isUndead(attacker)) {
@@ -298,7 +300,7 @@ export class GameEngine {
                         }
                     } else {
                         // 主动攻击导致击杀：获得 60 经验
-                        addExp(attacker, 60);
+                        addExp(attacker, 60, ruleConfig.levelCap);
 
                         // 生成墓碑（若非亡灵）
                         if (!isUndead(target)) {
@@ -337,7 +339,7 @@ export class GameEngine {
                     if (isUndead(target)) {
                         target.hp = Math.max(0, target.hp - healVal);
                         if (target.hp <= 0 && !hasAbility(healer, 'undead')) {
-                            addExp(healer, 60); // 击杀经验
+                            addExp(healer, 60, ruleConfig.levelCap); // 击杀经验
                         }
                     } else {
                         // APK 明确治疗师治疗可以突破目标最大血量；普通地形/光环回复仍保留上限。
@@ -346,7 +348,7 @@ export class GameEngine {
                     }
                     
                     // 经验
-                    addExp(healer, 30);
+                    addExp(healer, 30, ruleConfig.levelCap);
                     
                     healer.hasMoved = true;
                     healer.hasActed = true;
@@ -381,7 +383,7 @@ export class GameEngine {
                     }
                     
                     // 经验
-                    addExp(summoner, 10);
+                    addExp(summoner, 10, ruleConfig.levelCap);
                     
                     summoner.hasMoved = true;
                     summoner.hasActed = true;
@@ -399,7 +401,7 @@ export class GameEngine {
                     target.hasBeenSupportedThisTurn = true;
                     
                     // 经验
-                    addExp(supporter, 10);
+                    addExp(supporter, 10, ruleConfig.levelCap);
                     
                     supporter.hasMoved = true;
                     supporter.hasActed = true;
@@ -418,7 +420,7 @@ export class GameEngine {
                         info = `Unit ${destroyer.id} destroyed town at ${destroyer.pos.x},${destroyer.pos.y}`;
                         
                         // 经验
-                        addExp(destroyer, 30);
+                        addExp(destroyer, 30, ruleConfig.levelCap);
                     }
                     
                     destroyer.hasMoved = true;
@@ -471,7 +473,7 @@ export class GameEngine {
             }
             case 'recruit_to_castle': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
-                if (player) {
+                if (player && canRecruitUnitClass(this.state, this.state.currentPlayer, action.unitClass)) {
                     const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
                     player.gold -= cost;
                     const nextId = this.state.nextUnitId ?? 100;
@@ -492,12 +494,14 @@ export class GameEngine {
                     this.state.pendingUnitId = newUnitId;
                     info = `招募单位进入待行动状态 at ${action.castlePos.x},${action.castlePos.y}`;
                     reward += 1; 
+                } else {
+                    info = '招募失败：不满足当前规则限制';
                 }
                 break;
             }
             case 'recruit_and_deploy': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
-                if (player) {
+                if (player && canRecruitUnitClass(this.state, this.state.currentPlayer, action.unitClass)) {
                     const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
                     player.gold -= cost;
                     const nextId = this.state.nextUnitId ?? 100;
@@ -519,6 +523,8 @@ export class GameEngine {
                     this.state.pendingUnitId = newUnitId;
                     info = `招募单位已部署，等待完成行动 at ${action.to.x},${action.to.y}`;
                     reward += 1; 
+                } else {
+                    info = '招募失败：不满足当前规则限制';
                 }
                 break;
             }
@@ -558,7 +564,7 @@ export class GameEngine {
                         for (let x = 0; x < this.state.map.width; x++) {
                            const tile = this.state.map.tiles[y][x];
                            if (tile.ownerId === nextPlayerId) {
-                               const income = TERRAIN_CONFIG[tile.terrainId].incomePerTurn || 0;
+                               const income = getTerrainIncome(this.state, tile.terrainId);
                                totalIncome += income;
                            }
                         }
@@ -568,7 +574,7 @@ export class GameEngine {
                     const cmdrs = this.state.units.filter(u => u.ownerId === nextPlayerId && u.unitClass === 'commander');
                     cmdrs.forEach(c => {
                         const lvl = c.level ?? 0;
-                        totalIncome += lvl * 25; // 每级 +25 金币
+                        totalIncome += ruleConfig.incomeCommanderBase + lvl * ruleConfig.incomeCommanderGrowth;
                     });
 
                     nextPlayer.gold += totalIncome;
