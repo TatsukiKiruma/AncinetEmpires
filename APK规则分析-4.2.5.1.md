@@ -260,6 +260,7 @@ APK 规则中涉及的加成：
 | `Stage.SyncSetUnitLimitForTeam` | 配置某队单位上限 |
 | `Stage.SyncSetRecruitUnits` | 配置通用可招募单位列表 |
 | `Stage.SyncSetUnitLimit` | 配置通用单位上限 |
+| `Stage.SyncSetGold` | 配置通用金币 |
 | `Stage.SyncSetUnitStatus` | 设置单位状态和回合数 |
 | `Stage.SyncSetGoldForTeam` | 设置某队金币 |
 | `Stage.AsyncCreateUnit` | 创建单位 |
@@ -542,3 +543,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已解出 21 条 APK 单位基础数值，并记录到第 4.1 节。
 - 黑魔法师攻击从 45 校准为 APK 的 50。
 - 史莱姆魔法防御按 APK 元素防御公式从 -20 校准为 -10。
+
+2026-06-29 全局初始金币规则补充：
+
+- 解密脚本确认 `Stage.SyncSetGold(value)` 是单参数全局金币设置，战役中常见 300、400、450、500、600、800 等配置。
+- `RuleConfig.initialGold` 新增全局初始金币配置；`TeamRuleConfig.initialGold` 仍可覆盖指定队伍。

@@ -58,6 +58,7 @@ export interface TeamRuleConfig {
 }
 
 export interface RuleConfig {
+    initialGold?: number;             // 全局初始金币，队伍配置可覆盖
     incomeVillage?: number;          // 村庄每回合收入
     incomeCastle?: number;           // 城堡每回合收入
     incomeCommanderBase?: number;    // 指挥官存活基础收入

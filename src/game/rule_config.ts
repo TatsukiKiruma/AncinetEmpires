@@ -3,6 +3,7 @@ import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { TerrainId } from './terrain';
 
 export const DEFAULT_RULE_CONFIG = {
+    initialGold: undefined,
     incomeVillage: 50,
     incomeCastle: 100,
     incomeCommanderBase: 0,
@@ -43,7 +44,7 @@ export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleC
 export function applyInitialRuleConfig(state: GameState): GameState {
     const rules = getRuleConfig(state);
     for (const player of state.players) {
-        const initialGold = rules.teams[player.id]?.initialGold;
+        const initialGold = rules.teams[player.id]?.initialGold ?? rules.initialGold;
         if (initialGold !== undefined) {
             player.gold = initialGold;
         }

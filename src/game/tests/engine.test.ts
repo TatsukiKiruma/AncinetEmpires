@@ -1302,6 +1302,18 @@ describe('GameEngine Rules', () => {
     });
 
     describe('RuleConfig 对战配置测试', () => {
+        it('全局初始金币配置会应用到所有队伍，队伍配置可覆盖', () => {
+            const state = createDemoState({
+                initialGold: 300,
+                teams: {
+                    1: { initialGold: 450 }
+                }
+            });
+
+            expect(state.players[0].gold).toBe(300);
+            expect(state.players[1].gold).toBe(450);
+        });
+
         it('队伍初始金币配置会在创建初始状态时生效', () => {
             const defaultState = createDemoState();
             expect(defaultState.players[0].gold).toBe(500);
