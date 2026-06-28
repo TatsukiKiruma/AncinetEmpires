@@ -8,6 +8,9 @@ export const DEFAULT_RULE_CONFIG = {
     incomeCommanderBase: 0,
     incomeCommanderGrowth: 25,
     levelCap: 3,
+    prices: {},
+    commanderRecruitBaseCost: null,
+    commanderRecruitCostGrowth: 100,
     teams: {}
 } satisfies Required<RuleConfig>;
 
@@ -16,6 +19,10 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
     return {
         ...DEFAULT_RULE_CONFIG,
         ...rules,
+        prices: {
+            ...DEFAULT_RULE_CONFIG.prices,
+            ...(rules.prices ?? {})
+        },
         teams: {
             ...DEFAULT_RULE_CONFIG.teams,
             ...(rules.teams ?? {})
@@ -27,15 +34,27 @@ export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleC
     return getRuleConfig(state).teams[playerId] ?? {};
 }
 
+export function getUnitCost(state: GameState, playerId: number, unitClass: UnitClass): number | null {
+    const rules = getRuleConfig(state);
+    const priceOverride = rules.prices[unitClass];
+    if (priceOverride !== undefined) return priceOverride;
+
+    if (unitClass === 'commander') {
+        if (rules.commanderRecruitBaseCost === null) return null;
+        const deathCount = state.players.find(p => p.id === playerId)?.commanderDeathCount ?? 0;
+        return rules.commanderRecruitBaseCost + deathCount * rules.commanderRecruitCostGrowth;
+    }
+
+    return UNIT_CONFIGS[unitClass].cost;
+}
+
 export function getRecruitableUnits(state: GameState, playerId: number): UnitClass[] {
     const teamRules = getTeamRuleConfig(state, playerId);
     const configuredUnits = teamRules.recruitableUnits
-        ?? Object.values(UNIT_CONFIGS)
-            .filter(config => config.cost !== null)
-            .map(config => config.key);
+        ?? (Object.keys(UNIT_CONFIGS) as UnitClass[]);
 
     return [...new Set(configuredUnits)]
-        .filter(unitClass => UNIT_CONFIGS[unitClass].cost !== null);
+        .filter(unitClass => getUnitCost(state, playerId, unitClass) !== null);
 }
 
 export function getCurrentUnitCount(state: GameState, playerId: number): number {
@@ -51,8 +70,14 @@ export function getCurrentPopulation(state: GameState, playerId: number): number
 export function canRecruitUnitClass(state: GameState, playerId: number, unitClass: UnitClass): boolean {
     const player = state.players.find(p => p.id === playerId);
     const unitConfig = UNIT_CONFIGS[unitClass];
-    if (!player || !unitConfig || unitConfig.cost === null) return false;
-    if (player.gold < unitConfig.cost) return false;
+    const unitCost = getUnitCost(state, playerId, unitClass);
+    if (!player || !unitConfig || unitCost === null) return false;
+    if (player.gold < unitCost) return false;
+
+    if (unitClass === 'commander') {
+        const hasAliveCommander = state.units.some(unit => unit.ownerId === playerId && unit.unitClass === 'commander' && unit.hp > 0);
+        if (hasAliveCommander) return false;
+    }
 
     const recruitableUnits = getRecruitableUnits(state, playerId);
     if (!recruitableUnits.includes(unitClass)) return false;

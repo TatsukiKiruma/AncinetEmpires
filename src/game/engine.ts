@@ -3,7 +3,7 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { canRecruitUnitClass, getRuleConfig, getTerrainIncome } from './rule_config';
+import { canRecruitUnitClass, getRuleConfig, getTerrainIncome, getUnitCost } from './rule_config';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -111,6 +111,16 @@ export class GameEngine {
             throw new Error('Config missing on reset.');
         }
         return this.getState();
+    }
+
+    private recordCommanderDeaths(deadUnits: Unit[]) {
+        for (const unit of deadUnits) {
+            if (unit.unitClass !== 'commander') continue;
+            const player = this.state.players.find(p => p.id === unit.ownerId);
+            if (player) {
+                player.commanderDeathCount += 1;
+            }
+        }
     }
 
     private triggerAuras(unit: Unit) {
@@ -474,7 +484,7 @@ export class GameEngine {
             case 'recruit_to_castle': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
                 if (player && canRecruitUnitClass(this.state, this.state.currentPlayer, action.unitClass)) {
-                    const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
+                    const cost = getUnitCost(this.state, this.state.currentPlayer, action.unitClass) ?? 0;
                     player.gold -= cost;
                     const nextId = this.state.nextUnitId ?? 100;
                     const newUnitId = `u_${nextId}`;
@@ -502,7 +512,7 @@ export class GameEngine {
             case 'recruit_and_deploy': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
                 if (player && canRecruitUnitClass(this.state, this.state.currentPlayer, action.unitClass)) {
-                    const cost = UNIT_CONFIGS[action.unitClass].cost || 0;
+                    const cost = getUnitCost(this.state, this.state.currentPlayer, action.unitClass) ?? 0;
                     player.gold -= cost;
                     const nextId = this.state.nextUnitId ?? 100;
                     const newUnitId = `u_${nextId}`;
@@ -673,6 +683,8 @@ export class GameEngine {
         this.checkWinConditions();
 
         const preLen = this.state.units.length;
+        const deadUnits = this.state.units.filter(u => u.hp <= 0);
+        this.recordCommanderDeaths(deadUnits);
         this.state.units = this.state.units.filter(u => u.hp > 0);
         if (this.state.units.length < preLen) {
             info += ` Unit(s) died.`;

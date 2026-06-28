@@ -1338,6 +1338,66 @@ describe('GameEngine Rules', () => {
             expect(finalState.players[0].gold - prevGold).toBe(250);
         });
 
+        it('价格配置会覆盖招募扣费', () => {
+            const state = createDemoState();
+            state.players[0].gold = 100;
+            state.rules = {
+                prices: { soldier: 50 },
+                teams: {
+                    0: { recruitableUnits: ['soldier'] }
+                }
+            };
+
+            const engine = new GameEngine(state);
+            const recruitAction = engine.getLegalActions(0).find(a => a.type === 'recruit_and_deploy');
+            expect(recruitAction).toBeDefined();
+
+            engine.step(recruitAction!);
+            expect(engine.getState().players[0].gold).toBe(50);
+        });
+
+        it('指挥官死亡会记录死亡次数，但不直接淘汰仍有单位的玩家', () => {
+            const state = createDemoState();
+            const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            attacker.unitClass = 'dragon';
+            attacker.pos = { x: 6, y: 6 };
+
+            const commander = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
+            commander.pos = { x: 6, y: 7 };
+            commander.hp = 5;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
+
+            const finalState = engine.getState();
+            expect(finalState.players[1].commanderDeathCount).toBe(1);
+            expect(finalState.players[1].isAlive).toBe(true);
+            expect(finalState.units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
+        });
+
+        it('配置开启后可按死亡次数递增价格重招募指挥官', () => {
+            const state = createDemoState();
+            state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
+            state.players[0].gold = 1000;
+            state.players[0].commanderDeathCount = 2;
+            state.rules = {
+                commanderRecruitBaseCost: 400,
+                commanderRecruitCostGrowth: 100,
+                teams: {
+                    0: { recruitableUnits: ['commander'] }
+                }
+            };
+
+            const engine = new GameEngine(state);
+            const recruitAction = engine.getLegalActions(0).find(a => a.type === 'recruit_to_castle' && a.unitClass === 'commander');
+            expect(recruitAction).toBeDefined();
+
+            engine.step(recruitAction!);
+            const finalState = engine.getState();
+            expect(finalState.players[0].gold).toBe(400);
+            expect(finalState.units.some(u => u.ownerId === 0 && u.unitClass === 'commander')).toBe(true);
+        });
+
         it('招募执行阶段也会拒绝不满足配置的单位', () => {
             const state = createDemoState();
             state.rules = {
