@@ -5,6 +5,10 @@ import { GameState, RuleConfig, Unit, UnitClass } from './types';
 
 export const APK_AEM_MAGIC = 365703;
 export const APK_AEM_TERRAIN_RECORD_SIZE = 4;
+export const APK_AEM_ZERO_SUFFIX_TAIL_HEX = '00 00 00 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff 00 00 00 00 00 00 00 00';
+export const APK_AEM_FF_SUFFIX_TAIL_HEX = '00 00 00 00 06 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff';
+
+export type ApkAemTailTemplate = 'none' | 'zero_suffix_58' | 'ff_suffix_58' | 'unknown';
 
 export interface ApkAemTerrainCell {
     x: number;
@@ -25,6 +29,14 @@ export interface ApkAemUnit {
     unitClass: UnitClass | null;
 }
 
+export interface ApkAemTail {
+    offset: number;
+    length: number;
+    hex: string;
+    bytes: number[];
+    template: ApkAemTailTemplate;
+}
+
 export interface ApkAemMap {
     magic: number;
     width: number;
@@ -39,6 +51,7 @@ export interface ApkAemMap {
     units: ApkAemUnit[];
     recommendedGold: number | null;
     tailOffset: number;
+    tail: ApkAemTail;
 }
 
 export interface CreateGameStateFromApkAemMapOptions {
@@ -102,6 +115,33 @@ function readAscii(data: Uint8Array, offset: number, length: number): string {
         value += String.fromCharCode(data[offset + i]);
     }
     return value;
+}
+
+function toHex(data: Uint8Array): string {
+    return Array.from(data)
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join(' ');
+}
+
+function identifyTailTemplate(hex: string, length: number): ApkAemTailTemplate {
+    if (length === 0) return 'none';
+    if (hex === APK_AEM_ZERO_SUFFIX_TAIL_HEX) return 'zero_suffix_58';
+    if (hex === APK_AEM_FF_SUFFIX_TAIL_HEX) return 'ff_suffix_58';
+    return 'unknown';
+}
+
+function parseTail(data: Uint8Array, offset: number): ApkAemTail {
+    requireBytes(data, offset, 0);
+    const bytes = data.slice(offset);
+    const hex = toHex(bytes);
+
+    return {
+        offset,
+        length: bytes.length,
+        hex,
+        bytes: Array.from(bytes),
+        template: identifyTailTemplate(hex, bytes.length)
+    };
 }
 
 function parseNullableAuthor(data: Uint8Array): { author: string | null; nextOffset: number } {
@@ -243,6 +283,7 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
     }
     const tailStart = offset + terrainCount * APK_AEM_TERRAIN_RECORD_SIZE;
     const unitBlock = parseUnits(data, tailStart, width, height);
+    const tail = parseTail(data, unitBlock.tailOffset);
 
     return {
         magic,
@@ -253,7 +294,8 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
         terrainRecordOffset: offset,
         terrainCount,
         terrain,
-        ...unitBlock
+        ...unitBlock,
+        tail
     };
 }
 

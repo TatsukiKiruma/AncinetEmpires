@@ -15,7 +15,7 @@
 - 当前项目规则代码：`src/game`
 - 当前项目规则文档：`README.md`、`远古帝国AI训练规则整理.md`、`远古帝国AI训练项目上下文.md`
 
-后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续补齐了 APK skirmish `.aem` 地图头部和地形矩阵解析。
+后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续接入 APK skirmish `.aem` 尾部模板记录和 SD/SO 模式规则入口。
 
 ## 2. 结论摘要
 
@@ -29,12 +29,13 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 4. 空军攻击水中非空军单位已增加攻击 +10；目标同为空军时不触发。
 5. 已加入 APK 第 11 号 `水晶 / Crystal` 占位单位，并新增 APK 单位/状态/能力 ID 映射。
 6. skirmish 默认队伍摧毁条件已改为“无单位且无城堡”，并保留单独无单位/无城堡/指挥官阵亡作为可配置目标条件。
+7. AEM 解析器已保留推荐金币后的尾部模板；SD/SO skirmish 模式已有独立入口，SO 模式按脚本限制 APK ID 0-8 可招募单位。
 
 仍未完成的关键差异：
 
 1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置；skirmish 终局默认已从 SD/SO 脚本确认，但经济/单位上限等默认值仍需继续归档。
 2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程和默认费用仍需反编译或实测确认。
-3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位和推荐金币已结构化，完整地形 ID 映射、尾部玩家/联盟预设和战役特殊规则仍未完全转为项目配置。
+3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币和尾部模板已结构化，完整地形 ID 映射、尾部 58 字节业务语义和战役特殊规则仍未完全转为项目配置。
 
 ### 2.1 当前复核与覆盖结论
 
@@ -47,7 +48,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 | 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | APK 各关卡真实默认值需要从脚本全量归档 |
 | 回合/联盟/队伍 | `SyncSetCurrentTeam`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`、`SyncGameOver` | 多队伍轮转、联盟关系、禁用/恢复/销毁队伍和强制终局已有基础适配 | 仍缺完整战役脚本执行器和地图/队伍初始化导入 |
 | 指挥官 | `CheckCommander`、`GetCommander`、`SyncSetCommander`、指挥官收入文案 | 已支持队伍级 `commanderUnitIds`，`SyncSetCommander` 可按坐标把己方单位指定为指挥官；收入、死亡计数、重招募和指挥官阵亡淘汰使用同一模型 | APK 方法表显示 `SyncSetCommander(int team, int index)`，但错误字符串是坐标语义；当前按坐标落地，官方复活流程仍未确认 |
-| 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币和已知地形映射 | 84 条 APK tile 到项目 `TerrainId` 的完整映射、尾部玩家/联盟预设和完整 `GameState` 导入仍需校准 |
+| 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币、尾部模板和已知地形映射；`apk_skirmish.ts` 可按 SD/SO 导入 | 84 条 APK tile 到项目 `TerrainId` 的完整映射和尾部 58 字节业务语义仍需校准 |
 | 战役脚本 | Rhino、`.js/.json/.aem`、大量 `Stage.*` API | 已有部分 Stage/Rule 同步适配函数和统计查询函数 | 异步剧情动作、目标系统、单位代码/头像/静态/目标标记、移动覆盖等仍未落地 |
 
 ## 3. APK 结构观察
@@ -77,7 +78,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 - `data.bin` 开头包含自定义序列化 magic `365703`，随后保存 8 字节 DES key；后续 payload 使用 `DES/CBC/PKCS5Padding`，key 与 IV 相同。
 - `mods/*/*.js`、`mods/*/*.json`、`maps/*.aem` 初始不是明文，直接尝试 zlib/gzip/bz2/lzma 均失败；使用 `data.bin` key 后已确认可以解密。
 - `.js` 脚本已能提取 `Stage.SyncSetGold`、`Stage.SyncSetUnitLimit`、`Stage.SyncSetRecruitUnits` 等关卡配置调用。
-- `.aem` 地图已确认顶层结构包含宽高、作者、队伍、地形、单位、推荐金币、玩家预设和联盟预设；完整地形 ID 到项目地形类型的映射仍需继续校准。
+- `.aem` 地图已确认顶层结构包含宽高、作者、队伍、地形、单位和推荐金币；推荐金币后的 58 字节固定尾部有两种模板，当前不能证明其为玩家或联盟预设。完整地形 ID 到项目地形类型的映射仍需继续校准。
 - 当前机器没有 `jadx`、`apktool`、`baksmali` 命令，因此还没有完成完整 Java 反编译；DEX 字符串和方法表只用于确认可见 API 与少量短方法行为。
 
 ## 4. APK 确认的单位表
@@ -415,7 +416,18 @@ skirmish 训练导入映射：
 | 单位记录 | 20 byte/条，最后一条 17 byte | 字段为 `apkUnitId, teamId, extra, x, y`；前四项为 int32 LE，非最后记录的 `y` 为 int32 LE，最后记录的 `y` 只占 1 byte，之后直接接推荐金币 |
 | 单位区后 | int32 BE | 推荐金币；`-1` 表示无推荐金币 |
 
-本轮已把头部、地形矩阵、初始单位和推荐金币作为已确认格式接入。推荐金币之后每张 skirmish 地图还剩固定 58 字节，推测包含玩家预设和联盟预设，但字段语义尚未完全确认，暂不写入规则。
+本轮已把头部、地形矩阵、初始单位和推荐金币作为已确认格式接入。推荐金币之后每张 skirmish 地图还剩固定 58 字节；复核结果显示 20 张根目录 skirmish 地图全部是同一个 `zero_suffix_58` 模板，不随 2/3/4 人数量、队伍 ID、初始单位或推荐金币变化。因此当前不能把该尾部解释为玩家/联盟预设，只能记录为“固定尾部模板，语义未确认”。
+
+本轮复核与实现统计：
+
+| 范围 | 可解析数量 | 尾部长度 | 模板分布 |
+| --- | ---: | ---: | --- |
+| 根目录 `assets/maps/*.aem` skirmish 地图 | 20 | 58 | `zero_suffix_58`: 20 |
+| 全部可按当前结构解析的 `.aem` | 42 | 58 | `zero_suffix_58`: 34；`ff_suffix_58`: 8 |
+
+另有 3 个战役 `.aem` 在当前解析器下出现 `unitValueCount = -256`，说明单位块可能有特殊格式，暂未纳入尾部模板结论。
+
+代码侧 `parseApkAemMap` 已把尾部记录为 `tail.offset/tail.length/tail.hex/tail.bytes/tail.template`。该字段只保留证据，不参与联盟、玩家颜色或阵营推断。
 
 20 张内置 skirmish 地图的头部、关键地形、初始单位和推荐金币如下。`N` 表示中立/无归属；城堡/城镇统计只统计 APK tile `t37/t36`。单位格式为 `team@x,y#apkUnitId`，当前 20 张图中 `#9` 为指挥官。
 
@@ -585,7 +597,7 @@ skirmish 训练导入映射：
    - 状态：已实现配置层；默认启用 skirmish 的“无单位且无城堡淘汰”，其它目标条件按脚本/训练配置开启。
 
 8. 队伍联盟关系需要进入对战规则层
-   - APK：语言表有 `Alliance` 和 `Set Alliance`，`.aem` 顶层结构含联盟预设，DEX 方法表有 `SyncGameOver(int alliance)`。
+   - APK：语言表有 `Alliance` 和 `Set Alliance`，DEX 方法表有 `SyncGameOver(int alliance)`；`.aem` 推荐金币后的 58 字节尾部暂不能证明为联盟预设。
    - 项目：已通过 `RuleConfig.alliances` 接入队伍到联盟 ID 的映射；攻击、治疗、支援、光环、移动阻挡、友方建筑回血、胜负判断和 AI 终局奖励均按联盟关系处理。
    - 状态：已实现基础对战规则层。默认不配置时每队自成联盟，保持现有双人训练行为。
 
@@ -689,6 +701,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2. 用 APK 实测或反编译结果校准招募后的 stacked/pending 细节。
 3. 在规则引擎中补齐官方指挥官复活流程和价格默认值等仍未落地的对战规则。
 4. 校准 84 条 APK 地形定义到项目地形类型的映射，尤其是桥、水面、建筑和特殊地形。
+5. 继续确认 `.aem` 尾部 58 字节模板语义；在语义确认前，不应把固定尾部用于推导联盟、玩家颜色或阵营预设。
 
 当前最值得继续落地的规则任务是：完成地形映射归档、系统化提取脚本配置表，并用 APK 实测或更完整反编译结果校准招募 pending 细节与指挥官复活流程。
 
@@ -880,10 +893,20 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已用真实 APK 的 20 张 `assets/maps/*.aem` 验证全部可导入；推荐金币为 `-1` 的地图导入金币为 0，可由外部规则配置覆盖。
 - 验证：`npm test` 204 个测试通过，`npm run lint` 通过；另用解密脚本确认 `IMPORTED 20 / 20`。
 
+2026-06-29 APK AEM 尾部模板与 skirmish 模式入口补充：
+
+- `src/game/apk_map.ts` 新增 AEM 尾部模板识别，保留原始字节、十六进制和模板名；已知模板为 `zero_suffix_58` 与 `ff_suffix_58`。
+- 新增 `src/game/apk_skirmish.ts`，集中封装 APK skirmish 模式规则；`SD` 使用默认 skirmish 终局，`SO` 额外按 `SO/controller.js` 写入 `SyncSetRecruitUnits(0..8)` 对应的 9 个基础单位。
+- `createApkSkirmishGameState` 在 AEM 导入时合并模式规则和外部覆盖规则，作为后续 AI 训练加载 APK skirmish 地图的稳定入口。
+- 20 张根目录 skirmish `.aem` 的推荐金币后均剩余 58 字节，且尾部完全一致，模板记为 `zero_suffix_58`。
+- 全部可按当前结构解析的 42 个 `.aem` 中，`zero_suffix_58` 出现 34 次，`ff_suffix_58` 出现 8 次；另有 3 个战役地图因单位块格式特殊暂未解析。
+- 该尾部不随玩家数量、队伍 ID、初始单位或推荐金币变化，当前不能作为玩家/联盟预设使用；联盟规则仍应优先来自脚本 `SyncSetAlliance` 或明确的模式配置。
+- 验证：`npm test` 204 个测试通过，`npm run lint` 通过；使用真实 APK 的 20 张 `assets/maps/*.aem` 验证 `createApkSkirmishGameState` 的 SD/SO 导入，结果为 `SKIRMISH_IMPORTED 20`，尾部模板统计为 `{"zero_suffix_58":20}`。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
 - 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则，完成 84 条地形基础数据归档，把神庙清除负面状态改为地形标签语义，按 SD/SO skirmish 脚本修正默认队伍摧毁条件，并开始结构化解析 skirmish `.aem` 地图头部、地形矩阵、初始单位和推荐金币；当前最重要的差距仍是完整 APK tile 到项目地形映射、`.aem` 剩余 58 字节玩家/联盟预设和完整 `GameState` 导入。
+- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地。当前最重要的差距仍是完整 APK tile 到项目地形映射、`.aem` 尾部业务语义和更系统的脚本配置归档。

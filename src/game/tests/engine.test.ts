@@ -8,7 +8,8 @@ import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
-import { APK_AEM_MAGIC, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
+import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
+import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
@@ -91,6 +92,7 @@ describe('GameEngine Rules', () => {
         const pushTerrainRecord = (apkTerrainId: number, ownerCode: number) => {
             pushUInt32BE((apkTerrainId << 12) | ownerCode);
         };
+        const parseHex = (hex: string): number[] => hex.split(' ').map(part => parseInt(part, 16));
 
         pushUInt32BE(APK_AEM_MAGIC);
         pushUInt32LE(0);
@@ -142,6 +144,8 @@ describe('GameEngine Rules', () => {
         expect(map.terrain[2][1].ownerId).toBe(1);
         expect(map.unitValueCount).toBe(10);
         expect(map.recommendedGold).toBe(300);
+        expect(map.tail.template).toBe('none');
+        expect(map.tail.length).toBe(0);
         expect(map.units).toEqual([
             { apkUnitId: 9, teamId: 0, extra: 0, x: 0, y: 0, unitClass: 'commander' },
             { apkUnitId: 9, teamId: 1, extra: 0, x: 1, y: 2, unitClass: 'commander' },
@@ -163,6 +167,25 @@ describe('GameEngine Rules', () => {
             '1:commander@1,2'
         ]);
         expect(state.rules?.defeatOnNoUnitsAndNoCastles).toBe(true);
+
+        const mapWithSkirmishTail = parseApkAemMap(new Uint8Array([...bytes, ...parseHex(APK_AEM_ZERO_SUFFIX_TAIL_HEX)]));
+        expect(mapWithSkirmishTail.tail.template).toBe('zero_suffix_58');
+        expect(mapWithSkirmishTail.tail.length).toBe(58);
+
+        expect(getApkSkirmishRuleConfig('SD').recruitableUnits).toBeUndefined();
+        expect(getApkSkirmishRuleConfig('SO').recruitableUnits).toEqual([
+            'soldier',
+            'archer',
+            'water_elemental',
+            'witch',
+            'elf',
+            'wolf',
+            'golem',
+            'catapult',
+            'dragon'
+        ]);
+        const soState = createApkSkirmishGameState(mapWithSkirmishTail, { mode: 'SO' });
+        expect(soState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
     });
 
     it('初始化与状态克隆不影响原状态', () => {

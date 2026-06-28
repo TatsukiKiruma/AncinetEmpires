@@ -11,13 +11,13 @@
 - 解包目录：`C:\code\AncinetEmpires\APK\_analysis\unpack`
 - 项目规则代码：`src/game`
 
-本次只做 APK 与项目规则对比，并输出文档；未修改 `src`、`demo` 或其他项目代码。
+本报告记录 APK 与项目规则对比；本轮继续把已确认的 skirmish 模式规则和 AEM 尾部模板识别落地到 `src/game`，未修改 `demo`。
 
 ## 2. 总体结论
 
 当前项目已经覆盖 APK 4.2.5.1 的主要 skirmish 对战规则骨架：21 个单位、26 个能力、4 个状态、核心伤害公式、城堡/城镇收入、招募限制、指挥官收入、多队伍/联盟、单位上限、可招募列表、价格覆盖和 skirmish 默认终局条件。
 
-仍未完全对齐的是“战役脚本层和低可信资源语义”：APK 有 84 条地形 tile 变体、90 个 `.aem` 地图资源、27 个可解密 `.js` 脚本以及大量异步剧情/目标 API。项目目前已归档 84 条地形基础数据，并为 skirmish 训练导入建立了单独的 tile 近似映射；20 张内置 skirmish `.aem` 已能转为 `GameState`。但 `.aem` 尾部玩家/联盟预设、低可信治疗建筑/水中建筑分类和战役特殊脚本仍未完全还原。
+仍未完全对齐的是“战役脚本层和低可信资源语义”：APK 有 84 条地形 tile 变体、90 个 `.aem` 地图资源、27 个可解密 `.js` 脚本以及大量异步剧情/目标 API。项目目前已归档 84 条地形基础数据，并为 skirmish 训练导入建立了单独的 tile 近似映射；20 张内置 skirmish `.aem` 已能转为 `GameState`，并可按 SD/SO 模式应用默认终局和 SO 的 APK ID 0-8 可招募限制。但 `.aem` 尾部 58 字节模板语义、低可信治疗建筑/水中建筑分类和战役特殊脚本仍未完全还原。
 
 如果目标是 AI 训练用的 skirmish 规则，当前项目已经接近可用；如果目标是“demo 和 APK 实际游戏完全一致”，还需要继续补齐地形映射、地图导入、脚本配置归档和战役目标/剧情 API。
 
@@ -27,7 +27,7 @@
 | --- | --- | --- |
 | `assets/languages/zh.lang` / `en.lang` | 明文包含 21 个单位名、26 个能力名、4 个状态名、状态/地形/战斗/招募说明 | 可确认单位、能力、状态、公式和基础交互 |
 | `assets/data.bin` | 自定义 magic `365703`，含 DES key；已解析 21 条单位数据和 84 条地形 tile 数据 | 可确认单位数值、成长、人口、地形防御/回血/移动 |
-| `assets/maps/*.aem` | 20 张内置 skirmish 地图可解密解析 | 可确认地图尺寸、玩家 ID、初始单位、建筑归属、推荐金币 |
+| `assets/maps/*.aem` | 20 张内置 skirmish 地图可解密解析 | 可确认地图尺寸、玩家 ID、初始单位、建筑归属、推荐金币；推荐金币后固定 58 字节尾部暂不能证明为玩家/联盟配置 |
 | `assets/mods/**/*.js` | 27 个脚本可解密，出现大量 `Stage.*` 调用 | 可确认关卡配置能力、目标判断和 skirmish 控制逻辑 |
 | `classes.dex` 字符串 | 暴露 `Stage.*`、`Rule.*`、`Cannot ... when stacked!` 等字符串 | 可确认官方引擎有待处理/堆叠状态、脚本配置 API |
 
@@ -56,9 +56,9 @@
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现 | 基础对齐，细节待实测 |
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
-| skirmish 终局 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍 | 默认 `defeatOnNoUnitsAndNoCastles = true` | 已对齐 |
+| skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置 | 已对齐 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
-| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createGameStateFromApkAemMap` 可生成训练用 `GameState` | 基础导入已完成 |
+| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
 | 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数 | 基础对齐，复活流程未知 |
 
@@ -144,18 +144,25 @@ DEX 与脚本确认：
 | 2 人图 | 8 | 初始单位多数为双方指挥官；`Swamplands` 额外有 4 个战士 |
 | 3 人图 | 4 | 玩家 ID 有 `0,1,2` 或 `0,2,3` |
 | 4 人图 | 8 | 玩家 ID 为 `0,1,2,3` |
-| 地图尾部 | 20/20 | 推荐金币后均还有固定 58 字节尾部，疑似玩家/联盟预设 |
+| 地图尾部 | 20/20 | 推荐金币后均还有固定 58 字节尾部；20 张根目录 skirmish 地图完全相同，不随玩家数量、队伍 ID、单位或金币变化 |
 
 推荐金币已解析：
 
 - 有值：50、150、200、250、300 等。
 - 无值：部分地图为 `-1`，项目侧应保留 `null`，不要强行写成 0。
 
+尾部模板复核：
+
+- 20 张根目录 skirmish `.aem` 的尾部长度均为 58 字节，模板均为 `zero_suffix_58`。
+- 全部可按当前结构解析的 42 个 `.aem` 里，`zero_suffix_58` 出现 34 次，`ff_suffix_58` 出现 8 次；另有 3 个战役地图因单位块格式特殊暂未解析。
+- 由于根目录 skirmish 地图的尾部完全一致，不能据此推导 2/3/4 人地图的联盟、玩家颜色或阵营预设。当前应把它记录为“固定尾部模板，语义未确认”。
+- 代码侧 `parseApkAemMap` 已保留尾部原始字节、十六进制和模板名，供后续继续比对；当前不会把尾部写入联盟或队伍规则。
+
 skirmish 控制脚本结论：
 
 - `SD/controller.js` 与 `SO/controller.js` 的队伍摧毁逻辑为：某队同时没有单位且没有城堡时才 `SyncDestroyTeam`。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
-- 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，这一点已经和 APK skirmish 对齐。
+- 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；`SO` 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
 
 ## 10. 地形与地图导入差异
 
@@ -217,8 +224,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | 优先级 | 差异 | 影响 |
 | --- | --- | --- |
 | P0 | 低可信 APK tile 语义未校准 | skirmish 可运行，但部分地形分类可能偏离官方 |
-| P0 | `.aem` 尾部 58 字节玩家/联盟预设未解析 | 多人地图初始联盟、阵营设置可能缺失 |
-| P0 | `ApkAemMap -> GameState` 只有基础导入 | 能跑 APK skirmish 地图，但还未接入尾部预设和模式脚本 |
+| P0 | `.aem` 尾部 58 字节模板语义未确认 | 当前没有证据表明 skirmish 依赖该尾部表达联盟；仍需反编译或更多地图格式样本确认 |
+| P1 | `ApkAemMap -> GameState` 仍缺更完整场景配置 | SD/SO 基础模式入口已完成；战役、特殊脚本和非 skirmish 模式仍需独立场景层 |
 | P1 | 所有脚本配置没有系统归档成关卡配置表 | 战役和特殊 skirmish 规则无法批量复现 |
 | P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
 | P1 | stacked/pending 的部署后移动细节未知 | 城堡招募体验和 APK UI 行为可能不完全一致 |
@@ -232,13 +239,14 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 结合 `data.bin` 的防御、回血、移动、kind、variant、linked 字段和贴图资源确认映射。
    - 对无法确认的 tile 保留“低可信/待确认”标记，避免误写成高可信规则。
 
-2. 解析 `.aem` 尾部 58 字节。
-   - 对比 2/3/4 人地图的尾部字节模式。
-   - 重点判断是否包含联盟、玩家颜色、可用队伍、推荐设置等。
+2. 继续确认 `.aem` 尾部 58 字节模板语义。
+   - 当前 20 张 skirmish 地图尾部完全一致，暂不应把它作为玩家/联盟预设。
+   - 下一步应结合反编译字段名、编辑器保存格式或更多特殊地图样本确认该模板用途。
 
 3. 增加 APK skirmish 地图导入文档或数据表。
    - 输出每张地图的尺寸、玩家、推荐金币、初始单位、城堡/城镇归属、未映射 tile 清单。
-   - 等映射足够稳定后再实现 `GameState` 导入。
+   - 明确记录尾部模板为原始字节，不参与联盟或队伍配置推断。
+   - 已有代码入口为 `createApkSkirmishGameState`；后续数据表应围绕该入口补足校准证据。
 
 4. 系统归档脚本配置。
    - 提取 `Stage.SyncSetGold`、`SyncSetUnitLimit`、`SyncSetRecruitUnits`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncGameOver` 等调用。
