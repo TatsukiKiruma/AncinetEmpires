@@ -380,7 +380,8 @@ APK 规则中涉及的加成：
 
 9. 地形映射仍需校准
    - APK：大地之子说明“桥也是水面地形”。
-   - 项目：当前没有明确 `bridge` 地形；`isWaterTerrain` 包含 `deep_water`、`water_temple`、`island`，但 `island` 在 terrain tags 中又标为 land/special。
+   - 项目：已加入 `bridge` 地形占位，并把地形能力判断改为基于 `water/mountain/forest/land` 标签；`bridge` 按 APK 文案归为水面地形。
+   - 状态：桥的规则分类已落地；84 条 APK 地形定义到项目地形 ID 的完整映射仍需继续校准。
 
 10. 招募待处理机制仍需与 APK 精确对齐
    - 项目当前方向与 dex `stacked` 字符串吻合。
@@ -567,3 +568,10 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 胜负判断改为“只剩一个存活联盟”时结束，`winner` 表示获胜联盟 ID；默认配置下仍等同获胜玩家 ID。
 - AI 训练环境终局奖励和启发式 AI 的敌军计数已同步使用联盟关系。
 - 验证：`npm test` 185 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK 地形分类规则补充：
+
+- `TerrainId` 新增 `17: bridge` 桥地形占位，按 APK 能力文案归类为水面地形。
+- `isWaterTerrain/isMountainTerrain/isForestTerrain/isLandTerrain` 改为读取地形标签，避免后续接入 APK 84 条地形变体时继续硬编码 ID。
+- `hill` 标签补充 `mountain`，保持山之子把丘陵视为山地的既有规则；`island` 标签补充 `water`，与当前水之子/大地之子规则保持一致。
+- 桥的完整 APK tile ID 映射和贴图变体仍待校准；本次只落地“桥也是水面地形”的已确认规则语义。

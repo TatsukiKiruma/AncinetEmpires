@@ -5,12 +5,12 @@ import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
-import { getMoveCostForUnit, isFlying, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
+import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 
 describe('GameEngine Rules', () => {
 
-    it('16类地形配置存在，数值正确', () => {
+    it('17类地形配置存在，数值正确', () => {
         expect(TERRAIN_CONFIG[1].key).toBe('snow');
         expect(TERRAIN_CONFIG[1].moveCost).toBe(1);
         expect(TERRAIN_CONFIG[1].defenseBonus).toBe(5); // 雪地
@@ -22,8 +22,10 @@ describe('GameEngine Rules', () => {
         expect(TERRAIN_CONFIG[10].defenseBonus).toBe(15);
         expect(TERRAIN_CONFIG[10].healPerTurn).toBe(20);
         expect(TERRAIN_CONFIG[10].incomePerTurn).toBe(100); // 城堡
+        expect(TERRAIN_CONFIG[17].key).toBe('bridge');
+        expect(TERRAIN_CONFIG[17].tags).toContain('water');
         
-        expect(Object.keys(TERRAIN_CONFIG).length).toBe(16);
+        expect(Object.keys(TERRAIN_CONFIG).length).toBe(17);
     });
 
     it('初始化与状态克隆不影响原状态', () => {
@@ -371,13 +373,14 @@ describe('GameEngine Rules', () => {
         expect(isFlying(unit as any)).toBe(true);
     });
 
-    it('能力测试: 水之子在深水、水中神庙、孤岛移动消耗均为 1', () => {
+    it('能力测试: 水之子在深水、水中神庙、孤岛、桥移动消耗均为 1', () => {
         const state = createDemoState();
         const unit = { ...state.units[0], unitClass: 'mermaid' }; 
         
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 2, ownerId: null } as any)).toBe(1); 
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 16, ownerId: null } as any)).toBe(1); 
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 5, ownerId: null } as any)).toBe(1); 
+        expect(getMoveCostForUnit(state, unit as any, { terrainId: 17, ownerId: null } as any)).toBe(1); 
     });
 
     it('能力测试: 水之子在水地形攻防 +10', () => {
@@ -402,6 +405,12 @@ describe('GameEngine Rules', () => {
         expect(isMountainTerrain(5)).toBe(false); 
     });
 
+    it('能力测试: 桥按 APK 文案归类为水面地形', () => {
+        expect(isWaterTerrain(17)).toBe(true);
+        expect(isMountainTerrain(17)).toBe(false);
+        expect(isForestTerrain(17)).toBe(false);
+    });
+
     it('能力测试: 森林之子匹配森林', () => {
         expect(isForestTerrain(7)).toBe(true); 
         expect(isForestTerrain(3)).toBe(false); 
@@ -415,6 +424,7 @@ describe('GameEngine Rules', () => {
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 3, ownerId: null } as any)).toBe(1);
         
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 2, ownerId: null } as any)).toBe(2);
+        expect(getMoveCostForUnit(state, unit as any, { terrainId: 17, ownerId: null } as any)).toBe(2);
     });
 
     it('能力测试: 自我修复回合开始回复最大生命值 25%', () => {

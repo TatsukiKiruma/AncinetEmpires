@@ -25,33 +25,38 @@ export function isUndead(unit: Unit): boolean {
 }
 
 /**
- * 水地形：水里/深水 (2)、水中神庙 (16)、孤岛 (5)
+ * 检查地形标签，APK 地形有多种贴图变体，规则层按标签归类。
+ */
+function terrainHasTag(terrainId: TerrainId, tag: string): boolean {
+    return TERRAIN_CONFIG[terrainId]?.tags.includes(tag) ?? false;
+}
+
+/**
+ * 水地形：含 water 标签；APK 文案明确桥也算水面地形。
  */
 export function isWaterTerrain(terrainId: TerrainId): boolean {
-    return terrainId === 2 || terrainId === 16 || terrainId === 5;
+    return terrainHasTag(terrainId, 'water');
 }
 
 /**
- * 山地地形：山脉 (3)、丘陵 (4)，不包含孤岛 (5)
+ * 山地地形：含 mountain 标签，不包含孤岛。
  */
 export function isMountainTerrain(terrainId: TerrainId): boolean {
-    return terrainId === 3 || terrainId === 4;
+    return terrainHasTag(terrainId, 'mountain');
 }
 
 /**
- * 森林地形：森林 (7)
+ * 森林地形：含 forest 标签。
  */
 export function isForestTerrain(terrainId: TerrainId): boolean {
-    return terrainId === 7;
+    return terrainHasTag(terrainId, 'forest');
 }
 
 /**
  * 陆地地形：具有 land 标签的地形
  */
 export function isLandTerrain(terrainId: TerrainId): boolean {
-    const config = TERRAIN_CONFIG[terrainId];
-    if (!config) return false;
-    return config.tags.includes('land');
+    return terrainHasTag(terrainId, 'land');
 }
 
 /**
