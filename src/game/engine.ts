@@ -568,7 +568,13 @@ export class GameEngine {
             case 'end_turn': {
                 const prevPlayerId = this.state.currentPlayer;
                 this.state.units.forEach(u => {
-                    if (u.ownerId === prevPlayerId && u.status && (u.status.type === 'weakened' || u.status.type === 'inspired')) {
+                    const hasTurnStatus = u.status
+                        && (
+                            u.status.type === 'weakened'
+                            || u.status.type === 'inspired'
+                            || (u.status.type === 'blinded' && u.status.remainingTurns !== undefined)
+                        );
+                    if (u.ownerId === prevPlayerId && hasTurnStatus && u.status) {
                         const remainingTurns = u.status.remainingTurns ?? 0;
                         if (remainingTurns <= 1) {
                             delete u.status;

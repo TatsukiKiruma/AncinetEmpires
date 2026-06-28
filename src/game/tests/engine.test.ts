@@ -7,6 +7,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
+import { syncChangeGold, syncDestroyTeam, syncDisableTeam, syncRestoreTeam, syncSetAlliance, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
 describe('GameEngine Rules', () => {
 
@@ -1699,6 +1700,68 @@ describe('GameEngine Rules', () => {
 
             const engine = new GameEngine(state);
             expect(engine.getState().currentPlayer).toBe(1);
+        });
+
+        it('APK Stage 适配器可以设置金币、当前队伍和队伍状态', () => {
+            const state = createDemoState();
+
+            expect(syncSetGold(state, 300)).toBe(true);
+            expect(state.players.map(player => player.gold)).toEqual([300, 300]);
+
+            expect(syncSetGoldForTeam(state, 1, 450)).toBe(true);
+            expect(syncChangeGold(state, 1, -50)).toBe(true);
+            expect(state.players[1].gold).toBe(400);
+
+            expect(syncSetAlliance(state, 1, 0)).toBe(true);
+            expect(state.rules?.alliances?.[1]).toBe(0);
+
+            expect(syncSetCurrentTeam(state, 1)).toBe(true);
+            expect(state.currentPlayer).toBe(1);
+
+            expect(syncDisableTeam(state, 1)).toBe(true);
+            expect(state.rules?.disabledTeams).toEqual([1]);
+            expect(state.currentPlayer).toBe(0);
+
+            expect(syncRestoreTeam(state, 1)).toBe(true);
+            expect(state.rules?.disabledTeams).toEqual([]);
+
+            expect(syncDestroyTeam(state, 1)).toBe(true);
+            expect(state.players[1].isAlive).toBe(false);
+        });
+
+        it('APK Stage 适配器可以把 APK 招募 ID 和单位上限写入规则配置', () => {
+            const state = createDemoState();
+
+            expect(syncSetUnitLimit(state, 6)).toBe(true);
+            expect(syncSetUnitLimitForTeam(state, 1, 4)).toBe(true);
+            expect(syncSetRecruitUnits(state, [0, 1, 2])).toBe(true);
+            expect(syncSetRecruitUnitsForTeam(state, 1, [8, 20])).toBe(true);
+
+            expect(state.rules?.unitLimit).toBe(6);
+            expect(state.rules?.teams?.[1].unitLimit).toBe(4);
+            expect(state.rules?.recruitableUnits).toEqual(['soldier', 'archer', 'water_elemental']);
+            expect(state.rules?.teams?.[1].recruitableUnits).toEqual(['dragon', 'druid']);
+            expect(syncSetRecruitUnits(state, [999])).toBe(false);
+        });
+
+        it('APK Stage 适配器可以按坐标设置单位等级和状态', () => {
+            const state = createDemoState();
+            const soldier = state.units.find(unit => unit.id === 'u3')!;
+            soldier.pos = { x: 2, y: 2 };
+            soldier.hp = 50;
+
+            expect(syncSetUnitLevel(state, { x: 2, y: 2 }, 2)).toBe(true);
+            expect(soldier.level).toBe(2);
+            expect(soldier.exp).toBe(300);
+            expect(soldier.hp).toBe(getEffectiveStats(soldier).maxHp);
+
+            expect(syncSetUnitStatus(state, { x: 2, y: 2 }, 3, 1)).toBe(true);
+            expect(soldier.status).toEqual({ type: 'blinded', remainingTurns: 1 });
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+            const after = engine.getState().units.find(unit => unit.id === soldier.id)!;
+            expect(after.status).toBeUndefined();
         });
 
         it('招募执行阶段也会拒绝不满足配置的单位', () => {

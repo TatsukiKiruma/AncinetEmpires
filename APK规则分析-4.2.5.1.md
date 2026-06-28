@@ -264,9 +264,12 @@ APK 规则中涉及的加成：
 | `Stage.SyncSetGold` | 配置通用金币 |
 | `Stage.SyncSetUnitStatus` | 设置单位状态和回合数 |
 | `Stage.SyncSetGoldForTeam` | 设置某队金币 |
+| `Stage.SyncChangeGold` | 改变指定队伍金币 |
 | `Stage.SyncSetCurrentTeam` | 设置当前行动队伍 |
+| `Stage.SyncSetAlliance` | 设置队伍联盟 |
 | `Stage.SyncDisableTeam` / `SyncRestoreTeam` | 禁用/恢复指定队伍 |
 | `Stage.SyncDestroyTeam` | 销毁指定队伍 |
+| `Stage.SyncSetUnitLevel` | 按坐标设置单位等级 |
 | `Stage.AsyncCreateUnit` | 创建单位 |
 | `Stage.AsyncSummon` | 召唤单位 |
 | `Stage.AsyncReinforce` | 增援 |
@@ -591,3 +594,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `GameEngine` 结束回合改为按存活且启用的队伍 ID 升序轮转，并在回到首个可行动队伍时增加大回合数。
 - `AncientEmpiresEnv` 的 `maxPlies` 估算和超时军力裁决改为支持多队伍/联盟，不再只比较 P0/P1。
 - 验证：`npm test` 188 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK Stage 初始化适配器补充：
+
+- 新增 `src/game/apk_stage.ts`，集中承接 APK 已确认的同步配置 API，不引入战役脚本执行器。
+- 已支持金币类：`SyncSetGold`、`SyncSetGoldForTeam`、`SyncChangeGold`。
+- 已支持规则类：`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`SyncSetUnitLimitForTeam`、`SyncSetAlliance`。
+- 已支持队伍类：`SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`。其中 `SyncDestroyTeam` 在项目中表现为把队伍标记为非存活，不删除单位对象。
+- 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值；`SyncSetUnitStatus` 按 APK 状态 ID 设置状态和回合数。
+- 为支持脚本设置的限时致盲，`blinded` 在带有 `remainingTurns` 时会按回合清除；普通攻击附加的无期限致盲行为保持不变。
+- 验证：`npm test` 191 个测试通过，`npm run lint` 通过，`npm run build` 通过。
