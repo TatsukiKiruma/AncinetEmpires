@@ -227,6 +227,25 @@ APK 规则中涉及的加成：
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
+补充 DEX 方法表解析结果：
+
+| 类 | 方法签名 | 已确认含义 |
+| --- | --- | --- |
+| `Lc/a/b/a/o` | `CheckCommander(Unit) -> boolean` | 检查单位是否为指挥官 |
+| `Lc/a/b/a/o` | `CheckCommander(Unit, int team) -> boolean` | 检查单位是否为指定队伍指挥官 |
+| `Lc/a/b/a/o` | `GetCommander(int team) -> Unit` | 获取指定队伍指挥官 |
+| `Lc/a/b/a/o` | `SyncSetCommander(int team, int index) -> void` | 脚本可设置某队指挥官 |
+| `Lc/a/b/a/o` | `CheckGameOver() -> boolean` | 检查游戏是否结束 |
+| `Lc/a/b/a/o` | `CheckTeamDestroyed(int team) -> boolean` | 检查队伍是否被摧毁 |
+| `Lc/a/b/a/o` | `SyncGameOver(int alliance) -> void` | 脚本可触发游戏结束 |
+| `Lc/a/b/a/o` | `SyncSetGoldForTeam(int team, int gold) -> void` | 设置指定队伍金币 |
+| `Lc/a/b/a/o` | `SyncSetRecruitUnitsForTeam(int team, int[] units) -> void` | 设置指定队伍可招募单位 |
+| `Lc/a/b/a/o` | `SyncSetUnitLimitForTeam(int team, int limit) -> void` | 设置指定队伍单位上限 |
+| `Lc/a/b/a/x/e` | `SetIncomeCommanderBase(int)` / `SetIncomeCommanderGrowth(int)` | 设置指挥官收入规则 |
+| `Lc/a/b/a/x/f` | `GetPrice() -> int` | 读取单位对象的价格字段；短方法字节码显示它直接读取 `Lc/a/b/a/x/f.e` |
+
+当前 DEX 字符串和方法表没有发现通用的 `ReviveCommander`、`RespawnCommander` 一类 API；只发现战役剧情文本中的 `revive Saeth`。因此“官方指挥官复活流程”仍不能当作已确认规则写死，只能保留为可配置/待确认项。
+
 ## 10. 与当前项目的一致项
 
 当前项目已经实现并与 APK 规则方向一致的内容：
@@ -380,7 +399,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 | `pendingUnitId` 与 APK stacked 机制同方向 | 中高 | dex 错误字符串 |
 | 价格、人口、收入具体数值 | 中低 | 项目旧资料与当前代码，APK 未解码确认 |
 | 战役脚本特殊规则 | 低 | 资源存在但二进制未解码 |
-| 指挥官死亡/复活完整规则 | 低 | 当前 APK 文本不足，需要反编译或实测 |
+| 指挥官指定、游戏结束和队伍摧毁 API 存在 | 中高 | DEX 方法表解析 |
+| 指挥官死亡/复活完整规则 | 低 | 当前 APK 文本和方法表未发现通用复活 API，需要反编译或实测 |
 
 ## 14. 对“demo 与实际应用游戏一致”的判断
 
@@ -438,3 +458,10 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `createDemoState(rules)` 可接收规则配置，并在创建初始状态时应用初始金币。
 - 默认 demo 状态仍保持双方 500 金币，避免改变现有训练/测试基线。
 - 验证：`npm test` 172 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 DEX 方法表补充分析：
+
+- 确认 Stage 类存在 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`CheckGameOver`、`CheckTeamDestroyed` 和 `SyncGameOver`。
+- 确认 Rule 类存在指挥官收入、地形收入和等级上限设置方法。
+- 确认单位价格由单位对象 `GetPrice()` 读取，价格字段在单位配置对象内。
+- 未发现通用指挥官复活/重生 API；复活流程仍待更完整反编译或 APK 实测确认。
