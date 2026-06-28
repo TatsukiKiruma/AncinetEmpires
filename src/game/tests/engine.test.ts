@@ -8,6 +8,7 @@ import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, mapKnownApkTerrainId } from '../apk_terrain';
+import { APK_AEM_MAGIC, parseApkAemMap, getApkAemTerrainUsage } from '../apk_map';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
@@ -60,6 +61,58 @@ describe('GameEngine Rules', () => {
         expect(mapKnownApkTerrainId(72)).toBe(17);
         expect(getKnownApkTerrainIdsForProject(9)).toEqual([36]);
         expect(mapKnownApkTerrainId(2)).toBeNull();
+    });
+
+    it('APK AEM 明文地图解析可以读取头部、玩家和地形归属', () => {
+        const bytes: number[] = [];
+        const pushUInt32BE = (value: number) => {
+            bytes.push((value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff);
+        };
+        const pushUInt32LE = (value: number) => {
+            bytes.push(value & 0xff, (value >>> 8) & 0xff, (value >>> 16) & 0xff, (value >>> 24) & 0xff);
+        };
+        const pushUInt40BE = (value: number) => {
+            bytes.push(
+                Math.floor(value / 0x100000000) & 0xff,
+                (value >>> 24) & 0xff,
+                (value >>> 16) & 0xff,
+                (value >>> 8) & 0xff,
+                value & 0xff
+            );
+        };
+        const pushTerrainRecord = (apkTerrainId: number, ownerCode: number) => {
+            pushUInt32BE((apkTerrainId << 12) | ownerCode);
+        };
+
+        pushUInt32BE(APK_AEM_MAGIC);
+        pushUInt32LE(0);
+        pushUInt32LE(2);
+        bytes.push(2);
+        // null 作者字段，来自 APK AEM 中无作者地图的头部形态。
+        bytes.push(1, 0, 0, 0, 0);
+        bytes.push(2);
+        pushUInt32BE(0);
+        pushUInt32BE(1);
+        pushUInt40BE(4);
+        pushTerrainRecord(37, 0);
+        pushTerrainRecord(36, 0xfe);
+        pushTerrainRecord(72, 1);
+        pushTerrainRecord(27, 0xff);
+
+        const map = parseApkAemMap(new Uint8Array(bytes));
+
+        expect(map.width).toBe(2);
+        expect(map.height).toBe(2);
+        expect(map.author).toBeNull();
+        expect(map.playerIds).toEqual([0, 1]);
+        expect(map.terrainCount).toBe(4);
+        expect(map.terrain[0][0].apkTerrainId).toBe(37);
+        expect(map.terrain[0][0].ownerId).toBe(0);
+        expect(map.terrain[0][0].projectTerrainId).toBe(10);
+        expect(map.terrain[0][1].ownerId).toBeNull();
+        expect(map.terrain[1][0].apkTerrainId).toBe(72);
+        expect(map.terrain[1][0].projectTerrainId).toBe(17);
+        expect(getApkAemTerrainUsage(map)).toEqual({ 27: 1, 36: 1, 37: 1, 72: 1 });
     });
 
     it('初始化与状态克隆不影响原状态', () => {
