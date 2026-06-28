@@ -54,6 +54,20 @@ function getAliveAllianceIds(state: GameState): number[] {
         .map(player => getAllianceId(state, player.id)))];
 }
 
+export function getCurrentTeam(state: GameState): number {
+    return state.currentPlayer;
+}
+
+export function checkPlayerTeam(state: GameState, teamId: number): boolean {
+    return Number.isInteger(teamId)
+        && state.players.some(player => player.id === teamId)
+        && isActivePlayer(state, teamId);
+}
+
+export function getAliveAlliances(state: GameState): number[] {
+    return getAliveAllianceIds(state);
+}
+
 export function syncSetGold(state: GameState, gold: number): boolean {
     if (!Number.isInteger(gold) || gold < 0) return false;
     for (const player of state.players) {

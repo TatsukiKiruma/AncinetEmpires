@@ -9,7 +9,7 @@ import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isFore
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, mapKnownApkTerrainId } from '../apk_terrain';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCommander, checkGameOver, checkTeamDestroyed, countCastle, countUnit, countVillage, getCommander, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
 describe('GameEngine Rules', () => {
 
@@ -1603,6 +1603,43 @@ describe('GameEngine Rules', () => {
             expect(finalState.units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
         });
 
+        it('APK skirmish 默认：无单位但仍有城堡时不淘汰队伍', () => {
+            const state = createDemoState();
+            state.units = state.units.filter(unit => unit.ownerId !== 1);
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: 'u3' });
+
+            const finalState = engine.getState();
+            expect(finalState.players[1].isAlive).toBe(true);
+            expect(finalState.winner).toBeNull();
+        });
+
+        it('APK skirmish 默认：同时无单位且无城堡时淘汰队伍', () => {
+            const state = createDemoState();
+            state.units = state.units.filter(unit => unit.ownerId !== 1);
+            state.map.tiles[7][7].ownerId = null;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: 'u3' });
+
+            const finalState = engine.getState();
+            expect(finalState.players[1].isAlive).toBe(false);
+            expect(finalState.winner).toBe(0);
+        });
+
+        it('目标配置仍可启用无单位即淘汰', () => {
+            const state = createDemoState({ defeatOnNoUnits: true });
+            state.units = state.units.filter(unit => unit.ownerId !== 1);
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: 'u3' });
+
+            const finalState = engine.getState();
+            expect(finalState.players[1].isAlive).toBe(false);
+            expect(finalState.winner).toBe(0);
+        });
+
         it('配置开启后指挥官阵亡会直接淘汰玩家', () => {
             const state = createDemoState();
             state.rules = { defeatOnCommanderDeath: true };
@@ -1888,6 +1925,9 @@ describe('GameEngine Rules', () => {
             expect(checkCommander(state, 'u1', 0)).toBe(true);
             expect(checkCommander(state, 'u1', 1)).toBe(false);
             expect(getCommander(state, 0)?.id).toBe('u1');
+            expect(getCurrentTeam(state)).toBe(0);
+            expect(checkPlayerTeam(state, 0)).toBe(true);
+            expect(getAliveAlliances(state)).toEqual([4, 8]);
 
             expect(syncGameOver(state, 4)).toBe(true);
             expect(checkGameOver(state)).toBe(true);
@@ -1897,6 +1937,8 @@ describe('GameEngine Rules', () => {
             expect(checkTeamDestroyed(state, 1)).toBe(false);
             expect(syncDestroyTeam(state, 1)).toBe(true);
             expect(checkTeamDestroyed(state, 1)).toBe(true);
+            expect(checkPlayerTeam(state, 1)).toBe(false);
+            expect(getAliveAlliances(state)).toEqual([4]);
         });
 
         it('APK Rule 适配器可以设置收入和等级上限', () => {

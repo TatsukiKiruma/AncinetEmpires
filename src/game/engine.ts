@@ -758,9 +758,11 @@ export class GameEngine {
             const hasCastle = this.state.map.tiles.some(row => row.some(tile => (
                 tile.ownerId === player.id && TERRAIN_CONFIG[tile.terrainId].key === 'castle'
             )));
+            const hasNoUnitsAndNoCastles = !hasUnits && !hasCastle;
 
             if (
-                (ruleConfig.defeatOnNoUnits && !hasUnits)
+                (ruleConfig.defeatOnNoUnitsAndNoCastles && hasNoUnitsAndNoCastles)
+                || (ruleConfig.defeatOnNoUnits && !hasUnits)
                 || (ruleConfig.defeatOnCommanderDeath && !hasCommander)
                 || (ruleConfig.defeatOnNoCastles && !hasCastle)
             ) {

@@ -15,7 +15,7 @@
 - 当前项目规则代码：`src/game`
 - 当前项目规则文档：`README.md`、`远古帝国AI训练规则整理.md`、`远古帝国AI训练项目上下文.md`
 
-后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续补齐了 APK 脚本指定指挥官的基础对战语义。
+后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续补齐了 APK skirmish 默认队伍摧毁语义和对应 Stage 查询 API。
 
 ## 2. 结论摘要
 
@@ -28,11 +28,12 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 3. 治疗师主动治疗已允许突破目标最大血量；其他地形/光环回复仍保留最大血量上限，等待进一步确认。
 4. 空军攻击水中非空军单位已增加攻击 +10；目标同为空军时不触发。
 5. 已加入 APK 第 11 号 `水晶 / Crystal` 占位单位，并新增 APK 单位/状态/能力 ID 映射。
+6. skirmish 默认队伍摧毁条件已改为“无单位且无城堡”，并保留单独无单位/无城堡/指挥官阵亡作为可配置目标条件。
 
 仍未完成的关键差异：
 
-1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置，但 APK 默认值仍需反编译或实测确认。
-2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程、默认费用和胜负关系仍需反编译或实测确认。
+1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置；skirmish 终局默认已从 SD/SO 脚本确认，但经济/单位上限等默认值仍需继续归档。
+2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程和默认费用仍需反编译或实测确认。
 3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；但地图地形 ID 映射、脚本语义和战役特殊规则仍未完全转为项目配置。
 
 ### 2.1 当前复核与覆盖结论
@@ -221,8 +222,10 @@ APK Wiki 明确说明：
 - 教程第 3 关明确写有“胜利条件：消灭所有敌军并且夺取敌方城堡”。
 - 沙盒模组目标文案写有“占领所有的敌军城堡”。
 - 多个战役关卡把“摧毁所有敌军单位”和“占领所有城堡/敌方城堡”作为目标条件。
+- 解密 `APK\_analysis\unpack\assets\mods\SD\controller.js` 和 `SO\controller.js` 后确认，skirmish 模式的 `ValidateTeamState(team)` 使用 `Stage.CountUnit(team)` 与 `Stage.CountCastle(team)`，只有两者都为 0 时才调用 `Stage.SyncDestroyTeam(team)`。
+- `SO\controller.js` 的 `OnGameStart` 额外调用 `Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8)`，说明 AEII skirmish 模式会限制全局可招募单位为 APK ID 0-8。
 
-这些目标在 APK 中明显可以按关卡/模式配置，不应全部写成固定全局规则。对战训练环境应支持这些淘汰条件，但默认保持较通用的“无单位淘汰”。
+这些目标在 APK 中明显可以按关卡/模式配置，不应全部写成固定全局规则。对战训练环境应支持这些淘汰条件；默认 skirmish 语义应是“同时无单位且无城堡淘汰”，单独“无单位淘汰”“无城堡淘汰”“指挥官阵亡淘汰”保留为配置项。
 
 dex 字符串确认或强烈暗示：
 
@@ -512,9 +515,9 @@ APK 规则中涉及的加成：
    - 状态：已实现配置层和 APK 阈值公式。
 
 7. 胜负淘汰条件需要可配置
-   - APK：教程确认“指挥官阵亡失败”；教程/沙盒/战役目标确认“消灭所有敌军”和“占领敌方/所有城堡”可作为目标。
-   - 项目：已通过 `RuleConfig.defeatOnNoUnits/defeatOnCommanderDeath/defeatOnNoCastles` 接入可配置淘汰条件。
-   - 状态：已实现配置层，默认仅启用无单位淘汰。
+   - APK：教程确认“指挥官阵亡失败”；教程/沙盒/战役目标确认“消灭所有敌军”和“占领敌方/所有城堡”可作为目标；SD/SO skirmish 脚本确认默认队伍摧毁条件是 `CountUnit == 0 && CountCastle == 0`。
+   - 项目：已通过 `RuleConfig.defeatOnNoUnitsAndNoCastles/defeatOnNoUnits/defeatOnCommanderDeath/defeatOnNoCastles` 接入可配置淘汰条件。
+   - 状态：已实现配置层；默认启用 skirmish 的“无单位且无城堡淘汰”，其它目标条件按脚本/训练配置开启。
 
 8. 队伍联盟关系需要进入对战规则层
    - APK：语言表有 `Alliance` 和 `Set Alliance`，`.aem` 顶层结构含联盟预设，DEX 方法表有 `SyncGameOver(int alliance)`。
@@ -764,6 +767,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这些函数用于承接 APK 目标/统计 API 和 AI 训练目标评估，不引入战役脚本执行器。
 - 验证：`npm test` 195 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
+2026-06-29 APK skirmish 终局规则补充：
+
+- 解密 `SD/controller.js` 与 `SO/controller.js` 确认默认对战队伍摧毁条件为 `CountUnit(team) == 0 && CountCastle(team) == 0`，不是单独“无单位即淘汰”。
+- `RuleConfig.defeatOnNoUnitsAndNoCastles` 新增为默认开启；`defeatOnNoUnits` 默认关闭，但仍可为特定目标配置开启。
+- `src/game/apk_stage.ts` 补充 `GetCurrentTeam`、`CheckPlayerTeam`、`GetAliveAlliances` 查询，以覆盖 SD/SO skirmish 控制脚本实际调用的 Stage API。
+- 文档同时记录 `SO/controller.js` 在 `OnGameStart` 中调用 `SyncSetRecruitUnits(0..8)`，该限制已可由现有 `syncSetRecruitUnits` 表达。
+- 验证：`npm test` 203 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
 2026-06-29 APK 脚本指定指挥官规则补充：
 
 - `RuleConfig.commanderUnitIds` 新增队伍到单位 ID 的映射；未配置时仍按 `unitClass === 'commander'` 保持默认行为。
@@ -793,4 +804,4 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
 - 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则，完成 84 条地形基础数据归档，并把神庙清除负面状态改为地形标签语义；当前最重要的差距仍是 APK 战役层：完整地图导入、脚本执行和目标流程。
+- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则，完成 84 条地形基础数据归档，把神庙清除负面状态改为地形标签语义，并按 SD/SO skirmish 脚本修正默认队伍摧毁条件；当前最重要的差距仍是 APK skirmish 地图导入与地形 ID 映射，其次才是战役层脚本执行和目标流程。
