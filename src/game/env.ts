@@ -1,6 +1,8 @@
 import { GameEngine } from './engine';
 import { GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
+import { UNIT_CONFIGS } from './constants';
+import { getUnitCost } from './rule_config';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -58,6 +60,21 @@ export interface EnvStepResult {
   info: string;
   legalActions: Action[];
   actionMask: boolean[];
+}
+
+export function calculateArmyValue(state: GameState, playerId: number): number {
+    const player = state.players.find(p => p.id === playerId);
+    const goldValue = player?.gold ?? 0;
+    const unitValue = state.units
+        .filter(unit => unit.ownerId === playerId && unit.hp > 0)
+        .reduce((sum, unit) => {
+            const configuredCost = getUnitCost(state, playerId, unit.unitClass);
+            const baseCost = configuredCost ?? UNIT_CONFIGS[unit.unitClass].cost ?? 0;
+            const hpRatio = Math.max(0, unit.hp) / Math.max(1, unit.maxHp);
+            return sum + baseCost * hpRatio + 1;
+        }, 0);
+
+    return goldValue + unitValue;
 }
 
 export class AncientEmpiresEnv {
@@ -136,26 +153,17 @@ export class AncientEmpiresEnv {
           const winner = this.engine.getState().winner;
           
           if (winner === null && plies >= this.maxPlies) {
-              // Time limit evaluation
-              const p0 = this.engine.getState().players[0];
-              const p1 = this.engine.getState().players[1];
-              // TODO: Implement unit value calculation.
-              // For now simpler evaluation.
-              const u0 = this.engine.getState().units.filter(u => u.ownerId === 0).length;
-              const u1 = this.engine.getState().units.filter(u => u.ownerId === 1).length;
+              // 超时按金币与剩余军力价值评估，避免只数单位导致高价单位劣势。
+              const state = this.engine.getState();
+              const v0 = calculateArmyValue(state, 0);
+              const v1 = calculateArmyValue(state, 1);
               
-              if (u0 > u1) {
+              if (v0 > v1) {
                   sparseReward = currentPlayerBefore === 0 ? 1 : -1;
-              } else if (u1 > u0) {
+              } else if (v1 > v0) {
                   sparseReward = currentPlayerBefore === 1 ? 1 : -1;
               } else {
-                  if (p0.gold > p1.gold) {
-                       sparseReward = currentPlayerBefore === 0 ? 1 : -1;
-                  } else if (p1.gold > p0.gold) {
-                       sparseReward = currentPlayerBefore === 1 ? 1 : -1;
-                  } else {
-                       sparseReward = 0; // Draw
-                  }
+                  sparseReward = 0; // Draw
               }
           } else {
               if (winner === currentPlayerBefore) {

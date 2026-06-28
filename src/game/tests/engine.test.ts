@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
+import { AncientEmpiresEnv, calculateArmyValue } from '../env';
 import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
@@ -1476,6 +1477,61 @@ describe('GameEngine Rules', () => {
             expect(result.info).toContain('招募失败');
             expect(after.players[0].gold).toBe(before.players[0].gold);
             expect(after.units.length).toBe(before.units.length);
+        });
+    });
+
+    describe('AI 训练环境评估测试', () => {
+        it('军力价值按金币、单位价格和剩余血量计算', () => {
+            const state = createDemoState();
+            state.players[0].gold = 25;
+            state.units = [
+                {
+                    id: 'u_soldier',
+                    ownerId: 0,
+                    unitClass: 'soldier',
+                    pos: { x: 0, y: 0 },
+                    hp: 50,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                }
+            ];
+
+            expect(calculateArmyValue(state, 0)).toBe(101);
+        });
+
+        it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
+            const state = createDemoState();
+            state.players[0].gold = 0;
+            state.players[1].gold = 0;
+            state.units = [
+                {
+                    id: 'u_dragon',
+                    ownerId: 0,
+                    unitClass: 'dragon',
+                    pos: { x: 0, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                },
+                {
+                    id: 'u_soldier',
+                    ownerId: 1,
+                    unitClass: 'soldier',
+                    pos: { x: 7, y: 7 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                }
+            ];
+
+            const env = new AncientEmpiresEnv({ initialState: state, maxPlies: 2 });
+            const result = env.stepAction({ type: 'end_turn' });
+
+            expect(result.done).toBe(true);
+            expect(result.reward).toBe(1);
         });
     });
 
