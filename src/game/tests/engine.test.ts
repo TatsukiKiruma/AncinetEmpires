@@ -11,7 +11,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
@@ -208,13 +208,19 @@ describe('GameEngine Rules', () => {
     it('AI Observation 暴露 APK 单位 code 和脚本变量', () => {
         const state = createDemoState();
         expect(syncSetUnitCode(state, state.units[0].pos, 'galamar')).toBe(true);
+        expect(syncSetUnitStaticWithCode(state, 'galamar', true)).toBe(true);
+        expect(syncSetUnitTargetedWithCode(state, 'galamar', true)).toBe(true);
         expect(putBoolean(state, 'stolen', true)).toBe(true);
         expect(putInteger(state, 'reinforced', 2)).toBe(true);
 
         const env = new AncientEmpiresEnv({ initialState: state });
         const observation = env.getObservation();
 
-        expect(observation.units.find(unit => unit.id === state.units[0].id)?.apkUnitCode).toBe('galamar');
+        expect(observation.units.find(unit => unit.id === state.units[0].id)).toEqual(expect.objectContaining({
+            apkUnitCode: 'galamar',
+            apkStatic: true,
+            apkTargeted: true
+        }));
         expect(observation.apkScriptState).toEqual({
             booleans: { stolen: true },
             integers: { reinforced: 2 }
@@ -2243,6 +2249,40 @@ describe('GameEngine Rules', () => {
             expect(getUnit(state, soldier.pos)).toBeNull();
             expect(getUnits(state, 0).map(unit => unit.id)).toEqual(['u1']);
             expect(getUnits(state, 99)).toEqual([]);
+        });
+
+        it('APK Stage 查询适配器可以设置静态和目标单位标记', () => {
+            const state = createDemoState();
+            const commander = state.units.find(unit => unit.id === 'u1')!;
+            const soldier = state.units.find(unit => unit.id === 'u3')!;
+
+            expect(syncSetUnitCode(state, commander.pos, ' galamar ')).toBe(true);
+            expect(syncSetUnitStaticWithCode(state, ' galamar ', true)).toBe(true);
+            expect(syncSetUnitTargetedWithCode(state, 'galamar', true)).toBe(true);
+            expect(commander.apkStatic).toBe(true);
+            expect(commander.apkTargeted).toBe(true);
+
+            expect(syncSetUnitStatic(state, soldier.pos, true)).toBe(true);
+            expect(syncSetUnitTargeted(state, soldier.pos, true)).toBe(true);
+            expect(soldier.apkStatic).toBe(true);
+            expect(soldier.apkTargeted).toBe(true);
+
+            expect(syncSetUnitStaticWithCode(state, 'missing', true)).toBe(false);
+            expect(syncSetUnitTargetedWithCode(state, 'missing', true)).toBe(false);
+
+            const commanderActions = getLegalActions(state, 0).filter(action =>
+                ('unitId' in action && action.unitId === commander.id)
+                || ('attackerId' in action && action.attackerId === commander.id)
+                || ('healerId' in action && action.healerId === commander.id)
+                || ('summonerId' in action && action.summonerId === commander.id)
+                || ('supporterId' in action && action.supporterId === commander.id)
+            );
+            expect(commanderActions).toEqual([]);
+
+            expect(syncSetUnitStaticWithCode(state, 'galamar', false)).toBe(true);
+            expect(getLegalActions(state, 0).some(action =>
+                action.type === 'wait' && action.unitId === commander.id
+            )).toBe(true);
         });
 
         it('APK Stage 查询适配器可以检查指挥官、队伍摧毁和强制终局', () => {

@@ -37,7 +37,7 @@
 
 - 84 个 APK tile 的完整贴图/类别/建筑语义。
 - `.aem` 推荐金币后的 58 字节尾部业务语义。
-- 战役脚本层，包括剧情、目标、增援、静态单位、水晶目标、单位 head/targeted、移动覆盖等。
+- 战役脚本层，包括剧情、目标、增援、水晶目标、单位 head、移动覆盖和完整目标 UI 等；单位 static/targeted 已有基础状态适配。
 - 指挥官死亡后复活/重招募的官方默认流程。
 - 招募 stacked/pending 状态下的精确 UI 与行动细节。
 - 若要让 demo 和 APK 实际游戏完全一致，还需要把 APK 地图、脚本配置、目标条件和特殊演出层独立补齐。
@@ -220,7 +220,7 @@ APK 单位 ID 与项目 key 已基本对齐：
 | 8 | Dragon | `dragon` | 已实现 |
 | 9 | Commander | `commander` | 已实现 |
 | 10 | Skeleton | `skeleton` | 已实现，不作为普通招募 |
-| 11 | Crystal | `crystal` | 已有占位，但战役目标/静态单位行为未完整实现 |
+| 11 | Crystal | `crystal` | 已有占位，但完整战役目标行为未实现 |
 | 12 | Paladin | `paladin` | 已实现 |
 | 13 | Berserker | `berserker` | 已实现 |
 | 14 | Ghost | `ghost` | 已实现 |
@@ -361,11 +361,11 @@ skirmish 训练映射：
 | `Stage.CreateReinforcement` | 162 | 未实现，战役增援层 |
 | `Stage.SyncGameOver` | 83 | 基础适配已实现 |
 | `Stage.AsyncMapFocus` | 67 | 未实现，演出/UI 层 |
-| `Stage.SyncSetUnitStaticWithCode` | 57 | 未实现，战役特殊单位层 |
+| `Stage.SyncSetUnitStaticWithCode` | 57 | 基础适配已实现；`apkStatic` 单位不生成合法动作 |
 | `Stage.AsyncReinforce` | 51 | 未实现，战役增援层 |
 | `Stage.PutBoolean` | 44 | 已有脚本变量基础适配 |
 | `Stage.GetBoolean` | 42 | 已有脚本变量基础适配 |
-| `Stage.SyncSetUnitCode` | 40 | code 元数据已基础适配；static/targeted/head 仍未实现 |
+| `Stage.SyncSetUnitCode` | 40 | code 元数据已基础适配；static/targeted 已基础适配，head 仍未实现 |
 | `Stage.SyncSetUnitLevel` | 35 | 基础适配已实现 |
 | `Stage.SyncSetUnitLimit` | 25 | 基础适配已实现 |
 | `Stage.CountUnit` | 25 | 基础适配已实现 |
@@ -384,6 +384,7 @@ skirmish 训练映射：
 - `src/game/apk_rule.ts`
 - DEX 暴露的坐标查询 `CheckCastle`、`CheckVillage`、`GetTileTeam` 已补到 `apk_stage.ts`，用于建筑/地块归属目标判断。
 - 解密脚本实际调用的 `SyncSetUnitCode(x,y,code)`、`GetUnit(code)`、`GetUnit(x,y)`、`GetUnits(team)` 已基础适配，用作单位标识和目标查询。
+- 解密脚本实际调用的 `SyncSetUnitStatic*` 和 `SyncSetUnitTargeted*` 已基础适配，分别用于行动锁定和训练可见目标标记。
 - 解密脚本实际调用的布尔/整数脚本变量和 `GetDistance` 已基础适配，用于后续承接目标判断状态。
 
 尚未覆盖的是完整战役执行器：
@@ -391,7 +392,7 @@ skirmish 训练映射：
 - `Async*` 剧情和演出。
 - 增援创建、移动演出、地图聚焦。
 - 更完整的脚本变量生命周期和持久化。
-- 单位 head/static/targeted。
+- 单位 head、移动覆盖和完整目标展示。
 - 水晶和特殊目标单位。
 - 关卡目标 UI 与失败条件展示。
 
@@ -403,7 +404,7 @@ skirmish 训练映射：
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
 - 每格规则数值：`defenseBonus/healPerTurn/moveCost`。
-- 单位位置、血量、等级、经验、行动状态、状态类型和 APK 脚本 code。
+- 单位位置、血量、等级、经验、行动状态、状态类型和 APK 脚本 code/static/targeted。
 - APK Stage 脚本变量：`apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息。
 
@@ -413,7 +414,7 @@ skirmish 训练映射：
 - `src/game/env.ts:236` `getObservation`。
 - `src/game/env.ts:254` 输出 APK tile 原始字段。
 - `src/game/env.ts:257` 输出地形规则数值。
-- `src/game/env.ts` 输出单位 `apkUnitCode` 和 `apkScriptState`，用于训练侧观察脚本目标判断状态。
+- `src/game/env.ts` 输出单位 `apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState`，用于训练侧观察脚本目标判断状态。
 
 已包含：
 
@@ -438,7 +439,7 @@ skirmish 训练映射：
 | P1 | `.aem` 58 字节尾部语义未知 | 不应据此推导联盟、玩家颜色或阵营预设 |
 | P1 | 指挥官复活/重招募官方流程未知 | 指挥官模式和 APK 可能不同 |
 | P1 | stacked/pending 精确行为未知 | 招募后部署、移动力、回合结束限制可能有差异 |
-| P1 | `Crystal` 仍只是占位 | 战役目标、静态单位和特殊胜负条件不完整 |
+| P1 | `Crystal` 仍只是占位 | 完整战役目标、目标 UI 和特殊胜负条件不完整 |
 | P2 | 剧情/演出 `Async*` API 未实现 | 不影响基础 skirmish 训练，但影响完整游戏体验 |
 | P2 | Observation 地图元数据仍缺 APK 版本/完整资源路径 | 影响训练样本追踪，不影响即时规则执行 |
 

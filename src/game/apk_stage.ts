@@ -250,6 +250,46 @@ export function syncSetUnitCode(state: GameState, pos: Position, code: string): 
     return true;
 }
 
+export function syncSetUnitStatic(state: GameState, pos: Position, isStatic: boolean): boolean {
+    if (typeof isStatic !== 'boolean') return false;
+    const unit = findUnitAt(state, pos);
+    if (!unit) return false;
+
+    unit.apkStatic = isStatic;
+    return true;
+}
+
+export function syncSetUnitStaticWithCode(state: GameState, code: string, isStatic: boolean): boolean {
+    const normalizedCode = normalizeScriptName(code);
+    if (!normalizedCode || typeof isStatic !== 'boolean') return false;
+
+    const unit = findUnitByCode(state, normalizedCode);
+    if (!unit) return false;
+
+    unit.apkStatic = isStatic;
+    return true;
+}
+
+export function syncSetUnitTargeted(state: GameState, pos: Position, targeted: boolean): boolean {
+    if (typeof targeted !== 'boolean') return false;
+    const unit = findUnitAt(state, pos);
+    if (!unit) return false;
+
+    unit.apkTargeted = targeted;
+    return true;
+}
+
+export function syncSetUnitTargetedWithCode(state: GameState, code: string, targeted: boolean): boolean {
+    const normalizedCode = normalizeScriptName(code);
+    if (!normalizedCode || typeof targeted !== 'boolean') return false;
+
+    const unit = findUnitByCode(state, normalizedCode);
+    if (!unit) return false;
+
+    unit.apkTargeted = targeted;
+    return true;
+}
+
 export function syncSetUnitLimit(state: GameState, limit: number): boolean {
     if (!Number.isInteger(limit) || limit < 0) return false;
     ensureRules(state).unitLimit = limit;

@@ -39,6 +39,8 @@ export interface Unit {
     hasBeenHealedThisTurn?: boolean; // 本回合是否被治疗过
     hasBeenSupportedThisTurn?: boolean; // 本回合是否被支援过
     apkUnitCode?: string; // APK 脚本层单位 code，用于 Stage.GetUnit/SyncSetUnitCode 查询
+    apkStatic?: boolean; // APK 脚本层静态单位标记，静态单位不生成行动
+    apkTargeted?: boolean; // APK 脚本层目标单位标记，用于训练侧观察目标状态
 }
 
 export interface PlayerState {

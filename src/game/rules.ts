@@ -92,8 +92,8 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
     // APK stacked 规则：pending 单位未处理时只能操作该单位，不能招募或结束回合。
     const pendingUnitId = state.pendingUnitId;
     
-    // 只属于当前玩家的未行动完的单位
-    let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed);
+    // 只属于当前玩家、未行动完且未被 APK 脚本静态锁定的单位
+    let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed && !u.apkStatic);
     if (pendingUnitId) {
         validUnits = validUnits.filter(u => u.id === pendingUnitId);
     }
@@ -104,7 +104,8 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         u.hasActed && 
         hasAbi(u, 'assault_troop') && 
         (u.movementRemaining ?? 0) > 0 && 
-        !u.hasPostAttackMoved
+        !u.hasPostAttackMoved &&
+        !u.apkStatic
     );
     if (pendingUnitId) {
         assaultUnits = assaultUnits.filter(u => u.id === pendingUnitId);

@@ -44,13 +44,13 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 
 | 规则域 | APK 证据 | 项目当前状态 | 仍需补齐 |
 | --- | --- | --- | --- |
-| 单位/能力/状态 | `zh.lang/en.lang`、`data.bin`、DEX 常量 | 21 个单位、26 个能力、4 个状态已建模；`crystal` 作为不可招募占位；APK ID 映射已存在 | `crystal` 的战役目标/静态行为仍需脚本层建模 |
+| 单位/能力/状态 | `zh.lang/en.lang`、`data.bin`、DEX 常量 | 21 个单位、26 个能力、4 个状态已建模；`crystal` 作为不可招募占位；APK ID 映射已存在；APK 单位 code/static/targeted 元数据已有基础适配 | `crystal` 的完整战役目标系统仍需脚本层建模 |
 | 战斗数值 | Wiki 文案和 `data.bin` 数值 | 伤害公式、血量比例、空军对水中单位、鼓舞、虚弱、地形之子、近战大师、远程防御等已接入 | 治疗超过上限后的长期裁剪规则仍需实测 |
 | 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | APK 各关卡真实默认值需要从脚本全量归档 |
 | 回合/联盟/队伍 | `SyncSetCurrentTeam`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`、`SyncGameOver` | 多队伍轮转、联盟关系、禁用/恢复/销毁队伍和强制终局已有基础适配 | 仍缺完整战役脚本执行器和地图/队伍初始化导入 |
 | 指挥官 | `CheckCommander`、`GetCommander`、`SyncSetCommander`、指挥官收入文案 | 已支持队伍级 `commanderUnitIds`，`SyncSetCommander` 可按坐标把己方单位指定为指挥官；收入、死亡计数、重招募和指挥官阵亡淘汰使用同一模型 | APK 方法表显示 `SyncSetCommander(int team, int index)`，但错误字符串是坐标语义；当前按坐标落地，官方复活流程仍未确认 |
 | 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币、尾部模板和原始 tile ID；APK 导入地图的移动/防御/回血优先使用 `data.bin` 数值；`apk_skirmish.ts` 可按 SD/SO 导入 | 84 条 APK tile 的贴图/类别语义和尾部 58 字节业务语义仍需校准 |
-| 战役脚本 | Rhino、`.js/.json/.aem`、大量 `Stage.*` API | 已有部分 Stage/Rule 同步适配函数和统计查询函数 | 异步剧情动作、目标系统、单位代码/头像/静态/目标标记、移动覆盖等仍未落地 |
+| 战役脚本 | Rhino、`.js/.json/.aem`、大量 `Stage.*` API | 已有部分 Stage/Rule 同步适配函数和统计查询函数；单位 code/static/targeted 可写入状态，静态单位不生成合法动作 | 异步剧情动作、完整目标系统、单位头像、移动覆盖等仍未落地 |
 
 ## 3. APK 结构观察
 
@@ -154,7 +154,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 注意：
 
 - `commander/skeleton/crystal` 虽有价格字段，但 APK 单位定义中的 `q=false`；项目仍默认不把它们作为普通可招募单位，指挥官重招募通过单独规则配置控制。
-- `crystal` 在 data.bin 中移动为 4，但战役脚本会配合 `SyncSetUnitTargetedWithCode`、`SyncOverrideMov`、`SyncSetUnitStaticWithCode` 等接口控制目标单位行为；项目当前仍保留不可招募占位，不把它当普通作战单位处理。
+- `crystal` 在 data.bin 中移动为 4，但战役脚本会配合 `SyncSetUnitTargetedWithCode`、`SyncOverrideMov`、`SyncSetUnitStaticWithCode` 等接口控制目标单位行为；项目当前保留不可招募占位，并已把 static/targeted 作为脚本元数据接入，仍不把它当普通可招募作战单位处理。
 
 ## 5. APK 确认的能力规则
 
@@ -632,7 +632,7 @@ skirmish 训练导入映射：
 APK dex 还暴露了当前项目未建模的脚本能力：
 
 - `SyncSetCommander` 的参数细节校准，以及脚本指定指挥官与战役目标的边界行为。
-- 改变单位阵营、单位代码、头像、静态/目标标记、移动覆盖。
+- 改变单位阵营、单位头像、移动覆盖；单位代码、静态和目标标记已有基础状态适配，但还没有完整战役目标/UI 系统。
 - 异步创建单位、增援、搬运单位/旗帜、神圣裁决、地图聚焦。
 - 战役目标脚本、布尔/整数变量存取、剧情触发和关卡流程控制。
 
@@ -862,7 +862,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 解密脚本确认 `Stage.SyncSetUnitCode(x, y, code)`、`Stage.GetUnit(code)`、`Stage.GetUnit(x, y)` 和 `Stage.GetUnits(team)` 都有实际调用；其中 code 用于脚本目标判断和按名称查找剧情/目标单位。
 - `Unit` 新增可选 `apkUnitCode` 元数据；`src/game/apk_stage.ts` 新增 `syncSetUnitCode`、`getUnit`、`getUnits`，只负责查询和标识，不改变普通对战行为。
-- `SyncSetUnitStatic*`、`SyncSetUnitTargeted*`、`SyncSetUnitHead` 仍属于战役特殊单位/目标展示层，未并入对战训练规则。
+- `SyncSetUnitStatic*`、`SyncSetUnitTargeted*` 已作为脚本元数据基础适配；`SyncSetUnitHead` 仍属于战役特殊单位展示层，未并入对战训练规则。
 
 2026-06-29 APK Stage 脚本变量与距离查询适配器补充：
 
@@ -954,6 +954,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。
 - `AncientEmpiresEnv.getObservation().apkScriptState` 新增 `booleans/integers` 只读快照，暴露 Stage 脚本目标判断变量。
 - 这些字段不参与规则判定；目的是避免 AI 训练样本丢失 APK 脚本状态上下文。
+
+2026-06-29 APK Stage 静态/目标单位标记补充：
+
+- 解密脚本确认 `Stage.SyncSetUnitStatic(x, y, flag)`、`Stage.SyncSetUnitStaticWithCode(code, flag)`、`Stage.SyncSetUnitTargeted(x, y, flag)` 和 `Stage.SyncSetUnitTargetedWithCode(code, flag)` 用于剧情/目标单位控制。
+- `Unit` 新增可选 `apkStatic/apkTargeted`；`apkStatic` 会让单位不再生成普通行动或突击后移动，`apkTargeted` 暴露为训练侧可观察目标标记。
+- `AncientEmpiresEnv.getObservation().units` 同步输出 `apkStatic/apkTargeted`；`SyncSetUnitHead` 和 `SyncOverrideMov` 尚未实现。
 
 2026-06-29 APK skirmish 当前队伍摧毁后的回合推进补充：
 
