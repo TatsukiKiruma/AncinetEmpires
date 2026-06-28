@@ -1358,7 +1358,7 @@ describe('GameEngine Rules', () => {
 
         it('指挥官死亡会记录死亡次数，但不直接淘汰仍有单位的玩家', () => {
             const state = createDemoState();
-            const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier')!;
             attacker.unitClass = 'dragon';
             attacker.pos = { x: 6, y: 6 };
 
@@ -1373,6 +1373,46 @@ describe('GameEngine Rules', () => {
             expect(finalState.players[1].commanderDeathCount).toBe(1);
             expect(finalState.players[1].isAlive).toBe(true);
             expect(finalState.units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
+        });
+
+        it('配置开启后指挥官阵亡会直接淘汰玩家', () => {
+            const state = createDemoState();
+            state.rules = { defeatOnCommanderDeath: true };
+
+            const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier')!;
+            attacker.unitClass = 'dragon';
+            attacker.pos = { x: 6, y: 6 };
+
+            const commander = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
+            commander.pos = { x: 6, y: 7 };
+            commander.hp = 5;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
+
+            const finalState = engine.getState();
+            expect(finalState.players[1].isAlive).toBe(false);
+            expect(finalState.winner).toBe(0);
+        });
+
+        it('配置开启后失去最后城堡会淘汰玩家', () => {
+            const state = createDemoState();
+            state.rules = { defeatOnNoCastles: true };
+
+            const commander = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            commander.pos = { x: 7, y: 7 };
+            commander.hasMoved = false;
+            commander.hasActed = false;
+            const enemyCommander = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
+            enemyCommander.pos = { x: 6, y: 6 };
+
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            engine.step({ type: 'capture', unitId: commander.id });
+
+            const finalState = engine.getState();
+            expect(finalState.map.tiles[7][7].ownerId).toBe(0);
+            expect(finalState.players[1].isAlive).toBe(false);
+            expect(finalState.winner).toBe(0);
         });
 
         it('配置开启后可按死亡次数递增价格重招募指挥官', () => {

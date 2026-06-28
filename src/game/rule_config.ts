@@ -11,6 +11,9 @@ export const DEFAULT_RULE_CONFIG = {
     prices: {},
     commanderRecruitBaseCost: null,
     commanderRecruitCostGrowth: 100,
+    defeatOnNoUnits: true,
+    defeatOnCommanderDeath: false,
+    defeatOnNoCastles: false,
     teams: {}
 } satisfies Required<RuleConfig>;
 

@@ -711,11 +711,21 @@ export class GameEngine {
 
     private checkWinConditions() {
         if (this.state.winner !== null) return;
+        const ruleConfig = getRuleConfig(this.state);
 
         for (const player of this.state.players) {
             if (!player.isAlive) continue;
-            const hasUnits = this.state.units.some(u => u.ownerId === player.id);
-            if (!hasUnits) {
+            const hasUnits = this.state.units.some(u => u.ownerId === player.id && u.hp > 0);
+            const hasCommander = this.state.units.some(u => u.ownerId === player.id && u.unitClass === 'commander' && u.hp > 0);
+            const hasCastle = this.state.map.tiles.some(row => row.some(tile => (
+                tile.ownerId === player.id && TERRAIN_CONFIG[tile.terrainId].key === 'castle'
+            )));
+
+            if (
+                (ruleConfig.defeatOnNoUnits && !hasUnits)
+                || (ruleConfig.defeatOnCommanderDeath && !hasCommander)
+                || (ruleConfig.defeatOnNoCastles && !hasCastle)
+            ) {
                 player.isAlive = false;
             }
         }

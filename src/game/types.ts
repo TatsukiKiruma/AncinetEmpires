@@ -64,6 +64,9 @@ export interface RuleConfig {
     prices?: Partial<Record<UnitClass, number | null>>; // 单位价格覆盖，null 表示不可招募
     commanderRecruitBaseCost?: number | null; // 指挥官重招募基础价格，null 表示禁用
     commanderRecruitCostGrowth?: number;      // 每次指挥官死亡后的价格增量
+    defeatOnNoUnits?: boolean;        // 无存活单位时淘汰
+    defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰
+    defeatOnNoCastles?: boolean;      // 无己方城堡时淘汰
     teams?: Record<number, TeamRuleConfig>;
 }
 
