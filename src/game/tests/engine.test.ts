@@ -7,6 +7,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
+import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { syncChangeGold, syncDestroyTeam, syncDisableTeam, syncRestoreTeam, syncSetAlliance, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
 describe('GameEngine Rules', () => {
@@ -1762,6 +1763,40 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'end_turn' });
             const after = engine.getState().units.find(unit => unit.id === soldier.id)!;
             expect(after.status).toBeUndefined();
+        });
+
+        it('APK Rule 适配器可以设置收入和等级上限', () => {
+            const state = createDemoState();
+
+            expect(ruleSetIncomeVillage(state, 30)).toBe(true);
+            expect(ruleSetIncomeCastle(state, 80)).toBe(true);
+            expect(ruleSetIncomeCommanderBase(state, 20)).toBe(true);
+            expect(ruleSetIncomeCommanderGrowth(state, 5)).toBe(true);
+            expect(ruleSetLevelCap(state, 9)).toBe(true);
+
+            expect(state.rules?.incomeVillage).toBe(30);
+            expect(state.rules?.incomeCastle).toBe(80);
+            expect(state.rules?.incomeCommanderBase).toBe(20);
+            expect(state.rules?.incomeCommanderGrowth).toBe(5);
+            expect(state.rules?.levelCap).toBe(9);
+
+            expect(ruleSetIncomeVillage(state, -1)).toBe(false);
+            expect(ruleSetLevelCap(state, 10)).toBe(false);
+        });
+
+        it('APK Rule 适配器可以按 APK 单位 ID 设置价格', () => {
+            const state = createDemoState();
+
+            expect(ruleSetUnitPrice(state, 0, 175)).toBe(true);
+            expect(ruleSetPrices(state, { 1: 260, 8: 1100, 20: 650 })).toBe(true);
+
+            expect(state.rules?.prices?.soldier).toBe(175);
+            expect(state.rules?.prices?.archer).toBe(260);
+            expect(state.rules?.prices?.dragon).toBe(1100);
+            expect(state.rules?.prices?.druid).toBe(650);
+
+            expect(ruleSetUnitPrice(state, 999, 100)).toBe(false);
+            expect(ruleSetPrices(state, { 0: -10 })).toBe(false);
         });
 
         it('招募执行阶段也会拒绝不满足配置的单位', () => {

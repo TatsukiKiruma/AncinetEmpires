@@ -604,3 +604,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值；`SyncSetUnitStatus` 按 APK 状态 ID 设置状态和回合数。
 - 为支持脚本设置的限时致盲，`blinded` 在带有 `remainingTurns` 时会按回合清除；普通攻击附加的无期限致盲行为保持不变。
 - 验证：`npm test` 191 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK Rule 配置适配器补充：
+
+- 新增 `src/game/apk_rule.ts`，集中承接 APK 已确认的 `Rule.*` 配置 API。
+- 已支持收入类：`Rule.SetIncomeVillage`、`Rule.SetIncomeCastle`、`Rule.SetIncomeCommanderBase`、`Rule.SetIncomeCommanderGrowth`，均要求非负整数。
+- 已支持等级类：`Rule.SetLevelCap`，映射到项目 `RuleConfig.levelCap`，允许 APK 内部已确认的 0-9 级范围。
+- 已支持价格类：`SetPrices` / 单位价格覆盖，按 APK 单位 ID 映射到项目 `UnitClass` 后写入 `RuleConfig.prices`。
+- 该适配器只负责把脚本提取出的配置写入规则层，不执行战役流程。
+- 验证：`npm test` 193 个测试通过，`npm run lint` 通过，`npm run build` 通过。
