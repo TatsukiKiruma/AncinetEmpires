@@ -365,11 +365,11 @@ skirmish 训练映射：
 | `Stage.AsyncReinforce` | 51 | 未实现，战役增援层 |
 | `Stage.PutBoolean` | 44 | 未实现，脚本变量层 |
 | `Stage.GetBoolean` | 42 | 未实现，脚本变量层 |
-| `Stage.SyncSetUnitCode` | 40 | 未实现，战役单位标记层 |
+| `Stage.SyncSetUnitCode` | 40 | code 元数据已基础适配；static/targeted/head 仍未实现 |
 | `Stage.SyncSetUnitLevel` | 35 | 基础适配已实现 |
 | `Stage.SyncSetUnitLimit` | 25 | 基础适配已实现 |
 | `Stage.CountUnit` | 25 | 基础适配已实现 |
-| `Stage.GetUnit` | 18 | 未完整适配 |
+| `Stage.GetUnit` | 18 | 已支持按 code 或坐标查询 |
 | `Stage.PutInteger` | 17 | 未实现，脚本变量层 |
 | `Stage.CheckCommander` | 16 | 基础适配已实现 |
 | `Stage.SyncSetGold` | 16 | 基础适配已实现 |
@@ -383,6 +383,7 @@ skirmish 训练映射：
 - `src/game/apk_stage.ts`
 - `src/game/apk_rule.ts`
 - DEX 暴露的坐标查询 `CheckCastle`、`CheckVillage`、`GetTileTeam` 已补到 `apk_stage.ts`，用于建筑/地块归属目标判断。
+- 解密脚本实际调用的 `SyncSetUnitCode(x,y,code)`、`GetUnit(code)`、`GetUnit(x,y)`、`GetUnits(team)` 已基础适配，用作单位标识和目标查询。
 
 尚未覆盖的是完整战役执行器：
 

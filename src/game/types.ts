@@ -38,6 +38,7 @@ export interface Unit {
     hasPostAttackMoved?: boolean; // 突击部队是否执行了攻击后移动
     hasBeenHealedThisTurn?: boolean; // 本回合是否被治疗过
     hasBeenSupportedThisTurn?: boolean; // 本回合是否被支援过
+    apkUnitCode?: string; // APK 脚本层单位 code，用于 Stage.GetUnit/SyncSetUnitCode 查询
 }
 
 export interface PlayerState {

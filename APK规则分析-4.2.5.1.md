@@ -480,11 +480,13 @@ skirmish 训练导入映射：
 | `Stage.SyncDisableTeam` / `SyncRestoreTeam` | 禁用/恢复指定队伍 |
 | `Stage.SyncDestroyTeam` | 销毁指定队伍 |
 | `Stage.SyncSetUnitLevel` | 按坐标设置单位等级 |
+| `Stage.SyncSetUnitCode` | 按坐标给单位设置脚本 code |
 | `Stage.AsyncCreateUnit` | 创建单位 |
 | `Stage.AsyncSummon` | 召唤单位 |
 | `Stage.AsyncReinforce` | 增援 |
 | `Stage.CountCastle` / `CountVillage` / `CountUnit` | 关卡统计条件 |
 | `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | 按坐标检查建筑和地块归属 |
+| `Stage.GetUnit` / `GetUnits` | 按 code/坐标/队伍查询单位 |
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
@@ -852,6 +854,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `classes.dex` 字符串确认存在 `Stage.CheckCastle`、`Stage.CheckVillage` 和 `Stage.GetTileTeam` 坐标查询 API，属于目标判断/规则查询层，不属于剧情演出层。
 - `src/game/apk_stage.ts` 新增 `checkCastle`、`checkVillage`、`getTileTeam`，可按坐标检查城堡、村庄和地块归属；`checkCastle/checkVillage` 支持可选队伍过滤。
 - 越界或无主地块查询保持保守：建筑检查返回 `false`，地块队伍返回 `null`。
+
+2026-06-29 APK Stage 单位 code/查询适配器补充：
+
+- 解密脚本确认 `Stage.SyncSetUnitCode(x, y, code)`、`Stage.GetUnit(code)`、`Stage.GetUnit(x, y)` 和 `Stage.GetUnits(team)` 都有实际调用；其中 code 用于脚本目标判断和按名称查找剧情/目标单位。
+- `Unit` 新增可选 `apkUnitCode` 元数据；`src/game/apk_stage.ts` 新增 `syncSetUnitCode`、`getUnit`、`getUnits`，只负责查询和标识，不改变普通对战行为。
+- `SyncSetUnitStatic*`、`SyncSetUnitTargeted*`、`SyncSetUnitHead` 仍属于战役特殊单位/目标展示层，未并入对战训练规则。
 
 2026-06-29 APK skirmish 终局规则补充：
 

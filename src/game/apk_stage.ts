@@ -20,6 +20,10 @@ function findUnitAt(state: GameState, pos: Position): Unit | undefined {
     return state.units.find(unit => unit.pos.x === pos.x && unit.pos.y === pos.y && unit.hp > 0);
 }
 
+function findUnitByCode(state: GameState, code: string): Unit | undefined {
+    return state.units.find(unit => unit.apkUnitCode === code && unit.hp > 0);
+}
+
 function getTileAt(state: GameState, pos: Position) {
     if (
         !Number.isInteger(pos.x)
@@ -183,6 +187,21 @@ export function syncSetCommander(state: GameState, teamId: number, pos: Position
     return true;
 }
 
+export function syncSetUnitCode(state: GameState, pos: Position, code: string): boolean {
+    if (typeof code !== 'string') return false;
+    const normalizedCode = code.trim();
+    if (normalizedCode === '') return false;
+
+    const unit = findUnitAt(state, pos);
+    if (!unit) return false;
+
+    const existing = findUnitByCode(state, normalizedCode);
+    if (existing && existing.id !== unit.id) return false;
+
+    unit.apkUnitCode = normalizedCode;
+    return true;
+}
+
 export function syncSetUnitLimit(state: GameState, limit: number): boolean {
     if (!Number.isInteger(limit) || limit < 0) return false;
     ensureRules(state).unitLimit = limit;
@@ -255,6 +274,19 @@ export function checkCommander(state: GameState, unitId: string, teamId?: number
 
 export function getCommander(state: GameState, teamId: number): Unit | null {
     return getCommanderUnit(state, teamId);
+}
+
+export function getUnit(state: GameState, query: string | Position): Unit | null {
+    if (typeof query === 'string') {
+        return findUnitByCode(state, query) ?? null;
+    }
+
+    return findUnitAt(state, query) ?? null;
+}
+
+export function getUnits(state: GameState, teamId: number): Unit[] {
+    if (!Number.isInteger(teamId) || !state.players.some(player => player.id === teamId)) return [];
+    return state.units.filter(unit => unit.ownerId === teamId && unit.hp > 0);
 }
 
 export function countUnit(state: GameState, teamId: number, apkUnitId?: number): number {
