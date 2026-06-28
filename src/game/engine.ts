@@ -657,10 +657,19 @@ export class GameEngine {
                             }
                         }
 
-                        // 如果因中毒致死，立即死亡，不再结算后续回复
+                        // 如果因中毒致死，普通单位立即死亡，不再结算后续回复。
+                        // APK 自我修复文案明确“不论是否中毒”都会在回合开始回复 25% HP，
+                        // 因此中毒把自我修复单位扣到 0 以下时，仍先给它一次自我修复机会。
                         if (isPoisonDead) {
+                            if (hasAbility(u, 'self_repair')) {
+                                u.hp = Math.min(eff.maxHp, u.hp + Math.floor(eff.maxHp * 0.25));
+                                if (u.hp > 0) {
+                                    return;
+                                }
+                            }
+
                             u.hp = 0; // 确保致死并被 filter 级联清除
-                            return; 
+                            return;
                         }
 
                         const tile = this.state.map.tiles[u.pos.y][u.pos.x];

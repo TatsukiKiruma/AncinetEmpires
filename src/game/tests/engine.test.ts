@@ -658,6 +658,24 @@ describe('GameEngine Rules', () => {
         expect(finalState.units[0].hp).toBe(75);
     });
 
+    it('能力测试: 自我修复在中毒致死边界仍会生效', () => {
+        const state = createDemoState();
+        const slime = state.units[0];
+        slime.unitClass = 'slime';
+        slime.hp = 5;
+        slime.maxHp = 100;
+        slime.status = { type: 'poisoned', remainingTicks: 2 };
+        state.map.tiles[slime.pos.y][slime.pos.x].terrainId = 6;
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'end_turn' });
+        engine.step({ type: 'end_turn' });
+
+        const repaired = engine.getState().units.find(item => item.id === slime.id)!;
+        expect(repaired.hp).toBe(20);
+        expect(repaired.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+    });
+
     it('状态系统测试: 单位已有中毒时，致盲不会替换中毒', () => {
         const state = createDemoState();
         // 给 targetA (P1) 手动加上 poisoned 状态
