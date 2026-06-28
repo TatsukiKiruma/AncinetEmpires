@@ -119,6 +119,46 @@ export const HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT = {
     72: 17
 } satisfies Partial<Record<number, TerrainId>>;
 
+// 用于把 APK 内置 skirmish 地图导入训练环境的规则近似映射。
+// 高可信建筑仍保留在 HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT；这里额外按
+// data.bin 的防御/移动/回血数值、atlas 外观和 skirmish 地图上下文归并贴图变体。
+export const SKIRMISH_APK_TERRAIN_TO_PROJECT = {
+    // 水面与海岸变体。APK 有大量水边自动拼接 tile，项目规则层统一按深水处理。
+    0: 2, 1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 6: 2, 7: 2, 8: 2, 9: 2, 10: 2, 11: 2, 12: 2, 13: 2, 14: 2,
+    38: 2, 39: 2, 40: 2, 41: 2, 42: 2, 43: 2, 44: 2, 45: 2, 46: 2, 47: 2, 48: 2, 49: 2, 50: 2, 51: 2,
+    52: 2, 53: 2, 54: 2, 55: 2, 56: 2, 57: 2, 58: 2, 59: 2, 60: 2, 61: 2, 62: 2, 63: 2, 64: 2, 65: 2,
+    66: 2, 67: 2, 68: 2, 69: 2, 70: 2, 71: 2,
+
+    // 常规陆地。
+    15: 7,
+    16: 7,
+    17: 3,
+    18: 1,
+    19: 4,
+    20: 6,
+    21: 6, 22: 6, 23: 6, 24: 6, 25: 6, 26: 6,
+    32: 1,
+    34: 1,
+    35: 15,
+    73: 6, 74: 6, 75: 6, 76: 6, 77: 6, 78: 6, 79: 6,
+
+    // 桥和木桥变体。APK 文案明确桥也按水面地形处理。
+    28: 17,
+    29: 17,
+    72: 17,
+
+    // 非收入治疗建筑。具体是营地还是神庙仍需反编译/实测；训练规则先保留回血能力。
+    30: 11,
+    31: 12,
+    33: 14,
+    80: 11,
+    81: 16,
+    82: 16,
+    83: 16,
+
+    ...HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT,
+} satisfies Partial<Record<number, TerrainId>>;
+
 export function getApkTerrainConfig(apkTerrainId: number): ApkTerrainConfig | null {
     return APK_TERRAIN_BY_ID.get(apkTerrainId) ?? null;
 }
@@ -127,8 +167,19 @@ export function mapKnownApkTerrainId(apkTerrainId: number): TerrainId | null {
     return HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT[apkTerrainId] ?? null;
 }
 
+export function mapSkirmishApkTerrainId(apkTerrainId: number): TerrainId | null {
+    return SKIRMISH_APK_TERRAIN_TO_PROJECT[apkTerrainId] ?? null;
+}
+
 export function getKnownApkTerrainIdsForProject(terrainId: TerrainId): number[] {
     return Object.entries(HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT)
+        .filter(([, projectTerrainId]) => projectTerrainId === terrainId)
+        .map(([apkTerrainId]) => Number(apkTerrainId))
+        .sort((a, b) => a - b);
+}
+
+export function getSkirmishApkTerrainIdsForProject(terrainId: TerrainId): number[] {
+    return Object.entries(SKIRMISH_APK_TERRAIN_TO_PROJECT)
         .filter(([, projectTerrainId]) => projectTerrainId === terrainId)
         .map(([apkTerrainId]) => Number(apkTerrainId))
         .sort((a, b) => a - b);

@@ -7,8 +7,8 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
-import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, mapKnownApkTerrainId } from '../apk_terrain';
-import { APK_AEM_MAGIC, parseApkAemMap, getApkAemTerrainUsage } from '../apk_map';
+import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
+import { APK_AEM_MAGIC, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
@@ -61,6 +61,13 @@ describe('GameEngine Rules', () => {
         expect(mapKnownApkTerrainId(72)).toBe(17);
         expect(getKnownApkTerrainIdsForProject(9)).toEqual([36]);
         expect(mapKnownApkTerrainId(2)).toBeNull();
+
+        expect(mapSkirmishApkTerrainId(2)).toBe(2);
+        expect(mapSkirmishApkTerrainId(15)).toBe(7);
+        expect(mapSkirmishApkTerrainId(17)).toBe(3);
+        expect(mapSkirmishApkTerrainId(28)).toBe(17);
+        expect(mapSkirmishApkTerrainId(36)).toBe(9);
+        expect(getSkirmishApkTerrainIdsForProject(17)).toEqual([28, 29, 72]);
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {
@@ -140,6 +147,22 @@ describe('GameEngine Rules', () => {
             { apkUnitId: 9, teamId: 1, extra: 0, x: 1, y: 2, unitClass: 'commander' },
         ]);
         expect(getApkAemTerrainUsage(map)).toEqual({ 2: 1, 27: 1, 36: 1, 37: 2, 72: 1 });
+        expect(getUnmappedSkirmishApkTerrainIds(map)).toEqual([]);
+
+        const state = createGameStateFromApkAemMap(map);
+        expect(state.map.width).toBe(2);
+        expect(state.map.height).toBe(3);
+        expect(state.map.tiles[0][0]).toEqual({ terrainId: 10, ownerId: 0 });
+        expect(state.map.tiles[0][1]).toEqual({ terrainId: 8, ownerId: null });
+        expect(state.map.tiles[1][0]).toEqual({ terrainId: 9, ownerId: null });
+        expect(state.map.tiles[1][1]).toEqual({ terrainId: 2, ownerId: null });
+        expect(state.map.tiles[2][0]).toEqual({ terrainId: 17, ownerId: 1 });
+        expect(state.players.map(player => player.gold)).toEqual([300, 300]);
+        expect(state.units.map(unit => `${unit.ownerId}:${unit.unitClass}@${unit.pos.x},${unit.pos.y}`)).toEqual([
+            '0:commander@0,0',
+            '1:commander@1,2'
+        ]);
+        expect(state.rules?.defeatOnNoUnitsAndNoCastles).toBe(true);
     });
 
     it('初始化与状态克隆不影响原状态', () => {

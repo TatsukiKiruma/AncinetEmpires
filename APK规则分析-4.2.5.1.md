@@ -288,7 +288,27 @@ APK 规则中涉及的加成：
 | `t37` | `castle` | 防御 15、回血 20、移动 1、无摧毁链接，符合城堡文案 |
 | `t72` | `bridge` | `kind=1` 与水面组一致，移动 1；结合“大地之子：桥也是水面地形”文案 |
 
-完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，暂不映射到项目对战地形。
+skirmish 训练导入映射：
+
+| APK tile 范围 | 项目地形 | 依据与可信度 |
+| --- | --- | --- |
+| `t0-t14`、`t38-t71` | `deep_water` | atlas 为水面/海岸变体，`data.bin` 多数为防御 0、移动 3；`t0/t1` 移动值特殊，导入时仍按水面近似，可信度中 |
+| `t15-t16` | `forest` | atlas 为树木，防御 10、移动 2，可信度中高 |
+| `t17` | `mountain` | atlas 为雪山，防御 15、移动 3，可信度中高 |
+| `t18/t32/t34` | `snow` | atlas 为雪地，防御 5、移动 1，可信度中高 |
+| `t19` | `hill` | 防御 10、移动 2，atlas 为起伏雪地/丘陵，可信度中 |
+| `t20-t26`、`t73-t79` | `road` | atlas 为土路/岸边可通行陆地，防御 0、移动 1，可信度中 |
+| `t28/t29/t72` | `bridge` | atlas 为桥/木桥或桥候选，移动 1；APK 文案明确桥算水面，可信度中 |
+| `t30/t80` | `camp` | 非收入治疗建筑，防御 10、回血 20、移动 1，可信度中低 |
+| `t31` | `temple` | 非收入治疗建筑，防御 10、回血 20、移动 1；是否具备净化仍待实测，可信度中低 |
+| `t33` | `special_2` | 防御 20、移动 3；skirmish 未使用，可信度低 |
+| `t35` | `special_3` | 防御 10、移动 1；skirmish 未使用，可信度低 |
+| `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
+| `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
+
+该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。
+
+完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，当前只在 skirmish 导入映射里按水面近似处理。
 
 | ID | kind | flagA | variant | linkedA | 防御 | 回血 | 移动 | flagB | linkedB | linkedC | 备注 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -851,6 +871,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个地形格会附带已知的项目 `TerrainId` 映射；当前只映射 `t27/t36/t37/t72` 等高可信地形，未确认 tile 保持 `null`。
 - APK 分析文档新增第 8.2 节，归档 20 张内置 skirmish 地图的尺寸、队伍、作者、关键建筑归属、初始单位和推荐金币。
 - 验证：`npm test` 204 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK skirmish GameState 导入补充：
+
+- `src/game/apk_terrain.ts` 新增 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，把 APK tile 变体按水面/森林/山地/雪地/土路/桥/治疗建筑等项目地形归并；该表用于训练导入，不覆盖高可信映射。
+- `src/game/apk_map.ts` 新增 `getUnmappedSkirmishApkTerrainIds` 和 `createGameStateFromApkAemMap`，可把已解析 `.aem` 转为 `GameState`，默认使用推荐金币、初始回合 1、当前队伍为最小玩家 ID，并保留 skirmish 默认“无单位且无城堡淘汰”规则。
+- 严格模式下若地图含未映射 tile 会抛错，避免把未知地形静默转为普通陆地。
+- 已用真实 APK 的 20 张 `assets/maps/*.aem` 验证全部可导入；推荐金币为 `-1` 的地图导入金币为 0，可由外部规则配置覆盖。
+- 验证：`npm test` 204 个测试通过，`npm run lint` 通过；另用解密脚本确认 `IMPORTED 20 / 20`。
 
 ## 16. 本次复核记录
 

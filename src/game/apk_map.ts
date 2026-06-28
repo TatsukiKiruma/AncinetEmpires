@@ -1,7 +1,7 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { mapKnownApkTerrainId } from './apk_terrain';
+import { mapKnownApkTerrainId, mapSkirmishApkTerrainId } from './apk_terrain';
 import { TerrainId } from './terrain';
-import { UnitClass } from './types';
+import { GameState, RuleConfig, Unit, UnitClass } from './types';
 
 export const APK_AEM_MAGIC = 365703;
 export const APK_AEM_TERRAIN_RECORD_SIZE = 4;
@@ -39,6 +39,15 @@ export interface ApkAemMap {
     units: ApkAemUnit[];
     recommendedGold: number | null;
     tailOffset: number;
+}
+
+export interface CreateGameStateFromApkAemMapOptions {
+    initialGold?: number;
+    useRecommendedGold?: boolean;
+    currentPlayer?: number;
+    rules?: RuleConfig;
+    strictTerrain?: boolean;
+    fallbackTerrainId?: TerrainId;
 }
 
 function requireBytes(data: Uint8Array, offset: number, length: number) {
@@ -256,4 +265,89 @@ export function getApkAemTerrainUsage(map: ApkAemMap): Record<number, number> {
         }
     }
     return usage;
+}
+
+export function getUnmappedSkirmishApkTerrainIds(map: ApkAemMap): number[] {
+    return Object.keys(getApkAemTerrainUsage(map))
+        .map(Number)
+        .filter(apkTerrainId => mapSkirmishApkTerrainId(apkTerrainId) === null)
+        .sort((a, b) => a - b);
+}
+
+function getInitialGold(map: ApkAemMap, options: CreateGameStateFromApkAemMapOptions): number {
+    if (options.initialGold !== undefined) return options.initialGold;
+    if (options.useRecommendedGold !== false && map.recommendedGold !== null) return map.recommendedGold;
+    return 0;
+}
+
+function createUnitsFromApkAemMap(map: ApkAemMap): Unit[] {
+    return map.units.map((unit, index) => {
+        if (!unit.unitClass) {
+            throw new Error(`AEM 单位 ${index} 使用未知 APK 单位 ID: ${unit.apkUnitId}`);
+        }
+
+        return {
+            id: `apk_u${index}`,
+            ownerId: unit.teamId,
+            unitClass: unit.unitClass,
+            pos: { x: unit.x, y: unit.y },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false,
+            level: 0,
+            exp: 0
+        };
+    });
+}
+
+export function createGameStateFromApkAemMap(
+    map: ApkAemMap,
+    options: CreateGameStateFromApkAemMapOptions = {}
+): GameState {
+    const unmappedTerrainIds = getUnmappedSkirmishApkTerrainIds(map);
+    const strictTerrain = options.strictTerrain ?? true;
+    if (strictTerrain && unmappedTerrainIds.length > 0) {
+        throw new Error(`AEM 地图存在未映射 APK tile: ${unmappedTerrainIds.join(', ')}`);
+    }
+
+    const terrainFallback = options.fallbackTerrainId ?? 6;
+    const tiles = map.terrain.map(row => row.map(cell => {
+        const terrainId = mapSkirmishApkTerrainId(cell.apkTerrainId) ?? terrainFallback;
+        return {
+            terrainId,
+            ownerId: cell.ownerId
+        };
+    }));
+
+    const teamIds = [...new Set([
+        ...map.playerIds,
+        ...map.units.map(unit => unit.teamId)
+    ])].sort((a, b) => a - b);
+    const gold = getInitialGold(map, options);
+    const rules: RuleConfig = {
+        defeatOnNoUnitsAndNoCastles: true,
+        ...(options.rules ?? {})
+    };
+
+    return {
+        turn: 1,
+        currentPlayer: options.currentPlayer ?? teamIds[0] ?? 0,
+        map: {
+            width: map.width,
+            height: map.height,
+            tiles
+        },
+        units: createUnitsFromApkAemMap(map),
+        players: teamIds.map(id => ({
+            id,
+            gold,
+            isAlive: true,
+            commanderDeathCount: 0
+        })),
+        winner: null,
+        nextUnitId: map.units.length,
+        nextGraveId: 100,
+        rules
+    };
 }
