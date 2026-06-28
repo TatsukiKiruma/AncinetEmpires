@@ -1336,6 +1336,26 @@ describe('GameEngine Rules', () => {
             }
         });
 
+        it('全局可招募列表会限制所有队伍，队伍配置可覆盖', () => {
+            const state = createDemoState();
+            state.rules = {
+                recruitableUnits: ['soldier'],
+                teams: {
+                    0: { recruitableUnits: ['archer'] }
+                }
+            };
+
+            const player0Actions = getLegalActions(state, 0)
+                .filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            const player1Actions = getLegalActions(state, 1)
+                .filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+
+            expect(player0Actions.length).toBeGreaterThan(0);
+            expect(player1Actions.length).toBeGreaterThan(0);
+            expect(player0Actions.every(a => (a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') && a.unitClass === 'archer')).toBe(true);
+            expect(player1Actions.every(a => (a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') && a.unitClass === 'soldier')).toBe(true);
+        });
+
         it('单位数量上限会阻止继续招募', () => {
             const state = createDemoState();
             state.rules = {
@@ -1349,6 +1369,24 @@ describe('GameEngine Rules', () => {
             expect(recruitActions.length).toBe(0);
         });
 
+        it('全局单位数量上限会阻止继续招募，队伍配置可覆盖', () => {
+            const state = createDemoState();
+            state.rules = {
+                unitLimit: 2,
+                teams: {
+                    1: { unitLimit: 10 }
+                }
+            };
+
+            const player0RecruitActions = getLegalActions(state, 0)
+                .filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            const player1RecruitActions = getLegalActions(state, 1)
+                .filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+
+            expect(player0RecruitActions.length).toBe(0);
+            expect(player1RecruitActions.length).toBeGreaterThan(0);
+        });
+
         it('人口上限会阻止超出人口的招募', () => {
             const state = createDemoState();
             state.rules = {
@@ -1356,6 +1394,15 @@ describe('GameEngine Rules', () => {
                     0: { populationLimit: 1 }
                 }
             };
+
+            const actions = getLegalActions(state, 0);
+            const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            expect(recruitActions.length).toBe(0);
+        });
+
+        it('全局人口上限会阻止超出人口的招募', () => {
+            const state = createDemoState();
+            state.rules = { populationLimit: 1 };
 
             const actions = getLegalActions(state, 0);
             const recruitActions = actions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');

@@ -8,6 +8,9 @@ export const DEFAULT_RULE_CONFIG = {
     incomeCommanderBase: 0,
     incomeCommanderGrowth: 25,
     levelCap: 3,
+    unitLimit: undefined,
+    populationLimit: undefined,
+    recruitableUnits: undefined,
     prices: {},
     commanderRecruitBaseCost: null,
     commanderRecruitCostGrowth: 100,
@@ -63,8 +66,10 @@ export function getUnitCost(state: GameState, playerId: number, unitClass: UnitC
 }
 
 export function getRecruitableUnits(state: GameState, playerId: number): UnitClass[] {
+    const rules = getRuleConfig(state);
     const teamRules = getTeamRuleConfig(state, playerId);
     const configuredUnits = teamRules.recruitableUnits
+        ?? rules.recruitableUnits
         ?? (Object.keys(UNIT_CONFIGS) as UnitClass[]);
 
     return [...new Set(configuredUnits)]
@@ -96,12 +101,15 @@ export function canRecruitUnitClass(state: GameState, playerId: number, unitClas
     const recruitableUnits = getRecruitableUnits(state, playerId);
     if (!recruitableUnits.includes(unitClass)) return false;
 
+    const rules = getRuleConfig(state);
     const teamRules = getTeamRuleConfig(state, playerId);
-    if (teamRules.unitLimit !== undefined && getCurrentUnitCount(state, playerId) >= teamRules.unitLimit) {
+    const unitLimit = teamRules.unitLimit ?? rules.unitLimit;
+    if (unitLimit !== undefined && getCurrentUnitCount(state, playerId) >= unitLimit) {
         return false;
     }
 
-    if (teamRules.populationLimit !== undefined && getCurrentPopulation(state, playerId) + unitConfig.population > teamRules.populationLimit) {
+    const populationLimit = teamRules.populationLimit ?? rules.populationLimit;
+    if (populationLimit !== undefined && getCurrentPopulation(state, playerId) + unitConfig.population > populationLimit) {
         return false;
     }
 

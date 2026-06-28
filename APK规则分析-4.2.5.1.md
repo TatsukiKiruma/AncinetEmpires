@@ -218,6 +218,8 @@ APK 规则中涉及的加成：
 | `SetPrices` | 配置价格 |
 | `Stage.SyncSetRecruitUnitsForTeam` | 配置某队可招募单位 |
 | `Stage.SyncSetUnitLimitForTeam` | 配置某队单位上限 |
+| `Stage.SyncSetRecruitUnits` | 配置通用可招募单位列表 |
+| `Stage.SyncSetUnitLimit` | 配置通用单位上限 |
 | `Stage.SyncSetUnitStatus` | 设置单位状态和回合数 |
 | `Stage.SyncSetGoldForTeam` | 设置某队金币 |
 | `Stage.AsyncCreateUnit` | 创建单位 |
@@ -488,3 +490,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - APK DEX 中 `Lc/a/b/a/t/f.a(int)` 确认等级经验阈值公式：`level <= 0` 为 0，否则 `(level + 1) * 100 * level / 2`。
 - APK DEX 中 `Lc/a/b/a/t/f.b(int)` 从 9 级向下反推等级，说明数据层至少支持 0-9 级。
 - 项目默认 `levelCap` 仍保持 3，但 `RuleConfig.levelCap` 现在允许配置到 9；经验阈值改为 APK 公式。
+
+2026-06-29 APK 加密资源与脚本规则补充：
+
+- `data.bin` 使用自定义序列化 magic `365703`，开头明文保存 8 字节 DES key；后续资源使用 `DES/CBC/PKCS5Padding`，key 与 IV 相同。
+- 已确认 `.js` 和 `.aem` 资源可以用该 key 解密；脚本中大量出现 `Stage.SyncSetUnitLimit(...)` 和 `Stage.SyncSetRecruitUnits(...)`。
+- `RuleConfig` 新增全局 `unitLimit/populationLimit/recruitableUnits`，队伍级配置仍可覆盖全局配置。

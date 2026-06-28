@@ -63,6 +63,9 @@ export interface RuleConfig {
     incomeCommanderBase?: number;    // 指挥官存活基础收入
     incomeCommanderGrowth?: number;  // 指挥官每级收入成长
     levelCap?: LevelCap;             // 等级上限
+    unitLimit?: number;              // 全局单位数量上限，队伍配置可覆盖
+    populationLimit?: number;        // 全局人口上限，队伍配置可覆盖
+    recruitableUnits?: UnitClass[];  // 全局允许招募单位列表，队伍配置可覆盖
     prices?: Partial<Record<UnitClass, number | null>>; // 单位价格覆盖，null 表示不可招募
     commanderRecruitBaseCost?: number | null; // 指挥官重招募基础价格，null 表示禁用
     commanderRecruitCostGrowth?: number;      // 每次指挥官死亡后的价格增量
