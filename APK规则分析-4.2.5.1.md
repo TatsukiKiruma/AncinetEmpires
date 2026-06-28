@@ -31,7 +31,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 
 仍未完成的关键差异：
 
-1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限和联盟配置，但 APK 默认值仍需反编译或实测确认。
+1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置，但 APK 默认值仍需反编译或实测确认。
 2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程、默认费用和胜负关系仍需反编译或实测确认。
 3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；但地图地形 ID 映射、脚本语义和战役特殊规则仍未完全转为项目配置。
 
@@ -264,6 +264,9 @@ APK 规则中涉及的加成：
 | `Stage.SyncSetGold` | 配置通用金币 |
 | `Stage.SyncSetUnitStatus` | 设置单位状态和回合数 |
 | `Stage.SyncSetGoldForTeam` | 设置某队金币 |
+| `Stage.SyncSetCurrentTeam` | 设置当前行动队伍 |
+| `Stage.SyncDisableTeam` / `SyncRestoreTeam` | 禁用/恢复指定队伍 |
+| `Stage.SyncDestroyTeam` | 销毁指定队伍 |
 | `Stage.AsyncCreateUnit` | 创建单位 |
 | `Stage.AsyncSummon` | 召唤单位 |
 | `Stage.AsyncReinforce` | 增援 |
@@ -378,12 +381,17 @@ APK 规则中涉及的加成：
    - 项目：已通过 `RuleConfig.alliances` 接入队伍到联盟 ID 的映射；攻击、治疗、支援、光环、移动阻挡、友方建筑回血、胜负判断和 AI 终局奖励均按联盟关系处理。
    - 状态：已实现基础对战规则层。默认不配置时每队自成联盟，保持现有双人训练行为。
 
-9. 地形映射仍需校准
+9. 多队伍回合与禁用队伍需要进入训练规则
+   - APK：内置地图存在 3/4 人地图；DEX 字符串确认 `SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`。
+   - 项目：结束回合不再硬编码 P0/P1，而是按存活且启用的队伍 ID 升序轮转；`RuleConfig.disabledTeams` 可配置跳过队伍。
+   - 状态：已实现多队伍轮转与静态禁用队伍配置；脚本运行时恢复/销毁队伍的事件接口暂未建模。
+
+10. 地形映射仍需校准
    - APK：大地之子说明“桥也是水面地形”。
    - 项目：已加入 `bridge` 地形占位，并把地形能力判断改为基于 `water/mountain/forest/land` 标签；`bridge` 按 APK 文案归为水面地形。
    - 状态：桥的规则分类已落地；84 条 APK 地形定义到项目地形 ID 的完整映射仍需继续校准。
 
-10. 招募待处理机制仍需与 APK 精确对齐
+11. 招募待处理机制仍需与 APK 精确对齐
    - 项目当前方向与 dex `stacked` 字符串吻合。
    - 但 APK 对部署后剩余移动力、是否可继续移动、UI 选择状态的精确行为仍需反编译或运行 APK 实测。
 
@@ -575,3 +583,11 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `isWaterTerrain/isMountainTerrain/isForestTerrain/isLandTerrain` 改为读取地形标签，避免后续接入 APK 84 条地形变体时继续硬编码 ID。
 - `hill` 标签补充 `mountain`，保持山之子把丘陵视为山地的既有规则；`island` 标签补充 `water`，与当前水之子/大地之子规则保持一致。
 - 桥的完整 APK tile ID 映射和贴图变体仍待校准；本次只落地“桥也是水面地形”的已确认规则语义。
+
+2026-06-29 APK 多队伍回合规则补充：
+
+- DEX 字符串确认 `SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`，APK 也内置 3/4 人地图，因此对战规则不能只支持 P0/P1 轮转。
+- `RuleConfig.disabledTeams` 新增静态禁用队伍配置；禁用队伍不参与合法动作、招募、回合轮转和胜负判定。
+- `GameEngine` 结束回合改为按存活且启用的队伍 ID 升序轮转，并在回到首个可行动队伍时增加大回合数。
+- `AncientEmpiresEnv` 的 `maxPlies` 估算和超时军力裁决改为支持多队伍/联盟，不再只比较 P0/P1。
+- 验证：`npm test` 188 个测试通过，`npm run lint` 通过，`npm run build` 通过。

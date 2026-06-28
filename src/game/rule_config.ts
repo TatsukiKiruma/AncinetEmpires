@@ -19,6 +19,7 @@ export const DEFAULT_RULE_CONFIG = {
     defeatOnCommanderDeath: false,
     defeatOnNoCastles: false,
     alliances: {},
+    disabledTeams: [],
     teams: {}
 } satisfies Required<RuleConfig>;
 
@@ -35,6 +36,7 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
             ...DEFAULT_RULE_CONFIG.alliances,
             ...(rules.alliances ?? {})
         },
+        disabledTeams: [...(rules.disabledTeams ?? DEFAULT_RULE_CONFIG.disabledTeams)],
         teams: {
             ...DEFAULT_RULE_CONFIG.teams,
             ...(rules.teams ?? {})
@@ -61,6 +63,22 @@ export function areEnemyPlayers(state: GameState, playerA: number, playerB: numb
 
 export function isFriendlyOrNeutralOwner(state: GameState, playerId: number, ownerId: number | null): boolean {
     return ownerId === null || areAlliedPlayers(state, playerId, ownerId);
+}
+
+export function isTeamEnabled(state: GameState, playerId: number): boolean {
+    return !getRuleConfig(state).disabledTeams.includes(playerId);
+}
+
+export function isActivePlayer(state: GameState, playerId: number): boolean {
+    const player = state.players.find(p => p.id === playerId);
+    return !!player?.isAlive && isTeamEnabled(state, playerId);
+}
+
+export function getTurnPlayerIds(state: GameState): number[] {
+    return state.players
+        .filter(player => isActivePlayer(state, player.id))
+        .map(player => player.id)
+        .sort((a, b) => a - b);
 }
 
 export function applyInitialRuleConfig(state: GameState): GameState {
@@ -114,6 +132,7 @@ export function canRecruitUnitClass(state: GameState, playerId: number, unitClas
     const unitConfig = UNIT_CONFIGS[unitClass];
     const unitCost = getUnitCost(state, playerId, unitClass);
     if (!player || !unitConfig || unitCost === null) return false;
+    if (!isActivePlayer(state, playerId)) return false;
     if (player.gold < unitCost) return false;
 
     if (unitClass === 'commander') {

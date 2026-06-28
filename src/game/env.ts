@@ -2,7 +2,7 @@ import { GameEngine } from './engine';
 import { GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
-import { getAllianceId, getUnitCost } from './rule_config';
+import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -77,6 +77,37 @@ export function calculateArmyValue(state: GameState, playerId: number): number {
     return goldValue + unitValue;
 }
 
+function estimatePlyCount(state: GameState): number {
+    const playerIds = state.players.map(player => player.id).sort((a, b) => a - b);
+    const playerCount = Math.max(1, playerIds.length);
+    const currentIndex = Math.max(0, playerIds.indexOf(state.currentPlayer));
+    return Math.max(0, state.turn - 1) * playerCount + currentIndex + 1;
+}
+
+function evaluateTimeoutWinnerAlliance(state: GameState): number {
+    const valuesByAlliance = new Map<number, number>();
+    for (const playerId of getTurnPlayerIds(state)) {
+        const allianceId = getAllianceId(state, playerId);
+        const currentValue = valuesByAlliance.get(allianceId) ?? 0;
+        valuesByAlliance.set(allianceId, currentValue + calculateArmyValue(state, playerId));
+    }
+
+    let winnerAlliance = -1;
+    let winnerValue = -Infinity;
+    let tied = false;
+    for (const [allianceId, value] of valuesByAlliance) {
+        if (value > winnerValue) {
+            winnerAlliance = allianceId;
+            winnerValue = value;
+            tied = false;
+        } else if (value === winnerValue) {
+            tied = true;
+        }
+    }
+
+    return tied ? -1 : winnerAlliance;
+}
+
 export class AncientEmpiresEnv {
   private engine: GameEngine;
   private seed: number;
@@ -124,7 +155,7 @@ export class AncientEmpiresEnv {
   }
 
   public stepAction(action: Action): EnvStepResult {
-      if (this.engine.isTerminal() || this.engine.getState().turn * 2 > this.maxPlies) {
+      if (this.engine.isTerminal() || estimatePlyCount(this.engine.getState()) > this.maxPlies) {
            return this.buildStepResult(0, true, "Game over");
       }
       
@@ -139,7 +170,7 @@ export class AncientEmpiresEnv {
       let done = res.done;
       
       // Override done if reached max plies
-      const plies = this.engine.getState().turn * 2 + (this.engine.getState().currentPlayer === 0 ? 0 : 1);
+      const plies = estimatePlyCount(this.engine.getState());
       if (plies >= this.maxPlies && !done) {
           done = true;
           finalInfo += ". Max plies reached.";
@@ -155,15 +186,14 @@ export class AncientEmpiresEnv {
           if (winner === null && plies >= this.maxPlies) {
               // 超时按金币与剩余军力价值评估，避免只数单位导致高价单位劣势。
               const state = this.engine.getState();
-              const v0 = calculateArmyValue(state, 0);
-              const v1 = calculateArmyValue(state, 1);
+              const timeoutWinnerAlliance = evaluateTimeoutWinnerAlliance(state);
               
-              if (v0 > v1) {
-                  sparseReward = currentPlayerBefore === 0 ? 1 : -1;
-              } else if (v1 > v0) {
-                  sparseReward = currentPlayerBefore === 1 ? 1 : -1;
+              if (timeoutWinnerAlliance === -1) {
+                  sparseReward = 0;
+              } else if (timeoutWinnerAlliance === getAllianceId(state, currentPlayerBefore)) {
+                  sparseReward = 1;
               } else {
-                  sparseReward = 0; // Draw
+                  sparseReward = -1;
               }
           } else {
               if (winner === getAllianceId(this.engine.getState(), currentPlayerBefore)) {

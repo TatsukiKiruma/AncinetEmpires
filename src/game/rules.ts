@@ -2,7 +2,7 @@ import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, isActivePlayer } from './rule_config';
 
 /**
  * 纯规则校验模块
@@ -83,6 +83,10 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
 // 获取当前玩家所有合法动作
 export function getLegalActions(state: GameState, playerId: number): Action[] {
     const actions: Action[] = [];
+
+    if (!isActivePlayer(state, playerId)) {
+        return actions;
+    }
     
     // APK stacked 规则：pending 单位未处理时只能操作该单位，不能招募或结束回合。
     const pendingUnitId = state.pendingUnitId;

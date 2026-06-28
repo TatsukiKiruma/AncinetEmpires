@@ -1658,6 +1658,49 @@ describe('GameEngine Rules', () => {
             expect(finalState.winner).toBe(9);
         });
 
+        it('多队伍回合会按队伍 ID 顺序轮转，并跳过禁用队伍', () => {
+            const state = createDemoState({
+                disabledTeams: [2]
+            });
+            state.players.push(
+                { id: 2, gold: 0, isAlive: true, commanderDeathCount: 0 },
+                { id: 3, gold: 0, isAlive: true, commanderDeathCount: 0 }
+            );
+            state.units.push({
+                id: 'u_team3',
+                ownerId: 3,
+                unitClass: 'soldier',
+                pos: { x: 3, y: 3 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false
+            });
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+            expect(engine.getState().currentPlayer).toBe(1);
+            expect(engine.getState().turn).toBe(1);
+
+            engine.step({ type: 'end_turn' });
+            expect(engine.getState().currentPlayer).toBe(3);
+            expect(engine.getState().turn).toBe(1);
+
+            engine.step({ type: 'end_turn' });
+            expect(engine.getState().currentPlayer).toBe(0);
+            expect(engine.getState().turn).toBe(2);
+        });
+
+        it('初始当前队伍被禁用时会切到下一个可行动队伍', () => {
+            const state = createDemoState({
+                disabledTeams: [0]
+            });
+            state.currentPlayer = 0;
+
+            const engine = new GameEngine(state);
+            expect(engine.getState().currentPlayer).toBe(1);
+        });
+
         it('招募执行阶段也会拒绝不满足配置的单位', () => {
             const state = createDemoState();
             state.rules = {

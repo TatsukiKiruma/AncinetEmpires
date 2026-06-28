@@ -74,6 +74,7 @@ export interface RuleConfig {
     defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰
     defeatOnNoCastles?: boolean;      // 无己方城堡时淘汰
     alliances?: Record<number, number>; // 队伍到联盟 ID 的映射；未配置时每队自成联盟
+    disabledTeams?: number[];         // 被脚本/配置禁用的队伍；禁用队伍不参与回合和胜负判定
     teams?: Record<number, TeamRuleConfig>;
 }
 

@@ -3,7 +3,7 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getRuleConfig, getTerrainIncome, getUnitCost, isFriendlyOrNeutralOwner } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getRuleConfig, getTerrainIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isFriendlyOrNeutralOwner } from './rule_config';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -81,6 +81,7 @@ export class GameEngine {
         if (options?.unsafeBypassValidationForTests) {
             this.unsafeBypassValidationForTests = true;
         }
+        this.ensureCurrentPlayerCanAct();
     }
 
     public getState(): GameState {
@@ -107,10 +108,36 @@ export class GameEngine {
     public reset(config?: GameState): GameState {
         if (config) {
             this.state = JSON.parse(JSON.stringify(config));
+            this.ensureCurrentPlayerCanAct();
         } else {
             throw new Error('Config missing on reset.');
         }
         return this.getState();
+    }
+
+    private getNextTurnPlayer(prevPlayerId: number): { playerId: number | null; wrapped: boolean } {
+        const playerIds = getTurnPlayerIds(this.state);
+        if (playerIds.length === 0) {
+            return { playerId: null, wrapped: false };
+        }
+
+        const currentIndex = playerIds.indexOf(prevPlayerId);
+        if (currentIndex === -1) {
+            const nextHigher = playerIds.find(id => id > prevPlayerId);
+            const nextPlayerId = nextHigher ?? playerIds[0];
+            return { playerId: nextPlayerId, wrapped: nextPlayerId <= prevPlayerId };
+        }
+
+        const nextIndex = (currentIndex + 1) % playerIds.length;
+        return { playerId: playerIds[nextIndex], wrapped: nextIndex === 0 };
+    }
+
+    private ensureCurrentPlayerCanAct() {
+        if (isActivePlayer(this.state, this.state.currentPlayer)) return;
+        const nextTurn = this.getNextTurnPlayer(this.state.currentPlayer);
+        if (nextTurn.playerId !== null) {
+            this.state.currentPlayer = nextTurn.playerId;
+        }
     }
 
     private recordCommanderDeaths(deadUnits: Unit[]) {
@@ -559,8 +586,14 @@ export class GameEngine {
                     })).filter(g => g.remainingTurns > 0);
                 }
 
-                this.state.currentPlayer = this.state.currentPlayer === 0 ? 1 : 0;
-                if (this.state.currentPlayer === 0) {
+                const nextTurn = this.getNextTurnPlayer(prevPlayerId);
+                if (nextTurn.playerId === null) {
+                    info = `Player ${prevCurrentPlayer} ended turn. No active team remains.`;
+                    break;
+                }
+
+                this.state.currentPlayer = nextTurn.playerId;
+                if (nextTurn.wrapped) {
                     this.state.turn += 1;
                 }
                 
@@ -714,7 +747,7 @@ export class GameEngine {
         const ruleConfig = getRuleConfig(this.state);
 
         for (const player of this.state.players) {
-            if (!player.isAlive) continue;
+            if (!isActivePlayer(this.state, player.id)) continue;
             const hasUnits = this.state.units.some(u => u.ownerId === player.id && u.hp > 0);
             const hasCommander = this.state.units.some(u => u.ownerId === player.id && u.unitClass === 'commander' && u.hp > 0);
             const hasCastle = this.state.map.tiles.some(row => row.some(tile => (
@@ -730,7 +763,7 @@ export class GameEngine {
             }
         }
 
-        const alivePlayers = this.state.players.filter(p => p.isAlive);
+        const alivePlayers = this.state.players.filter(p => isActivePlayer(this.state, p.id));
         const aliveAlliances = [...new Set(alivePlayers.map(player => getAllianceId(this.state, player.id)))];
         if (aliveAlliances.length === 1) {
             this.state.winner = aliveAlliances[0];
