@@ -11,7 +11,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, getTileTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
@@ -2164,6 +2164,28 @@ describe('GameEngine Rules', () => {
             expect(countUnit(state, 0, 999)).toBe(0);
             expect(countVillage(state, 0)).toBe(1);
             expect(countCastle(state, 0)).toBe(2);
+        });
+
+        it('APK Stage 查询适配器可以按坐标检查建筑和地块队伍', () => {
+            const state = createDemoState();
+            state.map.tiles[1][1].terrainId = 9;
+            state.map.tiles[1][1].ownerId = 0;
+            state.map.tiles[2][2].terrainId = 10;
+            state.map.tiles[2][2].ownerId = 1;
+            state.map.tiles[3][3].terrainId = 6;
+            state.map.tiles[3][3].ownerId = null;
+
+            expect(checkVillage(state, { x: 1, y: 1 })).toBe(true);
+            expect(checkVillage(state, { x: 1, y: 1 }, 0)).toBe(true);
+            expect(checkVillage(state, { x: 1, y: 1 }, 1)).toBe(false);
+            expect(checkCastle(state, { x: 2, y: 2 })).toBe(true);
+            expect(checkCastle(state, { x: 2, y: 2 }, 1)).toBe(true);
+            expect(checkCastle(state, { x: 2, y: 2 }, 0)).toBe(false);
+            expect(getTileTeam(state, { x: 1, y: 1 })).toBe(0);
+            expect(getTileTeam(state, { x: 2, y: 2 })).toBe(1);
+            expect(getTileTeam(state, { x: 3, y: 3 })).toBeNull();
+            expect(checkCastle(state, { x: -1, y: 0 })).toBe(false);
+            expect(getTileTeam(state, { x: 99, y: 99 })).toBeNull();
         });
 
         it('APK Stage 查询适配器可以检查指挥官、队伍摧毁和强制终局', () => {

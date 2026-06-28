@@ -221,9 +221,10 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.SyncSetRecruitUnits` | 13 | 已有基础适配 |
 | `Stage.SyncSetAlliance` | 12 | 已有基础适配 |
 | `Stage.CountCastle` | 12 | 已有基础适配 |
+| `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | DEX 暴露 | 已有坐标查询适配 |
 | `Stage.SyncSetCommander` | 2 | 已有基础适配，但参数语义仍需反编译校准 |
 
-项目目前适配的是“同步规则配置/查询”部分；大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
+项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
 ## 12. 明确未完成的差异
 

@@ -484,6 +484,7 @@ skirmish 训练导入映射：
 | `Stage.AsyncSummon` | 召唤单位 |
 | `Stage.AsyncReinforce` | 增援 |
 | `Stage.CountCastle` / `CountVillage` / `CountUnit` | 关卡统计条件 |
+| `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | 按坐标检查建筑和地块归属 |
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
@@ -845,6 +846,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 新增计数函数：`CountUnit`、`CountCastle`、`CountVillage`；单位计数支持可选 APK 单位 ID 过滤。
 - 这些函数用于承接 APK 目标/统计 API 和 AI 训练目标评估，不引入战役脚本执行器。
 - 验证：`npm test` 195 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 APK Stage 坐标查询适配器补充：
+
+- `classes.dex` 字符串确认存在 `Stage.CheckCastle`、`Stage.CheckVillage` 和 `Stage.GetTileTeam` 坐标查询 API，属于目标判断/规则查询层，不属于剧情演出层。
+- `src/game/apk_stage.ts` 新增 `checkCastle`、`checkVillage`、`getTileTeam`，可按坐标检查城堡、村庄和地块归属；`checkCastle/checkVillage` 支持可选队伍过滤。
+- 越界或无主地块查询保持保守：建筑检查返回 `false`，地块队伍返回 `null`。
 
 2026-06-29 APK skirmish 终局规则补充：
 

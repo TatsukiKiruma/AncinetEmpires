@@ -20,6 +20,21 @@ function findUnitAt(state: GameState, pos: Position): Unit | undefined {
     return state.units.find(unit => unit.pos.x === pos.x && unit.pos.y === pos.y && unit.hp > 0);
 }
 
+function getTileAt(state: GameState, pos: Position) {
+    if (
+        !Number.isInteger(pos.x)
+        || !Number.isInteger(pos.y)
+        || pos.x < 0
+        || pos.y < 0
+        || pos.x >= state.map.width
+        || pos.y >= state.map.height
+    ) {
+        return null;
+    }
+
+    return state.map.tiles[pos.y]?.[pos.x] ?? null;
+}
+
 function toUnitLevel(level: number): UnitLevel | null {
     if (!Number.isInteger(level) || level < 0 || level > 9) return null;
     return level as UnitLevel;
@@ -127,6 +142,23 @@ export function syncGameOver(state: GameState, allianceId: number): boolean {
     }
     state.winner = allianceId;
     return true;
+}
+
+export function getTileTeam(state: GameState, pos: Position): number | null {
+    const tile = getTileAt(state, pos);
+    return tile?.ownerId ?? null;
+}
+
+export function checkCastle(state: GameState, pos: Position, teamId?: number): boolean {
+    const tile = getTileAt(state, pos);
+    if (!tile || TERRAIN_CONFIG[tile.terrainId]?.key !== 'castle') return false;
+    return teamId === undefined || tile.ownerId === teamId;
+}
+
+export function checkVillage(state: GameState, pos: Position, teamId?: number): boolean {
+    const tile = getTileAt(state, pos);
+    if (!tile || TERRAIN_CONFIG[tile.terrainId]?.key !== 'town') return false;
+    return teamId === undefined || tile.ownerId === teamId;
 }
 
 export function syncSetAlliance(state: GameState, teamId: number, allianceId: number): boolean {

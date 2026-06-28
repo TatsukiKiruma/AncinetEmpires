@@ -382,6 +382,7 @@ skirmish 训练映射：
 
 - `src/game/apk_stage.ts`
 - `src/game/apk_rule.ts`
+- DEX 暴露的坐标查询 `CheckCastle`、`CheckVillage`、`GetTileTeam` 已补到 `apk_stage.ts`，用于建筑/地块归属目标判断。
 
 尚未覆盖的是完整战役执行器：
 
