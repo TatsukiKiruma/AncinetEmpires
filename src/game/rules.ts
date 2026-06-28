@@ -3,6 +3,7 @@ import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, isActivePlayer, isCommanderUnit } from './rule_config';
+import { getTileDefenseBonus } from './terrain_rules';
 
 /**
  * 纯规则校验模块
@@ -43,7 +44,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     }
 
     // 地形防御加成
-    const defBonus = isFlying(defender) ? 0 : defTerrain.defenseBonus;
+    const defBonus = isFlying(defender) ? 0 : getTileDefenseBonus(defTile);
 
     // 动态能力增加的攻防加成（如地形之子）
     const abilityAtkBonus = getAttackBonus(state, attacker, defender);

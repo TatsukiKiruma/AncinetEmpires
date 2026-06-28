@@ -4,6 +4,7 @@ import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTerrainIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
+import { getTileHealPerTurn } from './terrain_rules';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -685,8 +686,9 @@ export class GameEngine {
                         let healAmount = 0;
                         
                         // 2. 地形回复
-                        if (!isCurrentlyPoisoned && isFriendlyOrNeutralOwner(this.state, nextPlayerId, tile.ownerId) && tConfig.healPerTurn > 0) {
-                            healAmount += tConfig.healPerTurn;
+                        const terrainHealPerTurn = getTileHealPerTurn(tile);
+                        if (!isCurrentlyPoisoned && isFriendlyOrNeutralOwner(this.state, nextPlayerId, tile.ownerId) && terrainHealPerTurn > 0) {
+                            healAmount += terrainHealPerTurn;
                         }
                         
                         // 3. 水之子/森林之子/山之子地形回血

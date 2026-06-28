@@ -1,6 +1,7 @@
 import { GameState, LevelCap, Unit, Ability, UnitLevel } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
+import { getTileMoveCost } from './terrain_rules';
 
 /**
  * 检查单位是否拥有特定能力
@@ -95,8 +96,7 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
         }
     }
     
-    const terrainConfig = TERRAIN_CONFIG[terrainId];
-    return terrainConfig?.moveCost ?? 1;
+    return getTileMoveCost(tile);
 }
 
 /**

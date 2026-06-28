@@ -12,6 +12,7 @@ import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemT
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, countCastle, countUnit, countVillage, getAliveAlliances, getCommander, getCurrentTeam, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
+import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
 
@@ -156,11 +157,11 @@ describe('GameEngine Rules', () => {
         const state = createGameStateFromApkAemMap(map);
         expect(state.map.width).toBe(2);
         expect(state.map.height).toBe(3);
-        expect(state.map.tiles[0][0]).toEqual({ terrainId: 10, ownerId: 0 });
-        expect(state.map.tiles[0][1]).toEqual({ terrainId: 8, ownerId: null });
-        expect(state.map.tiles[1][0]).toEqual({ terrainId: 9, ownerId: null });
-        expect(state.map.tiles[1][1]).toEqual({ terrainId: 2, ownerId: null });
-        expect(state.map.tiles[2][0]).toEqual({ terrainId: 17, ownerId: 1 });
+        expect(state.map.tiles[0][0]).toEqual(expect.objectContaining({ terrainId: 10, ownerId: 0, apkTerrainId: 37, apkOwnerCode: 0 }));
+        expect(state.map.tiles[0][1]).toEqual(expect.objectContaining({ terrainId: 8, ownerId: null, apkTerrainId: 27, apkOwnerCode: 0xff }));
+        expect(state.map.tiles[1][0]).toEqual(expect.objectContaining({ terrainId: 9, ownerId: null, apkTerrainId: 36, apkOwnerCode: 0xfe }));
+        expect(state.map.tiles[1][1]).toEqual(expect.objectContaining({ terrainId: 2, ownerId: null, apkTerrainId: 2, apkOwnerCode: 0xff }));
+        expect(state.map.tiles[2][0]).toEqual(expect.objectContaining({ terrainId: 17, ownerId: 1, apkTerrainId: 72, apkOwnerCode: 1 }));
         expect(state.players.map(player => player.gold)).toEqual([300, 300]);
         expect(state.units.map(unit => `${unit.ownerId}:${unit.unitClass}@${unit.pos.x},${unit.pos.y}`)).toEqual([
             '0:commander@0,0',
@@ -186,6 +187,35 @@ describe('GameEngine Rules', () => {
         ]);
         const soState = createApkSkirmishGameState(mapWithSkirmishTail, { mode: 'SO' });
         expect(soState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
+    });
+
+    it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
+        const state = createDemoState();
+        state.map.width = 2;
+        state.map.height = 1;
+        state.map.tiles = [[
+            { terrainId: 6, ownerId: null },
+            { terrainId: 2, ownerId: null, apkTerrainId: 0 }
+        ]];
+        state.units = [{
+            id: 'u_apk_move',
+            ownerId: 0,
+            unitClass: 'soldier',
+            pos: { x: 0, y: 0 },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false,
+            level: 0,
+            exp: 0
+        }];
+
+        expect(getTileMoveCost(state.map.tiles[0][1])).toBe(16777215);
+        expect(getTileHealPerTurn(state.map.tiles[0][1])).toBe(3);
+        expect(getReachablePositions(state, 'u_apk_move')).toEqual([{ x: 0, y: 0 }]);
+
+        const apkHighDefenseTile = { terrainId: 6 as const, ownerId: null, apkTerrainId: 33 };
+        expect(getTileDefenseBonus(apkHighDefenseTile)).toBe(20);
     });
 
     it('初始化与状态克隆不影响原状态', () => {

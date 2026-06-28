@@ -30,6 +30,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 5. 已加入 APK 第 11 号 `水晶 / Crystal` 占位单位，并新增 APK 单位/状态/能力 ID 映射。
 6. skirmish 默认队伍摧毁条件已改为“无单位且无城堡”，并保留单独无单位/无城堡/指挥官阵亡作为可配置目标条件。
 7. AEM 解析器已保留推荐金币后的尾部模板；SD/SO skirmish 模式已有独立入口，SO 模式按脚本限制 APK ID 0-8 可招募单位。
+8. APK 导入地图的每个格子已保留原始 `apkTerrainId`，移动、防御和回合回血优先使用 `data.bin` 的 tile 数值。
 
 仍未完成的关键差异：
 
@@ -48,7 +49,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 | 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | APK 各关卡真实默认值需要从脚本全量归档 |
 | 回合/联盟/队伍 | `SyncSetCurrentTeam`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`、`SyncGameOver` | 多队伍轮转、联盟关系、禁用/恢复/销毁队伍和强制终局已有基础适配 | 仍缺完整战役脚本执行器和地图/队伍初始化导入 |
 | 指挥官 | `CheckCommander`、`GetCommander`、`SyncSetCommander`、指挥官收入文案 | 已支持队伍级 `commanderUnitIds`，`SyncSetCommander` 可按坐标把己方单位指定为指挥官；收入、死亡计数、重招募和指挥官阵亡淘汰使用同一模型 | APK 方法表显示 `SyncSetCommander(int team, int index)`，但错误字符串是坐标语义；当前按坐标落地，官方复活流程仍未确认 |
-| 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币、尾部模板和已知地形映射；`apk_skirmish.ts` 可按 SD/SO 导入 | 84 条 APK tile 到项目 `TerrainId` 的完整映射和尾部 58 字节业务语义仍需校准 |
+| 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币、尾部模板和原始 tile ID；APK 导入地图的移动/防御/回血优先使用 `data.bin` 数值；`apk_skirmish.ts` 可按 SD/SO 导入 | 84 条 APK tile 的贴图/类别语义和尾部 58 字节业务语义仍需校准 |
 | 战役脚本 | Rhino、`.js/.json/.aem`、大量 `Stage.*` API | 已有部分 Stage/Rule 同步适配函数和统计查询函数 | 异步剧情动作、目标系统、单位代码/头像/静态/目标标记、移动覆盖等仍未落地 |
 
 ## 3. APK 结构观察
@@ -293,7 +294,7 @@ skirmish 训练导入映射：
 
 | APK tile 范围 | 项目地形 | 依据与可信度 |
 | --- | --- | --- |
-| `t0-t14`、`t38-t71` | `deep_water` | atlas 为水面/海岸变体，`data.bin` 多数为防御 0、移动 3；`t0/t1` 移动值特殊，导入时仍按水面近似，可信度中 |
+| `t0-t14`、`t38-t71` | `deep_water` | atlas 为水面/海岸变体，`data.bin` 多数为防御 0、移动 3；`t0/t1` 移动值特殊，导入后规则仍优先使用 APK 原始移动值，可信度中 |
 | `t15-t16` | `forest` | atlas 为树木，防御 10、移动 2，可信度中高 |
 | `t17` | `mountain` | atlas 为雪山，防御 15、移动 3，可信度中高 |
 | `t18/t32/t34` | `snow` | atlas 为雪地，防御 5、移动 1，可信度中高 |
@@ -307,9 +308,9 @@ skirmish 训练导入映射：
 | `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
 | `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
 
-该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。
+该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值，项目 `terrainId` 主要负责地形标签、占领/招募/收入等抽象语义。
 
-完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，当前只在 skirmish 导入映射里按水面近似处理。
+完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，APK 导入地图会保留该原始移动值，避免普通地面单位把这类格子当成可正常通行深水。
 
 | ID | kind | flagA | variant | linkedA | 防御 | 回血 | 移动 | flagB | linkedB | linkedC | 备注 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
@@ -903,10 +904,17 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该尾部不随玩家数量、队伍 ID、初始单位或推荐金币变化，当前不能作为玩家/联盟预设使用；联盟规则仍应优先来自脚本 `SyncSetAlliance` 或明确的模式配置。
 - 验证：`npm test` 204 个测试通过，`npm run lint` 通过；使用真实 APK 的 20 张 `assets/maps/*.aem` 验证 `createApkSkirmishGameState` 的 SD/SO 导入，结果为 `SKIRMISH_IMPORTED 20`，尾部模板统计为 `{"zero_suffix_58":20}`。
 
+2026-06-29 APK 原始 tile 数值接入：
+
+- `Tile` 新增 `apkTerrainId/apkTerrainRaw/apkOwnerCode` 可选字段，`createGameStateFromApkAemMap` 会把每个 AEM 格子的原始地形记录写入导入后的 `GameState`。
+- 新增 `src/game/terrain_rules.ts`，普通项目地图仍使用项目地形数值；APK 导入地图若存在 `apkTerrainId`，移动消耗、防御加成和回合回血优先读取 `data.bin` 中的 84 条 tile 数值。
+- `getMoveCostForUnit`、战斗地形防御和回合开始地形回血已接入该辅助模块；占领、招募、收入、地形标签能力仍由项目 `terrainId` 控制。
+- 验证：`npm test` 205 个测试通过，`npm run lint` 通过；真实 APK 20 张 skirmish 地图导入后 `TILES_WITH_APK_ID 4207/4207`，可读到移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
 - 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地。当前最重要的差距仍是完整 APK tile 到项目地形映射、`.aem` 尾部业务语义和更系统的脚本配置归档。
+- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地；APK 导入地图已优先使用 `data.bin` 的原始 tile 移动/防御/回血数值。当前最重要的差距仍是完整 APK tile 的贴图/类别语义、`.aem` 尾部业务语义和更系统的脚本配置归档。

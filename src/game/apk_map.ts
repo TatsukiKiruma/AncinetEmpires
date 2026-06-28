@@ -358,7 +358,10 @@ export function createGameStateFromApkAemMap(
         const terrainId = mapSkirmishApkTerrainId(cell.apkTerrainId) ?? terrainFallback;
         return {
             terrainId,
-            ownerId: cell.ownerId
+            ownerId: cell.ownerId,
+            apkTerrainId: cell.apkTerrainId,
+            apkTerrainRaw: cell.raw,
+            apkOwnerCode: cell.ownerCode
         };
     }));
 

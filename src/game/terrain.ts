@@ -3,6 +3,9 @@ export type TerrainId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 
 export interface Tile {
     terrainId: TerrainId;
     ownerId: number | null; // 归属玩家ID，null表示中立
+    apkTerrainId?: number;  // APK .aem 原始 tile ID，仅导入 APK 地图时存在
+    apkTerrainRaw?: number; // APK .aem 原始 4 字节地形记录
+    apkOwnerCode?: number;  // APK .aem 原始归属码，0..7 为队伍，0xfe/0xff 为中立
 }
 
 export const TERRAIN_CONFIG: Record<TerrainId, { key: string; name: string; defenseBonus: number; moveCost: number; healPerTurn: number; incomePerTurn: number; tags: string[] }> = {

@@ -52,13 +52,13 @@
 | 能力 | 26 个能力名和说明 | `src/game/types.ts` 与 `abilities.ts` 已建模 26 个能力 | 基础对齐 |
 | 状态 | 中毒、鼓舞、致盲、虚弱 | `StatusType` 包含 4 个状态；状态不叠加 | 已对齐 |
 | 伤害公式 | 语言表说明“攻击-防御后乘血量比例”，能力继续修正 | `rules.ts` 按血量比例、地形防御、能力加成计算 | 大体对齐 |
-| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射 | skirmish 可运行，完整语义待校准 |
+| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用原始 tile 的移动/防御/回血数值 | skirmish 数值更接近 APK，完整贴图/类别语义仍待校准 |
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现 | 基础对齐，细节待实测 |
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
 | skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置 | 已对齐 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
-| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板 | 基础导入已完成 |
+| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板与每格 APK 原始 tile 信息 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
 | 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数 | 基础对齐，复活流程未知 |
 
@@ -190,7 +190,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 - `SKIRMISH_APK_TERRAIN_TO_PROJECT` 已把 skirmish 实际使用的 APK tile 归并到项目地形。
 - `createGameStateFromApkAemMap` 已能生成训练用 `GameState`，默认使用推荐金币；推荐金币为 `-1` 时为 0，可由外部配置覆盖。
-- 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`。
+- APK 导入地图的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`；移动消耗、防御加成和回合回血优先读取 APK `data.bin` 的原始 tile 数值。
+- 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`；本轮进一步确认 `TILES_WITH_APK_ID 4207/4207`，可读移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
 风险点：
 
@@ -259,6 +260,6 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 ## 14. 对当前项目的判断
 
-当前项目适合作为“APK skirmish 规则训练环境”的基础，但还不应宣称已经完整复刻 APK 4.2.5.1。规则引擎层已经补齐大多数核心机制；剩余主要工作在数据导入、地图地形映射和脚本配置归档。
+当前项目适合作为“APK skirmish 规则训练环境”的基础，但还不应宣称已经完整复刻 APK 4.2.5.1。规则引擎层已经补齐大多数核心机制；真实 skirmish 地图导入已保留 APK 原始 tile 数值。剩余主要工作在地形贴图/类别语义校准、尾部模板语义和脚本配置归档。
 
-本次报告没有修改项目代码；建议下一步先做“地形映射与 skirmish 地图导入文档/数据表”，再决定是否把导入流程落到代码中。
+建议下一步继续做“地形映射校准与 skirmish 地图数据表”，把每张地图实际使用的 APK tile、项目地形、原始数值和可信度归档，减少后续反复解包确认。
