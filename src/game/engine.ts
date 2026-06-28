@@ -137,7 +137,9 @@ export class GameEngine {
         if (hasAbility(unit, 'attack_aura')) {
             this.state.units.forEach(u => {
                 if (u.id !== unit.id && u.ownerId === unit.ownerId && getDistance(unit.pos, u.pos) <= 2) {
-                    u.attackAuraActive = true;
+                    if (!u.status) {
+                        u.status = { type: 'inspired', remainingTurns: 1 };
+                    }
                 }
             });
         }
@@ -338,8 +340,8 @@ export class GameEngine {
                             addExp(healer, 60); // 击杀经验
                         }
                     } else {
-                        const targetEff = getEffectiveStats(target);
-                        target.hp = Math.min(targetEff.maxHp, target.hp + healVal);
+                        // APK 明确治疗师治疗可以突破目标最大血量；普通地形/光环回复仍保留上限。
+                        target.hp += healVal;
                         target.hasBeenHealedThisTurn = true;
                     }
                     
@@ -523,20 +525,13 @@ export class GameEngine {
             case 'end_turn': {
                 const prevPlayerId = this.state.currentPlayer;
                 this.state.units.forEach(u => {
-                    if (u.ownerId === prevPlayerId && u.status && u.status.type === 'weakened') {
+                    if (u.ownerId === prevPlayerId && u.status && (u.status.type === 'weakened' || u.status.type === 'inspired')) {
                         const remainingTurns = u.status.remainingTurns ?? 0;
                         if (remainingTurns <= 1) {
                             delete u.status;
                         } else {
                             u.status.remainingTurns = remainingTurns - 1;
                         }
-                    }
-                });
-
-                // 回合结束时：清除刚结束回合的玩家单位的攻击光环持有状态
-                this.state.units.forEach(u => {
-                    if (u.ownerId === prevPlayerId) {
-                        u.attackAuraActive = false;
                     }
                 });
 

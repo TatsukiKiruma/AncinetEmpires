@@ -5,10 +5,10 @@ export interface Position {
     y: number;
 }
 
-export type UnitClass = 'soldier' | 'ghost' | 'mermaid' | 'archer' | 'slime' | 'water_elemental' | 'dark_mage' | 'witch' | 'paladin' | 'elf' | 'berserker' | 'wolf' | 'golem' | 'ice_elemental' | 'druid' | 'catapult' | 'wolf_archer' | 'dragon' | 'commander' | 'skeleton';
+export type UnitClass = 'soldier' | 'ghost' | 'mermaid' | 'archer' | 'slime' | 'water_elemental' | 'dark_mage' | 'witch' | 'paladin' | 'elf' | 'berserker' | 'wolf' | 'golem' | 'ice_elemental' | 'druid' | 'catapult' | 'wolf_archer' | 'dragon' | 'commander' | 'skeleton' | 'crystal';
 export type Ability = 'village_capturer' | 'castle_capturer' | 'repairer' | 'flying' | 'undead' | 'death_reaper' | 'water_child' | 'sharpshooter' | 'self_repair' | 'blinder' | 'summoner' | 'healer' | 'cleansing_aura' | 'fighting_spirit' | 'counter_storm' | 'earth_child' | 'poisoner' | 'ranged_defense' | 'mountain_child' | 'weakness_aura' | 'attack_aura' | 'supporter' | 'destroyer' | 'forest_child' | 'assault_troop' | 'melee_master';
 
-export type StatusType = "poisoned" | "blinded" | "weakened";
+export type StatusType = "poisoned" | "inspired" | "blinded" | "weakened";
 
 export interface UnitStatus {
   type: StatusType;
@@ -38,7 +38,6 @@ export interface Unit {
     hasPostAttackMoved?: boolean; // 突击部队是否执行了攻击后移动
     hasBeenHealedThisTurn?: boolean; // 本回合是否被治疗过
     hasBeenSupportedThisTurn?: boolean; // 本回合是否被支援过
-    attackAuraActive?: boolean; // 下一回合是否有攻击光环加成
 }
 
 export interface PlayerState {

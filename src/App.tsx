@@ -28,11 +28,13 @@ const unitNameMap: Record<string, string> = {
   dragon: '龙',
   commander: '帅',
   skeleton: '骷',
+  crystal: '晶',
 };
 
 // 状态对应的中文翻译
 const statusNameMap: Record<string, string> = {
   poisoned: '中毒',
+  inspired: '鼓舞',
   blinded: '致盲',
   weakened: '虚弱'
 };
@@ -581,7 +583,7 @@ export default function App() {
                         {/* 特殊状态(Poisoned / Blinded / Weakened) 指示标贴 */}
                         {u && u.status && (
                           <div className="absolute bottom-0 left-0 bg-orange-600 text-white rounded-full text-[7px] w-3 h-3 flex items-center justify-center font-black" title={statusNameMap[u.status.type]}>
-                            {u.status.type === 'poisoned' ? '毒' : u.status.type === 'blinded' ? '盲' : '弱'}
+                            {u.status.type === 'poisoned' ? '毒' : u.status.type === 'inspired' ? '鼓' : u.status.type === 'blinded' ? '盲' : '弱'}
                           </div>
                         )}
 

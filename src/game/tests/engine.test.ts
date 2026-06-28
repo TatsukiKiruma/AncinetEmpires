@@ -5,6 +5,7 @@ import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats } from '../abilities';
+import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 
 describe('GameEngine Rules', () => {
 
@@ -191,8 +192,13 @@ describe('GameEngine Rules', () => {
         expect(tile.ownerId).toBe(0); // 属于修理者
     });
 
-    it('20 个兵种配置存在', () => {
-        expect(Object.keys(UNIT_CONFIGS).length).toBe(20);
+    it('APK 21 个单位配置和 ID 映射存在', () => {
+        expect(Object.keys(UNIT_CONFIGS).length).toBe(21);
+        expect(UNIT_CONFIGS.crystal.name).toBe('水晶');
+        expect(UNIT_CONFIGS.crystal.cost).toBeNull();
+        expect(APK_UNIT_ID_TO_CLASS[11]).toBe('crystal');
+        expect(APK_STATUS_ID_TO_TYPE[2]).toBe('inspired');
+        expect(APK_ABILITY_ID_TO_TYPE[18]).toBe('attack_aura');
     });
 
     it('伤害公式: 士兵攻击史莱姆时，按物理防御计算', () => {
@@ -306,6 +312,20 @@ describe('GameEngine Rules', () => {
         // ranged_defense (not melee): 15 * 0.5 = 7.5 -> Math.floor -> 7
         const dmg = calculateDamage(state, 'u1', 'u2');
         expect(dmg).toBe(7);
+    });
+
+    it('伤害公式: 空军攻击水中非空军单位攻击 +10，同为空军不触发', () => {
+        const state = createDemoState();
+        state.units[0].unitClass = 'ghost';
+        state.units[0].pos = { x: 1, y: 1 };
+        state.units[1].unitClass = 'soldier';
+        state.units[1].pos = { x: 1, y: 2 };
+        state.map.tiles[2][1].terrainId = 2;
+
+        expect(calculateDamage(state, 'u1', 'u2')).toBe(55);
+
+        state.units[1].unitClass = 'ghost';
+        expect(calculateDamage(state, 'u1', 'u2')).toBe(35);
     });
 
     it('伤害公式: 最终伤害向下取整', () => {
@@ -508,7 +528,7 @@ describe('GameEngine Rules', () => {
         expect(hasAttack).toBe(false);
     });
 
-    it('状态系统测试: 虚弱后移动力为 1、防御 -5', () => {
+    it('状态系统测试: 虚弱后移动力为 1，近战防御 -10，远程减半', () => {
         const state = createDemoState();
         // P0 (x:0, y:0) 位置的 soldier 手动加上 weakened
         const soldier = state.units[0];
@@ -523,7 +543,7 @@ describe('GameEngine Rules', () => {
             expect(dist).toBeLessThanOrEqual(1);
         });
 
-        // 2. 测试遭到魔法攻击（或普通攻击）时，防御 -5 对伤害公式的影响
+        // 2. 远程攻击时虚弱防御惩罚减半为 -5
         const attacker = state.units[1]; // P1 攻击方
         attacker.unitClass = 'archer'; 
         
@@ -533,8 +553,16 @@ describe('GameEngine Rules', () => {
         const normalDmg = calculateDamage(stateNormal, attacker.id, soldier.id);
         const weakenedDmg = calculateDamage(state, attacker.id, soldier.id);
         
-        // 伤害增加了 Math.floor（5 * attacker.hp / attacker.maxHp）
-        expect(weakenedDmg).toBeGreaterThan(normalDmg);
+        expect(weakenedDmg - normalDmg).toBe(5);
+
+        // 3. 近战攻击时虚弱防御惩罚为 -10
+        attacker.unitClass = 'soldier';
+        attacker.pos = { x: 0, y: 1 };
+        const meleeStateNormal = JSON.parse(JSON.stringify(state));
+        delete meleeStateNormal.units[0].status;
+        const normalMeleeDmg = calculateDamage(meleeStateNormal, attacker.id, soldier.id);
+        const weakenedMeleeDmg = calculateDamage(state, attacker.id, soldier.id);
+        expect(weakenedMeleeDmg - normalMeleeDmg).toBe(10);
     });
 
     it('状态系统测试: 净化函数可以清除中毒、致盲、虚弱', () => {
@@ -571,7 +599,7 @@ describe('GameEngine Rules', () => {
     });
 
     describe('第 5 步：主动技能、光环、墓碑与二次移动测试', () => {
-        it('5.1 治疗师治疗普通友军 +40，不超过最大血量', () => {
+        it('5.1 治疗师治疗普通友军 +40，且可突破最大血量', () => {
             const state = createDemoState();
             // 在 (0,0) 放一个 paladin (治疗师)，在相邻 (0,1) 放一个 soldier (友军，受伤状态且 maxHp 为 100)
             const paladin = state.units.find(u => u.ownerId === 0)!;
@@ -583,7 +611,7 @@ describe('GameEngine Rules', () => {
             const friend = state.units.find(u => u.ownerId === 0 && u.id !== paladin.id)!;
             friend.unitClass = 'soldier';
             friend.pos = { x: 0, y: 1 };
-            friend.hp = 50;
+            friend.hp = 90;
             friend.maxHp = 100;
             
             const engine = new GameEngine(state);
@@ -591,7 +619,7 @@ describe('GameEngine Rules', () => {
 
             const finalState = engine.getState();
             const resFriend = finalState.units.find(u => u.id === friend.id)!;
-            expect(resFriend.hp).toBe(90); // 50 + 40 = 90
+            expect(resFriend.hp).toBe(130); // APK：治疗师治疗可以突破最大血量
             expect(resFriend.hasBeenHealedThisTurn).toBe(true);
         });
 
@@ -772,7 +800,57 @@ describe('GameEngine Rules', () => {
             expect(finalState.map.tiles[1][1].terrainId).toBe(8); // 变为损坏城镇 (8)
         });
 
-        it('5.11 净化光环结束回合后触发，清除 debuff 并回血', () => {
+        it('5.11 攻击光环附加鼓舞状态，且不覆盖已有状态', () => {
+            const state = createDemoState();
+            const druid = state.units.find(u => u.ownerId === 0)!;
+            druid.unitClass = 'druid';
+            druid.pos = { x: 1, y: 1 };
+
+            const friend = state.units.find(u => u.ownerId === 0 && u.id !== druid.id)!;
+            friend.unitClass = 'soldier';
+            friend.pos = { x: 1, y: 2 };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: druid.id });
+
+            const inspiredFriend = engine.getState().units.find(u => u.id === friend.id)!;
+            expect(inspiredFriend.status?.type).toBe('inspired');
+
+            const blockedState = createDemoState();
+            const blockedDruid = blockedState.units.find(u => u.ownerId === 0)!;
+            blockedDruid.unitClass = 'druid';
+            blockedDruid.pos = { x: 1, y: 1 };
+            const poisonedFriend = blockedState.units.find(u => u.ownerId === 0 && u.id !== blockedDruid.id)!;
+            poisonedFriend.pos = { x: 1, y: 2 };
+            poisonedFriend.status = { type: 'poisoned', remainingTicks: 2 };
+
+            const blockedEngine = new GameEngine(blockedState);
+            blockedEngine.step({ type: 'wait', unitId: blockedDruid.id });
+
+            const resFriend = blockedEngine.getState().units.find(u => u.id === poisonedFriend.id)!;
+            expect(resFriend.status?.type).toBe('poisoned');
+        });
+
+        it('5.12 鼓舞近战攻击 +10，远程攻击加成减半', () => {
+            const state = createDemoState();
+            const attacker = state.units[0];
+            const defender = state.units[1];
+            attacker.unitClass = 'soldier';
+            attacker.status = { type: 'inspired', remainingTurns: 1 };
+            attacker.pos = { x: 1, y: 1 };
+            defender.unitClass = 'soldier';
+            defender.pos = { x: 1, y: 2 };
+            state.map.tiles[2][1].terrainId = 6;
+
+            expect(calculateDamage(state, attacker.id, defender.id)).toBe(60);
+
+            attacker.unitClass = 'archer';
+            attacker.pos = { x: 1, y: 0 };
+            defender.pos = { x: 1, y: 2 };
+            expect(calculateDamage(state, attacker.id, defender.id)).toBe(45);
+        });
+
+        it('5.13 净化光环结束回合后触发，清除 debuff 并回血', () => {
             const state = createDemoState();
             const elf = state.units.find(u => u.ownerId === 0)!;
             elf.unitClass = 'elf'; // cleansing_aura
@@ -795,7 +873,7 @@ describe('GameEngine Rules', () => {
             expect(resFriend.status).toBeUndefined(); // Poisoned 状态被净化清除
         });
 
-        it('5.12 净化光环对骷髅/幽灵造成 10 伤害', () => {
+        it('5.14 净化光环对骷髅/幽灵造成 10 伤害', () => {
             const state = createDemoState();
             const elf = state.units.find(u => u.ownerId === 0)!;
             elf.unitClass = 'elf';
@@ -814,7 +892,7 @@ describe('GameEngine Rules', () => {
             expect(resGhost.hp).toBe(70); // 80 - 10 = 70 (变成伤害)
         });
 
-        it('5.13 虚弱光环不覆盖已有状态', () => {
+        it('5.15 虚弱光环不覆盖已有状态', () => {
             const state = createDemoState();
             const golem = state.units.find(u => u.ownerId === 0)!;
             golem.unitClass = 'golem'; // weakness_aura
@@ -833,7 +911,7 @@ describe('GameEngine Rules', () => {
             expect(resEnemy.status?.type).toBe('blinded'); // 不应该变更状态为 weakened
         });
 
-        it('5.14 突击部队攻击后可以使用攻击前剩余移动力移动', () => {
+        it('5.16 突击部队攻击后可以使用攻击前剩余移动力移动', () => {
             const state = createDemoState();
             state.currentPlayer = 0;
             const wolf = state.units.find(u => u.ownerId === 0)!;

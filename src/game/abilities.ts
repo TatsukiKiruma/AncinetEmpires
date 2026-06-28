@@ -186,6 +186,9 @@ export function getEffectiveStats(unit: Unit): EffectiveStats {
 
     // 每次升级的属性增长
     for (let i = 0; i < level; i++) {
+        if (unit.unitClass === 'crystal') {
+            continue;
+        }
         if (unit.unitClass === 'witch' || unit.unitClass === 'paladin' || unit.unitClass === 'elf' || unit.unitClass === 'golem' || unit.unitClass === 'druid') {
             attackBonus += 5;
             defBonus += 5;
@@ -218,10 +221,10 @@ export function getEffectiveStats(unit: Unit): EffectiveStats {
     let maxHp = (unit.maxHp ?? 100) + maxHpBonus;
     let move = base.move + moveBonus;
 
-    // 状态对防御和移动力的改变
+    // 虚弱：APK 文案确认为移动力降至 1，近战防御 -10；远程减半在伤害公式中按距离处理。
     if (unit.status && unit.status.type === 'weakened') {
-        pDef -= 5;
-        mDef -= 5;
+        pDef -= 10;
+        mDef -= 10;
         move = 1;
     }
 

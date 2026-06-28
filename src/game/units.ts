@@ -39,4 +39,5 @@ export const UNIT_CONFIGS: Record<UnitClass, UnitConfig> = {
   dragon: { key: "dragon", name: "龙", cost: 1000, attack: 70, attackType: "magic", physicalDefense: 25, magicDefense: 25, minRange: 1, maxRange: 2, move: 6, population: 5, abilities: ["flying", "melee_master", "ranged_defense", "assault_troop"], upgrade: "" },
   commander: { key: "commander", name: "指挥官", cost: null, attack: 60, attackType: "physical", physicalDefense: 20, magicDefense: 20, minRange: 1, maxRange: 1, move: 4, population: 0, abilities: ["castle_capturer", "village_capturer", "repairer"], upgrade: "" },
   skeleton: { key: "skeleton", name: "骷髅", cost: null, attack: 40, attackType: "physical", physicalDefense: 5, magicDefense: 5, minRange: 1, maxRange: 1, move: 3, population: 0, abilities: ["poisoner", "undead"], upgrade: "" },
+  crystal: { key: "crystal", name: "水晶", cost: null, attack: 0, attackType: "magic", physicalDefense: 0, magicDefense: 0, minRange: 0, maxRange: 0, move: 0, population: 0, abilities: [], upgrade: "" },
 };

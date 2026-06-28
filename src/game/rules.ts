@@ -1,7 +1,7 @@
 import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
-import { isFlying, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
+import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
 
 /**
  * 纯规则校验模块
@@ -24,6 +24,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     const atkStats = UNIT_CONFIGS[attacker.unitClass];
     const defTile = state.map.tiles[defender.pos.y][defender.pos.x];
     const defTerrain = TERRAIN_CONFIG[defTile.terrainId];
+    const dist = getDistance(attacker.pos, defender.pos);
 
     // 其他攻击加成
     let extraAttack = 0;
@@ -31,6 +32,9 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
         extraAttack += 10;
     }
     if (hasAbi(attacker, 'destroyer') && defTerrain.key === 'town') {
+        extraAttack += 10;
+    }
+    if (hasAbi(attacker, 'flying') && isWaterTerrain(defTile.terrainId) && !hasAbi(defender, 'flying')) {
         extraAttack += 10;
     }
     if (hasAbi(attacker, 'death_reaper') && defender.status && (defender.status.type === 'poisoned' || defender.status.type === 'blinded' || defender.status.type === 'weakened')) {
@@ -44,22 +48,18 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     const abilityAtkBonus = getAttackBonus(state, attacker, defender);
     const abilityDefBonus = getDefenseBonus(state, attacker, defender);
 
-    // 攻击光环附加 (近战 +10, 远程 +5)
-    let auraAttackBonus = 0;
-    if (attacker.attackAuraActive) {
-        if (effAtk.maxRange === 1) {
-            auraAttackBonus += 10;
-        } else {
-            auraAttackBonus += 5;
-        }
-    }
+    // 鼓舞状态：攻击 +10，远程攻击减半为 +5。
+    const inspiredAttackBonus = attacker.status?.type === 'inspired'
+        ? (dist > 1 ? 5 : 10)
+        : 0;
 
     // 选择物理防御还是魔法防御
     const isMagic = atkStats.attackType === 'magic';
-    const actualDefenderDefense = isMagic ? effDef.magicDefense : effDef.physicalDefense;
+    const weakenedRangedDefenseAdjustment = defender.status?.type === 'weakened' && dist > 1 ? 5 : 0;
+    const actualDefenderDefense = (isMagic ? effDef.magicDefense : effDef.physicalDefense) + weakenedRangedDefenseAdjustment;
 
     // 最终伤害 = (单位攻击 + 地形之子攻击 + 其他伤害加成 + 光环加成 - 实际防御 - 地形防御加成 - 地形之子防御)
-    let rawDamage = (effAtk.attack + abilityAtkBonus + extraAttack + auraAttackBonus) - (actualDefenderDefense + defBonus + abilityDefBonus);
+    let rawDamage = (effAtk.attack + abilityAtkBonus + extraAttack + inspiredAttackBonus) - (actualDefenderDefense + defBonus + abilityDefBonus);
 
     // fighting_spirit 保证 1 (满状态)，否则按当前血量 / 最大血量
     const isFightingSpirit = hasAbi(attacker, 'fighting_spirit');
@@ -67,7 +67,6 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
 
     let finalDamage = Math.floor(rawDamage * hpRatio);
 
-    const dist = getDistance(attacker.pos, defender.pos);
     const finalMultiplier = getFinalDamageMultiplier(state, attacker, defender, dist);
     finalDamage = Math.floor(finalDamage * finalMultiplier);
 
@@ -150,12 +149,12 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
             for (const friend of friendUnits) {
                 if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 1) {
                     const friendEff = getEffectiveStats(friend);
-                    const isBelowMaxHp = friend.hp < friendEff.maxHp;
+                    const canReceiveHealer = isUndead(friend) || friend.hp <= friendEff.maxHp;
                     const notHealedYet = !friend.hasBeenHealedThisTurn;
                     const notPoisoned = !(friend.status && friend.status.type === 'poisoned');
                     const isNotGroundToFlying = !(isFlying(friend) && !isFlying(unit));
 
-                    if (isBelowMaxHp && notHealedYet && notPoisoned && isNotGroundToFlying) {
+                    if (canReceiveHealer && notHealedYet && notPoisoned && isNotGroundToFlying) {
                         actions.push({ type: 'heal', healerId: unit.id, targetId: friend.id });
                     }
                 }
