@@ -7,6 +7,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
+import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, mapKnownApkTerrainId } from '../apk_terrain';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCommander, checkGameOver, checkTeamDestroyed, countCastle, countUnit, countVillage, getCommander, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatus } from '../apk_stage';
 
@@ -28,6 +29,35 @@ describe('GameEngine Rules', () => {
         expect(TERRAIN_CONFIG[17].tags).toContain('water');
         
         expect(Object.keys(TERRAIN_CONFIG).length).toBe(17);
+    });
+
+    it('APK 84 条 tile 原始规则表已归档并包含高可信映射', () => {
+        expect(APK_TERRAIN_RECORD_SIZE).toBe(40);
+        expect(APK_TERRAIN_COUNT).toBe(84);
+        expect(APK_TERRAIN_CONFIGS).toHaveLength(84);
+
+        const ruin = getApkTerrainConfig(27)!;
+        const village = getApkTerrainConfig(36)!;
+        const castle = getApkTerrainConfig(37)!;
+        const bridge = getApkTerrainConfig(72)!;
+
+        expect(ruin.defenseBonus).toBe(10);
+        expect(ruin.moveCost).toBe(1);
+        expect(ruin.linkedC).toBe(36);
+        expect(village.defenseBonus).toBe(15);
+        expect(village.healPerTurn).toBe(20);
+        expect(village.linkedB).toBe(27);
+        expect(castle.defenseBonus).toBe(15);
+        expect(castle.healPerTurn).toBe(20);
+        expect(bridge.kind).toBe(1);
+        expect(bridge.moveCost).toBe(1);
+
+        expect(mapKnownApkTerrainId(27)).toBe(8);
+        expect(mapKnownApkTerrainId(36)).toBe(9);
+        expect(mapKnownApkTerrainId(37)).toBe(10);
+        expect(mapKnownApkTerrainId(72)).toBe(17);
+        expect(getKnownApkTerrainIdsForProject(9)).toEqual([36]);
+        expect(mapKnownApkTerrainId(2)).toBeNull();
     });
 
     it('初始化与状态克隆不影响原状态', () => {
