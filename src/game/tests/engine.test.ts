@@ -205,6 +205,25 @@ describe('GameEngine Rules', () => {
         expect(env.getObservation().metadata).toEqual(soState.metadata);
     });
 
+    it('AI Observation 暴露 APK 单位 code 和脚本变量', () => {
+        const state = createDemoState();
+        expect(syncSetUnitCode(state, state.units[0].pos, 'galamar')).toBe(true);
+        expect(putBoolean(state, 'stolen', true)).toBe(true);
+        expect(putInteger(state, 'reinforced', 2)).toBe(true);
+
+        const env = new AncientEmpiresEnv({ initialState: state });
+        const observation = env.getObservation();
+
+        expect(observation.units.find(unit => unit.id === state.units[0].id)?.apkUnitCode).toBe('galamar');
+        expect(observation.apkScriptState).toEqual({
+            booleans: { stolen: true },
+            integers: { reinforced: 2 }
+        });
+
+        observation.apkScriptState!.booleans!.stolen = false;
+        expect(env.getObservation().apkScriptState?.booleans?.stolen).toBe(true);
+    });
+
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
         const state = createDemoState();
         state.map.width = 2;

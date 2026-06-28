@@ -37,7 +37,7 @@
 
 - 84 个 APK tile 的完整贴图/类别/建筑语义。
 - `.aem` 推荐金币后的 58 字节尾部业务语义。
-- 战役脚本层，包括剧情、目标、增援、静态单位、水晶目标、单位 code/head/targeted、移动覆盖等。
+- 战役脚本层，包括剧情、目标、增援、静态单位、水晶目标、单位 head/targeted、移动覆盖等。
 - 指挥官死亡后复活/重招募的官方默认流程。
 - 招募 stacked/pending 状态下的精确 UI 与行动细节。
 - 若要让 demo 和 APK 实际游戏完全一致，还需要把 APK 地图、脚本配置、目标条件和特殊演出层独立补齐。
@@ -391,7 +391,7 @@ skirmish 训练映射：
 - `Async*` 剧情和演出。
 - 增援创建、移动演出、地图聚焦。
 - 更完整的脚本变量生命周期和持久化。
-- 单位 code/head/static/targeted。
+- 单位 head/static/targeted。
 - 水晶和特殊目标单位。
 - 关卡目标 UI 与失败条件展示。
 
@@ -403,7 +403,8 @@ skirmish 训练映射：
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
 - 每格规则数值：`defenseBonus/healPerTurn/moveCost`。
-- 单位位置、血量、等级、经验、行动状态和状态类型。
+- 单位位置、血量、等级、经验、行动状态、状态类型和 APK 脚本 code。
+- APK Stage 脚本变量：`apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息。
 
 代码锚点：
@@ -412,6 +413,7 @@ skirmish 训练映射：
 - `src/game/env.ts:236` `getObservation`。
 - `src/game/env.ts:254` 输出 APK tile 原始字段。
 - `src/game/env.ts:257` 输出地形规则数值。
+- `src/game/env.ts` 输出单位 `apkUnitCode` 和 `apkScriptState`，用于训练侧观察脚本目标判断状态。
 
 已包含：
 

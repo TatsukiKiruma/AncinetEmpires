@@ -949,6 +949,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation().metadata` 会把同一份元数据暴露给训练侧；这些字段只用于样本追踪和复现实验配置，不参与规则判定。
 - 验证项已覆盖 AEM 导入、SO skirmish 导入和 Observation 元数据输出。
 
+2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。
+- `AncientEmpiresEnv.getObservation().apkScriptState` 新增 `booleans/integers` 只读快照，暴露 Stage 脚本目标判断变量。
+- 这些字段不参与规则判定；目的是避免 AI 训练样本丢失 APK 脚本状态上下文。
+
 2026-06-29 APK skirmish 当前队伍摧毁后的回合推进补充：
 
 - SD/SO `ValidateTeamState(team)` 在 `SyncDestroyTeam(team)` 后会调用 `ValidateWinningState()`；若被摧毁队伍正是 `Stage.GetCurrentTeam()` 且未终局，则调用 `Stage.AsyncNextTurn()`。

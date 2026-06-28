@@ -1,5 +1,5 @@
 import { GameEngine } from './engine';
-import { GameMetadata, GameState, Action, StepResult } from './types';
+import { ApkScriptState, GameMetadata, GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
@@ -20,6 +20,7 @@ export interface Observation {
   mapWidth: number;
   mapHeight: number;
   metadata?: GameMetadata;
+  apkScriptState?: ApkScriptState;
   players: Array<{
     id: number;
     gold: number;
@@ -40,6 +41,7 @@ export interface Observation {
   }>;
   units: Array<{
     id: string;
+    apkUnitCode?: string;
     ownerId: number;
     unitClass: string;
     x: number;
@@ -242,6 +244,10 @@ export class AncientEmpiresEnv {
           mapWidth: state.map.width,
           mapHeight: state.map.height,
           metadata: state.metadata ? { ...state.metadata } : undefined,
+          apkScriptState: state.apkScriptState ? {
+              booleans: state.apkScriptState.booleans ? { ...state.apkScriptState.booleans } : undefined,
+              integers: state.apkScriptState.integers ? { ...state.apkScriptState.integers } : undefined
+          } : undefined,
           players: state.players.map(p => ({
               id: p.id,
               gold: p.gold,
@@ -262,6 +268,7 @@ export class AncientEmpiresEnv {
           }))),
           units: state.units.map(u => ({
               id: u.id,
+              apkUnitCode: u.apkUnitCode,
               ownerId: u.ownerId,
               unitClass: u.unitClass,
               x: u.pos.x,
