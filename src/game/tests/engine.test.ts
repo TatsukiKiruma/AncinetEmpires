@@ -944,6 +944,26 @@ describe('GameEngine Rules', () => {
             expect(finalState.graves?.length).toBe(0); // 墓碑消失
         });
 
+        it('5.6.1 召唤师踩墓碑不损失生命且墓碑消失', () => {
+            const state = createDemoState();
+            state.currentPlayer = 0;
+            state.graves = [
+                { id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }
+            ];
+            const witch = state.units.find(u => u.ownerId === 0)!;
+            witch.unitClass = 'witch';
+            witch.pos = { x: 0, y: 0 };
+            witch.hp = 80;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'move', unitId: witch.id, to: { x: 0, y: 1 } });
+
+            const finalState = engine.getState();
+            const resWitch = finalState.units.find(u => u.id === witch.id)!;
+            expect(resWitch.hp).toBe(80);
+            expect(finalState.graves?.length).toBe(0);
+        });
+
         it('5.7 召唤师可在 2 格范围内用墓碑召唤骷髅', () => {
             const state = createDemoState();
             const witch = state.units.find(u => u.ownerId === 0)!;

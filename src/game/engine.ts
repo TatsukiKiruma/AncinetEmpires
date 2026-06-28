@@ -151,6 +151,22 @@ export class GameEngine {
         }
     }
 
+    private consumeGraveAtUnitPosition(unit: Unit) {
+        if (!this.state.graves) return;
+
+        const graveIdx = this.state.graves.findIndex(g => g.pos.x === unit.pos.x && g.pos.y === unit.pos.y);
+        if (graveIdx === -1) return;
+
+        if (isUndead(unit)) {
+            unit.hp = Math.min(getEffectiveStats(unit).maxHp, unit.hp + 10);
+        } else if (!hasAbility(unit, 'summoner')) {
+            // APK 文案确认召唤师摧毁墓碑不会损失生命值。
+            unit.hp -= 10;
+        }
+
+        this.state.graves.splice(graveIdx, 1);
+    }
+
     private triggerAuras(unit: Unit) {
         if (unit.hp <= 0) return;
         
@@ -235,18 +251,7 @@ export class GameEngine {
                     unit.hasMoved = true;
                     info = `Unit ${unit.id} moved to ${action.to.x},${action.to.y}`;
 
-                    // 踩墓碑检测
-                    if (this.state.graves) {
-                        const graveIdx = this.state.graves.findIndex(g => g.pos.x === unit.pos.x && g.pos.y === unit.pos.y);
-                        if (graveIdx !== -1) {
-                            if (isUndead(unit)) {
-                                unit.hp = Math.min(getEffectiveStats(unit).maxHp, unit.hp + 10);
-                            } else {
-                                unit.hp -= 10;
-                            }
-                            this.state.graves.splice(graveIdx, 1);
-                        }
-                    }
+                    this.consumeGraveAtUnitPosition(unit);
                 }
                 break;
             }
@@ -259,18 +264,7 @@ export class GameEngine {
                     unit.hasPostAttackMoved = true;
                     unit.hasActed = true;
 
-                    // 踩墓碑检测
-                    if (this.state.graves) {
-                        const graveIdx = this.state.graves.findIndex(g => g.pos.x === unit.pos.x && g.pos.y === unit.pos.y);
-                        if (graveIdx !== -1) {
-                            if (isUndead(unit)) {
-                                unit.hp = Math.min(getEffectiveStats(unit).maxHp, unit.hp + 10);
-                            } else {
-                                unit.hp -= 10;
-                            }
-                            this.state.graves.splice(graveIdx, 1);
-                        }
-                    }
+                    this.consumeGraveAtUnitPosition(unit);
 
                     this.triggerAuras(unit);
                     info = `Unit ${unit.id} post-attack moved to ${action.to.x},${action.to.y}`;
