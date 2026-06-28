@@ -27,6 +27,8 @@ describe('GameEngine Rules', () => {
         expect(TERRAIN_CONFIG[10].incomePerTurn).toBe(100); // 城堡
         expect(TERRAIN_CONFIG[17].key).toBe('bridge');
         expect(TERRAIN_CONFIG[17].tags).toContain('water');
+        expect(TERRAIN_CONFIG[12].tags).toContain('cleanse');
+        expect(TERRAIN_CONFIG[16].tags).toContain('cleanse');
         
         expect(Object.keys(TERRAIN_CONFIG).length).toBe(17);
     });
@@ -2136,6 +2138,20 @@ describe('GameEngine Rules', () => {
 
              const s = engine.getState().units.find(u => u.id === soldier.id);
              expect(s!.status).toBeUndefined(); 
+        });
+
+        it('神庙结算 - 水中神庙同样清除负面状态', () => {
+             const state = createDemoState();
+             const soldier = state.units[0];
+             soldier.status = { type: 'blinded' };
+             state.map.tiles[soldier.pos.y][soldier.pos.x].terrainId = 16;
+
+             const engine = new GameEngine(state);
+             engine.step({ type: 'end_turn' });
+             engine.step({ type: 'end_turn' });
+
+             const s = engine.getState().units.find(u => u.id === soldier.id);
+             expect(s!.status).toBeUndefined();
         });
     });
 });

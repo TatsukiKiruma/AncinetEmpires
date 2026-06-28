@@ -669,9 +669,10 @@ export class GameEngine {
                         }
 
                         const tile = this.state.map.tiles[u.pos.y][u.pos.x];
+                        const tConfig = TERRAIN_CONFIG[tile.terrainId];
 
-                        // 站在神庙(12)清负面
-                        if (tile.terrainId === 12) {
+                        // 神庙类地形在回合开始清除负面状态，APK 文案未限定只能是陆地神庙。
+                        if (tConfig.tags.includes('cleanse')) {
                             clearNegativeStatus(u);
                             // 若清除了 weakened，可能恢复移动力，重新更新 movementRemaining
                             const updatedEff = getEffectiveStats(u);
@@ -681,8 +682,6 @@ export class GameEngine {
                         // 中毒期间普通地形回复及地形回血失效（自我修复不受影响）
                         const isCurrentlyPoisoned = u.status && u.status.type === 'poisoned';
 
-                        const tConfig = TERRAIN_CONFIG[tile.terrainId];
-                        
                         let healAmount = 0;
                         
                         // 2. 地形回复

@@ -434,6 +434,7 @@ APK 规则中涉及的加成：
 - 结构化动作与合法动作校验。
 - 移动、攻击、反击、占领、修理、破坏村庄、治疗、召唤、支援、待机。
 - 中毒、致盲、虚弱三类负面状态的互斥模型。
+- 神庙类地形在回合开始清除负面状态，包含陆地神庙和水中神庙。
 - 墓碑、亡灵死亡不留墓碑、亡灵被治疗伤害、亡灵中毒回血。
 - 水/森林/山地地形子能力的移动、攻防和回合治疗。
 - 飞行单位地形移动 1、不享受地形防御、可飞越非飞行敌军。
@@ -470,6 +471,11 @@ APK 规则中涉及的加成：
 5. 水晶单位
    - APK：存在 `UNIT_NAME_11=Crystal`。
    - 项目：已加入不可招募占位单位 `crystal`，并建立 APK ID 映射。
+   - 状态：已修正。
+
+6. 神庙清除负面状态不应硬编码单一地形
+   - APK：`APK\_analysis\unpack\assets\languages\zh.lang:330` / `en.lang:330` 的 `P_TILE_TEMPLE_DESCRIPTION` 表示神庙在回合开始清除负面状态，文案没有限定只能是陆地神庙。
+   - 项目：已改为按地形 `cleanse` 标签触发清除；陆地神庙和水中神庙都带有该标签。
    - 状态：已修正。
 
 ### P1：系统完整性差异
@@ -774,10 +780,17 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - APK 分析文档新增第 8.1 节，记录字段布局、完整 84 条基础数值和高可信映射依据。
 - 验证：`npm test` 199 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
+2026-06-29 APK 神庙清除规则补充：
+
+- APK 中英文语言表均确认 `P_TILE_TEMPLE_DESCRIPTION` 为“回合开始清除负面状态”语义，未限定为单一地形 ID。
+- `water_temple` 增加 `cleanse` 标签；引擎回合开始结算改为按地形标签清除负面状态。
+- 新增水中神庙清除致盲测试，并补充陆地神庙/水中神庙 `cleanse` 标签断言。
+- 验证：`npm test` 200 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
-- 复核来源包括：`APK\_analysis\unpack\languages\zh.lang`、`languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则，并完成 84 条地形基础数据归档；当前最重要的差距仍是 APK 战役层：完整地图导入、脚本执行和目标流程。
+- 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
+- 本轮除文档外，已补齐脚本指定指挥官的基础对战规则，完成 84 条地形基础数据归档，并把神庙清除负面状态改为地形标签语义；当前最重要的差距仍是 APK 战役层：完整地图导入、脚本执行和目标流程。

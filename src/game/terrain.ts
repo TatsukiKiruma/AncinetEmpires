@@ -21,6 +21,6 @@ export const TERRAIN_CONFIG: Record<TerrainId, { key: string; name: string; defe
   13: { key: "special_1",     name: "特殊地形1",  defenseBonus: 5,  moveCost: 1, healPerTurn: 0,  incomePerTurn: 0,   tags: ["special"] },
   14: { key: "special_2",     name: "特殊地形2",  defenseBonus: 20, moveCost: 3, healPerTurn: 0,  incomePerTurn: 0,   tags: ["special"] },
   15: { key: "special_3",     name: "特殊地形3",  defenseBonus: 10, moveCost: 1, healPerTurn: 0,  incomePerTurn: 0,   tags: ["special"] },
-  16: { key: "water_temple",  name: "水中神庙",   defenseBonus: 10, moveCost: 3, healPerTurn: 20, incomePerTurn: 0,   tags: ["water", "building", "temple", "healing"] },
+  16: { key: "water_temple",  name: "水中神庙",   defenseBonus: 10, moveCost: 3, healPerTurn: 20, incomePerTurn: 0,   tags: ["water", "building", "temple", "healing", "cleanse"] },
   17: { key: "bridge",        name: "桥",         defenseBonus: 0,  moveCost: 1, healPerTurn: 0,  incomePerTurn: 0,   tags: ["water", "bridge", "road"] },
 };
