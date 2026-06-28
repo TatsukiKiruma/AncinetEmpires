@@ -63,11 +63,12 @@ describe('GameEngine Rules', () => {
         expect(mapKnownApkTerrainId(2)).toBeNull();
     });
 
-    it('APK AEM 明文地图解析可以读取头部、玩家和地形归属', () => {
+    it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {
         const bytes: number[] = [];
         const pushUInt32BE = (value: number) => {
             bytes.push((value >>> 24) & 0xff, (value >>> 16) & 0xff, (value >>> 8) & 0xff, value & 0xff);
         };
+        const pushInt32BE = pushUInt32BE;
         const pushUInt32LE = (value: number) => {
             bytes.push(value & 0xff, (value >>> 8) & 0xff, (value >>> 16) & 0xff, (value >>> 24) & 0xff);
         };
@@ -87,32 +88,58 @@ describe('GameEngine Rules', () => {
         pushUInt32BE(APK_AEM_MAGIC);
         pushUInt32LE(0);
         pushUInt32LE(2);
-        bytes.push(2);
+        bytes.push(3);
         // null 作者字段，来自 APK AEM 中无作者地图的头部形态。
         bytes.push(1, 0, 0, 0, 0);
         bytes.push(2);
         pushUInt32BE(0);
         pushUInt32BE(1);
-        pushUInt40BE(4);
+        pushUInt40BE(6);
+        // AEM 地形矩阵按列优先存储：(0,0)(0,1)(0,2)(1,0)(1,1)(1,2)。
         pushTerrainRecord(37, 0);
         pushTerrainRecord(36, 0xfe);
         pushTerrainRecord(72, 1);
         pushTerrainRecord(27, 0xff);
+        pushTerrainRecord(2, 0xff);
+        pushTerrainRecord(37, 1);
+        // 单位块：marker=0，字段数=10，两条 5 字段单位记录。
+        pushUInt32LE(0);
+        pushUInt32LE(10);
+        pushUInt32LE(9);
+        pushUInt32LE(0);
+        pushUInt32LE(0);
+        pushUInt32LE(0);
+        pushUInt32LE(0);
+        pushUInt32LE(9);
+        pushUInt32LE(1);
+        pushUInt32LE(0);
+        pushUInt32LE(1);
+        // 最后一条单位的 y 在 APK 明文中只占 1 字节，随后直接接推荐金币。
+        bytes.push(2);
+        pushInt32BE(300);
 
         const map = parseApkAemMap(new Uint8Array(bytes));
 
         expect(map.width).toBe(2);
-        expect(map.height).toBe(2);
+        expect(map.height).toBe(3);
         expect(map.author).toBeNull();
         expect(map.playerIds).toEqual([0, 1]);
-        expect(map.terrainCount).toBe(4);
+        expect(map.terrainCount).toBe(6);
         expect(map.terrain[0][0].apkTerrainId).toBe(37);
         expect(map.terrain[0][0].ownerId).toBe(0);
         expect(map.terrain[0][0].projectTerrainId).toBe(10);
         expect(map.terrain[0][1].ownerId).toBeNull();
-        expect(map.terrain[1][0].apkTerrainId).toBe(72);
-        expect(map.terrain[1][0].projectTerrainId).toBe(17);
-        expect(getApkAemTerrainUsage(map)).toEqual({ 27: 1, 36: 1, 37: 1, 72: 1 });
+        expect(map.terrain[2][0].apkTerrainId).toBe(72);
+        expect(map.terrain[2][0].projectTerrainId).toBe(17);
+        expect(map.terrain[0][1].apkTerrainId).toBe(27);
+        expect(map.terrain[2][1].ownerId).toBe(1);
+        expect(map.unitValueCount).toBe(10);
+        expect(map.recommendedGold).toBe(300);
+        expect(map.units).toEqual([
+            { apkUnitId: 9, teamId: 0, extra: 0, x: 0, y: 0, unitClass: 'commander' },
+            { apkUnitId: 9, teamId: 1, extra: 0, x: 1, y: 2, unitClass: 'commander' },
+        ]);
+        expect(getApkAemTerrainUsage(map)).toEqual({ 2: 1, 27: 1, 36: 1, 37: 2, 72: 1 });
     });
 
     it('初始化与状态克隆不影响原状态', () => {

@@ -1,5 +1,7 @@
+import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { mapKnownApkTerrainId } from './apk_terrain';
 import { TerrainId } from './terrain';
+import { UnitClass } from './types';
 
 export const APK_AEM_MAGIC = 365703;
 export const APK_AEM_TERRAIN_RECORD_SIZE = 4;
@@ -14,6 +16,15 @@ export interface ApkAemTerrainCell {
     projectTerrainId: TerrainId | null;
 }
 
+export interface ApkAemUnit {
+    apkUnitId: number;
+    teamId: number;
+    extra: number;
+    x: number;
+    y: number;
+    unitClass: UnitClass | null;
+}
+
 export interface ApkAemMap {
     magic: number;
     width: number;
@@ -23,6 +34,11 @@ export interface ApkAemMap {
     terrainRecordOffset: number;
     terrainCount: number;
     terrain: ApkAemTerrainCell[][];
+    unitRecordOffset: number;
+    unitValueCount: number;
+    units: ApkAemUnit[];
+    recommendedGold: number | null;
+    tailOffset: number;
 }
 
 function requireBytes(data: Uint8Array, offset: number, length: number) {
@@ -49,6 +65,16 @@ function readUInt32LE(data: Uint8Array, offset: number): number {
         + data[offset + 2] * 0x10000
         + data[offset + 3] * 0x1000000
     ) >>> 0;
+}
+
+function readInt32LE(data: Uint8Array, offset: number): number {
+    const value = readUInt32LE(data, offset);
+    return value > 0x7fffffff ? value - 0x100000000 : value;
+}
+
+function readInt32BE(data: Uint8Array, offset: number): number {
+    const value = readUInt32BE(data, offset);
+    return value > 0x7fffffff ? value - 0x100000000 : value;
 }
 
 function readUIntBE(data: Uint8Array, offset: number, length: number): number {
@@ -94,6 +120,65 @@ function normalizeOwner(ownerCode: number): number | null {
     return ownerCode <= 7 ? ownerCode : null;
 }
 
+function parseUnits(data: Uint8Array, offset: number, width: number, height: number): {
+    unitRecordOffset: number;
+    unitValueCount: number;
+    units: ApkAemUnit[];
+    recommendedGold: number | null;
+    tailOffset: number;
+} {
+    requireBytes(data, offset, 8);
+    const unitBlockMarker = readInt32LE(data, offset);
+    if (unitBlockMarker !== 0) {
+        throw new Error(`未知 AEM 单位块标记: ${unitBlockMarker}`);
+    }
+
+    const unitValueCount = readInt32LE(data, offset + 4);
+    if (unitValueCount < 0 || unitValueCount % 5 !== 0) {
+        throw new Error(`AEM 单位字段数量无效: ${unitValueCount}`);
+    }
+
+    const unitCount = unitValueCount / 5;
+    const unitRecordOffset = offset + 8;
+    const units: ApkAemUnit[] = [];
+    let cursor = unitRecordOffset;
+
+    for (let i = 0; i < unitCount; i += 1) {
+        requireBytes(data, cursor, i === unitCount - 1 ? 17 : 20);
+        const apkUnitId = readInt32LE(data, cursor);
+        const teamId = readInt32LE(data, cursor + 4);
+        const extra = readInt32LE(data, cursor + 8);
+        const x = readInt32LE(data, cursor + 12);
+        const y = i === unitCount - 1 ? data[cursor + 16] : readInt32LE(data, cursor + 16);
+
+        if (apkUnitId < 0 || apkUnitId > 20 || x < 0 || x >= width || y < 0 || y >= height) {
+            throw new Error('AEM 单位记录超出已知范围');
+        }
+
+        units.push({
+            apkUnitId,
+            teamId,
+            extra,
+            x,
+            y,
+            unitClass: APK_UNIT_ID_TO_CLASS[apkUnitId] ?? null
+        });
+
+        cursor += i === unitCount - 1 ? 17 : 20;
+    }
+
+    const recommendedGoldRaw = readInt32BE(data, cursor);
+    cursor += 4;
+
+    return {
+        unitRecordOffset,
+        unitValueCount,
+        units,
+        recommendedGold: recommendedGoldRaw >= 0 ? recommendedGoldRaw : null,
+        tailOffset: cursor
+    };
+}
+
 export function parseApkAemMap(data: Uint8Array): ApkAemMap {
     const magic = readUInt32BE(data, 0);
     if (magic !== APK_AEM_MAGIC) {
@@ -130,7 +215,8 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
     for (let y = 0; y < height; y += 1) {
         const row: ApkAemTerrainCell[] = [];
         for (let x = 0; x < width; x += 1) {
-            const recordOffset = offset + (y * width + x) * APK_AEM_TERRAIN_RECORD_SIZE;
+            // AEM 地形矩阵按列优先存储：同一 x 的所有 y 先连续出现。
+            const recordOffset = offset + (x * height + y) * APK_AEM_TERRAIN_RECORD_SIZE;
             const raw = readUInt32BE(data, recordOffset);
             const apkTerrainId = raw >>> 12;
             const ownerCode = raw & 0xff;
@@ -146,6 +232,8 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
         }
         terrain.push(row);
     }
+    const tailStart = offset + terrainCount * APK_AEM_TERRAIN_RECORD_SIZE;
+    const unitBlock = parseUnits(data, tailStart, width, height);
 
     return {
         magic,
@@ -155,7 +243,8 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
         playerIds,
         terrainRecordOffset: offset,
         terrainCount,
-        terrain
+        terrain,
+        ...unitBlock
     };
 }
 
