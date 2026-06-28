@@ -199,6 +199,8 @@ describe('GameEngine Rules', () => {
         expect(Object.keys(UNIT_CONFIGS).length).toBe(21);
         expect(UNIT_CONFIGS.crystal.name).toBe('水晶');
         expect(UNIT_CONFIGS.crystal.cost).toBeNull();
+        expect(UNIT_CONFIGS.dark_mage.attack).toBe(50);
+        expect(UNIT_CONFIGS.slime.magicDefense).toBe(-10);
         expect(APK_UNIT_ID_TO_CLASS[11]).toBe('crystal');
         expect(APK_STATUS_ID_TO_TYPE[2]).toBe('inspired');
         expect(APK_ABILITY_ID_TO_TYPE[18]).toBe('attack_aura');
@@ -230,10 +232,10 @@ describe('GameEngine Rules', () => {
         
         state.map.tiles[2][1].terrainId = 6; // road, 0 defense
 
-        // ghost ATK: 50, magic. slime magic DEF: -20
-        // Expected damage: (50 - (-20) - 0) * (100/100) = 70
+        // ghost ATK: 50, magic. APK 元素防御公式下，史莱姆魔法防御为 -10。
+        // Expected damage: (50 - (-10) - 0) * (100/100) = 60
         const dmg = calculateDamage(state, 'u1', 'u2');
-        expect(dmg).toBe(70);
+        expect(dmg).toBe(60);
     });
 
     it('伤害公式: 地形防御会减少伤害', () => {

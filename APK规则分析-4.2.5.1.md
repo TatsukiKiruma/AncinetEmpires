@@ -98,6 +98,46 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 - 后续若要解析 APK `.aem` 地图或战役脚本，必须建立 `apkUnitId <-> UnitClass` 映射。
 - `Crystal` 在英文/中文基础说明里是 `<none>/<无>`，但战役语言文件大量出现护送/夺回水晶目标，说明它至少是战役目标对象。
 
+### 4.1 data.bin 单位基础数值
+
+`data.bin` 解密后包含 21 条 `Lc/a/b/a/v/c` 单位定义。已确认字段公式：
+
+- 价格：`a`；人口：`b`；攻击元素：`c`，项目中按 `0=physical`、`1=magic` 映射。
+- 元素防御修正：`d`。APK 伤害公式中，攻击元素等于防守方元素时防御 `+d`，不同时防御 `-d`。
+- 攻击：`e + g * level`；防御基值：`h + i * level`；最大生命：`j + k * level`；最大移动：`l + m * level`。
+- 射程：`n-o`；能力列表：`p`。
+
+下表的物防/魔防是按 APK 元素公式推导出的项目双防等价值：
+
+| APK ID | 项目 key | 价格 | 人口 | 攻击类型 | 攻击 | 物防 | 魔防 | 生命成长 | 移动成长 | 射程 | 能力 ID |
+| --- | --- | ---: | ---: | --- | ---: | ---: | ---: | --- | --- | --- | --- |
+| 0 | `soldier` | 150 | 1 | physical | 55 | 5 | 5 | 100+0/Lv | 4+0/Lv | 1-1 | 0,2 |
+| 1 | `archer` | 250 | 1 | physical | 45 | 5 | 5 | 100+0/Lv | 4+0/Lv | 2-3 | 4 |
+| 2 | `water_elemental` | 300 | 1 | physical | 60 | 15 | 15 | 100+0/Lv | 4+0/Lv | 1-1 | 12 |
+| 3 | `witch` | 400 | 2 | magic | 45 | 0 | 40 | 100+0/Lv | 4+0/Lv | 1-2 | 6 |
+| 4 | `elf` | 500 | 2 | magic | 55 | 20 | 30 | 100+0/Lv | 4+0/Lv | 1-2 | 3,13,19 |
+| 5 | `wolf` | 600 | 3 | physical | 75 | 20 | 10 | 100+0/Lv | 6+0/Lv | 1-1 | 8,21,22 |
+| 6 | `golem` | 600 | 3 | physical | 55 | 30 | 10 | 100+25/Lv | 5+0/Lv | 1-1 | 11,14,20 |
+| 7 | `catapult` | 800 | 4 | physical | 60 | 5 | 5 | 100+0/Lv | 3+0/Lv | 3-5 | 5 |
+| 8 | `dragon` | 1000 | 5 | magic | 70 | 25 | 25 | 100+0/Lv | 6+0/Lv | 1-2 | 3,10,11,21 |
+| 9 | `commander` | 400 | 0 | physical | 60 | 20 | 20 | 100+0/Lv | 4+1/Lv | 1-1 | 0,1,2 |
+| 10 | `skeleton` | 0 | 0 | physical | 40 | 5 | 5 | 100+0/Lv | 3+0/Lv | 1-1 | 8,9 |
+| 11 | `crystal` | 0 | 0 | magic | 0 | 0 | 0 | 100+0/Lv | 4+0/Lv | 0-0 | - |
+| 12 | `paladin` | 400 | 2 | physical | 50 | 10 | 10 | 100+0/Lv | 4+0/Lv | 1-1 | 0,7 |
+| 13 | `berserker` | 500 | 2 | physical | 70 | 20 | 10 | 100+0/Lv | 5+0/Lv | 1-1 | 15,16,22 |
+| 14 | `ghost` | 200 | 1 | magic | 50 | 5 | 15 | 100+0/Lv | 4+1/Lv | 1-1 | 3,9,25 |
+| 15 | `dark_mage` | 300 | 1 | magic | 50 | 0 | 20 | 100+0/Lv | 4+0/Lv | 1-1 | 23 |
+| 16 | `wolf_archer` | 800 | 4 | physical | 60 | 20 | 10 | 100+0/Lv | 6+0/Lv | 1-3 | 4,13,21,23 |
+| 17 | `ice_elemental` | 600 | 3 | magic | 55 | 10 | 20 | 100+10/Lv | 4+0/Lv | 1-3 | 12,17 |
+| 18 | `slime` | 250 | 1 | magic | 50 | 40 | -10 | 100+5/Lv | 4+0/Lv | 1-1 | 17 |
+| 19 | `mermaid` | 200 | 1 | physical | 40 | 0 | 0 | 100+0/Lv | 4+0/Lv | 1-2 | 0,2,12 |
+| 20 | `druid` | 600 | 3 | magic | 40 | 0 | 30 | 100+0/Lv | 4+1/Lv | 1-2 | 18,22,24 |
+
+注意：
+
+- `commander/skeleton/crystal` 虽有价格字段，但 APK 单位定义中的 `q=false`；项目仍默认不把它们作为普通可招募单位，指挥官重招募通过单独规则配置控制。
+- `crystal` 在 data.bin 中移动为 4，但战役脚本会配合 `SyncSetUnitTargetedWithCode`、`SyncOverrideMov`、`SyncSetUnitStaticWithCode` 等接口控制目标单位行为；项目当前仍保留不可招募占位，不把它当普通作战单位处理。
+
 ## 5. APK 确认的能力规则
 
 | APK ID | 能力 | 当前项目 key | APK 规则要点 | 项目状态 |
@@ -496,3 +536,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `data.bin` 使用自定义序列化 magic `365703`，开头明文保存 8 字节 DES key；后续资源使用 `DES/CBC/PKCS5Padding`，key 与 IV 相同。
 - 已确认 `.js` 和 `.aem` 资源可以用该 key 解密；脚本中大量出现 `Stage.SyncSetUnitLimit(...)` 和 `Stage.SyncSetRecruitUnits(...)`。
 - `RuleConfig` 新增全局 `unitLimit/populationLimit/recruitableUnits`，队伍级配置仍可覆盖全局配置。
+
+2026-06-29 data.bin 单位基础数值校准：
+
+- 已解出 21 条 APK 单位基础数值，并记录到第 4.1 节。
+- 黑魔法师攻击从 45 校准为 APK 的 50。
+- 史莱姆魔法防御按 APK 元素防御公式从 -20 校准为 -10。
