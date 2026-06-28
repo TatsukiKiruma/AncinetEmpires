@@ -122,7 +122,7 @@ describe('GameEngine Rules', () => {
             expect(newUnits[0].hasActed).toBe(false);
             expect(engine.getState().pendingUnitId).toBe(newUnits[0].id);
 
-            // pending 状态下，合法动作只能是该单位的 wait 或 attack / capture / healing (如果合法) 或 end_turn (用于安全逃逸或兜底)
+            // pending 状态下，合法动作只能是该单位的动作；APK stacked 文案禁止结束回合。
             const subsequentActions = engine.getLegalActions(0);
             
             // 没有其他单位的动作
@@ -132,6 +132,7 @@ describe('GameEngine Rules', () => {
             // 没有招募的动作
             const recruitAgain = subsequentActions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
             expect(recruitAgain.length).toBe(0);
+            expect(subsequentActions.some(a => a.type === 'end_turn')).toBe(false);
 
             // 让这个新兵 wait
             const waitAct = subsequentActions.find(a => a.type === 'wait');
@@ -166,6 +167,7 @@ describe('GameEngine Rules', () => {
             const subActions = engine.getLegalActions(0);
             const canMove = subActions.some(a => a.type === 'move' && a.unitId === newUnits[0].id);
             expect(canMove).toBe(true);
+            expect(subActions.some(a => a.type === 'end_turn')).toBe(false);
 
             // 执行移动，然后依然 pending (因为移动没有 hasActed)？
             // 移动以后 pending 还会在吗？

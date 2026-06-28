@@ -173,7 +173,7 @@ dex 字符串确认或强烈暗示：
 
 - 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!`、`Cannot surrender when stacked!`。
 - 这说明官方规则中有“单位堆叠/待处理”的临时状态，会禁止继续招募、结束回合或选择其他对象。
-- 当前项目新增的 `pendingUnitId` 与这个机制高度吻合。
+- 当前项目的 `pendingUnitId` 已禁止继续招募和结束回合，和 APK stacked 字符串方向一致。
 
 仍需确认：
 
@@ -471,4 +471,11 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv` 的最大步数结算改为按金币与剩余军力价值评估，不再只比较单位数量。
 - 军力价值使用当前规则配置中的单位价格和单位剩余血量比例；未定价单位只以存活单位小权重参与，避免把未确认 APK 价格写死。
 - 该规则只影响 AI 训练环境的超时裁决，不改变 `GameEngine` 的真实终局规则。
+- 验证：`npm test` 174 个测试通过，`npm run lint` 通过，`npm run build` 通过。
+
+2026-06-29 stacked/pending 行动限制修正：
+
+- APK DEX 明确包含 `Cannot end turn when stacked!`。
+- `getLegalActions` 在存在 `pendingUnitId` 时不再生成 `end_turn`，只能处理该待处理单位的合法动作。
+- 继续保持 pending 状态下禁止招募，与 `Cannot recruit when stacked!` 一致。
 - 验证：`npm test` 174 个测试通过，`npm run lint` 通过，`npm run build` 通过。

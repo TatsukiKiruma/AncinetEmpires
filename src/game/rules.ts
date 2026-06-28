@@ -84,7 +84,7 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
 export function getLegalActions(state: GameState, playerId: number): Action[] {
     const actions: Action[] = [];
     
-    // 如果有 pendingUnitId，只能执行该 unit 的操作，并且不能招募，通常也不能 end_turn (如果可能的话最好限制)
+    // APK stacked 规则：pending 单位未处理时只能操作该单位，不能招募或结束回合。
     const pendingUnitId = state.pendingUnitId;
     
     // 只属于当前玩家的未行动完的单位
@@ -244,15 +244,9 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
     }
 
-    // 4. 结束回合: 仅在无 pendingUnitId 或该单位已完成行动(但还没被engine清理，理论上清理会在动作结束时发生)时允许
+    // 4. 结束回合: APK 明确存在 Cannot end turn when stacked，因此 pending 状态下不生成 end_turn。
     if (!pendingUnitId) {
         actions.push({ type: 'end_turn' });
-    } else {
-        // 安全起见，如果 pendingUnit 死活无法行动，或者已经行动，还是允许 end_turn 防止卡死
-        const unit = state.units.find(u => u.id === pendingUnitId);
-        if (!unit || unit.hasActed) {
-             actions.push({ type: 'end_turn' });
-        }
     }
 
     return actions;
