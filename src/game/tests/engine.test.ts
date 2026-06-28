@@ -201,6 +201,9 @@ describe('GameEngine Rules', () => {
         expect(UNIT_CONFIGS.crystal.cost).toBeNull();
         expect(UNIT_CONFIGS.dark_mage.attack).toBe(50);
         expect(UNIT_CONFIGS.slime.magicDefense).toBe(-10);
+        expect(UNIT_CONFIGS.golem.maxHpGrowth).toBe(25);
+        expect(UNIT_CONFIGS.ice_elemental.maxHpGrowth).toBe(10);
+        expect(UNIT_CONFIGS.druid.moveGrowth).toBe(1);
         expect(APK_UNIT_ID_TO_CLASS[11]).toBe('crystal');
         expect(APK_STATUS_ID_TO_TYPE[2]).toBe('inspired');
         expect(APK_ABILITY_ID_TO_TYPE[18]).toBe('attack_aura');
@@ -1177,6 +1180,36 @@ describe('GameEngine Rules', () => {
             expect(eff.attack).toBe(65);
             expect(eff.physicalDefense).toBe(10);
             expect(eff.magicDefense).toBe(10);
+        });
+
+        it('6.12b APK 单位成长配置会驱动有效属性', () => {
+            const druid = {
+                id: 'u_druid',
+                ownerId: 0,
+                unitClass: 'druid' as const,
+                pos: { x: 1, y: 1 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 2 as const,
+                exp: 0
+            };
+
+            const iceElemental = {
+                ...druid,
+                id: 'u_ice',
+                unitClass: 'ice_elemental' as const
+            };
+
+            const druidEff = getEffectiveStats(druid);
+            const iceEff = getEffectiveStats(iceElemental);
+
+            expect(druidEff.attack).toBe(50);
+            expect(druidEff.physicalDefense).toBe(10);
+            expect(druidEff.magicDefense).toBe(40);
+            expect(druidEff.move).toBe(6);
+            expect(iceEff.maxHp).toBe(120);
         });
 
         it('6.13 圣骑士升级后治疗量 +10', () => {

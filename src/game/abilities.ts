@@ -177,44 +177,11 @@ export interface EffectiveStats {
 
 export function getEffectiveStats(unit: Unit): EffectiveStats {
     const base = UNIT_CONFIGS[unit.unitClass];
-    let level = unit.level ?? 0;
-    
-    let attackBonus = 0;
-    let defBonus = 0;
-    let maxHpBonus = 0;
-    let moveBonus = 0;
-
-    // 每次升级的属性增长
-    for (let i = 0; i < level; i++) {
-        if (unit.unitClass === 'crystal') {
-            continue;
-        }
-        if (unit.unitClass === 'witch' || unit.unitClass === 'paladin' || unit.unitClass === 'elf' || unit.unitClass === 'golem' || unit.unitClass === 'druid') {
-            attackBonus += 5;
-            defBonus += 5;
-        } else if (unit.unitClass === 'ghost' || unit.unitClass === 'commander' || unit.unitClass === 'slime' || unit.unitClass === 'ice_elemental') {
-            attackBonus += 10;
-            defBonus += 5;
-        } else {
-            // 普通单位
-            attackBonus += 10;
-            defBonus += 5;
-        }
-
-        // 生命增加
-        if (unit.unitClass === 'golem') {
-            maxHpBonus += 25;
-        } else if (unit.unitClass === 'slime') {
-            maxHpBonus += 5;
-        } else if (unit.unitClass === 'ice_elemental') {
-            maxHpBonus += 10; // TODO 确认
-        }
-
-        // 移动增加
-        if (unit.unitClass === 'druid' || unit.unitClass === 'ghost' || unit.unitClass === 'commander') {
-            moveBonus += 1;
-        }
-    }
+    const level = unit.level ?? 0;
+    const attackBonus = base.attackGrowth * level;
+    const defBonus = base.defenseGrowth * level;
+    const maxHpBonus = base.maxHpGrowth * level;
+    const moveBonus = base.moveGrowth * level;
 
     let pDef = base.physicalDefense + defBonus;
     let mDef = base.magicDefense + defBonus;
