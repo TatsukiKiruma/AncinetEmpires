@@ -370,6 +370,7 @@ export class GameEngine {
                     const level = healer.level ?? 0;
                     const healVal = healer.unitClass === 'paladin' ? (40 + level * 10) : 40;
                     
+                    target.hasBeenHealedThisTurn = true;
                     if (isUndead(target)) {
                         target.hp = Math.max(0, target.hp - healVal);
                         if (target.hp <= 0 && !hasAbility(healer, 'undead')) {
@@ -378,7 +379,6 @@ export class GameEngine {
                     } else {
                         // APK 明确治疗师治疗可以突破目标最大血量；普通地形/光环回复仍保留上限。
                         target.hp += healVal;
-                        target.hasBeenHealedThisTurn = true;
                     }
                     
                     // 经验

@@ -1490,6 +1490,44 @@ describe('GameEngine Rules', () => {
             expect(resGhost.hp).toBe(40); // 80 - 40 = 40 (变为伤害)
         });
 
+        it('5.2b 亡灵受到治疗伤害后也会消耗本回合被治疗次数', () => {
+            const state = createDemoState();
+            const firstPaladin = state.units.find(u => u.ownerId === 0)!;
+            firstPaladin.unitClass = 'paladin';
+            firstPaladin.pos = { x: 0, y: 0 };
+
+            const skeletonFriend = state.units.find(u => u.ownerId === 0 && u.id !== firstPaladin.id)!;
+            skeletonFriend.unitClass = 'skeleton';
+            skeletonFriend.pos = { x: 0, y: 1 };
+            skeletonFriend.hp = 100;
+
+            state.units.push({
+                id: 'u_second_paladin',
+                ownerId: 0,
+                unitClass: 'paladin',
+                pos: { x: 1, y: 1 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            });
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'heal', healerId: firstPaladin.id, targetId: skeletonFriend.id });
+
+            const afterHeal = engine.getState();
+            const resSkeleton = afterHeal.units.find(u => u.id === skeletonFriend.id)!;
+            expect(resSkeleton.hp).toBe(60);
+            expect(resSkeleton.hasBeenHealedThisTurn).toBe(true);
+            expect(engine.getLegalActions(0).some(action =>
+                action.type === 'heal'
+                && action.healerId === 'u_second_paladin'
+                && action.targetId === skeletonFriend.id
+            )).toBe(false);
+        });
+
         it('5.3 中毒单位不能被治疗师治疗', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;

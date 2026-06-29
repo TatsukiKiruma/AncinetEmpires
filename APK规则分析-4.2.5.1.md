@@ -170,7 +170,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 | 6 | 召唤师 | `summoner` | 从墓碑召唤骷髅，摧毁墓碑不损失生命 | 已实现召唤；踩墓碑/摧毁墓碑不扣血 |
 | 7 | 治疗师 | `healer` | 治疗随等级上升，可突破目标最大血量 | 主动治疗已允许突破最大血量 |
 | 8 | 投毒者 | `poisoner` | 攻击附加中毒，对同能力无效 | 已实现 |
-| 9 | 亡灵 | `undead` | 死亡不留墓碑；友军治疗变伤害；踩墓碑/中毒变回血 | 大体实现，回血不突破最大生命且不压低既有超上限生命 |
+| 9 | 亡灵 | `undead` | 死亡不留墓碑；友军治疗变伤害；踩墓碑/中毒变回血 | 大体实现；回血不突破最大生命且不压低既有超上限生命；被治疗转伤害也会占用本回合被治疗次数 |
 | 10 | 近战大师 | `melee_master` | 近战伤害 +50% | 已实现 |
 | 11 | 远程防御 | `ranged_defense` | 受远程攻击伤害 -50% | 已实现 |
 | 12 | 水之子 | `water_child` | 水上攻防 +10，回合开始治疗，水面移动 1 | 已实现 |
@@ -1039,7 +1039,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK 单位隐藏规则状态进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units[]` 新增 `movementRemaining/hasPostAttackMoved/hasBeenHealedThisTurn/hasBeenSupportedThisTurn/statusRemainingTicks/statusRemainingTurns`。
-- 这些字段会影响突击部队后续移动、单回合治疗/支援限制，以及中毒/虚弱等状态的后续结算；此前训练侧只能从合法动作集合或历史轨迹间接推断。
+- 这些字段会影响突击部队后续移动、单回合治疗/支援限制，以及中毒/虚弱等状态的后续结算；亡灵被治疗转伤害也会写入 `hasBeenHealedThisTurn`，避免同一目标在同回合被重复治疗动作处理。此前训练侧只能从合法动作集合或历史轨迹间接推断。
 - 这些字段只暴露当前状态快照，不改变移动、治疗、支援、状态倒计时或任何胜负结算。
 
 2026-06-29 APK stacked/pending 状态进入 AI Observation：
