@@ -1052,6 +1052,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这些字段来自已解析的 APK `data.bin` 21 条单位基础数值和成长表；训练侧可以直接看到单位升级后的潜在收益，不需要只凭当前等级有效数值反推。
 - 这些字段只暴露静态规则表，不改变 `getEffectiveStats`、伤害、移动、升级或任何合法动作。
 
+2026-06-29 APK 单位所在格规则地形进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().units[]` 新增 `tileTerrainId/tileRuleTerrainId/tileTerrainKey/tileTerrainTags/tileOwnerId/tileApkTerrainId/tileApkOwnerCode/tileApkTerrainMappingConfidence/tileApkTerrainMappingEvidence/tileDefenseBonus/tileHealPerTurn/tileMoveCost`。
+- 这些字段复制单位当前所在格的规则地形快照；APK 导入地图若存在 `apkTerrainId`，会按 `terrain_rules.ts` 的当前规则语义输出，例如项目 `terrainId=road` 但 APK `t37` 会在单位上直接显示 `tileRuleTerrainId=10`、`tileTerrainKey=castle`。
+- 这些字段只减少训练端反查 `tiles[]` 的成本，不改变地形、防御、回血、移动或建筑判定。
+
 2026-06-29 APK stacked/pending 状态进入 AI Observation：
 
 - DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。

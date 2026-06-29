@@ -110,6 +110,18 @@ export interface Observation {
     defenseGrowth: number;
     maxHpGrowth: number;
     moveGrowth: number;
+    tileTerrainId: number | null;
+    tileRuleTerrainId: number | null;
+    tileTerrainKey: string | null;
+    tileTerrainTags: string[];
+    tileOwnerId: number | null;
+    tileApkTerrainId?: number;
+    tileApkOwnerCode?: number;
+    tileApkTerrainMappingConfidence?: ApkTerrainMappingConfidence;
+    tileApkTerrainMappingEvidence?: string[];
+    tileDefenseBonus: number | null;
+    tileHealPerTurn: number | null;
+    tileMoveCost: number | null;
     isCommander: boolean;
     x: number;
     y: number;
@@ -411,6 +423,10 @@ export class AncientEmpiresEnv {
           units: state.units.map(u => {
               const effectiveStats = getEffectiveStats(u);
               const unitConfig = UNIT_CONFIGS[u.unitClass];
+              const tile = state.map.tiles[u.pos.y]?.[u.pos.x];
+              const unitTileMappingInfo = tile?.apkTerrainId === undefined
+                  ? null
+                  : getSkirmishApkTerrainMappingInfo(tile.apkTerrainId);
               return {
                   id: u.id,
                   apkUnitId: u.apkUnitId,
@@ -436,6 +452,20 @@ export class AncientEmpiresEnv {
                   defenseGrowth: unitConfig.defenseGrowth,
                   maxHpGrowth: unitConfig.maxHpGrowth,
                   moveGrowth: unitConfig.moveGrowth,
+                  tileTerrainId: tile?.terrainId ?? null,
+                  tileRuleTerrainId: tile ? getTileTerrainIdForRules(tile) : null,
+                  tileTerrainKey: tile ? getTileTerrainKey(tile) : null,
+                  tileTerrainTags: tile ? [...getTileTerrainConfig(tile).tags] : [],
+                  tileOwnerId: tile?.ownerId ?? null,
+                  tileApkTerrainId: tile?.apkTerrainId,
+                  tileApkOwnerCode: tile?.apkOwnerCode,
+                  tileApkTerrainMappingConfidence: unitTileMappingInfo?.confidence,
+                  tileApkTerrainMappingEvidence: unitTileMappingInfo
+                      ? [...unitTileMappingInfo.evidence]
+                      : undefined,
+                  tileDefenseBonus: tile ? getTileDefenseBonus(tile) : null,
+                  tileHealPerTurn: tile ? getTileHealPerTurn(tile) : null,
+                  tileMoveCost: tile ? getTileMoveCost(tile) : null,
                   isCommander: isCommanderUnit(state, u),
                   x: u.pos.x,
                   y: u.pos.y,

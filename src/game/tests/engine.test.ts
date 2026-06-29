@@ -681,6 +681,7 @@ describe('GameEngine Rules', () => {
             && action.castlePos.x === 2
             && action.castlePos.y === 0
         ))).toBe(true);
+        apkSemanticState.units[0].pos = { x: 2, y: 0 };
         const apkSemanticObservation = new AncientEmpiresEnv({ initialState: apkSemanticState }).getObservation();
         expect(apkSemanticObservation.tiles.find(tile => tile.x === 2 && tile.y === 0)).toEqual(expect.objectContaining({
             terrainId: 6,
@@ -690,6 +691,19 @@ describe('GameEngine Rules', () => {
             apkTerrainId: 37,
             apkTerrainMappingConfidence: 'confirmed',
             apkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas']
+        }));
+        expect(apkSemanticObservation.units.find(unit => unit.id === 'u1')).toEqual(expect.objectContaining({
+            tileTerrainId: 6,
+            tileRuleTerrainId: 10,
+            tileTerrainKey: 'castle',
+            tileTerrainTags: expect.arrayContaining(['castle', 'recruit_source']),
+            tileOwnerId: 0,
+            tileApkTerrainId: 37,
+            tileApkTerrainMappingConfidence: 'confirmed',
+            tileApkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas'],
+            tileDefenseBonus: 15,
+            tileHealPerTurn: 20,
+            tileMoveCost: 1
         }));
         expect(apkSemanticObservation.tiles.find(tile => tile.x === 0 && tile.y === 1)).toEqual(expect.objectContaining({
             terrainId: 6,
@@ -3304,6 +3318,14 @@ describe('GameEngine Rules', () => {
                 defenseGrowth: 5,
                 maxHpGrowth: 0,
                 moveGrowth: 1,
+                tileTerrainId: 10,
+                tileRuleTerrainId: 10,
+                tileTerrainKey: 'castle',
+                tileTerrainTags: expect.arrayContaining(['castle', 'recruit_source']),
+                tileOwnerId: 0,
+                tileDefenseBonus: 15,
+                tileHealPerTurn: 20,
+                tileMoveCost: 1,
                 statusRemainingTicks: null,
                 statusRemainingTurns: null
             }));
