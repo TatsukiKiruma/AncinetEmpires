@@ -115,41 +115,48 @@ describe('GameEngine Rules', () => {
             ],
             castleOwnerCounts: { '0': 1, '1': 1 },
             villageOwnerCounts: { '1': 1, N: 4 },
+            tileUsage: { 0: 67, 1: 6, 2: 7, 3: 7, 5: 3, 6: 7, 7: 5, 8: 2, 9: 7, 10: 5, 11: 7, 12: 3, 13: 2, 15: 7, 16: 4, 17: 6, 18: 4, 19: 4, 20: 2, 21: 2, 23: 1, 24: 1, 25: 1, 26: 1, 27: 1, 36: 5, 37: 2 },
+            unmappedTerrainIds: [],
             recommendedGold: 200,
             tailTemplate: 'zero_suffix_58'
         });
         expect(APK_SKIRMISH_MAP_MANIFEST.every(entry => entry.initialUnitCount === entry.initialUnits.length)).toBe(true);
+        expect(APK_SKIRMISH_MAP_MANIFEST.every(entry => {
+            const tileCount = Object.values(entry.tileUsage).reduce((sum, count) => sum + count, 0);
+            return tileCount === entry.width * entry.height;
+        })).toBe(true);
+        expect(APK_SKIRMISH_MAP_MANIFEST.flatMap(entry => entry.unmappedTerrainIds)).toEqual([]);
         const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
         expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);
         expect(swamplandsManifest.castleOwnerCounts).toEqual({ N: 2 });
         expect(getApkSkirmishMapManifestEntry('(2) Missing.aem')).toBeNull();
 
-        const duelTerrain = Array.from({ length: 13 }, (_, y) => Array.from({ length: 13 }, (_, x) => ({
-            x,
-            y,
-            raw: (20 << 12) | 0xff,
-            apkTerrainId: 20,
-            ownerCode: 0xff,
-            ownerId: null,
-            projectTerrainId: null
-        })));
-        const setDuelTerrain = (x: number, y: number, apkTerrainId: number, ownerId: number | null) => {
-            const ownerCode = ownerId ?? 0xff;
-            duelTerrain[y][x] = {
-                ...duelTerrain[y][x],
-                raw: (apkTerrainId << 12) | ownerCode,
+        const duelTerrainIds = Object.entries(duelManifest.tileUsage).flatMap(([apkTerrainId, count]) => (
+            Array.from({ length: count }, () => Number(apkTerrainId))
+        ));
+        const duelTerrain = Array.from({ length: duelManifest.height }, (_, y) => Array.from({ length: duelManifest.width }, (_, x) => {
+            const apkTerrainId = duelTerrainIds[y * duelManifest.width + x];
+            return {
+                x,
+                y,
+                raw: (apkTerrainId << 12) | 0xff,
                 apkTerrainId,
-                ownerCode,
-                ownerId
+                ownerCode: 0xff,
+                ownerId: null,
+                projectTerrainId: null
             };
+        }));
+        const setOwnerForNextDuelTile = (apkTerrainId: number, ownerId: number | null) => {
+            const cell = duelTerrain.flat().find(item => item.apkTerrainId === apkTerrainId && item.ownerId === null);
+            if (!cell) throw new Error(`Duel 测试地图缺少可设归属的 APK tile: ${apkTerrainId}`);
+            const ownerCode = ownerId ?? 0xff;
+            cell.raw = (apkTerrainId << 12) | ownerCode;
+            cell.ownerCode = ownerCode;
+            cell.ownerId = ownerId;
         };
-        setDuelTerrain(0, 0, 37, 0);
-        setDuelTerrain(12, 12, 37, 1);
-        setDuelTerrain(1, 1, 36, 1);
-        setDuelTerrain(2, 2, 36, null);
-        setDuelTerrain(3, 3, 36, null);
-        setDuelTerrain(5, 5, 36, null);
-        setDuelTerrain(6, 6, 36, null);
+        setOwnerForNextDuelTile(37, 0);
+        setOwnerForNextDuelTile(37, 1);
+        setOwnerForNextDuelTile(36, 1);
 
         const officialDuelLikeMap = {
             magic: APK_AEM_MAGIC,
@@ -192,6 +199,11 @@ describe('GameEngine Rules', () => {
 
         const mismatchedMap = { ...officialDuelLikeMap, recommendedGold: 300 };
         expect(matchesApkSkirmishMapManifest(mismatchedMap, duelManifest)).toBe(false);
+        const mismatchedTerrain = officialDuelLikeMap.terrain.map(row => row.map(cell => ({ ...cell })));
+        const changedTerrainCell = mismatchedTerrain.flat().find(cell => cell.apkTerrainId === 0)!;
+        changedTerrainCell.apkTerrainId = 1;
+        changedTerrainCell.raw = (1 << 12) | changedTerrainCell.ownerCode;
+        expect(matchesApkSkirmishMapManifest({ ...officialDuelLikeMap, terrain: mismatchedTerrain }, duelManifest)).toBe(false);
         const mismatchedState = createApkSkirmishGameState(mismatchedMap, { mode: 'SD', mapName: '(2) Duel.aem' });
         expect(mismatchedState.metadata?.apkVersion).toBeUndefined();
         expect(mismatchedState.metadata?.apkSha256).toBeUndefined();

@@ -1,4 +1,6 @@
-import type { ApkAemMap, ApkAemTailTemplate } from './apk_map';
+import { getApkAemTerrainUsage, type ApkAemMap, type ApkAemTailTemplate } from './apk_map';
+import { mapSkirmishApkTerrainId } from './apk_terrain';
+import { APK_SKIRMISH_TILE_USAGE, type ApkSkirmishTileUsage } from './apk_skirmish_tile_usage';
 
 export const APK_RELEASE_VERSION = 'aer-release-4.2.5.1';
 export const APK_RELEASE_SHA256 = '51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B';
@@ -24,6 +26,8 @@ export interface ApkSkirmishMapManifestEntry {
     initialUnits: ApkSkirmishInitialUnit[];
     castleOwnerCounts: ApkSkirmishOwnerCounts;
     villageOwnerCounts: ApkSkirmishOwnerCounts;
+    tileUsage: ApkSkirmishTileUsage;
+    unmappedTerrainIds: number[];
     recommendedGold: number | null;
     tailTemplate: ApkAemTailTemplate;
 }
@@ -334,14 +338,34 @@ const APK_SKIRMISH_MAP_DATA = [
         villageOwnerCounts: { N: 6 },
         recommendedGold: null
     }
-] satisfies readonly Omit<ApkSkirmishMapManifestEntry, 'resourcePath' | 'tailTemplate' | 'initialUnitCount'>[];
+] satisfies readonly Omit<ApkSkirmishMapManifestEntry, 'resourcePath' | 'tailTemplate' | 'initialUnitCount' | 'tileUsage' | 'unmappedTerrainIds'>[];
 
-export const APK_SKIRMISH_MAP_MANIFEST = APK_SKIRMISH_MAP_DATA.map(entry => ({
-    ...entry,
-    initialUnitCount: entry.initialUnits.length,
-    resourcePath: `assets/maps/${entry.name}`,
-    tailTemplate: 'zero_suffix_58' as const
-})) satisfies readonly ApkSkirmishMapManifestEntry[];
+function getRequiredTileUsage(name: string): ApkSkirmishTileUsage {
+    const usage = APK_SKIRMISH_TILE_USAGE[name];
+    if (usage === undefined) {
+        throw new Error(`缺少 APK skirmish 地图 tile 使用量: ${name}`);
+    }
+    return usage;
+}
+
+export function getUnmappedApkTerrainIdsFromUsage(usage: ApkSkirmishTileUsage): number[] {
+    return Object.keys(usage)
+        .map(Number)
+        .filter(apkTerrainId => mapSkirmishApkTerrainId(apkTerrainId) === null)
+        .sort((a, b) => a - b);
+}
+
+export const APK_SKIRMISH_MAP_MANIFEST = APK_SKIRMISH_MAP_DATA.map(entry => {
+    const tileUsage = getRequiredTileUsage(entry.name);
+    return {
+        ...entry,
+        initialUnitCount: entry.initialUnits.length,
+        tileUsage,
+        unmappedTerrainIds: getUnmappedApkTerrainIdsFromUsage(tileUsage),
+        resourcePath: `assets/maps/${entry.name}`,
+        tailTemplate: 'zero_suffix_58' as const
+    };
+}) satisfies readonly ApkSkirmishMapManifestEntry[];
 
 export function getApkSkirmishMapManifestEntry(name: string): ApkSkirmishMapManifestEntry | null {
     return APK_SKIRMISH_MAP_MANIFEST.find(entry => entry.name === name) ?? null;
@@ -413,6 +437,19 @@ function sameOwnerCounts(left: ApkSkirmishOwnerCounts, right: ApkSkirmishOwnerCo
     return true;
 }
 
+function sameTileUsage(left: Record<number, number>, right: ApkSkirmishTileUsage): boolean {
+    const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
+
+    for (const key of keys) {
+        const apkTerrainId = Number(key);
+        if ((left[apkTerrainId] ?? 0) !== (right[apkTerrainId] ?? 0)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 export function matchesApkSkirmishMapManifest(map: ApkAemMap, entry: ApkSkirmishMapManifestEntry): boolean {
     const playerIds = [...map.playerIds].sort((a, b) => a - b);
     const manifestPlayerIds = [...entry.playerIds].sort((a, b) => a - b);
@@ -425,6 +462,7 @@ export function matchesApkSkirmishMapManifest(map: ApkAemMap, entry: ApkSkirmish
         && sameInitialUnits(map.units, entry.initialUnits)
         && sameOwnerCounts(countApkTerrainOwners(map, 37), entry.castleOwnerCounts)
         && sameOwnerCounts(countApkTerrainOwners(map, 36), entry.villageOwnerCounts)
+        && sameTileUsage(getApkAemTerrainUsage(map), entry.tileUsage)
         && map.recommendedGold === entry.recommendedGold
         && map.tail.template === entry.tailTemplate;
 }

@@ -306,8 +306,9 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 补充结论：
 
-- `src/game/apk_manifest.ts` 已把上述 20 张官方 skirmish 地图清单代码化，包含资源路径、作者、尺寸、玩家、初始单位明细、城堡/城镇归属、推荐金币和尾部模板。
-- `createApkSkirmishGameState` 只在地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、推荐金币和尾部模板同时匹配清单时，自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成地图被误标为 APK 官方资源。
+- `src/game/apk_manifest.ts` 已把上述 20 张官方 skirmish 地图清单代码化，包含资源路径、作者、尺寸、玩家、初始单位明细、城堡/城镇归属、完整 APK tile 使用量、推荐金币和尾部模板。
+- `src/game/apk_skirmish_tile_usage.ts` 固化了每张地图实际出现的 APK tile ID 及格子数量；按当前 `SKIRMISH_APK_TERRAIN_TO_PROJECT` 映射，20 张官方 skirmish 地图的 `unmappedTerrainIds` 均为空。
+- `createApkSkirmishGameState` 只在地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、完整 tile 使用量、推荐金币和尾部模板同时匹配清单时，自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成地图被误标为 APK 官方资源。
 - 20 张图的初始单位 `extra` 字段全部为 `0`，当前不能解释为等级。
 - 推荐金币分布：50 有 5 张，150 有 4 张，200 有 2 张，250 有 1 张，300 有 2 张，null 有 6 张。
 - 20 张图的 58 字节尾部全部为 `zero_suffix_58`，不能据此推导联盟、玩家颜色或阵营预设。
@@ -427,24 +428,21 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 ## 12. 建议后续任务
 
-1. 补齐 skirmish tile 使用量数据表
-   - 20 张地图的尺寸、玩家、推荐金币、初始单位和城堡/村庄归属已进入代码清单。
-   - 下一步应固化每张地图的 tile 使用量和未映射 tile 清单，作为训练地图集的可复现实验清单。
-
-2. 校准高频 APK tile 语义
+1. 校准 skirmish 高频与低可信 APK tile 语义
+   - 20 张地图的尺寸、玩家、推荐金币、初始单位、城堡/村庄归属、tile 使用量和未映射清单已进入代码清单。
    - 优先处理 `t0/t18/t17/t15/t21/t20/t36/t19/t9/t3` 等高频 tile。
    - 对 `t30/t31/t80-t83` 等治疗/神庙/水中建筑做截图、贴图和实测校准。
    - 文档中继续区分“数值确认”和“类别推断”。
 
-3. 系统归档脚本配置
+2. 系统归档脚本配置
    - 提取 `SyncSetGold`、`SyncSetUnitLimit`、`SyncSetRecruitUnits`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncGameOver`。
    - 输出关卡级配置表，避免把战役差异硬编码到引擎。
 
-4. 补齐必要的脚本层规则接口
+3. 补齐必要的脚本层规则接口
    - 优先级高于剧情演出的是 `SyncOverrideMov`、`SyncSetUnitHead`、水晶目标、完整目标条件。
    - `Async*` 演出 API 可后置。
 
-5. 实机或反编译验证高风险细节
+4. 实机或反编译验证高风险细节
    - 指挥官复活/重招募。
    - stacked/pending 招募后部署与结束回合限制。
    - 治疗突破最大血量后的裁剪。
