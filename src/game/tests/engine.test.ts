@@ -11,6 +11,7 @@ import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, get
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig } from '../apk_script_manifest';
+import { applyApkScriptRuleConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
@@ -306,6 +307,60 @@ describe('GameEngine Rules', () => {
             ]
         }));
         expect(getApkScriptLiteralRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
+    });
+
+    it('APK mods 字面量规则配置可以生成项目 RuleConfig', () => {
+        const mapApkUnitIds = (...apkUnitIds: number[]) => apkUnitIds.map(apkUnitId => APK_UNIT_ID_TO_CLASS[apkUnitId]);
+
+        const soResult = buildApkScriptRuleConfig('assets/mods/SO/controller.js')!;
+        expect(soResult.rules.recruitableUnits).toEqual(mapApkUnitIds(0, 1, 2, 3, 4, 5, 6, 7, 8));
+        expect(soResult.ignoredLifecycleCalls).toEqual({
+            syncRestoreTeamIds: [],
+            syncGameOverAllianceIds: []
+        });
+        expect(soResult.warnings).toEqual([]);
+
+        const aei1Result = buildApkScriptRuleConfig('assets/mods/AEI/s1.js')!;
+        expect(aei1Result.rules).toEqual(expect.objectContaining({
+            unitLimit: 10,
+            disabledTeams: [1],
+            incomeVillage: 0,
+            incomeCastle: 0,
+            incomeCommanderBase: 0,
+            incomeCommanderGrowth: 0
+        }));
+        expect(aei1Result.ignoredLifecycleCalls).toEqual({
+            syncRestoreTeamIds: [1],
+            syncGameOverAllianceIds: [1, 2]
+        });
+
+        const aeiii6Rules = getApkScriptRuleConfig('assets/mods/AEIII/s6.js')!;
+        expect(aeiii6Rules.initialGold).toBe(500);
+        expect(aeiii6Rules.unitLimit).toBe(50);
+        expect(aeiii6Rules.disabledTeams).toEqual([3]);
+        expect(aeiii6Rules.alliances).toEqual({
+            1: 2,
+            2: 2,
+            3: 2,
+            4: 2,
+            5: 2
+        });
+        expect(aeiii6Rules.teams?.[0].recruitableUnits).toEqual(mapApkUnitIds(0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 16, 17, 19, 20));
+        expect(aeiii6Rules.teams?.[1].recruitableUnits).toEqual(mapApkUnitIds(0, 1, 3, 4, 5, 6, 7, 8, 14, 18));
+        expect(aeiii6Rules.teams?.[4].recruitableUnits).toEqual(mapApkUnitIds(0, 1, 3, 4, 5, 6, 7, 8, 14, 18));
+        expect(aeiii6Rules.teams?.[5].recruitableUnits).toEqual(mapApkUnitIds(0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 18, 19));
+
+        const aei5Rules = getApkScriptRuleConfig('assets/mods/AEI/s5.js')!;
+        expect(aei5Rules.initialGold).toBe(800);
+        expect(aei5Rules.teams?.[0].initialGold).toBe(900);
+
+        const state = createDemoState();
+        const appliedResult = applyApkScriptRuleConfig(state, 'assets/mods/AEI/s5.js');
+        expect(appliedResult?.resourcePath).toBe('assets/mods/AEI/s5.js');
+        expect(state.rules?.initialGold).toBe(800);
+        expect(state.players.find(player => player.id === 0)?.gold).toBe(900);
+        expect(state.players.find(player => player.id === 1)?.gold).toBe(800);
+        expect(buildApkScriptRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {

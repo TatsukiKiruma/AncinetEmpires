@@ -15,7 +15,7 @@
 - 当前项目规则代码：`src/game`
 - 当前项目规则文档：`README.md`、`远古帝国AI训练规则整理.md`、`远古帝国AI训练项目上下文.md`
 
-后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续接入 APK skirmish `.aem` 尾部模板记录和 SD/SO 模式规则入口。
+后续实现记录见第 15 节，代码侧已逐步接入已确认规则；本轮继续补充 APK 脚本字面量配置到项目 `RuleConfig` 的静态生成入口。
 
 ## 2. 结论摘要
 
@@ -30,11 +30,12 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 5. 已加入 APK 第 11 号 `水晶 / Crystal` 占位单位，并新增 APK 单位/状态/能力 ID 映射。
 6. skirmish 默认队伍摧毁条件已改为“无单位且无城堡”，并保留单独无单位/无城堡/指挥官阵亡作为可配置目标条件。
 7. AEM 解析器已保留推荐金币后的尾部模板；SD/SO skirmish 模式已有独立入口，SO 模式按脚本限制 APK ID 0-8 可招募单位。
-8. APK 导入地图的每个格子已保留原始 `apkTerrainId`，移动、防御和回合回血优先使用 `data.bin` 的 tile 数值。
+8. 已新增 `src/game/apk_script_config.ts`，可把 26 个脚本的安全字面量配置生成项目 `RuleConfig`，覆盖金币、收入、单位上限、招募列表、联盟和禁用队伍。
+9. APK 导入地图的每个格子已保留原始 `apkTerrainId`，移动、防御和回合回血优先使用 `data.bin` 的 tile 数值。
 
 仍未完成的关键差异：
 
-1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置；skirmish 终局默认已从 SD/SO 脚本确认，但经济/单位上限等默认值仍需继续归档。
+1. APK 明确存在多项可配置规则；项目已接入初始金币、单位上限、人口上限、可招募列表、收入、价格覆盖、等级上限、联盟配置、多队伍回合轮转和禁用队伍配置；静态字面量脚本配置已可生成 `RuleConfig`，动态参数和剧情触发仍需场景层处理。
 2. 指挥官死亡计数和重招募费用增长已有配置支持；官方复活流程和默认费用仍需反编译或实测确认。
 3. APK 资源中的 `data.bin` 已解密并提取单位/地形基础数据，`.aem/.js/.json` 也已确认可用同一 DES key 解密；skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币和尾部模板已结构化，完整地形 ID 映射、尾部 58 字节业务语义和战役特殊规则仍未完全转为项目配置。
 
@@ -46,7 +47,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 | --- | --- | --- | --- |
 | 单位/能力/状态 | `zh.lang/en.lang`、`data.bin`、DEX 常量 | 21 个单位、26 个能力、4 个状态已建模；`crystal` 作为不可招募占位；APK ID 映射已存在；APK 单位 code/static/targeted/head 元数据已有基础适配 | `crystal` 的完整战役目标系统仍需脚本层建模 |
 | 战斗数值 | Wiki 文案和 `data.bin` 数值 | 伤害公式、血量比例、空军对水中单位、鼓舞、虚弱、地形之子、近战大师、远程防御等已接入 | 治疗超过上限后的长期裁剪规则仍需实测 |
-| 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | APK 各关卡真实默认值需要从脚本全量归档 |
+| 经济/招募 | `Rule.SetIncome*`、`SetPrices`、`Stage.SyncSetGold*`、`Stage.SyncSetRecruitUnits*`、`Stage.SyncSetUnitLimit*` | `RuleConfig`、`apk_rule.ts`、`apk_stage.ts` 已提供配置入口；`apk_script_config.ts` 可把安全字面量配置生成项目规则；招募检查覆盖金币、价格、人口、单位上限、可招募列表 | 动态脚本参数和剧情触发仍需场景层执行/归档 |
 | 回合/联盟/队伍 | `SyncSetCurrentTeam`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`、`SyncGameOver` | 多队伍轮转、联盟关系、禁用/恢复/销毁队伍和强制终局已有基础适配 | 仍缺完整战役脚本执行器和地图/队伍初始化导入 |
 | 指挥官 | `CheckCommander`、`GetCommander`、`SyncSetCommander`、指挥官收入文案 | 已支持队伍级 `commanderUnitIds`，`SyncSetCommander` 可按坐标把己方单位指定为指挥官；收入、死亡计数、重招募和指挥官阵亡淘汰使用同一模型 | APK 方法表显示 `SyncSetCommander(int team, int index)`，但错误字符串是坐标语义；当前按坐标落地，官方复活流程仍未确认 |
 | 地图/地形 | `data.bin` 84 条地形定义、`.aem` 地图资源、桥为水面文案 | 项目地形标签化，已加入 `bridge` 并按水面处理；`apk_map.ts` 已可读取 skirmish `.aem` 头部、队伍 ID、地形矩阵、初始单位、推荐金币、尾部模板和原始 tile ID；APK 导入地图的移动/防御/回血优先使用 `data.bin` 数值；`apk_skirmish.ts` 可按 SD/SO 导入 | 84 条 APK tile 的贴图/类别语义和尾部 58 字节业务语义仍需校准 |
@@ -506,6 +507,13 @@ skirmish 训练导入映射：
 - `rule.SetIncome*` 字面量确认 7 个脚本把村庄/城堡/指挥官基础/指挥官成长收入全部设为 0；另有 1 个脚本把村庄收入设为 100。
 
 该 manifest 不执行战役脚本，也不处理 `unit.GetMapX()` 等动态参数；动态配置仍需后续场景执行器或逐关卡解析处理。本轮进一步新增 `APK_SCRIPT_LITERAL_RULE_CONFIGS`，按 `resourcePath` 记录 26 个脚本的逐脚本字面量规则配置；`SD/controller.js` 只有动态队伍摧毁/胜负调用，没有可提取的固定规则字面量，因此不进入该表。
+
+2026-06-29 进一步新增 `src/game/apk_script_config.ts`，用于把上述逐脚本字面量配置安全转换为项目 `RuleConfig`：
+
+- 支持转换 `SyncSetGold`、`SyncChangeGold`、`SyncSetUnitLimit`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetAlliance`、`SyncDisableTeam` 和 `rule.SetIncome*`。
+- `SyncChangeGold(team, delta)` 仅在同一脚本已有静态 `SyncSetGold(value)` 时折算为队伍初始金币，例如 AEI/s5 的全局 800 金币和队伍 0 的 +100 会生成队伍 0 初始 900 金币。
+- `SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局触发，不作为开局静态规则写入；转换结果会把这些调用列入 ignored lifecycle 证据。
+- 仍不执行 `Async*` 剧情 API，也不把动态参数误转成固定规则；这些内容继续留给后续场景层。
 
 补充 DEX 方法表解析结果：
 
@@ -1041,7 +1049,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 同文件归档可直接由字面量提取的规则配置分布：金币、单位上限、全局/队伍可招募列表、联盟、禁用队伍和收入覆盖。
 - `APK_SCRIPT_LITERAL_RULE_CONFIGS` 按资源路径记录 26 个脚本的逐脚本字面量配置，`getApkScriptLiteralRuleConfig(resourcePath)` 可用于后续场景配置生成。
 - 这一步只提供静态证据和后续场景配置输入，不执行 `Async*` 剧情 API，也不把动态参数误转为固定规则。
-- 验证：`npm test` 228 个测试通过，`npm run lint` 通过。
+- 阶段验证：`npm test` 和 `npm run lint` 通过；后续综合验证见下一条。
+
+2026-06-29 APK 脚本字面量配置到 `RuleConfig` 的静态生成入口：
+
+- 新增 `src/game/apk_script_config.ts`，提供 `buildApkScriptRuleConfig`、`getApkScriptRuleConfig` 和 `applyApkScriptRuleConfig`。
+- 支持把收入、全局/队伍初始金币、单位上限、全局/队伍可招募单位、联盟和禁用队伍转为项目规则。
+- `SyncRestoreTeam`、`SyncGameOver` 只记录为被忽略的生命周期/终局调用，不写入开局静态规则，避免误用全脚本扫描结果。
+- 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
 ## 16. 本次复核记录
 
@@ -1049,4 +1064,4 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
 - 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地；APK 导入地图已优先使用 `data.bin` 的原始 tile 移动/防御/回血数值。当前最重要的差距仍是完整 APK tile 的贴图/类别语义、`.aem` 尾部业务语义和逐关卡动态脚本配置执行。
+- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地；APK 导入地图已优先使用 `data.bin` 的原始 tile 移动/防御/回血数值；脚本字面量配置已可生成 `RuleConfig`。当前最重要的差距仍是完整 APK tile 的贴图/类别语义、`.aem` 尾部业务语义、动态脚本参数和逐关卡剧情/目标执行。
