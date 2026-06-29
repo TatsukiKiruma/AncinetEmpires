@@ -38,6 +38,10 @@ while (!initResult.done) {
 
 如果状态来自 APK `.aem` 地图导入，`observation.metadata` 会返回 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`。这些字段只用于训练样本追踪和复现实验配置，不参与规则判定。
 
+### Observation 单位字段
+
+如果状态来自 APK `.aem` 地图导入，`observation.units` 会保留每个初始单位的 `apkUnitId/apkUnitExtra`。`apkUnitExtra` 当前只作为原始证据字段输出，不参与等级或规则推断。
+
 ## Reward (奖励设定)
 
 当前的 Default Reward 为稀疏奖励（Sparse Reward），其值针对当前执行动作的玩家角度返回：

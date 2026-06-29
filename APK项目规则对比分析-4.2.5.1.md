@@ -196,7 +196,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - APK 导入地图的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`；移动消耗、防御加成和回合回血优先读取 APK `data.bin` 的原始 tile 数值。
 - AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/defenseBonus/healPerTurn/moveCost`，让策略能看到当前规则实际使用的地形数值。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。
-- Observation 也会输出单位级 `apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 脚本目标判断状态。
+- Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。
+- 真实 20 张 skirmish 地图的单位 `extra` 字段全部为 `0`，当前仅作为原始证据字段保留，不参与等级或规则推断。
 - 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`；本轮进一步确认 `TILES_WITH_APK_ID 4207/4207`，可读移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
 风险点：

@@ -340,7 +340,9 @@ function createUnitsFromApkAemMap(map: ApkAemMap): Unit[] {
             hasMoved: false,
             hasActed: false,
             level: 0,
-            exp: 0
+            exp: 0,
+            apkUnitId: unit.apkUnitId,
+            apkUnitExtra: unit.extra
         };
     });
 }

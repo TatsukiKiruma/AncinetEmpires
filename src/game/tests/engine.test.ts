@@ -122,7 +122,7 @@ describe('GameEngine Rules', () => {
         pushUInt32LE(0);
         pushUInt32LE(9);
         pushUInt32LE(1);
-        pushUInt32LE(0);
+        pushUInt32LE(2);
         pushUInt32LE(1);
         // 最后一条单位的 y 在 APK 明文中只占 1 字节，随后直接接推荐金币。
         bytes.push(2);
@@ -149,7 +149,7 @@ describe('GameEngine Rules', () => {
         expect(map.tail.length).toBe(0);
         expect(map.units).toEqual([
             { apkUnitId: 9, teamId: 0, extra: 0, x: 0, y: 0, unitClass: 'commander' },
-            { apkUnitId: 9, teamId: 1, extra: 0, x: 1, y: 2, unitClass: 'commander' },
+            { apkUnitId: 9, teamId: 1, extra: 2, x: 1, y: 2, unitClass: 'commander' },
         ]);
         expect(getApkAemTerrainUsage(map)).toEqual({ 2: 1, 27: 1, 36: 1, 37: 2, 72: 1 });
         expect(getUnmappedSkirmishApkTerrainIds(map)).toEqual([]);
@@ -166,6 +166,10 @@ describe('GameEngine Rules', () => {
         expect(state.units.map(unit => `${unit.ownerId}:${unit.unitClass}@${unit.pos.x},${unit.pos.y}`)).toEqual([
             '0:commander@0,0',
             '1:commander@1,2'
+        ]);
+        expect(state.units.map(unit => ({ id: unit.id, apkUnitId: unit.apkUnitId, apkUnitExtra: unit.apkUnitExtra }))).toEqual([
+            { id: 'apk_u0', apkUnitId: 9, apkUnitExtra: 0 },
+            { id: 'apk_u1', apkUnitId: 9, apkUnitExtra: 2 }
         ]);
         expect(state.rules?.defeatOnNoUnitsAndNoCastles).toBe(true);
         expect(state.metadata).toEqual({
@@ -203,6 +207,10 @@ describe('GameEngine Rules', () => {
 
         const env = new AncientEmpiresEnv({ initialState: soState });
         expect(env.getObservation().metadata).toEqual(soState.metadata);
+        expect(env.getObservation().units.map(unit => ({ id: unit.id, apkUnitId: unit.apkUnitId, apkUnitExtra: unit.apkUnitExtra }))).toEqual([
+            { id: 'apk_u0', apkUnitId: 9, apkUnitExtra: 0 },
+            { id: 'apk_u1', apkUnitId: 9, apkUnitExtra: 2 }
+        ]);
     });
 
     it('AI Observation 暴露 APK 单位 code 和脚本变量', () => {

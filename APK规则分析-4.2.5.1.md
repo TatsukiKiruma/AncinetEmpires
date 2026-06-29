@@ -455,6 +455,8 @@ skirmish 训练导入映射：
 | `(4) Winterstorm.aem` | 13x13 | 0/1/2/3 | youxing | 0:1,1:1,2:1,3:1 | N:12 | 3@6,0#9; 0@6,12#9; 2@12,6#9; 1@0,6#9 | 150 | 58 |
 | `(4) classic 1.aem` | 16x15 | 0/1/2/3 | youxing | 0:1,1:1,2:1,3:1 | 0:2,1:2,2:2,3:2,N:8 | 3@3,13#9; 0@1,7#9; 2@14,7#9; 1@12,1#9 | 50 | 58 |
 
+2026-06-29 复核真实 20 张 skirmish `.aem`：初始单位记录的 `extra` 字段全部为 `0`，出现的 APK 单位 ID 只有 `0`（士兵，仅 `(2) Swamplands.aem`）和 `9`（指挥官）。因此项目只保留 `apkUnitId/apkUnitExtra` 原始字段，不把 `extra` 解释为等级或其他规则。
+
 ## 9. APK dex 中可见的规则 API
 
 `classes.dex` 中可见以下规则与关卡脚本 API 字符串：
@@ -954,6 +956,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。
 - `AncientEmpiresEnv.getObservation().apkScriptState` 新增 `booleans/integers` 只读快照，暴露 Stage 脚本目标判断变量。
 - 这些字段不参与规则判定；目的是避免 AI 训练样本丢失 APK 脚本状态上下文。
+
+2026-06-29 APK AEM 单位原始字段进入 AI Observation：
+
+- `parseApkAemMap` 已能读取每条初始单位记录的 `apkUnitId/teamId/extra/x/y`；真实 20 张 skirmish 地图中 `extra` 全部为 `0`，没有证据可把它解释为等级。
+- `createGameStateFromApkAemMap` 会把 `apkUnitId/apkUnitExtra` 写入 `Unit`；`AncientEmpiresEnv.getObservation().units` 同步输出这两个字段，供训练样本追踪和后续复核使用。
+- 这两个字段不改变单位属性、等级、经验或合法动作，只保留 APK 原始单位记录。
 
 2026-06-29 APK Stage 静态/目标单位标记补充：
 

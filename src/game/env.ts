@@ -41,6 +41,8 @@ export interface Observation {
   }>;
   units: Array<{
     id: string;
+    apkUnitId?: number;
+    apkUnitExtra?: number;
     apkUnitCode?: string;
     apkStatic?: boolean;
     apkTargeted?: boolean;
@@ -270,6 +272,8 @@ export class AncientEmpiresEnv {
           }))),
           units: state.units.map(u => ({
               id: u.id,
+              apkUnitId: u.apkUnitId,
+              apkUnitExtra: u.apkUnitExtra,
               apkUnitCode: u.apkUnitCode,
               apkStatic: u.apkStatic,
               apkTargeted: u.apkTargeted,

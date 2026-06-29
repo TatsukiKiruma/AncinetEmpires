@@ -129,6 +129,7 @@ Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8);
 - 20/20 张地图推荐金币后均为 58 字节尾部。
 - 20/20 张模板均为 `zero_suffix_58`。
 - 该尾部不随玩家数量、推荐金币、地图尺寸或初始单位变化，暂不能推断为联盟/玩家颜色/阵营预设。
+- 20/20 张地图的初始单位 `extra` 字段全部为 `0`；项目仅保留 `apkUnitId/apkUnitExtra` 原始字段，不把 `extra` 解释为等级。
 
 推荐金币分布：
 
@@ -404,7 +405,7 @@ skirmish 训练映射：
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
 - 每格规则数值：`defenseBonus/healPerTurn/moveCost`。
-- 单位位置、血量、等级、经验、行动状态、状态类型和 APK 脚本 code/static/targeted。
+- 单位位置、血量、等级、经验、行动状态、状态类型、APK 初始单位 ID/extra 和脚本 code/static/targeted。
 - APK Stage 脚本变量：`apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息。
 
@@ -414,7 +415,7 @@ skirmish 训练映射：
 - `src/game/env.ts:236` `getObservation`。
 - `src/game/env.ts:254` 输出 APK tile 原始字段。
 - `src/game/env.ts:257` 输出地形规则数值。
-- `src/game/env.ts` 输出单位 `apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState`，用于训练侧观察脚本目标判断状态。
+- `src/game/env.ts` 输出单位 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState`，用于训练侧观察 APK 初始单位记录和脚本目标判断状态。
 
 已包含：
 

@@ -38,6 +38,8 @@ export interface Unit {
     hasPostAttackMoved?: boolean; // 突击部队是否执行了攻击后移动
     hasBeenHealedThisTurn?: boolean; // 本回合是否被治疗过
     hasBeenSupportedThisTurn?: boolean; // 本回合是否被支援过
+    apkUnitId?: number; // APK .aem 原始单位 ID，仅导入 APK 地图时存在
+    apkUnitExtra?: number; // APK .aem 单位记录 extra 字段；语义未确认，仅保留证据
     apkUnitCode?: string; // APK 脚本层单位 code，用于 Stage.GetUnit/SyncSetUnitCode 查询
     apkStatic?: boolean; // APK 脚本层静态单位标记，静态单位不生成行动
     apkTargeted?: boolean; // APK 脚本层目标单位标记，用于训练侧观察目标状态
