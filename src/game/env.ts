@@ -1,8 +1,8 @@
 import { GameEngine } from './engine';
-import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult } from './types';
+import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass } from './types';
 import { getLegalActions } from './rules';
 import { AttackType, UNIT_CONFIGS } from './constants';
-import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
+import { getAllianceId, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isTeamEnabled } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
 
@@ -18,6 +18,7 @@ export function mulberry32(a: number): () => number {
 export interface Observation {
   currentPlayer: number;
   turn: number;
+  turnPlayerIds: number[];
   mapWidth: number;
   mapHeight: number;
   metadata?: GameMetadata;
@@ -26,6 +27,13 @@ export interface Observation {
     id: number;
     gold: number;
     isAlive: boolean;
+    isEnabled: boolean;
+    allianceId: number;
+    unitCount: number;
+    population: number;
+    unitLimit: number | null;
+    populationLimit: number | null;
+    recruitableUnits: UnitClass[];
     commanderDeathCount: number;
   }>;
   tiles: Array<{
@@ -253,9 +261,11 @@ export class AncientEmpiresEnv {
 
   public getObservation(playerId?: number): Observation {
       const state = this.engine.getState();
+      const rules = getRuleConfig(state);
       return {
           currentPlayer: state.currentPlayer,
           turn: state.turn,
+          turnPlayerIds: getTurnPlayerIds(state),
           mapWidth: state.map.width,
           mapHeight: state.map.height,
           metadata: state.metadata ? { ...state.metadata } : undefined,
@@ -263,12 +273,22 @@ export class AncientEmpiresEnv {
               booleans: state.apkScriptState.booleans ? { ...state.apkScriptState.booleans } : undefined,
               integers: state.apkScriptState.integers ? { ...state.apkScriptState.integers } : undefined
           } : undefined,
-          players: state.players.map(p => ({
-              id: p.id,
-              gold: p.gold,
-              isAlive: p.isAlive,
-              commanderDeathCount: p.commanderDeathCount
-          })),
+          players: state.players.map(p => {
+              const teamRules = rules.teams[p.id] ?? {};
+              return {
+                  id: p.id,
+                  gold: p.gold,
+                  isAlive: p.isAlive,
+                  isEnabled: isTeamEnabled(state, p.id),
+                  allianceId: getAllianceId(state, p.id),
+                  unitCount: getCurrentUnitCount(state, p.id),
+                  population: getCurrentPopulation(state, p.id),
+                  unitLimit: teamRules.unitLimit ?? rules.unitLimit ?? null,
+                  populationLimit: teamRules.populationLimit ?? rules.populationLimit ?? null,
+                  recruitableUnits: getRecruitableUnits(state, p.id),
+                  commanderDeathCount: p.commanderDeathCount
+              };
+          }),
           tiles: state.map.tiles.flatMap((row, y) => row.map((t, x) => ({
               x,
               y,

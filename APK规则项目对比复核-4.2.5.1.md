@@ -392,6 +392,8 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 项目 Observation 已能输出：
 
 - 玩家金币、存活状态、指挥官死亡次数。
+- 当前有效回合队伍：`turnPlayerIds`。
+- 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限和可招募列表。
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。

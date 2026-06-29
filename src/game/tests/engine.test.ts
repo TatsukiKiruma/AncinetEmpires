@@ -2681,6 +2681,49 @@ describe('GameEngine Rules', () => {
             }));
         });
 
+        it('Observation 输出 APK 队伍规则约束和联盟状态', () => {
+            const state = createDemoState({
+                alliances: { 0: 5, 1: 5 },
+                disabledTeams: [1],
+                unitLimit: 6,
+                populationLimit: 8,
+                recruitableUnits: ['soldier', 'dragon'],
+                teams: {
+                    0: {
+                        unitLimit: 2,
+                        populationLimit: 3,
+                        recruitableUnits: ['soldier', 'archer']
+                    }
+                }
+            });
+
+            const observation = new AncientEmpiresEnv({ initialState: state }).getObservation();
+            const player0 = observation.players.find(player => player.id === 0)!;
+            const player1 = observation.players.find(player => player.id === 1)!;
+
+            expect(observation.turnPlayerIds).toEqual([0]);
+            expect(player0).toEqual(expect.objectContaining({
+                isAlive: true,
+                isEnabled: true,
+                allianceId: 5,
+                unitCount: 2,
+                population: 1,
+                unitLimit: 2,
+                populationLimit: 3,
+                recruitableUnits: ['soldier', 'archer']
+            }));
+            expect(player1).toEqual(expect.objectContaining({
+                isAlive: true,
+                isEnabled: false,
+                allianceId: 5,
+                unitCount: 2,
+                population: 1,
+                unitLimit: 6,
+                populationLimit: 8,
+                recruitableUnits: ['soldier', 'dragon']
+            }));
+        });
+
         it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
             const state = createDemoState();
             state.players[0].gold = 0;

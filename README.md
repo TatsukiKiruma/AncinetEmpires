@@ -40,6 +40,10 @@ while (!initResult.done) {
 
 `src/game/apk_manifest.ts` 已归档 APK 4.2.5.1 的 20 张官方 skirmish 地图清单。通过 `createApkSkirmishGameState` 导入地图时，只有地图名、尺寸、玩家、初始单位数、推荐金币和尾部模板都匹配官方清单，才会自动写入 APK 版本、SHA256 和资源路径。
 
+### Observation 队伍字段
+
+`observation.turnPlayerIds` 会返回当前仍参与回合轮转的队伍 ID。`observation.players` 除金币、存活状态和指挥官死亡次数外，还会输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`，用于让训练侧直接观察 APK 脚本可配置的联盟、禁用队伍、单位上限、人口上限和可招募列表。
+
 ### Observation 单位字段
 
 如果状态来自 APK `.aem` 地图导入，`observation.units` 会保留每个初始单位的 `apkUnitId/apkUnitExtra`。`apkUnitExtra` 当前只作为原始证据字段输出，不参与等级或规则推断。

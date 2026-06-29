@@ -994,6 +994,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 清单字段包括：资源路径、尺寸、玩家 ID、初始单位数、推荐金币和 AEM 尾部模板；顺序来自 `assets/maps/_list.json`，具体数值来自 20 张 AEM 解析结果。
 - `createApkSkirmishGameState` 只有在地图名、尺寸、玩家、初始单位数、推荐金币和尾部模板同时匹配清单时，才自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成测试地图或外部同名地图被误标为官方 APK 资源。
 
+2026-06-29 APK 队伍规则进入 AI Observation：
+
+- APK 脚本和 DEX 已确认队伍可配置联盟、禁用状态、单位上限、可招募列表，语言表确认招募要考虑人口占用。
+- `AncientEmpiresEnv.getObservation()` 新增 `turnPlayerIds`，并在 `players` 中输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`。
+- 这些字段只暴露当前规则状态，不改变招募、胜负或回合轮转判定；目的是让 AI 训练样本直接看到 APK 模式/脚本配置带来的队伍约束。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
