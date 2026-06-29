@@ -4,6 +4,7 @@ import { getLegalActions } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
+import { getEffectiveStats } from './abilities';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -84,7 +85,7 @@ export function calculateArmyValue(state: GameState, playerId: number): number {
         .reduce((sum, unit) => {
             const configuredCost = getUnitCost(state, playerId, unit.unitClass);
             const baseCost = configuredCost ?? UNIT_CONFIGS[unit.unitClass].cost ?? 0;
-            const hpRatio = Math.max(0, unit.hp) / Math.max(1, unit.maxHp);
+            const hpRatio = Math.max(0, unit.hp) / Math.max(1, getEffectiveStats(unit).maxHp);
             return sum + baseCost * hpRatio + 1;
         }, 0);
 
@@ -270,25 +271,28 @@ export class AncientEmpiresEnv {
               healPerTurn: getTileHealPerTurn(t),
               moveCost: getTileMoveCost(t)
           }))),
-          units: state.units.map(u => ({
-              id: u.id,
-              apkUnitId: u.apkUnitId,
-              apkUnitExtra: u.apkUnitExtra,
-              apkUnitCode: u.apkUnitCode,
-              apkStatic: u.apkStatic,
-              apkTargeted: u.apkTargeted,
-              ownerId: u.ownerId,
-              unitClass: u.unitClass,
-              x: u.pos.x,
-              y: u.pos.y,
-              hp: u.hp,
-              maxHp: u.maxHp,
-              level: u.level ?? 0,
-              exp: u.exp ?? 0,
-              hasMoved: u.hasMoved,
-              hasActed: u.hasActed,
-              status: u.status ? u.status.type : null
-          })),
+          units: state.units.map(u => {
+              const effectiveStats = getEffectiveStats(u);
+              return {
+                  id: u.id,
+                  apkUnitId: u.apkUnitId,
+                  apkUnitExtra: u.apkUnitExtra,
+                  apkUnitCode: u.apkUnitCode,
+                  apkStatic: u.apkStatic,
+                  apkTargeted: u.apkTargeted,
+                  ownerId: u.ownerId,
+                  unitClass: u.unitClass,
+                  x: u.pos.x,
+                  y: u.pos.y,
+                  hp: u.hp,
+                  maxHp: effectiveStats.maxHp,
+                  level: u.level ?? 0,
+                  exp: u.exp ?? 0,
+                  hasMoved: u.hasMoved,
+                  hasActed: u.hasActed,
+                  status: u.status ? u.status.type : null
+              };
+          }),
           graves: state.graves ? state.graves.map(g => ({
               id: g.id,
               x: g.pos.x,

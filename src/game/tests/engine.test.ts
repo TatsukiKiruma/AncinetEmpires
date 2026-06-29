@@ -2443,6 +2443,34 @@ describe('GameEngine Rules', () => {
             expect(calculateArmyValue(state, 0)).toBe(101);
         });
 
+        it('军力价值和 Observation 使用 APK 有效最大生命成长', () => {
+            const state = createDemoState();
+            state.players[0].gold = 0;
+            state.units = [
+                {
+                    id: 'u_golem',
+                    ownerId: 0,
+                    unitClass: 'golem',
+                    pos: { x: 0, y: 0 },
+                    hp: 125,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    level: 1,
+                    exp: 100
+                }
+            ];
+
+            expect(calculateArmyValue(state, 0)).toBe(601);
+
+            const env = new AncientEmpiresEnv({ initialState: state });
+            expect(env.getObservation().units[0]).toEqual(expect.objectContaining({
+                hp: 125,
+                maxHp: 125,
+                level: 1
+            }));
+        });
+
         it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
             const state = createDemoState();
             state.players[0].gold = 0;

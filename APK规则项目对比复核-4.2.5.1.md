@@ -394,6 +394,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 单位位置、血量、等级、经验、状态、行动状态。
+- 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted`。
 - `apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息和地图 metadata。
