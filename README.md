@@ -54,7 +54,9 @@ while (!initResult.done) {
 
 `observation.units` 同时输出 `attackType/population/cost/abilities/isCommander`。其中 `cost` 使用当前 `RuleConfig` 计算，能反映 APK `SetPrices` 价格覆盖和指挥官重招募价格配置；`isCommander` 复用当前收入、死亡和胜负规则使用的指挥官判定，支持 APK `SyncSetCommander` 把普通单位指定为队伍指挥官；`abilities` 是单位能力列表的副本，训练侧读取后不会污染全局单位配置。
 
-`observation.units[].isPending` 会标记当前 APK stacked/pending 招募状态下的待处理单位；该状态存在时，合法动作只会围绕该单位生成，不能继续招募或结束回合。
+`observation.units[].isPending` 会标记当前 APK stacked/pending 招募状态下的待处理单位；该状态存在时，合法动作只会围绕该单位生成，不能继续招募、投降或结束回合。
+
+APK skirmish 规则配置会通过 `allowSurrender` 开启结构化 `surrender` 动作；普通 demo/自定义规则默认不启用，避免改变既有训练动作空间。内置 Random AI 与 Heuristic AI 会把投降视为兜底/负收益动作，不会当作普通推进动作随机优先选择。
 
 ## Reward (奖励设定)
 

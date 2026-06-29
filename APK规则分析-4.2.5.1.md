@@ -233,7 +233,7 @@ dex 字符串确认或强烈暗示：
 
 - 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!`、`Cannot surrender when stacked!`。
 - 这说明官方规则中有“单位堆叠/待处理”的临时状态，会禁止继续招募、结束回合或选择其他对象。
-- 当前项目的 `pendingUnitId` 已禁止继续招募和结束回合，和 APK stacked 字符串方向一致。
+- 当前项目的 `pendingUnitId` 已禁止继续招募、投降和结束回合，和 APK stacked 字符串方向一致。
 
 仍需确认：
 
@@ -1007,6 +1007,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。
 - 规则层已用 `pendingUnitId` 表达招募后的待处理单位，并在 pending 存在时只生成该单位动作。
 - `AncientEmpiresEnv.getObservation()` 新增 `pendingUnitId`，`observation.units[]` 新增 `isPending`，让训练侧不用只靠合法动作集合反推当前 stacked 状态。
+
+2026-06-29 APK skirmish 投降动作接入：
+
+- DEX 字符串确认 APK 存在 `Cannot surrender when stacked!`，说明投降入口受 stacked/pending 限制。
+- `RuleConfig.allowSurrender` 新增投降开关；普通规则默认关闭，`getApkSkirmishRuleConfig('SD'/'SO')` 默认开启。
+- 合法动作在非 pending 状态下生成 `surrender`，pending 状态下不生成；执行后当前队伍失活，并复用联盟胜负结算。
+- `encodeAction/decodeAction` 已支持 `surrender`；内置 Random AI 与 Heuristic AI 不会把投降当作普通推进动作优先选择。
 
 ## 16. 本次复核记录
 

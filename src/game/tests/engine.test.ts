@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
-import { AncientEmpiresEnv, calculateArmyValue } from '../env';
+import { AncientEmpiresEnv, calculateArmyValue, decodeAction, encodeAction } from '../env';
 import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
@@ -11,6 +11,8 @@ import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, get
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
+import { RandomAI } from '../ai/random_ai';
+import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
@@ -358,6 +360,8 @@ describe('GameEngine Rules', () => {
         expect(mapWithSkirmishTail.tail.length).toBe(58);
 
         expect(getApkSkirmishRuleConfig('SD').recruitableUnits).toBeUndefined();
+        expect(getApkSkirmishRuleConfig('SD').allowSurrender).toBe(true);
+        expect(getApkSkirmishRuleConfig('SO').allowSurrender).toBe(true);
         expect(getApkSkirmishRuleConfig('SO').recruitableUnits).toEqual([
             'soldier',
             'archer',
@@ -1913,6 +1917,22 @@ describe('GameEngine Rules', () => {
             expect(player1Actions.every(a => (a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') && a.unitClass === 'soldier')).toBe(true);
         });
 
+        it('投降动作由规则开关控制并按联盟胜负结算', () => {
+            expect(getLegalActions(createDemoState(), 0).some(action => action.type === 'surrender')).toBe(false);
+
+            const state = createDemoState({ allowSurrender: true });
+            const actions = getLegalActions(state, 0);
+            expect(actions.some(action => action.type === 'surrender')).toBe(true);
+
+            const env = new AncientEmpiresEnv({ initialState: state });
+            const result = env.stepAction({ type: 'surrender' });
+
+            expect(result.done).toBe(true);
+            expect(result.reward).toBe(-1);
+            expect(result.state.players.find(player => player.id === 0)?.isAlive).toBe(false);
+            expect(result.state.winner).toBe(1);
+        });
+
         it('单位数量上限会阻止继续招募', () => {
             const state = createDemoState();
             state.rules = {
@@ -2822,6 +2842,7 @@ describe('GameEngine Rules', () => {
 
         it('Observation 输出 APK stacked/pending 招募状态', () => {
             const state = createDemoState({
+                allowSurrender: true,
                 recruitableUnits: ['soldier']
             });
             state.units.find(unit => unit.id === 'u1')!.pos = { x: 2, y: 2 };
@@ -2837,6 +2858,7 @@ describe('GameEngine Rules', () => {
                 hasActed: false
             }));
             expect(recruitResult.legalActions.some(action => action.type === 'end_turn')).toBe(false);
+            expect(recruitResult.legalActions.some(action => action.type === 'surrender')).toBe(false);
             expect(recruitResult.legalActions.every(action => (
                 action.type === 'wait'
                 || ('unitId' in action && action.unitId === pendingUnit.id)
@@ -2881,6 +2903,25 @@ describe('GameEngine Rules', () => {
 
             expect(result.done).toBe(true);
             expect(result.reward).toBe(1);
+        });
+
+        it('投降动作可序列化，内置 AI 不会把投降当成普通可选动作', () => {
+            expect(encodeAction({ type: 'surrender' })).toBe('surrender');
+            expect(decodeAction('surrender')).toEqual({ type: 'surrender' });
+
+            const state = createDemoState({ allowSurrender: true });
+            state.players[0].gold = 0;
+            state.units
+                .filter(unit => unit.ownerId === 0)
+                .forEach(unit => {
+                    unit.hasMoved = true;
+                    unit.hasActed = true;
+                });
+
+            const engine = new GameEngine(state);
+            expect(engine.getLegalActions(0).map(action => action.type).sort()).toEqual(['end_turn', 'surrender']);
+            expect(new RandomAI(() => 0.99).getAction(engine, 0)).toEqual({ type: 'end_turn' });
+            expect(new HeuristicAI(() => 0).getAction(engine, 0)).toEqual({ type: 'end_turn' });
         });
     });
 

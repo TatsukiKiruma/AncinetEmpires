@@ -15,6 +15,7 @@ export const DEFAULT_RULE_CONFIG = {
     prices: {},
     commanderRecruitBaseCost: null,
     commanderRecruitCostGrowth: 100,
+    allowSurrender: false,
     defeatOnNoUnitsAndNoCastles: true,
     defeatOnNoUnits: false,
     defeatOnCommanderDeath: false,

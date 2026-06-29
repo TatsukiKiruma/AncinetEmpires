@@ -53,6 +53,9 @@ export class HeuristicAI {
                 case 'wait':
                     score = 0; 
                     break;
+                case 'surrender':
+                    score = -10000;
+                    break;
                 case 'end_turn':
                     score = -100; 
                     break;

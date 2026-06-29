@@ -393,6 +393,7 @@ export function encodeAction(action: Action): string {
         case 'repair': return `repair:${action.unitId}`;
         case 'destroy_town': return `destroy_town:${action.unitId}`;
         case 'wait': return `wait:${action.unitId}`;
+        case 'surrender': return `surrender`;
         case 'end_turn': return `end_turn`;
         default: return `unknown`;
     }
@@ -430,6 +431,7 @@ export function decodeAction(code: string): Action | null {
         case 'repair': return { type: 'repair', unitId: parts[1] };
         case 'destroy_town': return { type: 'destroy_town', unitId: parts[1] };
         case 'wait': return { type: 'wait', unitId: parts[1] };
+        case 'surrender': return { type: 'surrender' };
         case 'end_turn': return { type: 'end_turn' };
         default: return null;
     }

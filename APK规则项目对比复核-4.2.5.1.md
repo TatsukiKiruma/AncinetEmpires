@@ -225,7 +225,9 @@ DEX 字符串明确存在：
 项目对比：
 
 - 项目通过 `pendingUnitId` 表达招募后的待处理状态。
-- pending 存在时只生成该单位动作，不生成招募和结束回合。
+- pending 存在时只生成该单位动作，不生成招募、投降和结束回合。
+- `RuleConfig.allowSurrender` 已支持结构化 `surrender` 动作；普通规则默认关闭，`createApkSkirmishGameState` 的 SD/SO 规则默认开启。
+- 执行 `surrender` 会让当前队伍失活，并复用既有联盟胜负结算；内置训练 AI 不会把投降当作普通非结束动作随机优先选择。
 - `AncientEmpiresEnv.getObservation()` 已输出 `pendingUnitId` 和单位级 `isPending`，训练侧可直接观察 stacked 状态。
 - 该规则方向与 DEX 字符串吻合，但 UI 精确行为仍未实机确认。
 

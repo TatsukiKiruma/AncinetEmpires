@@ -18,14 +18,16 @@ export class RandomAI {
            return { type: 'end_turn' };
         }
 
-        // 随机选择动作，但适当增加非end_turn动作的几率，避免总是秒过回合
-        const nonEndActions = actions.filter(a => a.type !== 'end_turn');
+        // 随机选择动作，但避免把投降当作普通推进动作。
+        const nonEndActions = actions.filter(a => a.type !== 'end_turn' && a.type !== 'surrender');
         if (nonEndActions.length > 0 && this.rng() < 0.9) {
             const idx = Math.floor(this.rng() * nonEndActions.length);
             return nonEndActions[idx];
         }
 
-        const idx = Math.floor(this.rng() * actions.length);
-        return actions[idx];
+        const fallbackActions = actions.filter(a => a.type !== 'surrender');
+        const selectableActions = fallbackActions.length > 0 ? fallbackActions : actions;
+        const idx = Math.floor(this.rng() * selectableActions.length);
+        return selectableActions[idx];
     }
 }

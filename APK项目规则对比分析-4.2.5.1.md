@@ -55,6 +55,7 @@
 | 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用原始 tile 的移动/防御/回血数值 | skirmish 数值更接近 APK，完整贴图/类别语义仍待校准 |
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现 | 基础对齐，细节待实测 |
+| 投降 | DEX 存在 `Cannot surrender when stacked!`，确认有投降入口且受 stacked 限制 | `RuleConfig.allowSurrender` + `surrender` 动作已实现；APK skirmish 默认开启，pending 时不生成 | 规则入口已对齐，菜单 UI 细节待实测 |
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
 | skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置 | 已对齐 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
@@ -114,7 +115,7 @@ APK 状态 ID 与项目状态：
 
 - 治疗师主动治疗可突破最大血量，项目已实现；但 APK 是否在后续回合把超上限血量压回最大血量，需要实测或反编译确认。
 - 亡灵从墓碑/中毒获得的回血目前仍受最大血量限制；APK 文案没有明确是否可突破。
-- 反击、突击后移动和 pending/stacked 状态的 UI 层行为仍缺 APK 实测。
+- 反击、突击后移动和 pending/stacked 状态的 UI 层行为仍缺 APK 实测；投降动作已按 DEX 字符串接入规则层，但菜单确认流程仍待实机确认。
 
 ## 8. 经济、招募和上限规则对比
 

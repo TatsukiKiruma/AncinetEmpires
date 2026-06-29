@@ -127,6 +127,7 @@ export default function App() {
       case 'wait': actionDesc = `待命: 单位 ${action.unitId} 在原地结束了本回合行动`; break;
       case 'recruit_to_castle': actionDesc = `招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 招募了 [${UNIT_CONFIGS[action.unitClass]?.name}]`; break;
       case 'recruit_and_deploy': actionDesc = `空投招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 空投招募了 [${UNIT_CONFIGS[action.unitClass]?.name}] 至 (${action.to.x}, ${action.to.y})`; break;
+      case 'surrender': actionDesc = `投降：当前玩家主动认输`; break;
       case 'end_turn': actionDesc = `回合结束：交替行动控制权`; break;
     }
 

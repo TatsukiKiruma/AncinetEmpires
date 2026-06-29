@@ -91,6 +91,7 @@ export interface RuleConfig {
     prices?: Partial<Record<UnitClass, number | null>>; // 单位价格覆盖，null 表示不可招募
     commanderRecruitBaseCost?: number | null; // 指挥官重招募基础价格，null 表示禁用
     commanderRecruitCostGrowth?: number;      // 每次指挥官死亡后的价格增量
+    allowSurrender?: boolean;       // 是否允许玩家主动投降；APK skirmish 菜单存在投降入口
     defeatOnNoUnitsAndNoCastles?: boolean; // APK skirmish：同时无单位且无城堡时淘汰
     defeatOnNoUnits?: boolean;        // 无存活单位时淘汰
     defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰
@@ -135,6 +136,7 @@ export type Action =
     | { type: 'support'; supporterId: string; targetId: string }
     | { type: 'destroy_town'; unitId: string }
     | { type: 'post_attack_move'; unitId: string; to: Position }
+    | { type: 'surrender' }
     | { type: 'end_turn' };
 
 export interface StepResult {

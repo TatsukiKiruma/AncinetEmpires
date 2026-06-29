@@ -2,7 +2,7 @@ import { Action, GameState, Position, UnitClass, Ability } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, isActivePlayer, isCommanderUnit } from './rule_config';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, getRuleConfig, isActivePlayer, isCommanderUnit } from './rule_config';
 import { getTileDefenseBonus } from './terrain_rules';
 
 /**
@@ -251,8 +251,11 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
     }
 
-    // 4. 结束回合: APK 明确存在 Cannot end turn when stacked，因此 pending 状态下不生成 end_turn。
+    // 4. 投降/结束回合: APK 明确存在 Cannot surrender/end turn when stacked，因此 pending 状态下不生成。
     if (!pendingUnitId) {
+        if (getRuleConfig(state).allowSurrender) {
+            actions.push({ type: 'surrender' });
+        }
         actions.push({ type: 'end_turn' });
     }
 

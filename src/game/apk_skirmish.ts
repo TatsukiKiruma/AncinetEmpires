@@ -13,6 +13,7 @@ function mapApkUnitIds(apkUnitIds: readonly number[]): UnitClass[] {
 
 export function getApkSkirmishRuleConfig(mode: ApkSkirmishMode = 'SD'): RuleConfig {
     const rules: RuleConfig = {
+        allowSurrender: true,
         defeatOnNoUnitsAndNoCastles: true,
         defeatOnNoUnits: false
     };

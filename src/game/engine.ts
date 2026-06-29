@@ -63,6 +63,7 @@ function areActionsEqual(a1: Action, a2: Action): boolean {
             return m1.unitClass === m2.unitClass && isSamePos(m1.castlePos, m2.castlePos) && isSamePos(m1.to, m2.to);
         }
         case 'end_turn':
+        case 'surrender':
             return true;
         default:
             return false;
@@ -560,6 +561,15 @@ export class GameEngine {
                 }
                 break;
             }
+            case 'surrender': {
+                const player = this.state.players.find(p => p.id === this.state.currentPlayer);
+                if (player) {
+                    player.isAlive = false;
+                    delete this.state.pendingUnitId;
+                    info = `Player ${prevCurrentPlayer} surrendered.`;
+                }
+                break;
+            }
             case 'end_turn': {
                 const prevPlayerId = this.state.currentPlayer;
                 this.state.units.forEach(u => {
@@ -737,7 +747,7 @@ export class GameEngine {
         // 清理 pendingUnitId：如果指定的单位已经执行完动作(hasActed) 或 死亡(不存在)，或者当前回合结束了，或它是非法状态
         if (this.state.pendingUnitId) {
             const pendingUnit = this.state.units.find(u => u.id === this.state.pendingUnitId);
-            if (!pendingUnit || pendingUnit.hasActed || action.type === 'end_turn') {
+            if (!pendingUnit || pendingUnit.hasActed || action.type === 'end_turn' || action.type === 'surrender') {
                 delete this.state.pendingUnitId;
             }
         }
