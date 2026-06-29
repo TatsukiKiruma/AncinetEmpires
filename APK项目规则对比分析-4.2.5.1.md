@@ -60,7 +60,7 @@
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
 | skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位、城堡/城镇归属和完整 tile 使用量，并用于防止同名外部地图被误标 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
-| 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数 | 基础对齐，复活流程未知 |
+| 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数；Observation 输出 `commanderUnitId/isCommander` | 基础对齐，复活流程未知 |
 
 ## 6. 单位、状态与能力对比
 

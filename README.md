@@ -42,7 +42,7 @@ while (!initResult.done) {
 
 ### Observation 队伍字段
 
-`observation.turnPlayerIds` 会返回当前仍参与回合轮转的队伍 ID。`observation.pendingUnitId` 会返回 APK stacked/pending 招募状态下必须优先处理的单位 ID。`observation.players` 除金币、存活状态和指挥官死亡次数外，还会输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`，用于让训练侧直接观察 APK 脚本可配置的联盟、禁用队伍、单位上限、人口上限和可招募列表。
+`observation.turnPlayerIds` 会返回当前仍参与回合轮转的队伍 ID。`observation.pendingUnitId` 会返回 APK stacked/pending 招募状态下必须优先处理的单位 ID。`observation.players` 除金币、存活状态和指挥官死亡次数外，还会输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/commanderUnitId`，用于让训练侧直接观察 APK 脚本可配置的联盟、禁用队伍、单位上限、人口上限、可招募列表和队伍指挥官。
 
 ### Observation 单位字段
 
@@ -52,7 +52,7 @@ while (!initResult.done) {
 
 `observation.units` 还会输出 `attack/physicalDefense/magicDefense/minRange/maxRange/move`，这些字段同样是当前等级和状态修正后的有效数值。例如致盲单位射程会显示为 `0-0`，虚弱单位移动会显示为 `1`。
 
-`observation.units` 同时输出 `attackType/population/cost/abilities`。其中 `cost` 使用当前 `RuleConfig` 计算，能反映 APK `SetPrices` 价格覆盖和指挥官重招募价格配置；`abilities` 是单位能力列表的副本，训练侧读取后不会污染全局单位配置。
+`observation.units` 同时输出 `attackType/population/cost/abilities/isCommander`。其中 `cost` 使用当前 `RuleConfig` 计算，能反映 APK `SetPrices` 价格覆盖和指挥官重招募价格配置；`isCommander` 复用当前收入、死亡和胜负规则使用的指挥官判定，支持 APK `SyncSetCommander` 把普通单位指定为队伍指挥官；`abilities` 是单位能力列表的副本，训练侧读取后不会污染全局单位配置。
 
 `observation.units[].isPending` 会标记当前 APK stacked/pending 招募状态下的待处理单位；该状态存在时，合法动作只会围绕该单位生成，不能继续招募或结束回合。
 

@@ -887,6 +887,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `RuleConfig.commanderUnitIds` 新增队伍到单位 ID 的映射；未配置时仍按 `unitClass === 'commander'` 保持默认行为。
 - `src/game/apk_stage.ts` 新增 `SyncSetCommander` 适配；依据 DEX 错误字符串中的 `No unit at (` / `Unit at (` 语义，当前按坐标把己方单位指定为队伍指挥官。
 - `CheckCommander`、`GetCommander`、指挥官收入、指挥官死亡计数、指挥官重招募限制和 `defeatOnCommanderDeath` 均统一使用该指挥官模型。
+- `AncientEmpiresEnv.getObservation()` 会在 `players` 输出 `commanderUnitId`，并在 `units` 输出 `isCommander`，避免训练侧在 APK 脚本指定普通单位为指挥官时误读规则状态。
 - 若某队已经配置指定指挥官，则该队原本的 `commander` 兵种不再自动视为指挥官，避免一队出现多个指挥官来源。
 - 验证：`npm test` 198 个测试通过。
 

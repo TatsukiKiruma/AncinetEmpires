@@ -2738,6 +2738,7 @@ describe('GameEngine Rules', () => {
                 attackType: 'magic',
                 population: 5,
                 cost: 900,
+                isCommander: false,
                 abilities: UNIT_CONFIGS.dragon.abilities
             }));
             expect(dragon.abilities).not.toBe(UNIT_CONFIGS.dragon.abilities);
@@ -2748,7 +2749,29 @@ describe('GameEngine Rules', () => {
                 attackType: 'physical',
                 population: 0,
                 cost: 700,
+                isCommander: true,
                 abilities: UNIT_CONFIGS.commander.abilities
+            }));
+        });
+
+        it('Observation 输出脚本指定的队伍指挥官', () => {
+            const state = createDemoState();
+            const originalCommander = state.units.find(unit => unit.id === 'u1')!;
+            const scriptedCommander = state.units.find(unit => unit.id === 'u3')!;
+            originalCommander.pos = { x: 2, y: 2 };
+
+            expect(syncSetCommander(state, 0, scriptedCommander.pos)).toBe(true);
+
+            const observation = new AncientEmpiresEnv({ initialState: state }).getObservation();
+            const player0 = observation.players.find(player => player.id === 0)!;
+            const originalCommanderObservation = observation.units.find(unit => unit.id === 'u1')!;
+            const scriptedCommanderObservation = observation.units.find(unit => unit.id === 'u3')!;
+
+            expect(player0.commanderUnitId).toBe('u3');
+            expect(originalCommanderObservation.isCommander).toBe(false);
+            expect(scriptedCommanderObservation).toEqual(expect.objectContaining({
+                unitClass: 'soldier',
+                isCommander: true
             }));
         });
 
@@ -2781,7 +2804,8 @@ describe('GameEngine Rules', () => {
                 population: 1,
                 unitLimit: 2,
                 populationLimit: 3,
-                recruitableUnits: ['soldier', 'archer']
+                recruitableUnits: ['soldier', 'archer'],
+                commanderUnitId: 'u1'
             }));
             expect(player1).toEqual(expect.objectContaining({
                 isAlive: true,
@@ -2791,7 +2815,8 @@ describe('GameEngine Rules', () => {
                 population: 1,
                 unitLimit: 6,
                 populationLimit: 8,
-                recruitableUnits: ['soldier', 'dragon']
+                recruitableUnits: ['soldier', 'dragon'],
+                commanderUnitId: 'u2'
             }));
         });
 

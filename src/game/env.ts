@@ -2,7 +2,7 @@ import { GameEngine } from './engine';
 import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass } from './types';
 import { getLegalActions } from './rules';
 import { AttackType, UNIT_CONFIGS } from './constants';
-import { getAllianceId, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isTeamEnabled } from './rule_config';
+import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isCommanderUnit, isTeamEnabled } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
 import { ApkTerrainMappingConfidence, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
@@ -36,6 +36,7 @@ export interface Observation {
     unitLimit: number | null;
     populationLimit: number | null;
     recruitableUnits: UnitClass[];
+    commanderUnitId: string | null;
     commanderDeathCount: number;
   }>;
   tiles: Array<{
@@ -64,6 +65,7 @@ export interface Observation {
     population: number;
     cost: number | null;
     abilities: Ability[];
+    isCommander: boolean;
     x: number;
     y: number;
     hp: number;
@@ -291,6 +293,7 @@ export class AncientEmpiresEnv {
                   unitLimit: teamRules.unitLimit ?? rules.unitLimit ?? null,
                   populationLimit: teamRules.populationLimit ?? rules.populationLimit ?? null,
                   recruitableUnits: getRecruitableUnits(state, p.id),
+                  commanderUnitId: getCommanderUnit(state, p.id)?.id ?? null,
                   commanderDeathCount: p.commanderDeathCount
               };
           }),
@@ -325,6 +328,7 @@ export class AncientEmpiresEnv {
                   population: unitConfig.population,
                   cost: getUnitCost(state, u.ownerId, u.unitClass),
                   abilities: [...unitConfig.abilities],
+                  isCommander: isCommanderUnit(state, u),
                   x: u.pos.x,
                   y: u.pos.y,
                   hp: u.hp,
