@@ -1,10 +1,10 @@
 import { Action, GameState, StepResult, Unit, Position, UnitClass } from './types';
 import { getLegalActions, calculateDamage, inRange } from './rules';
-import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
+import { UNIT_CONFIGS } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
-import { getTileHealPerTurn, getTileTerrainKey, tileHasTerrainTag } from './terrain_rules';
+import { getTileHealPerTurn, getTileTerrainKey, setTileOwnerForRules, setTileTerrainForRules, tileHasTerrainTag } from './terrain_rules';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -441,8 +441,8 @@ export class GameEngine {
                 if (destroyer) {
                     const tile = this.state.map.tiles[destroyer.pos.y][destroyer.pos.x];
                     if (getTileTerrainKey(tile) === 'town') {
-                        tile.terrainId = 8; // 损坏城镇
-                        tile.ownerId = null; // 无主中立
+                        setTileTerrainForRules(tile, 8); // 损坏城镇
+                        setTileOwnerForRules(tile, null); // 无主中立
                         info = `Unit ${destroyer.id} destroyed town at ${destroyer.pos.x},${destroyer.pos.y}`;
                         
                         // 经验
@@ -458,7 +458,7 @@ export class GameEngine {
                 const unit = this.state.units.find(u => u.id === action.unitId);
                 if (unit) {
                     const tile = this.state.map.tiles[unit.pos.y][unit.pos.x];
-                    tile.ownerId = unit.ownerId;
+                    setTileOwnerForRules(tile, unit.ownerId);
                     info = `Unit ${unit.id} captured terrain at ${unit.pos.x},${unit.pos.y}`;
                     reward += 10;
                     unit.hasMoved = true;
@@ -471,13 +471,10 @@ export class GameEngine {
                 if (unit) {
                     const tile = this.state.map.tiles[unit.pos.y][unit.pos.x];
                     if (getTileTerrainKey(tile) === 'damaged_town') {
-                        const townEntry = Object.entries(TERRAIN_CONFIG).find(([_, c]) => c.key === 'town');
-                        if (townEntry) {
-                            tile.terrainId = parseInt(townEntry[0]) as import('./terrain').TerrainId;
-                            tile.ownerId = unit.ownerId; 
-                            info = `Unit ${unit.id} repaired town at ${unit.pos.x},${unit.pos.y}`;
-                            reward += 5;
-                        }
+                        setTileTerrainForRules(tile, 9);
+                        setTileOwnerForRules(tile, unit.ownerId);
+                        info = `Unit ${unit.id} repaired town at ${unit.pos.x},${unit.pos.y}`;
+                        reward += 5;
                     }
                     unit.hasMoved = true;
                     unit.hasActed = true;

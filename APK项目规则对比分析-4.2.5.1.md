@@ -52,7 +52,7 @@
 | 能力 | 26 个能力名和说明 | `src/game/types.ts` 与 `abilities.ts` 已建模 26 个能力 | 基础对齐 |
 | 状态 | 中毒、鼓舞、致盲、虚弱 | `StatusType` 包含 4 个状态；状态不叠加 | 已对齐 |
 | 伤害公式 | 语言表说明“攻击-防御后乘血量比例”，能力继续修正 | `rules.ts` 按血量比例、地形防御、能力加成计算 | 大体对齐 |
-| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用原始 tile 的移动/防御/回血数值；地形之子、空军打水中单位、占领/招募/收入/Stage 建筑查询等规则语义优先按 `apkTerrainId` 映射判断 | skirmish 数值和核心语义更接近 APK，完整贴图/类别语义仍待校准 |
+| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用当前 tile 的移动/防御/回血数值；地形之子、空军打水中单位、占领/招募/收入/Stage 建筑查询等规则语义优先按 `apkTerrainId` 映射判断；城镇摧毁/修理会按 `t36.linkedB=27`、`t27.linkedC=36` 同步 APK tile | skirmish 数值和核心语义更接近 APK，完整贴图/类别语义仍待校准 |
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现 | 基础对齐，细节待实测 |
 | 投降 | DEX 存在 `Cannot surrender when stacked!`，确认有投降入口且受 stacked 限制 | `RuleConfig.allowSurrender` + `surrender` 动作已实现；APK skirmish 默认开启，pending 时不生成 | 规则入口已对齐，菜单 UI 细节待实测 |
@@ -178,8 +178,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 | APK tile | 项目地形 | 依据 |
 | ---: | --- | --- |
-| `t27` | `damaged_town` | 防御 10、无回血、关联 `t36`，符合废墟/可修复村庄 |
-| `t36` | `town` | 防御 15、回血 20、关联摧毁后 `t27`，符合村庄 |
+| `t27` | `damaged_town` | 防御 10、无回血、`linkedC=36`，符合废墟/可修复村庄 |
+| `t36` | `town` | 防御 15、回血 20、`linkedB=27`，符合村庄摧毁到废墟 |
 | `t37` | `castle` | 防御 15、回血 20，符合城堡 |
 | `t72` | `bridge` | 移动 1、无防御/回血；语言表说明桥也按水面处理 |
 
@@ -196,7 +196,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 - `SKIRMISH_APK_TERRAIN_TO_PROJECT` 已把 skirmish 实际使用的 APK tile 归并到项目地形。
 - `createGameStateFromApkAemMap` 已能生成训练用 `GameState`，默认使用推荐金币；推荐金币为 `-1` 时为 0，可由外部配置覆盖。
-- APK 导入地图的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`；移动消耗、防御加成和回合回血优先读取 APK `data.bin` 的原始 tile 数值。
+- APK 导入地图的 `Tile` 会保留并维护当前 `apkTerrainId/apkTerrainRaw/apkOwnerCode`；移动消耗、防御加成和回合回血优先读取 APK `data.bin` 的当前 tile 数值。城镇摧毁会把 APK `t36` 同步改为 `t27`，废墟修理会把 APK `t27` 同步改回 `t36`，占领会同步 owner code。
 - AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence/defenseBonus/healPerTurn/moveCost`，并新增 `ruleTerrainId/terrainKey/terrainTags`，让策略能同时看到 APK 原始 tile 数值、映射可信度、映射依据和规则实际使用的地形语义。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；按当前 skirmish 映射，20 张图均无未映射 tile。
@@ -285,6 +285,6 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 ## 14. 对当前项目的判断
 
-当前项目适合作为“APK skirmish 规则训练环境”的基础，但还不应宣称已经完整复刻 APK 4.2.5.1。规则引擎层已经补齐大多数核心机制；真实 skirmish 地图导入已保留 APK 原始 tile 数值；脚本安全字面量配置已能生成项目规则。剩余主要工作在地形贴图/类别语义校准、尾部模板语义、动态脚本参数和战役目标/剧情执行。
+当前项目适合作为“APK skirmish 规则训练环境”的基础，但还不应宣称已经完整复刻 APK 4.2.5.1。规则引擎层已经补齐大多数核心机制；真实 skirmish 地图导入已保留并维护 APK 当前 tile 数值；脚本安全字面量配置已能生成项目规则。剩余主要工作在地形贴图/类别语义校准、尾部模板语义、动态脚本参数和战役目标/剧情执行。
 
 建议下一步继续做“地形映射校准与 skirmish 地图数据表”，把每张地图实际使用的 APK tile、项目地形、原始数值和可信度归档，减少后续反复解包确认。

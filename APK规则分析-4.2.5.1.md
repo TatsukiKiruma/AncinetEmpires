@@ -309,7 +309,7 @@ skirmish 训练导入映射：
 | `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
 | `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
 
-该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值；水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类也优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断。项目 `terrainId` 主要负责占领/招募/收入等抽象语义，并作为缺少 APK 原始 tile 时的兜底。
+该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留并维护当前 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 当前 tile 的防御、移动和回血数值；水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类也优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断。项目 `terrainId` 主要负责占领/招募/收入等抽象语义，并作为缺少 APK 当前 tile 时的兜底。
 
 完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，APK 导入地图会保留该原始移动值，避免普通地面单位把这类格子当成可正常通行深水。
 
@@ -1092,6 +1092,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已确证建筑/桥会输出语言表或高可信建筑证据；atlas 映射会输出 `data_bin_values/texture_atlas/skirmish_map_context`；低可信治疗建筑会输出 `low_confidence_building_semantics`，避免训练侧把近似建筑语义误读为已确证规则。
 - 该字段只是只读观测快照，不改变移动、防御、回血、招募、占领、收入或胜负判定。
 - 验证：新增回归测试覆盖 confirmed、atlas、approximate 三类 evidence，并确认修改 Observation 快照不会污染环境状态。
+
+2026-06-29 APK 城镇摧毁/修理 linked tile 同步：
+
+- `data.bin` 已确认 `t36.linkedB=27`，对应村庄被摧毁后的废墟；`t27.linkedC=36`，对应废墟修理回村庄。
+- `terrain_rules.ts` 新增 tile 状态写入 helper；`destroy_town` 会把 APK `t36` 同步改为 `t27`，`repair` 会把 APK `t27` 同步改回 `t36`，`capture` 会同步更新 `apkOwnerCode/apkTerrainRaw`。
+- 这修正了 APK 导入地图中只改项目 `terrainId` 而保留旧 `apkTerrainId` 时，后续收入、占领、摧毁/修理和 Stage 查询继续按旧 tile 判定的问题。
+- 验证：新增回归测试覆盖 APK 城镇摧毁、废墟修理和城堡占领后的 `apkTerrainId/apkTerrainRaw/apkOwnerCode` 当前状态。
 
 ## 16. 本次复核记录
 

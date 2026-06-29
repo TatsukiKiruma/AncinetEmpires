@@ -33,7 +33,8 @@
 - 城堡/村庄/指挥官收入、金币、单位上限、可招募列表、价格覆盖、等级上限、联盟、禁用队伍和强制终局已有规则配置入口。
 - 20 张内置 skirmish `.aem` 地图可解密解析，项目已有 AEM 解析和 skirmish GameState 生成入口。
 - SD/SO skirmish 模式的终局逻辑与 SO 可招募限制已能由项目规则表达。
-- APK 导入地图会保留原始 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，移动、防御、回血优先使用 APK `data.bin` 的 tile 数值。
+- APK 导入地图会保留并维护当前 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，移动、防御、回血优先使用 APK `data.bin` 的 tile 数值。
+- 城镇摧毁/修理会使用 `data.bin` 的 linked tile：`t36.linkedB=27`，`t27.linkedC=36`；占领会同步更新 APK owner code。
 
 仍不能宣称项目与 APK 完全一致：
 
@@ -278,8 +279,8 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 | APK tile | 项目地形 | 证据 |
 | ---: | --- | --- |
-| `t27` | `damaged_town` | 防御 10、无回血、关联 `t36` |
-| `t36` | `town` | 防御 15、回血 20、可被摧毁到 `t27` |
+| `t27` | `damaged_town` | 防御 10、无回血、`linkedC=36`，可修理回村庄 |
+| `t36` | `town` | 防御 15、回血 20、`linkedB=27`，可被摧毁到废墟 |
 | `t37` | `castle` | 防御 15、回血 20 |
 | `t72` | `bridge` | 移动 1；语言表确认桥按水面处理 |
 
@@ -348,6 +349,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - `createGameStateFromApkAemMap` 会在推荐金币默认值之后应用 `RuleConfig.initialGold` 和队伍级 `initialGold`；`createApkSkirmishGameState` 使用公共 `mergeRuleConfig` 合并模式规则和外部规则，后续叠加 APK 脚本/场景配置时不会丢失嵌套队伍规则。
 - 水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类已优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断，项目 `terrainId` 只在缺少 APK 原始 tile 时兜底。
 - 占领、摧毁、修理、招募、收入、胜负城堡统计，以及 Stage 城堡/村庄查询和计数也已使用同一套 tile 语义 helper，避免 APK 导入地图因项目 `terrainId` 近似值而丢失建筑规则。
+- 摧毁和修理会同步当前 APK tile：`t36 -> t27`、`t27 -> t36`；占领会同步当前 `apkOwnerCode/apkTerrainRaw`，避免 Observation 和后续规则仍保留导入时旧状态。
 
 ## 9. 脚本 API 对比
 
@@ -417,7 +419,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK stacked/pending 招募状态：`pendingUnitId` 和单位级 `isPending`。
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/commanderUnitId`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限、可招募列表和队伍指挥官。
 - 每格 `terrainId/ownerId`。
-- 每格 APK 原始字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。
+- 每格 APK 当前字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
 - 单位位置、血量、等级、经验、状态、行动状态。

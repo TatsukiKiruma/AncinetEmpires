@@ -711,6 +711,71 @@ describe('GameEngine Rules', () => {
         const apkSemanticEngine = new GameEngine(apkSemanticState);
         apkSemanticEngine.step({ type: 'end_turn' });
         expect(apkSemanticEngine.getState().players.find(player => player.id === 1)!.gold).toBe(incomeBefore + 150);
+
+        const apkDestroyState = createDemoState();
+        apkDestroyState.map.tiles[0][0] = {
+            terrainId: 6,
+            ownerId: 1,
+            apkTerrainId: 36,
+            apkTerrainRaw: (36 << 12) | 1,
+            apkOwnerCode: 1
+        };
+        apkDestroyState.units[0].unitClass = 'catapult';
+        apkDestroyState.units[0].pos = { x: 0, y: 0 };
+        const apkDestroyEngine = new GameEngine(apkDestroyState);
+        expect(apkDestroyEngine.getLegalActions(0).some(action => action.type === 'destroy_town' && action.unitId === 'u1')).toBe(true);
+        apkDestroyEngine.step({ type: 'destroy_town', unitId: 'u1' });
+        const destroyedTile = apkDestroyEngine.getState().map.tiles[0][0];
+        expect(destroyedTile).toEqual(expect.objectContaining({
+            terrainId: 8,
+            ownerId: null,
+            apkTerrainId: 27,
+            apkTerrainRaw: (27 << 12) | 0xff,
+            apkOwnerCode: 0xff
+        }));
+        expect(getTileTerrainKey(destroyedTile)).toBe('damaged_town');
+
+        const apkRepairState = createDemoState();
+        apkRepairState.map.tiles[0][0] = {
+            terrainId: 6,
+            ownerId: null,
+            apkTerrainId: 27,
+            apkTerrainRaw: (27 << 12) | 0xff,
+            apkOwnerCode: 0xff
+        };
+        apkRepairState.units[0].pos = { x: 0, y: 0 };
+        const apkRepairEngine = new GameEngine(apkRepairState);
+        expect(apkRepairEngine.getLegalActions(0).some(action => action.type === 'repair' && action.unitId === 'u1')).toBe(true);
+        apkRepairEngine.step({ type: 'repair', unitId: 'u1' });
+        const repairedTile = apkRepairEngine.getState().map.tiles[0][0];
+        expect(repairedTile).toEqual(expect.objectContaining({
+            terrainId: 9,
+            ownerId: 0,
+            apkTerrainId: 36,
+            apkTerrainRaw: 36 << 12,
+            apkOwnerCode: 0
+        }));
+        expect(getTileTerrainKey(repairedTile)).toBe('town');
+
+        const apkCaptureState = createDemoState();
+        apkCaptureState.map.tiles[0][0] = {
+            terrainId: 6,
+            ownerId: null,
+            apkTerrainId: 37,
+            apkTerrainRaw: (37 << 12) | 0xff,
+            apkOwnerCode: 0xff
+        };
+        apkCaptureState.units[0].pos = { x: 0, y: 0 };
+        const apkCaptureEngine = new GameEngine(apkCaptureState);
+        expect(apkCaptureEngine.getLegalActions(0).some(action => action.type === 'capture' && action.unitId === 'u1')).toBe(true);
+        apkCaptureEngine.step({ type: 'capture', unitId: 'u1' });
+        expect(apkCaptureEngine.getState().map.tiles[0][0]).toEqual(expect.objectContaining({
+            terrainId: 6,
+            ownerId: 0,
+            apkTerrainId: 37,
+            apkTerrainRaw: 37 << 12,
+            apkOwnerCode: 0
+        }));
     });
 
     it('初始化与状态克隆不影响原状态', () => {
