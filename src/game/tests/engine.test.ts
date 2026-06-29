@@ -4,7 +4,7 @@ import { AncientEmpiresEnv, calculateArmyValue } from '../env';
 import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
-import { getReachablePositions } from '../map';
+import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
@@ -1588,7 +1588,35 @@ describe('GameEngine Rules', () => {
             expect(diffG).toBe(125);
         });
 
-        it('6.17 RuleConfig 可以限制等级上限', () => {
+        it('6.17 单位升级后的移动成长会进入合法移动范围', () => {
+            const state = createDemoState();
+            state.map.tiles = Array.from({ length: 8 }, () => (
+                Array.from({ length: 8 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            state.units = [
+                {
+                    id: 'cmd_lv1',
+                    ownerId: 0,
+                    unitClass: 'commander',
+                    pos: { x: 0, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    level: 1,
+                    exp: 100
+                }
+            ];
+
+            const reachable = getReachablePositions(state, 'cmd_lv1');
+            expect(reachable).toContainEqual({ x: 5, y: 0 });
+            expect(getMoveCostTo(state, 'cmd_lv1', { x: 5, y: 0 })).toBe(5);
+
+            const actions = getLegalActions(state, 0);
+            expect(actions).toContainEqual({ type: 'move', unitId: 'cmd_lv1', to: { x: 5, y: 0 } });
+        });
+
+        it('6.18 RuleConfig 可以限制等级上限', () => {
             const state = createDemoState();
             state.rules = { levelCap: 1 };
 

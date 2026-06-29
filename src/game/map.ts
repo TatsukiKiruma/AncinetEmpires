@@ -1,6 +1,6 @@
 import { GameState, Position, UnitClass } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
-import { isFlying, getMoveCostForUnit } from './abilities';
+import { isFlying, getMoveCostForUnit, getEffectiveStats } from './abilities';
 import { areEnemyPlayers } from './rule_config';
 
 // 计算曼哈顿距离
@@ -18,7 +18,7 @@ export function getReachablePositions(state: GameState, unitId: string, customMa
     const unit = state.units.find(u => u.id === unitId);
     if (!unit) return [];
 
-    const stats = UNIT_CONFIGS[unit.unitClass];
+    const stats = getEffectiveStats(unit);
     let maxMove = customMaxMove !== undefined ? customMaxMove : stats.move;
     if (unit.status && unit.status.type === 'weakened') {
         maxMove = Math.min(maxMove, 1);
@@ -103,7 +103,7 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
     if (!unit) return 999;
     if (unit.pos.x === to.x && unit.pos.y === to.y) return 0;
 
-    const stats = UNIT_CONFIGS[unit.unitClass];
+    const stats = getEffectiveStats(unit);
     let maxMove = stats.move;
     if (unit.status && unit.status.type === 'weakened') {
         maxMove = 1;
