@@ -58,7 +58,7 @@
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
 | skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置 | 已对齐 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
-| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据 | 基础导入已完成 |
+| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位和城堡/城镇归属，并用于防止同名外部地图被误标 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
 | 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数 | 基础对齐，复活流程未知 |
 
@@ -258,7 +258,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 下一步应结合反编译字段名、编辑器保存格式或更多特殊地图样本确认该模板用途。
 
 3. 增加 APK skirmish 地图导入文档或数据表。
-   - 输出每张地图的尺寸、玩家、推荐金币、初始单位、城堡/城镇归属、未映射 tile 清单。
+   - 尺寸、玩家、推荐金币、初始单位、城堡/城镇归属已进入官方 manifest；继续输出每张地图的 tile 使用量和未映射 tile 清单。
    - 明确记录尾部模板为原始字节，不参与联盟或队伍配置推断。
    - 已有代码入口为 `createApkSkirmishGameState`；后续数据表应围绕该入口补足校准证据。
 

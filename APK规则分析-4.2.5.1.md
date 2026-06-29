@@ -991,8 +991,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK skirmish 地图清单代码化补充：
 
 - 新增 `src/game/apk_manifest.ts`，归档 aer-release-4.2.5.1 的版本号、SHA256 和 20 张 `assets/maps/*.aem` 官方 skirmish 地图清单。
-- 清单字段包括：资源路径、尺寸、玩家 ID、初始单位数、推荐金币和 AEM 尾部模板；顺序来自 `assets/maps/_list.json`，具体数值来自 20 张 AEM 解析结果。
-- `createApkSkirmishGameState` 只有在地图名、尺寸、玩家、初始单位数、推荐金币和尾部模板同时匹配清单时，才自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成测试地图或外部同名地图被误标为官方 APK 资源。
+- 清单字段包括：资源路径、作者、尺寸、玩家 ID、初始单位明细、城堡/城镇归属、推荐金币和 AEM 尾部模板；顺序来自 `assets/maps/_list.json`，具体数值来自 20 张 AEM 解析结果。
+- `createApkSkirmishGameState` 只有在地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、推荐金币和尾部模板同时匹配清单时，才自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成测试地图或外部同名地图被误标为官方 APK 资源。
 
 2026-06-29 APK 队伍规则进入 AI Observation：
 

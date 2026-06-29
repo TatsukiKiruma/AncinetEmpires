@@ -106,30 +106,60 @@ describe('GameEngine Rules', () => {
             resourcePath: 'assets/maps/(2) Duel.aem',
             width: 13,
             height: 13,
+            author: 'youxing',
             playerIds: [0, 1],
             initialUnitCount: 2,
+            initialUnits: [
+                { teamId: 1, x: 9, y: 6, apkUnitId: 9, extra: 0 },
+                { teamId: 0, x: 4, y: 4, apkUnitId: 9, extra: 0 }
+            ],
+            castleOwnerCounts: { '0': 1, '1': 1 },
+            villageOwnerCounts: { '1': 1, N: 4 },
             recommendedGold: 200,
             tailTemplate: 'zero_suffix_58'
         });
+        expect(APK_SKIRMISH_MAP_MANIFEST.every(entry => entry.initialUnitCount === entry.initialUnits.length)).toBe(true);
+        const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
+        expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);
+        expect(swamplandsManifest.castleOwnerCounts).toEqual({ N: 2 });
         expect(getApkSkirmishMapManifestEntry('(2) Missing.aem')).toBeNull();
+
+        const duelTerrain = Array.from({ length: 13 }, (_, y) => Array.from({ length: 13 }, (_, x) => ({
+            x,
+            y,
+            raw: (20 << 12) | 0xff,
+            apkTerrainId: 20,
+            ownerCode: 0xff,
+            ownerId: null,
+            projectTerrainId: null
+        })));
+        const setDuelTerrain = (x: number, y: number, apkTerrainId: number, ownerId: number | null) => {
+            const ownerCode = ownerId ?? 0xff;
+            duelTerrain[y][x] = {
+                ...duelTerrain[y][x],
+                raw: (apkTerrainId << 12) | ownerCode,
+                apkTerrainId,
+                ownerCode,
+                ownerId
+            };
+        };
+        setDuelTerrain(0, 0, 37, 0);
+        setDuelTerrain(12, 12, 37, 1);
+        setDuelTerrain(1, 1, 36, 1);
+        setDuelTerrain(2, 2, 36, null);
+        setDuelTerrain(3, 3, 36, null);
+        setDuelTerrain(5, 5, 36, null);
+        setDuelTerrain(6, 6, 36, null);
 
         const officialDuelLikeMap = {
             magic: APK_AEM_MAGIC,
             width: 13,
             height: 13,
-            author: null,
+            author: 'youxing',
             playerIds: [0, 1],
             terrainRecordOffset: 0,
             terrainCount: 13 * 13,
-            terrain: Array.from({ length: 13 }, (_, y) => Array.from({ length: 13 }, (_, x) => ({
-                x,
-                y,
-                raw: (20 << 12) | 0xff,
-                apkTerrainId: 20,
-                ownerCode: 0xff,
-                ownerId: null,
-                projectTerrainId: null
-            }))),
+            terrain: duelTerrain,
             unitRecordOffset: 0,
             unitValueCount: 10,
             units: [
