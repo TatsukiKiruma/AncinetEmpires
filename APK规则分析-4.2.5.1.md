@@ -495,6 +495,18 @@ skirmish 训练导入映射：
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
+2026-06-29 已新增 `src/game/apk_script_manifest.ts`，把 27 个已解密 `assets/mods/**/*.js` 的 API 计数和可直接提取的字面量规则配置分布代码化。解密参数为 `DES/CBC/PKCS7`，key/IV 均为 `72 6b 00 00 00 00 46 46`。已归档的确切分布包括：
+
+- `Stage.SyncSetGold` 字面量：300 出现 5 个脚本，400 出现 1 个，450 出现 1 个，500 出现 5 个，600 出现 1 个，800 出现 3 个。
+- `Stage.SyncSetUnitLimit` 字面量：10 出现 5 个脚本，15 出现 6 个，20 出现 2 个，25 出现 1 个，30 出现 5 个，40 出现 1 个，50 出现 4 个，60 出现 1 个。
+- `Stage.SyncSetRecruitUnits` 全局列表共有 6 种字面量组合；`0..8` 组合出现 6 个脚本。
+- `Stage.SyncSetRecruitUnitsForTeam` 队伍级列表共有 13 种字面量组合，已按 `teamId + apkUnitIds + scriptCount` 记录。
+- `Stage.SyncSetAlliance` 字面量确认队伍 0 可设为联盟 1，队伍 1/2/3/4/5 可设为联盟 2，队伍 5 也出现过联盟 5。
+- `Stage.SyncDisableTeam` 字面量确认禁用队伍 1、3、4、5，其中队伍 1 出现 7 次、队伍 3 出现 4 次。
+- `rule.SetIncome*` 字面量确认 7 个脚本把村庄/城堡/指挥官基础/指挥官成长收入全部设为 0；另有 1 个脚本把村庄收入设为 100。
+
+该 manifest 不执行战役脚本，也不处理 `unit.GetMapX()` 等动态参数；动态配置仍需后续场景执行器或逐关卡解析处理。
+
 补充 DEX 方法表解析结果：
 
 | 类 | 方法签名 | 已确认含义 |
@@ -1023,10 +1035,17 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 合法动作在非 pending 状态下生成 `surrender`，pending 状态下不生成；执行后当前队伍失活，并复用联盟胜负结算。
 - `encodeAction/decodeAction` 已支持 `surrender`；内置 Random AI 与 Heuristic AI 不会把投降当作普通推进动作优先选择。
 
+2026-06-29 APK 脚本配置 manifest 补充：
+
+- `src/game/apk_script_manifest.ts` 归档 27 个已解密 `assets/mods/**/*.js` 的 `Stage.*` 与 `rule.SetIncome*` 调用次数。
+- 同文件归档可直接由字面量提取的规则配置分布：金币、单位上限、全局/队伍可招募列表、联盟、禁用队伍和收入覆盖。
+- 这一步只提供静态证据和后续场景配置输入，不执行 `Async*` 剧情 API，也不把动态参数误转为固定规则。
+- 验证：`npm test` 228 个测试通过，`npm run lint` 通过。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
 
 - APK SHA256 与既有记录一致：`51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`。
 - 复核来源包括：`APK\_analysis\unpack\assets\languages\zh.lang`、`assets\languages\en.lang`、`classes.dex` 字符串、`data.bin` 结论记录，以及当前 `src/game` 规则实现。
-- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地；APK 导入地图已优先使用 `data.bin` 的原始 tile 移动/防御/回血数值。当前最重要的差距仍是完整 APK tile 的贴图/类别语义、`.aem` 尾部业务语义和更系统的脚本配置归档。
+- 本轮确认 20 张根目录 skirmish `.aem` 的 58 字节尾部全部相同，全部可解析 `.aem` 仅出现两种固定尾部模板，并已把模板记录接入解析器；SD/SO skirmish 模式入口已落地；APK 导入地图已优先使用 `data.bin` 的原始 tile 移动/防御/回血数值。当前最重要的差距仍是完整 APK tile 的贴图/类别语义、`.aem` 尾部业务语义和逐关卡动态脚本配置执行。

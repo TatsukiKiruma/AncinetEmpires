@@ -238,6 +238,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，单位 static/targeted/head 标记已有基础适配，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
+新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。动态参数和剧情触发仍未转为逐关卡场景配置。
+
 ## 12. 明确未完成的差异
 
 | 优先级 | 差异 | 影响 |
@@ -245,7 +247,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | P0 | 低可信 APK tile 语义未校准 | skirmish 可运行，但部分地形分类可能偏离官方 |
 | P0 | `.aem` 尾部 58 字节模板语义未确认 | 当前没有证据表明 skirmish 依赖该尾部表达联盟；仍需反编译或更多地图格式样本确认 |
 | P1 | `ApkAemMap -> GameState` 仍缺完整场景配置 | SD/SO 基础模式入口和地图级元数据已完成；战役、特殊脚本和非 skirmish 模式仍需独立场景层 |
-| P1 | 所有脚本配置没有系统归档成关卡配置表 | 战役和特殊 skirmish 规则无法批量复现 |
+| P1 | 脚本字面量配置已归档，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
 | P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
 | P1 | stacked/pending 的部署后移动细节未知 | 城堡招募体验和 APK UI 行为可能不完全一致 |
 | P2 | `Async*` 剧情/演出 API 未实现 | 影响战役复刻，不影响基础 AI 训练 |
@@ -269,8 +271,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 已有代码入口为 `createApkSkirmishGameState`；后续数据表应围绕该入口补足校准证据。
 
 4. 系统归档脚本配置。
-   - 提取 `Stage.SyncSetGold`、`SyncSetUnitLimit`、`SyncSetRecruitUnits`、`SyncSetAlliance`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncGameOver`、`SyncSetUnitStatic*`、`SyncSetUnitTargeted*` 等调用。
-   - 区分“规则配置”“目标判断”“剧情演出”三类。
+   - 已提取并代码化 API 计数，以及金币、单位上限、招募、联盟、禁用队伍和收入覆盖的字面量分布。
+   - 下一步按关卡输出配置表，处理动态参数，并继续区分“规则配置”“目标判断”“剧情演出”三类。
 
 5. 针对 APK 实机或反编译补测高风险细节。
    - 指挥官死亡后是否可复活、复活价格默认值。

@@ -10,6 +10,7 @@ import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } f
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
+import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount } from '../apk_script_manifest';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
@@ -228,6 +229,54 @@ describe('GameEngine Rules', () => {
         expect(mismatchedState.metadata?.apkVersion).toBeUndefined();
         expect(mismatchedState.metadata?.apkSha256).toBeUndefined();
         expect(mismatchedState.metadata?.apkResourcePath).toBeUndefined();
+    });
+
+    it('APK mods 脚本 API 计数和字面量规则配置已归档', () => {
+        expect(APK_SCRIPT_DECRYPTED_JS_FILE_COUNT).toBe(27);
+        expect(APK_SCRIPT_DECRYPTION_INFO).toEqual(expect.objectContaining({
+            sourceGlob: 'assets/mods/**/*.js',
+            cipher: 'DES/CBC/PKCS7',
+            keyHex: '72 6b 00 00 00 00 46 46'
+        }));
+
+        expect(APK_SCRIPT_API_CALL_COUNTS['Stage.AsyncMessage']).toBe(187);
+        expect(APK_SCRIPT_API_CALL_COUNTS['Stage.SyncSetUnitLimit']).toBe(25);
+        expect(APK_SCRIPT_API_CALL_COUNTS['Stage.SyncSetRecruitUnitsForTeam']).toBe(14);
+        expect(APK_SCRIPT_API_CALL_COUNTS['Stage.SyncSetAlliance']).toBe(12);
+        expect(APK_SCRIPT_API_CALL_COUNTS['rule.SetIncomeVillage']).toBe(8);
+        expect(getApkScriptApiCallCount('Stage.SyncSetGold')).toBe(16);
+        expect(getApkScriptApiCallCount('Stage.Unknown')).toBe(0);
+
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.syncSetGold).toEqual([
+            { value: 300, scriptCount: 5 },
+            { value: 400, scriptCount: 1 },
+            { value: 450, scriptCount: 1 },
+            { value: 500, scriptCount: 5 },
+            { value: 600, scriptCount: 1 },
+            { value: 800, scriptCount: 3 }
+        ]);
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.syncSetUnitLimit.map(entry => entry.value)).toEqual([10, 15, 20, 25, 30, 40, 50, 60]);
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.syncSetRecruitUnits).toContainEqual({
+            apkUnitIds: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            scriptCount: 6
+        });
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.syncSetRecruitUnitsForTeam).toContainEqual({
+            teamId: 0,
+            apkUnitIds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 16, 17, 19, 20],
+            scriptCount: 2
+        });
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.syncSetAlliance).toContainEqual({
+            teamId: 5,
+            allianceId: 2,
+            callCount: 2
+        });
+        expect(APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.ruleIncomeProfiles).toContainEqual({
+            incomeVillage: 0,
+            incomeCastle: 0,
+            incomeCommanderBase: 0,
+            incomeCommanderGrowth: 0,
+            scriptCount: 7
+        });
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {
