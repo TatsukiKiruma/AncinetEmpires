@@ -36,7 +36,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     if (hasAbi(attacker, 'destroyer') && defTerrain.key === 'town') {
         extraAttack += 10;
     }
-    if (hasAbi(attacker, 'flying') && isWaterTerrain(defTile.terrainId) && !hasAbi(defender, 'flying')) {
+    if (hasAbi(attacker, 'flying') && isWaterTerrain(defTile) && !hasAbi(defender, 'flying')) {
         extraAttack += 10;
     }
     if (hasAbi(attacker, 'death_reaper') && defender.status && (defender.status.type === 'poisoned' || defender.status.type === 'blinded' || defender.status.type === 'weakened')) {

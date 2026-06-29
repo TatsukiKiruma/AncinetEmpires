@@ -52,7 +52,7 @@
 | 能力 | 26 个能力名和说明 | `src/game/types.ts` 与 `abilities.ts` 已建模 26 个能力 | 基础对齐 |
 | 状态 | 中毒、鼓舞、致盲、虚弱 | `StatusType` 包含 4 个状态；状态不叠加 | 已对齐 |
 | 伤害公式 | 语言表说明“攻击-防御后乘血量比例”，能力继续修正 | `rules.ts` 按血量比例、地形防御、能力加成计算 | 大体对齐 |
-| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用原始 tile 的移动/防御/回血数值 | skirmish 数值更接近 APK，完整贴图/类别语义仍待校准 |
+| 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用原始 tile 的移动/防御/回血数值，地形之子与空军打水中单位等分类优先按 `apkTerrainId` 映射判断 | skirmish 数值更接近 APK，完整贴图/类别语义仍待校准 |
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现 | 基础对齐，细节待实测 |
 | 投降 | DEX 存在 `Cannot surrender when stacked!`，确认有投降入口且受 stacked 限制 | `RuleConfig.allowSurrender` + `surrender` 动作已实现；APK skirmish 默认开启，pending 时不生成 | 规则入口已对齐，菜单 UI 细节待实测 |

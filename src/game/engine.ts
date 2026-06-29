@@ -696,13 +696,13 @@ export class GameEngine {
                         
                         // 3. 水之子/森林之子/山之子地形回血
                         if (!isCurrentlyPoisoned) {
-                            if (hasAbility(u, 'water_child') && isWaterTerrain(tile.terrainId)) {
+                            if (hasAbility(u, 'water_child') && isWaterTerrain(tile)) {
                                 healAmount += 10;
                             }
-                            if (hasAbility(u, 'forest_child') && isForestTerrain(tile.terrainId)) {
+                            if (hasAbility(u, 'forest_child') && isForestTerrain(tile)) {
                                 healAmount += 10;
                             }
-                            if (hasAbility(u, 'mountain_child') && isMountainTerrain(tile.terrainId)) {
+                            if (hasAbility(u, 'mountain_child') && isMountainTerrain(tile)) {
                                 healAmount += 10;
                             }
                         }

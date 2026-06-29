@@ -1,7 +1,7 @@
 import { GameState, LevelCap, Unit, Ability, UnitLevel } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
-import { getApkTerrainConfig } from './apk_terrain';
+import { getApkTerrainConfig, mapSkirmishApkTerrainId } from './apk_terrain';
 import { getTileMoveCost } from './terrain_rules';
 
 /**
@@ -26,39 +26,50 @@ export function isUndead(unit: Unit): boolean {
     return hasAbility(unit, 'undead');
 }
 
+type TerrainRef = TerrainId | Tile;
+
+function getTerrainIdForRuleTags(terrain: TerrainRef): TerrainId {
+    if (typeof terrain === 'number') return terrain;
+    if (terrain.apkTerrainId !== undefined) {
+        return mapSkirmishApkTerrainId(terrain.apkTerrainId) ?? terrain.terrainId;
+    }
+    return terrain.terrainId;
+}
+
 /**
- * 检查地形标签，APK 地形有多种贴图变体，规则层按标签归类。
+ * 检查地形标签，APK 地形有多种贴图变体，规则层优先按 APK tile 映射归类。
  */
-function terrainHasTag(terrainId: TerrainId, tag: string): boolean {
+function terrainHasTag(terrain: TerrainRef, tag: string): boolean {
+    const terrainId = getTerrainIdForRuleTags(terrain);
     return TERRAIN_CONFIG[terrainId]?.tags.includes(tag) ?? false;
 }
 
 /**
  * 水地形：含 water 标签；APK 文案明确桥也算水面地形。
  */
-export function isWaterTerrain(terrainId: TerrainId): boolean {
-    return terrainHasTag(terrainId, 'water');
+export function isWaterTerrain(terrain: TerrainRef): boolean {
+    return terrainHasTag(terrain, 'water');
 }
 
 /**
  * 山地地形：含 mountain 标签，不包含孤岛。
  */
-export function isMountainTerrain(terrainId: TerrainId): boolean {
-    return terrainHasTag(terrainId, 'mountain');
+export function isMountainTerrain(terrain: TerrainRef): boolean {
+    return terrainHasTag(terrain, 'mountain');
 }
 
 /**
  * 森林地形：含 forest 标签。
  */
-export function isForestTerrain(terrainId: TerrainId): boolean {
-    return terrainHasTag(terrainId, 'forest');
+export function isForestTerrain(terrain: TerrainRef): boolean {
+    return terrainHasTag(terrain, 'forest');
 }
 
 /**
  * 陆地地形：具有 land 标签的地形
  */
-export function isLandTerrain(terrainId: TerrainId): boolean {
-    return terrainHasTag(terrainId, 'land');
+export function isLandTerrain(terrain: TerrainRef): boolean {
+    return terrainHasTag(terrain, 'land');
 }
 
 /**
@@ -92,26 +103,26 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
     }
     
     // 水之子在水地形移动消耗 1
-    if (hasAbility(unit, 'water_child') && isWaterTerrain(terrainId)) {
+    if (hasAbility(unit, 'water_child') && isWaterTerrain(tile)) {
         return 1;
     }
     
     // 森林之子在森林移动消耗 1
-    if (hasAbility(unit, 'forest_child') && isForestTerrain(terrainId)) {
+    if (hasAbility(unit, 'forest_child') && isForestTerrain(tile)) {
         return 1;
     }
     
     // 山之子在山脉/丘陵移动消耗 1
-    if (hasAbility(unit, 'mountain_child') && isMountainTerrain(terrainId)) {
+    if (hasAbility(unit, 'mountain_child') && isMountainTerrain(tile)) {
         return 1;
     }
     
     // 大地之子
     if (hasAbility(unit, 'earth_child')) {
-        if (isWaterTerrain(terrainId)) {
+        if (isWaterTerrain(tile)) {
             return 2; // 水地形移动消耗 2
         }
-        if (isLandTerrain(terrainId)) {
+        if (isLandTerrain(tile)) {
             return 1; // 陆地移动消耗 1
         }
     }
@@ -125,15 +136,14 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
 export function getAttackBonus(state: GameState, attacker: Unit, defender: Unit): number {
     let bonus = 0;
     const atkTile = state.map.tiles[attacker.pos.y][attacker.pos.x];
-    const terrainId = atkTile.terrainId;
     
-    if (hasAbility(attacker, 'water_child') && isWaterTerrain(terrainId)) {
+    if (hasAbility(attacker, 'water_child') && isWaterTerrain(atkTile)) {
         bonus += 10;
     }
-    if (hasAbility(attacker, 'forest_child') && isForestTerrain(terrainId)) {
+    if (hasAbility(attacker, 'forest_child') && isForestTerrain(atkTile)) {
         bonus += 10;
     }
-    if (hasAbility(attacker, 'mountain_child') && isMountainTerrain(terrainId)) {
+    if (hasAbility(attacker, 'mountain_child') && isMountainTerrain(atkTile)) {
         bonus += 10;
     }
     
@@ -146,15 +156,14 @@ export function getAttackBonus(state: GameState, attacker: Unit, defender: Unit)
 export function getDefenseBonus(state: GameState, attacker: Unit, defender: Unit): number {
     let bonus = 0;
     const defTile = state.map.tiles[defender.pos.y][defender.pos.x];
-    const terrainId = defTile.terrainId;
     
-    if (hasAbility(defender, 'water_child') && isWaterTerrain(terrainId)) {
+    if (hasAbility(defender, 'water_child') && isWaterTerrain(defTile)) {
         bonus += 10;
     }
-    if (hasAbility(defender, 'forest_child') && isForestTerrain(terrainId)) {
+    if (hasAbility(defender, 'forest_child') && isForestTerrain(defTile)) {
         bonus += 10;
     }
-    if (hasAbility(defender, 'mountain_child') && isMountainTerrain(terrainId)) {
+    if (hasAbility(defender, 'mountain_child') && isMountainTerrain(defTile)) {
         bonus += 10;
     }
     

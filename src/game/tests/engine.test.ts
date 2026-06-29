@@ -621,6 +621,40 @@ describe('GameEngine Rules', () => {
             defenseBonus: 10,
             healPerTurn: 20
         }));
+
+        const apkWaterTileAsRoad = { terrainId: 6 as const, ownerId: null, apkTerrainId: 2 };
+        const apkForestTileAsRoad = { terrainId: 6 as const, ownerId: null, apkTerrainId: 15 };
+        const apkMountainTileAsRoad = { terrainId: 6 as const, ownerId: null, apkTerrainId: 17 };
+        expect(isWaterTerrain(apkWaterTileAsRoad)).toBe(true);
+        expect(isForestTerrain(apkForestTileAsRoad)).toBe(true);
+        expect(isMountainTerrain(apkMountainTileAsRoad)).toBe(true);
+        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'water_elemental' }, apkWaterTileAsRoad)).toBe(1);
+        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf' }, apkWaterTileAsRoad)).toBe(2);
+        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf_archer' }, apkForestTileAsRoad)).toBe(1);
+        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'golem' }, apkMountainTileAsRoad)).toBe(1);
+
+        const apkAbilityState = createDemoState();
+        apkAbilityState.map.width = 2;
+        apkAbilityState.map.height = 1;
+        apkAbilityState.map.tiles = [[apkWaterTileAsRoad, { terrainId: 6, ownerId: null }]];
+        apkAbilityState.units = [
+            { ...state.units[0], id: 'apk_water_child', unitClass: 'water_elemental', ownerId: 0, pos: { x: 0, y: 0 } },
+            { ...state.units[0], id: 'apk_target', unitClass: 'soldier', ownerId: 1, pos: { x: 1, y: 0 } }
+        ];
+        expect(getAttackBonus(apkAbilityState, apkAbilityState.units[0], apkAbilityState.units[1])).toBe(10);
+        apkAbilityState.units[0].pos = { x: 1, y: 0 };
+        apkAbilityState.units[1].unitClass = 'water_elemental';
+        apkAbilityState.units[1].pos = { x: 0, y: 0 };
+        expect(getDefenseBonus(apkAbilityState, apkAbilityState.units[0], apkAbilityState.units[1])).toBe(10);
+
+        apkAbilityState.units[0].unitClass = 'dragon';
+        apkAbilityState.units[0].pos = { x: 1, y: 0 };
+        apkAbilityState.units[1].unitClass = 'soldier';
+        apkAbilityState.units[1].pos = { x: 0, y: 0 };
+        const flyingAttackWaterDamage = calculateDamage(apkAbilityState, 'apk_water_child', 'apk_target');
+        apkAbilityState.map.tiles[0][0] = { terrainId: 6, ownerId: null };
+        const flyingAttackRoadDamage = calculateDamage(apkAbilityState, 'apk_water_child', 'apk_target');
+        expect(flyingAttackWaterDamage - flyingAttackRoadDamage).toBe(15);
     });
 
     it('初始化与状态克隆不影响原状态', () => {

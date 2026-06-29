@@ -309,7 +309,7 @@ skirmish 训练导入映射：
 | `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
 | `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
 
-该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值，项目 `terrainId` 主要负责地形标签、占领/招募/收入等抽象语义。
+该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值；水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类也优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断。项目 `terrainId` 主要负责占领/招募/收入等抽象语义，并作为缺少 APK 原始 tile 时的兜底。
 
 完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，APK 导入地图会保留该原始移动值，避免普通地面单位把这类格子当成可正常通行深水。
 
@@ -1064,6 +1064,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `createGameStateFromApkAemMap` 在创建状态后会应用 `RuleConfig.initialGold` 和 `TeamRuleConfig.initialGold`；推荐金币仍作为无规则覆盖时的地图默认金币。
 - `createApkSkirmishGameState` 和 `applyApkScriptRuleConfig` 已统一使用公共合并逻辑，方便后续把 APK 脚本/场景规则叠加到 skirmish 地图。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过。
+
+2026-06-29 APK tile 感知的地形能力分类补充：
+
+- `abilities.ts` 的水/森林/山地/陆地判断现在可接收 `Tile`；若存在 `apkTerrainId`，优先使用 `SKIRMISH_APK_TERRAIN_TO_PROJECT` 的映射结果判断地形标签。
+- `getMoveCostForUnit`、地形之子攻防加成、回合开始地形之子回血，以及空军攻击水中单位的 +10 规则均改为使用 tile 感知分类。
+- 这避免 APK 导入地图中 `terrainId` 为兜底或近似值时，能力加成与 APK 原始 tile 分类不一致。
+- 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
 ## 16. 本次复核记录
 
