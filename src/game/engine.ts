@@ -3,8 +3,8 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS, TERRAIN_CONFIG } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTerrainIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
-import { getTileHealPerTurn } from './terrain_rules';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
+import { getTileHealPerTurn, getTileTerrainKey, tileHasTerrainTag } from './terrain_rules';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -440,7 +440,7 @@ export class GameEngine {
                 const destroyer = this.state.units.find(u => u.id === action.unitId);
                 if (destroyer) {
                     const tile = this.state.map.tiles[destroyer.pos.y][destroyer.pos.x];
-                    if (tile.terrainId === 9) { // 城镇
+                    if (getTileTerrainKey(tile) === 'town') {
                         tile.terrainId = 8; // 损坏城镇
                         tile.ownerId = null; // 无主中立
                         info = `Unit ${destroyer.id} destroyed town at ${destroyer.pos.x},${destroyer.pos.y}`;
@@ -470,7 +470,7 @@ export class GameEngine {
                 const unit = this.state.units.find(u => u.id === action.unitId);
                 if (unit) {
                     const tile = this.state.map.tiles[unit.pos.y][unit.pos.x];
-                    if (TERRAIN_CONFIG[tile.terrainId].key === 'damaged_town') {
+                    if (getTileTerrainKey(tile) === 'damaged_town') {
                         const townEntry = Object.entries(TERRAIN_CONFIG).find(([_, c]) => c.key === 'town');
                         if (townEntry) {
                             tile.terrainId = parseInt(townEntry[0]) as import('./terrain').TerrainId;
@@ -608,7 +608,7 @@ export class GameEngine {
                         for (let x = 0; x < this.state.map.width; x++) {
                            const tile = this.state.map.tiles[y][x];
                            if (tile.ownerId === nextPlayerId) {
-                               const income = getTerrainIncome(this.state, tile.terrainId);
+                               const income = getTileIncome(this.state, tile);
                                totalIncome += income;
                            }
                         }
@@ -673,10 +673,9 @@ export class GameEngine {
                         }
 
                         const tile = this.state.map.tiles[u.pos.y][u.pos.x];
-                        const tConfig = TERRAIN_CONFIG[tile.terrainId];
 
                         // 神庙类地形在回合开始清除负面状态，APK 文案未限定只能是陆地神庙。
-                        if (tConfig.tags.includes('cleanse')) {
+                        if (tileHasTerrainTag(tile, 'cleanse')) {
                             clearNegativeStatus(u);
                             // 若清除了 weakened，可能恢复移动力，重新更新 movementRemaining
                             const updatedEff = getEffectiveStats(u);
@@ -765,7 +764,7 @@ export class GameEngine {
             const hasUnits = this.state.units.some(u => u.ownerId === player.id && u.hp > 0);
             const hasCommander = getCommanderUnit(this.state, player.id) !== null;
             const hasCastle = this.state.map.tiles.some(row => row.some(tile => (
-                tile.ownerId === player.id && TERRAIN_CONFIG[tile.terrainId].key === 'castle'
+                tile.ownerId === player.id && getTileTerrainKey(tile) === 'castle'
             )));
             const hasNoUnitsAndNoCastles = !hasUnits && !hasCastle;
 

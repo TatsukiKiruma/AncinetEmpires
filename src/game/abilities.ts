@@ -1,8 +1,8 @@
 import { GameState, LevelCap, Unit, Ability, UnitLevel } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
-import { getApkTerrainConfig, mapSkirmishApkTerrainId } from './apk_terrain';
-import { getTileMoveCost } from './terrain_rules';
+import { getApkTerrainConfig } from './apk_terrain';
+import { getTileMoveCost, tileHasTerrainTag } from './terrain_rules';
 
 /**
  * 检查单位是否拥有特定能力
@@ -28,20 +28,14 @@ export function isUndead(unit: Unit): boolean {
 
 type TerrainRef = TerrainId | Tile;
 
-function getTerrainIdForRuleTags(terrain: TerrainRef): TerrainId {
-    if (typeof terrain === 'number') return terrain;
-    if (terrain.apkTerrainId !== undefined) {
-        return mapSkirmishApkTerrainId(terrain.apkTerrainId) ?? terrain.terrainId;
-    }
-    return terrain.terrainId;
-}
-
 /**
  * 检查地形标签，APK 地形有多种贴图变体，规则层优先按 APK tile 映射归类。
  */
 function terrainHasTag(terrain: TerrainRef, tag: string): boolean {
-    const terrainId = getTerrainIdForRuleTags(terrain);
-    return TERRAIN_CONFIG[terrainId]?.tags.includes(tag) ?? false;
+    if (typeof terrain === 'number') {
+        return TERRAIN_CONFIG[terrain]?.tags.includes(tag) ?? false;
+    }
+    return tileHasTerrainTag(terrain, tag);
 }
 
 /**

@@ -1,9 +1,9 @@
 import { Action, GameState, Position, UnitClass, Ability } from './types';
-import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
+import { UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, getRuleConfig, isActivePlayer, isCommanderUnit } from './rule_config';
-import { getTileDefenseBonus } from './terrain_rules';
+import { getTileDefenseBonus, getTileTerrainConfig, getTileTerrainKey } from './terrain_rules';
 
 /**
  * 纯规则校验模块
@@ -25,7 +25,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
 
     const atkStats = UNIT_CONFIGS[attacker.unitClass];
     const defTile = state.map.tiles[defender.pos.y][defender.pos.x];
-    const defTerrain = TERRAIN_CONFIG[defTile.terrainId];
+    const defTerrain = getTileTerrainConfig(defTile);
     const dist = getDistance(attacker.pos, defender.pos);
 
     // 其他攻击加成
@@ -130,7 +130,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
     for (const unit of validUnits) {
         const eff = getEffectiveStats(unit);
         const tileUnder = state.map.tiles[unit.pos.y][unit.pos.x];
-        const terrainConfig = TERRAIN_CONFIG[tileUnder.terrainId];
+        const terrainConfig = getTileTerrainConfig(tileUnder);
 
         // 2.1 移动 (在还没移动的情况下)
         if (!unit.hasMoved) {
@@ -226,7 +226,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         for (let y = 0; y < state.map.height; y++) {
             for (let x = 0; x < state.map.width; x++) {
                 const tile = state.map.tiles[y][x];
-                if (TERRAIN_CONFIG[tile.terrainId].key === 'castle' && tile.ownerId === playerId) {
+                if (getTileTerrainKey(tile) === 'castle' && tile.ownerId === playerId) {
                     const occupant = state.units.find(u => u.pos.x === x && u.pos.y === y);
                     
                     if (!occupant) {

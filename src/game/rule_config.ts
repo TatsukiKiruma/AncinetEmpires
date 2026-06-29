@@ -1,6 +1,7 @@
 import { GameState, RuleConfig, TeamRuleConfig, Unit, UnitClass } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
-import { TerrainId } from './terrain';
+import { TerrainId, Tile } from './terrain';
+import { getTileTerrainKey } from './terrain_rules';
 
 export const DEFAULT_RULE_CONFIG = {
     initialGold: undefined,
@@ -273,4 +274,12 @@ export function getTerrainIncome(state: GameState, terrainId: TerrainId): number
     if (terrainConfig.key === 'castle') return rules.incomeCastle;
 
     return terrainConfig.incomePerTurn || 0;
+}
+
+export function getTileIncome(state: GameState, tile: Tile): number {
+    const rules = getRuleConfig(state);
+    const key = getTileTerrainKey(tile);
+    if (key === 'town') return rules.incomeVillage;
+    if (key === 'castle') return rules.incomeCastle;
+    return 0;
 }

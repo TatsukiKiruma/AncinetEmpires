@@ -1072,6 +1072,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这避免 APK 导入地图中 `terrainId` 为兜底或近似值时，能力加成与 APK 原始 tile 分类不一致。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
+2026-06-29 APK tile 感知的地形语义统一补充：
+
+- `terrain_rules.ts` 新增 `getTileTerrainIdForRules`、`getTileTerrainConfig`、`getTileTerrainKey` 和 `tileHasTerrainTag`，统一把带 `apkTerrainId` 的格子先映射为 APK skirmish 规则地形。
+- 合法动作中的占领/摧毁/修理/招募、回合收入、胜负城堡统计，以及 Stage `CheckCastle/CheckVillage/CountCastle/CountVillage` 均改为使用上述 helper。
+- 这保证 APK 导入地图即使项目 `terrainId` 是近似或兜底值，城堡、村庄、损坏村庄、神庙等规则语义仍优先跟随 APK tile 映射。
+- 验证：`npm test` 229 个测试通过，`npm run lint` 通过。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

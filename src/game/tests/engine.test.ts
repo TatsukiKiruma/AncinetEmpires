@@ -17,7 +17,7 @@ import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitHead, syncSetUnitHeadWithCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
-import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
+import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainKey } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
 
@@ -655,6 +655,29 @@ describe('GameEngine Rules', () => {
         apkAbilityState.map.tiles[0][0] = { terrainId: 6, ownerId: null };
         const flyingAttackRoadDamage = calculateDamage(apkAbilityState, 'apk_water_child', 'apk_target');
         expect(flyingAttackWaterDamage - flyingAttackRoadDamage).toBe(15);
+
+        const apkCastleAsRoad = { terrainId: 6 as const, ownerId: 0, apkTerrainId: 37 };
+        const apkTownAsRoad = { terrainId: 6 as const, ownerId: 1, apkTerrainId: 36 };
+        expect(getTileTerrainKey(apkCastleAsRoad)).toBe('castle');
+        expect(getTileTerrainKey(apkTownAsRoad)).toBe('town');
+
+        const apkSemanticState = createDemoState({ recruitableUnits: ['soldier'] });
+        apkSemanticState.map.tiles[0][2] = apkCastleAsRoad;
+        apkSemanticState.map.tiles[1][0] = apkTownAsRoad;
+        expect(checkCastle(apkSemanticState, { x: 2, y: 0 }, 0)).toBe(true);
+        expect(checkVillage(apkSemanticState, { x: 0, y: 1 }, 1)).toBe(true);
+        expect(countCastle(apkSemanticState, 0)).toBe(2);
+        expect(countVillage(apkSemanticState, 1)).toBe(1);
+        expect(getLegalActions(apkSemanticState, 0).some(action => (
+            action.type === 'recruit_to_castle'
+            && action.castlePos.x === 2
+            && action.castlePos.y === 0
+        ))).toBe(true);
+
+        const incomeBefore = apkSemanticState.players.find(player => player.id === 1)!.gold;
+        const apkSemanticEngine = new GameEngine(apkSemanticState);
+        apkSemanticEngine.step({ type: 'end_turn' });
+        expect(apkSemanticEngine.getState().players.find(player => player.id === 1)!.gold).toBe(incomeBefore + 150);
     });
 
     it('初始化与状态克隆不影响原状态', () => {

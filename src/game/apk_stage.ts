@@ -3,7 +3,7 @@ import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { APK_TERRAIN_COUNT } from './apk_terrain';
 import { getDistance as getMapDistance } from './map';
 import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
-import { TERRAIN_CONFIG } from './terrain';
+import { getTileTerrainKey } from './terrain_rules';
 import { GameState, Position, RuleConfig, TeamRuleConfig, Unit, UnitClass, UnitLevel, UnitStatus } from './types';
 
 function ensureRules(state: GameState): RuleConfig {
@@ -216,13 +216,13 @@ export function getTileTeam(state: GameState, pos: Position): number | null {
 
 export function checkCastle(state: GameState, pos: Position, teamId?: number): boolean {
     const tile = getTileAt(state, pos);
-    if (!tile || TERRAIN_CONFIG[tile.terrainId]?.key !== 'castle') return false;
+    if (!tile || getTileTerrainKey(tile) !== 'castle') return false;
     return teamId === undefined || tile.ownerId === teamId;
 }
 
 export function checkVillage(state: GameState, pos: Position, teamId?: number): boolean {
     const tile = getTileAt(state, pos);
-    if (!tile || TERRAIN_CONFIG[tile.terrainId]?.key !== 'town') return false;
+    if (!tile || getTileTerrainKey(tile) !== 'town') return false;
     return teamId === undefined || tile.ownerId === teamId;
 }
 
@@ -436,13 +436,13 @@ export function countUnit(state: GameState, teamId: number, apkUnitId?: number):
 export function countCastle(state: GameState, teamId: number): number {
     return state.map.tiles
         .flat()
-        .filter(tile => tile.ownerId === teamId && TERRAIN_CONFIG[tile.terrainId]?.key === 'castle')
+        .filter(tile => tile.ownerId === teamId && getTileTerrainKey(tile) === 'castle')
         .length;
 }
 
 export function countVillage(state: GameState, teamId: number): number {
     return state.map.tiles
         .flat()
-        .filter(tile => tile.ownerId === teamId && TERRAIN_CONFIG[tile.terrainId]?.key === 'town')
+        .filter(tile => tile.ownerId === teamId && getTileTerrainKey(tile) === 'town')
         .length;
 }
