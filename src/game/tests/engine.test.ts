@@ -3111,10 +3111,11 @@ describe('GameEngine Rules', () => {
                     pos: { x: 0, y: 0 },
                     hp: 100,
                     maxHp: 100,
-                    hasMoved: false,
+                    hasMoved: true,
                     hasActed: false,
                     level: 1,
-                    exp: 100
+                    exp: 100,
+                    movementRemaining: 3
                 },
                 {
                     id: 'u_archer',
@@ -3125,7 +3126,8 @@ describe('GameEngine Rules', () => {
                     maxHp: 100,
                     hasMoved: false,
                     hasActed: false,
-                    status: { type: 'blinded' }
+                    status: { type: 'blinded' },
+                    hasBeenHealedThisTurn: true
                 },
                 {
                     id: 'u_golem',
@@ -3136,7 +3138,20 @@ describe('GameEngine Rules', () => {
                     maxHp: 100,
                     hasMoved: false,
                     hasActed: false,
-                    status: { type: 'weakened', remainingTurns: 1 }
+                    status: { type: 'weakened', remainingTurns: 1 },
+                    hasPostAttackMoved: true,
+                    hasBeenSupportedThisTurn: true
+                },
+                {
+                    id: 'u_poisoned',
+                    ownerId: 0,
+                    unitClass: 'soldier',
+                    pos: { x: 3, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    status: { type: 'poisoned', remainingTicks: 2 }
                 }
             ];
 
@@ -3147,17 +3162,36 @@ describe('GameEngine Rules', () => {
                 magicDefense: 25,
                 minRange: 1,
                 maxRange: 1,
-                move: 5
+                move: 5,
+                movementRemaining: 3,
+                hasMoved: true,
+                hasPostAttackMoved: false,
+                hasBeenHealedThisTurn: false,
+                hasBeenSupportedThisTurn: false,
+                statusRemainingTicks: null,
+                statusRemainingTurns: null
             }));
             expect(observation.units.find(unit => unit.id === 'u_archer')).toEqual(expect.objectContaining({
                 minRange: 0,
                 maxRange: 0,
-                move: 4
+                move: 4,
+                hasBeenHealedThisTurn: true,
+                statusRemainingTicks: null,
+                statusRemainingTurns: null
             }));
             expect(observation.units.find(unit => unit.id === 'u_golem')).toEqual(expect.objectContaining({
                 physicalDefense: 20,
                 magicDefense: 0,
-                move: 1
+                move: 1,
+                hasPostAttackMoved: true,
+                hasBeenSupportedThisTurn: true,
+                statusRemainingTicks: null,
+                statusRemainingTurns: 1
+            }));
+            expect(observation.units.find(unit => unit.id === 'u_poisoned')).toEqual(expect.objectContaining({
+                status: 'poisoned',
+                statusRemainingTicks: 2,
+                statusRemainingTurns: null
             }));
         });
 

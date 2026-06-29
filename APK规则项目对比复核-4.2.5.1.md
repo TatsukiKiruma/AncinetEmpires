@@ -424,6 +424,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
 - 单位位置、血量、等级、经验、状态、行动状态。
+- 单位隐藏规则状态：`movementRemaining/hasPostAttackMoved/hasBeenHealedThisTurn/hasBeenSupportedThisTurn/statusRemainingTicks/statusRemainingTurns`，用于暴露突击后移动、单回合治疗/支援限制和状态剩余时间。
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
 - 单位静态配置：`attackType/population/cost/abilities/isCommander`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格，`isCommander` 反映当前规则实际使用的指挥官判定。

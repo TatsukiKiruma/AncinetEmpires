@@ -104,10 +104,16 @@ export interface Observation {
     move: number;
     level: number;
     exp: number;
+    movementRemaining: number;
     hasMoved: boolean;
     hasActed: boolean;
+    hasPostAttackMoved: boolean;
+    hasBeenHealedThisTurn: boolean;
+    hasBeenSupportedThisTurn: boolean;
     isPending: boolean;
     status: string | null;
+    statusRemainingTicks: number | null;
+    statusRemainingTurns: number | null;
   }>;
   graves: Array<{
     id: string;
@@ -402,10 +408,16 @@ export class AncientEmpiresEnv {
                   move: effectiveStats.move,
                   level: u.level ?? 0,
                   exp: u.exp ?? 0,
+                  movementRemaining: u.movementRemaining ?? effectiveStats.move,
                   hasMoved: u.hasMoved,
                   hasActed: u.hasActed,
+                  hasPostAttackMoved: !!u.hasPostAttackMoved,
+                  hasBeenHealedThisTurn: !!u.hasBeenHealedThisTurn,
+                  hasBeenSupportedThisTurn: !!u.hasBeenSupportedThisTurn,
                   isPending: state.pendingUnitId === u.id,
-                  status: u.status ? u.status.type : null
+                  status: u.status ? u.status.type : null,
+                  statusRemainingTicks: u.status?.remainingTicks ?? null,
+                  statusRemainingTurns: u.status?.remainingTurns ?? null
               };
           }),
           graves: state.graves ? state.graves.map(g => ({
