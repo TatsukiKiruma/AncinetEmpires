@@ -2531,6 +2531,60 @@ describe('GameEngine Rules', () => {
             }));
         });
 
+        it('Observation 输出 APK 单位静态配置和当前规则价格', () => {
+            const state = createDemoState();
+            state.players[0].commanderDeathCount = 2;
+            state.rules = {
+                prices: { dragon: 900 },
+                commanderRecruitBaseCost: 500,
+                commanderRecruitCostGrowth: 100
+            };
+            state.units = [
+                {
+                    id: 'u_dragon',
+                    ownerId: 0,
+                    unitClass: 'dragon',
+                    pos: { x: 0, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                },
+                {
+                    id: 'u_commander',
+                    ownerId: 0,
+                    unitClass: 'commander',
+                    pos: { x: 1, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                }
+            ];
+
+            const env = new AncientEmpiresEnv({ initialState: state });
+            const observation = env.getObservation();
+            const dragon = observation.units.find(unit => unit.id === 'u_dragon')!;
+            const commander = observation.units.find(unit => unit.id === 'u_commander')!;
+
+            expect(dragon).toEqual(expect.objectContaining({
+                attackType: 'magic',
+                population: 5,
+                cost: 900,
+                abilities: UNIT_CONFIGS.dragon.abilities
+            }));
+            expect(dragon.abilities).not.toBe(UNIT_CONFIGS.dragon.abilities);
+            dragon.abilities.push('repairer');
+            expect(env.getObservation().units.find(unit => unit.id === 'u_dragon')!.abilities).toEqual(UNIT_CONFIGS.dragon.abilities);
+
+            expect(commander).toEqual(expect.objectContaining({
+                attackType: 'physical',
+                population: 0,
+                cost: 700,
+                abilities: UNIT_CONFIGS.commander.abilities
+            }));
+        });
+
         it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
             const state = createDemoState();
             state.players[0].gold = 0;

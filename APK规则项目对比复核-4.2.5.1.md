@@ -396,6 +396,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 单位位置、血量、等级、经验、状态、行动状态。
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
+- 单位静态配置：`attackType/population/cost/abilities`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格。
 - 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted`。
 - `apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息和地图 metadata。

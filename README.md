@@ -46,6 +46,8 @@ while (!initResult.done) {
 
 `observation.units` 还会输出 `attack/physicalDefense/magicDefense/minRange/maxRange/move`，这些字段同样是当前等级和状态修正后的有效数值。例如致盲单位射程会显示为 `0-0`，虚弱单位移动会显示为 `1`。
 
+`observation.units` 同时输出 `attackType/population/cost/abilities`。其中 `cost` 使用当前 `RuleConfig` 计算，能反映 APK `SetPrices` 价格覆盖和指挥官重招募价格配置；`abilities` 是单位能力列表的副本，训练侧读取后不会污染全局单位配置。
+
 ## Reward (奖励设定)
 
 当前的 Default Reward 为稀疏奖励（Sparse Reward），其值针对当前执行动作的玩家角度返回：

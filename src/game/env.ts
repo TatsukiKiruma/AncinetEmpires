@@ -1,7 +1,7 @@
 import { GameEngine } from './engine';
-import { ApkScriptState, GameMetadata, GameState, Action, StepResult } from './types';
+import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult } from './types';
 import { getLegalActions } from './rules';
-import { UNIT_CONFIGS } from './constants';
+import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
@@ -49,6 +49,10 @@ export interface Observation {
     apkTargeted?: boolean;
     ownerId: number;
     unitClass: string;
+    attackType: AttackType;
+    population: number;
+    cost: number | null;
+    abilities: Ability[];
     x: number;
     y: number;
     hp: number;
@@ -279,6 +283,7 @@ export class AncientEmpiresEnv {
           }))),
           units: state.units.map(u => {
               const effectiveStats = getEffectiveStats(u);
+              const unitConfig = UNIT_CONFIGS[u.unitClass];
               return {
                   id: u.id,
                   apkUnitId: u.apkUnitId,
@@ -288,6 +293,10 @@ export class AncientEmpiresEnv {
                   apkTargeted: u.apkTargeted,
                   ownerId: u.ownerId,
                   unitClass: u.unitClass,
+                  attackType: unitConfig.attackType,
+                  population: unitConfig.population,
+                  cost: getUnitCost(state, u.ownerId, u.unitClass),
+                  abilities: [...unitConfig.abilities],
                   x: u.pos.x,
                   y: u.pos.y,
                   hp: u.hp,
