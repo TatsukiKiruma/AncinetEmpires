@@ -1000,6 +1000,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation()` 新增 `turnPlayerIds`，并在 `players` 中输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`。
 - 这些字段只暴露当前规则状态，不改变招募、胜负或回合轮转判定；目的是让 AI 训练样本直接看到 APK 模式/脚本配置带来的队伍约束。
 
+2026-06-29 APK stacked/pending 状态进入 AI Observation：
+
+- DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。
+- 规则层已用 `pendingUnitId` 表达招募后的待处理单位，并在 pending 存在时只生成该单位动作。
+- `AncientEmpiresEnv.getObservation()` 新增 `pendingUnitId`，`observation.units[]` 新增 `isPending`，让训练侧不用只靠合法动作集合反推当前 stacked 状态。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

@@ -17,6 +17,7 @@ export function mulberry32(a: number): () => number {
 
 export interface Observation {
   currentPlayer: number;
+  pendingUnitId?: string;
   turn: number;
   turnPlayerIds: number[];
   mapWidth: number;
@@ -75,6 +76,7 @@ export interface Observation {
     exp: number;
     hasMoved: boolean;
     hasActed: boolean;
+    isPending: boolean;
     status: string | null;
   }>;
   graves: Array<{
@@ -264,6 +266,7 @@ export class AncientEmpiresEnv {
       const rules = getRuleConfig(state);
       return {
           currentPlayer: state.currentPlayer,
+          pendingUnitId: state.pendingUnitId,
           turn: state.turn,
           turnPlayerIds: getTurnPlayerIds(state),
           mapWidth: state.map.width,
@@ -331,6 +334,7 @@ export class AncientEmpiresEnv {
                   exp: u.exp ?? 0,
                   hasMoved: u.hasMoved,
                   hasActed: u.hasActed,
+                  isPending: state.pendingUnitId === u.id,
                   status: u.status ? u.status.type : null
               };
           }),

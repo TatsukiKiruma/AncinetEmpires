@@ -2724,6 +2724,35 @@ describe('GameEngine Rules', () => {
             }));
         });
 
+        it('Observation 输出 APK stacked/pending 招募状态', () => {
+            const state = createDemoState({
+                recruitableUnits: ['soldier']
+            });
+            state.units.find(unit => unit.id === 'u1')!.pos = { x: 2, y: 2 };
+
+            const env = new AncientEmpiresEnv({ initialState: state });
+            const recruitAction = env.getLegalActions().find(action => action.type === 'recruit_to_castle' && action.unitClass === 'soldier')!;
+            const recruitResult = env.stepAction(recruitAction);
+            const pendingUnit = recruitResult.state.units.find(unit => unit.id === recruitResult.state.pendingUnitId)!;
+
+            expect(recruitResult.observation.pendingUnitId).toBe(pendingUnit.id);
+            expect(recruitResult.observation.units.find(unit => unit.id === pendingUnit.id)).toEqual(expect.objectContaining({
+                isPending: true,
+                hasActed: false
+            }));
+            expect(recruitResult.legalActions.some(action => action.type === 'end_turn')).toBe(false);
+            expect(recruitResult.legalActions.every(action => (
+                action.type === 'wait'
+                || ('unitId' in action && action.unitId === pendingUnit.id)
+            ))).toBe(true);
+
+            const waitAction = recruitResult.legalActions.find(action => action.type === 'wait' && action.unitId === pendingUnit.id)!;
+            const waitResult = env.stepAction(waitAction);
+
+            expect(waitResult.observation.pendingUnitId).toBeUndefined();
+            expect(waitResult.observation.units.find(unit => unit.id === pendingUnit.id)?.isPending).toBe(false);
+        });
+
         it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
             const state = createDemoState();
             state.players[0].gold = 0;

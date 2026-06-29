@@ -226,6 +226,7 @@ DEX 字符串明确存在：
 
 - 项目通过 `pendingUnitId` 表达招募后的待处理状态。
 - pending 存在时只生成该单位动作，不生成招募和结束回合。
+- `AncientEmpiresEnv.getObservation()` 已输出 `pendingUnitId` 和单位级 `isPending`，训练侧可直接观察 stacked 状态。
 - 该规则方向与 DEX 字符串吻合，但 UI 精确行为仍未实机确认。
 
 ### 7.3 skirmish 终局
@@ -393,6 +394,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 - 玩家金币、存活状态、指挥官死亡次数。
 - 当前有效回合队伍：`turnPlayerIds`。
+- APK stacked/pending 招募状态：`pendingUnitId` 和单位级 `isPending`。
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限和可招募列表。
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
