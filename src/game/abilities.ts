@@ -263,8 +263,8 @@ export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): bool
         if (unit.exp >= threshold) {
             unit.level = nextLevel;
             upgraded = true;
-            // 升级时回满血
-            unit.hp = getEffectiveStats(unit).maxHp; 
+            // 升级至少回满血，但不裁剪治疗师造成的超上限生命。
+            unit.hp = Math.max(unit.hp, getEffectiveStats(unit).maxHp);
         } else {
             break;
         }

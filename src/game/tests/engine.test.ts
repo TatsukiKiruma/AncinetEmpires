@@ -5,7 +5,7 @@ import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
-import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
+import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel, addExp } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
@@ -2005,6 +2005,29 @@ describe('GameEngine Rules', () => {
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
             expect(resSoldier.level).toBe(1);
             expect(resSoldier.hp).toBe(100); // 升级回满血（基准100）
+        });
+
+        it('6.9b 升级回满血但不裁剪治疗师造成的超上限生命', () => {
+            const state = createDemoState();
+            const wounded = state.units[0];
+            wounded.unitClass = 'soldier';
+            wounded.exp = 90;
+            wounded.level = 0;
+            wounded.hp = 50;
+
+            expect(addExp(wounded, 10)).toBe(true);
+            expect(wounded.level).toBe(1);
+            expect(wounded.hp).toBe(100);
+
+            const overhealed = state.units[1];
+            overhealed.unitClass = 'soldier';
+            overhealed.exp = 90;
+            overhealed.level = 0;
+            overhealed.hp = 130;
+
+            expect(addExp(overhealed, 10)).toBe(true);
+            expect(overhealed.level).toBe(1);
+            expect(overhealed.hp).toBe(130);
         });
 
         it('6.10 经验达到 300 后升到 2 级', () => {
