@@ -3,7 +3,7 @@ import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, U
 import { getLegalActions } from './rules';
 import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isCommanderUnit, isTeamEnabled } from './rule_config';
-import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
+import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainConfig, getTileTerrainIdForRules, getTileTerrainKey } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
 import { ApkTerrainMappingConfidence, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
 
@@ -43,6 +43,9 @@ export interface Observation {
     x: number;
     y: number;
     terrainId: number;
+    ruleTerrainId: number;
+    terrainKey: string;
+    terrainTags: string[];
     ownerId: number | null;
     apkTerrainId?: number;
     apkTerrainRaw?: number;
@@ -303,6 +306,9 @@ export class AncientEmpiresEnv {
               x,
               y,
               terrainId: t.terrainId,
+              ruleTerrainId: getTileTerrainIdForRules(t),
+              terrainKey: getTileTerrainKey(t),
+              terrainTags: [...getTileTerrainConfig(t).tags],
               ownerId: t.ownerId,
               apkTerrainId: t.apkTerrainId,
               apkTerrainRaw: t.apkTerrainRaw,

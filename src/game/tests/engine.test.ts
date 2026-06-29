@@ -606,6 +606,9 @@ describe('GameEngine Rules', () => {
         const apkTileObservation = env.getObservation().tiles.find(tile => tile.x === 1 && tile.y === 0)!;
         expect(apkTileObservation).toEqual(expect.objectContaining({
             terrainId: 2,
+            ruleTerrainId: 2,
+            terrainKey: 'deep_water',
+            terrainTags: expect.arrayContaining(['water']),
             apkTerrainId: 0,
             apkTerrainMappingConfidence: 'atlas',
             moveCost: 16777215,
@@ -615,6 +618,9 @@ describe('GameEngine Rules', () => {
         const apkApproximateTileObservation = env.getObservation().tiles.find(tile => tile.x === 2 && tile.y === 0)!;
         expect(apkApproximateTileObservation).toEqual(expect.objectContaining({
             terrainId: 12,
+            ruleTerrainId: 12,
+            terrainKey: 'temple',
+            terrainTags: expect.arrayContaining(['temple', 'healing', 'cleanse']),
             apkTerrainId: 31,
             apkTerrainMappingConfidence: 'approximate',
             moveCost: 1,
@@ -673,6 +679,23 @@ describe('GameEngine Rules', () => {
             && action.castlePos.x === 2
             && action.castlePos.y === 0
         ))).toBe(true);
+        const apkSemanticObservation = new AncientEmpiresEnv({ initialState: apkSemanticState }).getObservation();
+        expect(apkSemanticObservation.tiles.find(tile => tile.x === 2 && tile.y === 0)).toEqual(expect.objectContaining({
+            terrainId: 6,
+            ruleTerrainId: 10,
+            terrainKey: 'castle',
+            terrainTags: expect.arrayContaining(['castle', 'recruit_source']),
+            apkTerrainId: 37,
+            apkTerrainMappingConfidence: 'confirmed'
+        }));
+        expect(apkSemanticObservation.tiles.find(tile => tile.x === 0 && tile.y === 1)).toEqual(expect.objectContaining({
+            terrainId: 6,
+            ruleTerrainId: 9,
+            terrainKey: 'town',
+            terrainTags: expect.arrayContaining(['town', 'income', 'capturable']),
+            apkTerrainId: 36,
+            apkTerrainMappingConfidence: 'confirmed'
+        }));
 
         const incomeBefore = apkSemanticState.players.find(player => player.id === 1)!.gold;
         const apkSemanticEngine = new GameEngine(apkSemanticState);

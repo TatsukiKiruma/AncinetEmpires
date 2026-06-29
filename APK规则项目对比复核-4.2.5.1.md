@@ -2,6 +2,8 @@
 
 分析日期：2026-06-29
 
+本轮复核：2026-06-29。本次复核只读取 APK、解包资源、根目录文档和 `src/game` 规则实现；未修改项目源码，也未修改 `demo` 目录。
+
 ## 1. 范围与约束
 
 本次只分析 APK 资源并对比项目规则，不修改项目代码，不修改 `demo` 目录文档。
@@ -19,6 +21,7 @@
 - 当前环境没有 `jadx`、`apktool`，因此本报告没有完整 Java 反编译结论。
 - DEX 只按字符串/API 暴露做佐证。
 - 可读规则主要来自语言表、`data.bin`、解密后的 AEM 地图和 JS 脚本。
+- 本轮没有重新生成大型解包产物；直接复用 `APK\_analysis\unpack` 和项目内已归档的 APK manifest/脚本 manifest 做复核。
 
 ## 2. 总体结论
 
@@ -416,6 +419,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 每格 `terrainId/ownerId`。
 - 每格 APK 原始字段和映射可信度：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
+- 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
 - 单位位置、血量、等级、经验、状态、行动状态。
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
@@ -425,7 +429,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 墓碑信息和地图 metadata。
 - APK 导入状态可把 `apkVersion/apkSha256/apkResourcePath` 透传到 Observation，用于锁定训练样本的规则证据来源。
 
-这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧至少能看到当前规则真正使用的 APK 原始 tile 数值。
+这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导。
 
 ## 11. 差异与风险清单
 

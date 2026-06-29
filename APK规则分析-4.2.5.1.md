@@ -1079,6 +1079,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这保证 APK 导入地图即使项目 `terrainId` 是近似或兜底值，城堡、村庄、损坏村庄、神庙等规则语义仍优先跟随 APK tile 映射。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过。
 
+2026-06-29 APK tile 规则语义进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().tiles` 在原有 `terrainId/apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/defenseBonus/healPerTurn/moveCost` 基础上，新增 `ruleTerrainId/terrainKey/terrainTags`。
+- `ruleTerrainId` 来自 `getTileTerrainIdForRules`，`terrainKey/terrainTags` 来自规则层实际使用的地形配置；若 APK 导入地图的原始 tile 映射为城堡、城镇、水面、森林或山地，训练侧可以直接观察到这些规则语义。
+- 这解决了 APK tile 被导入为项目近似地形时的隐藏信息问题。例如 APK `t37` 即使项目 `terrainId` 是 road，Observation 仍输出 `ruleTerrainId=10`、`terrainKey=castle` 和包含 `recruit_source` 的标签。
+- 验证：新增回归测试覆盖 APK `t37` 城堡和 `t36` 城镇在 Observation 中的规则语义输出。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：
