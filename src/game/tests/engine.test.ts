@@ -10,7 +10,7 @@ import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } f
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
-import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount } from '../apk_script_manifest';
+import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig } from '../apk_script_manifest';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
@@ -277,6 +277,35 @@ describe('GameEngine Rules', () => {
             incomeCommanderGrowth: 0,
             scriptCount: 7
         });
+
+        expect(APK_SCRIPT_LITERAL_RULE_CONFIGS).toHaveLength(26);
+        expect(getApkScriptLiteralRuleConfig('assets/mods/SO/controller.js')).toEqual({
+            resourcePath: 'assets/mods/SO/controller.js',
+            syncSetRecruitUnits: [[0, 1, 2, 3, 4, 5, 6, 7, 8]]
+        });
+        expect(getApkScriptLiteralRuleConfig('assets/mods/AEI/s1.js')).toEqual(expect.objectContaining({
+            syncSetUnitLimitValues: [10],
+            syncDisableTeamIds: [1],
+            syncRestoreTeamIds: [1],
+            ruleIncome: {
+                incomeVillage: 0,
+                incomeCastle: 0,
+                incomeCommanderBase: 0,
+                incomeCommanderGrowth: 0
+            }
+        }));
+        expect(getApkScriptLiteralRuleConfig('assets/mods/AEIII/s6.js')).toEqual(expect.objectContaining({
+            syncSetGoldValues: [500],
+            syncDisableTeamIds: [3],
+            syncSetAllianceCalls: [
+                { teamId: 1, allianceId: 2 },
+                { teamId: 2, allianceId: 2 },
+                { teamId: 3, allianceId: 2 },
+                { teamId: 4, allianceId: 2 },
+                { teamId: 5, allianceId: 2 }
+            ]
+        }));
+        expect(getApkScriptLiteralRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {

@@ -505,7 +505,7 @@ skirmish 训练导入映射：
 - `Stage.SyncDisableTeam` 字面量确认禁用队伍 1、3、4、5，其中队伍 1 出现 7 次、队伍 3 出现 4 次。
 - `rule.SetIncome*` 字面量确认 7 个脚本把村庄/城堡/指挥官基础/指挥官成长收入全部设为 0；另有 1 个脚本把村庄收入设为 100。
 
-该 manifest 不执行战役脚本，也不处理 `unit.GetMapX()` 等动态参数；动态配置仍需后续场景执行器或逐关卡解析处理。
+该 manifest 不执行战役脚本，也不处理 `unit.GetMapX()` 等动态参数；动态配置仍需后续场景执行器或逐关卡解析处理。本轮进一步新增 `APK_SCRIPT_LITERAL_RULE_CONFIGS`，按 `resourcePath` 记录 26 个脚本的逐脚本字面量规则配置；`SD/controller.js` 只有动态队伍摧毁/胜负调用，没有可提取的固定规则字面量，因此不进入该表。
 
 补充 DEX 方法表解析结果：
 
@@ -1039,6 +1039,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - `src/game/apk_script_manifest.ts` 归档 27 个已解密 `assets/mods/**/*.js` 的 `Stage.*` 与 `rule.SetIncome*` 调用次数。
 - 同文件归档可直接由字面量提取的规则配置分布：金币、单位上限、全局/队伍可招募列表、联盟、禁用队伍和收入覆盖。
+- `APK_SCRIPT_LITERAL_RULE_CONFIGS` 按资源路径记录 26 个脚本的逐脚本字面量配置，`getApkScriptLiteralRuleConfig(resourcePath)` 可用于后续场景配置生成。
 - 这一步只提供静态证据和后续场景配置输入，不执行 `Async*` 剧情 API，也不把动态参数误转为固定规则。
 - 验证：`npm test` 228 个测试通过，`npm run lint` 通过。
 
