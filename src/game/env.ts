@@ -1,5 +1,5 @@
 import { GameEngine } from './engine';
-import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass } from './types';
+import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass, LevelCap } from './types';
 import { getLegalActions } from './rules';
 import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isCommanderUnit, isTeamEnabled } from './rule_config';
@@ -25,6 +25,25 @@ export interface Observation {
   mapHeight: number;
   metadata?: GameMetadata;
   apkScriptState?: ApkScriptState;
+  rules: {
+    initialGold: number | null;
+    incomeVillage: number;
+    incomeCastle: number;
+    incomeCommanderBase: number;
+    incomeCommanderGrowth: number;
+    levelCap: LevelCap;
+    unitLimit: number | null;
+    populationLimit: number | null;
+    recruitableUnits: UnitClass[] | null;
+    priceOverrides: Partial<Record<UnitClass, number | null>>;
+    commanderRecruitBaseCost: number | null;
+    commanderRecruitCostGrowth: number;
+    allowSurrender: boolean;
+    defeatOnNoUnitsAndNoCastles: boolean;
+    defeatOnNoUnits: boolean;
+    defeatOnCommanderDeath: boolean;
+    defeatOnNoCastles: boolean;
+  };
   players: Array<{
     id: number;
     gold: number;
@@ -36,6 +55,7 @@ export interface Observation {
     unitLimit: number | null;
     populationLimit: number | null;
     recruitableUnits: UnitClass[];
+    recruitCosts: Partial<Record<UnitClass, number>>;
     commanderUnitId: string | null;
     commanderDeathCount: number;
   }>;
@@ -286,8 +306,31 @@ export class AncientEmpiresEnv {
               booleans: state.apkScriptState.booleans ? { ...state.apkScriptState.booleans } : undefined,
               integers: state.apkScriptState.integers ? { ...state.apkScriptState.integers } : undefined
           } : undefined,
+          rules: {
+              initialGold: rules.initialGold ?? null,
+              incomeVillage: rules.incomeVillage,
+              incomeCastle: rules.incomeCastle,
+              incomeCommanderBase: rules.incomeCommanderBase,
+              incomeCommanderGrowth: rules.incomeCommanderGrowth,
+              levelCap: rules.levelCap,
+              unitLimit: rules.unitLimit ?? null,
+              populationLimit: rules.populationLimit ?? null,
+              recruitableUnits: rules.recruitableUnits ? [...rules.recruitableUnits] : null,
+              priceOverrides: { ...rules.prices },
+              commanderRecruitBaseCost: rules.commanderRecruitBaseCost,
+              commanderRecruitCostGrowth: rules.commanderRecruitCostGrowth,
+              allowSurrender: rules.allowSurrender,
+              defeatOnNoUnitsAndNoCastles: rules.defeatOnNoUnitsAndNoCastles,
+              defeatOnNoUnits: rules.defeatOnNoUnits,
+              defeatOnCommanderDeath: rules.defeatOnCommanderDeath,
+              defeatOnNoCastles: rules.defeatOnNoCastles
+          },
           players: state.players.map(p => {
               const teamRules = rules.teams[p.id] ?? {};
+              const recruitableUnits = getRecruitableUnits(state, p.id);
+              const recruitCosts = Object.fromEntries(
+                  recruitableUnits.map(unitClass => [unitClass, getUnitCost(state, p.id, unitClass)])
+              ) as Partial<Record<UnitClass, number>>;
               return {
                   id: p.id,
                   gold: p.gold,
@@ -298,7 +341,8 @@ export class AncientEmpiresEnv {
                   population: getCurrentPopulation(state, p.id),
                   unitLimit: teamRules.unitLimit ?? rules.unitLimit ?? null,
                   populationLimit: teamRules.populationLimit ?? rules.populationLimit ?? null,
-                  recruitableUnits: getRecruitableUnits(state, p.id),
+                  recruitableUnits,
+                  recruitCosts,
                   commanderUnitId: getCommanderUnit(state, p.id)?.id ?? null,
                   commanderDeathCount: p.commanderDeathCount
               };

@@ -3240,11 +3240,25 @@ describe('GameEngine Rules', () => {
 
         it('Observation 输出 APK 队伍规则约束和联盟状态', () => {
             const state = createDemoState({
+                initialGold: 250,
+                incomeVillage: 70,
+                incomeCastle: 120,
+                incomeCommanderBase: 10,
+                incomeCommanderGrowth: 30,
+                levelCap: 5,
                 alliances: { 0: 5, 1: 5 },
                 disabledTeams: [1],
                 unitLimit: 6,
                 populationLimit: 8,
                 recruitableUnits: ['soldier', 'dragon'],
+                prices: { archer: 130, dragon: 800 },
+                commanderRecruitBaseCost: 500,
+                commanderRecruitCostGrowth: 90,
+                allowSurrender: true,
+                defeatOnNoUnitsAndNoCastles: false,
+                defeatOnNoUnits: true,
+                defeatOnCommanderDeath: true,
+                defeatOnNoCastles: true,
                 teams: {
                     0: {
                         unitLimit: 2,
@@ -3258,6 +3272,25 @@ describe('GameEngine Rules', () => {
             const player0 = observation.players.find(player => player.id === 0)!;
             const player1 = observation.players.find(player => player.id === 1)!;
 
+            expect(observation.rules).toEqual({
+                initialGold: 250,
+                incomeVillage: 70,
+                incomeCastle: 120,
+                incomeCommanderBase: 10,
+                incomeCommanderGrowth: 30,
+                levelCap: 5,
+                unitLimit: 6,
+                populationLimit: 8,
+                recruitableUnits: ['soldier', 'dragon'],
+                priceOverrides: { archer: 130, dragon: 800 },
+                commanderRecruitBaseCost: 500,
+                commanderRecruitCostGrowth: 90,
+                allowSurrender: true,
+                defeatOnNoUnitsAndNoCastles: false,
+                defeatOnNoUnits: true,
+                defeatOnCommanderDeath: true,
+                defeatOnNoCastles: true
+            });
             expect(observation.turnPlayerIds).toEqual([0]);
             expect(player0).toEqual(expect.objectContaining({
                 isAlive: true,
@@ -3268,6 +3301,10 @@ describe('GameEngine Rules', () => {
                 unitLimit: 2,
                 populationLimit: 3,
                 recruitableUnits: ['soldier', 'archer'],
+                recruitCosts: {
+                    soldier: UNIT_CONFIGS.soldier.cost,
+                    archer: 130
+                },
                 commanderUnitId: 'u1'
             }));
             expect(player1).toEqual(expect.objectContaining({
@@ -3279,6 +3316,10 @@ describe('GameEngine Rules', () => {
                 unitLimit: 6,
                 populationLimit: 8,
                 recruitableUnits: ['soldier', 'dragon'],
+                recruitCosts: {
+                    soldier: UNIT_CONFIGS.soldier.cost,
+                    dragon: 800
+                },
                 commanderUnitId: 'u2'
             }));
         });

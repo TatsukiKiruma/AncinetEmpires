@@ -1030,6 +1030,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation()` 新增 `turnPlayerIds`，并在 `players` 中输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`。
 - 这些字段只暴露当前规则状态，不改变招募、胜负或回合轮转判定；目的是让 AI 训练样本直接看到 APK 模式/脚本配置带来的队伍约束。
 
+2026-06-29 APK 全局规则和招募费用进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation()` 新增 `rules` 摘要，输出当前全局初始金币、村庄/城堡/指挥官收入、等级上限、全局单位/人口上限、全局可招募列表、价格覆盖、指挥官重招募费用配置、投降开关和失败条件。
+- `players[]` 新增 `recruitCosts`，按每个队伍当前有效 `recruitableUnits` 输出实际费用；该费用会反映 `RuleConfig.prices` 覆盖和指挥官死亡次数带来的重招募价格变化。
+- 这些字段只暴露规则快照，不改变任何合法动作或结算；目的是让训练侧不用把 APK 脚本配置、默认常量和队伍状态二次拼接后再推断经济/招募边界。
+
 2026-06-29 APK stacked/pending 状态进入 AI Observation：
 
 - DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。
