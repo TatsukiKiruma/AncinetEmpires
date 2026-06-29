@@ -155,13 +155,11 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         if (hasAbi(unit, 'healer')) {
             for (const friend of friendUnits) {
                 if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 1) {
-                    const friendEff = getEffectiveStats(friend);
-                    const canReceiveHealer = isUndead(friend) || friend.hp <= friendEff.maxHp;
                     const notHealedYet = !friend.hasBeenHealedThisTurn;
                     const notPoisoned = !(friend.status && friend.status.type === 'poisoned');
                     const isNotGroundToFlying = !(isFlying(friend) && !isFlying(unit));
 
-                    if (canReceiveHealer && notHealedYet && notPoisoned && isNotGroundToFlying) {
+                    if (notHealedYet && notPoisoned && isNotGroundToFlying) {
                         actions.push({ type: 'heal', healerId: unit.id, targetId: friend.id });
                     }
                 }

@@ -1101,6 +1101,34 @@ describe('GameEngine Rules', () => {
             expect(resFriend.hasBeenHealedThisTurn).toBe(true);
         });
 
+        it('5.1b 治疗师可以继续治疗已经超过最大血量的友军', () => {
+            const state = createDemoState();
+            const paladin = state.units.find(u => u.ownerId === 0)!;
+            paladin.unitClass = 'paladin';
+            paladin.pos = { x: 0, y: 0 };
+            paladin.hasActed = false;
+
+            const friend = state.units.find(u => u.ownerId === 0 && u.id !== paladin.id)!;
+            friend.unitClass = 'soldier';
+            friend.pos = { x: 0, y: 1 };
+            friend.hp = 130;
+            friend.maxHp = 100;
+
+            const healAction = getLegalActions(state, 0).find(action =>
+                action.type === 'heal'
+                && action.healerId === paladin.id
+                && action.targetId === friend.id
+            );
+            expect(healAction).toBeDefined();
+
+            const engine = new GameEngine(state);
+            engine.step(healAction!);
+
+            const resFriend = engine.getState().units.find(u => u.id === friend.id)!;
+            expect(resFriend.hp).toBe(170);
+            expect(resFriend.hasBeenHealedThisTurn).toBe(true);
+        });
+
         it('5.2 治疗师治疗骷髅/幽灵造成 40 伤害', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;
