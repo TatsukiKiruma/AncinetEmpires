@@ -2919,12 +2919,18 @@ describe('GameEngine Rules', () => {
             expect(checkVillage(state, { x: 1, y: 1 })).toBe(true);
             expect(checkVillage(state, { x: 1, y: 1 }, 0)).toBe(true);
             expect(checkVillage(state, { x: 1, y: 1 }, 1)).toBe(false);
+            expect(checkVillage(state, 1, 1)).toBe(true);
+            expect(checkVillage(state, 1, 1, 0)).toBe(true);
             expect(checkCastle(state, { x: 2, y: 2 })).toBe(true);
             expect(checkCastle(state, { x: 2, y: 2 }, 1)).toBe(true);
             expect(checkCastle(state, { x: 2, y: 2 }, 0)).toBe(false);
+            expect(checkCastle(state, 2, 2)).toBe(true);
+            expect(checkCastle(state, 2, 2, 1)).toBe(true);
             expect(getTileTeam(state, { x: 1, y: 1 })).toBe(0);
             expect(getTileTeam(state, { x: 2, y: 2 })).toBe(1);
             expect(getTileTeam(state, { x: 3, y: 3 })).toBeNull();
+            expect(getTileTeam(state, 1, 1)).toBe(0);
+            expect(getTileTeam(state, 3, 3)).toBeNull();
             expect(checkCastle(state, { x: -1, y: 0 })).toBe(false);
             expect(getTileTeam(state, { x: 99, y: 99 })).toBeNull();
         });
@@ -2943,6 +2949,7 @@ describe('GameEngine Rules', () => {
             expect(putInteger(state, 'counter', 1.5)).toBe(false);
 
             expect(getStageDistance({ x: 1, y: 2 }, { x: 4, y: 6 })).toBe(7);
+            expect(getStageDistance(1, 2, 4, 6)).toBe(7);
         });
 
         it('APK Stage 查询适配器可以设置 code 并按 code、坐标或队伍查询单位', () => {
@@ -2954,8 +2961,11 @@ describe('GameEngine Rules', () => {
             expect(commander.apkUnitCode).toBe('galamar');
             expect(getUnit(state, 'galamar')?.id).toBe(commander.id);
             expect(getUnit(state, commander.pos)?.id).toBe(commander.id);
+            expect(getUnit(state, commander.pos.x, commander.pos.y)?.id).toBe(commander.id);
             expect(getUnit(state, 'missing')).toBeNull();
             expect(syncSetUnitCode(state, soldier.pos, 'galamar')).toBe(false);
+            expect(syncSetUnitCode(state, soldier.pos.x, soldier.pos.y, 'soldier_code')).toBe(true);
+            expect(getUnit(state, 'soldier_code')?.id).toBe(soldier.id);
             expect(syncSetUnitCode(state, { x: 99, y: 99 }, 'ghost')).toBe(false);
 
             const team0Units = getUnits(state, 0).map(unit => unit.id).sort();
@@ -2963,6 +2973,7 @@ describe('GameEngine Rules', () => {
 
             soldier.hp = 0;
             expect(getUnit(state, soldier.pos)).toBeNull();
+            expect(getUnit(state, soldier.pos.x, soldier.pos.y)).toBeNull();
             expect(getUnits(state, 0).map(unit => unit.id)).toEqual(['u1']);
             expect(getUnits(state, 99)).toEqual([]);
         });
@@ -2981,8 +2992,8 @@ describe('GameEngine Rules', () => {
             expect(commander.apkUnitHead).toBe(5);
 
             expect(syncSetUnitStatic(state, soldier.pos, true)).toBe(true);
-            expect(syncSetUnitTargeted(state, soldier.pos, true)).toBe(true);
-            expect(syncSetUnitHead(state, soldier.pos, 2)).toBe(true);
+            expect(syncSetUnitTargeted(state, soldier.pos.x, soldier.pos.y, true)).toBe(true);
+            expect(syncSetUnitHead(state, soldier.pos.x, soldier.pos.y, 2)).toBe(true);
             expect(soldier.apkStatic).toBe(true);
             expect(soldier.apkTargeted).toBe(true);
             expect(soldier.apkUnitHead).toBe(2);

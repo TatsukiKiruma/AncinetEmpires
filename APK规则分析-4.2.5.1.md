@@ -483,16 +483,16 @@ skirmish 训练导入映射：
 | `Stage.SyncDisableTeam` / `SyncRestoreTeam` | 禁用/恢复指定队伍 |
 | `Stage.SyncDestroyTeam` | 销毁指定队伍 |
 | `Stage.SyncSetUnitLevel` | 按坐标设置单位等级，已在脚本中确认形态为 `x, y, level` |
-| `Stage.SyncSetUnitCode` | 按坐标给单位设置脚本 code |
+| `Stage.SyncSetUnitCode` | 按坐标给单位设置脚本 code，已确认形态为 `x, y, code` |
 | `Stage.AsyncCreateUnit` | 创建单位 |
 | `Stage.AsyncSummon` | 召唤单位 |
 | `Stage.AsyncReinforce` | 增援 |
 | `Stage.CountCastle` / `CountVillage` / `CountUnit` | 关卡统计条件 |
-| `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | 按坐标检查建筑和地块归属 |
-| `Stage.GetUnit` / `GetUnits` | 按 code/坐标/队伍查询单位 |
+| `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | 按坐标检查建筑和地块归属，脚本使用 `x, y` 形态 |
+| `Stage.GetUnit` / `GetUnits` | 按 code、`x, y` 坐标或队伍查询单位 |
 | `Stage.PutBoolean` / `GetBoolean` | 脚本布尔变量读写，常带默认值 |
 | `Stage.PutInteger` / `GetInteger` | 脚本整数变量读写，常带默认值 |
-| `Stage.GetDistance` | 坐标曼哈顿距离查询 |
+| `Stage.GetDistance` | 坐标曼哈顿距离查询，脚本使用 `x1, y1, x2, y2` 形态 |
 
 这些 API 说明 APK 的关卡层并不是固定全局规则，至少经济、等级、价格、招募列表、单位上限都可以由脚本配置。当前训练环境如果只做通用 skirmish，可以先用固定规则；如果目标是复刻战役或读取 APK 地图，就必须引入场景配置层。
 
@@ -507,6 +507,8 @@ skirmish 训练导入映射：
 - `rule.SetIncome*` 字面量确认 7 个脚本把村庄/城堡/指挥官基础/指挥官成长收入全部设为 0；另有 1 个脚本把村庄收入设为 100。
 
 该 manifest 不执行战役脚本，也不处理 `unit.GetMapX()` 等动态参数；动态配置仍需后续场景执行器或逐关卡解析处理。本轮进一步新增 `APK_SCRIPT_LITERAL_RULE_CONFIGS`，按 `resourcePath` 记录 26 个脚本的逐脚本字面量规则配置；`SD/controller.js` 只有动态队伍摧毁/胜负调用，没有可提取的固定规则字面量，因此不进入该表。
+
+脚本签名复核还确认：`Stage.SyncSetUnitCode(x, y, code)`、`Stage.SyncSetUnitStatic(x, y, flag)`、`Stage.SyncSetUnitTargeted(x, y, flag)`、`Stage.SyncSetUnitHead(x, y, head)`、`Stage.GetTileTeam(x, y)`、`Stage.CheckCastle(x, y)`、`Stage.GetUnit(x, y)` 和 `Stage.GetDistance(x1, y1, x2, y2)` 均有真实调用。项目 `src/game/apk_stage.ts` 已兼容这些 `x, y` 坐标形态，同时保留内部 `Position` 参数形态。
 
 2026-06-29 进一步新增 `src/game/apk_script_config.ts`，用于把上述逐脚本字面量配置安全转换为项目 `RuleConfig`：
 

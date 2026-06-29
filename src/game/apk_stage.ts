@@ -39,6 +39,15 @@ function isPosition(value: unknown): value is Position {
     return Number.isInteger(candidate.x) && Number.isInteger(candidate.y);
 }
 
+function toPosition(posOrX: Position | number, maybeY?: number): Position | null {
+    if (typeof posOrX === 'number') {
+        const pos = { x: posOrX, y: maybeY };
+        return isPosition(pos) ? pos : null;
+    }
+
+    return isPosition(posOrX) ? posOrX : null;
+}
+
 function findUnitByCode(state: GameState, code: string): Unit | undefined {
     return state.units.find(unit => unit.apkUnitCode === code && unit.hp > 0);
 }
@@ -118,7 +127,22 @@ export function getAliveAlliances(state: GameState): number[] {
     return getAliveAllianceIds(state);
 }
 
-export function getDistance(from: Position, to: Position): number {
+export function getDistance(from: Position, to: Position): number;
+export function getDistance(x1: number, y1: number, x2: number, y2: number): number;
+export function getDistance(
+    fromOrX: Position | number,
+    toOrY: Position | number,
+    maybeX?: number,
+    maybeY?: number
+): number {
+    const from = typeof fromOrX === 'number'
+        ? toPosition(fromOrX, toOrY as number)
+        : toPosition(fromOrX);
+    const to = typeof fromOrX === 'number'
+        ? (typeof maybeX === 'number' ? toPosition(maybeX, maybeY) : null)
+        : toPosition(toOrY as Position);
+
+    if (!from || !to) return Number.NaN;
     return getMapDistance(from, to);
 }
 
@@ -215,18 +239,42 @@ export function syncGameOver(state: GameState, allianceId: number): boolean {
     return true;
 }
 
-export function getTileTeam(state: GameState, pos: Position): number | null {
+export function getTileTeam(state: GameState, pos: Position): number | null;
+export function getTileTeam(state: GameState, x: number, y: number): number | null;
+export function getTileTeam(state: GameState, posOrX: Position | number, maybeY?: number): number | null {
+    const pos = toPosition(posOrX, maybeY);
+    if (!pos) return null;
     const tile = getTileAt(state, pos);
     return tile?.ownerId ?? null;
 }
 
-export function checkCastle(state: GameState, pos: Position, teamId?: number): boolean {
+export function checkCastle(state: GameState, pos: Position, teamId?: number): boolean;
+export function checkCastle(state: GameState, x: number, y: number, teamId?: number): boolean;
+export function checkCastle(
+    state: GameState,
+    posOrX: Position | number,
+    teamIdOrY?: number,
+    maybeTeamId?: number
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? teamIdOrY : undefined);
+    const teamId = typeof posOrX === 'number' ? maybeTeamId : teamIdOrY;
+    if (!pos) return false;
     const tile = getTileAt(state, pos);
     if (!tile || getTileTerrainKey(tile) !== 'castle') return false;
     return teamId === undefined || tile.ownerId === teamId;
 }
 
-export function checkVillage(state: GameState, pos: Position, teamId?: number): boolean {
+export function checkVillage(state: GameState, pos: Position, teamId?: number): boolean;
+export function checkVillage(state: GameState, x: number, y: number, teamId?: number): boolean;
+export function checkVillage(
+    state: GameState,
+    posOrX: Position | number,
+    teamIdOrY?: number,
+    maybeTeamId?: number
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? teamIdOrY : undefined);
+    const teamId = typeof posOrX === 'number' ? maybeTeamId : teamIdOrY;
+    if (!pos) return false;
     const tile = getTileAt(state, pos);
     if (!tile || getTileTerrainKey(tile) !== 'town') return false;
     return teamId === undefined || tile.ownerId === teamId;
@@ -266,11 +314,21 @@ export function syncSetCommander(state: GameState, teamIdOrX: number, posOrY: Po
     return true;
 }
 
-export function syncSetUnitCode(state: GameState, pos: Position, code: string): boolean {
+export function syncSetUnitCode(state: GameState, pos: Position, code: string): boolean;
+export function syncSetUnitCode(state: GameState, x: number, y: number, code: string): boolean;
+export function syncSetUnitCode(
+    state: GameState,
+    posOrX: Position | number,
+    codeOrY: string | number,
+    maybeCode?: string
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? codeOrY as number : undefined);
+    const code = typeof posOrX === 'number' ? maybeCode : codeOrY;
     if (typeof code !== 'string') return false;
     const normalizedCode = code.trim();
     if (normalizedCode === '') return false;
 
+    if (!pos) return false;
     const unit = findUnitAt(state, pos);
     if (!unit) return false;
 
@@ -281,8 +339,18 @@ export function syncSetUnitCode(state: GameState, pos: Position, code: string): 
     return true;
 }
 
-export function syncSetUnitStatic(state: GameState, pos: Position, isStatic: boolean): boolean {
+export function syncSetUnitStatic(state: GameState, pos: Position, isStatic: boolean): boolean;
+export function syncSetUnitStatic(state: GameState, x: number, y: number, isStatic: boolean): boolean;
+export function syncSetUnitStatic(
+    state: GameState,
+    posOrX: Position | number,
+    isStaticOrY: boolean | number,
+    maybeIsStatic?: boolean
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? isStaticOrY as number : undefined);
+    const isStatic = typeof posOrX === 'number' ? maybeIsStatic : isStaticOrY;
     if (typeof isStatic !== 'boolean') return false;
+    if (!pos) return false;
     const unit = findUnitAt(state, pos);
     if (!unit) return false;
 
@@ -301,8 +369,18 @@ export function syncSetUnitStaticWithCode(state: GameState, code: string, isStat
     return true;
 }
 
-export function syncSetUnitTargeted(state: GameState, pos: Position, targeted: boolean): boolean {
+export function syncSetUnitTargeted(state: GameState, pos: Position, targeted: boolean): boolean;
+export function syncSetUnitTargeted(state: GameState, x: number, y: number, targeted: boolean): boolean;
+export function syncSetUnitTargeted(
+    state: GameState,
+    posOrX: Position | number,
+    targetedOrY: boolean | number,
+    maybeTargeted?: boolean
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? targetedOrY as number : undefined);
+    const targeted = typeof posOrX === 'number' ? maybeTargeted : targetedOrY;
     if (typeof targeted !== 'boolean') return false;
+    if (!pos) return false;
     const unit = findUnitAt(state, pos);
     if (!unit) return false;
 
@@ -321,8 +399,19 @@ export function syncSetUnitTargetedWithCode(state: GameState, code: string, targ
     return true;
 }
 
-export function syncSetUnitHead(state: GameState, pos: Position, head: number): boolean {
+export function syncSetUnitHead(state: GameState, pos: Position, head: number): boolean;
+export function syncSetUnitHead(state: GameState, x: number, y: number, head: number): boolean;
+export function syncSetUnitHead(
+    state: GameState,
+    posOrX: Position | number,
+    headOrY: number,
+    maybeHead?: number
+): boolean {
+    const pos = toPosition(posOrX, typeof posOrX === 'number' ? headOrY : undefined);
+    const head = typeof posOrX === 'number' ? maybeHead : headOrY;
+    if (typeof head !== 'number') return false;
     if (!isValidUnitHead(head)) return false;
+    if (!pos) return false;
     const unit = findUnitAt(state, pos);
     if (!unit) return false;
 
@@ -467,12 +556,16 @@ export function getCommander(state: GameState, teamId: number): Unit | null {
     return getCommanderUnit(state, teamId);
 }
 
-export function getUnit(state: GameState, query: string | Position): Unit | null {
-    if (typeof query === 'string') {
-        return findUnitByCode(state, query) ?? null;
+export function getUnit(state: GameState, query: string | Position): Unit | null;
+export function getUnit(state: GameState, x: number, y: number): Unit | null;
+export function getUnit(state: GameState, queryOrX: string | Position | number, maybeY?: number): Unit | null {
+    if (typeof queryOrX === 'string') {
+        return findUnitByCode(state, queryOrX) ?? null;
     }
 
-    return findUnitAt(state, query) ?? null;
+    const pos = toPosition(queryOrX, maybeY);
+    if (!pos) return null;
+    return findUnitAt(state, pos) ?? null;
 }
 
 export function getUnits(state: GameState, teamId: number): Unit[] {
