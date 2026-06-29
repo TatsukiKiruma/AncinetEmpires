@@ -33,6 +33,12 @@ function findUnitAt(state: GameState, pos: Position): Unit | undefined {
     return state.units.find(unit => unit.pos.x === pos.x && unit.pos.y === pos.y && unit.hp > 0);
 }
 
+function isPosition(value: unknown): value is Position {
+    if (!value || typeof value !== 'object') return false;
+    const candidate = value as Position;
+    return Number.isInteger(candidate.x) && Number.isInteger(candidate.y);
+}
+
 function findUnitByCode(state: GameState, code: string): Unit | undefined {
     return state.units.find(unit => unit.apkUnitCode === code && unit.hp > 0);
 }
@@ -236,11 +242,23 @@ export function syncSetAlliance(state: GameState, teamId: number, allianceId: nu
     return true;
 }
 
-export function syncSetCommander(state: GameState, teamId: number, pos: Position): boolean {
-    if (!state.players.some(player => player.id === teamId)) return false;
+export function syncSetCommander(state: GameState, teamId: number, pos: Position): boolean;
+export function syncSetCommander(state: GameState, x: number, y: number): boolean;
+export function syncSetCommander(state: GameState, teamIdOrX: number, posOrY: Position | number): boolean {
+    let teamId = teamIdOrX;
+    let unit: Unit | undefined;
 
-    const unit = findUnitAt(state, pos);
-    if (!unit || unit.ownerId !== teamId) return false;
+    if (typeof posOrY === 'number') {
+        unit = findUnitAt(state, { x: teamIdOrX, y: posOrY });
+        if (!unit) return false;
+        teamId = unit.ownerId;
+        if (!state.players.some(player => player.id === teamId)) return false;
+    } else {
+        if (!isPosition(posOrY)) return false;
+        if (!state.players.some(player => player.id === teamId)) return false;
+        unit = findUnitAt(state, posOrY);
+        if (!unit || unit.ownerId !== teamId) return false;
+    }
 
     const rules = ensureRules(state);
     rules.commanderUnitIds ??= {};
@@ -364,7 +382,26 @@ export function syncSetRecruitUnitsForTeam(state: GameState, teamId: number, apk
     return true;
 }
 
-export function syncSetUnitLevel(state: GameState, pos: Position, level: number, refillHp = true): boolean {
+export function syncSetUnitLevel(state: GameState, pos: Position, level: number, refillHp?: boolean): boolean;
+export function syncSetUnitLevel(state: GameState, x: number, y: number, level: number, refillHp?: boolean): boolean;
+export function syncSetUnitLevel(
+    state: GameState,
+    posOrX: Position | number,
+    levelOrY: number,
+    levelOrRefillHp?: number | boolean,
+    maybeRefillHp = true
+): boolean {
+    const pos = typeof posOrX === 'number'
+        ? { x: posOrX, y: levelOrY }
+        : posOrX;
+    const level = typeof posOrX === 'number'
+        ? levelOrRefillHp
+        : levelOrY;
+    const refillHp = typeof posOrX === 'number'
+        ? maybeRefillHp
+        : (typeof levelOrRefillHp === 'boolean' ? levelOrRefillHp : true);
+
+    if (!isPosition(pos) || typeof level !== 'number') return false;
     const unitLevel = toUnitLevel(level);
     const unit = findUnitAt(state, pos);
     if (!unit || unitLevel === null) return false;
@@ -382,7 +419,27 @@ export function syncSetUnitLevel(state: GameState, pos: Position, level: number,
     return true;
 }
 
-export function syncSetUnitStatus(state: GameState, pos: Position, statusId: number, rounds: number): boolean {
+export function syncSetUnitStatus(state: GameState, pos: Position, statusId: number, rounds: number): boolean;
+export function syncSetUnitStatus(state: GameState, x: number, y: number, statusId: number, rounds: number, replaceExisting?: boolean): boolean;
+export function syncSetUnitStatus(
+    state: GameState,
+    posOrX: Position | number,
+    statusIdOrY: number,
+    roundsOrStatusId: number,
+    maybeRounds?: number,
+    _replaceExisting?: boolean
+): boolean {
+    const pos = typeof posOrX === 'number'
+        ? { x: posOrX, y: statusIdOrY }
+        : posOrX;
+    const statusId = typeof posOrX === 'number'
+        ? roundsOrStatusId
+        : statusIdOrY;
+    const rounds = typeof posOrX === 'number'
+        ? maybeRounds
+        : roundsOrStatusId;
+
+    if (!isPosition(pos) || typeof rounds !== 'number') return false;
     const unit = findUnitAt(state, pos);
     const status = normalizeStatus(statusId, rounds);
     if (!unit || !status) return false;

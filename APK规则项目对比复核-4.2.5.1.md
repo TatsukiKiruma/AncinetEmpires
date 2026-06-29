@@ -391,7 +391,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 金币、单位上限、可招募列表、联盟、禁用/恢复/摧毁队伍、强制终局。
 - 单位 code、static、targeted、head 元数据。
 - 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind。
-- 单位等级和状态设置；`SyncSetUnitLevel` 默认回满血，但不会把既有超上限生命压回最大生命。
+- 单位等级和状态设置；`SyncSetUnitLevel` 默认回满血，但不会把既有超上限生命压回最大生命；`SyncSetUnitLevel/SyncSetUnitStatus/SyncSetCommander` 均兼容解密脚本确认的 `x, y` 坐标调用形态。
 - `CountUnit`、`CountCastle`、`CountVillage`、`GetUnit`、`GetUnits`、`GetDistance`。
 - 布尔/整数脚本变量。
 

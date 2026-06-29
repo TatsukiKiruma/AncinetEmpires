@@ -2482,6 +2482,12 @@ describe('GameEngine Rules', () => {
             expect(checkCommander(state, 'u3', 0)).toBe(true);
             expect(checkCommander(state, 'u1', 0)).toBe(false);
 
+            const originalCommander = state.units.find(u => u.id === 'u1')!;
+            originalCommander.level = 3;
+            expect(syncSetCommander(state, originalCommander.pos.x, originalCommander.pos.y)).toBe(true);
+            expect(getCommander(state, 0)?.id).toBe('u1');
+            expect(checkCommander(state, 'u1', 0)).toBe(true);
+
             const prevGold = state.players[0].gold;
             const engine = new GameEngine(state);
             engine.step({ type: 'end_turn' });
@@ -2868,6 +2874,14 @@ describe('GameEngine Rules', () => {
             expect(soldier.level).toBe(1);
             expect(soldier.exp).toBe(100);
             expect(soldier.hp).toBe(130);
+
+            expect(syncSetUnitLevel(state, 2, 2, 3)).toBe(true);
+            expect(soldier.level).toBe(3);
+            expect(soldier.exp).toBe(600);
+            expect(soldier.hp).toBe(130);
+
+            expect(syncSetUnitStatus(state, 2, 2, 1, 2, true)).toBe(true);
+            expect(soldier.status).toEqual({ type: 'poisoned', remainingTicks: 2 });
 
             expect(syncSetUnitStatus(state, { x: 2, y: 2 }, 3, 1)).toBe(true);
             expect(soldier.status).toEqual({ type: 'blinded', remainingTurns: 1 });

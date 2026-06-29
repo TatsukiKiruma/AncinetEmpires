@@ -475,14 +475,14 @@ skirmish 训练导入映射：
 | `Stage.SyncSetRecruitUnits` | 配置通用可招募单位列表 |
 | `Stage.SyncSetUnitLimit` | 配置通用单位上限 |
 | `Stage.SyncSetGold` | 配置通用金币 |
-| `Stage.SyncSetUnitStatus` | 设置单位状态和回合数 |
+| `Stage.SyncSetUnitStatus` | 按坐标设置单位状态和回合数 |
 | `Stage.SyncSetGoldForTeam` | 设置某队金币 |
 | `Stage.SyncChangeGold` | 改变指定队伍金币 |
 | `Stage.SyncSetCurrentTeam` | 设置当前行动队伍 |
 | `Stage.SyncSetAlliance` | 设置队伍联盟 |
 | `Stage.SyncDisableTeam` / `SyncRestoreTeam` | 禁用/恢复指定队伍 |
 | `Stage.SyncDestroyTeam` | 销毁指定队伍 |
-| `Stage.SyncSetUnitLevel` | 按坐标设置单位等级 |
+| `Stage.SyncSetUnitLevel` | 按坐标设置单位等级，已在脚本中确认形态为 `x, y, level` |
 | `Stage.SyncSetUnitCode` | 按坐标给单位设置脚本 code |
 | `Stage.AsyncCreateUnit` | 创建单位 |
 | `Stage.AsyncSummon` | 召唤单位 |
@@ -855,7 +855,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已支持金币类：`SyncSetGold`、`SyncSetGoldForTeam`、`SyncChangeGold`。
 - 已支持规则类：`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`SyncSetUnitLimitForTeam`、`SyncSetAlliance`。
 - 已支持队伍类：`SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`。其中 `SyncDestroyTeam` 在项目中表现为把队伍标记为非存活，不删除单位对象。
-- 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值，默认回满血但不裁剪既有超上限生命；`SyncSetUnitStatus` 按 APK 状态 ID 设置状态和回合数。
+- 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值，默认回满血但不裁剪既有超上限生命；`SyncSetUnitStatus` 按坐标、APK 状态 ID 和回合数设置状态。适配器同时保留项目内部 `Position` 参数形式，并兼容解密脚本确认的 `x, y, ...` 调用形态。
+- `SyncSetCommander` 也兼容解密脚本中的 `x, y` 形态：按该坐标单位的所属队伍写入脚本指挥官；原有显式 `teamId + Position` 形式仍保留给项目侧调用。
 - 为支持脚本设置的限时致盲，`blinded` 在带有 `remainingTurns` 时会按回合清除；普通攻击附加的无期限致盲行为保持不变。
 - 验证：`npm test` 191 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 

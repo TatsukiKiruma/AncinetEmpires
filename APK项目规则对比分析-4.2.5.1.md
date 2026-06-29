@@ -224,7 +224,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.AsyncMessage` | 187 | 未实现，属于剧情/UI 层 |
 | `Stage.CreateReinforcement` | 162 | 未实现，属于战役增援层 |
 | `Stage.SyncGameOver` | 83 | 已有基础适配 |
-| `Stage.SyncSetUnitLevel` | 35 | 已有基础适配；默认回满血但不裁剪既有超上限生命 |
+| `Stage.SyncSetUnitLevel` | 35 | 已有基础适配；默认回满血但不裁剪既有超上限生命；兼容脚本 `x, y, level` 形态 |
 | `Stage.CountUnit` | 25 | 已有基础适配 |
 | `Stage.SyncSetUnitLimit` | 25 | 已有基础适配 |
 | `Stage.SyncSetGold` | 16 | 已有基础适配 |
@@ -239,9 +239,9 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.SyncOverrideMov` | DEX 暴露并校验 unit code、tile type、mov | 已有 `apkMoveOverrides`，按 APK tile ID/kind 覆盖指定单位移动消耗 |
 | `Stage.PutBoolean` / `GetBoolean` / `PutInteger` / `GetInteger` | 脚本实际调用 | 已有脚本变量基础适配 |
 | `Stage.GetDistance` | 脚本实际调用 | 已有曼哈顿距离查询适配 |
-| `Stage.SyncSetCommander` | 2 | 已有基础适配，但参数语义仍需反编译校准 |
+| `Stage.SyncSetCommander` | 2 | 已有基础适配；兼容脚本 `x, y` 形态并按坐标单位所属队伍写入指挥官 |
 
-项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，单位等级设置已和经验升级保持同样的超上限生命非裁剪边界，单位 static/targeted/head 标记已有基础适配，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
+项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，单位等级/状态/指挥官设置已兼容解密脚本确认的 `x, y` 坐标调用形态，单位等级设置已和经验升级保持同样的超上限生命非裁剪边界，单位 static/targeted/head 标记已有基础适配，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
 新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。`APK_SCRIPT_LITERAL_RULE_CONFIGS` 进一步按资源路径记录 26 个脚本的逐脚本字面量配置。
 
