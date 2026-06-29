@@ -197,7 +197,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - `SKIRMISH_APK_TERRAIN_TO_PROJECT` 已把 skirmish 实际使用的 APK tile 归并到项目地形。
 - `createGameStateFromApkAemMap` 已能生成训练用 `GameState`，默认使用推荐金币；推荐金币为 `-1` 时为 0，可由外部配置覆盖。
 - APK 导入地图的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`；移动消耗、防御加成和回合回血优先读取 APK `data.bin` 的原始 tile 数值。
-- AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/defenseBonus/healPerTurn/moveCost`，并新增 `ruleTerrainId/terrainKey/terrainTags`，让策略能同时看到 APK 原始 tile 数值、映射可信度和规则实际使用的地形语义。
+- AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence/defenseBonus/healPerTurn/moveCost`，并新增 `ruleTerrainId/terrainKey/terrainTags`，让策略能同时看到 APK 原始 tile 数值、映射可信度、映射依据和规则实际使用的地形语义。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；按当前 skirmish 映射，20 张图均无未映射 tile。
 - Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。

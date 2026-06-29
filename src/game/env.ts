@@ -51,6 +51,7 @@ export interface Observation {
     apkTerrainRaw?: number;
     apkOwnerCode?: number;
     apkTerrainMappingConfidence?: ApkTerrainMappingConfidence;
+    apkTerrainMappingEvidence?: string[];
     defenseBonus: number;
     healPerTurn: number;
     moveCost: number;
@@ -302,24 +303,30 @@ export class AncientEmpiresEnv {
                   commanderDeathCount: p.commanderDeathCount
               };
           }),
-          tiles: state.map.tiles.flatMap((row, y) => row.map((t, x) => ({
-              x,
-              y,
-              terrainId: t.terrainId,
-              ruleTerrainId: getTileTerrainIdForRules(t),
-              terrainKey: getTileTerrainKey(t),
-              terrainTags: [...getTileTerrainConfig(t).tags],
-              ownerId: t.ownerId,
-              apkTerrainId: t.apkTerrainId,
-              apkTerrainRaw: t.apkTerrainRaw,
-              apkOwnerCode: t.apkOwnerCode,
-              apkTerrainMappingConfidence: t.apkTerrainId === undefined
-                  ? undefined
-                  : getSkirmishApkTerrainMappingInfo(t.apkTerrainId).confidence,
-              defenseBonus: getTileDefenseBonus(t),
-              healPerTurn: getTileHealPerTurn(t),
-              moveCost: getTileMoveCost(t)
-          }))),
+          tiles: state.map.tiles.flatMap((row, y) => row.map((t, x) => {
+              const apkTerrainMappingInfo = t.apkTerrainId === undefined
+                  ? null
+                  : getSkirmishApkTerrainMappingInfo(t.apkTerrainId);
+              return {
+                  x,
+                  y,
+                  terrainId: t.terrainId,
+                  ruleTerrainId: getTileTerrainIdForRules(t),
+                  terrainKey: getTileTerrainKey(t),
+                  terrainTags: [...getTileTerrainConfig(t).tags],
+                  ownerId: t.ownerId,
+                  apkTerrainId: t.apkTerrainId,
+                  apkTerrainRaw: t.apkTerrainRaw,
+                  apkOwnerCode: t.apkOwnerCode,
+                  apkTerrainMappingConfidence: apkTerrainMappingInfo?.confidence,
+                  apkTerrainMappingEvidence: apkTerrainMappingInfo
+                      ? [...apkTerrainMappingInfo.evidence]
+                      : undefined,
+                  defenseBonus: getTileDefenseBonus(t),
+                  healPerTurn: getTileHealPerTurn(t),
+                  moveCost: getTileMoveCost(t)
+              };
+          })),
           units: state.units.map(u => {
               const effectiveStats = getEffectiveStats(u);
               const unitConfig = UNIT_CONFIGS[u.unitClass];

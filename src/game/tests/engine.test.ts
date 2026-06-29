@@ -611,6 +611,7 @@ describe('GameEngine Rules', () => {
             terrainTags: expect.arrayContaining(['water']),
             apkTerrainId: 0,
             apkTerrainMappingConfidence: 'atlas',
+            apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'skirmish_map_context'],
             moveCost: 16777215,
             defenseBonus: 0,
             healPerTurn: 3
@@ -623,6 +624,7 @@ describe('GameEngine Rules', () => {
             terrainTags: expect.arrayContaining(['temple', 'healing', 'cleanse']),
             apkTerrainId: 31,
             apkTerrainMappingConfidence: 'approximate',
+            apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics'],
             moveCost: 1,
             defenseBonus: 10,
             healPerTurn: 20
@@ -686,7 +688,8 @@ describe('GameEngine Rules', () => {
             terrainKey: 'castle',
             terrainTags: expect.arrayContaining(['castle', 'recruit_source']),
             apkTerrainId: 37,
-            apkTerrainMappingConfidence: 'confirmed'
+            apkTerrainMappingConfidence: 'confirmed',
+            apkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas']
         }));
         expect(apkSemanticObservation.tiles.find(tile => tile.x === 0 && tile.y === 1)).toEqual(expect.objectContaining({
             terrainId: 6,
@@ -694,8 +697,15 @@ describe('GameEngine Rules', () => {
             terrainKey: 'town',
             terrainTags: expect.arrayContaining(['town', 'income', 'capturable']),
             apkTerrainId: 36,
-            apkTerrainMappingConfidence: 'confirmed'
+            apkTerrainMappingConfidence: 'confirmed',
+            apkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas']
         }));
+        apkSemanticObservation.tiles.find(tile => tile.x === 2 && tile.y === 0)!.apkTerrainMappingEvidence!.push('mutated');
+        expect(new AncientEmpiresEnv({ initialState: apkSemanticState }).getObservation().tiles.find(tile => tile.x === 2 && tile.y === 0)!.apkTerrainMappingEvidence).toEqual([
+            'data_bin_values',
+            'language_table_building_description',
+            'texture_atlas'
+        ]);
 
         const incomeBefore = apkSemanticState.players.find(player => player.id === 1)!.gold;
         const apkSemanticEngine = new GameEngine(apkSemanticState);

@@ -1086,6 +1086,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这解决了 APK tile 被导入为项目近似地形时的隐藏信息问题。例如 APK `t37` 即使项目 `terrainId` 是 road，Observation 仍输出 `ruleTerrainId=10`、`terrainKey=castle` 和包含 `recruit_source` 的标签。
 - 验证：新增回归测试覆盖 APK `t37` 城堡和 `t36` 城镇在 Observation 中的规则语义输出。
 
+2026-06-29 APK tile 映射依据进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().tiles` 新增 `apkTerrainMappingEvidence`，其值来自 `getSkirmishApkTerrainMappingInfo(apkTerrainId).evidence`。
+- 已确证建筑/桥会输出语言表或高可信建筑证据；atlas 映射会输出 `data_bin_values/texture_atlas/skirmish_map_context`；低可信治疗建筑会输出 `low_confidence_building_semantics`，避免训练侧把近似建筑语义误读为已确证规则。
+- 该字段只是只读观测快照，不改变移动、防御、回血、招募、占领、收入或胜负判定。
+- 验证：新增回归测试覆盖 confirmed、atlas、approximate 三类 evidence，并确认修改 Observation 快照不会污染环境状态。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

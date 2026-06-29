@@ -417,7 +417,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK stacked/pending 招募状态：`pendingUnitId` 和单位级 `isPending`。
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/commanderUnitId`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限、可招募列表和队伍指挥官。
 - 每格 `terrainId/ownerId`。
-- 每格 APK 原始字段和映射可信度：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence`。
+- 每格 APK 原始字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
 - 单位位置、血量、等级、经验、状态、行动状态。
@@ -429,7 +429,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 墓碑信息和地图 metadata。
 - APK 导入状态可把 `apkVersion/apkSha256/apkResourcePath` 透传到 Observation，用于锁定训练样本的规则证据来源。
 
-这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导。
+这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信治疗建筑则会带有 `low_confidence_building_semantics` 证据标记，便于训练或数据清洗侧降权处理。
 
 ## 11. 差异与风险清单
 
