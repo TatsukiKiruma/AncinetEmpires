@@ -36,7 +36,7 @@
 
 - APK 有 84 个 tile，项目只有抽象地形模型；数值可用，但贴图/类别/建筑语义仍有未校准项。
 - 战役脚本层只覆盖同步规则配置和部分查询，未实现大量 `Async*` 剧情、增援、目标 UI 和演出 API。
-- 水晶目标、单位 head、移动覆盖、指挥官复活/重招募官方流程仍未完整还原。
+- 水晶目标、指挥官复活/重招募官方流程仍未完整还原；单位 head 已作为脚本元数据保留，但未实现头像 UI。
 - 招募后 stacked/pending 的官方 UI 行为、治疗突破最大血量后的长期裁剪规则、亡灵回血是否可突破上限仍需实机或反编译确认。
 
 判断：如果目标是 AI 训练用 skirmish 对战环境，当前规则已接近可用；如果目标是完整复刻 APK 4.2.5.1，还需要继续补齐地图语义、脚本配置和战役目标层。
@@ -374,12 +374,12 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 | `Stage.SyncRestoreTeam` | 12 | 已有基础适配 |
 | `Stage.SyncSetUnitTargetedWithCode` | 9 | 已有基础适配 |
 | `Stage.SyncOverrideMov` | 9 | 已有基础适配；按单位 code、APK tile ID/kind 和 mov 覆盖移动消耗 |
-| `Stage.SyncSetUnitHead` | 6 | 未实现 |
+| `Stage.SyncSetUnitHead` | 6 | 已作为 `apkUnitHead` 元数据适配 |
 
 项目已覆盖的脚本适配集中在同步规则配置和状态查询：
 
 - 金币、单位上限、可招募列表、联盟、禁用/恢复/摧毁队伍、强制终局。
-- 单位 code、static、targeted 元数据。
+- 单位 code、static、targeted、head 元数据。
 - 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind。
 - 单位等级和状态设置。
 - `CountUnit`、`CountCastle`、`CountVillage`、`GetUnit`、`GetUnits`、`GetDistance`。
@@ -390,7 +390,6 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - `AsyncMessage`、`AsyncMapFocus`、`AsyncMoveUnit`、`AsyncAttack`、`AsyncDestroyUnit`。
 - `CreateReinforcement`、`AsyncReinforce`。
 - `AsyncShowObjectives`、完整目标 UI。
-- `SyncSetUnitHead`。
 - 水晶和特殊护送/夺回目标。
 
 ## 10. Observation 与训练数据
@@ -408,7 +407,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
 - 单位静态配置：`attackType/population/cost/abilities/isCommander`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格，`isCommander` 反映当前规则实际使用的指挥官判定。
-- 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkMoveOverrides`。
+- 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead/apkMoveOverrides`。
 - `apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息和地图 metadata。
 - APK 导入状态可把 `apkVersion/apkSha256/apkResourcePath` 透传到 Observation，用于锁定训练样本的规则证据来源。
@@ -422,7 +421,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 | P0 | 84 个 APK tile 的完整类别/贴图/建筑语义未校准 | 地形能力、建筑功能和移动分类可能与 APK 有偏差 |
 | P0 | 战役脚本未系统转为场景配置 | 无法完整复刻战役、教程、特殊胜负条件 |
 | P1 | `SyncOverrideMov` 已有基础适配，但脚本场景未系统归档 | 特定单位/地形移动覆盖已有规则入口，仍缺批量场景配置 |
-| P1 | `SyncSetUnitHead` 未实现 | 战役角色头像/单位外观目标表达不完整 |
+| P2 | 单位 head 只做元数据透传 | 战役角色头像/单位外观 UI 未实现；不影响纯规则训练 |
 | P1 | `crystal` 只是不可行动占位 | 水晶护送/夺回等目标不能完整还原 |
 | P1 | 指挥官复活/重招募官方流程未知 | 指挥官模式可能与 APK 不一致 |
 | P1 | 招募 stacked/pending 精确 UI 未实测 | 当前规则方向吻合，但交互细节可能不同 |
@@ -443,7 +442,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
    - 输出关卡级配置表，避免把战役差异硬编码到引擎。
 
 3. 补齐必要的脚本层规则接口
-   - 优先级高于剧情演出的是 `SyncOverrideMov`、`SyncSetUnitHead`、水晶目标、完整目标条件。
+   - 优先级高于剧情演出的是水晶目标、完整目标条件和脚本配置归档。
    - `Async*` 演出 API 可后置。
 
 4. 实机或反编译验证高风险细节

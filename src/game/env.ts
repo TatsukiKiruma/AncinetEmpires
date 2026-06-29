@@ -59,6 +59,7 @@ export interface Observation {
     apkUnitCode?: string;
     apkStatic?: boolean;
     apkTargeted?: boolean;
+    apkUnitHead?: number;
     apkMoveOverrides?: Record<number, number>;
     ownerId: number;
     unitClass: string;
@@ -323,6 +324,7 @@ export class AncientEmpiresEnv {
                   apkUnitCode: u.apkUnitCode,
                   apkStatic: u.apkStatic,
                   apkTargeted: u.apkTargeted,
+                  apkUnitHead: u.apkUnitHead,
                   apkMoveOverrides: u.apkMoveOverrides ? { ...u.apkMoveOverrides } : undefined,
                   ownerId: u.ownerId,
                   unitClass: u.unitClass,

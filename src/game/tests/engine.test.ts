@@ -14,7 +14,7 @@ import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_ski
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
+import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitHead, syncSetUnitHeadWithCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
@@ -396,6 +396,7 @@ describe('GameEngine Rules', () => {
         expect(syncSetUnitCode(state, state.units[0].pos, 'galamar')).toBe(true);
         expect(syncSetUnitStaticWithCode(state, 'galamar', true)).toBe(true);
         expect(syncSetUnitTargetedWithCode(state, 'galamar', true)).toBe(true);
+        expect(syncSetUnitHeadWithCode(state, 'galamar', 4)).toBe(true);
         expect(syncOverrideMov(state, 'galamar', 2, 1)).toBe(true);
         expect(putBoolean(state, 'stolen', true)).toBe(true);
         expect(putInteger(state, 'reinforced', 2)).toBe(true);
@@ -407,6 +408,7 @@ describe('GameEngine Rules', () => {
             apkUnitCode: 'galamar',
             apkStatic: true,
             apkTargeted: true,
+            apkUnitHead: 4,
             apkMoveOverrides: { 2: 1 }
         }));
         expect(observation.apkScriptState).toEqual({
@@ -2544,7 +2546,7 @@ describe('GameEngine Rules', () => {
             expect(getUnits(state, 99)).toEqual([]);
         });
 
-        it('APK Stage 查询适配器可以设置静态和目标单位标记', () => {
+        it('APK Stage 查询适配器可以设置静态、目标和 head 元数据', () => {
             const state = createDemoState();
             const commander = state.units.find(unit => unit.id === 'u1')!;
             const soldier = state.units.find(unit => unit.id === 'u3')!;
@@ -2552,16 +2554,22 @@ describe('GameEngine Rules', () => {
             expect(syncSetUnitCode(state, commander.pos, ' galamar ')).toBe(true);
             expect(syncSetUnitStaticWithCode(state, ' galamar ', true)).toBe(true);
             expect(syncSetUnitTargetedWithCode(state, 'galamar', true)).toBe(true);
+            expect(syncSetUnitHeadWithCode(state, 'galamar', 5)).toBe(true);
             expect(commander.apkStatic).toBe(true);
             expect(commander.apkTargeted).toBe(true);
+            expect(commander.apkUnitHead).toBe(5);
 
             expect(syncSetUnitStatic(state, soldier.pos, true)).toBe(true);
             expect(syncSetUnitTargeted(state, soldier.pos, true)).toBe(true);
+            expect(syncSetUnitHead(state, soldier.pos, 2)).toBe(true);
             expect(soldier.apkStatic).toBe(true);
             expect(soldier.apkTargeted).toBe(true);
+            expect(soldier.apkUnitHead).toBe(2);
 
             expect(syncSetUnitStaticWithCode(state, 'missing', true)).toBe(false);
             expect(syncSetUnitTargetedWithCode(state, 'missing', true)).toBe(false);
+            expect(syncSetUnitHeadWithCode(state, 'missing', 1)).toBe(false);
+            expect(syncSetUnitHead(state, soldier.pos, -1)).toBe(false);
 
             const commanderActions = getLegalActions(state, 0).filter(action =>
                 ('unitId' in action && action.unitId === commander.id)

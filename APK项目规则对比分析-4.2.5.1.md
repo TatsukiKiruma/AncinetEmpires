@@ -200,7 +200,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/defenseBonus/healPerTurn/moveCost`，让策略能看到当前规则实际使用的地形数值和 tile 语义映射可信度。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；按当前 skirmish 映射，20 张图均无未映射 tile。
-- Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。
+- Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。
 - 真实 20 张 skirmish 地图的单位 `extra` 字段全部为 `0`，当前仅作为原始证据字段保留，不参与等级或规则推断。
 - 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`；本轮进一步确认 `TILES_WITH_APK_ID 4207/4207`，可读移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
@@ -230,12 +230,13 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | DEX 暴露 | 已有坐标查询适配 |
 | `Stage.SyncSetUnitCode` / `GetUnit` / `GetUnits` | 脚本实际调用 | 已有 code 元数据和单位查询适配 |
 | `Stage.SyncSetUnitStatic*` / `SyncSetUnitTargeted*` | 脚本实际调用 | 已有 static/targeted 元数据适配；静态单位不生成合法动作 |
+| `Stage.SyncSetUnitHead` | API 统计出现 6 次 | 已有 `apkUnitHead` 元数据适配；不影响对战结算 |
 | `Stage.SyncOverrideMov` | DEX 暴露并校验 unit code、tile type、mov | 已有 `apkMoveOverrides`，按 APK tile ID/kind 覆盖指定单位移动消耗 |
 | `Stage.PutBoolean` / `GetBoolean` / `PutInteger` / `GetInteger` | 脚本实际调用 | 已有脚本变量基础适配 |
 | `Stage.GetDistance` | 脚本实际调用 | 已有曼哈顿距离查询适配 |
 | `Stage.SyncSetCommander` | 2 | 已有基础适配，但参数语义仍需反编译校准 |
 
-项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，单位 static/targeted 标记已有基础适配，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
+项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam`，单位 code/查询已覆盖 `SyncSetUnitCode`、`GetUnit`、`GetUnits`，单位 static/targeted/head 标记已有基础适配，脚本变量和距离查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
 ## 12. 明确未完成的差异
 
@@ -248,7 +249,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
 | P1 | stacked/pending 的部署后移动细节未知 | 城堡招募体验和 APK UI 行为可能不完全一致 |
 | P2 | `Async*` 剧情/演出 API 未实现 | 影响战役复刻，不影响基础 AI 训练 |
-| P2 | 水晶目标、单位 head 和完整目标 UI 未实现 | 影响战役目标与剧情单位；单位 code/static/targeted/move override 已作为基础元数据适配 |
+| P2 | 水晶目标和完整目标 UI 未实现 | 影响战役目标与剧情单位；单位 code/static/targeted/head/move override 已作为基础元数据适配 |
 
 ## 13. 建议后续任务
 

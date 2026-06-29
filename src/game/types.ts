@@ -43,6 +43,7 @@ export interface Unit {
     apkUnitCode?: string; // APK 脚本层单位 code，用于 Stage.GetUnit/SyncSetUnitCode 查询
     apkStatic?: boolean; // APK 脚本层静态单位标记，静态单位不生成行动
     apkTargeted?: boolean; // APK 脚本层目标单位标记，用于训练侧观察目标状态
+    apkUnitHead?: number; // APK 脚本层单位 head/头像 ID，仅作为元数据透传
     apkMoveOverrides?: Record<number, number>; // APK SyncOverrideMov：按 tile type 覆盖该单位进入地形的移动消耗
 }
 

@@ -80,6 +80,10 @@ function isValidMoveCost(mov: number): boolean {
     return Number.isInteger(mov) && mov > 0 && mov <= 0xffffff;
 }
 
+function isValidUnitHead(head: number): boolean {
+    return Number.isInteger(head) && head >= 0;
+}
+
 function moveCurrentPlayerIfDisabled(state: GameState) {
     if (isActivePlayer(state, state.currentPlayer)) return;
     const nextPlayerId = getTurnPlayerIds(state)[0];
@@ -296,6 +300,26 @@ export function syncSetUnitTargetedWithCode(state: GameState, code: string, targ
     if (!unit) return false;
 
     unit.apkTargeted = targeted;
+    return true;
+}
+
+export function syncSetUnitHead(state: GameState, pos: Position, head: number): boolean {
+    if (!isValidUnitHead(head)) return false;
+    const unit = findUnitAt(state, pos);
+    if (!unit) return false;
+
+    unit.apkUnitHead = head;
+    return true;
+}
+
+export function syncSetUnitHeadWithCode(state: GameState, code: string, head: number): boolean {
+    const normalizedCode = normalizeScriptName(code);
+    if (!normalizedCode || !isValidUnitHead(head)) return false;
+
+    const unit = findUnitByCode(state, normalizedCode);
+    if (!unit) return false;
+
+    unit.apkUnitHead = head;
     return true;
 }
 
