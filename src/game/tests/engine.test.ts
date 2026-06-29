@@ -1357,6 +1357,26 @@ describe('GameEngine Rules', () => {
             expect(resFriend.status?.type).toBe('poisoned');
         });
 
+        it('5.11b 光环只在待机时触发，攻击后不会触发', () => {
+            const state = createDemoState();
+            const druid = state.units.find(u => u.id === 'u1')!;
+            const friend = state.units.find(u => u.id === 'u3')!;
+            const enemy = state.units.find(u => u.ownerId === 1)!;
+
+            druid.unitClass = 'druid';
+            druid.pos = { x: 1, y: 1 };
+            friend.unitClass = 'soldier';
+            friend.pos = { x: 2, y: 1 };
+            enemy.unitClass = 'soldier';
+            enemy.pos = { x: 1, y: 2 };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: druid.id, targetId: enemy.id });
+
+            const resultFriend = engine.getState().units.find(u => u.id === friend.id)!;
+            expect(resultFriend.status).toBeUndefined();
+        });
+
         it('5.12 鼓舞近战攻击 +10，远程攻击加成减半', () => {
             const state = createDemoState();
             const attacker = state.units[0];

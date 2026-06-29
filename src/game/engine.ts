@@ -266,8 +266,6 @@ export class GameEngine {
                     unit.hasActed = true;
 
                     this.consumeGraveAtUnitPosition(unit);
-
-                    this.triggerAuras(unit);
                     info = `Unit ${unit.id} post-attack moved to ${action.to.x},${action.to.y}`;
                 }
                 break;
@@ -357,8 +355,6 @@ export class GameEngine {
                     } else {
                         attacker.hasActed = true;
                     }
-
-                    this.triggerAuras(attacker);
                 }
                 break;
             }
@@ -385,7 +381,6 @@ export class GameEngine {
                     
                     healer.hasMoved = true;
                     healer.hasActed = true;
-                    this.triggerAuras(healer);
                     info = `Healer ${healer.id} healed ${target.id} for ${healVal} points.`;
                 }
                 break;
@@ -420,7 +415,6 @@ export class GameEngine {
                     
                     summoner.hasMoved = true;
                     summoner.hasActed = true;
-                    this.triggerAuras(summoner);
                     info = `Summoner ${summoner.id} summoned skeleton at ${action.spawnPos.x},${action.spawnPos.y}.`;
                 }
                 break;
@@ -438,7 +432,6 @@ export class GameEngine {
                     
                     supporter.hasMoved = true;
                     supporter.hasActed = true;
-                    this.triggerAuras(supporter);
                     info = `Supporter ${supporter.id} reset action state of ${target.id}.`;
                 }
                 break;
@@ -458,7 +451,6 @@ export class GameEngine {
                     
                     destroyer.hasMoved = true;
                     destroyer.hasActed = true;
-                    this.triggerAuras(destroyer);
                 }
                 break;
             }
@@ -471,7 +463,6 @@ export class GameEngine {
                     reward += 10;
                     unit.hasMoved = true;
                     unit.hasActed = true;
-                    this.triggerAuras(unit);
                 }
                 break;
             }
@@ -490,7 +481,6 @@ export class GameEngine {
                     }
                     unit.hasMoved = true;
                     unit.hasActed = true;
-                    this.triggerAuras(unit);
                 }
                 break;
             }
