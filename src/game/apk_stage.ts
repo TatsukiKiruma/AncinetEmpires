@@ -374,7 +374,8 @@ export function syncSetUnitLevel(state: GameState, pos: Position, level: number,
     const effectiveStats = getEffectiveStats(unit);
     unit.movementRemaining = effectiveStats.move;
     if (refillHp) {
-        unit.hp = effectiveStats.maxHp;
+        // 脚本设等级默认回满血，但不裁剪治疗师造成的超上限生命。
+        unit.hp = Math.max(unit.hp, effectiveStats.maxHp);
     } else {
         unit.hp = Math.min(unit.hp, effectiveStats.maxHp);
     }

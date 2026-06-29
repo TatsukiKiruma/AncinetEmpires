@@ -855,7 +855,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 已支持金币类：`SyncSetGold`、`SyncSetGoldForTeam`、`SyncChangeGold`。
 - 已支持规则类：`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`SyncSetUnitLimitForTeam`、`SyncSetAlliance`。
 - 已支持队伍类：`SyncSetCurrentTeam`、`SyncDisableTeam`、`SyncRestoreTeam`、`SyncDestroyTeam`。其中 `SyncDestroyTeam` 在项目中表现为把队伍标记为非存活，不删除单位对象。
-- 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值；`SyncSetUnitStatus` 按 APK 状态 ID 设置状态和回合数。
+- 已支持单位初始化类：`SyncSetUnitLevel` 按坐标设置等级和 APK 经验阈值，默认回满血但不裁剪既有超上限生命；`SyncSetUnitStatus` 按 APK 状态 ID 设置状态和回合数。
 - 为支持脚本设置的限时致盲，`blinded` 在带有 `remainingTurns` 时会按回合清除；普通攻击附加的无期限致盲行为保持不变。
 - 验证：`npm test` 191 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 

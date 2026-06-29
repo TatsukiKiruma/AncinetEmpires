@@ -2825,6 +2825,12 @@ describe('GameEngine Rules', () => {
             expect(soldier.exp).toBe(300);
             expect(soldier.hp).toBe(getEffectiveStats(soldier).maxHp);
 
+            soldier.hp = 130;
+            expect(syncSetUnitLevel(state, { x: 2, y: 2 }, 1)).toBe(true);
+            expect(soldier.level).toBe(1);
+            expect(soldier.exp).toBe(100);
+            expect(soldier.hp).toBe(130);
+
             expect(syncSetUnitStatus(state, { x: 2, y: 2 }, 3, 1)).toBe(true);
             expect(soldier.status).toEqual({ type: 'blinded', remainingTurns: 1 });
 
