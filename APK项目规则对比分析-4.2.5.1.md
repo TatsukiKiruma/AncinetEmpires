@@ -203,6 +203,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - AI 训练 Observation 已输出 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence/defenseBonus/healPerTurn/moveCost`，并新增 `ruleTerrainId/terrainKey/terrainTags`，让策略能同时看到 APK 原始 tile 数值、映射可信度、映射依据和规则实际使用的地形语义。
 - AI 训练 Observation 已新增全局 `rules` 摘要和队伍级 `recruitCosts`，让策略直接看到当前收入、等级上限、招募价格覆盖、投降开关、失败条件以及各队可招募单位的实际费用。
 - AI 训练 Observation 已新增单位级隐藏规则状态：剩余移动力、突击后移动标记、单回合治疗/支援标记和状态剩余时间，避免训练侧只能从合法动作集合反推这些状态。
+- AI 训练 Observation 已新增单位级 APK `data.bin` 静态数值：基础攻击、防御、射程、移动以及攻击/防御/最大生命/移动成长，让策略能直接读取升级收益。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；按当前 skirmish 映射，20 张图均无未映射 tile。
 - Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。

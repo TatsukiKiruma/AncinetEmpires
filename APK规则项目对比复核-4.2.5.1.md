@@ -429,6 +429,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 单位隐藏规则状态：`movementRemaining/hasPostAttackMoved/hasBeenHealedThisTurn/hasBeenSupportedThisTurn/statusRemainingTicks/statusRemainingTurns`，用于暴露突击后移动、单回合治疗/支援限制和状态剩余时间。
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
+- 单位基础数值与成长：`baseAttack/basePhysicalDefense/baseMagicDefense/baseMinRange/baseMaxRange/baseMove/attackGrowth/defenseGrowth/maxHpGrowth/moveGrowth`，直接来自 APK `data.bin` 单位表，供训练侧读取升级收益。
 - 单位静态配置：`attackType/population/cost/abilities/isCommander`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格，`isCommander` 反映当前规则实际使用的指挥官判定。
 - 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead/apkMoveOverrides`。
 - `apkScriptState.booleans` 与 `apkScriptState.integers`。

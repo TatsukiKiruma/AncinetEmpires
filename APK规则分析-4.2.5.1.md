@@ -1045,6 +1045,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这些字段会影响突击部队后续移动、单回合治疗/支援限制，以及中毒/虚弱等状态的后续结算；亡灵被治疗转伤害也会写入 `hasBeenHealedThisTurn`，避免同一目标在同回合被重复治疗动作处理。此前训练侧只能从合法动作集合或历史轨迹间接推断。
 - 这些字段只暴露当前状态快照，不改变移动、治疗、支援、状态倒计时或任何胜负结算。
 
+2026-06-29 APK 单位基础数值与成长进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().units[]` 新增 `baseAttack/basePhysicalDefense/baseMagicDefense/baseMinRange/baseMaxRange/baseMove/attackGrowth/defenseGrowth/maxHpGrowth/moveGrowth`。
+- 这些字段来自已解析的 APK `data.bin` 21 条单位基础数值和成长表；训练侧可以直接看到单位升级后的潜在收益，不需要只凭当前等级有效数值反推。
+- 这些字段只暴露静态规则表，不改变 `getEffectiveStats`、伤害、移动、升级或任何合法动作。
+
 2026-06-29 APK stacked/pending 状态进入 AI Observation：
 
 - DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。

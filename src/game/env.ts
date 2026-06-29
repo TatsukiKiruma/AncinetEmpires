@@ -91,6 +91,16 @@ export interface Observation {
     population: number;
     cost: number | null;
     abilities: Ability[];
+    baseAttack: number;
+    basePhysicalDefense: number;
+    baseMagicDefense: number;
+    baseMinRange: number;
+    baseMaxRange: number;
+    baseMove: number;
+    attackGrowth: number;
+    defenseGrowth: number;
+    maxHpGrowth: number;
+    moveGrowth: number;
     isCommander: boolean;
     x: number;
     y: number;
@@ -395,6 +405,16 @@ export class AncientEmpiresEnv {
                   population: unitConfig.population,
                   cost: getUnitCost(state, u.ownerId, u.unitClass),
                   abilities: [...unitConfig.abilities],
+                  baseAttack: unitConfig.attack,
+                  basePhysicalDefense: unitConfig.physicalDefense,
+                  baseMagicDefense: unitConfig.magicDefense,
+                  baseMinRange: unitConfig.minRange,
+                  baseMaxRange: unitConfig.maxRange,
+                  baseMove: unitConfig.move,
+                  attackGrowth: unitConfig.attackGrowth,
+                  defenseGrowth: unitConfig.defenseGrowth,
+                  maxHpGrowth: unitConfig.maxHpGrowth,
+                  moveGrowth: unitConfig.moveGrowth,
                   isCommander: isCommanderUnit(state, u),
                   x: u.pos.x,
                   y: u.pos.y,
