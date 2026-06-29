@@ -38,6 +38,8 @@ while (!initResult.done) {
 
 如果状态来自 APK `.aem` 地图导入，`observation.metadata` 会返回 `source/apkVersion/apkSha256/apkResourcePath/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`。这些字段只用于训练样本追踪、规则证据锁定和复现实验配置，不参与规则判定。
 
+`src/game/apk_manifest.ts` 已归档 APK 4.2.5.1 的 20 张官方 skirmish 地图清单。通过 `createApkSkirmishGameState` 导入地图时，只有地图名、尺寸、玩家、初始单位数、推荐金币和尾部模板都匹配官方清单，才会自动写入 APK 版本、SHA256 和资源路径。
+
 ### Observation 单位字段
 
 如果状态来自 APK `.aem` 地图导入，`observation.units` 会保留每个初始单位的 `apkUnitId/apkUnitExtra`。`apkUnitExtra` 当前只作为原始证据字段输出，不参与等级或规则推断。

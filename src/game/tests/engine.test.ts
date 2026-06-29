@@ -7,6 +7,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
+import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
@@ -70,6 +71,101 @@ describe('GameEngine Rules', () => {
         expect(mapSkirmishApkTerrainId(28)).toBe(17);
         expect(mapSkirmishApkTerrainId(36)).toBe(9);
         expect(getSkirmishApkTerrainIdsForProject(17)).toEqual([28, 29, 72]);
+    });
+
+    it('APK skirmish 官方地图清单代码化并可校验来源', () => {
+        expect(APK_RELEASE_VERSION).toBe('aer-release-4.2.5.1');
+        expect(APK_RELEASE_SHA256).toBe('51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B');
+        expect(APK_SKIRMISH_MAP_MANIFEST).toHaveLength(20);
+        expect(APK_SKIRMISH_MAP_MANIFEST.map(entry => entry.name)).toEqual([
+            '(4) Crossroads.aem',
+            '(3) Frozen fields.aem',
+            '(2) Icy Paths.aem',
+            '(2) Liberty Port.aem',
+            '(2) Mourningstar.aem',
+            '(2) Peak Island.aem',
+            '(4) Shadowlands.aem',
+            '(4) Solitude.aem',
+            '(2) The Crossing.aem',
+            '(4) The Crucible.aem',
+            '(4) Waterways.aem',
+            '(4) Winterstorm.aem',
+            '(4) classic 1.aem',
+            '(3) classic 2.aem',
+            '(2) Duel.aem',
+            '(2) Crossed swords.aem',
+            '(4) Critical mass.aem',
+            '(3) Midway.aem',
+            '(2) Swamplands.aem',
+            '(3) Glu.aem'
+        ]);
+
+        const duelManifest = getApkSkirmishMapManifestEntry('(2) Duel.aem')!;
+        expect(duelManifest).toEqual({
+            name: '(2) Duel.aem',
+            resourcePath: 'assets/maps/(2) Duel.aem',
+            width: 13,
+            height: 13,
+            playerIds: [0, 1],
+            initialUnitCount: 2,
+            recommendedGold: 200,
+            tailTemplate: 'zero_suffix_58'
+        });
+        expect(getApkSkirmishMapManifestEntry('(2) Missing.aem')).toBeNull();
+
+        const officialDuelLikeMap = {
+            magic: APK_AEM_MAGIC,
+            width: 13,
+            height: 13,
+            author: null,
+            playerIds: [0, 1],
+            terrainRecordOffset: 0,
+            terrainCount: 13 * 13,
+            terrain: Array.from({ length: 13 }, (_, y) => Array.from({ length: 13 }, (_, x) => ({
+                x,
+                y,
+                raw: (20 << 12) | 0xff,
+                apkTerrainId: 20,
+                ownerCode: 0xff,
+                ownerId: null,
+                projectTerrainId: null
+            }))),
+            unitRecordOffset: 0,
+            unitValueCount: 10,
+            units: [
+                { apkUnitId: 9, teamId: 0, extra: 0, x: 4, y: 4, unitClass: 'commander' as const },
+                { apkUnitId: 9, teamId: 1, extra: 0, x: 9, y: 6, unitClass: 'commander' as const }
+            ],
+            recommendedGold: 200,
+            tailOffset: 0,
+            tail: {
+                offset: 0,
+                length: 58,
+                hex: APK_AEM_ZERO_SUFFIX_TAIL_HEX,
+                bytes: [],
+                template: 'zero_suffix_58' as const
+            }
+        };
+        expect(matchesApkSkirmishMapManifest(officialDuelLikeMap, duelManifest)).toBe(true);
+
+        const duelState = createApkSkirmishGameState(officialDuelLikeMap, { mode: 'SD', mapName: '(2) Duel.aem' });
+        expect(duelState.metadata).toEqual(expect.objectContaining({
+            source: 'apk_aem',
+            apkMapName: '(2) Duel.aem',
+            apkSkirmishMode: 'SD',
+            apkVersion: APK_RELEASE_VERSION,
+            apkSha256: APK_RELEASE_SHA256,
+            apkResourcePath: 'assets/maps/(2) Duel.aem',
+            recommendedGold: 200,
+            apkTailTemplate: 'zero_suffix_58'
+        }));
+
+        const mismatchedMap = { ...officialDuelLikeMap, recommendedGold: 300 };
+        expect(matchesApkSkirmishMapManifest(mismatchedMap, duelManifest)).toBe(false);
+        const mismatchedState = createApkSkirmishGameState(mismatchedMap, { mode: 'SD', mapName: '(2) Duel.aem' });
+        expect(mismatchedState.metadata?.apkVersion).toBeUndefined();
+        expect(mismatchedState.metadata?.apkSha256).toBeUndefined();
+        expect(mismatchedState.metadata?.apkResourcePath).toBeUndefined();
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {

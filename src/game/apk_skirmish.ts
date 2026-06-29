@@ -1,4 +1,5 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
+import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from './apk_manifest';
 import { ApkAemMap, createGameStateFromApkAemMap, CreateGameStateFromApkAemMapOptions } from './apk_map';
 import { GameState, RuleConfig, UnitClass } from './types';
 
@@ -34,9 +35,14 @@ export function createApkSkirmishGameState(
 ): GameState {
     const { mode = 'SD', rules: overrideRules, metadata: overrideMetadata, ...stateOptions } = options;
     const modeRules = getApkSkirmishRuleConfig(mode);
+    const manifestEntry = stateOptions.mapName ? getApkSkirmishMapManifestEntry(stateOptions.mapName) : null;
+    const isOfficialManifestMap = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
 
     return createGameStateFromApkAemMap(map, {
         ...stateOptions,
+        apkVersion: stateOptions.apkVersion ?? (isOfficialManifestMap ? APK_RELEASE_VERSION : undefined),
+        apkSha256: stateOptions.apkSha256 ?? (isOfficialManifestMap ? APK_RELEASE_SHA256 : undefined),
+        apkResourcePath: stateOptions.apkResourcePath ?? (isOfficialManifestMap && manifestEntry ? manifestEntry.resourcePath : undefined),
         rules: {
             ...modeRules,
             ...(overrideRules ?? {})
