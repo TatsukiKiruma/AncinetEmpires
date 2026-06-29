@@ -1,5 +1,6 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
+import { APK_TERRAIN_COUNT } from './apk_terrain';
 import { getDistance as getMapDistance } from './map';
 import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
 import { TERRAIN_CONFIG } from './terrain';
@@ -69,6 +70,14 @@ function normalizeStatus(statusId: number, rounds: number): UnitStatus | null {
     }
 
     return { type, remainingTurns: rounds };
+}
+
+function isValidTileType(tileType: number): boolean {
+    return Number.isInteger(tileType) && tileType >= 0 && tileType < APK_TERRAIN_COUNT;
+}
+
+function isValidMoveCost(mov: number): boolean {
+    return Number.isInteger(mov) && mov > 0 && mov <= 0xffffff;
 }
 
 function moveCurrentPlayerIfDisabled(state: GameState) {
@@ -287,6 +296,18 @@ export function syncSetUnitTargetedWithCode(state: GameState, code: string, targ
     if (!unit) return false;
 
     unit.apkTargeted = targeted;
+    return true;
+}
+
+export function syncOverrideMov(state: GameState, code: string, tileType: number, mov: number): boolean {
+    const normalizedCode = normalizeScriptName(code);
+    if (!normalizedCode || !isValidTileType(tileType) || !isValidMoveCost(mov)) return false;
+
+    const unit = findUnitByCode(state, normalizedCode);
+    if (!unit) return false;
+
+    unit.apkMoveOverrides ??= {};
+    unit.apkMoveOverrides[tileType] = mov;
     return true;
 }
 

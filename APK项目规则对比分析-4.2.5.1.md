@@ -229,6 +229,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.CheckCastle` / `CheckVillage` / `GetTileTeam` | DEX 暴露 | 已有坐标查询适配 |
 | `Stage.SyncSetUnitCode` / `GetUnit` / `GetUnits` | 脚本实际调用 | 已有 code 元数据和单位查询适配 |
 | `Stage.SyncSetUnitStatic*` / `SyncSetUnitTargeted*` | 脚本实际调用 | 已有 static/targeted 元数据适配；静态单位不生成合法动作 |
+| `Stage.SyncOverrideMov` | DEX 暴露并校验 unit code、tile type、mov | 已有 `apkMoveOverrides`，按 APK tile ID/kind 覆盖指定单位移动消耗 |
 | `Stage.PutBoolean` / `GetBoolean` / `PutInteger` / `GetInteger` | 脚本实际调用 | 已有脚本变量基础适配 |
 | `Stage.GetDistance` | 脚本实际调用 | 已有曼哈顿距离查询适配 |
 | `Stage.SyncSetCommander` | 2 | 已有基础适配，但参数语义仍需反编译校准 |
@@ -246,7 +247,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
 | P1 | stacked/pending 的部署后移动细节未知 | 城堡招募体验和 APK UI 行为可能不完全一致 |
 | P2 | `Async*` 剧情/演出 API 未实现 | 影响战役复刻，不影响基础 AI 训练 |
-| P2 | 水晶目标、单位 head、移动覆盖和完整目标 UI 未实现 | 影响战役目标与剧情单位；单位 code/static/targeted 已作为基础元数据适配 |
+| P2 | 水晶目标、单位 head 和完整目标 UI 未实现 | 影响战役目标与剧情单位；单位 code/static/targeted/move override 已作为基础元数据适配 |
 
 ## 13. 建议后续任务
 

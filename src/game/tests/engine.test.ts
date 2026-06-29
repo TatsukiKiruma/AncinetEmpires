@@ -14,7 +14,7 @@ import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_ski
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
-import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
+import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
@@ -396,6 +396,7 @@ describe('GameEngine Rules', () => {
         expect(syncSetUnitCode(state, state.units[0].pos, 'galamar')).toBe(true);
         expect(syncSetUnitStaticWithCode(state, 'galamar', true)).toBe(true);
         expect(syncSetUnitTargetedWithCode(state, 'galamar', true)).toBe(true);
+        expect(syncOverrideMov(state, 'galamar', 2, 1)).toBe(true);
         expect(putBoolean(state, 'stolen', true)).toBe(true);
         expect(putInteger(state, 'reinforced', 2)).toBe(true);
 
@@ -405,7 +406,8 @@ describe('GameEngine Rules', () => {
         expect(observation.units.find(unit => unit.id === state.units[0].id)).toEqual(expect.objectContaining({
             apkUnitCode: 'galamar',
             apkStatic: true,
-            apkTargeted: true
+            apkTargeted: true,
+            apkMoveOverrides: { 2: 1 }
         }));
         expect(observation.apkScriptState).toEqual({
             booleans: { stolen: true },
@@ -413,7 +415,9 @@ describe('GameEngine Rules', () => {
         });
 
         observation.apkScriptState!.booleans!.stolen = false;
+        observation.units.find(unit => unit.id === state.units[0].id)!.apkMoveOverrides![2] = 3;
         expect(env.getObservation().apkScriptState?.booleans?.stolen).toBe(true);
+        expect(env.getObservation().units.find(unit => unit.id === state.units[0].id)!.apkMoveOverrides).toEqual({ 2: 1 });
     });
 
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
@@ -2524,6 +2528,83 @@ describe('GameEngine Rules', () => {
             expect(getLegalActions(state, 0).some(action =>
                 action.type === 'wait' && action.unitId === commander.id
             )).toBe(true);
+        });
+
+        it('APK Stage SyncOverrideMov 按单位 code 和 APK tile type 覆盖移动消耗', () => {
+            const createOverrideState = () => {
+                const state = createDemoState();
+                state.map.width = 5;
+                state.map.height = 1;
+                state.map.tiles = [[
+                    { terrainId: 6, ownerId: null, apkTerrainId: 2 },
+                    { terrainId: 6, ownerId: null, apkTerrainId: 2 },
+                    { terrainId: 6, ownerId: null, apkTerrainId: 2 },
+                    { terrainId: 6, ownerId: null, apkTerrainId: 2 },
+                    { terrainId: 6, ownerId: null, apkTerrainId: 2 }
+                ]];
+                state.units = [{
+                    id: 'u_carrier',
+                    ownerId: 0,
+                    unitClass: 'commander',
+                    pos: { x: 0, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false
+                }];
+                expect(syncSetUnitCode(state, { x: 0, y: 0 }, 'carrier')).toBe(true);
+                return state;
+            };
+
+            const state = createOverrideState();
+            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 2 && pos.y === 0)).toBe(false);
+
+            expect(syncOverrideMov(state, ' carrier ', 2, 1)).toBe(true);
+            expect(state.units[0].apkMoveOverrides).toEqual({ 2: 1 });
+            expect(getReachablePositions(state, 'u_carrier')).toEqual([
+                { x: 0, y: 0 },
+                { x: 1, y: 0 },
+                { x: 2, y: 0 },
+                { x: 3, y: 0 },
+                { x: 4, y: 0 }
+            ]);
+            expect(getMoveCostTo(state, 'u_carrier', { x: 4, y: 0 })).toBe(4);
+
+            const kindState = createOverrideState();
+            expect(syncOverrideMov(kindState, 'carrier', 1, 1)).toBe(true);
+            expect(getReachablePositions(kindState, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(true);
+
+            expect(syncOverrideMov(state, 'missing', 2, 1)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', -1, 1)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', APK_TERRAIN_COUNT, 1)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', 2, 0)).toBe(false);
+        });
+
+        it('APK Stage SyncOverrideMov 可以在无 APK 原始 tile 时按项目 terrainId 兜底', () => {
+            const state = createDemoState();
+            state.map.width = 5;
+            state.map.height = 1;
+            state.map.tiles = [[
+                { terrainId: 2, ownerId: null },
+                { terrainId: 2, ownerId: null },
+                { terrainId: 2, ownerId: null },
+                { terrainId: 2, ownerId: null },
+                { terrainId: 2, ownerId: null }
+            ]];
+            state.units = [{
+                id: 'u_carrier',
+                ownerId: 0,
+                unitClass: 'commander',
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false
+            }];
+            expect(syncSetUnitCode(state, { x: 0, y: 0 }, 'carrier')).toBe(true);
+            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 2 && pos.y === 0)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', 2, 1)).toBe(true);
+            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(true);
         });
 
         it('APK Stage 查询适配器可以检查指挥官、队伍摧毁和强制终局', () => {

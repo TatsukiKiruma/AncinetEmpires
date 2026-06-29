@@ -1,6 +1,7 @@
 import { GameState, LevelCap, Unit, Ability, UnitLevel } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
+import { getApkTerrainConfig } from './apk_terrain';
 import { getTileMoveCost } from './terrain_rules';
 
 /**
@@ -65,6 +66,25 @@ export function isLandTerrain(terrainId: TerrainId): boolean {
  */
 export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): number {
     const terrainId = tile.terrainId;
+
+    const scriptedMoveCostByApkId = tile.apkTerrainId === undefined
+        ? undefined
+        : unit.apkMoveOverrides?.[tile.apkTerrainId];
+    if (scriptedMoveCostByApkId !== undefined) {
+        return scriptedMoveCostByApkId;
+    }
+
+    const scriptedMoveCostByApkKind = tile.apkTerrainId === undefined
+        ? undefined
+        : unit.apkMoveOverrides?.[getApkTerrainConfig(tile.apkTerrainId)?.kind ?? -1];
+    if (scriptedMoveCostByApkKind !== undefined) {
+        return scriptedMoveCostByApkKind;
+    }
+
+    const scriptedMoveCostByProjectId = unit.apkMoveOverrides?.[terrainId];
+    if (scriptedMoveCostByProjectId !== undefined) {
+        return scriptedMoveCostByProjectId;
+    }
     
     // 飞行单位所有地形移动消耗 1
     if (isFlying(unit)) {
