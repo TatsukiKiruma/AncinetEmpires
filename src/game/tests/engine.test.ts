@@ -1613,6 +1613,7 @@ describe('GameEngine Rules', () => {
             friend.pos = { x: 0, y: 2 }; // 相距 2 格
             friend.hasActed = true; // 已行动
             friend.hasMoved = true;
+            friend.movementRemaining = 1;
 
             const actions = getLegalActions(state, 0);
             const supportAct = actions.find(a => a.type === 'support' && a.targetId === friend.id);
@@ -1625,6 +1626,7 @@ describe('GameEngine Rules', () => {
             const resFriend = finalState.units.find(u => u.id === friend.id)!;
             expect(resFriend.hasActed).toBe(false); // 被重置可再次移动和行动
             expect(resFriend.hasMoved).toBe(false);
+            expect(resFriend.movementRemaining).toBe(getEffectiveStats(resFriend).move);
             expect(resFriend.hasBeenSupportedThisTurn).toBe(true);
         });
 

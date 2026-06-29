@@ -430,6 +430,7 @@ export class GameEngine {
                 if (supporter && target) {
                     target.hasActed = false;
                     target.hasMoved = false;
+                    target.movementRemaining = getEffectiveStats(target).move;
                     target.hasBeenSupportedThisTurn = true;
                     
                     // 经验
