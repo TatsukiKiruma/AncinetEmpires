@@ -61,6 +61,9 @@ export interface CreateGameStateFromApkAemMapOptions {
     rules?: RuleConfig;
     strictTerrain?: boolean;
     fallbackTerrainId?: TerrainId;
+    apkVersion?: string;
+    apkSha256?: string;
+    apkResourcePath?: string;
     mapName?: string;
     metadata?: GameMetadata;
 }
@@ -357,6 +360,15 @@ function createMetadataFromApkAemMap(map: ApkAemMap, options: CreateGameStateFro
 
     if (options.mapName !== undefined) {
         metadata.apkMapName = options.mapName;
+    }
+    if (options.apkVersion !== undefined) {
+        metadata.apkVersion = options.apkVersion;
+    }
+    if (options.apkSha256 !== undefined) {
+        metadata.apkSha256 = options.apkSha256;
+    }
+    if (options.apkResourcePath !== undefined) {
+        metadata.apkResourcePath = options.apkResourcePath;
     }
 
     return metadata;

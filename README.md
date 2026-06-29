@@ -36,7 +36,7 @@ while (!initResult.done) {
 
 ### Observation 地图元数据
 
-如果状态来自 APK `.aem` 地图导入，`observation.metadata` 会返回 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`。这些字段只用于训练样本追踪和复现实验配置，不参与规则判定。
+如果状态来自 APK `.aem` 地图导入，`observation.metadata` 会返回 `source/apkVersion/apkSha256/apkResourcePath/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`。这些字段只用于训练样本追踪、规则证据锁定和复现实验配置，不参与规则判定。
 
 ### Observation 单位字段
 

@@ -57,6 +57,9 @@ export type LevelCap = UnitLevel;
 
 export interface GameMetadata {
     source?: 'demo' | 'apk_aem'; // 状态来源，用于训练样本追踪
+    apkVersion?: string;         // APK 版本号，例如 aer-release-4.2.5.1
+    apkSha256?: string;          // APK 文件 SHA256，用于锁定规则证据来源
+    apkResourcePath?: string;    // APK 内资源路径，例如 assets/maps/(2) Duel.aem
     apkMapName?: string;         // APK .aem 地图资源名
     apkSkirmishMode?: 'SD' | 'SO'; // APK 对战模式
     recommendedGold?: number | null; // AEM 推荐金币，null 表示 APK 未设置

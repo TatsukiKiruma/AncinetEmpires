@@ -179,6 +179,24 @@ describe('GameEngine Rules', () => {
             apkTailTemplate: 'none'
         });
 
+        const tracedState = createGameStateFromApkAemMap(map, {
+            mapName: '(2) Unit Test.aem',
+            apkVersion: 'aer-release-4.2.5.1',
+            apkSha256: '51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B',
+            apkResourcePath: 'assets/maps/(2) Unit Test.aem'
+        });
+        expect(tracedState.metadata).toEqual({
+            source: 'apk_aem',
+            apkVersion: 'aer-release-4.2.5.1',
+            apkSha256: '51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B',
+            apkResourcePath: 'assets/maps/(2) Unit Test.aem',
+            apkMapName: '(2) Unit Test.aem',
+            recommendedGold: 300,
+            apkTailTemplate: 'none'
+        });
+        const tracedEnv = new AncientEmpiresEnv({ initialState: tracedState });
+        expect(tracedEnv.getObservation().metadata).toEqual(tracedState.metadata);
+
         const mapWithSkirmishTail = parseApkAemMap(new Uint8Array([...bytes, ...parseHex(APK_AEM_ZERO_SUFFIX_TAIL_HEX)]));
         expect(mapWithSkirmishTail.tail.template).toBe('zero_suffix_58');
         expect(mapWithSkirmishTail.tail.length).toBe(58);
