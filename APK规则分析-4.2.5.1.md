@@ -1058,6 +1058,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `SyncRestoreTeam`、`SyncGameOver` 只记录为被忽略的生命周期/终局调用，不写入开局静态规则，避免误用全脚本扫描结果。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
+2026-06-29 `RuleConfig` 合并与 AEM 初始规则应用补充：
+
+- `src/game/rule_config.ts` 新增公共 `mergeRuleConfig`，用于深合并价格、联盟、指挥官、队伍级规则等嵌套配置，避免后续 APK 模式规则、地图规则和脚本规则互相覆盖。
+- `createGameStateFromApkAemMap` 在创建状态后会应用 `RuleConfig.initialGold` 和 `TeamRuleConfig.initialGold`；推荐金币仍作为无规则覆盖时的地图默认金币。
+- `createApkSkirmishGameState` 和 `applyApkScriptRuleConfig` 已统一使用公共合并逻辑，方便后续把 APK 脚本/场景规则叠加到 skirmish 地图。
+- 验证：`npm test` 229 个测试通过，`npm run lint` 通过。
+
 ## 16. 本次复核记录
 
 2026-06-29 根据 `C:\code\AncinetEmpires\APK\aer-release-4.2.5.1.apk` 重新复核并继续补齐对战规则：

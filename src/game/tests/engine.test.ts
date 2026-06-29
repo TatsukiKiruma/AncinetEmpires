@@ -354,10 +354,16 @@ describe('GameEngine Rules', () => {
         expect(aei5Rules.initialGold).toBe(800);
         expect(aei5Rules.teams?.[0].initialGold).toBe(900);
 
-        const state = createDemoState();
+        const state = createDemoState({
+            alliances: { 0: 1 },
+            teams: { 0: { unitLimit: 5 } }
+        });
         const appliedResult = applyApkScriptRuleConfig(state, 'assets/mods/AEI/s5.js');
         expect(appliedResult?.resourcePath).toBe('assets/mods/AEI/s5.js');
         expect(state.rules?.initialGold).toBe(800);
+        expect(state.rules?.alliances?.[0]).toBe(1);
+        expect(state.rules?.teams?.[0].unitLimit).toBe(5);
+        expect(state.rules?.teams?.[0].initialGold).toBe(900);
         expect(state.players.find(player => player.id === 0)?.gold).toBe(900);
         expect(state.players.find(player => player.id === 1)?.gold).toBe(800);
         expect(buildApkScriptRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
@@ -485,6 +491,18 @@ describe('GameEngine Rules', () => {
             recommendedGold: 300,
             apkTailTemplate: 'none'
         });
+        const configuredGoldState = createGameStateFromApkAemMap(map, {
+            rules: {
+                initialGold: 700,
+                teams: {
+                    1: { initialGold: 900 }
+                }
+            }
+        });
+        expect(configuredGoldState.players.map(player => player.gold)).toEqual([700, 900]);
+        expect(configuredGoldState.rules?.defeatOnNoUnitsAndNoCastles).toBe(true);
+        expect(configuredGoldState.rules?.initialGold).toBe(700);
+        expect(configuredGoldState.rules?.teams?.[1].initialGold).toBe(900);
         const tracedEnv = new AncientEmpiresEnv({ initialState: tracedState });
         expect(tracedEnv.getObservation().metadata).toEqual(tracedState.metadata);
 

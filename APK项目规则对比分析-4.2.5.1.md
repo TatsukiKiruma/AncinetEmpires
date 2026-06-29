@@ -59,7 +59,7 @@
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
 | skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置 | 已对齐 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
-| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位、城堡/城镇归属和完整 tile 使用量，并用于防止同名外部地图被误标 | 基础导入已完成 |
+| skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位、城堡/城镇归属和完整 tile 使用量，并用于防止同名外部地图被误标；AEM 导入会在推荐金币之后应用 `RuleConfig` 初始金币覆盖 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
 | 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数；Observation 输出 `commanderUnitId/isCommander` | 基础对齐，复活流程未知 |
 
@@ -241,6 +241,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。`APK_SCRIPT_LITERAL_RULE_CONFIGS` 进一步按资源路径记录 26 个脚本的逐脚本字面量配置。
 
 `src/game/apk_script_config.ts` 已把安全字面量配置接到项目 `RuleConfig`：金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍可生成静态规则；`SyncChangeGold` 在已有静态 `SyncSetGold` 时折算为队伍初始金币；`SyncRestoreTeam` 和 `SyncGameOver` 只记录为生命周期/终局证据，不写入开局规则。动态参数和剧情触发仍未转为逐关卡场景配置。
+
+`src/game/rule_config.ts` 已提供公共 `mergeRuleConfig`，`createApkSkirmishGameState` 与 `applyApkScriptRuleConfig` 共用同一套深合并逻辑；价格、联盟、队伍规则等嵌套配置可以稳定叠加，避免后续 APK 场景配置覆盖模式规则。
 
 ## 12. 明确未完成的差异
 

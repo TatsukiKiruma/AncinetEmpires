@@ -1,5 +1,6 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { mapKnownApkTerrainId, mapSkirmishApkTerrainId } from './apk_terrain';
+import { applyInitialRuleConfig, mergeRuleConfig } from './rule_config';
 import { TerrainId } from './terrain';
 import { GameMetadata, GameState, RuleConfig, Unit, UnitClass } from './types';
 
@@ -401,12 +402,12 @@ export function createGameStateFromApkAemMap(
         ...map.units.map(unit => unit.teamId)
     ])].sort((a, b) => a - b);
     const gold = getInitialGold(map, options);
-    const rules: RuleConfig = {
-        defeatOnNoUnitsAndNoCastles: true,
-        ...(options.rules ?? {})
-    };
+    const rules = mergeRuleConfig(
+        { defeatOnNoUnitsAndNoCastles: true },
+        options.rules
+    );
 
-    return {
+    const state: GameState = {
         turn: 1,
         currentPlayer: options.currentPlayer ?? teamIds[0] ?? 0,
         map: {
@@ -427,4 +428,6 @@ export function createGameStateFromApkAemMap(
         rules,
         metadata: createMetadataFromApkAemMap(map, options)
     };
+
+    return applyInitialRuleConfig(state);
 }

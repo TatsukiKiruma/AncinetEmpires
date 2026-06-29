@@ -1,6 +1,6 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { ApkScriptLiteralRuleConfig, getApkScriptLiteralRuleConfig } from './apk_script_manifest';
-import { applyInitialRuleConfig } from './rule_config';
+import { applyInitialRuleConfig, mergeRuleConfig } from './rule_config';
 import { GameState, RuleConfig, TeamRuleConfig, UnitClass } from './types';
 
 export interface ApkScriptIgnoredLifecycleCalls {
@@ -70,56 +70,6 @@ function cloneRuleConfig(rules: RuleConfig): RuleConfig {
     if (rules.commanderUnitIds) cloned.commanderUnitIds = { ...rules.commanderUnitIds };
     if (Object.keys(teams).length > 0) cloned.teams = teams;
     return cloned;
-}
-
-function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleConfig): RuleConfig {
-    const mergedTeams: Record<number, TeamRuleConfig> = {};
-    for (const [teamId, teamRules] of Object.entries(base?.teams ?? {})) {
-        mergedTeams[Number(teamId)] = {
-            ...teamRules,
-            recruitableUnits: teamRules.recruitableUnits ? [...teamRules.recruitableUnits] : undefined
-        };
-    }
-    for (const [teamId, teamRules] of Object.entries(overrides.teams ?? {})) {
-        const numericTeamId = Number(teamId);
-        mergedTeams[numericTeamId] = {
-            ...(mergedTeams[numericTeamId] ?? {}),
-            ...teamRules,
-            recruitableUnits: teamRules.recruitableUnits ? [...teamRules.recruitableUnits] : mergedTeams[numericTeamId]?.recruitableUnits
-        };
-    }
-
-    const merged: RuleConfig = {
-        ...(base ?? {}),
-        ...overrides,
-        recruitableUnits: overrides.recruitableUnits
-            ? [...overrides.recruitableUnits]
-            : base?.recruitableUnits ? [...base.recruitableUnits] : undefined,
-        prices: {
-            ...(base?.prices ?? {}),
-            ...(overrides.prices ?? {})
-        },
-        alliances: {
-            ...(base?.alliances ?? {}),
-            ...(overrides.alliances ?? {})
-        },
-        disabledTeams: overrides.disabledTeams
-            ? [...overrides.disabledTeams]
-            : base?.disabledTeams ? [...base.disabledTeams] : undefined,
-        commanderUnitIds: {
-            ...(base?.commanderUnitIds ?? {}),
-            ...(overrides.commanderUnitIds ?? {})
-        },
-        teams: Object.keys(mergedTeams).length > 0 ? mergedTeams : undefined
-    };
-
-    if (!base?.prices && !overrides.prices) delete merged.prices;
-    if (!base?.alliances && !overrides.alliances) delete merged.alliances;
-    if (!base?.commanderUnitIds && !overrides.commanderUnitIds) delete merged.commanderUnitIds;
-    if (!base?.recruitableUnits && !overrides.recruitableUnits) delete merged.recruitableUnits;
-    if (!base?.disabledTeams && !overrides.disabledTeams) delete merged.disabledTeams;
-    if (Object.keys(mergedTeams).length === 0) delete merged.teams;
-    return merged;
 }
 
 export function buildApkScriptRuleConfig(source: ApkScriptLiteralRuleConfig | string): ApkScriptRuleConfigBuildResult | null {

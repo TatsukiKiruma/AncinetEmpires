@@ -51,6 +51,85 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
     };
 }
 
+function cloneTeamRuleConfig(teamRules: TeamRuleConfig): TeamRuleConfig {
+    return {
+        ...teamRules,
+        recruitableUnits: teamRules.recruitableUnits ? [...teamRules.recruitableUnits] : undefined
+    };
+}
+
+export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleConfig | undefined): RuleConfig {
+    const merged: RuleConfig = {};
+
+    if (base) {
+        Object.assign(merged, base);
+        if (base.recruitableUnits) merged.recruitableUnits = [...base.recruitableUnits];
+        if (base.disabledTeams) merged.disabledTeams = [...base.disabledTeams];
+        if (base.prices) merged.prices = { ...base.prices };
+        if (base.alliances) merged.alliances = { ...base.alliances };
+        if (base.commanderUnitIds) merged.commanderUnitIds = { ...base.commanderUnitIds };
+        if (base.teams) {
+            merged.teams = Object.fromEntries(
+                Object.entries(base.teams).map(([teamId, teamRules]) => [teamId, cloneTeamRuleConfig(teamRules)])
+            );
+        }
+    }
+
+    if (!overrides) return merged;
+
+    if (overrides.initialGold !== undefined) merged.initialGold = overrides.initialGold;
+    if (overrides.incomeVillage !== undefined) merged.incomeVillage = overrides.incomeVillage;
+    if (overrides.incomeCastle !== undefined) merged.incomeCastle = overrides.incomeCastle;
+    if (overrides.incomeCommanderBase !== undefined) merged.incomeCommanderBase = overrides.incomeCommanderBase;
+    if (overrides.incomeCommanderGrowth !== undefined) merged.incomeCommanderGrowth = overrides.incomeCommanderGrowth;
+    if (overrides.levelCap !== undefined) merged.levelCap = overrides.levelCap;
+    if (overrides.unitLimit !== undefined) merged.unitLimit = overrides.unitLimit;
+    if (overrides.populationLimit !== undefined) merged.populationLimit = overrides.populationLimit;
+    if (overrides.recruitableUnits !== undefined) merged.recruitableUnits = [...overrides.recruitableUnits];
+    if (overrides.commanderRecruitBaseCost !== undefined) merged.commanderRecruitBaseCost = overrides.commanderRecruitBaseCost;
+    if (overrides.commanderRecruitCostGrowth !== undefined) merged.commanderRecruitCostGrowth = overrides.commanderRecruitCostGrowth;
+    if (overrides.allowSurrender !== undefined) merged.allowSurrender = overrides.allowSurrender;
+    if (overrides.defeatOnNoUnitsAndNoCastles !== undefined) merged.defeatOnNoUnitsAndNoCastles = overrides.defeatOnNoUnitsAndNoCastles;
+    if (overrides.defeatOnNoUnits !== undefined) merged.defeatOnNoUnits = overrides.defeatOnNoUnits;
+    if (overrides.defeatOnCommanderDeath !== undefined) merged.defeatOnCommanderDeath = overrides.defeatOnCommanderDeath;
+    if (overrides.defeatOnNoCastles !== undefined) merged.defeatOnNoCastles = overrides.defeatOnNoCastles;
+    if (overrides.disabledTeams !== undefined) merged.disabledTeams = [...overrides.disabledTeams];
+
+    if (overrides.prices) {
+        merged.prices = {
+            ...(merged.prices ?? {}),
+            ...overrides.prices
+        };
+    }
+    if (overrides.alliances) {
+        merged.alliances = {
+            ...(merged.alliances ?? {}),
+            ...overrides.alliances
+        };
+    }
+    if (overrides.commanderUnitIds) {
+        merged.commanderUnitIds = {
+            ...(merged.commanderUnitIds ?? {}),
+            ...overrides.commanderUnitIds
+        };
+    }
+    if (overrides.teams) {
+        const teams = merged.teams ?? {};
+        for (const [teamId, teamRules] of Object.entries(overrides.teams)) {
+            teams[Number(teamId)] = {
+                ...(teams[Number(teamId)] ?? {}),
+                ...teamRules,
+                recruitableUnits: teamRules.recruitableUnits
+                    ? [...teamRules.recruitableUnits]
+                    : teams[Number(teamId)]?.recruitableUnits
+            };
+        }
+        merged.teams = teams;
+    }
+
+    return merged;
+}
+
 export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleConfig {
     return getRuleConfig(state).teams[playerId] ?? {};
 }
