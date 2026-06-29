@@ -44,6 +44,8 @@ while (!initResult.done) {
 
 `observation.units[].maxHp` 使用当前单位等级计算后的有效最大生命值，和 APK `data.bin` 中的生命成长规则一致；训练侧不要直接用内部 `Unit.maxHp` 字段推断高等级单位上限。
 
+`observation.units` 还会输出 `attack/physicalDefense/magicDefense/minRange/maxRange/move`，这些字段同样是当前等级和状态修正后的有效数值。例如致盲单位射程会显示为 `0-0`，虚弱单位移动会显示为 `1`。
+
 ## Reward (奖励设定)
 
 当前的 Default Reward 为稀疏奖励（Sparse Reward），其值针对当前执行动作的玩家角度返回：

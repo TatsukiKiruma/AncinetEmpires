@@ -2471,6 +2471,66 @@ describe('GameEngine Rules', () => {
             }));
         });
 
+        it('Observation 输出 APK 等级成长和状态修正后的有效单位数值', () => {
+            const state = createDemoState();
+            state.units = [
+                {
+                    id: 'u_commander',
+                    ownerId: 0,
+                    unitClass: 'commander',
+                    pos: { x: 0, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    level: 1,
+                    exp: 100
+                },
+                {
+                    id: 'u_archer',
+                    ownerId: 0,
+                    unitClass: 'archer',
+                    pos: { x: 1, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    status: { type: 'blinded' }
+                },
+                {
+                    id: 'u_golem',
+                    ownerId: 0,
+                    unitClass: 'golem',
+                    pos: { x: 2, y: 0 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    status: { type: 'weakened', remainingTurns: 1 }
+                }
+            ];
+
+            const observation = new AncientEmpiresEnv({ initialState: state }).getObservation();
+            expect(observation.units.find(unit => unit.id === 'u_commander')).toEqual(expect.objectContaining({
+                attack: 70,
+                physicalDefense: 25,
+                magicDefense: 25,
+                minRange: 1,
+                maxRange: 1,
+                move: 5
+            }));
+            expect(observation.units.find(unit => unit.id === 'u_archer')).toEqual(expect.objectContaining({
+                minRange: 0,
+                maxRange: 0,
+                move: 4
+            }));
+            expect(observation.units.find(unit => unit.id === 'u_golem')).toEqual(expect.objectContaining({
+                physicalDefense: 20,
+                magicDefense: 0,
+                move: 1
+            }));
+        });
+
         it('超时结算按军力价值而不是单纯单位数量判断胜负', () => {
             const state = createDemoState();
             state.players[0].gold = 0;

@@ -53,6 +53,12 @@ export interface Observation {
     y: number;
     hp: number;
     maxHp: number;
+    attack: number;
+    physicalDefense: number;
+    magicDefense: number;
+    minRange: number;
+    maxRange: number;
+    move: number;
     level: number;
     exp: number;
     hasMoved: boolean;
@@ -286,6 +292,12 @@ export class AncientEmpiresEnv {
                   y: u.pos.y,
                   hp: u.hp,
                   maxHp: effectiveStats.maxHp,
+                  attack: effectiveStats.attack,
+                  physicalDefense: effectiveStats.physicalDefense,
+                  magicDefense: effectiveStats.magicDefense,
+                  minRange: effectiveStats.minRange,
+                  maxRange: effectiveStats.maxRange,
+                  move: effectiveStats.move,
                   level: u.level ?? 0,
                   exp: u.exp ?? 0,
                   hasMoved: u.hasMoved,
