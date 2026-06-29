@@ -398,7 +398,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK stacked/pending 招募状态：`pendingUnitId` 和单位级 `isPending`。
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限和可招募列表。
 - 每格 `terrainId/ownerId`。
-- 每格 APK 原始字段：`apkTerrainId/apkTerrainRaw/apkOwnerCode`。
+- 每格 APK 原始字段和映射可信度：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence`。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 单位位置、血量、等级、经验、状态、行动状态。
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。

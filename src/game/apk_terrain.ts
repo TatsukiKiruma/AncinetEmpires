@@ -16,6 +16,15 @@ export interface ApkTerrainConfig {
     tail: string;
 }
 
+export type ApkTerrainMappingConfidence = 'confirmed' | 'atlas' | 'approximate' | 'unmapped';
+
+export interface ApkTerrainMappingInfo {
+    apkTerrainId: number;
+    projectTerrainId: TerrainId | null;
+    confidence: ApkTerrainMappingConfidence;
+    evidence: string[];
+}
+
 export const APK_TERRAIN_RECORD_SIZE = 40;
 export const APK_TERRAIN_COUNT = 84;
 
@@ -158,6 +167,44 @@ export const SKIRMISH_APK_TERRAIN_TO_PROJECT = {
 
     ...HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT,
 } satisfies Partial<Record<number, TerrainId>>;
+
+const APPROXIMATE_SKIRMISH_APK_TERRAIN_IDS = new Set([30, 31, 33, 80, 81, 82, 83]);
+
+function getSkirmishMappingEvidence(
+    apkTerrainId: number,
+    projectTerrainId: TerrainId | null,
+    confidence: ApkTerrainMappingConfidence
+): string[] {
+    if (confidence === 'unmapped' || projectTerrainId === null) return [];
+    if (confidence === 'confirmed') {
+        if (apkTerrainId === 72) {
+            return ['data_bin_values', 'language_table_bridge_is_water', 'texture_atlas'];
+        }
+        return ['data_bin_values', 'language_table_building_description', 'texture_atlas'];
+    }
+    if (confidence === 'approximate') {
+        return ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics'];
+    }
+    return ['data_bin_values', 'texture_atlas', 'skirmish_map_context'];
+}
+
+export function getSkirmishApkTerrainMappingInfo(apkTerrainId: number): ApkTerrainMappingInfo {
+    const projectTerrainId = mapSkirmishApkTerrainId(apkTerrainId);
+    const confidence: ApkTerrainMappingConfidence = projectTerrainId === null
+        ? 'unmapped'
+        : mapKnownApkTerrainId(apkTerrainId) !== null
+            ? 'confirmed'
+            : APPROXIMATE_SKIRMISH_APK_TERRAIN_IDS.has(apkTerrainId)
+                ? 'approximate'
+                : 'atlas';
+
+    return {
+        apkTerrainId,
+        projectTerrainId,
+        confidence,
+        evidence: getSkirmishMappingEvidence(apkTerrainId, projectTerrainId, confidence)
+    };
+}
 
 export function getApkTerrainConfig(apkTerrainId: number): ApkTerrainConfig | null {
     return APK_TERRAIN_BY_ID.get(apkTerrainId) ?? null;

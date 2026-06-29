@@ -308,7 +308,7 @@ skirmish 训练导入映射：
 | `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
 | `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
 
-该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值，项目 `terrainId` 主要负责地形标签、占领/招募/收入等抽象语义。
+该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 原始 tile 的防御、移动和回血数值，项目 `terrainId` 主要负责地形标签、占领/招募/收入等抽象语义。
 
 完整基础数值表如下。`linked* = -1` 表示无关联；`moveCost=16777215` 的 `t0/t1` 属特殊/不可普通通行 tile，APK 导入地图会保留该原始移动值，避免普通地面单位把这类格子当成可正常通行深水。
 
@@ -941,8 +941,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 2026-06-29 APK tile 数值进入 AI Observation：
 
-- `AncientEmpiresEnv.getObservation().tiles` 新增 `apkTerrainId/apkTerrainRaw/apkOwnerCode/defenseBonus/healPerTurn/moveCost` 字段。
-- 普通项目地图也会输出有效防御、回血、移动字段；APK 导入地图输出的是当前规则实际使用的 APK 原始 tile 数值，避免训练观察不到影响移动/防御/回血的隐藏状态。
+- `AncientEmpiresEnv.getObservation().tiles` 新增 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/defenseBonus/healPerTurn/moveCost` 字段。
+- 普通项目地图也会输出有效防御、回血、移动字段；APK 导入地图输出的是当前规则实际使用的 APK 原始 tile 数值，并标明当前 tile 语义映射的证据等级，避免训练观察不到影响移动/防御/回血或映射不确定性的隐藏状态。
 - 验证：真实 APK 20 张 skirmish 地图构造训练环境后，Observation 覆盖 `OBSERVED_APK_TILES 4207/4207`，输出移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
 
 2026-06-29 APK 地图元数据进入 AI Observation：

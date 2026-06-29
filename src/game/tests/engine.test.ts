@@ -8,7 +8,7 @@ import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
-import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
+import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
@@ -71,6 +71,24 @@ describe('GameEngine Rules', () => {
         expect(mapSkirmishApkTerrainId(28)).toBe(17);
         expect(mapSkirmishApkTerrainId(36)).toBe(9);
         expect(getSkirmishApkTerrainIdsForProject(17)).toEqual([28, 29, 72]);
+        expect(getSkirmishApkTerrainMappingInfo(36)).toEqual(expect.objectContaining({
+            projectTerrainId: 9,
+            confidence: 'confirmed'
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(18)).toEqual(expect.objectContaining({
+            projectTerrainId: 1,
+            confidence: 'atlas'
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(31)).toEqual(expect.objectContaining({
+            projectTerrainId: 12,
+            confidence: 'approximate'
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(999)).toEqual({
+            apkTerrainId: 999,
+            projectTerrainId: null,
+            confidence: 'unmapped',
+            evidence: []
+        });
     });
 
     it('APK skirmish 官方地图清单代码化并可校验来源', () => {
@@ -396,11 +414,12 @@ describe('GameEngine Rules', () => {
 
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
         const state = createDemoState();
-        state.map.width = 2;
+        state.map.width = 3;
         state.map.height = 1;
         state.map.tiles = [[
             { terrainId: 6, ownerId: null },
-            { terrainId: 2, ownerId: null, apkTerrainId: 0 }
+            { terrainId: 2, ownerId: null, apkTerrainId: 0 },
+            { terrainId: 12, ownerId: null, apkTerrainId: 31 }
         ]];
         state.units = [{
             id: 'u_apk_move',
@@ -427,9 +446,19 @@ describe('GameEngine Rules', () => {
         expect(apkTileObservation).toEqual(expect.objectContaining({
             terrainId: 2,
             apkTerrainId: 0,
+            apkTerrainMappingConfidence: 'atlas',
             moveCost: 16777215,
             defenseBonus: 0,
             healPerTurn: 3
+        }));
+        const apkApproximateTileObservation = env.getObservation().tiles.find(tile => tile.x === 2 && tile.y === 0)!;
+        expect(apkApproximateTileObservation).toEqual(expect.objectContaining({
+            terrainId: 12,
+            apkTerrainId: 31,
+            apkTerrainMappingConfidence: 'approximate',
+            moveCost: 1,
+            defenseBonus: 10,
+            healPerTurn: 20
         }));
     });
 

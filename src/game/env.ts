@@ -5,6 +5,7 @@ import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isTeamEnabled } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
+import { ApkTerrainMappingConfidence, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -45,6 +46,7 @@ export interface Observation {
     apkTerrainId?: number;
     apkTerrainRaw?: number;
     apkOwnerCode?: number;
+    apkTerrainMappingConfidence?: ApkTerrainMappingConfidence;
     defenseBonus: number;
     healPerTurn: number;
     moveCost: number;
@@ -300,6 +302,9 @@ export class AncientEmpiresEnv {
               apkTerrainId: t.apkTerrainId,
               apkTerrainRaw: t.apkTerrainRaw,
               apkOwnerCode: t.apkOwnerCode,
+              apkTerrainMappingConfidence: t.apkTerrainId === undefined
+                  ? undefined
+                  : getSkirmishApkTerrainMappingInfo(t.apkTerrainId).confidence,
               defenseBonus: getTileDefenseBonus(t),
               healPerTurn: getTileHealPerTurn(t),
               moveCost: getTileMoveCost(t)

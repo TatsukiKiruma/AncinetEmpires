@@ -32,7 +32,7 @@ while (!initResult.done) {
 
 ### Observation 地形字段
 
-`observation.tiles` 会返回每个格子的 `terrainId/ownerId`，以及当前规则实际使用的 `defenseBonus/healPerTurn/moveCost`。如果状态来自 APK `.aem` 地图导入，还会包含 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，用于让 AI 观察到 APK 原始 tile 数值差异。
+`observation.tiles` 会返回每个格子的 `terrainId/ownerId`，以及当前规则实际使用的 `defenseBonus/healPerTurn/moveCost`。如果状态来自 APK `.aem` 地图导入，还会包含 `apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence`，用于让 AI 观察到 APK 原始 tile 数值差异和当前地形语义映射的证据等级。
 
 ### Observation 地图元数据
 
