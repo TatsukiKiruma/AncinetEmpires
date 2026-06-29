@@ -3463,7 +3463,18 @@ describe('GameEngine Rules', () => {
                 defeatOnNoUnitsAndNoCastles: false,
                 defeatOnNoUnits: true,
                 defeatOnCommanderDeath: true,
-                defeatOnNoCastles: true
+                defeatOnNoCastles: true,
+                alliances: { 0: 5, 1: 5 },
+                disabledTeams: [1],
+                commanderUnitIds: {},
+                teams: {
+                    0: {
+                        initialGold: null,
+                        unitLimit: 2,
+                        populationLimit: 3,
+                        recruitableUnits: ['soldier', 'archer']
+                    }
+                }
             });
             expect(observation.turnPlayerIds).toEqual([0]);
             expect(player0).toEqual(expect.objectContaining({

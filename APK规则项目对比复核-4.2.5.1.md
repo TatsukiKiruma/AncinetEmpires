@@ -419,7 +419,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 玩家金币、存活状态、指挥官死亡次数。
 - 当前有效回合队伍：`turnPlayerIds`。
 - APK stacked/pending 招募状态：`pendingUnitId` 和单位级 `isPending`。
-- 全局规则摘要：`initialGold/incomeVillage/incomeCastle/incomeCommanderBase/incomeCommanderGrowth/levelCap/unitLimit/populationLimit/recruitableUnits/priceOverrides/commanderRecruitBaseCost/commanderRecruitCostGrowth/allowSurrender/defeat*`，用于让训练端直接读取 APK 模式或脚本配置后的经济、等级、招募价格覆盖和终局条件。
+- 全局规则摘要：`initialGold/incomeVillage/incomeCastle/incomeCommanderBase/incomeCommanderGrowth/levelCap/unitLimit/populationLimit/recruitableUnits/priceOverrides/commanderRecruitBaseCost/commanderRecruitCostGrowth/allowSurrender/defeat*/alliances/disabledTeams/commanderUnitIds/teams`，用于让训练端直接读取 APK 模式或脚本配置后的经济、等级、招募价格覆盖、联盟/禁用队伍/脚本指挥官、队伍级规则和终局条件。
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/recruitCosts/commanderUnitId`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限、可招募列表、当前招募费用和队伍指挥官。
 - 每格 `terrainId/ownerId`。
 - 每格 APK 当前字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。

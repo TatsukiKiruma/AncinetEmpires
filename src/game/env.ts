@@ -43,6 +43,15 @@ export interface Observation {
     defeatOnNoUnits: boolean;
     defeatOnCommanderDeath: boolean;
     defeatOnNoCastles: boolean;
+    alliances: Record<number, number>;
+    disabledTeams: number[];
+    commanderUnitIds: Record<number, string>;
+    teams: Record<number, {
+      initialGold: number | null;
+      unitLimit: number | null;
+      populationLimit: number | null;
+      recruitableUnits: UnitClass[] | null;
+    }>;
   };
   players: Array<{
     id: number;
@@ -339,7 +348,19 @@ export class AncientEmpiresEnv {
               defeatOnNoUnitsAndNoCastles: rules.defeatOnNoUnitsAndNoCastles,
               defeatOnNoUnits: rules.defeatOnNoUnits,
               defeatOnCommanderDeath: rules.defeatOnCommanderDeath,
-              defeatOnNoCastles: rules.defeatOnNoCastles
+              defeatOnNoCastles: rules.defeatOnNoCastles,
+              alliances: { ...rules.alliances },
+              disabledTeams: [...rules.disabledTeams],
+              commanderUnitIds: { ...rules.commanderUnitIds },
+              teams: Object.fromEntries(Object.entries(rules.teams).map(([teamId, teamRules]) => [
+                  Number(teamId),
+                  {
+                      initialGold: teamRules.initialGold ?? null,
+                      unitLimit: teamRules.unitLimit ?? null,
+                      populationLimit: teamRules.populationLimit ?? null,
+                      recruitableUnits: teamRules.recruitableUnits ? [...teamRules.recruitableUnits] : null
+                  }
+              ]))
           },
           players: state.players.map(p => {
               const teamRules = rules.teams[p.id] ?? {};

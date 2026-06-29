@@ -1036,6 +1036,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK 全局规则和招募费用进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation()` 新增 `rules` 摘要，输出当前全局初始金币、村庄/城堡/指挥官收入、等级上限、全局单位/人口上限、全局可招募列表、价格覆盖、指挥官重招募费用配置、投降开关和失败条件。
+- `rules` 摘要同步输出 `alliances/disabledTeams/commanderUnitIds/teams` 原始配置快照；队伍级配置会保留 `initialGold/unitLimit/populationLimit/recruitableUnits`，方便训练样本复现 APK 脚本配置后的规则状态。
 - `players[]` 新增 `recruitCosts`，按每个队伍当前有效 `recruitableUnits` 输出实际费用；该费用会反映 `RuleConfig.prices` 覆盖和指挥官死亡次数带来的重招募价格变化。
 - 这些字段只暴露规则快照，不改变任何合法动作或结算；目的是让训练侧不用把 APK 脚本配置、默认常量和队伍状态二次拼接后再推断经济/招募边界。
 
