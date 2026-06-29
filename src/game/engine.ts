@@ -152,6 +152,11 @@ export class GameEngine {
         }
     }
 
+    private applyCappedRecovery(unit: Unit, maxHp: number, amount: number) {
+        if (amount <= 0 || unit.hp >= maxHp) return;
+        unit.hp = Math.min(maxHp, unit.hp + amount);
+    }
+
     private consumeGraveAtUnitPosition(unit: Unit) {
         if (!this.state.graves) return;
 
@@ -159,7 +164,7 @@ export class GameEngine {
         if (graveIdx === -1) return;
 
         if (isUndead(unit)) {
-            unit.hp = Math.min(getEffectiveStats(unit).maxHp, unit.hp + 10);
+            this.applyCappedRecovery(unit, getEffectiveStats(unit).maxHp, 10);
         } else if (!hasAbility(unit, 'summoner')) {
             // APK 文案确认召唤师摧毁墓碑不会损失生命值。
             unit.hp -= 10;
@@ -182,7 +187,7 @@ export class GameEngine {
                         u.hp = Math.max(0, u.hp - healVal);
                     } else {
                         const maxHp = getEffectiveStats(u).maxHp;
-                        u.hp = Math.min(maxHp, u.hp + healVal);
+                        this.applyCappedRecovery(u, maxHp, healVal);
                         clearNegativeStatus(u);
                     }
                 }
@@ -640,7 +645,7 @@ export class GameEngine {
                             if (remainingTicks > 0) {
                                 // 扣血或若为亡灵则回血 10
                                 if (isUndead(u)) {
-                                    u.hp = Math.min(eff.maxHp, u.hp + 10);
+                                    this.applyCappedRecovery(u, eff.maxHp, 10);
                                 } else {
                                     u.hp -= 10;
                                     if (u.hp <= 0) {
@@ -659,7 +664,7 @@ export class GameEngine {
                         // 因此中毒把自我修复单位扣到 0 以下时，仍先给它一次自我修复机会。
                         if (isPoisonDead) {
                             if (hasAbility(u, 'self_repair')) {
-                                u.hp = Math.min(eff.maxHp, u.hp + Math.floor(eff.maxHp * 0.25));
+                                this.applyCappedRecovery(u, eff.maxHp, Math.floor(eff.maxHp * 0.25));
                                 if (u.hp > 0) {
                                     return;
                                 }
@@ -709,7 +714,7 @@ export class GameEngine {
                         }
                         
                         if (healAmount > 0) {
-                            u.hp = Math.min(eff.maxHp, u.hp + healAmount);
+                            this.applyCappedRecovery(u, eff.maxHp, healAmount);
                         }
                     }
                 });

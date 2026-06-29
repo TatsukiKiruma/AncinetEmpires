@@ -1437,6 +1437,38 @@ describe('GameEngine Rules', () => {
             expect(resFriend.hasBeenHealedThisTurn).toBe(true);
         });
 
+        it('5.1c 普通回合回血不会压低治疗师造成的超上限生命', () => {
+            const state = createDemoState();
+            state.currentPlayer = 1;
+            const unit = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            unit.hp = 130;
+            unit.maxHp = 100;
+            unit.pos = { x: 0, y: 0 };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+
+            const resUnit = engine.getState().units.find(u => u.id === unit.id)!;
+            expect(resUnit.hp).toBe(130);
+        });
+
+        it('5.1d 亡灵中毒回血不会压低已有超上限生命', () => {
+            const state = createDemoState();
+            state.currentPlayer = 1;
+            const ghost = state.units.find(u => u.ownerId === 0)!;
+            ghost.unitClass = 'ghost';
+            ghost.hp = 130;
+            ghost.maxHp = 100;
+            ghost.status = { type: 'poisoned', remainingTicks: 2 };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+
+            const resGhost = engine.getState().units.find(u => u.id === ghost.id)!;
+            expect(resGhost.hp).toBe(130);
+            expect(resGhost.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+        });
+
         it('5.2 治疗师治疗骷髅/幽灵造成 40 伤害', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;
