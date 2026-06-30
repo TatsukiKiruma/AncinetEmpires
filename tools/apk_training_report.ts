@@ -13,6 +13,7 @@ import {
     getApkSkirmishTrainingScenarios,
     type ApkSkirmishTrainingScenario
 } from '../src/game/apk_skirmish';
+import type { Observation } from '../src/game/env';
 import type { Action } from '../src/game/types';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
@@ -47,6 +48,7 @@ interface TrainingScenarioReportEntry {
     commanderInitialRecruitCosts: (number | null)[];
     commanderRecruitCostProfile: (number | null)[];
     commanderRecruitRuleMatched: boolean;
+    observationApkEvidenceMatched: boolean;
     smokeRequestedPlies: number;
     smokeExecutedPlies: number;
     smokeDone: boolean;
@@ -65,6 +67,7 @@ interface ApkTrainingReport {
     zeroLegalActionCount: number;
     modeRuleMismatchCount: number;
     commanderRecruitRuleMismatchCount: number;
+    observationApkEvidenceMismatchCount: number;
     unverifiedApproximateScenarioCount: number;
     smokePlies: number;
     smokeFailureCount: number;
@@ -186,6 +189,58 @@ function sameCostProfile(left: readonly (number | null)[], right: readonly (numb
     return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
+function hasCompleteObservationApkEvidence(observation: Observation): boolean {
+    const expectedTileCount = observation.mapWidth * observation.mapHeight;
+    const terrainMappingSummary = observation.terrainMappingSummary;
+    const terrainSummaryMatched = (
+        terrainMappingSummary !== undefined
+        && terrainMappingSummary.apkTileCount === expectedTileCount
+        && Object.values(terrainMappingSummary.apkTerrainUsage).reduce((sum, count) => sum + count, 0) === expectedTileCount
+        && Object.values(terrainMappingSummary.byConfidence).reduce((sum, count) => sum + count, 0) === expectedTileCount
+    );
+    const tilesMatched = (
+        observation.tiles.length === expectedTileCount
+        && observation.tiles.every(tile => (
+            tile.apkTerrainId !== undefined
+            && tile.apkTerrainConfig !== undefined
+            && tile.apkTerrainConfig.id === tile.apkTerrainId
+            && tile.apkTerrainMappingConfidence !== undefined
+            && tile.apkTerrainMappingEvidence !== undefined
+            && tile.apkTerrainMappingEvidence.length > 0
+            && tile.defenseBonus === tile.apkTerrainConfig.defenseBonus
+            && tile.healPerTurn === tile.apkTerrainConfig.healPerTurn
+            && tile.moveCost === tile.apkTerrainConfig.moveCost
+            && tile.ruleTerrainId !== undefined
+            && tile.terrainKey.length > 0
+        ))
+    );
+    const unitsMatched = observation.units.every(unit => (
+        unit.apkUnitId !== undefined
+        && Number.isInteger(unit.apkUnitClassId)
+        && Number.isFinite(unit.baseAttack)
+        && Number.isFinite(unit.basePhysicalDefense)
+        && Number.isFinite(unit.baseMagicDefense)
+        && Number.isFinite(unit.baseMinRange)
+        && Number.isFinite(unit.baseMaxRange)
+        && Number.isFinite(unit.baseMove)
+        && Number.isFinite(unit.attackGrowth)
+        && Number.isFinite(unit.defenseGrowth)
+        && Number.isFinite(unit.maxHpGrowth)
+        && Number.isFinite(unit.moveGrowth)
+        && unit.tileApkTerrainId !== undefined
+        && unit.tileApkTerrainConfig !== undefined
+        && unit.tileApkTerrainConfig.id === unit.tileApkTerrainId
+        && unit.tileApkTerrainMappingConfidence !== undefined
+        && unit.tileApkTerrainMappingEvidence !== undefined
+        && unit.tileApkTerrainMappingEvidence.length > 0
+        && unit.tileDefenseBonus === unit.tileApkTerrainConfig.defenseBonus
+        && unit.tileHealPerTurn === unit.tileApkTerrainConfig.healPerTurn
+        && unit.tileMoveCost === unit.tileApkTerrainConfig.moveCost
+    ));
+
+    return terrainSummaryMatched && tilesMatched && unitsMatched;
+}
+
 function formatCostProfile(profile: readonly (number | null)[]): string {
     return profile.map(cost => cost ?? '-').join('/');
 }
@@ -288,6 +343,7 @@ function buildScenarioReportEntry(
         commanderInitialRecruitCosts,
         commanderRecruitCostProfile,
         commanderRecruitRuleMatched,
+        observationApkEvidenceMatched: hasCompleteObservationApkEvidence(observation),
         ...smoke
     };
 }
@@ -315,6 +371,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
         modeRuleMismatchCount: entries.filter(entry => !entry.modeRuleMatched).length,
         commanderRecruitRuleMismatchCount: entries.filter(entry => !entry.commanderRecruitRuleMatched).length,
+        observationApkEvidenceMismatchCount: entries.filter(entry => !entry.observationApkEvidenceMatched).length,
         unverifiedApproximateScenarioCount: entries.filter(entry => entry.hasUnverifiedApproximateTerrain).length,
         smokePlies: options.smokePlies,
         smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
@@ -336,12 +393,13 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}`,
         `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
         `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
+        `- Observation APK 证据字段错配场景：${report.observationApkEvidenceMismatchCount}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | smoke | 可招募 | 指挥官费用 | 模式规则 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | ---: | --- | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | smoke | 可招募 | 指挥官费用 | 模式规则 | APK 观测 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | ---: | --- | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -362,6 +420,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.recruitableUnitCount ?? '-',
             `${formatCostProfile(scenario.commanderRecruitCostProfile)} ${scenario.commanderRecruitRuleMatched ? '是' : '否'}`,
             scenario.modeRuleMatched ? '是' : '否',
+            scenario.observationApkEvidenceMatched ? '是' : '否',
             scenario.manifestMatched ? '是' : '否',
             scenario.metadataMatched ? '是' : '否'
         ].join(' | ') + ' |');
@@ -387,6 +446,7 @@ async function main() {
     const zeroLegalActions = report.zeroLegalActionCount > 0;
     const modeRuleMismatches = report.modeRuleMismatchCount > 0;
     const commanderRecruitRuleMismatches = report.commanderRecruitRuleMismatchCount > 0;
+    const observationApkEvidenceMismatches = report.observationApkEvidenceMismatchCount > 0;
     const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
     const smokeFailures = report.smokeFailureCount > 0;
     if (options.check && (
@@ -396,6 +456,7 @@ async function main() {
         || zeroLegalActions
         || modeRuleMismatches
         || commanderRecruitRuleMismatches
+        || observationApkEvidenceMismatches
         || unverifiedApproximateScenarios
         || smokeFailures
     )) {
