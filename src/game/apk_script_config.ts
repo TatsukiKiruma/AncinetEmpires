@@ -1,5 +1,6 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { ApkScriptLiteralRuleConfig, getApkScriptLiteralRuleConfig } from './apk_script_manifest';
+import { ApkScriptLiteralRuleConfig, ApkScriptLiteralStageStateConfig, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from './apk_script_manifest';
+import { syncOverrideMov, syncSetUnitStatus } from './apk_stage';
 import { applyInitialRuleConfig, mergeRuleConfig } from './rule_config';
 import { GameState, RuleConfig, TeamRuleConfig, UnitClass } from './types';
 
@@ -12,6 +13,13 @@ export interface ApkScriptRuleConfigBuildResult {
     resourcePath: string;
     rules: RuleConfig;
     ignoredLifecycleCalls: ApkScriptIgnoredLifecycleCalls;
+    warnings: string[];
+}
+
+export interface ApkScriptStageStateApplyResult {
+    resourcePath: string;
+    appliedSyncOverrideMovCount: number;
+    appliedSyncSetUnitStatusCount: number;
     warnings: string[];
 }
 
@@ -51,6 +59,10 @@ function mapApkUnitIds(apkUnitIds: readonly number[], warnings: string[], contex
 
 function resolveLiteralRuleConfig(source: ApkScriptLiteralRuleConfig | string): ApkScriptLiteralRuleConfig | null {
     return typeof source === 'string' ? getApkScriptLiteralRuleConfig(source) : source;
+}
+
+function resolveLiteralStageStateConfig(source: ApkScriptLiteralStageStateConfig | string): ApkScriptLiteralStageStateConfig | null {
+    return typeof source === 'string' ? getApkScriptLiteralStageStateConfig(source) : source;
 }
 
 function cloneRuleConfig(rules: RuleConfig): RuleConfig {
@@ -167,5 +179,50 @@ export function applyApkScriptRuleConfig(state: GameState, source: ApkScriptLite
         apkRuleScriptWarnings: [...result.warnings]
     };
     applyInitialRuleConfig(state);
+    return result;
+}
+
+export function applyApkScriptStageStateConfig(
+    state: GameState,
+    source: ApkScriptLiteralStageStateConfig | string
+): ApkScriptStageStateApplyResult | null {
+    const config = resolveLiteralStageStateConfig(source);
+    if (!config) return null;
+
+    const warnings: string[] = [];
+    let appliedSyncOverrideMovCount = 0;
+    let appliedSyncSetUnitStatusCount = 0;
+
+    for (const call of config.syncOverrideMovCalls ?? []) {
+        if (syncOverrideMov(state, call.code, call.tileType, call.mov)) {
+            appliedSyncOverrideMovCount += 1;
+        } else {
+            warnings.push(`${config.resourcePath} 的 SyncOverrideMov(${call.code}, ${call.tileType}, ${call.mov}) 未应用，单位 code 不存在或参数非法。`);
+        }
+    }
+
+    for (const call of config.syncSetUnitStatusCalls ?? []) {
+        if (syncSetUnitStatus(state, call.x, call.y, call.statusId, call.rounds, call.replaceExisting)) {
+            appliedSyncSetUnitStatusCount += 1;
+        } else {
+            warnings.push(`${config.resourcePath} 的 SyncSetUnitStatus(${call.x}, ${call.y}, ${call.statusId}, ${call.rounds}, ${call.replaceExisting}) 未应用，坐标无单位或参数非法。`);
+        }
+    }
+
+    const result: ApkScriptStageStateApplyResult = {
+        resourcePath: config.resourcePath,
+        appliedSyncOverrideMovCount,
+        appliedSyncSetUnitStatusCount,
+        warnings
+    };
+
+    state.metadata = {
+        ...(state.metadata ?? {}),
+        apkStageStateScriptResourcePath: result.resourcePath,
+        apkStageStateAppliedSyncOverrideMovCount: result.appliedSyncOverrideMovCount,
+        apkStageStateAppliedSyncSetUnitStatusCount: result.appliedSyncSetUnitStatusCount,
+        apkStageStateScriptWarnings: [...result.warnings]
+    };
+
     return result;
 }

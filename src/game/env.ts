@@ -235,6 +235,9 @@ function cloneGameMetadata(metadata: GameMetadata | undefined): GameMetadata | u
             : undefined,
         apkRuleScriptWarnings: metadata.apkRuleScriptWarnings
             ? [...metadata.apkRuleScriptWarnings]
+            : undefined,
+        apkStageStateScriptWarnings: metadata.apkStageStateScriptWarnings
+            ? [...metadata.apkStageStateScriptWarnings]
             : undefined
     };
 }

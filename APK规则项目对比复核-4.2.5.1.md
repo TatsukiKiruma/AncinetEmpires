@@ -392,7 +392,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 - 金币、单位上限、可招募列表、联盟、禁用/恢复/摧毁队伍、强制终局。
 - 单位 code、static、targeted、head 元数据；`SyncSetUnitCode/Static/Targeted/Head` 已兼容解密脚本确认的 `x, y, ...` 坐标形态。
-- 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind；9 个脚本字面量调用已进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`。
+- 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind；9 个脚本字面量调用已进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`，并可通过 `applyApkScriptStageStateConfig` 显式应用。
 - 单位等级和状态设置；`SyncSetUnitLevel` 默认回满血，但不会把既有超上限生命压回最大生命；`SyncSetUnitLevel/SyncSetUnitStatus/SyncSetCommander` 均兼容解密脚本确认的 `x, y` 坐标调用形态；`SyncSetUnitStatus` 已支持 replaceExisting 标志，已归档的实际调用为 `SyncSetUnitStatus(6, 9, 2, 2, true)`。
 - `CountUnit`、`CountCastle`、`CountVillage`、`GetUnit`、`GetUnits`、`GetDistance`；`GetTileTeam/CheckCastle/CheckVillage/GetUnit/GetDistance` 已兼容脚本中的 `x, y` 或 `x1, y1, x2, y2` 查询形态。
 - 布尔/整数脚本变量。
@@ -443,6 +443,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK 导入状态可把 `apkVersion/apkSha256/apkResourcePath` 透传到 Observation，用于锁定训练样本的规则证据来源。
 - APK AEM tile 可信度 metadata：`apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`，用于样本索引阶段识别低可信或未映射 tile。
 - APK 脚本字面量规则来源 metadata：`apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于追踪当前规则配置来自哪个脚本以及哪些生命周期调用被静态转换忽略。
+- APK 脚本单位/坐标状态来源 metadata：`apkStageStateScriptResourcePath/apkStageStateAppliedSyncOverrideMovCount/apkStageStateAppliedSyncSetUnitStatusCount/apkStageStateScriptWarnings`，用于追踪训练状态是否显式应用过 `SyncOverrideMov` 或 `SyncSetUnitStatus` 字面量配置。
 
 这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信 tile 会按营地、陆地神庙、水中障碍和水中神庙候选输出 evidence，便于训练或数据清洗侧分组降权处理。
 

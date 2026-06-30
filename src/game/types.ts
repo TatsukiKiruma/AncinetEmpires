@@ -74,6 +74,10 @@ export interface GameMetadata {
     apkRuleScriptIgnoredRestoreTeamIds?: number[]; // 静态规则生成时忽略的 SyncRestoreTeam 调用
     apkRuleScriptIgnoredGameOverAllianceIds?: number[]; // 静态规则生成时忽略的 SyncGameOver 调用
     apkRuleScriptWarnings?: string[]; // APK 脚本字面量规则转换警告
+    apkStageStateScriptResourcePath?: string; // 应用单位/坐标状态配置的 APK 脚本资源路径
+    apkStageStateAppliedSyncOverrideMovCount?: number; // 已应用的 SyncOverrideMov 调用数
+    apkStageStateAppliedSyncSetUnitStatusCount?: number; // 已应用的 SyncSetUnitStatus 调用数
+    apkStageStateScriptWarnings?: string[]; // APK 单位/坐标状态配置应用警告
 }
 
 export interface ApkScriptState {

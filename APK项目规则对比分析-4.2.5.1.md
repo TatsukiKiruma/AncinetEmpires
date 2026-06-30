@@ -253,7 +253,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam` 的 `x, y` 形态，单位 code/查询已覆盖 `SyncSetUnitCode(x, y, code)`、`GetUnit(code)`、`GetUnit(x, y)`、`GetUnits(team)`，单位等级/状态/指挥官设置已兼容解密脚本确认的 `x, y` 坐标调用形态，单位等级设置已和经验升级保持同样的超上限生命非裁剪边界，单位 static/targeted/head 标记也已兼容无 code API 的 `x, y` 坐标形态，脚本变量和 `GetDistance(x1, y1, x2, y2)` 查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
-新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。`APK_SCRIPT_LITERAL_RULE_CONFIGS` 进一步按资源路径记录 26 个脚本的逐脚本字面量配置。单位/坐标状态调用不属于全局规则配置，已单独进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`：包含 9 个 `SyncOverrideMov` 调用和 1 个 `SyncSetUnitStatus` 调用。
+新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。`APK_SCRIPT_LITERAL_RULE_CONFIGS` 进一步按资源路径记录 26 个脚本的逐脚本字面量配置。单位/坐标状态调用不属于全局规则配置，已单独进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`：包含 9 个 `SyncOverrideMov` 调用和 1 个 `SyncSetUnitStatus` 调用；`applyApkScriptStageStateConfig` 可显式应用这些调用，并在 metadata/Observation 中记录来源、成功数和警告。
 
 `src/game/apk_script_config.ts` 已把安全字面量配置接到项目 `RuleConfig`：金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍可生成静态规则；`SyncChangeGold` 在已有静态 `SyncSetGold` 时折算为队伍初始金币；`SyncRestoreTeam` 和 `SyncGameOver` 只记录为生命周期/终局证据，不写入开局规则。动态参数和剧情触发仍未转为逐关卡场景配置。
 

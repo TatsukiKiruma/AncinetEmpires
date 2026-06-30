@@ -11,7 +11,7 @@ import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, get
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
-import { applyApkScriptRuleConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
+import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
@@ -490,6 +490,52 @@ describe('GameEngine Rules', () => {
         observation.metadata!.apkRuleScriptIgnoredGameOverAllianceIds!.push(9);
         expect(env.getObservation().metadata?.apkRuleScriptIgnoredGameOverAllianceIds).toEqual([1, 2]);
         expect(buildApkScriptRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
+    });
+
+    it('APK mods 字面量单位/坐标状态配置可以应用到 GameState', () => {
+        const moveState = createDemoState();
+        moveState.units[0].apkUnitCode = 'g1';
+
+        const moveResult = applyApkScriptStageStateConfig(moveState, 'assets/mods/AEIII/s4.js')!;
+        expect(moveResult.resourcePath).toBe('assets/mods/AEIII/s4.js');
+        expect(moveResult.appliedSyncOverrideMovCount).toBe(1);
+        expect(moveResult.appliedSyncSetUnitStatusCount).toBe(0);
+        expect(moveResult.warnings).toHaveLength(4);
+        expect(moveState.units[0].apkMoveOverrides).toEqual({ 0: 1 });
+        expect(moveState.metadata).toEqual(expect.objectContaining({
+            apkStageStateScriptResourcePath: 'assets/mods/AEIII/s4.js',
+            apkStageStateAppliedSyncOverrideMovCount: 1,
+            apkStageStateAppliedSyncSetUnitStatusCount: 0,
+            apkStageStateScriptWarnings: moveResult.warnings
+        }));
+
+        const moveEnv = new AncientEmpiresEnv({ initialState: moveState });
+        const moveObservation = moveEnv.getObservation();
+        expect(moveObservation.metadata?.apkStageStateScriptWarnings).toEqual(moveResult.warnings);
+        moveObservation.metadata!.apkStageStateScriptWarnings!.push('mutated');
+        expect(moveEnv.getObservation().metadata?.apkStageStateScriptWarnings).toEqual(moveResult.warnings);
+
+        const statusState = createDemoState();
+        const statusTarget = statusState.units[0];
+        statusTarget.pos = { x: 6, y: 9 };
+        statusTarget.status = { type: 'poisoned', remainingTicks: 2 };
+
+        const statusResult = applyApkScriptStageStateConfig(statusState, 'assets/mods/AEIII/s7.js')!;
+        expect(statusResult).toEqual({
+            resourcePath: 'assets/mods/AEIII/s7.js',
+            appliedSyncOverrideMovCount: 0,
+            appliedSyncSetUnitStatusCount: 1,
+            warnings: []
+        });
+        expect(statusTarget.status).toEqual({ type: 'inspired', remainingTurns: 2 });
+        expect(statusState.metadata).toEqual(expect.objectContaining({
+            apkStageStateScriptResourcePath: 'assets/mods/AEIII/s7.js',
+            apkStageStateAppliedSyncOverrideMovCount: 0,
+            apkStageStateAppliedSyncSetUnitStatusCount: 1,
+            apkStageStateScriptWarnings: []
+        }));
+
+        expect(applyApkScriptStageStateConfig(statusState, 'assets/mods/Missing/s1.js')).toBeNull();
     });
 
     it('APK AEM 明文地图解析可以读取头部、玩家、地形归属和单位', () => {
