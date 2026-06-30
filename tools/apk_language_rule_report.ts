@@ -62,7 +62,19 @@ const REQUIRED_LANGUAGE_ENTRIES = {
     P_STATUS3_DESCRIPTION_1: 'Units who have been poisoned will lose 10 HP at turn start and cannot receive heal.',
     P_STATUS3_DESCRIPTION_2: 'For units who have been inspired, their gain 10 attack bonus (halved for ranged attacks).',
     P_STATUS3_DESCRIPTION_3: 'For units who have been blinded, their attack range will be reduced to 0.',
-    P_STATUS3_DESCRIPTION_4: 'For units who have been weakened, their movement points will be reduced to 1 and defence will be reduced by 10 (halved against ranged attacks).'
+    P_STATUS3_DESCRIPTION_4: 'For units who have been weakened, their movement points will be reduced to 1 and defence will be reduced by 10 (halved against ranged attacks).',
+    P_TILE_CASTLE_DESCRIPTION: 'Can generate income at turn start, can recruit new units when no unit is standing on it except your own commander.',
+    P_TILE_RUIN_DESCRIPTION: 'Can be repaired.',
+    P_TILE_TEMPLE_DESCRIPTION: 'Clears negative status at turn start.',
+    P_TILE_VILLAGE_DESCRIPTION: 'Can generate income at turn start, can be destroyed.',
+    P_WIKI_BATTLE_BASICS_4_L2: "There are two 2 element types in this game: physical & magic. Each unit has one specific element type, and it's attack will be using this element type.",
+    P_WIKI_BATTLE_BASICS_4_L3: "Each unit also has it's own element affinity value. Generally speaking, the higher the affinity the higher defence they have against same elements, but the lower defence against different elements.",
+    P_WIKI_BATTLE_BASICS_L4: 'Damage calculation here is very simple. Generally speaking the final damage equals to:',
+    P_WIKI_BATTLE_BASICS_L5: '(ATK - DEF) * HP%',
+    P_WIKI_INCOME_RECRUIT_L2: 'There are 2 ways you can earn gold: occupying villages/castles or keeping your commander alive. Income will be calculated & gained when your turn starts.',
+    P_WIKI_INCOME_RECRUIT_L3: 'To recruit new units you can simply click your castle. But please note that you can do recruiting only when no unit is on the castle, except your commander.',
+    P_WIKI_STATUS_L1: 'Despite terrains, you can also utilize status to win battles. There are positive as well as negative status, but a unit can have only one status at a time. Once a unit gets a status, it will not be replaced with another ones.',
+    P_WIKI_STATUS_L2: 'That being said, sometimes having a negative status is not always bad since it can prevent the unit from getting worse status. Anyway, positive status are always good.'
 } as const;
 
 function printHelp() {
@@ -538,6 +550,173 @@ function buildPoisonedStatusActual() {
     };
 }
 
+function buildBasicDamageFormulaActual() {
+    const fullHpState = createRoadState([
+        createUnit('attacker', 0, 'soldier', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 1)
+    ]);
+    const lowHpState = createRoadState([
+        createUnit('attacker', 0, 'soldier', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 1)
+    ]);
+    lowHpState.units[0].hp = 40;
+
+    return {
+        fullHpDamage: calculateDamage(fullHpState, 'attacker', 'defender'),
+        lowHpDamage: calculateDamage(lowHpState, 'attacker', 'defender')
+    };
+}
+
+function buildAttackTypeDefenseActual() {
+    const physicalState = createRoadState([
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('slime', 1, 'slime', 0, 1)
+    ]);
+    const magicState = createRoadState([
+        createUnit('dark_mage', 0, 'dark_mage', 0, 0),
+        createUnit('slime', 1, 'slime', 0, 1)
+    ]);
+
+    return {
+        physicalDamageToSlime: calculateDamage(physicalState, 'soldier', 'slime'),
+        magicDamageToSlime: calculateDamage(magicState, 'dark_mage', 'slime')
+    };
+}
+
+function buildStatusSlotActual() {
+    const blindingState = createRoadState([
+        createUnit('dark_mage', 0, 'dark_mage', 0, 0),
+        createUnit('target', 1, 'soldier', 0, 1)
+    ]);
+    blindingState.units[1].status = { type: 'poisoned', remainingTicks: 2 };
+    const blindingEngine = new GameEngine(blindingState);
+    blindingEngine.step({ type: 'attack', attackerId: 'dark_mage', targetId: 'target' });
+
+    const weaknessAuraState = createRoadState([
+        createUnit('golem', 0, 'golem', 0, 0),
+        createUnit('target', 1, 'soldier', 0, 2)
+    ]);
+    weaknessAuraState.units[1].status = { type: 'poisoned', remainingTicks: 2 };
+    const weaknessAuraEngine = new GameEngine(weaknessAuraState);
+    weaknessAuraEngine.step({ type: 'wait', unitId: 'golem' });
+
+    const attackAuraState = createRoadState([
+        createUnit('druid', 0, 'druid', 0, 0),
+        createUnit('ally', 0, 'soldier', 0, 2)
+    ]);
+    attackAuraState.units[1].status = { type: 'poisoned', remainingTicks: 2 };
+    const attackAuraEngine = new GameEngine(attackAuraState);
+    attackAuraEngine.step({ type: 'wait', unitId: 'druid' });
+
+    return {
+        poisonedAfterBlindingAttack: blindingEngine.getState().units.find(unit => unit.id === 'target')?.status?.type ?? null,
+        poisonedAfterWeaknessAura: weaknessAuraEngine.getState().units.find(unit => unit.id === 'target')?.status?.type ?? null,
+        poisonedAfterAttackAura: attackAuraEngine.getState().units.find(unit => unit.id === 'ally')?.status?.type ?? null
+    };
+}
+
+function buildIncomeRecruitActual() {
+    const commander = createUnit('commander', 0, 'commander', 0, 0);
+    commander.level = 2;
+    const enemy = createUnit('enemy', 1, 'soldier', 4, 4);
+    const incomeState = createRoadState([commander, enemy], 1);
+    incomeState.players[0].gold = 0;
+    incomeState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    incomeState.map.tiles[0][1] = { terrainId: 9, ownerId: 0 };
+    incomeState.rules = {
+        incomeVillage: 50,
+        incomeCastle: 100,
+        incomeCommanderBase: 25,
+        incomeCommanderGrowth: 25,
+        recruitableUnits: ['soldier']
+    };
+    const incomeEngine = new GameEngine(incomeState);
+    incomeEngine.step({ type: 'end_turn' });
+
+    const commanderCastleState = createRoadState([
+        createUnit('commander', 0, 'commander', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    commanderCastleState.players[0].gold = 1000;
+    commanderCastleState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    commanderCastleState.rules = { recruitableUnits: ['soldier'] };
+
+    const emptyCastleState = createRoadState([
+        createUnit('commander', 0, 'commander', 1, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    emptyCastleState.players[0].gold = 1000;
+    emptyCastleState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    emptyCastleState.rules = { recruitableUnits: ['soldier'] };
+
+    const occupiedCastleState = createRoadState([
+        createUnit('commander', 0, 'commander', 1, 0),
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    occupiedCastleState.players[0].gold = 1000;
+    occupiedCastleState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    occupiedCastleState.rules = { recruitableUnits: ['soldier'] };
+
+    const commanderCastleActions = getLegalActions(commanderCastleState, 0);
+    const emptyCastleActions = getLegalActions(emptyCastleState, 0);
+    const occupiedCastleActions = getLegalActions(occupiedCastleState, 0);
+
+    return {
+        goldAfterTurnStart: incomeEngine.getState().players.find(player => player.id === 0)?.gold ?? null,
+        commanderOnCastleCanRecruitAndDeploy: commanderCastleActions.some(action => action.type === 'recruit_and_deploy' && action.unitClass === 'soldier'),
+        commanderOnCastleCanRecruitToCastle: commanderCastleActions.some(action => action.type === 'recruit_to_castle' && action.unitClass === 'soldier'),
+        emptyCastleCanRecruitToCastle: emptyCastleActions.some(action => action.type === 'recruit_to_castle' && action.unitClass === 'soldier'),
+        nonCommanderOccupantBlocksRecruit: !occupiedCastleActions.some(action => (
+            (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy') && action.unitClass === 'soldier'
+        ))
+    };
+}
+
+function buildTileRuleActual() {
+    const templeUnit = createUnit('temple_unit', 0, 'soldier', 0, 0);
+    templeUnit.hp = 50;
+    templeUnit.status = { type: 'poisoned', remainingTicks: 2 };
+    const templeState = createRoadState([templeUnit, createUnit('enemy', 1, 'soldier', 4, 4)], 1);
+    templeState.map.tiles[0][0] = { terrainId: 12, ownerId: null };
+    const templeEngine = new GameEngine(templeState);
+    templeEngine.step({ type: 'end_turn' });
+    const templeFinal = templeEngine.getState().units.find(unit => unit.id === templeUnit.id)!;
+
+    const ruinState = createRoadState([
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    ruinState.map.tiles[0][0] = { terrainId: 8, ownerId: null };
+    const repairAction = getLegalActions(ruinState, 0).find(action => action.type === 'repair' && action.unitId === 'soldier');
+    const repairEngine = new GameEngine(ruinState);
+    if (repairAction) {
+        repairEngine.step(repairAction);
+    }
+
+    const villageState = createRoadState([
+        createUnit('catapult', 0, 'catapult', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    villageState.map.tiles[0][0] = { terrainId: 9, ownerId: 1 };
+    const destroyAction = getLegalActions(villageState, 0).find(action => action.type === 'destroy_town' && action.unitId === 'catapult');
+    const destroyEngine = new GameEngine(villageState);
+    if (destroyAction) {
+        destroyEngine.step(destroyAction);
+    }
+
+    return {
+        templeStatusAfterTurnStart: templeFinal.status?.type ?? null,
+        templeHpAfterTurnStart: templeFinal.hp,
+        ruinCanBeRepaired: repairAction !== undefined,
+        repairedTerrainId: repairEngine.getState().map.tiles[0][0].terrainId,
+        repairedOwnerId: repairEngine.getState().map.tiles[0][0].ownerId,
+        villageCanBeDestroyed: destroyAction !== undefined,
+        destroyedVillageTerrainId: destroyEngine.getState().map.tiles[0][0].terrainId,
+        destroyedVillageOwnerId: destroyEngine.getState().map.tiles[0][0].ownerId
+    };
+}
+
 function buildStatusActual() {
     const blinded = createUnit('blinded', 0, 'archer', 0, 0);
     blinded.status = { type: 'blinded' };
@@ -733,6 +912,70 @@ export async function buildApkLanguageRuleReport(options: Partial<CliOptions> = 
         'P_STATUS3_DESCRIPTION_1',
         { canHealPoisoned: false, hpAfterTurnStart: 40, remainingTicks: 1 },
         buildPoisonedStatusActual()
+    );
+
+    check(
+        checks,
+        'basic-damage-formula',
+        '基础伤害公式按 (ATK - DEF) * HP% 计算',
+        'P_WIKI_BATTLE_BASICS_L4/L5',
+        { fullHpDamage: 50, lowHpDamage: 20 },
+        buildBasicDamageFormulaActual()
+    );
+
+    check(
+        checks,
+        'attack-type-defense-selection',
+        '物理/魔法攻击分别使用目标物防/魔防',
+        'P_WIKI_BATTLE_BASICS_4_L2/L3',
+        { physicalDamageToSlime: 15, magicDamageToSlime: 60 },
+        buildAttackTypeDefenseActual()
+    );
+
+    check(
+        checks,
+        'single-status-slot',
+        '单位已有状态时不会被新状态覆盖',
+        'P_WIKI_STATUS_L1/L2',
+        {
+            poisonedAfterBlindingAttack: 'poisoned',
+            poisonedAfterWeaknessAura: 'poisoned',
+            poisonedAfterAttackAura: 'poisoned'
+        },
+        buildStatusSlotActual()
+    );
+
+    check(
+        checks,
+        'income-and-castle-recruit',
+        '收入在回合开始结算，城堡按占位规则招募',
+        'P_WIKI_INCOME_RECRUIT_L2/L3; P_TILE_CASTLE_DESCRIPTION',
+        {
+            goldAfterTurnStart: 225,
+            commanderOnCastleCanRecruitAndDeploy: true,
+            commanderOnCastleCanRecruitToCastle: false,
+            emptyCastleCanRecruitToCastle: true,
+            nonCommanderOccupantBlocksRecruit: true
+        },
+        buildIncomeRecruitActual()
+    );
+
+    check(
+        checks,
+        'tile-language-rules',
+        '建筑类地形按 APK 文案清状态、修理和破坏',
+        'P_TILE_TEMPLE_DESCRIPTION; P_TILE_RUIN_DESCRIPTION; P_TILE_VILLAGE_DESCRIPTION',
+        {
+            templeStatusAfterTurnStart: null,
+            templeHpAfterTurnStart: 60,
+            ruinCanBeRepaired: true,
+            repairedTerrainId: 9,
+            repairedOwnerId: 0,
+            villageCanBeDestroyed: true,
+            destroyedVillageTerrainId: 8,
+            destroyedVillageOwnerId: null
+        },
+        buildTileRuleActual()
     );
 
     check(

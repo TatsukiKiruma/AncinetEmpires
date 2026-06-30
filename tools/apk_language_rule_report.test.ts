@@ -18,7 +18,7 @@ describe('APK 语言表能力规则复核工具', () => {
         const report = await buildApkLanguageRuleReport();
 
         expect(report.apkVersion).toBe('aer-release-4.2.5.1');
-        expect(report.checkCount).toBe(16);
+        expect(report.checkCount).toBe(21);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
 
@@ -58,6 +58,36 @@ describe('APK 语言表能力规则复核工具', () => {
             undeadHpAfterConsumingGrave: 60,
             graveRemovedAfterUndeadConsumes: true,
             undeadDeathCreatedGrave: false
+        });
+        expect(byId['basic-damage-formula'].actual).toEqual({
+            fullHpDamage: 50,
+            lowHpDamage: 20
+        });
+        expect(byId['attack-type-defense-selection'].actual).toEqual({
+            physicalDamageToSlime: 15,
+            magicDamageToSlime: 60
+        });
+        expect(byId['single-status-slot'].actual).toEqual({
+            poisonedAfterBlindingAttack: 'poisoned',
+            poisonedAfterWeaknessAura: 'poisoned',
+            poisonedAfterAttackAura: 'poisoned'
+        });
+        expect(byId['income-and-castle-recruit'].actual).toEqual({
+            goldAfterTurnStart: 225,
+            commanderOnCastleCanRecruitAndDeploy: true,
+            commanderOnCastleCanRecruitToCastle: false,
+            emptyCastleCanRecruitToCastle: true,
+            nonCommanderOccupantBlocksRecruit: true
+        });
+        expect(byId['tile-language-rules'].actual).toEqual({
+            templeStatusAfterTurnStart: null,
+            templeHpAfterTurnStart: 60,
+            ruinCanBeRepaired: true,
+            repairedTerrainId: 9,
+            repairedOwnerId: 0,
+            villageCanBeDestroyed: true,
+            destroyedVillageTerrainId: 8,
+            destroyedVillageOwnerId: null
         });
     });
 });
