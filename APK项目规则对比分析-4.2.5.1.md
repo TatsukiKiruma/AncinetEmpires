@@ -39,6 +39,14 @@ npm run apk:map-report -- --check
 
 该命令读取 `APK/_analysis/unpack`，用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密 20 张官方 skirmish `.aem`，再用 `parseApkAemMap` 和 `matchesApkSkirmishMapManifest` 校验项目 manifest。当前运行结果：APK SHA256 匹配、20/20 地图匹配、0 个 unmapped tile、4 张地图含 approximate tile。
 
+DEX 字符串证据也已工具化：
+
+```bash
+npm run apk:dex-report -- --check
+```
+
+该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表。当前运行结果：26529 个字符串可解析，指挥官/招募/开局设置相关必要字符串均存在，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论只覆盖字符串层证据，不能替代完整控制流反编译。
+
 ## 4. APK 资源结构摘要
 
 已解包资源中和规则直接相关的内容：
@@ -143,6 +151,7 @@ DEX 与脚本确认：
 
 - DEX 暴露 `Stage.SyncSetGold`、`Stage.SyncSetGoldForTeam`、`Stage.SyncSetUnitLimit`、`Stage.SyncSetUnitLimitForTeam`、`Stage.SyncSetRecruitUnits`、`Stage.SyncSetRecruitUnitsForTeam`。
 - DEX 暴露 `Rule.SetIncomeVillage`、`Rule.SetIncomeCastle`、`Rule.SetIncomeCommanderBase`、`Rule.SetIncomeCommanderGrowth`、`Rule.SetLevelCap`、`Rule.SetPrices`。
+- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并确认疑似通用指挥官复活 API 字符串为 0。
 - 已解密脚本中 `Stage.SyncSetUnitLimit` 出现 25 次，`Stage.SyncSetGold` 出现 16 次，`Stage.SyncSetRecruitUnits` 出现 13 次，`Stage.SyncSetRecruitUnitsForTeam` 出现 14 次。
 
 项目当前状态：

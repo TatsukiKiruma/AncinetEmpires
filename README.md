@@ -103,6 +103,12 @@ npm run apk:script-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异。
 
+### 复核 APK DEX 字符串证据
+```bash
+npm run apk:dex-report -- --check
+```
+该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap` 等必要字符串均存在，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
+
 ### 复核 APK skirmish 训练场景
 ```bash
 npm run apk:training-report -- --check
@@ -113,7 +119,7 @@ npm run apk:training-report -- --check
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
-- **指挥官死亡/复活完整规则**：当前尚未完全实现指挥官死亡需要进坟墓读秒及复活等复杂系统逻辑。
+- **指挥官死亡/复活完整规则**：DEX 字符串层未发现通用指挥官复活 API，当前仍不能确认 APK 的死亡后重招募价格递增和完整复活流程。
 - **固定全局动作空间 (Fixed Global Action Space)**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板；未来为了兼容 PPO 等强化学习框架，仍可能需要设计固定的稀疏动作矩阵编码。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。

@@ -465,6 +465,14 @@ skirmish 训练导入映射：
 
 `classes.dex` 中可见以下规则与关卡脚本 API 字符串：
 
+2026-06-30 起，DEX 字符串表复核已固化为 `tools/apk_dex_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:dex-report -- --check
+```
+
+当前命令输出确认：`APK/_analysis/unpack/classes.dex` 可解析出 26529 个字符串；`CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase`、`SetIncomeCommanderGrowth`、`SetLevelCap`、`SetPrices`、`SyncSetGold`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`Cannot recruit when stacked!` 和 `OnUnitRecruited` 等必要字符串均存在；按 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 匹配的疑似指挥官复活 API 字符串为 0。该报告只证明 DEX 字符串层的可见证据，不等同于完整 Java 控制流反编译。
+
 | API/字符串 | 含义 |
 | --- | --- |
 | `Rule.SetIncomeVillage` | 配置村庄收入 |
@@ -539,7 +547,7 @@ skirmish 训练导入映射：
 | `Lc/a/b/a/t/f` | `a(int level) -> int` | 等级经验阈值公式：`level <= 0` 为 0，否则 `(level + 1) * 100 * level / 2` |
 | `Lc/a/b/a/t/f` | `b(int exp) -> int` | 按经验反推等级，内部从 9 级向下检查，说明 APK 数据层至少支持 0-9 级 |
 
-当前 DEX 字符串和方法表没有发现通用的 `ReviveCommander`、`RespawnCommander` 一类 API；只发现战役剧情文本中的 `revive Saeth`。因此“官方指挥官复活流程”仍不能当作已确认规则写死，只能保留为可配置/待确认项。
+当前 DEX 字符串报告和方法表没有发现通用的 `ReviveCommander`、`RespawnCommander` 一类 API；此前只在战役剧情文本中见到 `revive Saeth`。因此“官方指挥官复活流程”和“死亡后重招募是否递增”仍不能当作已确认规则写死，只能保留为可配置/待确认项。
 
 ## 10. 与当前项目的一致项
 
@@ -1170,6 +1178,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 工具会重新统计 `Stage.*` 与 `rule.SetIncome*` API 调用次数，并和 `APK_SCRIPT_API_CALL_COUNTS` 对比；同时重新提取可安全转为 `RuleConfig` 的字面量规则配置，以及 `SyncOverrideMov/SyncSetUnitStatus` 单位/坐标状态配置，并和 `APK_SCRIPT_LITERAL_RULE_CONFIGS`、`APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 对比。
 - 当前 `npm run apk:script-report -- --check` 结果：27/27 脚本匹配，API 计数差异为 0，字面量配置差异为 0。
 - 这一步不执行剧情 `Async*` API，也不把动态参数转为静态规则；它只把“脚本 manifest 的来源证据”变成可重复复核命令，防止后续忘记已确认的 APK 调用次数和字面量规则值。
+
+2026-06-30 APK DEX 字符串复核工具：
+
+- 新增 `tools/apk_dex_report.ts` 和 npm 脚本 `apk:dex-report`，默认读取 `APK/_analysis/unpack/classes.dex`，直接解析 DEX string_ids/string_data 字符串表，不依赖 `jadx/apktool/baksmali`。
+- 工具按 commander、recruit、revive、setup 分组输出关键词命中，并用 `--check` 复核必要字符串和疑似指挥官复活 API 候选。
+- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
+- 这一步不改变对战规则结算；它只把“DEX 字符串层已确认/未发现的证据”变成可重复命令。指挥官死亡后重招募价格是否递增仍需实机或完整反编译确认。
 
 2026-06-29 APK 脚本配置 manifest 补充：
 

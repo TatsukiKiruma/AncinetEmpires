@@ -19,7 +19,7 @@
 可用工具限制：
 
 - 当前环境没有 `jadx`、`apktool`，因此本报告没有完整 Java 反编译结论。
-- DEX 只按字符串/API 暴露做佐证。
+- DEX 只按字符串/API 暴露做佐证；`tools/apk_dex_report.ts` 已把字符串表复核工具化，但仍不能替代完整控制流反编译。
 - 可读规则主要来自语言表、`data.bin`、解密后的 AEM 地图和 JS 脚本。
 - 本轮没有重新生成大型解包产物；直接复用 `APK\_analysis\unpack` 和项目内已归档的 APK manifest/脚本 manifest 做复核。
 
@@ -98,6 +98,14 @@ npm run apk:map-report -- --check
 ```
 
 当前命令输出确认：APK SHA256 匹配 `51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`，20 张 `assets/maps/*.aem` 全部可解密解析，20/20 与 `src/game/apk_manifest.ts` 清单匹配，unmapped tile 数为 0。报告同时列出 4 张含 approximate tile 的地图和 `t30/t31` 人工验证坐标。
+
+2026-06-30 补充：DEX 字符串表复核已固化为 `tools/apk_dex_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:dex-report -- --check
+```
+
+当前命令输出确认：`classes.dex` 可解析 26529 个字符串，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；疑似通用指挥官复活 API 字符串候选为 0。该结果只能说明 DEX 字符串层未发现对应 API 名称，指挥官死亡后的重招募价格递增和完整复活流程仍需实机或完整反编译确认。
 
 ## 4. 语言表确认的核心规则
 
