@@ -471,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400`、SO 模式禁用指挥官招募、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段，以及训练动作编码面；官方是否随死亡次数递增仍按待实机验证处理。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400`、SO 模式禁用指挥官招募、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段、训练动作编码面，以及动态 `legalActions/actionMask` 对齐；官方是否随死亡次数递增仍按待实机验证处理。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 
@@ -506,7 +506,7 @@ npm run apk:script-report -- --check
 - APK 脚本字面量规则来源 metadata：`apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于追踪当前规则配置来自哪个脚本以及哪些生命周期调用被静态转换忽略。
 - APK 脚本单位/坐标状态来源 metadata：`apkStageStateScriptResourcePath/apkStageStateAppliedSyncOverrideMovCount/apkStageStateAppliedSyncSetUnitStatusCount/apkStageStateScriptWarnings`，用于追踪训练状态是否显式应用过 `SyncOverrideMov` 或 `SyncSetUnitStatus` 字面量配置。
 
-训练接口层还新增 `getActionSpaceSchema()`，返回当前结构化动作的字符串编码模板，覆盖移动、突击后移动、攻击、治疗、支援、召唤、招募、占领、修理、摧毁城镇、待机、投降和结束回合。该 schema 只描述动作编码格式，实际动作可用性仍由每个局面的 `legalActions/actionMask` 决定。
+训练接口层还新增 `getActionSpaceSchema()`，返回当前结构化动作的字符串编码模板，覆盖移动、突击后移动、攻击、治疗、支援、召唤、招募、占领、修理、摧毁城镇、待机、投降和结束回合。该 schema 只描述动作编码格式，实际动作可用性仍由每个局面的 `legalActions/actionMask` 决定；`apk:training-report -- --check` 已门禁默认 40 个训练场景的初始与 smoke 过程 mask 长度和值均与合法动作列表一致。
 
 这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信 tile 会按营地、陆地神庙、水中障碍和水中神庙候选输出 evidence，便于训练或数据清洗侧分组降权处理。
 
