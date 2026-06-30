@@ -10,6 +10,7 @@ import {
     type ApkSkirmishTrainingMapFilter
 } from './apk_manifest';
 import { ApkAemMap, createGameStateFromApkAemMap, CreateGameStateFromApkAemMapOptions } from './apk_map';
+import { AncientEmpiresEnv } from './env';
 import { mergeRuleConfig } from './rule_config';
 import { GameState, RuleConfig, UnitClass } from './types';
 
@@ -34,6 +35,22 @@ export interface ApkSkirmishTrainingScenario {
     recommendedGold: number | null;
     terrainConfidence: ApkSkirmishTerrainConfidenceReport;
     rules: RuleConfig;
+}
+
+export type ApkSkirmishTrainingScenarioInput = string | ApkSkirmishTrainingScenario;
+
+type CreateApkSkirmishTrainingBaseOptions = Omit<
+    CreateApkSkirmishGameStateOptions,
+    'mode' | 'mapName' | 'apkVersion' | 'apkSha256' | 'apkResourcePath'
+>;
+
+export interface CreateApkSkirmishTrainingGameStateOptions extends CreateApkSkirmishTrainingBaseOptions {
+    strictManifest?: boolean;
+}
+
+export interface CreateApkSkirmishTrainingEnvOptions extends CreateApkSkirmishTrainingGameStateOptions {
+    seed?: number;
+    maxPlies?: number;
 }
 
 function mapApkUnitIds(apkUnitIds: readonly number[]): UnitClass[] {
@@ -100,6 +117,33 @@ export function getApkSkirmishTrainingScenarios(
     ));
 }
 
+export function getApkSkirmishTrainingScenario(
+    id: string,
+    filter: ApkSkirmishTrainingScenarioFilter = {}
+): ApkSkirmishTrainingScenario | null {
+    return getApkSkirmishTrainingScenarios(filter).find(scenario => scenario.id === id) ?? null;
+}
+
+function resolveTrainingScenario(input: ApkSkirmishTrainingScenarioInput): ApkSkirmishTrainingScenario {
+    if (typeof input !== 'string') return input;
+
+    const scenario = getApkSkirmishTrainingScenario(input);
+    if (!scenario) {
+        throw new Error(`未知 APK skirmish 训练场景: ${input}`);
+    }
+    return scenario;
+}
+
+function assertTrainingScenarioMatchesMap(
+    map: ApkAemMap,
+    scenario: ApkSkirmishTrainingScenario
+) {
+    const manifestEntry = getApkSkirmishMapManifestEntry(scenario.mapName);
+    if (!manifestEntry || !matchesApkSkirmishMapManifest(map, manifestEntry)) {
+        throw new Error(`APK skirmish 训练场景 ${scenario.id} 与传入 AEM 地图不匹配`);
+    }
+}
+
 export interface CreateApkSkirmishGameStateOptions extends CreateGameStateFromApkAemMapOptions {
     mode?: ApkSkirmishMode;
 }
@@ -123,5 +167,50 @@ export function createApkSkirmishGameState(
             ...(overrideMetadata ?? {}),
             apkSkirmishMode: mode
         }
+    });
+}
+
+export function createApkSkirmishTrainingGameState(
+    map: ApkAemMap,
+    scenarioInput: ApkSkirmishTrainingScenarioInput,
+    options: CreateApkSkirmishTrainingGameStateOptions = {}
+): GameState {
+    const scenario = resolveTrainingScenario(scenarioInput);
+    const {
+        strictManifest = true,
+        metadata: overrideMetadata,
+        ...stateOptions
+    } = options;
+
+    if (strictManifest) {
+        assertTrainingScenarioMatchesMap(map, scenario);
+    }
+
+    return createApkSkirmishGameState(map, {
+        ...stateOptions,
+        mode: scenario.mode,
+        mapName: scenario.mapName,
+        metadata: {
+            ...(overrideMetadata ?? {}),
+            apkSkirmishTrainingScenarioId: scenario.id
+        }
+    });
+}
+
+export function createApkSkirmishTrainingEnv(
+    map: ApkAemMap,
+    scenarioInput: ApkSkirmishTrainingScenarioInput,
+    options: CreateApkSkirmishTrainingEnvOptions = {}
+): AncientEmpiresEnv {
+    const {
+        seed,
+        maxPlies,
+        ...stateOptions
+    } = options;
+
+    return new AncientEmpiresEnv({
+        initialState: createApkSkirmishTrainingGameState(map, scenarioInput, stateOptions),
+        seed,
+        maxPlies
     });
 }

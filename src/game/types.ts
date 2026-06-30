@@ -64,6 +64,7 @@ export interface GameMetadata {
     apkResourcePath?: string;    // APK 内资源路径，例如 assets/maps/(2) Duel.aem
     apkMapName?: string;         // APK .aem 地图资源名
     apkSkirmishMode?: 'SD' | 'SO'; // APK 对战模式
+    apkSkirmishTrainingScenarioId?: string; // APK skirmish 训练场景稳定 ID，例如 SO:(2) Duel.aem
     recommendedGold?: number | null; // AEM 推荐金币，null 表示 APK 未设置
     apkTailTemplate?: string;    // AEM 推荐金币后的尾部模板名
     apkApproximateTerrainIds?: number[]; // 当前 AEM 地图中低可信近似映射的 APK tile ID

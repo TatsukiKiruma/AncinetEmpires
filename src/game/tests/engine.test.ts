@@ -13,7 +13,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
-import { createApkSkirmishGameState, getApkSkirmishRuleConfig, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
+import { createApkSkirmishGameState, createApkSkirmishTrainingEnv, createApkSkirmishTrainingGameState, getApkSkirmishRuleConfig, getApkSkirmishTrainingScenario, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
@@ -641,9 +641,41 @@ describe('GameEngine Rules', () => {
             recommendedGold: 200,
             apkTailTemplate: 'zero_suffix_58'
         }));
+        expect(getApkSkirmishTrainingScenario('SO:(2) Duel.aem')).toEqual(expect.objectContaining({
+            id: 'SO:(2) Duel.aem',
+            mode: 'SO',
+            mapName: '(2) Duel.aem'
+        }));
+
+        const soDuelTrainingState = createApkSkirmishTrainingGameState(officialDuelLikeMap, 'SO:(2) Duel.aem');
+        expect(soDuelTrainingState.metadata).toEqual(expect.objectContaining({
+            source: 'apk_aem',
+            apkMapName: '(2) Duel.aem',
+            apkSkirmishMode: 'SO',
+            apkSkirmishTrainingScenarioId: 'SO:(2) Duel.aem',
+            apkVersion: APK_RELEASE_VERSION,
+            apkSha256: APK_RELEASE_SHA256,
+            apkResourcePath: 'assets/maps/(2) Duel.aem'
+        }));
+        expect(soDuelTrainingState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
+        const soDuelTrainingEnv = createApkSkirmishTrainingEnv(officialDuelLikeMap, 'SO:(2) Duel.aem', {
+            seed: 7,
+            maxPlies: 50
+        });
+        expect(soDuelTrainingEnv.getObservation().metadata?.apkSkirmishTrainingScenarioId).toBe('SO:(2) Duel.aem');
+        expect(soDuelTrainingEnv.getObservation().rules.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
 
         const mismatchedMap = { ...officialDuelLikeMap, recommendedGold: 300 };
         expect(matchesApkSkirmishMapManifest(mismatchedMap, duelManifest)).toBe(false);
+        expect(() => createApkSkirmishTrainingGameState(mismatchedMap, 'SO:(2) Duel.aem')).toThrow(
+            'APK skirmish 训练场景 SO:(2) Duel.aem 与传入 AEM 地图不匹配'
+        );
+        const looseTrainingState = createApkSkirmishTrainingGameState(mismatchedMap, 'SO:(2) Duel.aem', {
+            strictManifest: false
+        });
+        expect(looseTrainingState.metadata?.apkSkirmishTrainingScenarioId).toBe('SO:(2) Duel.aem');
+        expect(looseTrainingState.metadata?.apkVersion).toBeUndefined();
+
         const mismatchedTerrain = officialDuelLikeMap.terrain.map(row => row.map(cell => ({ ...cell })));
         const changedTerrainCell = mismatchedTerrain.flat().find(cell => cell.apkTerrainId === 0)!;
         changedTerrainCell.apkTerrainId = 1;

@@ -431,6 +431,8 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenarios()` 已提供官方 skirmish 训练场景清单。默认返回 16 张无 approximate/unmapped tile 的官方地图乘以 SD/SO 两种模式，共 32 个场景；每个场景包含地图资源路径、玩家数、推荐金币、地形可信度摘要和对应 `RuleConfig` 快照，避免训练脚本重复拼接地图 manifest 与模式规则。
 
+2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
+
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 
 ## 10. Observation 与训练数据
