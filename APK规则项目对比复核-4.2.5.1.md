@@ -445,6 +445,8 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK 脚本字面量规则来源 metadata：`apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于追踪当前规则配置来自哪个脚本以及哪些生命周期调用被静态转换忽略。
 - APK 脚本单位/坐标状态来源 metadata：`apkStageStateScriptResourcePath/apkStageStateAppliedSyncOverrideMovCount/apkStageStateAppliedSyncSetUnitStatusCount/apkStageStateScriptWarnings`，用于追踪训练状态是否显式应用过 `SyncOverrideMov` 或 `SyncSetUnitStatus` 字面量配置。
 
+训练接口层还新增 `getActionSpaceSchema()`，返回当前结构化动作的字符串编码模板，覆盖移动、突击后移动、攻击、治疗、支援、召唤、招募、占领、修理、摧毁城镇、待机、投降和结束回合。该 schema 只描述动作编码格式，实际动作可用性仍由每个局面的 `legalActions/actionMask` 决定。
+
 这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信 tile 会按营地、陆地神庙、水中障碍和水中神庙候选输出 evidence，便于训练或数据清洗侧分组降权处理。
 
 ## 11. 差异与风险清单

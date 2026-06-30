@@ -208,6 +208,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - AI 训练 Observation 已新增单位/能力/状态 APK 数字 ID：`apkUnitClassId/apkAbilityIds/apkStatusId`，便于训练数据直接对齐 APK `data.bin` 与脚本 API 的 ID 表。
 - AI 训练 Observation 已新增单位级 APK `data.bin` 静态数值：基础攻击、防御、射程、移动以及攻击/防御/最大生命/移动成长，让策略能直接读取升级收益。
 - AI 训练 Observation 已新增单位所在格规则地形快照：规则地形 ID/key/tags、owner、APK tile ID/owner、映射可信度/证据和当前防御/回血/移动数值，避免训练端反查 `tiles[]` 时漏掉 APK tile 映射语义。
+- AI 训练环境已新增 `getActionSpaceSchema()`，返回当前动作编码模板：移动、突击后移动、攻击、治疗、支援、召唤、城堡招募、招募后部署、占领、修理、摧毁城镇、待机、投降和结束回合。该 schema 仅描述可变参数编码格式，实际可执行动作仍以当前局面的 `legalActions/actionMask` 为准。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate/apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`；脚本字面量规则应用后还会输出 `apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于训练样本追踪、低可信 tile 过滤和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；`src/game/apk_manifest.ts` 会为每张官方图生成 `terrainConfidence`，记录 confirmed/atlas/approximate/unmapped 格子数量、低可信 tile ID 和未映射 tile ID；按当前 skirmish 映射，20 张图均无未映射 tile。
 - 20 张官方 skirmish 地图中只有 4 张含低可信 approximate tile：`(2) Mourningstar.aem` 含 `t30` 2 格，`(4) The Crucible.aem` 含 `t31` 1 格，`(4) Waterways.aem` 含 `t31` 2 格，`(4) Winterstorm.aem` 含 `t31` 4 格。其它 16 张图不含 approximate/unmapped tile，可作为更干净的基础训练地图。

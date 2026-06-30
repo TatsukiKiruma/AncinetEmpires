@@ -654,6 +654,23 @@ export class AncientEmpiresEnv {
   }
 }
 
+export const ACTION_SPACE_SCHEMA = [
+    'move:<unitId>:<x>,<y>',
+    'post_attack_move:<unitId>:<x>,<y>',
+    'attack:<attackerId>:<targetId>',
+    'heal:<healerId>:<targetId>',
+    'support:<supporterId>:<targetId>',
+    'summon:<summonerId>:<graveId>:<x>,<y>',
+    'recruit_to_castle:<unitClass>:<castleX>,<castleY>',
+    'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
+    'capture:<unitId>',
+    'repair:<unitId>',
+    'destroy_town:<unitId>',
+    'wait:<unitId>',
+    'surrender',
+    'end_turn'
+] as const;
+
 export function encodeAction(action: Action): string {
     switch (action.type) {
         case 'move': return `move:${action.unitId}:${action.to.x},${action.to.y}`;
@@ -713,5 +730,6 @@ export function decodeAction(code: string): Action | null {
 }
 
 export function getActionSpaceSchema(): string[] {
-    return []; // For now not implemented as fixed global action space
+    // 这里暴露的是可变参数动作编码模板；实际可行动作仍以当前局面的 legalActions/actionMask 为准。
+    return [...ACTION_SPACE_SCHEMA];
 }

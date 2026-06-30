@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
-import { AncientEmpiresEnv, calculateArmyValue, decodeAction, encodeAction } from '../env';
+import { AncientEmpiresEnv, calculateArmyValue, decodeAction, encodeAction, getActionSpaceSchema } from '../env';
+import type { Action } from '../types';
 import { createDemoState } from '../demo_map';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
@@ -3905,6 +3906,54 @@ describe('GameEngine Rules', () => {
 
             expect(result.done).toBe(true);
             expect(result.reward).toBe(1);
+        });
+
+        it('动作空间 schema 暴露当前训练动作编码模板', () => {
+            const expectedSchema = [
+                'move:<unitId>:<x>,<y>',
+                'post_attack_move:<unitId>:<x>,<y>',
+                'attack:<attackerId>:<targetId>',
+                'heal:<healerId>:<targetId>',
+                'support:<supporterId>:<targetId>',
+                'summon:<summonerId>:<graveId>:<x>,<y>',
+                'recruit_to_castle:<unitClass>:<castleX>,<castleY>',
+                'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
+                'capture:<unitId>',
+                'repair:<unitId>',
+                'destroy_town:<unitId>',
+                'wait:<unitId>',
+                'surrender',
+                'end_turn'
+            ];
+
+            expect(getActionSpaceSchema()).toEqual(expectedSchema);
+
+            const schema = getActionSpaceSchema();
+            schema.push('mutated');
+            expect(getActionSpaceSchema()).toEqual(expectedSchema);
+        });
+
+        it('训练动作编码和解码覆盖当前所有动作类型', () => {
+            const roundTripActions: Action[] = [
+                { type: 'move', unitId: 'u1', to: { x: 2, y: 3 } },
+                { type: 'post_attack_move', unitId: 'u1', to: { x: 4, y: 5 } },
+                { type: 'attack', attackerId: 'u1', targetId: 'u2' },
+                { type: 'heal', healerId: 'u3', targetId: 'u1' },
+                { type: 'support', supporterId: 'u4', targetId: 'u1' },
+                { type: 'summon', summonerId: 'u5', graveId: 'g1', spawnPos: { x: 6, y: 7 } },
+                { type: 'recruit_to_castle', unitClass: 'soldier', castlePos: { x: 1, y: 1 } },
+                { type: 'recruit_and_deploy', unitClass: 'archer', castlePos: { x: 1, y: 1 }, to: { x: 2, y: 1 } },
+                { type: 'capture', unitId: 'u1' },
+                { type: 'repair', unitId: 'u1' },
+                { type: 'destroy_town', unitId: 'u1' },
+                { type: 'wait', unitId: 'u1' },
+                { type: 'surrender' },
+                { type: 'end_turn' }
+            ];
+
+            for (const action of roundTripActions) {
+                expect(decodeAction(encodeAction(action))).toEqual(action);
+            }
         });
 
         it('投降动作可序列化，内置 AI 不会把投降当成普通可选动作', () => {

@@ -1122,6 +1122,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 合法动作在非 pending 状态下生成 `surrender`，pending 状态下不生成；执行后当前队伍失活，并复用联盟胜负结算。
 - `encodeAction/decodeAction` 已支持 `surrender`；内置 Random AI 与 Heuristic AI 不会把投降当作普通推进动作优先选择。
 
+2026-06-30 AI 训练动作 schema 补充：
+
+- `AncientEmpiresEnv` 相关工具新增 `getActionSpaceSchema()`，输出当前结构化动作的字符串编码模板，覆盖移动、突击后移动、攻击、治疗、支援、召唤、城堡招募、招募后部署、占领、修理、摧毁城镇、待机、投降和结束回合。
+- 该 schema 是可变参数动作模板，不是固定全局离散动作表；每步可执行动作仍以当前局面的 `legalActions` 和 `actionMask` 为准。
+- 这一步不改变 APK 规则结算，只让 AI 训练端能稳定发现当前 APK 对齐规则层暴露的动作编码面，避免外部训练脚本重复硬编码 `encodeAction/decodeAction` 细节。
+
 2026-06-29 APK 脚本配置 manifest 补充：
 
 - `src/game/apk_script_manifest.ts` 归档 27 个已解密 `assets/mods/**/*.js` 的 `Stage.*` 与 `rule.SetIncome*` 调用次数。
