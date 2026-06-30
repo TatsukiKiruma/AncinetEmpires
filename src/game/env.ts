@@ -217,6 +217,22 @@ function estimatePlyCount(state: GameState): number {
     return Math.max(0, state.turn - 1) * playerCount + currentIndex + 1;
 }
 
+function cloneGameMetadata(metadata: GameMetadata | undefined): GameMetadata | undefined {
+    if (!metadata) return undefined;
+    return {
+        ...metadata,
+        apkRuleScriptIgnoredRestoreTeamIds: metadata.apkRuleScriptIgnoredRestoreTeamIds
+            ? [...metadata.apkRuleScriptIgnoredRestoreTeamIds]
+            : undefined,
+        apkRuleScriptIgnoredGameOverAllianceIds: metadata.apkRuleScriptIgnoredGameOverAllianceIds
+            ? [...metadata.apkRuleScriptIgnoredGameOverAllianceIds]
+            : undefined,
+        apkRuleScriptWarnings: metadata.apkRuleScriptWarnings
+            ? [...metadata.apkRuleScriptWarnings]
+            : undefined
+    };
+}
+
 function buildApkTerrainConfigSnapshot(apkTerrainId: number | undefined): ApkTerrainConfigSnapshot | undefined {
     if (apkTerrainId === undefined) return undefined;
     const config = getApkTerrainConfig(apkTerrainId);
@@ -438,7 +454,7 @@ export class AncientEmpiresEnv {
           turnPlayerIds: getTurnPlayerIds(state),
           mapWidth: state.map.width,
           mapHeight: state.map.height,
-          metadata: state.metadata ? { ...state.metadata } : undefined,
+          metadata: cloneGameMetadata(state.metadata),
           ...(terrainMappingSummary ? { terrainMappingSummary } : {}),
           apkScriptState: state.apkScriptState ? {
               booleans: state.apkScriptState.booleans ? { ...state.apkScriptState.booleans } : undefined,

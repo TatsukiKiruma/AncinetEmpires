@@ -366,6 +366,21 @@ describe('GameEngine Rules', () => {
         expect(state.rules?.teams?.[0].initialGold).toBe(900);
         expect(state.players.find(player => player.id === 0)?.gold).toBe(900);
         expect(state.players.find(player => player.id === 1)?.gold).toBe(800);
+        expect(state.metadata).toEqual(expect.objectContaining({
+            apkRuleScriptResourcePath: 'assets/mods/AEI/s5.js',
+            apkRuleScriptIgnoredRestoreTeamIds: [],
+            apkRuleScriptIgnoredGameOverAllianceIds: [1, 2],
+            apkRuleScriptWarnings: []
+        }));
+
+        const env = new AncientEmpiresEnv({ initialState: state });
+        const observation = env.getObservation();
+        expect(observation.metadata).toEqual(expect.objectContaining({
+            apkRuleScriptResourcePath: 'assets/mods/AEI/s5.js',
+            apkRuleScriptIgnoredGameOverAllianceIds: [1, 2]
+        }));
+        observation.metadata!.apkRuleScriptIgnoredGameOverAllianceIds!.push(9);
+        expect(env.getObservation().metadata?.apkRuleScriptIgnoredGameOverAllianceIds).toEqual([1, 2]);
         expect(buildApkScriptRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
     });
 

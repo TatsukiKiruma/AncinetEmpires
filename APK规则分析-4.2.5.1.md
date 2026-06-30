@@ -1093,6 +1093,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `SyncRestoreTeam`、`SyncGameOver` 只记录为被忽略的生命周期/终局调用，不写入开局静态规则，避免误用全脚本扫描结果。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
+2026-06-30 APK 脚本规则来源进入 metadata：
+
+- `applyApkScriptRuleConfig` 应用脚本字面量规则后，会在 `GameState.metadata` 写入 `apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`。
+- `AncientEmpiresEnv.getObservation().metadata` 同步输出这些字段，用于训练样本复现当前规则配置来自哪个 APK 脚本，以及哪些生命周期/终局调用被静态规则转换安全忽略。
+- 这些字段只做证据追踪，不执行 `SyncRestoreTeam`、`SyncGameOver` 或剧情 `Async*` API，也不改变合并后的规则结算。
+- 验证：新增回归测试覆盖 `assets/mods/AEI/s5.js` 应用后的规则来源、忽略项和 Observation 元数据快照隔离。
+
 2026-06-29 `RuleConfig` 合并与 AEM 初始规则应用补充：
 
 - `src/game/rule_config.ts` 新增公共 `mergeRuleConfig`，用于深合并价格、联盟、指挥官、队伍级规则等嵌套配置，避免后续 APK 模式规则、地图规则和脚本规则互相覆盖。

@@ -159,6 +159,13 @@ export function applyApkScriptRuleConfig(state: GameState, source: ApkScriptLite
     if (!result) return null;
 
     state.rules = mergeRuleConfig(state.rules, result.rules);
+    state.metadata = {
+        ...(state.metadata ?? {}),
+        apkRuleScriptResourcePath: result.resourcePath,
+        apkRuleScriptIgnoredRestoreTeamIds: [...result.ignoredLifecycleCalls.syncRestoreTeamIds],
+        apkRuleScriptIgnoredGameOverAllianceIds: [...result.ignoredLifecycleCalls.syncGameOverAllianceIds],
+        apkRuleScriptWarnings: [...result.warnings]
+    };
     applyInitialRuleConfig(state);
     return result;
 }
