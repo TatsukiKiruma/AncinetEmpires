@@ -13,7 +13,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
-import { createApkSkirmishGameState, createApkSkirmishTrainingEnv, createApkSkirmishTrainingGameState, getApkSkirmishRuleConfig, getApkSkirmishTrainingScenario, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
+import { createApkSkirmishGameState, createApkSkirmishTrainingEnv, createApkSkirmishTrainingGameState, getApkSkirmishRuleConfig, getApkSkirmishSetupOptions, getApkSkirmishTrainingScenario, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
@@ -598,6 +598,19 @@ describe('GameEngine Rules', () => {
             scenario.terrainConfidence.approximateTileCount === 0
             && scenario.terrainConfidence.unmappedTileCount === 0
         ))).toBe(true);
+        expect(getApkSkirmishSetupOptions()).toEqual({
+            initialGold: { default: 300, min: 0, max: 2000, step: 50 },
+            unitLimit: { default: 30, min: 20, max: 100, step: 10 },
+            levelCap: { default: 3, min: 0, max: 9, step: 1 },
+            modes: {
+                default: 'SD',
+                options: ['SD', 'SO'],
+                labels: {
+                    SD: '默认',
+                    SO: '原版'
+                }
+            }
+        });
 
         const soDuelScenario = getApkSkirmishTrainingScenarios({
             playerCounts: [2],
@@ -609,7 +622,20 @@ describe('GameEngine Rules', () => {
             resourcePath: 'assets/maps/(2) Duel.aem',
             playerCount: 2,
             initialUnitCount: 2,
-            recommendedGold: 200
+            recommendedGold: 200,
+            setupOptions: {
+                initialGold: { default: 300, min: 0, max: 2000, step: 50 },
+                unitLimit: { default: 30, min: 20, max: 100, step: 10 },
+                levelCap: { default: 3, min: 0, max: 9, step: 1 },
+                modes: {
+                    default: 'SD',
+                    options: ['SD', 'SO'],
+                    labels: {
+                        SD: '默认',
+                        SO: '原版'
+                    }
+                }
+            }
         }));
         expect(soDuelScenario.rules).toEqual(expect.objectContaining({
             allowSurrender: true,
@@ -652,9 +678,13 @@ describe('GameEngine Rules', () => {
         const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
         mutableScenario.rules.recruitableUnits!.push('commander');
         mutableScenario.terrainConfidence.byConfidence.confirmed = -1;
+        mutableScenario.setupOptions.initialGold.default = 999;
+        mutableScenario.setupOptions.modes.options = [];
         const freshScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
         expect(freshScenario.rules.recruitableUnits).not.toContain('commander');
         expect(freshScenario.terrainConfidence.byConfidence.confirmed).toBeGreaterThan(0);
+        expect(freshScenario.setupOptions.initialGold.default).toBe(300);
+        expect(freshScenario.setupOptions.modes.options).toEqual(['SD', 'SO']);
 
         const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
         expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);

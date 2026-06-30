@@ -40,7 +40,7 @@ while (!initResult.done) {
 
 `src/game/apk_manifest.ts` 和 `src/game/apk_skirmish_tile_usage.ts` 已归档 APK 4.2.5.1 的 20 张官方 skirmish 地图清单。通过 `createApkSkirmishGameState` 导入地图时，只有地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、完整 APK tile 使用量、推荐金币和尾部模板都匹配官方清单，才会自动写入 APK 版本、SHA256 和资源路径。
 
-`getApkSkirmishTrainingScenarios()` 会基于默认 16 张无 approximate/unmapped tile 的官方地图生成 SD/SO 两种训练场景，并附带地图资源路径、玩家数、推荐金币、地形可信度摘要和对应模式规则配置。训练端可以用 `modes/playerCounts/allowApproximateTerrain` 过滤场景，避免重复拼接地图清单与 SD/SO 规则。
+`getApkSkirmishTrainingScenarios()` 会基于默认 16 张无 approximate/unmapped tile 的官方地图生成 SD/SO 两种训练场景，并附带地图资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和对应模式规则配置。训练端可以用 `modes/playerCounts/allowApproximateTerrain` 过滤场景，避免重复拼接地图清单与 SD/SO 规则。
 
 训练端可用 `getApkSkirmishTrainingScenario(id)` 定位稳定场景，并通过 `createApkSkirmishTrainingGameState(map, id)` 或 `createApkSkirmishTrainingEnv(map, id)` 把已解析的官方 AEM 地图直接变成带 APK 规则、来源元数据和 manifest 严格校验的训练状态/环境。
 

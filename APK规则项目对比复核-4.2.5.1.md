@@ -268,7 +268,7 @@ Stage.SyncGameOver(alliances[0]);
 
 - `src/game/apk_skirmish.ts` 使用 `defeatOnNoUnitsAndNoCastles = true`。
 - `SO/controller.js` 的 `OnGameStart` 调用 `Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8)`，项目已映射为 SO 模式只开放 APK ID 0 到 8 对应的基础单位。
-- 2026-06-30 用户实机确认 SD 是正常遭遇战模式，SO 是原版/特殊规则模式；默认开局设置为金币 300、单位上限 30、等级上限 3。SD 可招募指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。
+- 2026-06-30 用户实机确认 SD 是正常遭遇战模式，SO 是原版/特殊规则模式；默认开局设置为金币 300、单位上限 30、等级上限 3，对应范围分别为 0-2000/步进 50、20-100/步进 10、0-9/步进 1。项目已用 `getApkSkirmishSetupOptions()` 结构化这些开局设置。SD 可招募指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。
 
 ## 8. 地图与地形
 
@@ -430,7 +430,7 @@ npm run apk:script-report -- --check
 
 当前命令输出确认：27/27 个 `assets/mods/**/*.js` 可用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密；`Stage.*` 与 `rule.SetIncome*` API 计数和 `APK_SCRIPT_API_CALL_COUNTS` 完全一致；可安全提取的 `APK_SCRIPT_LITERAL_RULE_CONFIGS` 与 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 均无差异。
 
-2026-06-30 补充：`getApkSkirmishTrainingScenarios()` 已提供官方 skirmish 训练场景清单。默认返回 16 张无 approximate/unmapped tile 的官方地图乘以 SD/SO 两种模式，共 32 个场景；每个场景包含地图资源路径、玩家数、推荐金币、地形可信度摘要和对应 `RuleConfig` 快照。SD 场景使用实机确认的正常对战招募列表，SO 场景使用脚本确认的 APK ID 0-8 招募列表，避免训练脚本重复拼接地图 manifest 与模式规则。
+2026-06-30 补充：`getApkSkirmishTrainingScenarios()` 已提供官方 skirmish 训练场景清单。默认返回 16 张无 approximate/unmapped tile 的官方地图乘以 SD/SO 两种模式，共 32 个场景；每个场景包含地图资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和对应 `RuleConfig` 快照。SD 场景使用实机确认的正常对战招募列表，SO 场景使用脚本确认的 APK ID 0-8 招募列表，避免训练脚本重复拼接地图 manifest 与模式规则。
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 

@@ -9,6 +9,7 @@ import {
 import { parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
 import {
     createApkSkirmishTrainingEnv,
+    getApkSkirmishSetupOptions,
     getApkSkirmishTrainingScenarios,
     type ApkSkirmishTrainingScenario
 } from '../src/game/apk_skirmish';
@@ -50,6 +51,7 @@ interface ApkTrainingReport {
     manifestMatchedCount: number;
     metadataMatchedCount: number;
     zeroLegalActionCount: number;
+    setupOptions: ReturnType<typeof getApkSkirmishSetupOptions>;
     scenarios: TrainingScenarioReportEntry[];
 }
 
@@ -174,6 +176,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         manifestMatchedCount: entries.filter(entry => entry.manifestMatched).length,
         metadataMatchedCount: entries.filter(entry => entry.metadataMatched).length,
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
+        setupOptions: getApkSkirmishSetupOptions(),
         scenarios: entries
     };
 }
@@ -188,6 +191,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- includeApproximate：${report.includeApproximate ? '是' : '否'}`,
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
+        `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
         `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | unmapped | 合法动作 | 可招募 | manifest | metadata |`,
         `| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |`

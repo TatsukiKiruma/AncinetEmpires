@@ -20,6 +20,39 @@ const SO_RECRUITABLE_APK_UNIT_IDS = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
 const SD_RECRUITABLE_APK_UNIT_IDS = [9, 0, 14, 19, 1, 18, 15, 2, 12, 3, 13, 4, 5, 17, 6, 20, 7, 16, 8] as const;
 const DEFAULT_APK_SKIRMISH_TRAINING_MODES = ['SD', 'SO'] as const satisfies readonly ApkSkirmishMode[];
 
+export interface ApkSkirmishNumericSetupOption {
+    default: number;
+    min: number;
+    max: number;
+    step: number;
+}
+
+export interface ApkSkirmishSetupOptions {
+    initialGold: ApkSkirmishNumericSetupOption;
+    unitLimit: ApkSkirmishNumericSetupOption;
+    levelCap: ApkSkirmishNumericSetupOption;
+    modes: {
+        default: ApkSkirmishMode;
+        options: readonly ApkSkirmishMode[];
+        labels: Record<ApkSkirmishMode, string>;
+    };
+}
+
+// 2026-06-30 用户实机确认的遭遇战开局设置范围。
+export const APK_SKIRMISH_SETUP_OPTIONS: ApkSkirmishSetupOptions = {
+    initialGold: { default: 300, min: 0, max: 2000, step: 50 },
+    unitLimit: { default: 30, min: 20, max: 100, step: 10 },
+    levelCap: { default: 3, min: 0, max: 9, step: 1 },
+    modes: {
+        default: 'SD',
+        options: ['SD', 'SO'],
+        labels: {
+            SD: '默认',
+            SO: '原版'
+        }
+    }
+};
+
 export interface ApkSkirmishTrainingScenarioFilter extends ApkSkirmishTrainingMapFilter {
     modes?: readonly ApkSkirmishMode[];
 }
@@ -35,6 +68,7 @@ export interface ApkSkirmishTrainingScenario {
     initialUnitCount: number;
     recommendedGold: number | null;
     terrainConfidence: ApkSkirmishTerrainConfidenceReport;
+    setupOptions: ApkSkirmishSetupOptions;
     rules: RuleConfig;
 }
 
@@ -58,11 +92,24 @@ function mapApkUnitIds(apkUnitIds: readonly number[]): UnitClass[] {
     return apkUnitIds.map(apkUnitId => APK_UNIT_ID_TO_CLASS[apkUnitId]);
 }
 
+export function getApkSkirmishSetupOptions(): ApkSkirmishSetupOptions {
+    return {
+        initialGold: { ...APK_SKIRMISH_SETUP_OPTIONS.initialGold },
+        unitLimit: { ...APK_SKIRMISH_SETUP_OPTIONS.unitLimit },
+        levelCap: { ...APK_SKIRMISH_SETUP_OPTIONS.levelCap },
+        modes: {
+            default: APK_SKIRMISH_SETUP_OPTIONS.modes.default,
+            options: [...APK_SKIRMISH_SETUP_OPTIONS.modes.options],
+            labels: { ...APK_SKIRMISH_SETUP_OPTIONS.modes.labels }
+        }
+    };
+}
+
 export function getApkSkirmishRuleConfig(mode: ApkSkirmishMode = 'SD'): RuleConfig {
     const rules: RuleConfig = {
-        initialGold: 300,
-        unitLimit: 30,
-        levelCap: 3,
+        initialGold: APK_SKIRMISH_SETUP_OPTIONS.initialGold.default,
+        unitLimit: APK_SKIRMISH_SETUP_OPTIONS.unitLimit.default,
+        levelCap: APK_SKIRMISH_SETUP_OPTIONS.levelCap.default as RuleConfig['levelCap'],
         allowSurrender: true,
         allowPendingRecruitEndTurn: true,
         allowPendingRecruitSurrender: true,
@@ -112,6 +159,7 @@ function buildTrainingScenario(
         initialUnitCount: entry.initialUnitCount,
         recommendedGold: entry.recommendedGold,
         terrainConfidence: cloneTerrainConfidenceReport(entry.terrainConfidence),
+        setupOptions: getApkSkirmishSetupOptions(),
         rules: mergeRuleConfig(undefined, getApkSkirmishRuleConfig(mode))
     };
 }
