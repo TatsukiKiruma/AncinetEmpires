@@ -44,11 +44,20 @@ export interface ApkSkirmishManualVerificationItem {
     requestedEvidence: string;
 }
 
+export interface ApkSkirmishProjectProbeItem {
+    id: string;
+    title: string;
+    purpose: string;
+    currentProjectBehavior: unknown;
+    suggestedVerification: string;
+}
+
 export interface ApkSkirmishRuleReport {
     generatedAt: string;
     checkCount: number;
     failedCheckCount: number;
     checks: ApkSkirmishRuleCheck[];
+    projectProbeItems: ApkSkirmishProjectProbeItem[];
     manualVerificationItems: ApkSkirmishManualVerificationItem[];
 }
 
@@ -236,6 +245,39 @@ function actionTypes(actions: Action[]): string[] {
     return [...new Set(actions.map(action => action.type))].sort();
 }
 
+function createProbeUnit(
+    id: string,
+    ownerId: number,
+    unitClass: UnitClass,
+    x: number,
+    y: number,
+    overrides: Partial<Unit> = {}
+): Unit {
+    return {
+        id,
+        ownerId,
+        unitClass,
+        pos: { x, y },
+        hp: 100,
+        maxHp: 100,
+        hasMoved: false,
+        hasActed: false,
+        ...overrides
+    };
+}
+
+function createRoadProbeState(units: Unit[], width = 8, height = 3): GameState {
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+    state.currentPlayer = 0;
+    state.map.width = width;
+    state.map.height = height;
+    state.map.tiles = Array.from({ length: height }, () => (
+        Array.from({ length: width }, () => ({ terrainId: 6 as const, ownerId: null }))
+    ));
+    state.units = units;
+    return state;
+}
+
 function createStatusUnit(id: string, status: StatusType, x: number): Unit {
     return {
         id,
@@ -250,6 +292,127 @@ function createStatusUnit(id: string, status: StatusType, x: number): Unit {
             ? { type: status, remainingTicks: 2 }
             : { type: status, remainingTurns: 1 }
     };
+}
+
+function buildSupportAssaultProbeBehavior() {
+    const supportTarget = createProbeUnit('target', 0, 'soldier', 1, 0, {
+        level: 1,
+        hasMoved: true,
+        hasActed: true
+    });
+    const supportState = createRoadProbeState([
+        createProbeUnit('supporter_a', 0, 'druid', 0, 0, { level: 1 }),
+        createProbeUnit('supporter_b', 0, 'druid', 0, 1, { level: 1 }),
+        supportTarget,
+        createProbeUnit('enemy_anchor', 1, 'soldier', 7, 2)
+    ]);
+    const supportEngine = new GameEngine(supportState);
+    const initialSupportActions = supportEngine.getLegalActions(0).filter(action => action.type === 'support');
+    supportEngine.step({ type: 'support', supporterId: 'supporter_a', targetId: 'target' });
+    const afterFirstSupport = supportEngine.getState();
+    supportEngine.step({ type: 'wait', unitId: 'target' });
+    const secondSupportAvailableAfterTargetActsAgain = supportEngine.getLegalActions(0)
+        .some(action => action.type === 'support' && action.supporterId === 'supporter_b' && action.targetId === 'target');
+
+    const assaultState = createRoadProbeState([
+        createProbeUnit('wolf', 0, 'wolf', 0, 0),
+        createProbeUnit('enemy', 1, 'soldier', 3, 0)
+    ], 6, 2);
+    const assaultEngine = new GameEngine(assaultState);
+    assaultEngine.step({ type: 'move', unitId: 'wolf', to: { x: 2, y: 0 } });
+    const afterMove = assaultEngine.getState().units.find(unit => unit.id === 'wolf')!;
+    assaultEngine.step({ type: 'attack', attackerId: 'wolf', targetId: 'enemy' });
+    const afterAttackState = assaultEngine.getState();
+    const afterAttackWolf = afterAttackState.units.find(unit => unit.id === 'wolf')!;
+    const postAttackMoves = assaultEngine.getLegalActions(0)
+        .filter(action => action.type === 'post_attack_move' && action.unitId === 'wolf');
+
+    return {
+        support: {
+            initialSupportActionCount: initialSupportActions.length,
+            targetHasActedAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.hasActed ?? null,
+            targetSupportedFlagAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.hasBeenSupportedThisTurn ?? null,
+            supporterHasActedAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'supporter_a')?.hasActed ?? null,
+            secondSupportAvailableAfterTargetActsAgain
+        },
+        assault: {
+            movementRemainingAfterMove: afterMove.movementRemaining ?? null,
+            movementRemainingAfterAttack: afterAttackWolf.movementRemaining ?? null,
+            hasActedAfterAttack: afterAttackWolf.hasActed,
+            postAttackMoveCount: postAttackMoves.length,
+            farthestPostAttackMoveDistance: Math.max(
+                0,
+                ...postAttackMoves.map(action => (
+                    action.type === 'post_attack_move'
+                        ? Math.abs(action.to.x - afterAttackWolf.pos.x) + Math.abs(action.to.y - afterAttackWolf.pos.y)
+                        : 0
+                ))
+            )
+        }
+    };
+}
+
+function buildCounterBlindStormProbeBehavior() {
+    const normalCounterState = createRoadProbeState([
+        createProbeUnit('dark_mage', 0, 'dark_mage', 0, 0),
+        createProbeUnit('soldier', 1, 'soldier', 1, 0)
+    ]);
+    const normalCounterEngine = new GameEngine(normalCounterState);
+    normalCounterEngine.step({ type: 'attack', attackerId: 'dark_mage', targetId: 'soldier' });
+    const normalCounterUnits = Object.fromEntries(normalCounterEngine.getState().units.map(unit => [unit.id, unit]));
+
+    const stormCounterState = createRoadProbeState([
+        createProbeUnit('wolf_archer', 0, 'wolf_archer', 0, 0),
+        createProbeUnit('berserker', 1, 'berserker', 2, 0)
+    ]);
+    const stormCounterEngine = new GameEngine(stormCounterState);
+    stormCounterEngine.step({ type: 'attack', attackerId: 'wolf_archer', targetId: 'berserker' });
+    const stormCounterUnits = Object.fromEntries(stormCounterEngine.getState().units.map(unit => [unit.id, unit]));
+
+    const rangeThreeStormState = createRoadProbeState([
+        createProbeUnit('wolf_archer', 0, 'wolf_archer', 0, 0),
+        createProbeUnit('berserker', 1, 'berserker', 3, 0)
+    ], 6, 2);
+    const rangeThreeStormEngine = new GameEngine(rangeThreeStormState);
+    rangeThreeStormEngine.step({ type: 'attack', attackerId: 'wolf_archer', targetId: 'berserker' });
+    const rangeThreeStormUnits = Object.fromEntries(rangeThreeStormEngine.getState().units.map(unit => [unit.id, unit]));
+
+    return {
+        blindingAttackAgainstNormalCounter: {
+            defenderStatusAfterAttack: normalCounterUnits.soldier?.status?.type ?? null,
+            attackerHpAfterAttack: normalCounterUnits.dark_mage?.hp ?? null,
+            normalCounterTriggered: (normalCounterUnits.dark_mage?.hp ?? 100) < 100
+        },
+        blindingAttackAgainstCounterStormAtRange2: {
+            defenderStatusAfterAttack: stormCounterUnits.berserker?.status?.type ?? null,
+            attackerHpAfterAttack: stormCounterUnits.wolf_archer?.hp ?? null,
+            counterStormTriggered: (stormCounterUnits.wolf_archer?.hp ?? 100) < 100
+        },
+        counterStormAtRange3: {
+            defenderStatusAfterAttack: rangeThreeStormUnits.berserker?.status?.type ?? null,
+            attackerHpAfterAttack: rangeThreeStormUnits.wolf_archer?.hp ?? null,
+            counterStormTriggered: (rangeThreeStormUnits.wolf_archer?.hp ?? 100) < 100
+        }
+    };
+}
+
+function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
+    return [
+        {
+            id: 'support-assault-project-probe',
+            title: '当前项目支援与突击边界行为快照',
+            purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
+            currentProjectBehavior: buildSupportAssaultProbeBehavior(),
+            suggestedVerification: '在原版 skirmish 中测试同一单位被支援后再次行动，第二个支援者是否还能再次支援；再测试狼移动后攻击，攻击后可移动范围是否等于攻击前剩余移动力。'
+        },
+        {
+            id: 'counter-blind-storm-project-probe',
+            title: '当前项目致盲、普通反击与反击风暴顺序快照',
+            purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
+            currentProjectBehavior: buildCounterBlindStormProbeBehavior(),
+            suggestedVerification: '在原版 skirmish 中测试黑魔法师/狼骑射手致盲攻击后，普通 1 格反击是否被阻止，狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
+        }
+    ];
 }
 
 function buildT30T31State(): GameState {
@@ -1477,6 +1640,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         checkCount: checks.length,
         failedCheckCount: checks.filter(item => item.status === 'fail').length,
         checks,
+        projectProbeItems: buildProjectProbeItems(),
         manualVerificationItems: buildManualVerificationItems()
     };
 }
@@ -1494,6 +1658,17 @@ function renderMarkdown(report: ApkSkirmishRuleReport): string {
 
     for (const checkItem of report.checks) {
         lines.push(`| \`${checkItem.id}\` | ${checkItem.title} | ${checkItem.source} | ${checkItem.status === 'pass' ? '通过' : '失败'} |`);
+    }
+
+    lines.push(
+        '',
+        '## 当前项目边界探针',
+        '',
+        '| ID | 目的 | 建议验证 |',
+        '| --- | --- | --- |'
+    );
+    for (const item of report.projectProbeItems) {
+        lines.push(`| \`${item.id}\` | ${item.purpose} | ${item.suggestedVerification} |`);
     }
 
     lines.push(

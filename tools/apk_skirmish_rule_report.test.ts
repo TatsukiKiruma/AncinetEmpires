@@ -9,6 +9,11 @@ describe('APK skirmish rule report', () => {
         expect(report.checkCount).toBe(22);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
+        expect(report.projectProbeItems).toHaveLength(2);
+        expect(report.projectProbeItems.map(item => item.id)).toEqual([
+            'support-assault-project-probe',
+            'counter-blind-storm-project-probe'
+        ]);
         expect(report.manualVerificationItems).toHaveLength(5);
         expect(report.manualVerificationItems.map(item => item.id)).toEqual([
             'low-confidence-tiles-t80-t83',
@@ -18,6 +23,45 @@ describe('APK skirmish rule report', () => {
             'default-commander-income'
         ]);
         expect(report.manualVerificationItems.filter(item => item.priority === 'P0')).toEqual([]);
+    });
+
+    it('固化待实机验证边界的当前项目探针输出', () => {
+        const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
+        const byId = Object.fromEntries(report.projectProbeItems.map(item => [item.id, item]));
+
+        expect(byId['support-assault-project-probe'].currentProjectBehavior).toEqual({
+            support: {
+                initialSupportActionCount: 2,
+                targetHasActedAfterSupport: false,
+                targetSupportedFlagAfterSupport: true,
+                supporterHasActedAfterSupport: true,
+                secondSupportAvailableAfterTargetActsAgain: false
+            },
+            assault: {
+                movementRemainingAfterMove: 4,
+                movementRemainingAfterAttack: 4,
+                hasActedAfterAttack: true,
+                postAttackMoveCount: 9,
+                farthestPostAttackMoveDistance: 4
+            }
+        });
+        expect(byId['counter-blind-storm-project-probe'].currentProjectBehavior).toEqual({
+            blindingAttackAgainstNormalCounter: {
+                defenderStatusAfterAttack: 'blinded',
+                attackerHpAfterAttack: 100,
+                normalCounterTriggered: false
+            },
+            blindingAttackAgainstCounterStormAtRange2: {
+                defenderStatusAfterAttack: 'blinded',
+                attackerHpAfterAttack: 50,
+                counterStormTriggered: true
+            },
+            counterStormAtRange3: {
+                defenderStatusAfterAttack: 'blinded',
+                attackerHpAfterAttack: 100,
+                counterStormTriggered: false
+            }
+        });
     });
 
     it('固化 SD/SO 招募列表与遭遇战开局设置', () => {
