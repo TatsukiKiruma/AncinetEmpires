@@ -6,6 +6,7 @@ import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCo
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainConfig, getTileTerrainIdForRules, getTileTerrainKey } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
 import { ApkTerrainMappingConfidence, getApkTerrainConfig, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
+import { APK_ABILITY_TYPE_TO_ID, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID } from './apk_compat';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -114,6 +115,7 @@ export interface Observation {
   units: Array<{
     id: string;
     apkUnitId?: number;
+    apkUnitClassId: number;
     apkUnitExtra?: number;
     apkUnitCode?: string;
     apkStatic?: boolean;
@@ -126,6 +128,7 @@ export interface Observation {
     population: number;
     cost: number | null;
     abilities: Ability[];
+    apkAbilityIds: number[];
     baseAttack: number;
     basePhysicalDefense: number;
     baseMagicDefense: number;
@@ -170,6 +173,7 @@ export interface Observation {
     hasBeenSupportedThisTurn: boolean;
     isPending: boolean;
     status: string | null;
+    apkStatusId: number | null;
     statusRemainingTicks: number | null;
     statusRemainingTurns: number | null;
   }>;
@@ -528,6 +532,7 @@ export class AncientEmpiresEnv {
               return {
                   id: u.id,
                   apkUnitId: u.apkUnitId,
+                  apkUnitClassId: APK_UNIT_CLASS_TO_ID[u.unitClass],
                   apkUnitExtra: u.apkUnitExtra,
                   apkUnitCode: u.apkUnitCode,
                   apkStatic: u.apkStatic,
@@ -540,6 +545,7 @@ export class AncientEmpiresEnv {
                   population: unitConfig.population,
                   cost: getUnitCost(state, u.ownerId, u.unitClass),
                   abilities: [...unitConfig.abilities],
+                  apkAbilityIds: unitConfig.abilities.map(ability => APK_ABILITY_TYPE_TO_ID[ability]),
                   baseAttack: unitConfig.attack,
                   basePhysicalDefense: unitConfig.physicalDefense,
                   baseMagicDefense: unitConfig.magicDefense,
@@ -586,6 +592,7 @@ export class AncientEmpiresEnv {
                   hasBeenSupportedThisTurn: !!u.hasBeenSupportedThisTurn,
                   isPending: state.pendingUnitId === u.id,
                   status: u.status ? u.status.type : null,
+                  apkStatusId: u.status ? APK_STATUS_TYPE_TO_ID[u.status.type] : null,
                   statusRemainingTicks: u.status?.remainingTicks ?? null,
                   statusRemainingTurns: u.status?.remainingTurns ?? null
               };

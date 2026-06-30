@@ -6,7 +6,7 @@ import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel, addExp } from '../abilities';
-import { APK_ABILITY_ID_TO_TYPE, APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
+import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
@@ -1050,8 +1050,11 @@ describe('GameEngine Rules', () => {
         expect(UNIT_CONFIGS.ice_elemental.maxHpGrowth).toBe(10);
         expect(UNIT_CONFIGS.druid.moveGrowth).toBe(1);
         expect(APK_UNIT_ID_TO_CLASS[11]).toBe('crystal');
+        expect(APK_UNIT_CLASS_TO_ID.crystal).toBe(11);
         expect(APK_STATUS_ID_TO_TYPE[2]).toBe('inspired');
+        expect(APK_STATUS_TYPE_TO_ID.inspired).toBe(2);
         expect(APK_ABILITY_ID_TO_TYPE[18]).toBe('attack_aura');
+        expect(APK_ABILITY_TYPE_TO_ID.attack_aura).toBe(18);
     });
 
     it('伤害公式: 士兵攻击史莱姆时，按物理防御计算', () => {
@@ -3376,6 +3379,7 @@ describe('GameEngine Rules', () => {
 
             const observation = new AncientEmpiresEnv({ initialState: state }).getObservation();
             expect(observation.units.find(unit => unit.id === 'u_commander')).toEqual(expect.objectContaining({
+                apkUnitClassId: 9,
                 attack: 70,
                 physicalDefense: 25,
                 magicDefense: 25,
@@ -3405,6 +3409,8 @@ describe('GameEngine Rules', () => {
                 tileDefenseBonus: 15,
                 tileHealPerTurn: 20,
                 tileMoveCost: 1,
+                apkAbilityIds: [1, 0, 2],
+                apkStatusId: null,
                 statusRemainingTicks: null,
                 statusRemainingTurns: null
             }));
@@ -3430,7 +3436,10 @@ describe('GameEngine Rules', () => {
                 statusRemainingTurns: 1
             }));
             expect(observation.units.find(unit => unit.id === 'u_poisoned')).toEqual(expect.objectContaining({
+                apkUnitClassId: 0,
+                apkAbilityIds: [0, 2],
                 status: 'poisoned',
+                apkStatusId: 1,
                 statusRemainingTicks: 2,
                 statusRemainingTurns: null
             }));

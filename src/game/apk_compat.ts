@@ -24,12 +24,20 @@ export const APK_UNIT_ID_TO_CLASS: Record<number, UnitClass> = {
     20: 'druid',
 };
 
+export const APK_UNIT_CLASS_TO_ID = Object.fromEntries(
+    Object.entries(APK_UNIT_ID_TO_CLASS).map(([apkUnitId, unitClass]) => [unitClass, Number(apkUnitId)])
+) as Record<UnitClass, number>;
+
 export const APK_STATUS_ID_TO_TYPE: Record<number, StatusType> = {
     1: 'poisoned',
     2: 'inspired',
     3: 'blinded',
     4: 'weakened',
 };
+
+export const APK_STATUS_TYPE_TO_ID = Object.fromEntries(
+    Object.entries(APK_STATUS_ID_TO_TYPE).map(([apkStatusId, statusType]) => [statusType, Number(apkStatusId)])
+) as Record<StatusType, number>;
 
 export const APK_ABILITY_ID_TO_TYPE: Record<number, Ability> = {
     0: 'village_capturer',
@@ -59,3 +67,7 @@ export const APK_ABILITY_ID_TO_TYPE: Record<number, Ability> = {
     24: 'supporter',
     25: 'death_reaper',
 };
+
+export const APK_ABILITY_TYPE_TO_ID = Object.fromEntries(
+    Object.entries(APK_ABILITY_ID_TO_TYPE).map(([apkAbilityId, ability]) => [ability, Number(apkAbilityId)])
+) as Record<Ability, number>;

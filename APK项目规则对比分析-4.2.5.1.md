@@ -205,6 +205,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - AI 训练 Observation 已新增 `apkTerrainConfig/tileApkTerrainConfig`，直接暴露当前 tile 的 APK `data.bin` 原始 kind、variant、linked、flag、tail 和数值字段；未知 flag 仅保留为证据，不参与规则解释。
 - AI 训练 Observation 已新增全局 `rules` 摘要和队伍级 `recruitCosts`，让策略直接看到当前收入、等级上限、招募价格覆盖、投降开关、失败条件、联盟/禁用队伍/脚本指挥官/队伍级规则配置以及各队可招募单位的实际费用。
 - AI 训练 Observation 已新增单位级隐藏规则状态：剩余移动力、突击后移动标记、单回合治疗/支援标记和状态剩余时间，避免训练侧只能从合法动作集合反推这些状态。
+- AI 训练 Observation 已新增单位/能力/状态 APK 数字 ID：`apkUnitClassId/apkAbilityIds/apkStatusId`，便于训练数据直接对齐 APK `data.bin` 与脚本 API 的 ID 表。
 - AI 训练 Observation 已新增单位级 APK `data.bin` 静态数值：基础攻击、防御、射程、移动以及攻击/防御/最大生命/移动成长，让策略能直接读取升级收益。
 - AI 训练 Observation 已新增单位所在格规则地形快照：规则地形 ID/key/tags、owner、APK tile ID/owner、映射可信度/证据和当前防御/回血/移动数值，避免训练端反查 `tiles[]` 时漏掉 APK tile 映射语义。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate`，用于训练样本追踪和复现实验配置。

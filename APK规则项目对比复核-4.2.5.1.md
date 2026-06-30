@@ -432,6 +432,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 单位最大生命使用 APK 等级成长后的有效值，避免高等级石头人、冰元素、史莱姆等在训练侧被低估或高估。
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
 - 单位基础数值与成长：`baseAttack/basePhysicalDefense/baseMagicDefense/baseMinRange/baseMaxRange/baseMove/attackGrowth/defenseGrowth/maxHpGrowth/moveGrowth`，直接来自 APK `data.bin` 单位表，供训练侧读取升级收益。
+- 单位/能力/状态 APK 数字 ID：`apkUnitClassId/apkAbilityIds/apkStatusId`，用于直接对齐 `data.bin`、AEM 初始单位和 Stage 脚本 API 的数字 ID。
 - 单位静态配置：`attackType/population/cost/abilities/isCommander`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格，`isCommander` 反映当前规则实际使用的指挥官判定。
 - 单位所在格规则地形快照：`tileTerrainId/tileRuleTerrainId/tileTerrainKey/tileTerrainTags/tileOwnerId/tileApkTerrainId/tileApkOwnerCode/tileApkTerrainConfig/tileApkTerrainMappingConfidence/tileApkTerrainMappingEvidence/tileDefenseBonus/tileHealPerTurn/tileMoveCost`，用于直接读取单位当前站位的 APK tile 映射语义、原始配置和数值。
 - 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead/apkMoveOverrides`。

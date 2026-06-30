@@ -1052,6 +1052,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 这些字段来自已解析的 APK `data.bin` 21 条单位基础数值和成长表；训练侧可以直接看到单位升级后的潜在收益，不需要只凭当前等级有效数值反推。
 - 这些字段只暴露静态规则表，不改变 `getEffectiveStats`、伤害、移动、升级或任何合法动作。
 
+2026-06-30 APK 单位/能力/状态数字 ID 进入 AI Observation：
+
+- `apk_compat.ts` 新增 `APK_UNIT_CLASS_TO_ID`、`APK_ABILITY_TYPE_TO_ID` 和 `APK_STATUS_TYPE_TO_ID`，与既有 APK ID 到项目枚举的映射互为反向表。
+- `AncientEmpiresEnv.getObservation().units[]` 新增 `apkUnitClassId/apkAbilityIds/apkStatusId`，让训练样本能直接对齐 APK `data.bin` 单位 ID、能力 ID 和状态 ID。
+- 这些字段只暴露 APK 数字标识，不改变单位配置、能力生效、状态倒计时、伤害或合法动作。
+- 验证：新增回归测试覆盖 crystal/inspired/attack_aura 的反向映射，以及 commander/soldier 的 Observation 数字 ID 输出。
+
 2026-06-29 APK 单位所在格规则地形进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units[]` 新增 `tileTerrainId/tileRuleTerrainId/tileTerrainKey/tileTerrainTags/tileOwnerId/tileApkTerrainId/tileApkOwnerCode/tileApkTerrainMappingConfidence/tileApkTerrainMappingEvidence/tileDefenseBonus/tileHealPerTurn/tileMoveCost`。
