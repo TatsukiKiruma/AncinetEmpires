@@ -31,6 +31,14 @@
 | `assets/mods/**/*.js` | 27 个脚本可解密，出现大量 `Stage.*` 调用 | 可确认关卡配置能力、目标判断和 skirmish 控制逻辑 |
 | `classes.dex` 字符串 | 暴露 `Stage.*`、`Rule.*`、`Cannot ... when stacked!` 等字符串 | 可确认官方引擎有待处理/堆叠状态、脚本配置 API |
 
+2026-06-30 起，项目新增可重复复核命令：
+
+```bash
+npm run apk:map-report -- --check
+```
+
+该命令读取 `APK/_analysis/unpack`，用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密 20 张官方 skirmish `.aem`，再用 `parseApkAemMap` 和 `matchesApkSkirmishMapManifest` 校验项目 manifest。当前运行结果：APK SHA256 匹配、20/20 地图匹配、0 个 unmapped tile、4 张地图含 approximate tile。
+
 ## 4. APK 资源结构摘要
 
 已解包资源中和规则直接相关的内容：
@@ -212,6 +220,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate/apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`；脚本字面量规则应用后还会输出 `apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于训练样本追踪、低可信 tile 过滤和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；`src/game/apk_manifest.ts` 会为每张官方图生成 `terrainConfidence`，记录 confirmed/atlas/approximate/unmapped 格子数量、低可信 tile ID 和未映射 tile ID；按当前 skirmish 映射，20 张图均无未映射 tile。
 - 20 张官方 skirmish 地图中只有 4 张含低可信 approximate tile：`(2) Mourningstar.aem` 含 `t30` 2 格，`(4) The Crucible.aem` 含 `t31` 1 格，`(4) Waterways.aem` 含 `t31` 2 格，`(4) Winterstorm.aem` 含 `t31` 4 格。其它 16 张图不含 approximate/unmapped tile，可作为更干净的基础训练地图。
+- `tools/apk_map_report.ts` 已把上述解密、解析和 manifest 对比流程工具化；`npm run apk:map-report -- --check` 当前确认 20/20 地图和项目清单一致，并在报告末尾输出 `t30/t31` 的人工验证坐标和当前项目语义清单。
 - `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的官方地图；可通过 `allowApproximateTerrain/allowUnmappedTerrain/playerCounts` 显式放开低可信地形或筛选 2/3/4 人图，避免训练入口重复写过滤逻辑。
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回上述 4 个低可信 skirmish 验证目标，并附带资源路径、玩家数、APK tile ID、格子数量、坐标、项目映射地形、evidence、APK `data.bin` 地形数值、`projectRuleSemantics` 当前项目语义快照和 `manualChecks` 实测回填 key/value 清单；也支持按 confidence、tile ID 或地图名查询 confirmed/atlas tile，供人工实测和训练样本降权共用。当前坐标：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`，这些格子的 APK owner code 均为 `0xff`。当前项目语义中，`t30` 按 camp 回血但不净化，`t31` 按 temple 回血并净化，二者都不可占领、无收入。
 - approximate tile 的 evidence 已进一步拆分：`t30` 为 `low_confidence_camp_semantics`，`t31/t80` 为 `low_confidence_temple_semantics`，`t81/t82` 为 `low_confidence_water_obstacle_semantics`，`t83` 为 `low_confidence_water_temple_semantics`。这让训练管线可以把营地、陆地神庙、水中障碍和水中神庙候选分开降权或过滤。

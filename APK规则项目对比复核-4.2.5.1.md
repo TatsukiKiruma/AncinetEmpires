@@ -91,6 +91,14 @@
 
 `assets/maps/_list.json` 本身是明文，不需要解密。
 
+2026-06-30 补充：上述 skirmish 地图解密复核已固化为 `tools/apk_map_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:map-report -- --check
+```
+
+当前命令输出确认：APK SHA256 匹配 `51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`，20 张 `assets/maps/*.aem` 全部可解密解析，20/20 与 `src/game/apk_manifest.ts` 清单匹配，unmapped tile 数为 0。报告同时列出 4 张含 approximate tile 的地图和 `t30/t31` 人工验证坐标。
+
 ## 4. 语言表确认的核心规则
 
 来源：`APK\_analysis\unpack\assets\languages\zh.lang` 与 `en.lang`。

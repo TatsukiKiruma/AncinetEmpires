@@ -85,11 +85,17 @@ npm run lint
 ```
 当前测试包含了大量针对战棋特性（非法动作校验拦截、能力光环触发、治疗与结算机制等）的核心逻辑回归。
 
+### 复核 APK skirmish 地图资源
+```bash
+npm run apk:map-report -- --check
+```
+该命令会用 APK 4.2.5.1 的 DES key/iv 解密 `APK/_analysis/unpack/assets/maps/*.aem`，重新解析 20 张官方 skirmish 地图并和项目内 manifest 对比。当前复核结果为 APK SHA256 匹配、20/20 地图匹配、0 个 unmapped tile，并输出 `t30/t31` 低可信地形的实机验证坐标。
+
 ## 待补充与未实现 (TODO List)
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
 - **指挥官死亡/复活完整规则**：当前尚未完全实现指挥官死亡需要进坟墓读秒及复活等复杂系统逻辑。
-- **固定全局动作空间 (Fixed Global Action Space)**：目前返回的动作空间是基于当前状态动态生成的，未来为了兼容 PPO 等强化学习框架可能需要设计固定的稀疏动作矩阵编码。
+- **固定全局动作空间 (Fixed Global Action Space)**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板；未来为了兼容 PPO 等强化学习框架，仍可能需要设计固定的稀疏动作矩阵编码。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。
