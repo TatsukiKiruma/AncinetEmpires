@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(11);
+        expect(report.checkCount).toBe(13);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
     });
@@ -38,6 +38,49 @@ describe('APK skirmish rule report', () => {
             sdWithAliveCommander: { canRecruitCommander: false },
             sdWithoutCommander: { canRecruitCommander: true },
             soWithoutCommander: { canRecruitCommander: false }
+        });
+        expect(byId['setup-applied-to-gameplay'].actual).toEqual({
+            playerGold: [450, 450],
+            rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
+            unitLimitBlocksRecruit: true,
+            levelAfterAtCapAttack: 1,
+            expAfterAtCapAttack: 600
+        });
+        expect(byId['training-observation-skirmish-rules'].actual).toEqual({
+            rules: {
+                initialGold: 450,
+                unitLimit: 20,
+                levelCap: 1,
+                allowSurrender: true,
+                commanderRecruitBaseCost: 400
+            },
+            player0: {
+                gold: 450,
+                unitCount: 2,
+                population: 1,
+                unitLimit: 20,
+                recruitableUnitCount: 19,
+                includesCommander: true,
+                commanderRecruitCost: 400,
+                commanderUnitId: 'u1'
+            },
+            commander: {
+                id: 'u1',
+                isCommander: true,
+                population: 0,
+                cost: 400
+            },
+            legalActions: {
+                hasSurrender: true,
+                hasCommanderRecruitWhileAlive: false,
+                hasSoldierRecruit: true
+            },
+            pending: {
+                pendingUnitId: 'u_100',
+                pendingUnitIsMarked: true,
+                pendingUnitSource: 'empty_castle',
+                observationPendingMatchesState: true
+            }
         });
     });
 

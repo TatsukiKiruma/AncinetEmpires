@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
+import { AncientEmpiresEnv } from '../src/game/env';
 import { getLegalActions } from '../src/game/rules';
 import {
     getApkSkirmishRuleConfig,
@@ -331,6 +332,157 @@ function buildCommanderRecruitAvailabilityActual() {
     };
 }
 
+function buildSetupApplicationActual() {
+    const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
+        initialGold: 450,
+        unitLimit: 20,
+        levelCap: 1
+    }));
+
+    const unitLimitState = createDemoState(getApkSkirmishRuleConfig('SD', {
+        initialGold: 1000,
+        unitLimit: 20,
+        levelCap: 3
+    }));
+    const occupiedPositions = new Set(unitLimitState.units.map(unit => `${unit.pos.x},${unit.pos.y}`));
+    for (let i = unitLimitState.units.filter(unit => unit.ownerId === 0).length; i < 20; i += 1) {
+        const pos = { x: i % unitLimitState.map.width, y: Math.floor(i / unitLimitState.map.width) + 1 };
+        if (pos.y >= unitLimitState.map.height || occupiedPositions.has(`${pos.x},${pos.y}`)) continue;
+        occupiedPositions.add(`${pos.x},${pos.y}`);
+        unitLimitState.units.push({
+            id: `limit_${i}`,
+            ownerId: 0,
+            unitClass: 'soldier',
+            pos,
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false,
+            level: 0,
+            exp: 0
+        });
+    }
+    const unitLimitActions = getLegalActions(unitLimitState, 0);
+
+    const levelCapState = createDemoState(getApkSkirmishRuleConfig('SD', {
+        initialGold: 300,
+        unitLimit: 30,
+        levelCap: 1
+    }));
+    levelCapState.units = [
+        {
+            id: 'attacker',
+            ownerId: 0,
+            unitClass: 'soldier',
+            pos: { x: 0, y: 0 },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false,
+            level: 1,
+            exp: 600
+        },
+        {
+            id: 'defender',
+            ownerId: 1,
+            unitClass: 'soldier',
+            pos: { x: 0, y: 1 },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false,
+            level: 0,
+            exp: 0
+        }
+    ];
+    const levelCapEngine = new GameEngine(levelCapState);
+    levelCapEngine.step({ type: 'attack', attackerId: 'attacker', targetId: 'defender' });
+    const finalAttacker = levelCapEngine.getState().units.find(unit => unit.id === 'attacker');
+
+    return {
+        playerGold: setupState.players.map(player => player.gold),
+        rules: {
+            initialGold: setupState.rules?.initialGold ?? null,
+            unitLimit: setupState.rules?.unitLimit ?? null,
+            levelCap: setupState.rules?.levelCap ?? null
+        },
+        unitLimitBlocksRecruit: !unitLimitActions.some(action => (
+            action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy'
+        )),
+        levelAfterAtCapAttack: finalAttacker?.level ?? null,
+        expAfterAtCapAttack: finalAttacker?.exp ?? null
+    };
+}
+
+function buildTrainingObservationActual() {
+    const state = createDemoState(getApkSkirmishRuleConfig('SD', {
+        initialGold: 450,
+        unitLimit: 20,
+        levelCap: 1
+    }));
+    const env = new AncientEmpiresEnv({ initialState: state });
+    const observation = env.getObservation();
+    const player0 = observation.players.find(player => player.id === 0);
+    const commander = observation.units.find(unit => unit.id === player0?.commanderUnitId);
+    const legalActions = env.getLegalActions();
+
+    const pendingState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    pendingState.units.find(unit => unit.id === 'u1')!.pos = { x: 2, y: 2 };
+    pendingState.players[0].gold = 1000;
+    const pendingEnv = new AncientEmpiresEnv({ initialState: pendingState });
+    const recruitToCastle = pendingEnv.getLegalActions().find(action => (
+        action.type === 'recruit_to_castle' && action.unitClass === 'soldier'
+    ));
+    if (!recruitToCastle) throw new Error('Observation pending 测试缺少空城堡招募动作');
+    const pendingResult = pendingEnv.stepAction(recruitToCastle);
+    const pendingObservation = pendingResult.observation;
+    const pendingUnitId = pendingObservation.pendingUnitId ?? null;
+    const pendingUnit = pendingObservation.units.find(unit => unit.id === pendingUnitId);
+
+    return {
+        rules: {
+            initialGold: observation.rules.initialGold,
+            unitLimit: observation.rules.unitLimit,
+            levelCap: observation.rules.levelCap,
+            allowSurrender: observation.rules.allowSurrender,
+            commanderRecruitBaseCost: observation.rules.commanderRecruitBaseCost
+        },
+        player0: {
+            gold: player0?.gold ?? null,
+            unitCount: player0?.unitCount ?? null,
+            population: player0?.population ?? null,
+            unitLimit: player0?.unitLimit ?? null,
+            recruitableUnitCount: player0?.recruitableUnits.length ?? null,
+            includesCommander: player0?.recruitableUnits.includes('commander') ?? null,
+            commanderRecruitCost: player0?.recruitCosts.commander ?? null,
+            commanderUnitId: player0?.commanderUnitId ?? null
+        },
+        commander: {
+            id: commander?.id ?? null,
+            isCommander: commander?.isCommander ?? null,
+            population: commander?.population ?? null,
+            cost: commander?.cost ?? null
+        },
+        legalActions: {
+            hasSurrender: legalActions.some(action => action.type === 'surrender'),
+            hasCommanderRecruitWhileAlive: legalActions.some(action => (
+                (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+                && action.unitClass === 'commander'
+            )),
+            hasSoldierRecruit: legalActions.some(action => (
+                (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+                && action.unitClass === 'soldier'
+            ))
+        },
+        pending: {
+            pendingUnitId,
+            pendingUnitIsMarked: pendingUnit?.isPending ?? null,
+            pendingUnitSource: pendingUnit?.apkPendingRecruitSource ?? null,
+            observationPendingMatchesState: pendingUnitId === pendingResult.state.pendingUnitId
+        }
+    };
+}
+
 function buildSurrenderActual() {
     const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     state.map.tiles[1][1].terrainId = 9;
@@ -530,6 +682,65 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             soWithoutCommander: { canRecruitCommander: false }
         },
         buildCommanderRecruitAvailabilityActual()
+    );
+
+    check(
+        checks,
+        'setup-applied-to-gameplay',
+        '遭遇战开局设置实际进入训练状态并约束规则',
+        '用户 2026-06-30 实机确认的开局设置范围 + RuleConfig 行为',
+        {
+            playerGold: [450, 450],
+            rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
+            unitLimitBlocksRecruit: true,
+            levelAfterAtCapAttack: 1,
+            expAfterAtCapAttack: 600
+        },
+        buildSetupApplicationActual()
+    );
+
+    check(
+        checks,
+        'training-observation-skirmish-rules',
+        '训练 observation 暴露 skirmish 规则、费用、指挥官和 pending 状态',
+        'AncientEmpiresEnv observation + APK skirmish RuleConfig',
+        {
+            rules: {
+                initialGold: 450,
+                unitLimit: 20,
+                levelCap: 1,
+                allowSurrender: true,
+                commanderRecruitBaseCost: 400
+            },
+            player0: {
+                gold: 450,
+                unitCount: 2,
+                population: 1,
+                unitLimit: 20,
+                recruitableUnitCount: 19,
+                includesCommander: true,
+                commanderRecruitCost: 400,
+                commanderUnitId: 'u1'
+            },
+            commander: {
+                id: 'u1',
+                isCommander: true,
+                population: 0,
+                cost: 400
+            },
+            legalActions: {
+                hasSurrender: true,
+                hasCommanderRecruitWhileAlive: false,
+                hasSoldierRecruit: true
+            },
+            pending: {
+                pendingUnitId: 'u_100',
+                pendingUnitIsMarked: true,
+                pendingUnitSource: 'empty_castle',
+                observationPendingMatchesState: true
+            }
+        },
+        buildTrainingObservationActual()
     );
 
     check(

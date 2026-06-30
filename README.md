@@ -120,7 +120,7 @@ npm run apk:language-rule-report -- --check
 ```bash
 npm run apk:skirmish-rule-report -- --check
 ```
-该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、开局设置范围、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 11/11 检查通过。
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 13/13 检查通过。
 
 ### 复核 APK 脚本规则证据
 ```bash
