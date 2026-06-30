@@ -19,7 +19,7 @@ interface DexStringReadResult {
     nextOffset: number;
 }
 
-interface DexKeywordGroupReport {
+export interface DexKeywordGroupReport {
     group: string;
     keywords: string[];
     count: number;
@@ -52,7 +52,17 @@ const REQUIRED_STRINGS = [
     'SyncSetRecruitUnitsForTeam',
     'SyncSetUnitLimit',
     'Cannot recruit when stacked!',
-    'OnUnitRecruited'
+    'OnUnitRecruited',
+    'Cannot attack from (',
+    'Cannot attack in state [',
+    'Cannot support from (',
+    'Cannot support in state [',
+    'AsyncAttack',
+    'SyncSetUnitStatus',
+    '[Stage.AsyncAttack] Invalid position: (',
+    '[Stage.SyncSetUnitStatus] No unit at (',
+    '[Stage.SyncSetUnitStatus] Invalid status: ',
+    '[Stage.SyncSetUnitStatus] Invalid rounds: '
 ] as const;
 
 const COMMANDER_REVIVE_API_PATTERN = /(?:ReviveCommander|RespawnCommander|CommanderRevive|CommanderRespawn)/i;
@@ -103,6 +113,31 @@ const KEYWORD_GROUPS = [
             'SetLevelCap',
             'SetPrices',
             'SetUnitLimit'
+        ]
+    },
+    {
+        group: 'combat_action',
+        keywords: [
+            'Cannot attack from (',
+            'Cannot attack in state [',
+            'AsyncAttack',
+            '[Stage.AsyncAttack] Invalid position: ('
+        ]
+    },
+    {
+        group: 'support_action',
+        keywords: [
+            'Cannot support from (',
+            'Cannot support in state ['
+        ]
+    },
+    {
+        group: 'status_stage',
+        keywords: [
+            'SyncSetUnitStatus',
+            '[Stage.SyncSetUnitStatus] No unit at (',
+            '[Stage.SyncSetUnitStatus] Invalid status: ',
+            '[Stage.SyncSetUnitStatus] Invalid rounds: '
         ]
     }
 ] as const;
@@ -262,7 +297,7 @@ function containsAnyKeyword(value: string, keywords: readonly string[]): boolean
     return keywords.some(keyword => value.includes(keyword));
 }
 
-function buildKeywordReports(strings: readonly string[]): DexKeywordGroupReport[] {
+export function buildKeywordReports(strings: readonly string[]): DexKeywordGroupReport[] {
     return KEYWORD_GROUPS.map(group => {
         const matches = uniqueSorted(strings.filter(value => containsAnyKeyword(value, group.keywords)));
         return {

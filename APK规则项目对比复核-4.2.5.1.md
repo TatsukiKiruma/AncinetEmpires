@@ -131,7 +131,7 @@ npm run apk:map-report -- --check
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`classes.dex` 可解析 26529 个字符串，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果只能说明 DEX 字符串层未发现对应 API 名称，指挥官死亡后的重招募价格递增和完整复活流程仍需实机或完整反编译确认。
+当前命令输出确认：`classes.dex` 可解析 26529 个字符串，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；攻击动作关键词命中 4，覆盖 `Cannot attack from (`、`Cannot attack in state [`、`AsyncAttack` 和 `[Stage.AsyncAttack] Invalid position: (`；支援动作关键词命中 2，覆盖 `Cannot support from (` 和 `Cannot support in state [`；状态 Stage 关键词命中 4，覆盖 `SyncSetUnitStatus` 及状态/回合/坐标错误字符串；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果只能说明 DEX 字符串层未发现对应 API 名称，指挥官死亡后的重招募价格递增和完整复活流程仍需实机或完整反编译确认。
 
 ## 4. 语言表确认的核心规则
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseDexStrings, readDexString, readUleb128 } from './apk_dex_report';
+import { buildKeywordReports, parseDexStrings, readDexString, readUleb128 } from './apk_dex_report';
 
 function encodeUleb128(value: number): number[] {
     const bytes: number[] = [];
@@ -60,5 +60,40 @@ describe('APK DEX 复核工具', () => {
     it('解析最小 DEX 字符串表', () => {
         const dex = createMinimalDex(['CheckCommander', 'SyncSetRecruitUnits', 'SetPrices']);
         expect(parseDexStrings(dex)).toEqual(['CheckCommander', 'SyncSetRecruitUnits', 'SetPrices']);
+    });
+
+    it('按规则关键词分组输出战斗、支援和状态证据', () => {
+        const reports = buildKeywordReports([
+            'Cannot attack from (',
+            'Cannot attack in state [',
+            'Cannot support from (',
+            'Cannot support in state [',
+            'android.support.v4.app.Fragment',
+            'SyncSetUnitStatus',
+            '[Stage.SyncSetUnitStatus] No unit at (',
+            '[Stage.SyncSetUnitStatus] Invalid status: ',
+            '[Stage.SyncSetUnitStatus] Invalid rounds: ',
+            'AsyncAttack',
+            '[Stage.AsyncAttack] Invalid position: ('
+        ]);
+        const byGroup = Object.fromEntries(reports.map(report => [report.group, report]));
+
+        expect(byGroup.combat_action.matches).toEqual([
+            '[Stage.AsyncAttack] Invalid position: (',
+            'AsyncAttack',
+            'Cannot attack from (',
+            'Cannot attack in state ['
+        ]);
+        expect(byGroup.support_action.matches).toEqual([
+            'Cannot support from (',
+            'Cannot support in state ['
+        ]);
+        expect(byGroup.support_action.matches).not.toContain('android.support.v4.app.Fragment');
+        expect(byGroup.status_stage.matches).toEqual([
+            '[Stage.SyncSetUnitStatus] Invalid rounds: ',
+            '[Stage.SyncSetUnitStatus] Invalid status: ',
+            '[Stage.SyncSetUnitStatus] No unit at (',
+            'SyncSetUnitStatus'
+        ]);
     });
 });

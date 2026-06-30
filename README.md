@@ -132,7 +132,7 @@ npm run apk:script-report -- --check
 ```bash
 npm run apk:dex-report -- --check
 ```
-该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap` 等必要字符串均存在，`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
+该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置、攻击、支援、状态和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot attack from (`、`Cannot support from (`、`SyncSetUnitStatus` 等必要字符串均存在；关键词分组命中为攻击动作 4、支援动作 2、状态 Stage 4；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
 
 ### 复核 APK skirmish 训练场景
 ```bash
