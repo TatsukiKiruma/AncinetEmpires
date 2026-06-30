@@ -471,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400`、SO 模式禁用指挥官招募，以及训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段；官方是否随死亡次数递增仍按待实机验证处理。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400`、SO 模式禁用指挥官招募、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段，以及训练动作编码面；官方是否随死亡次数递增仍按待实机验证处理。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 

@@ -8,12 +8,17 @@ import {
 } from '../src/game/apk_manifest';
 import { parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
 import {
+    decodeAction,
+    encodeAction,
+    getActionSpaceSchema,
+    type Observation
+} from '../src/game/env';
+import {
     createApkSkirmishTrainingEnv,
     getApkSkirmishSetupOptions,
     getApkSkirmishTrainingScenarios,
     type ApkSkirmishTrainingScenario
 } from '../src/game/apk_skirmish';
-import type { Observation } from '../src/game/env';
 import type { Action } from '../src/game/types';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
@@ -68,6 +73,9 @@ interface ApkTrainingReport {
     modeRuleMismatchCount: number;
     commanderRecruitRuleMismatchCount: number;
     observationApkEvidenceMismatchCount: number;
+    actionSchemaTemplateCount: number;
+    actionSchemaMatched: boolean;
+    actionRoundTripMatched: boolean;
     unverifiedApproximateScenarioCount: number;
     smokePlies: number;
     smokeFailureCount: number;
@@ -77,6 +85,22 @@ interface ApkTrainingReport {
 
 const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack');
 const VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS = new Set([30, 31]);
+const EXPECTED_ACTION_SPACE_SCHEMA = [
+    'move:<unitId>:<x>,<y>',
+    'post_attack_move:<unitId>:<x>,<y>',
+    'attack:<attackerId>:<targetId>',
+    'heal:<healerId>:<targetId>',
+    'support:<supporterId>:<targetId>',
+    'summon:<summonerId>:<graveId>:<x>,<y>',
+    'recruit_to_castle:<unitClass>:<castleX>,<castleY>',
+    'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
+    'capture:<unitId>',
+    'repair:<unitId>',
+    'destroy_town:<unitId>',
+    'wait:<unitId>',
+    'surrender',
+    'end_turn'
+] as const;
 
 function printHelp() {
     console.log(`用法: npm run apk:training-report -- [选项]
@@ -187,6 +211,48 @@ function buildCommanderRecruitCostProfile(
 
 function sameCostProfile(left: readonly (number | null)[], right: readonly (number | null)[]): boolean {
     return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function buildActionRoundTripSamples(): Action[] {
+    return [
+        { type: 'move', unitId: 'u1', to: { x: 2, y: 3 } },
+        { type: 'post_attack_move', unitId: 'u1', to: { x: 4, y: 5 } },
+        { type: 'attack', attackerId: 'u1', targetId: 'u2' },
+        { type: 'heal', healerId: 'u3', targetId: 'u1' },
+        { type: 'support', supporterId: 'u4', targetId: 'u1' },
+        { type: 'summon', summonerId: 'u5', graveId: 'g1', spawnPos: { x: 6, y: 7 } },
+        { type: 'recruit_to_castle', unitClass: 'soldier', castlePos: { x: 1, y: 1 } },
+        { type: 'recruit_and_deploy', unitClass: 'archer', castlePos: { x: 1, y: 1 }, to: { x: 2, y: 1 } },
+        { type: 'capture', unitId: 'u1' },
+        { type: 'repair', unitId: 'u1' },
+        { type: 'destroy_town', unitId: 'u1' },
+        { type: 'wait', unitId: 'u1' },
+        { type: 'surrender' },
+        { type: 'end_turn' }
+    ];
+}
+
+function arraysEqual(left: readonly string[], right: readonly string[]): boolean {
+    return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function actionEquals(left: Action | null, right: Action): boolean {
+    return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function isActionSchemaMatched(): boolean {
+    const schema = getActionSpaceSchema();
+    schema.push('mutated');
+    return (
+        arraysEqual(getActionSpaceSchema(), EXPECTED_ACTION_SPACE_SCHEMA)
+        && !getActionSpaceSchema().includes('mutated')
+    );
+}
+
+function isActionRoundTripMatched(): boolean {
+    return buildActionRoundTripSamples().every(action => (
+        actionEquals(decodeAction(encodeAction(action)), action)
+    ));
 }
 
 function hasCompleteObservationApkEvidence(observation: Observation): boolean {
@@ -360,6 +426,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         entries.push(buildScenarioReportEntry(scenario, map, options.smokePlies));
     }
 
+    const actionSchema = getActionSpaceSchema();
     return {
         apkVersion: APK_RELEASE_VERSION,
         unpackDir: options.unpackDir,
@@ -372,6 +439,9 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         modeRuleMismatchCount: entries.filter(entry => !entry.modeRuleMatched).length,
         commanderRecruitRuleMismatchCount: entries.filter(entry => !entry.commanderRecruitRuleMatched).length,
         observationApkEvidenceMismatchCount: entries.filter(entry => !entry.observationApkEvidenceMatched).length,
+        actionSchemaTemplateCount: actionSchema.length,
+        actionSchemaMatched: isActionSchemaMatched(),
+        actionRoundTripMatched: isActionRoundTripMatched(),
         unverifiedApproximateScenarioCount: entries.filter(entry => entry.hasUnverifiedApproximateTerrain).length,
         smokePlies: options.smokePlies,
         smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
@@ -394,6 +464,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
         `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
         `- Observation APK 证据字段错配场景：${report.observationApkEvidenceMismatchCount}`,
+        `- 动作接口：schema 模板 ${report.actionSchemaTemplateCount} 个，schema 匹配 ${report.actionSchemaMatched ? '是' : '否'}，编码/解码往返 ${report.actionRoundTripMatched ? '通过' : '失败'}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
@@ -447,6 +518,7 @@ async function main() {
     const modeRuleMismatches = report.modeRuleMismatchCount > 0;
     const commanderRecruitRuleMismatches = report.commanderRecruitRuleMismatchCount > 0;
     const observationApkEvidenceMismatches = report.observationApkEvidenceMismatchCount > 0;
+    const actionSchemaMismatch = !report.actionSchemaMatched || !report.actionRoundTripMatched;
     const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
     const smokeFailures = report.smokeFailureCount > 0;
     if (options.check && (
@@ -457,6 +529,7 @@ async function main() {
         || modeRuleMismatches
         || commanderRecruitRuleMismatches
         || observationApkEvidenceMismatches
+        || actionSchemaMismatch
         || unverifiedApproximateScenarios
         || smokeFailures
     )) {

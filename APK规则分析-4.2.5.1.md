@@ -1048,7 +1048,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
-- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该报告会显示并门禁当前 SD 默认指挥官费用曲线 `400/400/400`、SO 禁用指挥官招募，以及训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段；官方是否存在死亡次数递增仍需实机验证。
+- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该报告会显示并门禁当前 SD 默认指挥官费用曲线 `400/400/400`、SO 禁用指挥官招募、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段，以及训练动作编码面；官方是否存在死亡次数递增仍需实机验证。
 - 验证：新增回归测试覆盖默认 40 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
 
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
@@ -1189,6 +1189,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - `AncientEmpiresEnv` 相关工具新增 `getActionSpaceSchema()`，输出当前结构化动作的字符串编码模板，覆盖移动、突击后移动、攻击、治疗、支援、召唤、城堡招募、招募后部署、占领、修理、摧毁城镇、待机、投降和结束回合。
 - 该 schema 是可变参数动作模板，不是固定全局离散动作表；每步可执行动作仍以当前局面的 `legalActions` 和 `actionMask` 为准。
+- `apk:training-report -- --check` 已把该 schema 和 `encodeAction/decodeAction` 全动作类型往返纳入门禁，当前为 14 个模板匹配且往返通过。
 - 这一步不改变 APK 规则结算，只让 AI 训练端能稳定发现当前 APK 对齐规则层暴露的动作编码面，避免外部训练脚本重复硬编码 `encodeAction/decodeAction` 细节。
 
 2026-06-30 APK skirmish 地图解密复核工具：

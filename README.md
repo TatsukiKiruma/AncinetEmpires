@@ -138,13 +138,13 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
+该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation APK 地形/单位证据字段错配 0 个，动作接口 schema 14 个模板匹配且编码/解码往返通过，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
 
 ## 待补充与未实现 (TODO List)
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
 - **指挥官死亡/复活完整规则**：DEX 字符串层未发现通用指挥官复活 API，当前仍不能确认 APK 的死亡后重招募价格递增和完整复活流程。
-- **固定全局动作空间 (Fixed Global Action Space)**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板；未来为了兼容 PPO 等强化学习框架，仍可能需要设计固定的稀疏动作矩阵编码。
+- **固定全局动作空间 (Fixed Global Action Space)**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板，并由 `apk:training-report -- --check` 门禁 schema 与 `encodeAction/decodeAction` 往返；未来为了兼容 PPO 等强化学习框架，仍可能需要设计固定的稀疏动作矩阵编码。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。
