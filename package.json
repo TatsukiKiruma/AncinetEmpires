@@ -12,6 +12,7 @@
     "apk:dex-report": "node --openssl-legacy-provider --import tsx tools/apk_dex_report.ts",
     "apk:terrain-report": "node --openssl-legacy-provider --import tsx tools/apk_terrain_report.ts",
     "apk:unit-report": "node --openssl-legacy-provider --import tsx tools/apk_unit_report.ts",
+    "apk:language-rule-report": "node --openssl-legacy-provider --import tsx tools/apk_language_rule_report.ts",
     "apk:skirmish-rule-report": "node --openssl-legacy-provider --import tsx tools/apk_skirmish_rule_report.ts",
     "apk:training-report": "node --openssl-legacy-provider --import tsx tools/apk_training_report.ts",
     "clean": "rm -rf dist server.js",

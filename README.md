@@ -110,6 +110,12 @@ npm run apk:unit-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 21 条单位记录，并和 `src/game/units.ts` 的战斗数值、成长、射程、人口和能力 ID 对比。当前复核结果为 21/21 单位记录匹配、项目单位配置差异 0；指挥官/骷髅/水晶价格和水晶移动力属于已记录的刻意差异。
 
+### 复核 APK 语言表能力规则
+```bash
+npm run apk:language-rule-report -- --check
+```
+该命令会读取 `APK/_analysis/unpack/assets/languages/en.lang`，复核关键能力/状态说明，并用当前引擎跑行为探针：支援排除规则、治疗超上限、毒攻击/致盲免疫、亡灵中毒回血、反击风暴 2 格反击、飞行越过地面单位且不吃地形防御、近战大师/远程防御/战意/死神等伤害修正、地形之子、自我修复、光环、大地之子移动、召唤/亡灵墓碑、致盲/虚弱/中毒状态等。当前复核结果为 16/16 检查通过。
+
 ### 复核 APK skirmish 对战行为
 ```bash
 npm run apk:skirmish-rule-report -- --check
