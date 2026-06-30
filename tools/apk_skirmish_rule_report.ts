@@ -646,6 +646,61 @@ function buildOverhealClippingActual() {
     };
 }
 
+function buildUndeadOverhealActual() {
+    const buildPoisonResult = (hp: number) => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        state.currentPlayer = 1;
+        const undead = state.units.find(unit => unit.ownerId === 0)!;
+        undead.unitClass = 'ghost';
+        undead.hp = hp;
+        undead.maxHp = 100;
+        undead.status = { type: 'poisoned', remainingTicks: 2 };
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'end_turn' });
+        const finalUnit = engine.getState().units.find(unit => unit.id === undead.id)!;
+
+        return {
+            hp: finalUnit.hp,
+            maxHp: finalUnit.maxHp,
+            remainingTicks: finalUnit.status?.type === 'poisoned'
+                ? finalUnit.status.remainingTicks ?? null
+                : null
+        };
+    };
+
+    const buildGraveResult = (hp: number) => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        state.currentPlayer = 0;
+        state.graves = [
+            { id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }
+        ];
+        const undead = state.units.find(unit => unit.ownerId === 0)!;
+        undead.unitClass = 'ghost';
+        undead.pos = { x: 0, y: 0 };
+        undead.hp = hp;
+        undead.maxHp = 100;
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'move', unitId: undead.id, to: { x: 0, y: 1 } });
+        const finalState = engine.getState();
+        const finalUnit = finalState.units.find(unit => unit.id === undead.id)!;
+
+        return {
+            hp: finalUnit.hp,
+            maxHp: finalUnit.maxHp,
+            graveCount: finalState.graves?.length ?? 0
+        };
+    };
+
+    return {
+        poison95: buildPoisonResult(95),
+        poison100: buildPoisonResult(100),
+        grave95: buildGraveResult(95),
+        grave100: buildGraveResult(100)
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -1087,6 +1142,20 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             undeadPoison: { hp: 130, maxHp: 100, remainingTicks: 1 }
         },
         buildOverhealClippingActual()
+    );
+
+    check(
+        checks,
+        'undead-overheal',
+        '当前默认亡灵被动回血上限',
+        'APK 语言表确认亡灵中毒/墓碑转回血 + 项目当前被动回血规则；官方是否可突破上限仍待实机验证',
+        {
+            poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },
+            poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
+            grave95: { hp: 100, maxHp: 100, graveCount: 0 },
+            grave100: { hp: 100, maxHp: 100, graveCount: 0 }
+        },
+        buildUndeadOverhealActual()
     );
 
     check(
