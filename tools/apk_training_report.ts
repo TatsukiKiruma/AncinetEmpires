@@ -19,7 +19,7 @@ import {
     getApkSkirmishTrainingScenarios,
     type ApkSkirmishTrainingScenario
 } from '../src/game/apk_skirmish';
-import type { Action } from '../src/game/types';
+import type { Action, ApkSkirmishMode, UnitClass } from '../src/game/types';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
 interface CliOptions {
@@ -54,6 +54,7 @@ interface TrainingScenarioReportEntry {
     commanderInitialRecruitCosts: (number | null)[];
     commanderRecruitCostProfile: (number | null)[];
     commanderRecruitRuleMatched: boolean;
+    recruitEconomyMatched: boolean;
     observationApkEvidenceMatched: boolean;
     smokeRequestedPlies: number;
     smokeExecutedPlies: number;
@@ -74,6 +75,7 @@ interface ApkTrainingReport {
     zeroLegalActionCount: number;
     modeRuleMismatchCount: number;
     commanderRecruitRuleMismatchCount: number;
+    recruitEconomyMismatchCount: number;
     observationApkEvidenceMismatchCount: number;
     actionMaskMismatchCount: number;
     smokeActionMaskMismatchCount: number;
@@ -105,6 +107,38 @@ const EXPECTED_ACTION_SPACE_SCHEMA = [
     'surrender',
     'end_turn'
 ] as const;
+const EXPECTED_SD_RECRUIT_ECONOMY: ReadonlyArray<{ unitClass: UnitClass; cost: number }> = [
+    { unitClass: 'commander', cost: 400 },
+    { unitClass: 'soldier', cost: 150 },
+    { unitClass: 'ghost', cost: 200 },
+    { unitClass: 'mermaid', cost: 200 },
+    { unitClass: 'archer', cost: 250 },
+    { unitClass: 'slime', cost: 250 },
+    { unitClass: 'dark_mage', cost: 300 },
+    { unitClass: 'water_elemental', cost: 300 },
+    { unitClass: 'paladin', cost: 400 },
+    { unitClass: 'witch', cost: 400 },
+    { unitClass: 'berserker', cost: 500 },
+    { unitClass: 'elf', cost: 500 },
+    { unitClass: 'wolf', cost: 600 },
+    { unitClass: 'ice_elemental', cost: 600 },
+    { unitClass: 'golem', cost: 600 },
+    { unitClass: 'druid', cost: 600 },
+    { unitClass: 'catapult', cost: 800 },
+    { unitClass: 'wolf_archer', cost: 800 },
+    { unitClass: 'dragon', cost: 1000 }
+];
+const EXPECTED_SO_RECRUIT_ECONOMY: ReadonlyArray<{ unitClass: UnitClass; cost: number }> = [
+    { unitClass: 'soldier', cost: 150 },
+    { unitClass: 'archer', cost: 250 },
+    { unitClass: 'water_elemental', cost: 300 },
+    { unitClass: 'witch', cost: 400 },
+    { unitClass: 'elf', cost: 500 },
+    { unitClass: 'wolf', cost: 600 },
+    { unitClass: 'golem', cost: 600 },
+    { unitClass: 'catapult', cost: 800 },
+    { unitClass: 'dragon', cost: 1000 }
+];
 
 function printHelp() {
     console.log(`用法: npm run apk:training-report -- [选项]
@@ -232,6 +266,30 @@ function buildCommanderRecruitCostProfile(
 
 function sameCostProfile(left: readonly (number | null)[], right: readonly (number | null)[]): boolean {
     return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function getExpectedRecruitEconomy(mode: ApkSkirmishMode): ReadonlyArray<{ unitClass: UnitClass; cost: number }> {
+    return mode === 'SD' ? EXPECTED_SD_RECRUIT_ECONOMY : EXPECTED_SO_RECRUIT_ECONOMY;
+}
+
+function hasMatchingRecruitEconomy(
+    observation: Observation,
+    mode: ApkSkirmishMode
+): boolean {
+    const expected = getExpectedRecruitEconomy(mode);
+    const expectedUnits = expected.map(entry => entry.unitClass);
+    const expectedCosts = Object.fromEntries(
+        expected.map(entry => [entry.unitClass, entry.cost])
+    ) as Partial<Record<UnitClass, number>>;
+
+    return (
+        arraysEqual(observation.rules.recruitableUnits ?? [], expectedUnits)
+        && observation.players.every(player => (
+            arraysEqual(player.recruitableUnits, expectedUnits)
+            && expected.every(entry => player.recruitCosts[entry.unitClass] === expectedCosts[entry.unitClass])
+            && Object.keys(player.recruitCosts).length === expected.length
+        ))
+    );
 }
 
 function buildActionRoundTripSamples(): Action[] {
@@ -433,6 +491,7 @@ function buildScenarioReportEntry(
         commanderInitialRecruitCosts,
         commanderRecruitCostProfile,
         commanderRecruitRuleMatched,
+        recruitEconomyMatched: hasMatchingRecruitEconomy(observation, scenario.mode),
         observationApkEvidenceMatched: hasCompleteObservationApkEvidence(observation),
         ...smoke
     };
@@ -462,6 +521,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
         modeRuleMismatchCount: entries.filter(entry => !entry.modeRuleMatched).length,
         commanderRecruitRuleMismatchCount: entries.filter(entry => !entry.commanderRecruitRuleMatched).length,
+        recruitEconomyMismatchCount: entries.filter(entry => !entry.recruitEconomyMatched).length,
         observationApkEvidenceMismatchCount: entries.filter(entry => !entry.observationApkEvidenceMatched).length,
         actionMaskMismatchCount: entries.filter(entry => !entry.actionMaskMatched).length,
         smokeActionMaskMismatchCount: entries.filter(entry => !entry.smokeActionMaskMatched).length,
@@ -489,6 +549,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}`,
         `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
         `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
+        `- Observation 招募经济错配场景：${report.recruitEconomyMismatchCount}`,
         `- Observation APK 证据字段错配场景：${report.observationApkEvidenceMismatchCount}`,
         `- actionMask 错配场景：初始 ${report.actionMaskMismatchCount} 个，smoke ${report.smokeActionMaskMismatchCount} 个`,
         `- 动作接口：schema 模板 ${report.actionSchemaTemplateCount} 个，schema 匹配 ${report.actionSchemaMatched ? '是' : '否'}，编码/解码往返 ${report.actionRoundTripMatched ? '通过' : '失败'}`,
@@ -496,8 +557,8 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | smoke | 可招募 | 指挥官费用 | 模式规则 | APK 观测 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | ---: | --- | --- | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | smoke | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -518,6 +579,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
                 : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
             scenario.recruitableUnitCount ?? '-',
             `${formatCostProfile(scenario.commanderRecruitCostProfile)} ${scenario.commanderRecruitRuleMatched ? '是' : '否'}`,
+            scenario.recruitEconomyMatched ? '是' : '否',
             scenario.modeRuleMatched ? '是' : '否',
             scenario.observationApkEvidenceMatched ? '是' : '否',
             scenario.manifestMatched ? '是' : '否',
@@ -545,6 +607,7 @@ async function main() {
     const zeroLegalActions = report.zeroLegalActionCount > 0;
     const modeRuleMismatches = report.modeRuleMismatchCount > 0;
     const commanderRecruitRuleMismatches = report.commanderRecruitRuleMismatchCount > 0;
+    const recruitEconomyMismatches = report.recruitEconomyMismatchCount > 0;
     const observationApkEvidenceMismatches = report.observationApkEvidenceMismatchCount > 0;
     const actionMaskMismatches = report.actionMaskMismatchCount > 0 || report.smokeActionMaskMismatchCount > 0;
     const actionSchemaMismatch = !report.actionSchemaMatched || !report.actionRoundTripMatched;
@@ -557,6 +620,7 @@ async function main() {
         || zeroLegalActions
         || modeRuleMismatches
         || commanderRecruitRuleMismatches
+        || recruitEconomyMismatches
         || observationApkEvidenceMismatches
         || actionMaskMismatches
         || actionSchemaMismatch
