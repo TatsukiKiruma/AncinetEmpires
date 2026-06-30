@@ -423,6 +423,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/recruitCosts/commanderUnitId`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限、可招募列表、当前招募费用和队伍指挥官。
 - 每格 `terrainId/ownerId`。
 - 每格 APK 当前字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。
+- 地图级 APK tile 映射可信度摘要：`terrainMappingSummary.apkTileCount/byConfidence/apkTerrainUsage/approximateApkTerrainIds/unmappedApkTerrainIds`，用于快速识别整张地图是否含低可信或未映射 tile。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
 - 单位位置、血量、等级、经验、状态、行动状态。

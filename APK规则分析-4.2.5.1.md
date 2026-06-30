@@ -1121,6 +1121,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该字段只是只读观测快照，不改变移动、防御、回血、招募、占领、收入或胜负判定。
 - 验证：新增回归测试覆盖 confirmed、atlas、approximate 三类 evidence，并确认修改 Observation 快照不会污染环境状态。
 
+2026-06-30 APK tile 映射可信度摘要进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation()` 新增 `terrainMappingSummary`，当地图存在 APK tile 时输出 `apkTileCount/byConfidence/apkTerrainUsage/approximateApkTerrainIds/unmappedApkTerrainIds`。
+- 该摘要按整张地图统计 confirmed、atlas、approximate、unmapped tile 数量，并列出低可信和未映射的 APK tile ID，便于训练管线按地图粒度过滤、降权或标记样本。
+- 该字段只是只读观测摘要，不改变地形映射、移动、防御、回血、招募、占领、收入或胜负判定。
+- 验证：新增回归测试覆盖 atlas、approximate 和 synthetic unmapped tile 的摘要输出。
+
 2026-06-29 APK 城镇摧毁/修理 linked tile 同步：
 
 - `data.bin` 已确认 `t36.linkedB=27`，对应村庄被摧毁后的废墟；`t27.linkedC=36`，对应废墟修理回村庄。

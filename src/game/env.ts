@@ -16,6 +16,14 @@ export function mulberry32(a: number): () => number {
   }
 }
 
+export interface TerrainMappingSummary {
+  apkTileCount: number;
+  byConfidence: Record<ApkTerrainMappingConfidence, number>;
+  apkTerrainUsage: Record<number, number>;
+  approximateApkTerrainIds: number[];
+  unmappedApkTerrainIds: number[];
+}
+
 export interface Observation {
   currentPlayer: number;
   pendingUnitId?: string;
@@ -24,6 +32,7 @@ export interface Observation {
   mapWidth: number;
   mapHeight: number;
   metadata?: GameMetadata;
+  terrainMappingSummary?: TerrainMappingSummary;
   apkScriptState?: ApkScriptState;
   rules: {
     initialGold: number | null;
@@ -186,6 +195,52 @@ function estimatePlyCount(state: GameState): number {
     return Math.max(0, state.turn - 1) * playerCount + currentIndex + 1;
 }
 
+function buildTerrainMappingSummary(state: GameState): TerrainMappingSummary | undefined {
+    const byConfidence: Record<ApkTerrainMappingConfidence, number> = {
+        confirmed: 0,
+        atlas: 0,
+        approximate: 0,
+        unmapped: 0
+    };
+    const apkTerrainUsage: Record<number, number> = {};
+    const approximateApkTerrainIds = new Set<number>();
+    const unmappedApkTerrainIds = new Set<number>();
+    let apkTileCount = 0;
+
+    for (const row of state.map.tiles) {
+        for (const tile of row) {
+            if (tile.apkTerrainId === undefined) continue;
+            apkTileCount += 1;
+            apkTerrainUsage[tile.apkTerrainId] = (apkTerrainUsage[tile.apkTerrainId] ?? 0) + 1;
+
+            const mappingInfo = getSkirmishApkTerrainMappingInfo(tile.apkTerrainId);
+            byConfidence[mappingInfo.confidence] += 1;
+            if (mappingInfo.confidence === 'approximate') {
+                approximateApkTerrainIds.add(tile.apkTerrainId);
+            }
+            if (mappingInfo.confidence === 'unmapped') {
+                unmappedApkTerrainIds.add(tile.apkTerrainId);
+            }
+        }
+    }
+
+    if (apkTileCount === 0) return undefined;
+
+    const sortedUsage = Object.fromEntries(
+        Object.entries(apkTerrainUsage)
+            .map(([apkTerrainId, count]) => [Number(apkTerrainId), count] as const)
+            .sort(([left], [right]) => left - right)
+    ) as Record<number, number>;
+
+    return {
+        apkTileCount,
+        byConfidence,
+        apkTerrainUsage: sortedUsage,
+        approximateApkTerrainIds: [...approximateApkTerrainIds].sort((a, b) => a - b),
+        unmappedApkTerrainIds: [...unmappedApkTerrainIds].sort((a, b) => a - b)
+    };
+}
+
 function evaluateTimeoutWinnerAlliance(state: GameState): number {
     const valuesByAlliance = new Map<number, number>();
     for (const playerId of getTurnPlayerIds(state)) {
@@ -331,6 +386,7 @@ export class AncientEmpiresEnv {
   public getObservation(playerId?: number): Observation {
       const state = this.engine.getState();
       const rules = getRuleConfig(state);
+      const terrainMappingSummary = buildTerrainMappingSummary(state);
       return {
           currentPlayer: state.currentPlayer,
           pendingUnitId: state.pendingUnitId,
@@ -339,6 +395,7 @@ export class AncientEmpiresEnv {
           mapWidth: state.map.width,
           mapHeight: state.map.height,
           metadata: state.metadata ? { ...state.metadata } : undefined,
+          ...(terrainMappingSummary ? { terrainMappingSummary } : {}),
           apkScriptState: state.apkScriptState ? {
               booleans: state.apkScriptState.booleans ? { ...state.apkScriptState.booleans } : undefined,
               integers: state.apkScriptState.integers ? { ...state.apkScriptState.integers } : undefined

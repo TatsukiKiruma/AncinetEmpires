@@ -603,7 +603,24 @@ describe('GameEngine Rules', () => {
         expect(getTileDefenseBonus(apkHighDefenseTile)).toBe(20);
 
         const env = new AncientEmpiresEnv({ initialState: state });
-        const apkTileObservation = env.getObservation().tiles.find(tile => tile.x === 1 && tile.y === 0)!;
+        const observation = env.getObservation();
+        expect(observation.terrainMappingSummary).toEqual({
+            apkTileCount: 2,
+            byConfidence: {
+                confirmed: 0,
+                atlas: 1,
+                approximate: 1,
+                unmapped: 0
+            },
+            apkTerrainUsage: {
+                0: 1,
+                31: 1
+            },
+            approximateApkTerrainIds: [31],
+            unmappedApkTerrainIds: []
+        });
+
+        const apkTileObservation = observation.tiles.find(tile => tile.x === 1 && tile.y === 0)!;
         expect(apkTileObservation).toEqual(expect.objectContaining({
             terrainId: 2,
             ruleTerrainId: 2,
@@ -616,7 +633,7 @@ describe('GameEngine Rules', () => {
             defenseBonus: 0,
             healPerTurn: 3
         }));
-        const apkApproximateTileObservation = env.getObservation().tiles.find(tile => tile.x === 2 && tile.y === 0)!;
+        const apkApproximateTileObservation = observation.tiles.find(tile => tile.x === 2 && tile.y === 0)!;
         expect(apkApproximateTileObservation).toEqual(expect.objectContaining({
             terrainId: 12,
             ruleTerrainId: 12,
@@ -629,6 +646,23 @@ describe('GameEngine Rules', () => {
             defenseBonus: 10,
             healPerTurn: 20
         }));
+
+        const unmappedState = createDemoState();
+        unmappedState.map.tiles[0][0] = { terrainId: 6, ownerId: null, apkTerrainId: 999 };
+        expect(new AncientEmpiresEnv({ initialState: unmappedState }).getObservation().terrainMappingSummary).toEqual({
+            apkTileCount: 1,
+            byConfidence: {
+                confirmed: 0,
+                atlas: 0,
+                approximate: 0,
+                unmapped: 1
+            },
+            apkTerrainUsage: {
+                999: 1
+            },
+            approximateApkTerrainIds: [],
+            unmappedApkTerrainIds: [999]
+        });
 
         const apkWaterTileAsRoad = { terrainId: 6 as const, ownerId: null, apkTerrainId: 2 };
         const apkForestTileAsRoad = { terrainId: 6 as const, ownerId: null, apkTerrainId: 15 };
