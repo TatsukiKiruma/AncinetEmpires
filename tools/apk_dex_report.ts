@@ -72,6 +72,20 @@ export interface DexKeywordGroupReport {
     matches: string[];
 }
 
+export interface DexKeyRuleMethodEvidence extends DexMethodSignature {
+    id: string;
+    label: string;
+    methodIndex: number;
+    codeOffset: number;
+    expectedStateLiteral: number | null;
+    literalInts: number[];
+    referencedStrings: string[];
+    referencedFields: string[];
+    referencedMethods: string[];
+    matchedExpectations: string[];
+    missingExpectations: string[];
+}
+
 interface ApkDexReport {
     apkVersion: string;
     dexPath: string;
@@ -83,6 +97,7 @@ interface ApkDexReport {
     methodSignatures: DexMethodSignature[];
     stringReferenceMethods: DexStringReferenceMethod[];
     ruleDefaultIncomeEvidence: DexRuleDefaultIncomeEvidence;
+    keyRuleMethodEvidence: DexKeyRuleMethodEvidence[];
     commanderReviveApiCandidates: string[];
     keywordGroups: DexKeywordGroupReport[];
 }
@@ -147,6 +162,45 @@ const EXPECTED_RULE_DEFAULT_INCOME = {
     commanderBaseDefault: 50,
     commanderGrowthDefault: 25
 } as const;
+
+const KEY_RULE_METHOD_EXPECTATIONS = [
+    {
+        id: 'attack-action-validation',
+        label: '攻击动作校验',
+        classDescriptor: 'Lc/a/b/a/l;',
+        name: 'i',
+        parameterTypes: ['I', 'I'],
+        expectedStateLiteral: 2,
+        expectedStrings: ['Cannot attack from (', 'Cannot attack in state ['],
+        expectedFields: ['Lc/a/b/a/t/e;.a:I'],
+        expectedMethods: [
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,I,I):Z',
+            'Lc/a/b/a/q;.m(Lc/a/b/a/t/f;):Lc/a/b/a/s/b;'
+        ]
+    },
+    {
+        id: 'support-action-validation',
+        label: '支援动作校验',
+        classDescriptor: 'Lc/a/b/a/l;',
+        name: 'm',
+        parameterTypes: ['I', 'I'],
+        expectedStateLiteral: 2,
+        expectedStrings: ['Cannot support from (', 'Cannot support in state ['],
+        expectedFields: ['Lc/a/b/a/t/e;.a:I'],
+        expectedMethods: ['Lc/a/b/a/q;.h(Lc/a/b/a/t/f;,I,I):Z']
+    },
+    {
+        id: 'recruit-pending-validation',
+        label: '招募 pending/堆叠校验',
+        classDescriptor: 'Lc/a/b/a/l;',
+        name: 'c',
+        parameterTypes: ['I', 'I', 'I'],
+        expectedStateLiteral: 1,
+        expectedStrings: ['Cannot recruit when stacked!'],
+        expectedFields: ['Lc/a/b/a/t/a;.d:Lc/a/b/a/t/f;'],
+        expectedMethods: ['Lc/a/b/a/q;.b(I,I,I):Z']
+    }
+] as const;
 
 const KEYWORD_GROUPS = [
     {
@@ -699,6 +753,159 @@ function readDexReferencedStringIndexes(buffer: Buffer, classMethod: DexClassMet
     return references;
 }
 
+function getDexCodeBounds(buffer: Buffer, classMethod: DexClassMethod) {
+    if (classMethod.codeOffset === 0) return null;
+    const codeOffset = classMethod.codeOffset;
+    if (codeOffset + 16 > buffer.length) {
+        throw new Error(`DEX code_item 越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    const instructionCount = buffer.readUInt32LE(codeOffset + 12);
+    const instructionsOffset = codeOffset + 16;
+    const instructionsEnd = instructionsOffset + instructionCount * 2;
+    if (instructionsEnd > buffer.length) {
+        throw new Error(`DEX code_item 指令区越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    return {
+        instructionCount,
+        instructionsOffset,
+        instructionsEnd
+    };
+}
+
+function formatDexFieldDescriptor(field: DexFieldId): string {
+    return `${field.classDescriptor}.${field.name}:${field.typeDescriptor}`;
+}
+
+function formatDexMethodDescriptor(method: DexMethodSignature): string {
+    return `${method.classDescriptor}.${method.name}(${method.parameterTypes.join(',')}):${method.returnType}`;
+}
+
+function getDexInstructionWidth(opcode: number): number {
+    if (
+        opcode === 0x00
+        || (opcode >= 0x01 && opcode <= 0x01)
+        || (opcode >= 0x04 && opcode <= 0x04)
+        || (opcode >= 0x07 && opcode <= 0x07)
+        || (opcode >= 0x0a && opcode <= 0x12)
+        || (opcode >= 0x1d && opcode <= 0x1e)
+        || opcode === 0x27
+        || opcode === 0x28
+        || (opcode >= 0x3e && opcode <= 0x43)
+        || (opcode >= 0x7b && opcode <= 0x8f)
+        || (opcode >= 0xb0 && opcode <= 0xcf)
+    ) {
+        return 1;
+    }
+    if (
+        opcode === 0x02
+        || opcode === 0x05
+        || opcode === 0x08
+        || opcode === 0x13
+        || opcode === 0x15
+        || opcode === 0x16
+        || opcode === 0x19
+        || opcode === 0x1a
+        || opcode === 0x1c
+        || (opcode >= 0x1f && opcode <= 0x23)
+        || opcode === 0x29
+        || (opcode >= 0x2d && opcode <= 0x3d)
+        || (opcode >= 0x44 && opcode <= 0x6d)
+        || (opcode >= 0x90 && opcode <= 0xaf)
+        || (opcode >= 0xd0 && opcode <= 0xe2)
+    ) {
+        return 2;
+    }
+    if (
+        opcode === 0x03
+        || opcode === 0x06
+        || opcode === 0x09
+        || opcode === 0x14
+        || opcode === 0x17
+        || opcode === 0x1b
+        || opcode === 0x24
+        || opcode === 0x25
+        || opcode === 0x26
+        || opcode === 0x2a
+        || opcode === 0x2b
+        || opcode === 0x2c
+        || (opcode >= 0x6e && opcode <= 0x78)
+    ) {
+        return 3;
+    }
+    if (opcode === 0x18) {
+        return 5;
+    }
+
+    // 未使用或版本扩展 opcode 按 1 个 code unit 保守前进，避免整个报告因未知指令中断。
+    return 1;
+}
+
+function readDexCodeReferenceSummary(
+    buffer: Buffer,
+    strings: readonly string[],
+    fields: readonly DexFieldId[],
+    methods: readonly DexMethodId[],
+    classMethod: DexClassMethod
+) {
+    const bounds = getDexCodeBounds(buffer, classMethod);
+    const referencedStrings = new Set<string>();
+    const referencedFields = new Set<string>();
+    const referencedMethods = new Set<string>();
+    const literalInts = new Set<number>();
+    if (!bounds) {
+        return {
+            referencedStrings: [],
+            referencedFields: [],
+            referencedMethods: [],
+            literalInts: []
+        };
+    }
+
+    const { instructionCount, instructionsOffset, instructionsEnd } = bounds;
+    for (let pc = 0; pc < instructionCount;) {
+        const offset = instructionsOffset + pc * 2;
+        const firstUnit = buffer.readUInt16LE(offset);
+        const opcode = firstUnit & 0xff;
+        const highByte = firstUnit >>> 8;
+        const width = getDexInstructionWidth(opcode);
+
+        if (opcode === 0x12) {
+            const rawLiteral = highByte >>> 4;
+            literalInts.add(rawLiteral >= 8 ? rawLiteral - 16 : rawLiteral);
+        } else if (opcode === 0x13 && offset + 4 <= instructionsEnd) {
+            literalInts.add(buffer.readInt16LE(offset + 2));
+        } else if (opcode === 0x14 && offset + 6 <= instructionsEnd) {
+            literalInts.add(buffer.readInt32LE(offset + 2));
+        } else if (opcode === 0x1a && offset + 4 <= instructionsEnd) {
+            const value = strings[buffer.readUInt16LE(offset + 2)];
+            if (value !== undefined) referencedStrings.add(value);
+        } else if (opcode === 0x1b && offset + 6 <= instructionsEnd) {
+            const value = strings[buffer.readUInt32LE(offset + 2)];
+            if (value !== undefined) referencedStrings.add(value);
+        } else if (opcode >= 0x52 && opcode <= 0x6d && offset + 4 <= instructionsEnd) {
+            const field = fields[buffer.readUInt16LE(offset + 2)];
+            if (field !== undefined) referencedFields.add(formatDexFieldDescriptor(field));
+        } else if (
+            ((opcode >= 0x6e && opcode <= 0x72) || (opcode >= 0x74 && opcode <= 0x78))
+            && offset + 4 <= instructionsEnd
+        ) {
+            const method = methods[buffer.readUInt16LE(offset + 2)];
+            if (method !== undefined) referencedMethods.add(formatDexMethodDescriptor(method));
+        }
+
+        pc += width;
+    }
+
+    return {
+        referencedStrings: uniqueSorted([...referencedStrings]),
+        referencedFields: uniqueSorted([...referencedFields]),
+        referencedMethods: uniqueSorted([...referencedMethods]),
+        literalInts: [...literalInts].sort((left, right) => left - right)
+    };
+}
+
 export function parseDexStringReferenceMethods(
     buffer: Buffer,
     targetStrings: readonly string[]
@@ -854,6 +1061,74 @@ export function parseDexRuleDefaultIncomeEvidence(buffer: Buffer): DexRuleDefaul
     };
 }
 
+export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodEvidence[] {
+    const strings = parseDexStrings(buffer);
+    const types = parseDexTypes(buffer, strings);
+    const protos = parseDexProtos(buffer, types);
+    const fields = parseDexFields(buffer, strings, types);
+    const methods = parseDexMethodIds(buffer, strings, types, protos);
+    const classMethods = readDexClassDataMethods(buffer, 'Lc/a/b/a/l;', types, methods);
+
+    return KEY_RULE_METHOD_EXPECTATIONS.map(expectation => {
+        const classMethod = classMethods.find(entry => (
+            entry.method.classDescriptor === expectation.classDescriptor
+            && entry.method.name === expectation.name
+            && entry.method.parameterTypes.length === expectation.parameterTypes.length
+            && entry.method.parameterTypes.every((value, index) => value === expectation.parameterTypes[index])
+        ));
+        if (!classMethod) {
+            throw new Error(`DEX 未找到关键规则方法: ${expectation.classDescriptor}.${expectation.name}`);
+        }
+
+        const summary = readDexCodeReferenceSummary(buffer, strings, fields, methods, classMethod);
+        const matchedExpectations: string[] = [];
+        const missingExpectations: string[] = [];
+        const checkExpectation = (kind: string, value: string, exists: boolean) => {
+            const formatted = `${kind}:${value}`;
+            if (exists) {
+                matchedExpectations.push(formatted);
+            } else {
+                missingExpectations.push(formatted);
+            }
+        };
+
+        for (const value of expectation.expectedStrings) {
+            checkExpectation('string', value, summary.referencedStrings.includes(value));
+        }
+        for (const value of expectation.expectedFields) {
+            checkExpectation('field', value, summary.referencedFields.includes(value));
+        }
+        for (const value of expectation.expectedMethods) {
+            checkExpectation('method', value, summary.referencedMethods.includes(value));
+        }
+        if (expectation.expectedStateLiteral !== null) {
+            checkExpectation(
+                'state',
+                String(expectation.expectedStateLiteral),
+                summary.literalInts.includes(expectation.expectedStateLiteral)
+            );
+        }
+
+        return {
+            id: expectation.id,
+            label: expectation.label,
+            methodIndex: classMethod.methodIndex,
+            codeOffset: classMethod.codeOffset,
+            classDescriptor: classMethod.method.classDescriptor,
+            name: classMethod.method.name,
+            returnType: classMethod.method.returnType,
+            parameterTypes: [...classMethod.method.parameterTypes],
+            expectedStateLiteral: expectation.expectedStateLiteral,
+            literalInts: summary.literalInts,
+            referencedStrings: summary.referencedStrings,
+            referencedFields: summary.referencedFields,
+            referencedMethods: summary.referencedMethods,
+            matchedExpectations: uniqueSorted(matchedExpectations),
+            missingExpectations: uniqueSorted(missingExpectations)
+        };
+    });
+}
+
 function uniqueSorted(values: readonly string[]): string[] {
     return [...new Set(values)].sort((left, right) => left.localeCompare(right));
 }
@@ -883,6 +1158,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
     const methodNameSet = new Set(methodSignatures.map(method => method.name));
     const stringReferenceMethods = parseDexStringReferenceMethods(dex, REQUIRED_STRING_REFERENCE_VALUES);
     const ruleDefaultIncomeEvidence = parseDexRuleDefaultIncomeEvidence(dex);
+    const keyRuleMethodEvidence = parseDexKeyRuleMethodEvidence(dex);
     const commanderReviveApiCandidates = uniqueSorted(strings.filter(value => COMMANDER_REVIVE_API_PATTERN.test(value)));
 
     return {
@@ -896,6 +1172,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
         methodSignatures,
         stringReferenceMethods,
         ruleDefaultIncomeEvidence,
+        keyRuleMethodEvidence,
         commanderReviveApiCandidates,
         keywordGroups: buildKeywordReports(strings)
     };
@@ -912,6 +1189,7 @@ function renderMarkdown(report: ApkDexReport): string {
         `- 必要方法名缺失：${report.missingRequiredMethodNames.length}`,
         `- 关键字符串引用方法：${report.stringReferenceMethods.length}`,
         `- 默认指挥官收入：base=${report.ruleDefaultIncomeEvidence.commanderBaseDefault}, growth=${report.ruleDefaultIncomeEvidence.commanderGrowthDefault}`,
+        `- 关键规则方法证据：${report.keyRuleMethodEvidence.length} 个方法，缺失期望 ${report.keyRuleMethodEvidence.reduce((sum, item) => sum + item.missingExpectations.length, 0)} 项`,
         `- 疑似指挥官复活 API 字符串：${report.commanderReviveApiCandidates.length}`,
         '',
         '## 关键词分组',
@@ -942,6 +1220,31 @@ function renderMarkdown(report: ApkDexReport): string {
         `| \`${report.ruleDefaultIncomeEvidence.commanderBaseSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderBaseField}\` | ${report.ruleDefaultIncomeEvidence.commanderBaseDefault} |`,
         `| \`${report.ruleDefaultIncomeEvidence.commanderGrowthSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderGrowthField}\` | ${report.ruleDefaultIncomeEvidence.commanderGrowthDefault} |`
     );
+
+    lines.push(
+        '',
+        '## 攻击/支援/招募关键方法证据',
+        '',
+        '| 规则点 | 方法 | 状态字面量 | 关键字段 | 关键调用 | 关键字符串 | 缺失期望 |',
+        '| --- | --- | ---: | --- | --- | --- | --- |'
+    );
+
+    for (const evidence of report.keyRuleMethodEvidence) {
+        const method = `${evidence.classDescriptor}.${evidence.name}(${evidence.parameterTypes.join(',')})`;
+        const fields = evidence.referencedFields.length > 0
+            ? evidence.referencedFields.map(value => `\`${value}\``).join('<br>')
+            : '-';
+        const methods = evidence.referencedMethods.length > 0
+            ? evidence.referencedMethods.map(value => `\`${value}\``).join('<br>')
+            : '-';
+        const strings = evidence.referencedStrings.length > 0
+            ? evidence.referencedStrings.map(value => `\`${value}\``).join('<br>')
+            : '-';
+        const missing = evidence.missingExpectations.length > 0
+            ? evidence.missingExpectations.map(value => `\`${value}\``).join('<br>')
+            : '-';
+        lines.push(`| ${evidence.label} | \`${method}\` | ${evidence.expectedStateLiteral ?? '-'} | ${fields} | ${methods} | ${strings} | ${missing} |`);
+    }
 
     lines.push('', '## 关键字符串引用方法', '', '| 字符串 | 方法 | 类 | 参数 | code offset |', '| --- | --- | --- | --- | ---: |');
 
@@ -1004,6 +1307,8 @@ async function main() {
             || new Set(report.stringReferenceMethods.map(reference => reference.string)).size !== REQUIRED_STRING_REFERENCE_VALUES.length
             || report.ruleDefaultIncomeEvidence.commanderBaseDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderBaseDefault
             || report.ruleDefaultIncomeEvidence.commanderGrowthDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderGrowthDefault
+            || report.keyRuleMethodEvidence.length !== KEY_RULE_METHOD_EXPECTATIONS.length
+            || report.keyRuleMethodEvidence.some(evidence => evidence.missingExpectations.length > 0)
             || report.commanderReviveApiCandidates.length > 0
         )
     ) {

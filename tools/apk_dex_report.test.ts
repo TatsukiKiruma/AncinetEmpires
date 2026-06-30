@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     buildKeywordReports,
+    parseDexKeyRuleMethodEvidence,
     parseDexMethodSignatures,
     parseDexRuleDefaultIncomeEvidence,
     parseDexStringReferenceMethods,
@@ -391,6 +392,168 @@ function createMinimalStringReferenceDex(): Buffer {
     return buffer;
 }
 
+function createMinimalKeyRuleMethodDex(): Buffer {
+    const strings = [
+        'Lc/a/b/a/l;',
+        'Lc/a/b/a/q;',
+        'Lc/a/b/a/t/e;',
+        'Lc/a/b/a/t/a;',
+        'Lc/a/b/a/t/f;',
+        'Lc/a/b/a/s/b;',
+        'I',
+        'V',
+        'Z',
+        'i',
+        'm',
+        'c',
+        'a',
+        'h',
+        'b',
+        'd',
+        'Cannot attack from (',
+        'Cannot attack in state [',
+        'Cannot support from (',
+        'Cannot support in state [',
+        'Cannot recruit when stacked!'
+    ];
+    const typeStringIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const protos = [
+        { returnTypeIndex: 7, parameterTypeIndexes: [6, 6] },
+        { returnTypeIndex: 7, parameterTypeIndexes: [6, 6, 6] },
+        { returnTypeIndex: 8, parameterTypeIndexes: [4, 6, 6] },
+        { returnTypeIndex: 5, parameterTypeIndexes: [4] },
+        { returnTypeIndex: 8, parameterTypeIndexes: [6, 6, 6] }
+    ];
+    const fields = [
+        { classIndex: 2, typeIndex: 6, nameStringIndex: 12 },
+        { classIndex: 3, typeIndex: 4, nameStringIndex: 15 }
+    ];
+    const methods = [
+        { classIndex: 0, protoIndex: 0, nameStringIndex: 9 },
+        { classIndex: 0, protoIndex: 0, nameStringIndex: 10 },
+        { classIndex: 0, protoIndex: 1, nameStringIndex: 11 },
+        { classIndex: 1, protoIndex: 2, nameStringIndex: 12 },
+        { classIndex: 1, protoIndex: 3, nameStringIndex: 10 },
+        { classIndex: 1, protoIndex: 2, nameStringIndex: 13 },
+        { classIndex: 1, protoIndex: 4, nameStringIndex: 14 }
+    ];
+    const typeLists = protos.map(proto => createTypeList(proto.parameterTypeIndexes));
+    const stringDataItems = strings.map(createDexString);
+    const headerSize = 0x70;
+    const stringIdsOffset = headerSize;
+    const typeIdsOffset = stringIdsOffset + strings.length * 4;
+    const protoIdsOffset = typeIdsOffset + typeStringIndexes.length * 4;
+    const fieldIdsOffset = protoIdsOffset + protos.length * 12;
+    const methodIdsOffset = fieldIdsOffset + fields.length * 8;
+    const classDefsOffset = methodIdsOffset + methods.length * 8;
+    const typeListsOffset = classDefsOffset + 32;
+    const stringDataOffset = typeListsOffset + typeLists.reduce((sum, item) => sum + item.length, 0);
+    const rawStringDataEnd = stringDataOffset + stringDataItems.reduce((sum, item) => sum + item.length, 0);
+    const attackCodeOffset = alignToFour(rawStringDataEnd);
+    const attackCode = createCodeItem(4, 3, [
+        0x2012,
+        0x0052, 0,
+        0x001a, 16,
+        0x001a, 17,
+        0x006e, 3, 0,
+        0x006e, 4, 0,
+        0x000e
+    ]);
+    const supportCodeOffset = alignToFour(attackCodeOffset + attackCode.length);
+    const supportCode = createCodeItem(4, 3, [
+        0x2012,
+        0x0052, 0,
+        0x001a, 18,
+        0x001a, 19,
+        0x006e, 5, 0,
+        0x000e
+    ]);
+    const recruitCodeOffset = alignToFour(supportCodeOffset + supportCode.length);
+    const recruitCode = createCodeItem(5, 4, [
+        0x1012,
+        0x0052, 1,
+        0x001a, 20,
+        0x006e, 6, 0,
+        0x000e
+    ]);
+    const classData = Buffer.from([
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(3),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(attackCodeOffset),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(supportCodeOffset),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(recruitCodeOffset)
+    ]);
+    const classDataOffset = alignToFour(recruitCodeOffset + recruitCode.length);
+    const totalSize = classDataOffset + classData.length;
+    const buffer = Buffer.alloc(totalSize);
+
+    buffer.write('dex\n035\0', 0, 'ascii');
+    buffer.writeUInt32LE(strings.length, 0x38);
+    buffer.writeUInt32LE(stringIdsOffset, 0x3c);
+    buffer.writeUInt32LE(typeStringIndexes.length, 0x40);
+    buffer.writeUInt32LE(typeIdsOffset, 0x44);
+    buffer.writeUInt32LE(protos.length, 0x48);
+    buffer.writeUInt32LE(protoIdsOffset, 0x4c);
+    buffer.writeUInt32LE(fields.length, 0x50);
+    buffer.writeUInt32LE(fieldIdsOffset, 0x54);
+    buffer.writeUInt32LE(methods.length, 0x58);
+    buffer.writeUInt32LE(methodIdsOffset, 0x5c);
+    buffer.writeUInt32LE(1, 0x60);
+    buffer.writeUInt32LE(classDefsOffset, 0x64);
+
+    let currentOffset = stringDataOffset;
+    for (let i = 0; i < strings.length; i += 1) {
+        buffer.writeUInt32LE(currentOffset, stringIdsOffset + i * 4);
+        stringDataItems[i].copy(buffer, currentOffset);
+        currentOffset += stringDataItems[i].length;
+    }
+
+    for (let i = 0; i < typeStringIndexes.length; i += 1) {
+        buffer.writeUInt32LE(typeStringIndexes[i], typeIdsOffset + i * 4);
+    }
+
+    currentOffset = typeListsOffset;
+    for (let i = 0; i < protos.length; i += 1) {
+        const protoOffset = protoIdsOffset + i * 12;
+        buffer.writeUInt32LE(protos[i].returnTypeIndex, protoOffset);
+        buffer.writeUInt32LE(protos[i].returnTypeIndex, protoOffset + 4);
+        buffer.writeUInt32LE(currentOffset, protoOffset + 8);
+        typeLists[i].copy(buffer, currentOffset);
+        currentOffset += typeLists[i].length;
+    }
+
+    for (let i = 0; i < fields.length; i += 1) {
+        const fieldOffset = fieldIdsOffset + i * 8;
+        buffer.writeUInt16LE(fields[i].classIndex, fieldOffset);
+        buffer.writeUInt16LE(fields[i].typeIndex, fieldOffset + 2);
+        buffer.writeUInt32LE(fields[i].nameStringIndex, fieldOffset + 4);
+    }
+
+    for (let i = 0; i < methods.length; i += 1) {
+        const methodOffset = methodIdsOffset + i * 8;
+        buffer.writeUInt16LE(methods[i].classIndex, methodOffset);
+        buffer.writeUInt16LE(methods[i].protoIndex, methodOffset + 2);
+        buffer.writeUInt32LE(methods[i].nameStringIndex, methodOffset + 4);
+    }
+
+    buffer.writeUInt32LE(0, classDefsOffset);
+    buffer.writeUInt32LE(classDataOffset, classDefsOffset + 24);
+    attackCode.copy(buffer, attackCodeOffset);
+    supportCode.copy(buffer, supportCodeOffset);
+    recruitCode.copy(buffer, recruitCodeOffset);
+    classData.copy(buffer, classDataOffset);
+
+    return buffer;
+}
+
 describe('APK DEX 复核工具', () => {
     it('读取 ULEB128 数值', () => {
         expect(readUleb128(Buffer.from([0x7f]), 0)).toEqual({ value: 127, nextOffset: 1 });
@@ -459,6 +622,19 @@ describe('APK DEX 复核工具', () => {
                 parameterTypes: []
             })
         ]);
+    });
+
+    it('解析攻击、支援和招募关键方法字节码证据', () => {
+        const evidence = parseDexKeyRuleMethodEvidence(createMinimalKeyRuleMethodDex());
+        const byId = Object.fromEntries(evidence.map(item => [item.id, item]));
+
+        expect(byId['attack-action-validation'].missingExpectations).toEqual([]);
+        expect(byId['attack-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,I,I):Z');
+        expect(byId['attack-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.m(Lc/a/b/a/t/f;):Lc/a/b/a/s/b;');
+        expect(byId['support-action-validation'].missingExpectations).toEqual([]);
+        expect(byId['support-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.h(Lc/a/b/a/t/f;,I,I):Z');
+        expect(byId['recruit-pending-validation'].missingExpectations).toEqual([]);
+        expect(byId['recruit-pending-validation'].referencedFields).toContain('Lc/a/b/a/t/a;.d:Lc/a/b/a/t/f;');
     });
 
     it('按规则关键词分组输出战斗、支援和状态证据', () => {

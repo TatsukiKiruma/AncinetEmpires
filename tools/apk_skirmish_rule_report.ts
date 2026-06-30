@@ -222,14 +222,14 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
             currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，突击后移动使用剩余移动力。',
-            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int) 支援校验方法；仍需针对性实测记录被支援单位类型限制、同一目标能否多次支援、攻击前移动后突击剩余移动力如何计算。'
+            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int) 做支援规则校验；仍需针对性实测记录被支援单位类型限制、同一目标能否多次支援、攻击前移动后突击剩余移动力如何计算。'
         },
         {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
             currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
-            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int) 攻击校验方法，并确认 AsyncAttack 和 SyncSetUnitStatus 签名；仍需针对性实测记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
+            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
         }
     ];
 }
