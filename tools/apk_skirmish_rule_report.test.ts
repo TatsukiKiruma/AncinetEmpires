@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(14);
+        expect(report.checkCount).toBe(15);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(10);
@@ -56,6 +56,10 @@ describe('APK skirmish rule report', () => {
             sdWithAliveCommander: { canRecruitCommander: false },
             sdWithoutCommander: { canRecruitCommander: true },
             soWithoutCommander: { canRecruitCommander: false }
+        });
+        expect(byId['commander-recruit-cost-profile'].actual).toEqual({
+            sdDeathCounts0To2: [400, 400, 400],
+            soDeathCounts0To2: [null, null, null]
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
             playerGold: [450, 450],

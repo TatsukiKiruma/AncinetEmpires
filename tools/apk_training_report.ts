@@ -44,6 +44,9 @@ interface TrainingScenarioReportEntry {
     legalActionCount: number;
     recruitableUnitCount: number | null;
     modeRuleMatched: boolean;
+    commanderInitialRecruitCosts: (number | null)[];
+    commanderRecruitCostProfile: (number | null)[];
+    commanderRecruitRuleMatched: boolean;
     smokeRequestedPlies: number;
     smokeExecutedPlies: number;
     smokeDone: boolean;
@@ -61,6 +64,7 @@ interface ApkTrainingReport {
     metadataMatchedCount: number;
     zeroLegalActionCount: number;
     modeRuleMismatchCount: number;
+    commanderRecruitRuleMismatchCount: number;
     unverifiedApproximateScenarioCount: number;
     smokePlies: number;
     smokeFailureCount: number;
@@ -169,6 +173,23 @@ function runScenarioSmoke(
     };
 }
 
+function buildCommanderRecruitCostProfile(
+    baseCost: number | null | undefined,
+    costGrowth: number | null | undefined
+): (number | null)[] {
+    if (baseCost === null || baseCost === undefined) return [null, null, null];
+    const growth = costGrowth ?? 0;
+    return [0, 1, 2].map(deathCount => baseCost + deathCount * growth);
+}
+
+function sameCostProfile(left: readonly (number | null)[], right: readonly (number | null)[]): boolean {
+    return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function formatCostProfile(profile: readonly (number | null)[]): string {
+    return profile.map(cost => cost ?? '-').join('/');
+}
+
 async function readDecryptedMap(unpackDir: string, scenario: ApkSkirmishTrainingScenario): Promise<ApkAemMap> {
     const encryptedPath = path.join(unpackDir, ...scenario.resourcePath.split('/'));
     const encrypted = await readFile(encryptedPath);
@@ -201,6 +222,21 @@ function buildScenarioReportEntry(
     const legalActionCount = env.getLegalActions().length;
     const smoke = runScenarioSmoke(env, smokePlies);
     const recruitableUnits = observation.rules.recruitableUnits ?? [];
+    const commanderInitialRecruitCosts = observation.players.map(player => (
+        player.recruitCosts.commander ?? null
+    ));
+    const commanderRecruitCostProfile = buildCommanderRecruitCostProfile(
+        observation.rules.commanderRecruitBaseCost,
+        observation.rules.commanderRecruitCostGrowth
+    );
+    const expectedCommanderRecruitCostProfile = scenario.mode === 'SD'
+        ? [400, 400, 400]
+        : [null, null, null];
+    const expectedInitialCommanderRecruitCost = scenario.mode === 'SD' ? 400 : null;
+    const commanderRecruitRuleMatched = (
+        sameCostProfile(commanderRecruitCostProfile, expectedCommanderRecruitCostProfile)
+        && commanderInitialRecruitCosts.every(cost => cost === expectedInitialCommanderRecruitCost)
+    );
     const hasUnverifiedApproximateTerrain = scenario.terrainConfidence.approximateTerrainIds.some(
         apkTerrainId => !VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS.has(apkTerrainId)
     );
@@ -249,6 +285,9 @@ function buildScenarioReportEntry(
         legalActionCount,
         recruitableUnitCount: observation.rules.recruitableUnits?.length ?? null,
         modeRuleMatched,
+        commanderInitialRecruitCosts,
+        commanderRecruitCostProfile,
+        commanderRecruitRuleMatched,
         ...smoke
     };
 }
@@ -275,6 +314,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         metadataMatchedCount: entries.filter(entry => entry.metadataMatched).length,
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
         modeRuleMismatchCount: entries.filter(entry => !entry.modeRuleMatched).length,
+        commanderRecruitRuleMismatchCount: entries.filter(entry => !entry.commanderRecruitRuleMatched).length,
         unverifiedApproximateScenarioCount: entries.filter(entry => entry.hasUnverifiedApproximateTerrain).length,
         smokePlies: options.smokePlies,
         smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
@@ -295,12 +335,13 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
         `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}`,
         `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
+        `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | smoke | 可招募 | 模式规则 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | ---: | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | smoke | 可招募 | 指挥官费用 | 模式规则 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | ---: | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -319,6 +360,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
                 ? `失败: ${scenario.smokeError}`
                 : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
             scenario.recruitableUnitCount ?? '-',
+            `${formatCostProfile(scenario.commanderRecruitCostProfile)} ${scenario.commanderRecruitRuleMatched ? '是' : '否'}`,
             scenario.modeRuleMatched ? '是' : '否',
             scenario.manifestMatched ? '是' : '否',
             scenario.metadataMatched ? '是' : '否'
@@ -344,6 +386,7 @@ async function main() {
     const metadataMismatch = report.metadataMatchedCount !== report.scenarioCount;
     const zeroLegalActions = report.zeroLegalActionCount > 0;
     const modeRuleMismatches = report.modeRuleMismatchCount > 0;
+    const commanderRecruitRuleMismatches = report.commanderRecruitRuleMismatchCount > 0;
     const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
     const smokeFailures = report.smokeFailureCount > 0;
     if (options.check && (
@@ -352,6 +395,7 @@ async function main() {
         || metadataMismatch
         || zeroLegalActions
         || modeRuleMismatches
+        || commanderRecruitRuleMismatches
         || unverifiedApproximateScenarios
         || smokeFailures
     )) {

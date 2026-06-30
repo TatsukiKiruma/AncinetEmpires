@@ -9,7 +9,7 @@ import {
     getApkSkirmishSetupOptions,
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
-import { getTileIncome } from '../src/game/rule_config';
+import { getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
 
@@ -491,6 +491,22 @@ function buildCommanderRecruitAvailabilityActual() {
     };
 }
 
+function buildCommanderRecruitCostActual() {
+    const sdState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    const soState = createDemoState(getApkSkirmishRuleConfig('SO'));
+
+    return {
+        sdDeathCounts0To2: [0, 1, 2].map(deathCount => {
+            sdState.players[0].commanderDeathCount = deathCount;
+            return getUnitCost(sdState, 0, 'commander');
+        }),
+        soDeathCounts0To2: [0, 1, 2].map(deathCount => {
+            soState.players[0].commanderDeathCount = deathCount;
+            return getUnitCost(soState, 0, 'commander');
+        })
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -883,6 +899,18 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             soWithoutCommander: { canRecruitCommander: false }
         },
         buildCommanderRecruitAvailabilityActual()
+    );
+
+    check(
+        checks,
+        'commander-recruit-cost-profile',
+        '当前 SD/SO 指挥官重招募费用曲线',
+        'data.bin 指挥官基础价格字段 + 项目默认 RuleConfig；官方是否递增仍待实机验证',
+        {
+            sdDeathCounts0To2: [400, 400, 400],
+            soDeathCounts0To2: [null, null, null]
+        },
+        buildCommanderRecruitCostActual()
     );
 
     check(

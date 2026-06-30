@@ -855,8 +855,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 skirmish 实机规则复核工具化：
 
 - 新增 `tools/apk_skirmish_rule_report.ts`，可通过 `npm run apk:skirmish-rule-report -- --check` 复核用户实机确认的 skirmish 行为。
-- 当前覆盖 14 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD 指挥官不在场时可重招募，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
-- 当前复核结果为 14/14 检查通过；该工具不重新解包 APK，专门用于防止已实机确认的项目行为回退。
+- 当前覆盖 15 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD 指挥官不在场时可重招募，当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
+- 当前复核结果为 15/15 检查通过；新增检查会门禁当前 SD 指挥官费用曲线 `400/400/400` 和 SO 禁用指挥官招募。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用假设回退。
 - 报告末尾输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于后续回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 - 新增 `createDefaultAppGameState()`，前端沙盒和自动 AI 演示默认沿用现有演示棋盘，但应用 APK 正常遭遇战 `SD` 规则配置，避免实际运行入口继续使用旧的裸 demo 规则。
 
@@ -1048,8 +1048,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
-- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
-- 验证：新增回归测试覆盖默认 32 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
+- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该报告会显示并门禁当前 SD 默认指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募；官方是否存在死亡次数递增仍需实机验证。
+- 验证：新增回归测试覆盖默认 40 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
 
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
 

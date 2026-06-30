@@ -103,7 +103,7 @@ npm run apk:unit-report -- --check
 npm run apk:skirmish-rule-report -- --check
 ```
 
-当前命令输出确认：14/14 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD 指挥官不在场时可重招募、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+当前命令输出确认：15/15 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD 指挥官不在场时可重招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 
 同批修改还新增 `src/game/default_state.ts`：前端沙盒和自动 AI 演示默认通过 `createDefaultAppGameState()` 启动，使用 APK 正常遭遇战 `SD` 规则配置；`createDemoState()` 仍保留给测试和自定义局面。
 
@@ -471,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400` 和 SO 模式禁用指挥官招募；官方是否随死亡次数递增仍按待实机验证处理。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 

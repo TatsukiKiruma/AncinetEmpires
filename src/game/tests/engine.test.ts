@@ -20,6 +20,7 @@ import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitHead, syncSetUnitHeadWithCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainKey } from '../terrain_rules';
+import { getUnitCost } from '../rule_config';
 
 describe('GameEngine Rules', () => {
 
@@ -755,6 +756,12 @@ describe('GameEngine Rules', () => {
             'wolf_archer',
             'dragon'
         ]);
+        const sdCommanderCostState = createDemoState(getApkSkirmishRuleConfig('SD'));
+        expect([0, 1, 2].map(deathCount => {
+            sdCommanderCostState.players[0].commanderDeathCount = deathCount;
+            return getUnitCost(sdCommanderCostState, 0, 'commander');
+        })).toEqual([400, 400, 400]);
+        expect(getUnitCost(createDemoState(getApkSkirmishRuleConfig('SO')), 0, 'commander')).toBeNull();
 
         const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
         mutableScenario.rules.recruitableUnits!.push('commander');

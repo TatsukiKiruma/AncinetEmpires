@@ -120,7 +120,7 @@ npm run apk:language-rule-report -- --check
 ```bash
 npm run apk:skirmish-rule-report -- --check
 ```
-该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 14/14 检查通过，并在报告末尾输出 10 项待实机验证清单，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 15/15 检查通过，并在报告末尾输出 10 项待实机验证清单，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 
 ### 复核 APK 脚本规则证据
 ```bash
@@ -138,7 +138,7 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
+该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
 
 ## 待补充与未实现 (TODO List)
 
