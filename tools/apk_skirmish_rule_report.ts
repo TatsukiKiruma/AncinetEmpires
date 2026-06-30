@@ -507,6 +507,50 @@ function buildCommanderRecruitCostActual() {
     };
 }
 
+function buildCommanderAutoReviveActual() {
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+    state.players[1].gold = 1000;
+
+    const attacker = state.units.find(unit => unit.ownerId === 0 && unit.unitClass === 'soldier');
+    const commander = state.units.find(unit => unit.ownerId === 1 && unit.unitClass === 'commander');
+    if (!attacker || !commander) {
+        throw new Error('缺少指挥官自动复活检查所需单位');
+    }
+
+    attacker.unitClass = 'dragon';
+    attacker.pos = { x: 6, y: 6 };
+    commander.pos = { x: 6, y: 7 };
+    commander.hp = 5;
+
+    const engine = new GameEngine(state);
+    engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
+    const afterDeath = engine.getState();
+    const hasCommanderImmediatelyAfterDeath = afterDeath.units.some(unit => (
+        unit.ownerId === 1 && unit.unitClass === 'commander'
+    ));
+
+    engine.step({ type: 'end_turn' });
+    const nextTurnState = engine.getState();
+    const nextTurnActions = engine.getLegalActions(1);
+
+    return {
+        afterDeath: {
+            commanderDeathCount: afterDeath.players.find(player => player.id === 1)?.commanderDeathCount ?? null,
+            playerAlive: afterDeath.players.find(player => player.id === 1)?.isAlive ?? null,
+            hasCommander: hasCommanderImmediatelyAfterDeath
+        },
+        nextOwnTurn: {
+            currentPlayer: nextTurnState.currentPlayer,
+            commanderDeathCount: nextTurnState.players.find(player => player.id === 1)?.commanderDeathCount ?? null,
+            playerAlive: nextTurnState.players.find(player => player.id === 1)?.isAlive ?? null,
+            commanderCount: nextTurnState.units.filter(unit => unit.ownerId === 1 && unit.unitClass === 'commander').length,
+            canRecruitCommander: nextTurnActions.some(action => (
+                action.type === 'recruit_to_castle' && action.unitClass === 'commander'
+            ))
+        }
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -911,6 +955,28 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             soDeathCounts0To2: [null, null, null]
         },
         buildCommanderRecruitCostActual()
+    );
+
+    check(
+        checks,
+        'commander-no-auto-revive',
+        '当前默认指挥官死亡后不自动复活',
+        'DEX revive 关键词分组 0 命中 + 项目默认 RuleConfig；官方完整复活流程仍待实机验证',
+        {
+            afterDeath: {
+                commanderDeathCount: 1,
+                playerAlive: true,
+                hasCommander: false
+            },
+            nextOwnTurn: {
+                currentPlayer: 1,
+                commanderDeathCount: 1,
+                playerAlive: true,
+                commanderCount: 0,
+                canRecruitCommander: true
+            }
+        },
+        buildCommanderAutoReviveActual()
     );
 
     check(

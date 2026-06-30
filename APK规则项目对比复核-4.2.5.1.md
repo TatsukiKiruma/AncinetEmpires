@@ -103,7 +103,7 @@ npm run apk:unit-report -- --check
 npm run apk:skirmish-rule-report -- --check
 ```
 
-当前命令输出确认：15/15 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD 指挥官不在场时可重招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+当前命令输出确认：16/16 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD 指挥官不在场时可重招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认指挥官死亡后不自动复活且可从城堡重招募、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 
 同批修改还新增 `src/game/default_state.ts`：前端沙盒和自动 AI 演示默认通过 `createDefaultAppGameState()` 启动，使用 APK 正常遭遇战 `SD` 规则配置；`createDemoState()` 仍保留给测试和自定义局面。
 
@@ -131,7 +131,7 @@ npm run apk:map-report -- --check
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`classes.dex` 可解析 26529 个字符串，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；疑似通用指挥官复活 API 字符串候选为 0。该结果只能说明 DEX 字符串层未发现对应 API 名称，指挥官死亡后的重招募价格递增和完整复活流程仍需实机或完整反编译确认。
+当前命令输出确认：`classes.dex` 可解析 26529 个字符串，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果只能说明 DEX 字符串层未发现对应 API 名称，指挥官死亡后的重招募价格递增和完整复活流程仍需实机或完整反编译确认。
 
 ## 4. 语言表确认的核心规则
 

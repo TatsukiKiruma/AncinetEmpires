@@ -120,7 +120,7 @@ npm run apk:language-rule-report -- --check
 ```bash
 npm run apk:skirmish-rule-report -- --check
 ```
-该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 15/15 检查通过，并在报告末尾输出 10 项待实机验证清单，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认指挥官死亡后不自动复活且可从城堡重招募、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 16/16 检查通过，并在报告末尾输出 10 项待实机验证清单，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 
 ### 复核 APK 脚本规则证据
 ```bash
@@ -132,7 +132,7 @@ npm run apk:script-report -- --check
 ```bash
 npm run apk:dex-report -- --check
 ```
-该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap` 等必要字符串均存在，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
+该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap` 等必要字符串均存在，`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
 
 ### 复核 APK skirmish 训练场景
 ```bash

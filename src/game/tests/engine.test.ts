@@ -3553,6 +3553,31 @@ describe('GameEngine Rules', () => {
             expect(finalState.units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
         });
 
+        it('APK skirmish 默认：指挥官死亡后下一己方回合不自动复活，只能城堡重招募', () => {
+            const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+            state.players[1].gold = 1000;
+            const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier')!;
+            attacker.unitClass = 'dragon';
+            attacker.pos = { x: 6, y: 6 };
+
+            const commander = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
+            commander.pos = { x: 6, y: 7 };
+            commander.hp = 5;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
+            expect(engine.getState().players[1].commanderDeathCount).toBe(1);
+            expect(engine.getState().units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
+
+            engine.step({ type: 'end_turn' });
+            const nextTurnState = engine.getState();
+            expect(nextTurnState.currentPlayer).toBe(1);
+            expect(nextTurnState.units.filter(u => u.ownerId === 1 && u.unitClass === 'commander')).toHaveLength(0);
+            expect(engine.getLegalActions(1).some(action => (
+                action.type === 'recruit_to_castle' && action.unitClass === 'commander'
+            ))).toBe(true);
+        });
+
         it('APK skirmish 默认：无单位但仍有城堡时不淘汰队伍', () => {
             const state = createDemoState();
             state.units = state.units.filter(unit => unit.ownerId !== 1);

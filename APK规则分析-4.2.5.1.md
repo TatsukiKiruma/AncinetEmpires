@@ -855,8 +855,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 skirmish 实机规则复核工具化：
 
 - 新增 `tools/apk_skirmish_rule_report.ts`，可通过 `npm run apk:skirmish-rule-report -- --check` 复核用户实机确认的 skirmish 行为。
-- 当前覆盖 15 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD 指挥官不在场时可重招募，当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
-- 当前复核结果为 15/15 检查通过；新增检查会门禁当前 SD 指挥官费用曲线 `400/400/400` 和 SO 禁用指挥官招募。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用假设回退。
+- 当前覆盖 16 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD 指挥官不在场时可重招募，当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募，当前默认指挥官死亡后不自动复活且可从城堡重招募，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
+- 当前复核结果为 16/16 检查通过；新增检查会门禁当前 SD 指挥官费用曲线 `400/400/400`、SO 禁用指挥官招募，以及当前默认无自动复活流程。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用/复活假设回退。
 - 报告末尾输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于后续回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 - 新增 `createDefaultAppGameState()`，前端沙盒和自动 AI 演示默认沿用现有演示棋盘，但应用 APK 正常遭遇战 `SD` 规则配置，避免实际运行入口继续使用旧的裸 demo 规则。
 
@@ -1209,7 +1209,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 新增 `tools/apk_dex_report.ts` 和 npm 脚本 `apk:dex-report`，默认读取 `APK/_analysis/unpack/classes.dex`，直接解析 DEX string_ids/string_data 字符串表，不依赖 `jadx/apktool/baksmali`。
 - 工具按 commander、recruit、revive、setup 分组输出关键词命中，并用 `--check` 复核必要字符串和疑似指挥官复活 API 候选。
-- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
+- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，`revive` 关键词分组命中 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
 - 这一步不改变对战规则结算；它只把“DEX 字符串层已确认/未发现的证据”变成可重复命令。指挥官死亡后重招募价格是否递增仍需实机或完整反编译确认。
 
 2026-06-29 APK 脚本配置 manifest 补充：
