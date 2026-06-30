@@ -392,8 +392,8 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 - 金币、单位上限、可招募列表、联盟、禁用/恢复/摧毁队伍、强制终局。
 - 单位 code、static、targeted、head 元数据；`SyncSetUnitCode/Static/Targeted/Head` 已兼容解密脚本确认的 `x, y, ...` 坐标形态。
-- 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind。
-- 单位等级和状态设置；`SyncSetUnitLevel` 默认回满血，但不会把既有超上限生命压回最大生命；`SyncSetUnitLevel/SyncSetUnitStatus/SyncSetCommander` 均兼容解密脚本确认的 `x, y` 坐标调用形态。
+- 单位 code 绑定的 tile type 移动消耗覆盖：`SyncOverrideMov(code, tileType, mov)`；当前同时兼容 APK tile ID 与 terrain kind；9 个脚本字面量调用已进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`。
+- 单位等级和状态设置；`SyncSetUnitLevel` 默认回满血，但不会把既有超上限生命压回最大生命；`SyncSetUnitLevel/SyncSetUnitStatus/SyncSetCommander` 均兼容解密脚本确认的 `x, y` 坐标调用形态；`SyncSetUnitStatus` 已支持 replaceExisting 标志，已归档的实际调用为 `SyncSetUnitStatus(6, 9, 2, 2, true)`。
 - `CountUnit`、`CountCastle`、`CountVillage`、`GetUnit`、`GetUnits`、`GetDistance`；`GetTileTeam/CheckCastle/CheckVillage/GetUnit/GetDistance` 已兼容脚本中的 `x, y` 或 `x1, y1, x2, y2` 查询形态。
 - 布尔/整数脚本变量。
 
@@ -452,7 +452,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 | --- | --- | --- |
 | P0 | 84 个 APK tile 的完整类别/贴图/建筑语义未校准 | 地形能力、建筑功能和移动分类可能与 APK 有偏差 |
 | P0 | 战役脚本未系统转为场景配置 | 无法完整复刻战役、教程、特殊胜负条件 |
-| P1 | `SyncOverrideMov` 已有基础适配，但脚本场景未系统归档 | 特定单位/地形移动覆盖已有规则入口，仍缺批量场景配置 |
+| P1 | `SyncOverrideMov` 字面量调用已归档，但脚本场景未系统应用 | 特定单位/地形移动覆盖已有规则入口和证据表，仍缺批量场景配置执行 |
 | P1 | 脚本字面量配置已可生成 `RuleConfig`，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
 | P2 | 单位 head 只做元数据透传 | 战役角色头像/单位外观 UI 未实现；不影响纯规则训练 |
 | P1 | `crystal` 只是不可行动占位 | 水晶护送/夺回等目标不能完整还原 |

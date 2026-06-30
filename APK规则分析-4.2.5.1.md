@@ -1039,6 +1039,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 移动规则在计算进入某格消耗时优先匹配 `tile.apkTerrainId`，其次匹配 APK terrain `kind`，没有 APK 原始 tile 时用项目 `terrainId` 兜底；命中后覆盖飞行/地形之子等默认消耗，符合脚本强制覆盖语义。由于 DEX 错误文本只暴露 `tile type` 而未暴露参数名，当前实现同时兼容 tile ID 和 kind 两种解释。
 - `AncientEmpiresEnv.getObservation().units` 同步输出 `apkMoveOverrides` 的副本，训练侧可以观察脚本移动覆盖，不会反向污染环境状态。
 
+2026-06-30 APK 脚本单位/坐标状态字面量归档：
+
+- 重新解密 `assets/mods/**/*.js` 后确认，实际脚本没有 `rule.SetPrices` 或 `rule.SetLevelCap` 调用；这两个 API 仍保留为 DEX 能力适配，不写入脚本字面量 manifest。
+- `src/game/apk_script_manifest.ts` 新增 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`，单独归档不属于 `RuleConfig` 的单位/坐标状态调用：`AEII/s5.js` 的 `SyncOverrideMov('crystal', 1, 99)`，`AEIII/s4.js` 的 `g1..g5` 对 tile type `0` 移动消耗 `1`，`AEIII/s6.js` 的 `g1/s1/s2` 对 tile type `0` 移动消耗 `99`，以及 `AEIII/s7.js` 的 `SyncSetUnitStatus(6, 9, 2, 2, true)`。
+- `syncSetUnitStatus` 已接入 `replaceExisting` 参数：默认或传 `true` 时覆盖目标现有状态；传 `false` 且目标已有状态时拒绝覆盖。APK 实际脚本目前只观察到 `true`，该实现保留参数语义，避免未来场景配置需要再改适配器。
+
 2026-06-29 APK skirmish 当前队伍摧毁后的回合推进补充：
 
 - SD/SO `ValidateTeamState(team)` 在 `SyncDestroyTeam(team)` 后会调用 `ValidateWinningState()`；若被摧毁队伍正是 `Stage.GetCurrentTeam()` 且未终局，则调用 `Stage.AsyncNextTurn()`。

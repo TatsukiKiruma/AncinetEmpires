@@ -10,7 +10,7 @@ import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, 
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
-import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig } from '../apk_script_manifest';
+import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
@@ -388,6 +388,33 @@ describe('GameEngine Rules', () => {
             ]
         }));
         expect(getApkScriptLiteralRuleConfig('assets/mods/Missing/s1.js')).toBeNull();
+
+        expect(APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS).toHaveLength(4);
+        expect(getApkScriptLiteralStageStateConfig('assets/mods/AEII/s5.js')).toEqual({
+            resourcePath: 'assets/mods/AEII/s5.js',
+            syncOverrideMovCalls: [
+                { code: 'crystal', tileType: 1, mov: 99 }
+            ]
+        });
+        expect(getApkScriptLiteralStageStateConfig('assets/mods/AEIII/s4.js')?.syncOverrideMovCalls).toEqual([
+            { code: 'g1', tileType: 0, mov: 1 },
+            { code: 'g2', tileType: 0, mov: 1 },
+            { code: 'g3', tileType: 0, mov: 1 },
+            { code: 'g4', tileType: 0, mov: 1 },
+            { code: 'g5', tileType: 0, mov: 1 }
+        ]);
+        expect(getApkScriptLiteralStageStateConfig('assets/mods/AEIII/s6.js')?.syncOverrideMovCalls).toEqual([
+            { code: 'g1', tileType: 0, mov: 99 },
+            { code: 's1', tileType: 0, mov: 99 },
+            { code: 's2', tileType: 0, mov: 99 }
+        ]);
+        expect(getApkScriptLiteralStageStateConfig('assets/mods/AEIII/s7.js')).toEqual({
+            resourcePath: 'assets/mods/AEIII/s7.js',
+            syncSetUnitStatusCalls: [
+                { x: 6, y: 9, statusId: 2, rounds: 2, replaceExisting: true }
+            ]
+        });
+        expect(getApkScriptLiteralStageStateConfig('assets/mods/Missing/s1.js')).toBeNull();
     });
 
     it('APK mods 字面量规则配置可以生成项目 RuleConfig', () => {
@@ -3122,6 +3149,12 @@ describe('GameEngine Rules', () => {
 
             expect(syncSetUnitStatus(state, 2, 2, 1, 2, true)).toBe(true);
             expect(soldier.status).toEqual({ type: 'poisoned', remainingTicks: 2 });
+
+            expect(syncSetUnitStatus(state, { x: 2, y: 2 }, 3, 1, false)).toBe(false);
+            expect(soldier.status).toEqual({ type: 'poisoned', remainingTicks: 2 });
+
+            expect(syncSetUnitStatus(state, 2, 2, 2, 2, true)).toBe(true);
+            expect(soldier.status).toEqual({ type: 'inspired', remainingTurns: 2 });
 
             expect(syncSetUnitStatus(state, { x: 2, y: 2 }, 3, 1)).toBe(true);
             expect(soldier.status).toEqual({ type: 'blinded', remainingTurns: 1 });

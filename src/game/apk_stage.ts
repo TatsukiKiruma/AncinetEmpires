@@ -508,15 +508,15 @@ export function syncSetUnitLevel(
     return true;
 }
 
-export function syncSetUnitStatus(state: GameState, pos: Position, statusId: number, rounds: number): boolean;
+export function syncSetUnitStatus(state: GameState, pos: Position, statusId: number, rounds: number, replaceExisting?: boolean): boolean;
 export function syncSetUnitStatus(state: GameState, x: number, y: number, statusId: number, rounds: number, replaceExisting?: boolean): boolean;
 export function syncSetUnitStatus(
     state: GameState,
     posOrX: Position | number,
     statusIdOrY: number,
     roundsOrStatusId: number,
-    maybeRounds?: number,
-    _replaceExisting?: boolean
+    maybeRoundsOrReplaceExisting?: number | boolean,
+    maybeReplaceExisting?: boolean
 ): boolean {
     const pos = typeof posOrX === 'number'
         ? { x: posOrX, y: statusIdOrY }
@@ -525,13 +525,17 @@ export function syncSetUnitStatus(
         ? roundsOrStatusId
         : statusIdOrY;
     const rounds = typeof posOrX === 'number'
-        ? maybeRounds
+        ? maybeRoundsOrReplaceExisting
         : roundsOrStatusId;
+    const replaceExisting = typeof posOrX === 'number'
+        ? (maybeReplaceExisting ?? true)
+        : (typeof maybeRoundsOrReplaceExisting === 'boolean' ? maybeRoundsOrReplaceExisting : true);
 
     if (!isPosition(pos) || typeof rounds !== 'number') return false;
     const unit = findUnitAt(state, pos);
     const status = normalizeStatus(statusId, rounds);
     if (!unit || !status) return false;
+    if (unit.status && !replaceExisting) return false;
 
     unit.status = status;
     return true;

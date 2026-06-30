@@ -130,6 +130,20 @@ export interface ApkScriptRuleIncomeConfig {
     incomeCommanderGrowth?: number;
 }
 
+export interface ApkScriptSyncOverrideMovCall {
+    code: string;
+    tileType: number;
+    mov: number;
+}
+
+export interface ApkScriptSyncSetUnitStatusCall {
+    x: number;
+    y: number;
+    statusId: number;
+    rounds: number;
+    replaceExisting: boolean;
+}
+
 export interface ApkScriptLiteralRuleConfig {
     resourcePath: string;
     syncSetGoldValues?: readonly number[];
@@ -142,6 +156,12 @@ export interface ApkScriptLiteralRuleConfig {
     syncRestoreTeamIds?: readonly number[];
     syncGameOverAllianceIds?: readonly number[];
     ruleIncome?: ApkScriptRuleIncomeConfig;
+}
+
+export interface ApkScriptLiteralStageStateConfig {
+    resourcePath: string;
+    syncOverrideMovCalls?: readonly ApkScriptSyncOverrideMovCall[];
+    syncSetUnitStatusCalls?: readonly ApkScriptSyncSetUnitStatusCall[];
 }
 
 // 只收录可由字面量直接提取的规则配置分布；动态参数仍需后续脚本/场景执行器处理。
@@ -447,8 +467,46 @@ export const APK_SCRIPT_LITERAL_RULE_CONFIGS = [
     }
 ] as const satisfies readonly ApkScriptLiteralRuleConfig[];
 
+// 这些调用会改变具体单位或坐标状态，不属于 RuleConfig；单独归档，供场景初始化或测试按需应用。
+export const APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS = [
+    {
+        resourcePath: 'assets/mods/AEII/s5.js',
+        syncOverrideMovCalls: [
+            { code: 'crystal', tileType: 1, mov: 99 }
+        ]
+    },
+    {
+        resourcePath: 'assets/mods/AEIII/s4.js',
+        syncOverrideMovCalls: [
+            { code: 'g1', tileType: 0, mov: 1 },
+            { code: 'g2', tileType: 0, mov: 1 },
+            { code: 'g3', tileType: 0, mov: 1 },
+            { code: 'g4', tileType: 0, mov: 1 },
+            { code: 'g5', tileType: 0, mov: 1 }
+        ]
+    },
+    {
+        resourcePath: 'assets/mods/AEIII/s6.js',
+        syncOverrideMovCalls: [
+            { code: 'g1', tileType: 0, mov: 99 },
+            { code: 's1', tileType: 0, mov: 99 },
+            { code: 's2', tileType: 0, mov: 99 }
+        ]
+    },
+    {
+        resourcePath: 'assets/mods/AEIII/s7.js',
+        syncSetUnitStatusCalls: [
+            { x: 6, y: 9, statusId: 2, rounds: 2, replaceExisting: true }
+        ]
+    }
+] as const satisfies readonly ApkScriptLiteralStageStateConfig[];
+
 export function getApkScriptLiteralRuleConfig(resourcePath: string): ApkScriptLiteralRuleConfig | null {
     return APK_SCRIPT_LITERAL_RULE_CONFIGS.find(entry => entry.resourcePath === resourcePath) ?? null;
+}
+
+export function getApkScriptLiteralStageStateConfig(resourcePath: string): ApkScriptLiteralStageStateConfig | null {
+    return APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS.find(entry => entry.resourcePath === resourcePath) ?? null;
 }
 
 export function getApkScriptApiCallCount(apiName: string): number {
