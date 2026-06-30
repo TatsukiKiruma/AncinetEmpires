@@ -42,6 +42,12 @@ export interface ApkSkirmishMapManifestEntry {
     tailTemplate: ApkAemTailTemplate;
 }
 
+export interface ApkSkirmishTrainingMapFilter {
+    allowApproximateTerrain?: boolean;
+    allowUnmappedTerrain?: boolean;
+    playerCounts?: number[];
+}
+
 // 来自 aer-release-4.2.5.1 的 assets/maps/_list.json 与 20 张根目录 skirmish AEM 解析结果。
 const APK_SKIRMISH_MAP_DATA = [
     {
@@ -419,6 +425,24 @@ export const APK_SKIRMISH_MAP_MANIFEST = APK_SKIRMISH_MAP_DATA.map(entry => {
 
 export function getApkSkirmishMapManifestEntry(name: string): ApkSkirmishMapManifestEntry | null {
     return APK_SKIRMISH_MAP_MANIFEST.find(entry => entry.name === name) ?? null;
+}
+
+export function getApkSkirmishTrainingMapManifest(
+    filter: ApkSkirmishTrainingMapFilter = {}
+): ApkSkirmishMapManifestEntry[] {
+    const {
+        allowApproximateTerrain = false,
+        allowUnmappedTerrain = false,
+        playerCounts
+    } = filter;
+    const allowedPlayerCounts = playerCounts ? new Set(playerCounts) : null;
+
+    return APK_SKIRMISH_MAP_MANIFEST.filter(entry => {
+        if (!allowApproximateTerrain && entry.terrainConfidence.approximateTileCount > 0) return false;
+        if (!allowUnmappedTerrain && entry.terrainConfidence.unmappedTileCount > 0) return false;
+        if (allowedPlayerCounts && !allowedPlayerCounts.has(entry.playerIds.length)) return false;
+        return true;
+    });
 }
 
 function sameNumberArray(left: number[], right: number[]): boolean {

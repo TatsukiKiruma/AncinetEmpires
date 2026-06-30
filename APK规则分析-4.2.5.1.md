@@ -991,6 +991,12 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该字段不改变 AEM 导入和规则结算，仅让训练集构建阶段在不加载地图二进制、不创建 Observation 的情况下，直接选择更干净的官方 skirmish 地图或降权低可信地图。
 - 验证：新增回归测试覆盖 `(2) Duel.aem` 的可信度统计、20 张图 tile 总数一致性、官方图无 unmapped，以及 4 张 approximate 地图清单。
 
+2026-06-30 APK skirmish 训练地图筛选入口：
+
+- `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的 16 张官方 skirmish 地图，作为更稳的基础训练地图集合。
+- 该函数支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图，或只取 2/3/4 人图。
+- 验证：新增回归测试覆盖默认 16 张干净地图、默认 2 人图过滤，以及允许 approximate 后重新纳入 `(2) Mourningstar.aem`。
+
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。

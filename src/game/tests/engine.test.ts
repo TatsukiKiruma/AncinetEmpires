@@ -7,7 +7,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel, addExp } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
-import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
+import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig } from '../apk_script_manifest';
@@ -172,6 +172,37 @@ describe('GameEngine Rules', () => {
             { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
             { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
         ]);
+        expect(getApkSkirmishTrainingMapManifest().map(entry => entry.name)).toEqual([
+            '(4) Crossroads.aem',
+            '(3) Frozen fields.aem',
+            '(2) Icy Paths.aem',
+            '(2) Liberty Port.aem',
+            '(2) Peak Island.aem',
+            '(4) Shadowlands.aem',
+            '(4) Solitude.aem',
+            '(2) The Crossing.aem',
+            '(4) classic 1.aem',
+            '(3) classic 2.aem',
+            '(2) Duel.aem',
+            '(2) Crossed swords.aem',
+            '(4) Critical mass.aem',
+            '(3) Midway.aem',
+            '(2) Swamplands.aem',
+            '(3) Glu.aem'
+        ]);
+        expect(getApkSkirmishTrainingMapManifest({ playerCounts: [2] }).map(entry => entry.name)).toEqual([
+            '(2) Icy Paths.aem',
+            '(2) Liberty Port.aem',
+            '(2) Peak Island.aem',
+            '(2) The Crossing.aem',
+            '(2) Duel.aem',
+            '(2) Crossed swords.aem',
+            '(2) Swamplands.aem'
+        ]);
+        expect(getApkSkirmishTrainingMapManifest({
+            playerCounts: [2],
+            allowApproximateTerrain: true
+        }).map(entry => entry.name)).toContain('(2) Mourningstar.aem');
         const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
         expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);
         expect(swamplandsManifest.castleOwnerCounts).toEqual({ N: 2 });
