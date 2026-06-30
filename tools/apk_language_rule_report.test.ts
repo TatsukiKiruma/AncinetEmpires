@@ -18,7 +18,7 @@ describe('APK 语言表能力规则复核工具', () => {
         const report = await buildApkLanguageRuleReport();
 
         expect(report.apkVersion).toBe('aer-release-4.2.5.1');
-        expect(report.checkCount).toBe(21);
+        expect(report.checkCount).toBe(28);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
 
@@ -29,6 +29,17 @@ describe('APK 语言表能力规则复核工具', () => {
             assaultTroop: false,
             sameSupporterAbility: false,
             higherLevelTarget: false
+        });
+        expect(byId['support-reset-action'].actual).toEqual({
+            targetHasMovedAfterSupport: false,
+            targetHasActedAfterSupport: false,
+            targetMovementRemaining: 4,
+            targetMarkedSupported: true,
+            supporterHasActed: true
+        });
+        expect(byId['healer-level-scaling'].actual).toEqual({
+            level0TargetHp: 50,
+            level2TargetHp: 70
         });
         expect(byId['flying-movement-and-defense'].actual).toEqual({
             canMoveThroughGroundEnemy: true,
@@ -45,6 +56,19 @@ describe('APK 语言表能力规则复核工具', () => {
             deathReaperDamageAgainstNegativeStatus: 65,
             sharpshooterDamageToFlying: 15,
             destroyerDamageToVillageTarget: 50
+        });
+        expect(byId['inspired-status-damage'].actual).toEqual({
+            meleeNormalDamage: 50,
+            meleeInspiredDamage: 60,
+            rangedNormalDamage: 40,
+            rangedInspiredDamage: 45
+        });
+        expect(byId['assault-post-attack-move'].actual).toEqual({
+            hasPostAttackMove: true,
+            movementRemainingAfterAttack: 3,
+            hasActedAfterAttack: true,
+            hasPostAttackMovedAfterMove: true,
+            hasActedAfterPostMove: true
         });
         expect(byId['aura-abilities'].actual).toEqual({
             attackAuraAllyStatus: 'inspired',
@@ -78,6 +102,29 @@ describe('APK 语言表能力规则复核工具', () => {
             commanderOnCastleCanRecruitToCastle: false,
             emptyCastleCanRecruitToCastle: true,
             nonCommanderOccupantBlocksRecruit: true
+        });
+        expect(byId['recruit-cost-and-occupancy'].actual).toEqual({
+            soldierCostPaidThreshold: {
+                gold149CanRecruitSoldier: false,
+                gold150CanRecruitSoldier: true
+            },
+            populationLimit: {
+                currentPopulation: 1,
+                limit: 1,
+                canRecruitSoldier: false,
+                canRecruitDragon: false
+            }
+        });
+        expect(byId['capture-and-repair-abilities'].actual).toEqual({
+            soldierCanCaptureVillage: true,
+            soldierCanCaptureCastle: false,
+            commanderCanCaptureCastle: true,
+            soldierCanRepairDestroyedVillage: true
+        });
+        expect(byId['terrain-defense-and-move-cost'].actual).toEqual({
+            road: { defenseDamageTaken: 50, moveCost: 1 },
+            forest: { defenseDamageTaken: 40, moveCost: 2 },
+            mountain: { defenseDamageTaken: 35, moveCost: 3 }
         });
         expect(byId['tile-language-rules'].actual).toEqual({
             templeStatusAfterTurnStart: null,

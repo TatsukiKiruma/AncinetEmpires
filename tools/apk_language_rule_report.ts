@@ -35,7 +35,9 @@ export interface ApkLanguageRuleReport {
 const DEFAULT_LANG_PATH = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack', 'assets', 'languages', 'en.lang');
 
 const REQUIRED_LANGUAGE_ENTRIES = {
+    P_ABILITY3_DESCRIPTION_0: 'Units with this ability can capture villages.',
     P_ABILITY3_DESCRIPTION_1: 'Units with this ability can capture castles, but cannot be supported by supporters.',
+    P_ABILITY3_DESCRIPTION_2: 'Units with this ability can repair destroyed villages.',
     P_ABILITY3_DESCRIPTION_3: 'Air forces can move through all terrains using only 1 movement point. They can also move through ground units, but they cannot receive terrain defence bonus. They gain 10 attack bonus against units in water (does not work on units with same ability).',
     P_ABILITY3_DESCRIPTION_4: 'Marksman gains 10 attack bonus against air forces.',
     P_ABILITY3_DESCRIPTION_5: 'Destroyers can destroy villages, they also gain 10 attack bonus against units standing on villages.',
@@ -71,10 +73,14 @@ const REQUIRED_LANGUAGE_ENTRIES = {
     P_WIKI_BATTLE_BASICS_4_L3: "Each unit also has it's own element affinity value. Generally speaking, the higher the affinity the higher defence they have against same elements, but the lower defence against different elements.",
     P_WIKI_BATTLE_BASICS_L4: 'Damage calculation here is very simple. Generally speaking the final damage equals to:',
     P_WIKI_BATTLE_BASICS_L5: '(ATK - DEF) * HP%',
+    P_WIKI_INCOME_RECRUIT_L1: 'First thing first, to defeat enemies you need troops. You can recruit troops from castles which will cost gold.',
     P_WIKI_INCOME_RECRUIT_L2: 'There are 2 ways you can earn gold: occupying villages/castles or keeping your commander alive. Income will be calculated & gained when your turn starts.',
     P_WIKI_INCOME_RECRUIT_L3: 'To recruit new units you can simply click your castle. But please note that you can do recruiting only when no unit is on the castle, except your commander.',
+    P_WIKI_INCOME_RECRUIT_L4: 'While recruiting new units you should pay attention to their cost and occupancy, to make sure that it will not cause troubles for your future plans.',
     P_WIKI_STATUS_L1: 'Despite terrains, you can also utilize status to win battles. There are positive as well as negative status, but a unit can have only one status at a time. Once a unit gets a status, it will not be replaced with another ones.',
-    P_WIKI_STATUS_L2: 'That being said, sometimes having a negative status is not always bad since it can prevent the unit from getting worse status. Anyway, positive status are always good.'
+    P_WIKI_STATUS_L2: 'That being said, sometimes having a negative status is not always bad since it can prevent the unit from getting worse status. Anyway, positive status are always good.',
+    P_WIKI_TERRAINS_L1: 'Most of the terrains will provide defence bonus to units. But usually terrains with higher defence bonus will require more movement points to go through.',
+    P_WIKI_TERRAINS_L2: 'Keep in mind that some abilities will let units gain additional attack/defence bonuses while on specific type of terrains, sometimes even movement point cost will be affected.'
 } as const;
 
 function printHelp() {
@@ -228,6 +234,29 @@ function buildSupportRestrictionActual() {
     };
 }
 
+function buildSupportResetActual() {
+    const supporter = createUnit('supporter', 0, 'druid', 0, 0);
+    const target = createUnit('target', 0, 'soldier', 0, 1);
+    target.hasActed = true;
+    target.hasMoved = true;
+    target.movementRemaining = 0;
+
+    const engine = new GameEngine(createRoadState([supporter, target]));
+    const supportAction = engine.getLegalActions(0).find(action => action.type === 'support' && action.targetId === target.id);
+    if (!supportAction) throw new Error('支援动作缺失');
+    engine.step(supportAction);
+    const finalTarget = engine.getState().units.find(unit => unit.id === target.id)!;
+    const finalSupporter = engine.getState().units.find(unit => unit.id === supporter.id)!;
+
+    return {
+        targetHasMovedAfterSupport: finalTarget.hasMoved,
+        targetHasActedAfterSupport: finalTarget.hasActed,
+        targetMovementRemaining: finalTarget.movementRemaining ?? null,
+        targetMarkedSupported: finalTarget.hasBeenSupportedThisTurn ?? false,
+        supporterHasActed: finalSupporter.hasActed
+    };
+}
+
 function buildHealingActual() {
     const healer = createUnit('healer', 0, 'paladin', 0, 0);
     const target = createUnit('target', 0, 'soldier', 0, 1);
@@ -240,6 +269,30 @@ function buildHealingActual() {
     return {
         hp: finalTarget.hp,
         exceededMaxHp: finalTarget.hp > finalTarget.maxHp
+    };
+}
+
+function buildHealerLevelScalingActual() {
+    const level0Healer = createUnit('level0_healer', 0, 'paladin', 0, 0);
+    const level0Target = createUnit('level0_target', 0, 'soldier', 0, 1);
+    level0Target.hp = 10;
+    const level0Engine = new GameEngine(createRoadState([level0Healer, level0Target]));
+    const level0Action = level0Engine.getLegalActions(0).find(action => action.type === 'heal' && action.targetId === level0Target.id);
+    if (!level0Action) throw new Error('0 级治疗动作缺失');
+    level0Engine.step(level0Action);
+
+    const level2Healer = createUnit('level2_healer', 0, 'paladin', 0, 0);
+    level2Healer.level = 2;
+    const level2Target = createUnit('level2_target', 0, 'soldier', 0, 1);
+    level2Target.hp = 10;
+    const level2Engine = new GameEngine(createRoadState([level2Healer, level2Target]));
+    const level2Action = level2Engine.getLegalActions(0).find(action => action.type === 'heal' && action.targetId === level2Target.id);
+    if (!level2Action) throw new Error('2 级治疗动作缺失');
+    level2Engine.step(level2Action);
+
+    return {
+        level0TargetHp: level0Engine.getState().units.find(unit => unit.id === level0Target.id)?.hp ?? null,
+        level2TargetHp: level2Engine.getState().units.find(unit => unit.id === level2Target.id)?.hp ?? null
     };
 }
 
@@ -360,6 +413,58 @@ function buildCombatModifierActual() {
         deathReaperDamageAgainstNegativeStatus: calculateDamage(deathReaperStatusState, 'ghost', 'soldier'),
         sharpshooterDamageToFlying: calculateDamage(sharpshooterState, 'archer', 'dragon'),
         destroyerDamageToVillageTarget: calculateDamage(destroyerState, 'catapult', 'soldier')
+    };
+}
+
+function buildInspiredStatusActual() {
+    const meleeNormalState = createRoadState([
+        createUnit('attacker', 0, 'soldier', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 1)
+    ]);
+    const meleeInspiredState = createRoadState([
+        createUnit('attacker', 0, 'soldier', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 1)
+    ]);
+    meleeInspiredState.units[0].status = { type: 'inspired', remainingTurns: 1 };
+
+    const rangedNormalState = createRoadState([
+        createUnit('attacker', 0, 'archer', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 2)
+    ]);
+    const rangedInspiredState = createRoadState([
+        createUnit('attacker', 0, 'archer', 0, 0),
+        createUnit('defender', 1, 'soldier', 0, 2)
+    ]);
+    rangedInspiredState.units[0].status = { type: 'inspired', remainingTurns: 1 };
+
+    return {
+        meleeNormalDamage: calculateDamage(meleeNormalState, 'attacker', 'defender'),
+        meleeInspiredDamage: calculateDamage(meleeInspiredState, 'attacker', 'defender'),
+        rangedNormalDamage: calculateDamage(rangedNormalState, 'attacker', 'defender'),
+        rangedInspiredDamage: calculateDamage(rangedInspiredState, 'attacker', 'defender')
+    };
+}
+
+function buildAssaultTroopActual() {
+    const wolf = createUnit('wolf', 0, 'wolf', 0, 0);
+    wolf.movementRemaining = 3;
+    const target = createUnit('target', 1, 'soldier', 0, 1);
+    const engine = new GameEngine(createRoadState([wolf, target]));
+    engine.step({ type: 'attack', attackerId: wolf.id, targetId: target.id });
+    const afterAttack = engine.getState().units.find(unit => unit.id === wolf.id)!;
+    const postAttackActions = engine.getLegalActions(0).filter(action => (
+        action.type === 'post_attack_move' && action.unitId === wolf.id
+    ));
+    if (postAttackActions.length === 0) throw new Error('突击攻击后移动动作缺失');
+    engine.step(postAttackActions[0]);
+    const afterPostMove = engine.getState().units.find(unit => unit.id === wolf.id)!;
+
+    return {
+        hasPostAttackMove: postAttackActions.length > 0,
+        movementRemainingAfterAttack: afterAttack.movementRemaining ?? null,
+        hasActedAfterAttack: afterAttack.hasActed,
+        hasPostAttackMovedAfterMove: afterPostMove.hasPostAttackMoved ?? false,
+        hasActedAfterPostMove: afterPostMove.hasActed
     };
 }
 
@@ -673,6 +778,114 @@ function buildIncomeRecruitActual() {
     };
 }
 
+function buildRecruitCostOccupancyActual() {
+    const affordableState = createRoadState([
+        createUnit('commander', 0, 'commander', 1, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    affordableState.players[0].gold = 150;
+    affordableState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    affordableState.rules = { recruitableUnits: ['soldier'] };
+
+    const unaffordableState = createRoadState([
+        createUnit('commander', 0, 'commander', 1, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    unaffordableState.players[0].gold = 149;
+    unaffordableState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    unaffordableState.rules = { recruitableUnits: ['soldier'] };
+
+    const populationFullState = createRoadState([
+        createUnit('commander', 0, 'commander', 1, 0),
+        createUnit('soldier', 0, 'soldier', 2, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    populationFullState.players[0].gold = 5000;
+    populationFullState.map.tiles[0][0] = { terrainId: 10, ownerId: 0 };
+    populationFullState.rules = {
+        recruitableUnits: ['soldier', 'dragon'],
+        populationLimit: 1
+    };
+
+    const hasRecruit = (state: GameState, unitClass: UnitClass) => getLegalActions(state, 0).some(action => (
+        (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+        && action.unitClass === unitClass
+    ));
+
+    return {
+        soldierCostPaidThreshold: {
+            gold149CanRecruitSoldier: hasRecruit(unaffordableState, 'soldier'),
+            gold150CanRecruitSoldier: hasRecruit(affordableState, 'soldier')
+        },
+        populationLimit: {
+            currentPopulation: 1,
+            limit: 1,
+            canRecruitSoldier: hasRecruit(populationFullState, 'soldier'),
+            canRecruitDragon: hasRecruit(populationFullState, 'dragon')
+        }
+    };
+}
+
+function buildCaptureRepairActual() {
+    const soldierTownState = createRoadState([
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    soldierTownState.map.tiles[0][0] = { terrainId: 9, ownerId: null };
+
+    const soldierCastleState = createRoadState([
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    soldierCastleState.map.tiles[0][0] = { terrainId: 10, ownerId: null };
+
+    const commanderCastleState = createRoadState([
+        createUnit('commander', 0, 'commander', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    commanderCastleState.map.tiles[0][0] = { terrainId: 10, ownerId: null };
+
+    const repairState = createRoadState([
+        createUnit('soldier', 0, 'soldier', 0, 0),
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
+    repairState.map.tiles[0][0] = { terrainId: 8, ownerId: null };
+
+    const hasAction = (state: GameState, type: 'capture' | 'repair', unitId: string) => (
+        getLegalActions(state, 0).some(action => action.type === type && action.unitId === unitId)
+    );
+
+    return {
+        soldierCanCaptureVillage: hasAction(soldierTownState, 'capture', 'soldier'),
+        soldierCanCaptureCastle: hasAction(soldierCastleState, 'capture', 'soldier'),
+        commanderCanCaptureCastle: hasAction(commanderCastleState, 'capture', 'commander'),
+        soldierCanRepairDestroyedVillage: hasAction(repairState, 'repair', 'soldier')
+    };
+}
+
+function buildTerrainDefenseMoveActual() {
+    const damageOnTerrain = (terrainId: GameState['map']['tiles'][number][number]['terrainId']) => {
+        const state = createRoadState([
+            createUnit('attacker', 0, 'soldier', 0, 0),
+            createUnit('defender', 1, 'soldier', 1, 0)
+        ]);
+        state.map.tiles[0][1] = { terrainId, ownerId: null };
+        return calculateDamage(state, 'attacker', 'defender');
+    };
+
+    const moveCostToTerrain = (terrainId: GameState['map']['tiles'][number][number]['terrainId']) => {
+        const state = createRoadState([createUnit('walker', 0, 'soldier', 0, 0)]);
+        state.map.tiles[0][1] = { terrainId, ownerId: null };
+        return getMoveCostTo(state, 'walker', { x: 1, y: 0 });
+    };
+
+    return {
+        road: { defenseDamageTaken: damageOnTerrain(6), moveCost: moveCostToTerrain(6) },
+        forest: { defenseDamageTaken: damageOnTerrain(7), moveCost: moveCostToTerrain(7) },
+        mountain: { defenseDamageTaken: damageOnTerrain(3), moveCost: moveCostToTerrain(3) }
+    };
+}
+
 function buildTileRuleActual() {
     const templeUnit = createUnit('temple_unit', 0, 'soldier', 0, 0);
     templeUnit.hp = 50;
@@ -768,11 +981,35 @@ export async function buildApkLanguageRuleReport(options: Partial<CliOptions> = 
 
     check(
         checks,
+        'support-reset-action',
+        '支援者会把友军从待机状态重置为可行动',
+        'P_ABILITY3_DESCRIPTION_24',
+        {
+            targetHasMovedAfterSupport: false,
+            targetHasActedAfterSupport: false,
+            targetMovementRemaining: 4,
+            targetMarkedSupported: true,
+            supporterHasActed: true
+        },
+        buildSupportResetActual()
+    );
+
+    check(
+        checks,
         'healer-overheal',
         '治疗可以超过目标最大生命值',
         'P_ABILITY3_DESCRIPTION_7',
         { hp: 130, exceededMaxHp: true },
         buildHealingActual()
+    );
+
+    check(
+        checks,
+        'healer-level-scaling',
+        '治疗量会随治疗者等级提升',
+        'P_ABILITY3_DESCRIPTION_7',
+        { level0TargetHp: 50, level2TargetHp: 70 },
+        buildHealerLevelScalingActual()
     );
 
     check(
@@ -832,6 +1069,35 @@ export async function buildApkLanguageRuleReport(options: Partial<CliOptions> = 
             destroyerDamageToVillageTarget: 50
         },
         buildCombatModifierActual()
+    );
+
+    check(
+        checks,
+        'inspired-status-damage',
+        '鼓舞状态近战攻击 +10，远程攻击 +5',
+        'P_STATUS3_DESCRIPTION_2',
+        {
+            meleeNormalDamage: 50,
+            meleeInspiredDamage: 60,
+            rangedNormalDamage: 40,
+            rangedInspiredDamage: 45
+        },
+        buildInspiredStatusActual()
+    );
+
+    check(
+        checks,
+        'assault-post-attack-move',
+        '突击单位攻击后可用剩余移动力再移动',
+        'P_ABILITY3_DESCRIPTION_21',
+        {
+            hasPostAttackMove: true,
+            movementRemainingAfterAttack: 3,
+            hasActedAfterAttack: true,
+            hasPostAttackMovedAfterMove: true,
+            hasActedAfterPostMove: true
+        },
+        buildAssaultTroopActual()
     );
 
     check(
@@ -958,6 +1224,53 @@ export async function buildApkLanguageRuleReport(options: Partial<CliOptions> = 
             nonCommanderOccupantBlocksRecruit: true
         },
         buildIncomeRecruitActual()
+    );
+
+    check(
+        checks,
+        'recruit-cost-and-occupancy',
+        '招募费用和人口占用会限制可招募动作',
+        'P_WIKI_INCOME_RECRUIT_L1/L4',
+        {
+            soldierCostPaidThreshold: {
+                gold149CanRecruitSoldier: false,
+                gold150CanRecruitSoldier: true
+            },
+            populationLimit: {
+                currentPopulation: 1,
+                limit: 1,
+                canRecruitSoldier: false,
+                canRecruitDragon: false
+            }
+        },
+        buildRecruitCostOccupancyActual()
+    );
+
+    check(
+        checks,
+        'capture-and-repair-abilities',
+        '村庄/城堡占领与废墟修理由单位能力决定',
+        'P_ABILITY3_DESCRIPTION_0/1/2',
+        {
+            soldierCanCaptureVillage: true,
+            soldierCanCaptureCastle: false,
+            commanderCanCaptureCastle: true,
+            soldierCanRepairDestroyedVillage: true
+        },
+        buildCaptureRepairActual()
+    );
+
+    check(
+        checks,
+        'terrain-defense-and-move-cost',
+        '地形防御降低伤害，较高防御地形通常移动消耗更高',
+        'P_WIKI_TERRAINS_L1/L2',
+        {
+            road: { defenseDamageTaken: 50, moveCost: 1 },
+            forest: { defenseDamageTaken: 40, moveCost: 2 },
+            mountain: { defenseDamageTaken: 35, moveCost: 3 }
+        },
+        buildTerrainDefenseMoveActual()
     );
 
     check(
