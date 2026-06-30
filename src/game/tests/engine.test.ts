@@ -243,7 +243,21 @@ describe('GameEngine Rules', () => {
                     canBeRepaired: false,
                     isWater: false,
                     isLand: true
-                }
+                },
+                manualChecks: [
+                    { key: 'projectTerrainKey', currentProjectValue: 'camp' },
+                    { key: 'defenseBonus', currentProjectValue: 10 },
+                    { key: 'healPerTurn', currentProjectValue: 20 },
+                    { key: 'moveCost', currentProjectValue: 1 },
+                    { key: 'clearsNegativeStatus', currentProjectValue: false },
+                    { key: 'canBeCaptured', currentProjectValue: false },
+                    { key: 'generatesIncome', currentProjectValue: false },
+                    { key: 'canRecruit', currentProjectValue: false },
+                    { key: 'canBeDestroyed', currentProjectValue: false },
+                    { key: 'canBeRepaired', currentProjectValue: false },
+                    { key: 'isWater', currentProjectValue: false },
+                    { key: 'isLand', currentProjectValue: true }
+                ]
             },
             {
                 mapName: '(4) The Crucible.aem',
@@ -287,7 +301,21 @@ describe('GameEngine Rules', () => {
                     canBeRepaired: false,
                     isWater: false,
                     isLand: true
-                }
+                },
+                manualChecks: [
+                    { key: 'projectTerrainKey', currentProjectValue: 'temple' },
+                    { key: 'defenseBonus', currentProjectValue: 10 },
+                    { key: 'healPerTurn', currentProjectValue: 20 },
+                    { key: 'moveCost', currentProjectValue: 1 },
+                    { key: 'clearsNegativeStatus', currentProjectValue: true },
+                    { key: 'canBeCaptured', currentProjectValue: false },
+                    { key: 'generatesIncome', currentProjectValue: false },
+                    { key: 'canRecruit', currentProjectValue: false },
+                    { key: 'canBeDestroyed', currentProjectValue: false },
+                    { key: 'canBeRepaired', currentProjectValue: false },
+                    { key: 'isWater', currentProjectValue: false },
+                    { key: 'isLand', currentProjectValue: true }
+                ]
             },
             {
                 mapName: '(4) Waterways.aem',
@@ -332,7 +360,21 @@ describe('GameEngine Rules', () => {
                     canBeRepaired: false,
                     isWater: false,
                     isLand: true
-                }
+                },
+                manualChecks: [
+                    { key: 'projectTerrainKey', currentProjectValue: 'temple' },
+                    { key: 'defenseBonus', currentProjectValue: 10 },
+                    { key: 'healPerTurn', currentProjectValue: 20 },
+                    { key: 'moveCost', currentProjectValue: 1 },
+                    { key: 'clearsNegativeStatus', currentProjectValue: true },
+                    { key: 'canBeCaptured', currentProjectValue: false },
+                    { key: 'generatesIncome', currentProjectValue: false },
+                    { key: 'canRecruit', currentProjectValue: false },
+                    { key: 'canBeDestroyed', currentProjectValue: false },
+                    { key: 'canBeRepaired', currentProjectValue: false },
+                    { key: 'isWater', currentProjectValue: false },
+                    { key: 'isLand', currentProjectValue: true }
+                ]
             },
             {
                 mapName: '(4) Winterstorm.aem',
@@ -379,7 +421,21 @@ describe('GameEngine Rules', () => {
                     canBeRepaired: false,
                     isWater: false,
                     isLand: true
-                }
+                },
+                manualChecks: [
+                    { key: 'projectTerrainKey', currentProjectValue: 'temple' },
+                    { key: 'defenseBonus', currentProjectValue: 10 },
+                    { key: 'healPerTurn', currentProjectValue: 20 },
+                    { key: 'moveCost', currentProjectValue: 1 },
+                    { key: 'clearsNegativeStatus', currentProjectValue: true },
+                    { key: 'canBeCaptured', currentProjectValue: false },
+                    { key: 'generatesIncome', currentProjectValue: false },
+                    { key: 'canRecruit', currentProjectValue: false },
+                    { key: 'canBeDestroyed', currentProjectValue: false },
+                    { key: 'canBeRepaired', currentProjectValue: false },
+                    { key: 'isWater', currentProjectValue: false },
+                    { key: 'isLand', currentProjectValue: true }
+                ]
             }
         ]);
         const mutableVerificationTarget = getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0];
@@ -387,6 +443,7 @@ describe('GameEngine Rules', () => {
         mutableVerificationTarget.terrainConfig!.moveCost = 99;
         mutableVerificationTarget.positions[0].x = 99;
         mutableVerificationTarget.projectRuleSemantics.projectTerrainTags.push('mutated');
+        mutableVerificationTarget.manualChecks.push({ key: 'mutated', currentProjectValue: true });
         expect(getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0]).toMatchObject({
             positions: [
                 { x: 3, y: 4, ownerCode: 0xff, ownerId: null },
@@ -396,8 +453,15 @@ describe('GameEngine Rules', () => {
             terrainConfig: { moveCost: 1 },
             projectRuleSemantics: {
                 projectTerrainTags: ['land', 'building', 'camp', 'healing', 'not_capturable', 'not_recruit_source']
-            }
+            },
+            manualChecks: expect.arrayContaining([
+                { key: 'projectTerrainKey', currentProjectValue: 'camp' },
+                { key: 'clearsNegativeStatus', currentProjectValue: false }
+            ])
         });
+        expect(getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0].manualChecks).toEqual(expect.not.arrayContaining([
+            { key: 'mutated', currentProjectValue: true }
+        ]));
         expect(getApkSkirmishTerrainVerificationTargets({ confidences: ['confirmed'], apkTerrainIds: [37] }).map(target => ({
             mapName: target.mapName,
             tileCount: target.tileCount,

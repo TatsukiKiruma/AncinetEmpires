@@ -79,6 +79,11 @@ export interface ApkSkirmishTerrainVerificationRuleSemantics {
     isLand: boolean;
 }
 
+export interface ApkSkirmishTerrainManualCheck {
+    key: string;
+    currentProjectValue: string | number | boolean | null;
+}
+
 export interface ApkSkirmishTerrainVerificationTarget {
     mapName: string;
     resourcePath: string;
@@ -91,6 +96,7 @@ export interface ApkSkirmishTerrainVerificationTarget {
     evidence: string[];
     terrainConfig: ApkTerrainConfig | null;
     projectRuleSemantics: ApkSkirmishTerrainVerificationRuleSemantics;
+    manualChecks: ApkSkirmishTerrainManualCheck[];
 }
 
 // 来自 aer-release-4.2.5.1 的 assets/maps/_list.json 与 20 张根目录 skirmish AEM 解析结果。
@@ -543,6 +549,7 @@ export function getApkSkirmishTerrainVerificationTargets(
 
             const terrainConfig = getApkTerrainConfig(apkTerrainId);
             const positions = APK_SKIRMISH_APPROXIMATE_TERRAIN_POSITIONS[entry.name]?.[apkTerrainId] ?? [];
+            const projectRuleSemantics = buildProjectRuleSemantics(mappingInfo.projectTerrainId, terrainConfig);
             return [{
                 mapName: entry.name,
                 resourcePath: entry.resourcePath,
@@ -554,7 +561,8 @@ export function getApkSkirmishTerrainVerificationTargets(
                 confidence: mappingInfo.confidence,
                 evidence: [...mappingInfo.evidence],
                 terrainConfig: terrainConfig ? { ...terrainConfig } : null,
-                projectRuleSemantics: buildProjectRuleSemantics(mappingInfo.projectTerrainId, terrainConfig)
+                projectRuleSemantics,
+                manualChecks: buildManualChecks(projectRuleSemantics)
             }];
         });
     }).sort((left, right) => (
@@ -610,6 +618,25 @@ function buildProjectRuleSemantics(
         isWater: tags.includes('water'),
         isLand: tags.includes('land')
     };
+}
+
+function buildManualChecks(
+    semantics: ApkSkirmishTerrainVerificationRuleSemantics
+): ApkSkirmishTerrainManualCheck[] {
+    return [
+        { key: 'projectTerrainKey', currentProjectValue: semantics.projectTerrainKey },
+        { key: 'defenseBonus', currentProjectValue: semantics.defenseBonus },
+        { key: 'healPerTurn', currentProjectValue: semantics.healPerTurn },
+        { key: 'moveCost', currentProjectValue: semantics.moveCost },
+        { key: 'clearsNegativeStatus', currentProjectValue: semantics.clearsNegativeStatus },
+        { key: 'canBeCaptured', currentProjectValue: semantics.canBeCaptured },
+        { key: 'generatesIncome', currentProjectValue: semantics.generatesIncome },
+        { key: 'canRecruit', currentProjectValue: semantics.canRecruit },
+        { key: 'canBeDestroyed', currentProjectValue: semantics.canBeDestroyed },
+        { key: 'canBeRepaired', currentProjectValue: semantics.canBeRepaired },
+        { key: 'isWater', currentProjectValue: semantics.isWater },
+        { key: 'isLand', currentProjectValue: semantics.isLand }
+    ];
 }
 
 function sameNumberArray(left: number[], right: number[]): boolean {
