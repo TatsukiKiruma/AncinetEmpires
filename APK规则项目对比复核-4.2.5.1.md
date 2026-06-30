@@ -81,6 +81,14 @@
 - 加密方式：`DES/CBC/PKCS7`，key 与 IV 相同
 - 解密后再次出现 magic `365703`，随后 `0x54` 表示 84 条 tile 定义
 
+2026-06-30 补充：`data.bin` 地形数值复核已固化为 `tools/apk_terrain_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:terrain-report -- --check
+```
+
+当前命令输出确认：`data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，84/84 条 40 字节地形记录可解析，和 `src/game/apk_terrain.ts` 归档差异为 0；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。
+
 本次用同一 key 临时解密：
 
 | 类型 | 解密数量 | 说明 |
@@ -291,6 +299,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 项目对比：
 
 - `src/game/apk_terrain.ts` 归档 84 条 tile 的数值字段。
+- `tools/apk_terrain_report.ts` 可从真实 `data.bin` 重新解析并确认 84 条归档无差异；当前防御分布为 0/5/10/15/20，回血分布为 0/3/20，移动分布为 1/2/3/16777215。
 - `src/game/terrain_rules.ts` 在 APK 导入地图存在 `apkTerrainId` 时优先使用 APK tile 数值。
 - 普通项目地图仍走项目抽象地形规则。
 

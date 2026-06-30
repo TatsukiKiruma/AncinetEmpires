@@ -10,6 +10,7 @@
     "apk:map-report": "node --openssl-legacy-provider --import tsx tools/apk_map_report.ts",
     "apk:script-report": "node --openssl-legacy-provider --import tsx tools/apk_script_report.ts",
     "apk:dex-report": "node --openssl-legacy-provider --import tsx tools/apk_dex_report.ts",
+    "apk:terrain-report": "node --openssl-legacy-provider --import tsx tools/apk_terrain_report.ts",
     "apk:training-report": "node --openssl-legacy-provider --import tsx tools/apk_training_report.ts",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
