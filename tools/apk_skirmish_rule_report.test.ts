@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(19);
+        expect(report.checkCount).toBe(20);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(10);
@@ -87,6 +87,11 @@ describe('APK skirmish rule report', () => {
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
             grave100: { hp: 100, maxHp: 100, graveCount: 0 }
+        });
+        expect(byId['terrain-defense-combat'].actual).toEqual({
+            apkTile: { id: 33, defenseBonus: 20 },
+            soldierDefenderDamage: 30,
+            flyingDefenderDamage: 50
         });
         expect(byId['default-commander-income'].actual).toEqual({
             sd: {

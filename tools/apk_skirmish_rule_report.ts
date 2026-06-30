@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
 import { AncientEmpiresEnv } from '../src/game/env';
-import { getLegalActions } from '../src/game/rules';
+import { calculateDamage, getLegalActions } from '../src/game/rules';
 import { addExp } from '../src/game/abilities';
 import {
     getApkSkirmishRuleConfig,
@@ -11,7 +11,7 @@ import {
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
 import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
-import { getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
+import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
 
 interface CliOptions {
@@ -748,6 +748,34 @@ function buildDefaultCommanderIncomeActual() {
     };
 }
 
+function buildTerrainDefenseCombatActual() {
+    const buildState = (defenderClass: UnitClass): GameState => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        const attacker = state.units.find(unit => unit.ownerId === 0)!;
+        const defender = state.units.find(unit => unit.ownerId === 1)!;
+        attacker.unitClass = 'soldier';
+        defender.unitClass = defenderClass;
+        attacker.pos = { x: 1, y: 1 };
+        defender.pos = { x: 1, y: 2 };
+        attacker.hp = 100;
+        defender.hp = 100;
+        state.map.tiles[2][1] = { terrainId: 6, ownerId: null, apkTerrainId: 33 };
+        return state;
+    };
+
+    const soldierState = buildState('soldier');
+    const flyingState = buildState('ghost');
+
+    return {
+        apkTile: {
+            id: 33,
+            defenseBonus: getTileDefenseBonus(soldierState.map.tiles[2][1])
+        },
+        soldierDefenderDamage: calculateDamage(soldierState, 'u1', 'u2'),
+        flyingDefenderDamage: calculateDamage(flyingState, 'u1', 'u2')
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -1073,6 +1101,19 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             t31: { terrainKey: 'temple', healPerTurn: 20, income: 0, actionTypes: [] }
         },
         buildT30T31TerrainActual()
+    );
+
+    check(
+        checks,
+        'terrain-defense-combat',
+        'APK 地形防御参与战斗结算',
+        'APK data.bin 地形 defenseBonus + 用户 2026-06-30 实机确认地形防御存在',
+        {
+            apkTile: { id: 33, defenseBonus: 20 },
+            soldierDefenderDamage: 30,
+            flyingDefenderDamage: 50
+        },
+        buildTerrainDefenseCombatActual()
     );
 
     check(
