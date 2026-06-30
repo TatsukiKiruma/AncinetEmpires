@@ -44,6 +44,8 @@ while (!initResult.done) {
 
 训练端可用 `getApkSkirmishTrainingScenario(id)` 定位稳定场景，并通过 `createApkSkirmishTrainingGameState(map, id)` 或 `createApkSkirmishTrainingEnv(map, id)` 把已解析的官方 AEM 地图直接变成带 APK 规则、来源元数据和 manifest 严格校验的训练状态/环境。
 
+需要自定义遭遇战开局设置时，可向 `getApkSkirmishRuleConfig(mode, setup)` 或 `createApkSkirmishGameState(..., { setup })` 传入 `initialGold/unitLimit/levelCap`。这些值会按 APK 实机确认的范围和步进校验，避免训练样本生成 APK UI 中不能选择的非法配置。
+
 ### Observation 队伍字段
 
 `observation.turnPlayerIds` 会返回当前仍参与回合轮转的队伍 ID。`observation.pendingUnitId` 会返回 APK stacked/pending 招募状态下必须优先处理的单位 ID。`observation.players` 除金币、存活状态和指挥官死亡次数外，还会输出 `isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/commanderUnitId`，用于让训练侧直接观察 APK 脚本可配置的联盟、禁用队伍、单位上限、人口上限、可招募列表和队伍指挥官。

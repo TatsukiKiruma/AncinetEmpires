@@ -963,7 +963,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 APK skirmish 模式与默认设置实机补充：
 
 - 语言文件显示 `SD` 模式名为 `Default/默认`，`SO` 模式名为 `AEII/原版`；用户实机确认 SD 是正常遭遇战模式，SO 更接近原版/特殊规则模式。
-- skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9，步进 1）。项目已用 `getApkSkirmishSetupOptions()` 结构化这些范围，并让训练场景、`GameState.metadata.apkSkirmishSetupOptions`、Observation metadata 和 `apk:training-report` 输出同一份设置事实。
+- skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9，步进 1）。项目已用 `getApkSkirmishSetupOptions()` 结构化这些范围，并让训练场景、`GameState.metadata.apkSkirmishSetupOptions`、Observation metadata 和 `apk:training-report` 输出同一份设置事实。`getApkSkirmishRuleConfig(mode, setup)` 与 `createApkSkirmishGameState(..., { setup })` 会按这些范围校验自定义开局值，非法范围或步进会直接报错，避免训练端采样 APK UI 不能选择的配置。
 - SD/默认模式可招募：指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。指挥官仅在本方指挥官阵亡或不在场时可招募，data.bin 基础价格字段为 400，死亡后价格是否递增仍待实测。
 - SO/原版模式仍按 `SO/controller.js` 限制为 APK ID 0-8：战士、弓箭手、水元素、女巫、精灵、狼、石头人、投石车、龙。
 - 项目已把 `getApkSkirmishRuleConfig('SD'/'SO')` 的默认 `initialGold/unitLimit/levelCap` 分别设为 300/30/3；地图 AEM 的推荐金币仍保存在 metadata，用于记录地图建议值而不是覆盖用户开局设置。
@@ -1012,7 +1012,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - `getApkSkirmishTrainingScenarios()` 默认基于上述 16 张干净官方地图生成 SD/SO 两种模式的训练场景，共 32 项。
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
-- 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。
+- 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
 - `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 manifest 匹配、32/32 metadata 匹配，且初始合法动作数均大于 0；加 `--include-approximate` 时为 40/40 场景通过。
 - 验证：新增回归测试覆盖默认 32 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。

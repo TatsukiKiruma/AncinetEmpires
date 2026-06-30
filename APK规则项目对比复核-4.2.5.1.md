@@ -268,7 +268,7 @@ Stage.SyncGameOver(alliances[0]);
 
 - `src/game/apk_skirmish.ts` 使用 `defeatOnNoUnitsAndNoCastles = true`。
 - `SO/controller.js` 的 `OnGameStart` 调用 `Stage.SyncSetRecruitUnits(0, 1, 2, 3, 4, 5, 6, 7, 8)`，项目已映射为 SO 模式只开放 APK ID 0 到 8 对应的基础单位。
-- 2026-06-30 用户实机确认 SD 是正常遭遇战模式，SO 是原版/特殊规则模式；默认开局设置为金币 300、单位上限 30、等级上限 3，对应范围分别为 0-2000/步进 50、20-100/步进 10、0-9/步进 1。项目已用 `getApkSkirmishSetupOptions()` 结构化这些开局设置。SD 可招募指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。
+- 2026-06-30 用户实机确认 SD 是正常遭遇战模式，SO 是原版/特殊规则模式；默认开局设置为金币 300、单位上限 30、等级上限 3，对应范围分别为 0-2000/步进 50、20-100/步进 10、0-9/步进 1。项目已用 `getApkSkirmishSetupOptions()` 结构化这些开局设置，并让 `getApkSkirmishRuleConfig(mode, setup)` / `createApkSkirmishGameState(..., { setup })` 对自定义值执行同一套范围/步进校验。SD 可招募指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。
 
 ## 8. 地图与地形
 

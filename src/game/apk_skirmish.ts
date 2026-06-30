@@ -37,6 +37,18 @@ export interface ApkSkirmishTrainingScenarioFilter extends ApkSkirmishTrainingMa
     modes?: readonly ApkSkirmishMode[];
 }
 
+export interface ApkSkirmishSetupSelection {
+    initialGold?: number;
+    unitLimit?: number;
+    levelCap?: RuleConfig['levelCap'];
+}
+
+export interface ResolvedApkSkirmishSetupSelection {
+    initialGold: number;
+    unitLimit: number;
+    levelCap: RuleConfig['levelCap'];
+}
+
 export interface ApkSkirmishTrainingScenario {
     id: string;
     mode: ApkSkirmishMode;
@@ -85,11 +97,56 @@ export function getApkSkirmishSetupOptions(): ApkSkirmishSetupOptions {
     };
 }
 
-export function getApkSkirmishRuleConfig(mode: ApkSkirmishMode = 'SD'): RuleConfig {
+function validateApkSkirmishMode(mode: ApkSkirmishMode): ApkSkirmishMode {
+    if (!APK_SKIRMISH_SETUP_OPTIONS.modes.options.includes(mode)) {
+        throw new Error(`未知 APK skirmish 模式: ${mode}`);
+    }
+    return mode;
+}
+
+function resolveNumericSetupValue(
+    key: keyof Pick<ApkSkirmishSetupSelection, 'initialGold' | 'unitLimit' | 'levelCap'>,
+    label: string,
+    value: number | undefined
+): number {
+    const option = APK_SKIRMISH_SETUP_OPTIONS[key];
+    const resolved = value ?? option.default;
+
+    if (!Number.isInteger(resolved)) {
+        throw new Error(`APK skirmish ${label} 必须是整数`);
+    }
+
+    if (resolved < option.min || resolved > option.max) {
+        throw new Error(`APK skirmish ${label} 必须在 ${option.min}-${option.max} 范围内`);
+    }
+
+    if ((resolved - option.min) % option.step !== 0) {
+        throw new Error(`APK skirmish ${label} 必须按 ${option.step} 递增`);
+    }
+
+    return resolved;
+}
+
+export function resolveApkSkirmishSetupSelection(
+    setup: ApkSkirmishSetupSelection = {}
+): ResolvedApkSkirmishSetupSelection {
+    return {
+        initialGold: resolveNumericSetupValue('initialGold', '起始金币', setup.initialGold),
+        unitLimit: resolveNumericSetupValue('unitLimit', '单位上限', setup.unitLimit),
+        levelCap: resolveNumericSetupValue('levelCap', '等级上限', setup.levelCap) as RuleConfig['levelCap']
+    };
+}
+
+export function getApkSkirmishRuleConfig(
+    mode: ApkSkirmishMode = 'SD',
+    setup: ApkSkirmishSetupSelection = {}
+): RuleConfig {
+    const resolvedMode = validateApkSkirmishMode(mode);
+    const resolvedSetup = resolveApkSkirmishSetupSelection(setup);
     const rules: RuleConfig = {
-        initialGold: APK_SKIRMISH_SETUP_OPTIONS.initialGold.default,
-        unitLimit: APK_SKIRMISH_SETUP_OPTIONS.unitLimit.default,
-        levelCap: APK_SKIRMISH_SETUP_OPTIONS.levelCap.default as RuleConfig['levelCap'],
+        initialGold: resolvedSetup.initialGold,
+        unitLimit: resolvedSetup.unitLimit,
+        levelCap: resolvedSetup.levelCap,
         allowSurrender: true,
         allowPendingRecruitEndTurn: true,
         allowPendingRecruitSurrender: true,
@@ -99,7 +156,7 @@ export function getApkSkirmishRuleConfig(mode: ApkSkirmishMode = 'SD'): RuleConf
         commanderRecruitCostGrowth: 0
     };
 
-    if (mode === 'SO') {
+    if (resolvedMode === 'SO') {
         // SO/controller.js 的 OnGameStart 明确调用 SyncSetRecruitUnits(0..8)。
         rules.recruitableUnits = mapApkUnitIds(SO_RECRUITABLE_APK_UNIT_IDS);
         rules.commanderRecruitBaseCost = null;
@@ -186,14 +243,15 @@ function assertTrainingScenarioMatchesMap(
 
 export interface CreateApkSkirmishGameStateOptions extends CreateGameStateFromApkAemMapOptions {
     mode?: ApkSkirmishMode;
+    setup?: ApkSkirmishSetupSelection;
 }
 
 export function createApkSkirmishGameState(
     map: ApkAemMap,
     options: CreateApkSkirmishGameStateOptions = {}
 ): GameState {
-    const { mode = 'SD', rules: overrideRules, metadata: overrideMetadata, ...stateOptions } = options;
-    const modeRules = getApkSkirmishRuleConfig(mode);
+    const { mode = 'SD', setup, rules: overrideRules, metadata: overrideMetadata, ...stateOptions } = options;
+    const modeRules = getApkSkirmishRuleConfig(mode, setup);
     const manifestEntry = stateOptions.mapName ? getApkSkirmishMapManifestEntry(stateOptions.mapName) : null;
     const isOfficialManifestMap = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
 

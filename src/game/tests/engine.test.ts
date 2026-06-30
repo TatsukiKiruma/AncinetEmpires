@@ -13,7 +13,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
-import { createApkSkirmishGameState, createApkSkirmishTrainingEnv, createApkSkirmishTrainingGameState, getApkSkirmishRuleConfig, getApkSkirmishSetupOptions, getApkSkirmishTrainingScenario, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
+import { createApkSkirmishGameState, createApkSkirmishTrainingEnv, createApkSkirmishTrainingGameState, getApkSkirmishRuleConfig, getApkSkirmishSetupOptions, getApkSkirmishTrainingScenario, getApkSkirmishTrainingScenarios, resolveApkSkirmishSetupSelection } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
@@ -1246,6 +1246,33 @@ describe('GameEngine Rules', () => {
             'catapult',
             'dragon'
         ]);
+        expect(resolveApkSkirmishSetupSelection({
+            initialGold: 450,
+            unitLimit: 40,
+            levelCap: 9
+        })).toEqual({
+            initialGold: 450,
+            unitLimit: 40,
+            levelCap: 9
+        });
+        expect(getApkSkirmishRuleConfig('SD', {
+            initialGold: 450,
+            unitLimit: 40,
+            levelCap: 9
+        })).toEqual(expect.objectContaining({
+            initialGold: 450,
+            unitLimit: 40,
+            levelCap: 9
+        }));
+        expect(() => resolveApkSkirmishSetupSelection({ initialGold: 425 })).toThrow(
+            'APK skirmish 起始金币 必须按 50 递增'
+        );
+        expect(() => resolveApkSkirmishSetupSelection({ unitLimit: 10 })).toThrow(
+            'APK skirmish 单位上限 必须在 20-100 范围内'
+        );
+        expect(() => resolveApkSkirmishSetupSelection({ levelCap: 10 as never })).toThrow(
+            'APK skirmish 等级上限 必须在 0-9 范围内'
+        );
         const soState = createApkSkirmishGameState(mapWithSkirmishTail, { mode: 'SO', mapName: '(2) Unit Test.aem' });
         expect(soState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
         expect(soState.metadata).toEqual({
@@ -1260,6 +1287,21 @@ describe('GameEngine Rules', () => {
             apkUnmappedTerrainIds: [],
             apkUnmappedTileCount: 0
         });
+        const configuredSkirmishState = createApkSkirmishGameState(mapWithSkirmishTail, {
+            mode: 'SD',
+            mapName: '(2) Unit Test.aem',
+            setup: {
+                initialGold: 450,
+                unitLimit: 40,
+                levelCap: 9
+            }
+        });
+        expect(configuredSkirmishState.players.map(player => player.gold)).toEqual([450, 450]);
+        expect(configuredSkirmishState.rules).toEqual(expect.objectContaining({
+            initialGold: 450,
+            unitLimit: 40,
+            levelCap: 9
+        }));
 
         const env = new AncientEmpiresEnv({ initialState: soState });
         expect(env.getObservation().metadata).toEqual(soState.metadata);

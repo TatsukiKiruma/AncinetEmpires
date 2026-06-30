@@ -65,7 +65,7 @@ npm run apk:map-report -- --check
 | 招募 | 城堡空置可招募；己方指挥官站城堡例外；SD 默认可招募指挥官和 18 个普通单位，不含骷髅/水晶 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现；SD/SO 招募列表已按实机和脚本配置 | 基础对齐，指挥官重招募递增价格待确认 |
 | 投降 | skirmish 允许投降；空城堡招募 pending 时可投降，指挥官城堡堆叠 pending 时不可投降；投降后建筑无主、己方单位删除 | `RuleConfig.allowSurrender` + `surrender` 动作已实现；APK skirmish 默认开启，并区分 pending 来源 | 已按实机修正 |
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
-| skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；SD 为默认正常模式，SO 为原版/特殊模式；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置，默认金币 300、单位上限 30、等级上限 3 | 已对齐，起始设置可由训练端覆盖 |
+| skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；SD 为默认正常模式，SO 为原版/特殊模式；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置，默认金币 300、单位上限 30、等级上限 3，并按 APK 实机范围/步进校验自定义 setup | 已对齐，起始设置可由训练端覆盖 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
 | skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位、城堡/城镇归属和完整 tile 使用量，并用于防止同名外部地图被误标；AEM 导入会在推荐金币之后应用 `RuleConfig` 初始金币覆盖 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
