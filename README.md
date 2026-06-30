@@ -132,7 +132,7 @@ npm run apk:script-report -- --check
 ```bash
 npm run apk:dex-report -- --check
 ```
-该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表、`method_ids` 方法表和少量规则构造器字节码，复核指挥官、招募、开局设置、攻击、支援、状态和复活相关关键词。当前复核结果为 26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0；已解析到 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 等关键方法签名；`SetIncomeCommanderBase` 写入字段 `Lc/a/b/a/t/d;.s:I` 且默认值为 50，`SetIncomeCommanderGrowth` 写入字段 `Lc/a/b/a/t/d;.t:I` 且默认值为 25；关键词分组命中为攻击动作 4、支援动作 2、状态 Stage 4；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
+该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表、`method_ids` 方法表和少量规则构造器字节码，复核指挥官、招募、开局设置、攻击、支援、状态和复活相关关键词。当前复核结果为 26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个；已解析到 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 等关键方法签名；`Cannot attack from/state` 引用到 `Lc/a/b/a/l;.i(int,int)`，`Cannot support from/state` 引用到 `Lc/a/b/a/l;.m(int,int)`，`Cannot recruit when stacked!` 引用到 `Lc/a/b/a/l;.c(int,int,int)`；`SetIncomeCommanderBase` 写入字段 `Lc/a/b/a/t/d;.s:I` 且默认值为 50，`SetIncomeCommanderGrowth` 写入字段 `Lc/a/b/a/t/d;.t:I` 且默认值为 25；`revive` 关键词分组命中 0。
 
 ### 复核 APK skirmish 训练场景
 ```bash

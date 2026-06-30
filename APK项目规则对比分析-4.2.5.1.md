@@ -45,7 +45,7 @@ DEX 字符串与方法表证据也已工具化：
 npm run apk:dex-report -- --check
 ```
 
-该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表、`method_ids` 方法表和少量规则构造器字节码。当前运行结果：26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0；指挥官/招募/开局设置相关必要字符串均存在，并可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 的关键方法签名；默认指挥官收入解析为 `base=50/growth=25`；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论只覆盖 API 暴露、签名和默认规则初始化证据，不能替代完整控制流反编译。
+该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表、`method_ids` 方法表、关键字符串引用和少量规则构造器字节码。当前运行结果：26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个；指挥官/招募/开局设置相关必要字符串均存在，并可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 的关键方法签名；`Cannot attack from/state`、`Cannot support from/state` 和 `Cannot recruit when stacked!` 已能定位到具体校验方法；默认指挥官收入解析为 `base=50/growth=25`；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论只覆盖 API 暴露、签名、字符串引用和默认规则初始化证据，不能替代完整控制流反编译。
 
 `data.bin` 地形数值证据也已工具化：
 
@@ -167,7 +167,7 @@ DEX 与脚本确认：
 
 - DEX 暴露 `Stage.SyncSetGold`、`Stage.SyncSetGoldForTeam`、`Stage.SyncSetUnitLimit`、`Stage.SyncSetUnitLimitForTeam`、`Stage.SyncSetRecruitUnits`、`Stage.SyncSetRecruitUnitsForTeam`。
 - DEX 暴露 `Rule.SetIncomeVillage`、`Rule.SetIncomeCastle`、`Rule.SetIncomeCommanderBase`、`Rule.SetIncomeCommanderGrowth`、`Rule.SetLevelCap`、`Rule.SetPrices`。
-- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认必要方法名缺失为 0；方法表可解析 `SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；疑似通用指挥官复活 API 字符串为 0。
+- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认必要方法名缺失为 0、关键字符串引用方法为 9；方法表可解析 `SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；字符串引用可定位攻击、支援、招募 stacked 和状态设置校验方法；疑似通用指挥官复活 API 字符串为 0。
 - 已解密脚本中 `Stage.SyncSetUnitLimit` 出现 25 次，`Stage.SyncSetGold` 出现 16 次，`Stage.SyncSetRecruitUnits` 出现 13 次，`Stage.SyncSetRecruitUnitsForTeam` 出现 14 次。
 
 项目当前状态：

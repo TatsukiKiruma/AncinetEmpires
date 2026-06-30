@@ -487,7 +487,7 @@ skirmish 训练导入映射：
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`APK/_analysis/unpack/classes.dex` 可解析出 26529 个字符串；必要字符串缺失 0，必要方法名缺失 0；`CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase`、`SetIncomeCommanderGrowth`、`SetLevelCap`、`SetPrices`、`SyncSetGold`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`Cannot recruit when stacked!`、`OnUnitRecruited`、`Cannot attack from (`、`Cannot attack in state [`、`Cannot support from (`、`Cannot support in state [`、`AsyncAttack` 和 `SyncSetUnitStatus` 等必要字符串均存在；方法表可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack` 和 `SyncSetUnitStatus` 的关键签名；构造器字节码确认 `SetIncomeCommanderBase` 对应字段默认 50、`SetIncomeCommanderGrowth` 对应字段默认 25；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；按 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 匹配的疑似指挥官复活 API 字符串为 0。该报告证明 DEX API 暴露和签名证据，不等同于完整 Java 控制流反编译。
+当前命令输出确认：`APK/_analysis/unpack/classes.dex` 可解析出 26529 个字符串；必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个；`CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase`、`SetIncomeCommanderGrowth`、`SetLevelCap`、`SetPrices`、`SyncSetGold`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`Cannot recruit when stacked!`、`OnUnitRecruited`、`Cannot attack from (`、`Cannot attack in state [`、`Cannot support from (`、`Cannot support in state [`、`AsyncAttack` 和 `SyncSetUnitStatus` 等必要字符串均存在；方法表可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack` 和 `SyncSetUnitStatus` 的关键签名；字符串反查确认 `Cannot attack from/state` 引用到 `Lc/a/b/a/l;.i(int,int)`，`Cannot support from/state` 引用到 `Lc/a/b/a/l;.m(int,int)`，`Cannot recruit when stacked!` 引用到 `Lc/a/b/a/l;.c(int,int,int)`；构造器字节码确认 `SetIncomeCommanderBase` 对应字段默认 50、`SetIncomeCommanderGrowth` 对应字段默认 25；按 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 匹配的疑似指挥官复活 API 字符串为 0。该报告证明 DEX API 暴露、签名和关键字符串引用证据，不等同于完整 Java 控制流反编译。
 
 | API/字符串 | 含义 |
 | --- | --- |
@@ -564,6 +564,9 @@ npm run apk:dex-report -- --check
 | `Lc/a/b/a/o` | `SyncSetUnitLimitForTeam(int team, int limit) -> void` | 设置指定队伍单位上限 |
 | `Lc/a/b/a/o` | `AsyncAttack(int, int, int) -> void` / `AsyncAttack(int, int, int, int) -> void` | 脚本/演出层攻击入口存在两种重载 |
 | `Lc/a/b/a/o` | `SyncSetUnitStatus(int, int, int, int, boolean) -> void` | 按坐标/状态/回合数同步单位状态 |
+| `Lc/a/b/a/l` | `i(int, int)` 引用 `Cannot attack from (` / `Cannot attack in state [` | 攻击合法性存在来源坐标和状态校验方法 |
+| `Lc/a/b/a/l` | `m(int, int)` 引用 `Cannot support from (` / `Cannot support in state [` | 支援合法性存在来源坐标和状态校验方法 |
+| `Lc/a/b/a/l` | `c(int, int, int)` 引用 `Cannot recruit when stacked!` | 招募合法性存在 stacked/pending 校验方法 |
 | `Lc/a/b/a/x/e` | `SetIncomeCommanderBase(int)` / `SetIncomeCommanderGrowth(int)` | 设置指挥官收入规则 |
 | `Lc/a/b/a/t/d` | `<init>()` 中 `s=50`、`t=25` | 默认指挥官收入为基础 50、每级成长 25 |
 | `Lc/a/b/a/x/f` | `GetPrice() -> int` | 读取单位对象的价格字段；短方法字节码显示它直接读取 `Lc/a/b/a/x/f.e` |
@@ -1219,8 +1222,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - `tools/apk_dex_report.ts` 和 npm 脚本 `apk:dex-report` 默认读取 `APK/_analysis/unpack/classes.dex`，直接解析 DEX string_ids/string_data 字符串表、type_ids/proto_ids/method_ids 方法签名，以及用于默认规则值的少量 class_data/code_item 字节码，不依赖 `jadx/apktool/baksmali`。
 - 工具按 commander、recruit、revive、setup、combat_action、support_action、status_stage 分组输出关键词命中，并用 `--check` 复核必要字符串、必要方法名、默认指挥官收入和疑似指挥官复活 API 候选。
-- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，必要方法名缺失为 0，默认指挥官收入为 `base=50/growth=25`，攻击动作关键词命中 4，支援动作命中 2，状态 Stage 命中 4，`revive` 关键词分组命中 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
-- 当前可重复解析的关键方法签名包括：`AsyncAttack(int, int, int)`、`AsyncAttack(int, int, int, int)`、`CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetCommander(int, int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`SyncSetUnitStatus(int, int, int, int, boolean)`。
+- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，必要方法名缺失为 0，关键字符串引用方法为 9，默认指挥官收入为 `base=50/growth=25`，攻击动作关键词命中 4，支援动作命中 2，状态 Stage 命中 4，`revive` 关键词分组命中 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
+- 当前可重复解析的关键方法签名包括：`AsyncAttack(int, int, int)`、`AsyncAttack(int, int, int, int)`、`CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetCommander(int, int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`SyncSetUnitStatus(int, int, int, int, boolean)`；关键字符串引用反查还确认攻击、支援、招募 stacked 和状态设置错误文本都能定位到具体方法。
 - 这一步把“DEX API 暴露、签名层和默认规则初始化已确认/未发现的证据”变成可重复命令；项目 skirmish 指挥官收入已经按 `base=50/growth=25` 校准。skirmish 指挥官阵亡后重招募价格递增已按实机验证落地；战役复活流程不纳入当前 AI 对战目标。
 
 2026-06-29 APK 脚本配置 manifest 补充：

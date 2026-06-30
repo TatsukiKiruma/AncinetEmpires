@@ -48,6 +48,12 @@ export interface DexMethodSignature {
     parameterTypes: string[];
 }
 
+export interface DexStringReferenceMethod extends DexMethodSignature {
+    string: string;
+    methodIndex: number;
+    codeOffset: number;
+}
+
 export interface DexRuleDefaultIncomeEvidence {
     ruleClassDescriptor: string;
     ruleDataClassDescriptor: string;
@@ -75,6 +81,7 @@ interface ApkDexReport {
     requiredMethodNames: string[];
     missingRequiredMethodNames: string[];
     methodSignatures: DexMethodSignature[];
+    stringReferenceMethods: DexStringReferenceMethod[];
     ruleDefaultIncomeEvidence: DexRuleDefaultIncomeEvidence;
     commanderReviveApiCandidates: string[];
     keywordGroups: DexKeywordGroupReport[];
@@ -119,6 +126,18 @@ const REQUIRED_METHOD_NAMES = [
     'SyncSetRecruitUnitsForTeam',
     'SyncSetUnitStatus',
     'AsyncAttack'
+] as const;
+
+const REQUIRED_STRING_REFERENCE_VALUES = [
+    'Cannot recruit when stacked!',
+    'Cannot attack from (',
+    'Cannot attack in state [',
+    'Cannot support from (',
+    'Cannot support in state [',
+    '[Stage.AsyncAttack] Invalid position: (',
+    '[Stage.SyncSetUnitStatus] No unit at (',
+    '[Stage.SyncSetUnitStatus] Invalid status: ',
+    '[Stage.SyncSetUnitStatus] Invalid rounds: '
 ] as const;
 
 const COMMANDER_REVIVE_API_PATTERN = /(?:ReviveCommander|RespawnCommander|CommanderRevive|CommanderRespawn)/i;
@@ -622,6 +641,106 @@ function readDexClassDataMethods(
     throw new Error(`DEX class_defs 未找到类: ${classDescriptor}`);
 }
 
+function readAllDexClassDataMethods(
+    buffer: Buffer,
+    types: readonly string[],
+    methods: readonly DexMethodId[]
+): DexClassMethod[] {
+    const classDefsSize = buffer.readUInt32LE(0x60);
+    const classDefsOffset = buffer.readUInt32LE(0x64);
+    const classDefsEnd = classDefsOffset + classDefsSize * 32;
+
+    if (classDefsEnd > buffer.length) {
+        throw new Error('DEX class_defs 区域越界');
+    }
+
+    const result: DexClassMethod[] = [];
+    for (let i = 0; i < classDefsSize; i += 1) {
+        const itemOffset = classDefsOffset + i * 32;
+        const classIndex = buffer.readUInt32LE(itemOffset);
+        const classDescriptor = types[classIndex];
+        const classDataOffset = buffer.readUInt32LE(itemOffset + 24);
+        if (classDescriptor === undefined) {
+            throw new Error(`DEX class_defs 类型索引越界: index=${i}, class_idx=${classIndex}`);
+        }
+        if (classDataOffset === 0) continue;
+        result.push(...readDexClassDataMethods(buffer, classDescriptor, types, methods));
+    }
+
+    return result;
+}
+
+function readDexReferencedStringIndexes(buffer: Buffer, classMethod: DexClassMethod): Set<number> {
+    const references = new Set<number>();
+    if (classMethod.codeOffset === 0) return references;
+    const codeOffset = classMethod.codeOffset;
+    if (codeOffset + 16 > buffer.length) {
+        throw new Error(`DEX code_item 越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    const instructionCount = buffer.readUInt32LE(codeOffset + 12);
+    const instructionsOffset = codeOffset + 16;
+    const instructionsEnd = instructionsOffset + instructionCount * 2;
+    if (instructionsEnd > buffer.length) {
+        throw new Error(`DEX code_item 指令区越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    // 引用反查只需要 const-string / const-string-jumbo，按 code unit 滑动扫描可避开完整反编译复杂度。
+    for (let pc = 0; pc < instructionCount; pc += 1) {
+        const offset = instructionsOffset + pc * 2;
+        const opcode = buffer.readUInt8(offset);
+        if (opcode === 0x1a && offset + 4 <= instructionsEnd) {
+            references.add(buffer.readUInt16LE(offset + 2));
+        } else if (opcode === 0x1b && offset + 6 <= instructionsEnd) {
+            references.add(buffer.readUInt32LE(offset + 2));
+        }
+    }
+
+    return references;
+}
+
+export function parseDexStringReferenceMethods(
+    buffer: Buffer,
+    targetStrings: readonly string[]
+): DexStringReferenceMethod[] {
+    const strings = parseDexStrings(buffer);
+    const types = parseDexTypes(buffer, strings);
+    const protos = parseDexProtos(buffer, types);
+    const methods = parseDexMethodIds(buffer, strings, types, protos);
+    const targetByIndex = new Map<number, string>();
+
+    for (const value of targetStrings) {
+        const index = strings.indexOf(value);
+        if (index >= 0) targetByIndex.set(index, value);
+    }
+
+    const result: DexStringReferenceMethod[] = [];
+    for (const classMethod of readAllDexClassDataMethods(buffer, types, methods)) {
+        const referencedIndexes = readDexReferencedStringIndexes(buffer, classMethod);
+        for (const [index, value] of targetByIndex) {
+            if (!referencedIndexes.has(index)) continue;
+            const { classDescriptor, name, returnType, parameterTypes } = classMethod.method;
+            result.push({
+                string: value,
+                methodIndex: classMethod.methodIndex,
+                codeOffset: classMethod.codeOffset,
+                classDescriptor,
+                name,
+                returnType,
+                parameterTypes
+            });
+        }
+    }
+
+    return result.sort((left, right) => {
+        const byString = left.string.localeCompare(right.string);
+        if (byString !== 0) return byString;
+        const byClass = left.classDescriptor.localeCompare(right.classDescriptor);
+        if (byClass !== 0) return byClass;
+        return left.name.localeCompare(right.name);
+    });
+}
+
 function parseDexIputAssignments(
     buffer: Buffer,
     fields: readonly DexFieldId[],
@@ -762,6 +881,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
     const stringSet = new Set(strings);
     const methodSignatures = parseDexMethodSignatures(dex, REQUIRED_METHOD_NAMES);
     const methodNameSet = new Set(methodSignatures.map(method => method.name));
+    const stringReferenceMethods = parseDexStringReferenceMethods(dex, REQUIRED_STRING_REFERENCE_VALUES);
     const ruleDefaultIncomeEvidence = parseDexRuleDefaultIncomeEvidence(dex);
     const commanderReviveApiCandidates = uniqueSorted(strings.filter(value => COMMANDER_REVIVE_API_PATTERN.test(value)));
 
@@ -774,6 +894,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
         requiredMethodNames: [...REQUIRED_METHOD_NAMES],
         missingRequiredMethodNames: REQUIRED_METHOD_NAMES.filter(value => !methodNameSet.has(value)),
         methodSignatures,
+        stringReferenceMethods,
         ruleDefaultIncomeEvidence,
         commanderReviveApiCandidates,
         keywordGroups: buildKeywordReports(strings)
@@ -789,6 +910,7 @@ function renderMarkdown(report: ApkDexReport): string {
         `- 字符串数量：${report.stringCount}`,
         `- 必要字符串缺失：${report.missingRequiredStrings.length}`,
         `- 必要方法名缺失：${report.missingRequiredMethodNames.length}`,
+        `- 关键字符串引用方法：${report.stringReferenceMethods.length}`,
         `- 默认指挥官收入：base=${report.ruleDefaultIncomeEvidence.commanderBaseDefault}, growth=${report.ruleDefaultIncomeEvidence.commanderGrowthDefault}`,
         `- 疑似指挥官复活 API 字符串：${report.commanderReviveApiCandidates.length}`,
         '',
@@ -820,6 +942,15 @@ function renderMarkdown(report: ApkDexReport): string {
         `| \`${report.ruleDefaultIncomeEvidence.commanderBaseSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderBaseField}\` | ${report.ruleDefaultIncomeEvidence.commanderBaseDefault} |`,
         `| \`${report.ruleDefaultIncomeEvidence.commanderGrowthSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderGrowthField}\` | ${report.ruleDefaultIncomeEvidence.commanderGrowthDefault} |`
     );
+
+    lines.push('', '## 关键字符串引用方法', '', '| 字符串 | 方法 | 类 | 参数 | code offset |', '| --- | --- | --- | --- | ---: |');
+
+    for (const reference of report.stringReferenceMethods) {
+        const parameters = reference.parameterTypes.length > 0
+            ? reference.parameterTypes.map(value => `\`${value}\``).join(', ')
+            : '-';
+        lines.push(`| \`${reference.string}\` | \`${reference.name}\` | \`${reference.classDescriptor}\` | ${parameters} | ${reference.codeOffset} |`);
+    }
 
     lines.push('', '## 命中明细');
 
@@ -870,6 +1001,7 @@ async function main() {
             report.stringCount === 0
             || report.missingRequiredStrings.length > 0
             || report.missingRequiredMethodNames.length > 0
+            || new Set(report.stringReferenceMethods.map(reference => reference.string)).size !== REQUIRED_STRING_REFERENCE_VALUES.length
             || report.ruleDefaultIncomeEvidence.commanderBaseDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderBaseDefault
             || report.ruleDefaultIncomeEvidence.commanderGrowthDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderGrowthDefault
             || report.commanderReviveApiCandidates.length > 0

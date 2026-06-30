@@ -3,6 +3,7 @@ import {
     buildKeywordReports,
     parseDexMethodSignatures,
     parseDexRuleDefaultIncomeEvidence,
+    parseDexStringReferenceMethods,
     parseDexStrings,
     readDexString,
     readUleb128
@@ -304,6 +305,92 @@ function createMinimalRuleIncomeDex(): Buffer {
     return concatBuffers([buffer]);
 }
 
+function createMinimalStringReferenceDex(): Buffer {
+    const strings = [
+        'Lc/a/b/a/l;',
+        'V',
+        'Cannot attack from (',
+        'Cannot support from (',
+        'i',
+        'm'
+    ];
+    const typeStringIndexes = [0, 1];
+    const methods = [
+        { classIndex: 0, protoIndex: 0, nameStringIndex: 4, stringIndex: 2 },
+        { classIndex: 0, protoIndex: 0, nameStringIndex: 5, stringIndex: 3 }
+    ];
+    const stringDataItems = strings.map(createDexString);
+    const headerSize = 0x70;
+    const stringIdsOffset = headerSize;
+    const typeIdsOffset = stringIdsOffset + strings.length * 4;
+    const protoIdsOffset = typeIdsOffset + typeStringIndexes.length * 4;
+    const methodIdsOffset = protoIdsOffset + 12;
+    const classDefsOffset = methodIdsOffset + methods.length * 8;
+    const stringDataOffset = classDefsOffset + 32;
+    const rawStringDataEnd = stringDataOffset + stringDataItems.reduce((sum, item) => sum + item.length, 0);
+    const firstCodeOffset = alignToFour(rawStringDataEnd);
+    const firstCode = createCodeItem(1, 0, [0x001a, methods[0].stringIndex, 0x000e]);
+    const secondCodeOffset = alignToFour(firstCodeOffset + firstCode.length);
+    const secondCode = createCodeItem(1, 0, [0x001a, methods[1].stringIndex, 0x000e]);
+    const classData = Buffer.from([
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(2),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(firstCodeOffset),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(secondCodeOffset)
+    ]);
+    const classDataOffset = alignToFour(secondCodeOffset + secondCode.length);
+    const totalSize = classDataOffset + classData.length;
+    const buffer = Buffer.alloc(totalSize);
+
+    buffer.write('dex\n035\0', 0, 'ascii');
+    buffer.writeUInt32LE(strings.length, 0x38);
+    buffer.writeUInt32LE(stringIdsOffset, 0x3c);
+    buffer.writeUInt32LE(typeStringIndexes.length, 0x40);
+    buffer.writeUInt32LE(typeIdsOffset, 0x44);
+    buffer.writeUInt32LE(1, 0x48);
+    buffer.writeUInt32LE(protoIdsOffset, 0x4c);
+    buffer.writeUInt32LE(methods.length, 0x58);
+    buffer.writeUInt32LE(methodIdsOffset, 0x5c);
+    buffer.writeUInt32LE(1, 0x60);
+    buffer.writeUInt32LE(classDefsOffset, 0x64);
+
+    let currentOffset = stringDataOffset;
+    for (let i = 0; i < strings.length; i += 1) {
+        buffer.writeUInt32LE(currentOffset, stringIdsOffset + i * 4);
+        stringDataItems[i].copy(buffer, currentOffset);
+        currentOffset += stringDataItems[i].length;
+    }
+
+    for (let i = 0; i < typeStringIndexes.length; i += 1) {
+        buffer.writeUInt32LE(typeStringIndexes[i], typeIdsOffset + i * 4);
+    }
+
+    buffer.writeUInt32LE(1, protoIdsOffset);
+    buffer.writeUInt32LE(1, protoIdsOffset + 4);
+    buffer.writeUInt32LE(0, protoIdsOffset + 8);
+
+    for (let i = 0; i < methods.length; i += 1) {
+        const methodOffset = methodIdsOffset + i * 8;
+        buffer.writeUInt16LE(methods[i].classIndex, methodOffset);
+        buffer.writeUInt16LE(methods[i].protoIndex, methodOffset + 2);
+        buffer.writeUInt32LE(methods[i].nameStringIndex, methodOffset + 4);
+    }
+
+    buffer.writeUInt32LE(0, classDefsOffset);
+    buffer.writeUInt32LE(classDataOffset, classDefsOffset + 24);
+    firstCode.copy(buffer, firstCodeOffset);
+    secondCode.copy(buffer, secondCodeOffset);
+    classData.copy(buffer, classDataOffset);
+
+    return buffer;
+}
+
 describe('APK DEX 复核工具', () => {
     it('读取 ULEB128 数值', () => {
         expect(readUleb128(Buffer.from([0x7f]), 0)).toEqual({ value: 127, nextOffset: 1 });
@@ -350,6 +437,28 @@ describe('APK DEX 复核工具', () => {
             commanderGrowthField: 't:I',
             commanderGrowthDefault: 25
         });
+    });
+
+    it('反查 DEX 字符串引用方法', () => {
+        expect(parseDexStringReferenceMethods(
+            createMinimalStringReferenceDex(),
+            ['Cannot support from (', 'Cannot attack from (']
+        )).toEqual([
+            expect.objectContaining({
+                string: 'Cannot attack from (',
+                classDescriptor: 'Lc/a/b/a/l;',
+                name: 'i',
+                returnType: 'V',
+                parameterTypes: []
+            }),
+            expect.objectContaining({
+                string: 'Cannot support from (',
+                classDescriptor: 'Lc/a/b/a/l;',
+                name: 'm',
+                returnType: 'V',
+                parameterTypes: []
+            })
+        ]);
     });
 
     it('按规则关键词分组输出战斗、支援和状态证据', () => {
