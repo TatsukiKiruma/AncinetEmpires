@@ -101,6 +101,12 @@ npm run apk:script-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异。
 
+### 复核 APK skirmish 训练场景
+```bash
+npm run apk:training-report -- --check
+```
+该命令会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景，并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 场景 manifest 匹配、metadata 匹配，且所有场景初始合法动作数均大于 0；可加 `--include-approximate` 检查含低可信地形的 40 个扩展场景。
+
 ## 待补充与未实现 (TODO List)
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
