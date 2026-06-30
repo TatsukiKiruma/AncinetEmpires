@@ -1294,6 +1294,8 @@ describe('GameEngine Rules', () => {
             initialGold: 300,
             unitLimit: 30,
             levelCap: 3,
+            incomeCommanderBase: 50,
+            incomeCommanderGrowth: 25,
             commanderRecruitBaseCost: 400,
             commanderRecruitCostGrowth: 100,
             allowPendingRecruitEndTurn: true,
@@ -1676,7 +1678,7 @@ describe('GameEngine Rules', () => {
         const incomeBefore = apkSemanticState.players.find(player => player.id === 1)!.gold;
         const apkSemanticEngine = new GameEngine(apkSemanticState);
         apkSemanticEngine.step({ type: 'end_turn' });
-        expect(apkSemanticEngine.getState().players.find(player => player.id === 1)!.gold).toBe(incomeBefore + 150);
+        expect(apkSemanticEngine.getState().players.find(player => player.id === 1)!.gold).toBe(incomeBefore + 200);
 
         const apkDestroyState = createDemoState();
         apkDestroyState.map.tiles[0][0] = {
@@ -1803,8 +1805,8 @@ describe('GameEngine Rules', () => {
         const finalState = engine.getState();
         expect(finalState.currentPlayer).toBe(1);
         
-        // Income = 100 (from 7,7 P1 Castle) + 50 (from 6,6 P1 Town) = 150
-        expect(finalState.players[1].gold).toBe(currentP1Gold + 150);
+        // Income = 100 (7,7 castle) + 50 (6,6 town) + 50 (APK default commander base) = 200
+        expect(finalState.players[1].gold).toBe(currentP1Gold + 200);
         
         // Healing = +20 (standing on castle), but maxHp is 150
         expect(finalState.units.find(u => u.id === 'u2')!.hp).toBe(150);
@@ -3220,7 +3222,7 @@ describe('GameEngine Rules', () => {
 
             const finalState = engine.getState();
             const diffG = finalState.players[0].gold - prevGold;
-            expect(diffG).toBe(125);
+            expect(diffG).toBe(175);
         });
 
         it('6.17 单位升级后的移动成长会进入合法移动范围', () => {

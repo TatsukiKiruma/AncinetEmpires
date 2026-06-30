@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
     buildKeywordReports,
     parseDexMethodSignatures,
+    parseDexRuleDefaultIncomeEvidence,
     parseDexStrings,
     readDexString,
     readUleb128
@@ -139,6 +140,170 @@ function createMinimalMethodDex(): Buffer {
     return buffer;
 }
 
+function createCodeItem(registersSize: number, insSize: number, instructions: readonly number[]): Buffer {
+    const buffer = Buffer.alloc(16 + instructions.length * 2);
+    buffer.writeUInt16LE(registersSize, 0);
+    buffer.writeUInt16LE(insSize, 2);
+    buffer.writeUInt32LE(instructions.length, 12);
+    for (let i = 0; i < instructions.length; i += 1) {
+        buffer.writeUInt16LE(instructions[i], 16 + i * 2);
+    }
+    return buffer;
+}
+
+function concatBuffers(buffers: readonly Buffer[]): Buffer {
+    return Buffer.concat(buffers);
+}
+
+function createMinimalRuleIncomeDex(): Buffer {
+    const strings = [
+        'Lc/a/b/a/x/e;',
+        'Lc/a/b/a/t/d;',
+        'I',
+        'V',
+        '<init>',
+        'SetIncomeCommanderBase',
+        'SetIncomeCommanderGrowth',
+        's',
+        't'
+    ];
+    const typeStringIndexes = [0, 1, 2, 3];
+    const protos = [
+        { returnTypeIndex: 3, parameterTypeIndexes: [] },
+        { returnTypeIndex: 3, parameterTypeIndexes: [2] }
+    ];
+    const fields = [
+        { classIndex: 1, typeIndex: 2, nameStringIndex: 7 },
+        { classIndex: 1, typeIndex: 2, nameStringIndex: 8 }
+    ];
+    const methods = [
+        { classIndex: 1, protoIndex: 0, nameStringIndex: 4 },
+        { classIndex: 0, protoIndex: 1, nameStringIndex: 5 },
+        { classIndex: 0, protoIndex: 1, nameStringIndex: 6 }
+    ];
+    const typeListInt = createTypeList([2]);
+    const stringDataItems = strings.map(createDexString);
+    const headerSize = 0x70;
+    const stringIdsOffset = headerSize;
+    const typeIdsOffset = stringIdsOffset + strings.length * 4;
+    const protoIdsOffset = typeIdsOffset + typeStringIndexes.length * 4;
+    const fieldIdsOffset = protoIdsOffset + protos.length * 12;
+    const methodIdsOffset = fieldIdsOffset + fields.length * 8;
+    const classDefsOffset = methodIdsOffset + methods.length * 8;
+    const typeListOffset = classDefsOffset + 2 * 32;
+    const stringDataOffset = typeListOffset + typeListInt.length;
+    const rawStringDataEnd = stringDataOffset + stringDataItems.reduce((sum, item) => sum + item.length, 0);
+    const constructorCodeOffset = alignToFour(rawStringDataEnd);
+    const constructorCode = createCodeItem(2, 1, [
+        0x0013, 50,
+        0x1059, 0,
+        0x0013, 25,
+        0x1059, 1,
+        0x000e
+    ]);
+    const baseSetterCodeOffset = alignToFour(constructorCodeOffset + constructorCode.length);
+    const baseSetterCode = createCodeItem(3, 2, [
+        0x0259, 0,
+        0x000e
+    ]);
+    const growthSetterCodeOffset = alignToFour(baseSetterCodeOffset + baseSetterCode.length);
+    const growthSetterCode = createCodeItem(3, 2, [
+        0x0259, 1,
+        0x000e
+    ]);
+    const dataClassData = Buffer.from([
+        ...encodeUleb128(0),
+        ...encodeUleb128(2),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(constructorCodeOffset)
+    ]);
+    const dataClassDataOffset = alignToFour(growthSetterCodeOffset + growthSetterCode.length);
+    const ruleClassData = Buffer.from([
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(2),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(baseSetterCodeOffset),
+        ...encodeUleb128(1),
+        ...encodeUleb128(0),
+        ...encodeUleb128(growthSetterCodeOffset)
+    ]);
+    const ruleClassDataOffset = dataClassDataOffset + dataClassData.length;
+    const totalSize = ruleClassDataOffset + ruleClassData.length;
+    const buffer = Buffer.alloc(totalSize);
+
+    buffer.write('dex\n035\0', 0, 'ascii');
+    buffer.writeUInt32LE(strings.length, 0x38);
+    buffer.writeUInt32LE(stringIdsOffset, 0x3c);
+    buffer.writeUInt32LE(typeStringIndexes.length, 0x40);
+    buffer.writeUInt32LE(typeIdsOffset, 0x44);
+    buffer.writeUInt32LE(protos.length, 0x48);
+    buffer.writeUInt32LE(protoIdsOffset, 0x4c);
+    buffer.writeUInt32LE(fields.length, 0x50);
+    buffer.writeUInt32LE(fieldIdsOffset, 0x54);
+    buffer.writeUInt32LE(methods.length, 0x58);
+    buffer.writeUInt32LE(methodIdsOffset, 0x5c);
+    buffer.writeUInt32LE(2, 0x60);
+    buffer.writeUInt32LE(classDefsOffset, 0x64);
+
+    let currentOffset = stringDataOffset;
+    for (let i = 0; i < strings.length; i += 1) {
+        buffer.writeUInt32LE(currentOffset, stringIdsOffset + i * 4);
+        stringDataItems[i].copy(buffer, currentOffset);
+        currentOffset += stringDataItems[i].length;
+    }
+
+    for (let i = 0; i < typeStringIndexes.length; i += 1) {
+        buffer.writeUInt32LE(typeStringIndexes[i], typeIdsOffset + i * 4);
+    }
+
+    for (let i = 0; i < protos.length; i += 1) {
+        const protoOffset = protoIdsOffset + i * 12;
+        buffer.writeUInt32LE(3, protoOffset);
+        buffer.writeUInt32LE(protos[i].returnTypeIndex, protoOffset + 4);
+        buffer.writeUInt32LE(protos[i].parameterTypeIndexes.length > 0 ? typeListOffset : 0, protoOffset + 8);
+    }
+
+    for (let i = 0; i < fields.length; i += 1) {
+        const fieldOffset = fieldIdsOffset + i * 8;
+        buffer.writeUInt16LE(fields[i].classIndex, fieldOffset);
+        buffer.writeUInt16LE(fields[i].typeIndex, fieldOffset + 2);
+        buffer.writeUInt32LE(fields[i].nameStringIndex, fieldOffset + 4);
+    }
+
+    for (let i = 0; i < methods.length; i += 1) {
+        const methodOffset = methodIdsOffset + i * 8;
+        buffer.writeUInt16LE(methods[i].classIndex, methodOffset);
+        buffer.writeUInt16LE(methods[i].protoIndex, methodOffset + 2);
+        buffer.writeUInt32LE(methods[i].nameStringIndex, methodOffset + 4);
+    }
+
+    const dataClassDefOffset = classDefsOffset;
+    buffer.writeUInt32LE(1, dataClassDefOffset);
+    buffer.writeUInt32LE(dataClassDataOffset, dataClassDefOffset + 24);
+    const ruleClassDefOffset = classDefsOffset + 32;
+    buffer.writeUInt32LE(0, ruleClassDefOffset);
+    buffer.writeUInt32LE(ruleClassDataOffset, ruleClassDefOffset + 24);
+
+    typeListInt.copy(buffer, typeListOffset);
+    constructorCode.copy(buffer, constructorCodeOffset);
+    baseSetterCode.copy(buffer, baseSetterCodeOffset);
+    growthSetterCode.copy(buffer, growthSetterCodeOffset);
+    dataClassData.copy(buffer, dataClassDataOffset);
+    ruleClassData.copy(buffer, ruleClassDataOffset);
+
+    return concatBuffers([buffer]);
+}
+
 describe('APK DEX 复核工具', () => {
     it('读取 ULEB128 数值', () => {
         expect(readUleb128(Buffer.from([0x7f]), 0)).toEqual({ value: 127, nextOffset: 1 });
@@ -172,6 +337,19 @@ describe('APK DEX 复核工具', () => {
                 parameterTypes: ['I', 'I']
             }
         ]);
+    });
+
+    it('解析规则默认指挥官收入字段', () => {
+        expect(parseDexRuleDefaultIncomeEvidence(createMinimalRuleIncomeDex())).toEqual({
+            ruleClassDescriptor: 'Lc/a/b/a/x/e;',
+            ruleDataClassDescriptor: 'Lc/a/b/a/t/d;',
+            commanderBaseSetter: 'SetIncomeCommanderBase',
+            commanderBaseField: 's:I',
+            commanderBaseDefault: 50,
+            commanderGrowthSetter: 'SetIncomeCommanderGrowth',
+            commanderGrowthField: 't:I',
+            commanderGrowthDefault: 25
+        });
     });
 
     it('按规则关键词分组输出战斗、支援和状态证据', () => {

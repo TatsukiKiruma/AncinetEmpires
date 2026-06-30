@@ -14,13 +14,12 @@ describe('APK skirmish rule report', () => {
             'support-assault-project-probe',
             'counter-blind-storm-project-probe'
         ]);
-        expect(report.manualVerificationItems).toHaveLength(5);
+        expect(report.manualVerificationItems).toHaveLength(4);
         expect(report.manualVerificationItems.map(item => item.id)).toEqual([
             'low-confidence-tiles-t80-t83',
             'water-obstacle-tiles-t81-t82',
             'support-and-assault-edge-order',
-            'counter-blind-storm-order',
-            'default-commander-income'
+            'counter-blind-storm-order'
         ]);
         expect(report.manualVerificationItems.filter(item => item.priority === 'P0')).toEqual([]);
     });
@@ -173,17 +172,19 @@ describe('APK skirmish rule report', () => {
         expect(byId['default-commander-income'].actual).toEqual({
             staticEvidence: {
                 languageConfirmsCommanderIncome: true,
+                dexRuleDataConstructorDefaults: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                dexSetterFields: { incomeCommanderBase: 'Lc/a/b/a/t/d;.s:I', incomeCommanderGrowth: 'Lc/a/b/a/t/d;.t:I' },
                 sdControllerHasLiteralRuleConfig: false,
                 soControllerRuleIncome: null,
                 explicitZeroCommanderIncomeScriptCount: 7
             },
             sd: {
-                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
-                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+                rules: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 50, level1: 75, level2: 100, noCommander: 0 }
             },
             so: {
-                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
-                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+                rules: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 50, level1: 75, level2: 100, noCommander: 0 }
             }
         });
         expect(byId['default-training-terrain-risk'].actual).toEqual({

@@ -230,13 +230,6 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             title: '致盲、反击和反击风暴顺序',
             currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
             requestedEvidence: 'DEX 已确认 Cannot attack from/state、AsyncAttack 和 SyncSetUnitStatus 字符串；仍需针对性实测记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
-        },
-        {
-            id: 'default-commander-income',
-            priority: 'P2',
-            title: 'skirmish 默认指挥官收入',
-            currentProjectAssumption: '当前 SD/SO 默认使用 commander base=0、growth=25；脚本可覆盖该配置。',
-            requestedEvidence: '继续从 APK 默认 Rule 初始化和 SD/SO controller 路径确认未显式配置时的 base/growth 默认值。'
         }
     ];
 }
@@ -934,6 +927,8 @@ function buildDefaultCommanderIncomeActual() {
     return {
         staticEvidence: {
             languageConfirmsCommanderIncome: true,
+            dexRuleDataConstructorDefaults: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+            dexSetterFields: { incomeCommanderBase: 'Lc/a/b/a/t/d;.s:I', incomeCommanderGrowth: 'Lc/a/b/a/t/d;.t:I' },
             sdControllerHasLiteralRuleConfig: sdControllerRuleConfig !== null,
             soControllerRuleIncome: soControllerRuleConfig?.ruleIncome ?? null,
             explicitZeroCommanderIncomeScriptCount: zeroCommanderIncomeProfile?.scriptCount ?? 0
@@ -1506,21 +1501,23 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         checks,
         'default-commander-income',
         '当前默认 skirmish 指挥官收入',
-        'APK 语言表确认指挥官存活收入机制；SD/SO controller 未显式覆盖收入；项目当前 RuleConfig 默认值仍待 APK 默认初始化确认',
+        'APK 语言表确认指挥官存活收入机制；DEX 规则数据构造器确认默认 base=50/growth=25；SD/SO controller 未显式覆盖收入',
         {
             staticEvidence: {
                 languageConfirmsCommanderIncome: true,
+                dexRuleDataConstructorDefaults: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                dexSetterFields: { incomeCommanderBase: 'Lc/a/b/a/t/d;.s:I', incomeCommanderGrowth: 'Lc/a/b/a/t/d;.t:I' },
                 sdControllerHasLiteralRuleConfig: false,
                 soControllerRuleIncome: null,
                 explicitZeroCommanderIncomeScriptCount: 7
             },
             sd: {
-                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
-                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+                rules: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 50, level1: 75, level2: 100, noCommander: 0 }
             },
             so: {
-                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
-                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+                rules: { incomeCommanderBase: 50, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 50, level1: 75, level2: 100, noCommander: 0 }
             }
         },
         buildDefaultCommanderIncomeActual()

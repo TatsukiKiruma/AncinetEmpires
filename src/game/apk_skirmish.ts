@@ -147,6 +147,8 @@ export function getApkSkirmishRuleConfig(
         initialGold: resolvedSetup.initialGold,
         unitLimit: resolvedSetup.unitLimit,
         levelCap: resolvedSetup.levelCap,
+        incomeCommanderBase: 50,
+        incomeCommanderGrowth: 25,
         allowSurrender: true,
         allowPendingRecruitEndTurn: true,
         allowPendingRecruitSurrender: true,

@@ -487,7 +487,7 @@ skirmish 训练导入映射：
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`APK/_analysis/unpack/classes.dex` 可解析出 26529 个字符串；必要字符串缺失 0，必要方法名缺失 0；`CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase`、`SetIncomeCommanderGrowth`、`SetLevelCap`、`SetPrices`、`SyncSetGold`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`Cannot recruit when stacked!`、`OnUnitRecruited`、`Cannot attack from (`、`Cannot attack in state [`、`Cannot support from (`、`Cannot support in state [`、`AsyncAttack` 和 `SyncSetUnitStatus` 等必要字符串均存在；方法表可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack` 和 `SyncSetUnitStatus` 的关键签名；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；按 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 匹配的疑似指挥官复活 API 字符串为 0。该报告证明 DEX API 暴露和签名证据，不等同于完整 Java 控制流反编译。
+当前命令输出确认：`APK/_analysis/unpack/classes.dex` 可解析出 26529 个字符串；必要字符串缺失 0，必要方法名缺失 0；`CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase`、`SetIncomeCommanderGrowth`、`SetLevelCap`、`SetPrices`、`SyncSetGold`、`SyncSetRecruitUnits`、`SyncSetRecruitUnitsForTeam`、`SyncSetUnitLimit`、`Cannot recruit when stacked!`、`OnUnitRecruited`、`Cannot attack from (`、`Cannot attack in state [`、`Cannot support from (`、`Cannot support in state [`、`AsyncAttack` 和 `SyncSetUnitStatus` 等必要字符串均存在；方法表可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack` 和 `SyncSetUnitStatus` 的关键签名；构造器字节码确认 `SetIncomeCommanderBase` 对应字段默认 50、`SetIncomeCommanderGrowth` 对应字段默认 25；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；按 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 匹配的疑似指挥官复活 API 字符串为 0。该报告证明 DEX API 暴露和签名证据，不等同于完整 Java 控制流反编译。
 
 | API/字符串 | 含义 |
 | --- | --- |
@@ -565,6 +565,7 @@ npm run apk:dex-report -- --check
 | `Lc/a/b/a/o` | `AsyncAttack(int, int, int) -> void` / `AsyncAttack(int, int, int, int) -> void` | 脚本/演出层攻击入口存在两种重载 |
 | `Lc/a/b/a/o` | `SyncSetUnitStatus(int, int, int, int, boolean) -> void` | 按坐标/状态/回合数同步单位状态 |
 | `Lc/a/b/a/x/e` | `SetIncomeCommanderBase(int)` / `SetIncomeCommanderGrowth(int)` | 设置指挥官收入规则 |
+| `Lc/a/b/a/t/d` | `<init>()` 中 `s=50`、`t=25` | 默认指挥官收入为基础 50、每级成长 25 |
 | `Lc/a/b/a/x/f` | `GetPrice() -> int` | 读取单位对象的价格字段；短方法字节码显示它直接读取 `Lc/a/b/a/x/f.e` |
 | `Lc/a/b/a/t/f` | `a(int level) -> int` | 等级经验阈值公式：`level <= 0` 为 0，否则 `(level + 1) * 100 * level / 2` |
 | `Lc/a/b/a/t/f` | `b(int exp) -> int` | 按经验反推等级，内部从 9 级向下检查，说明 APK 数据层至少支持 0-9 级 |
@@ -634,10 +635,11 @@ npm run apk:dex-report -- --check
    - 项目：已通过 `RuleConfig.teams[playerId].initialGold` 支持在创建初始状态时应用队伍初始金币。
    - 状态：已实现配置层，APK 真实默认值待确认。
 
-3. 指挥官收入默认值仍需确认
-   - APK：Wiki 明确“保证指挥官存活”产生金币，dex 有 `SetIncomeCommanderBase` 和 `SetIncomeCommanderGrowth`。
-   - 项目：已支持 `incomeCommanderBase + level * incomeCommanderGrowth`，并能按脚本指定的队伍指挥官结算。默认仍保持旧项目行为：基础收入 0，每级 +25。
-   - 状态：配置层已实现；`apk:skirmish-rule-report` 已门禁当前训练默认 `base=0/growth=25` 与 0/1/2 级收入结算，并记录语言表确认指挥官收入机制、SD/SO controller 未显式覆盖收入、战役脚本 7 处显式 `0/0` 的静态证据。APK 规则类未显式配置时的默认初始化值仍待继续确认。
+3. 指挥官收入默认值
+   - APK：Wiki 明确“保证指挥官存活”产生金币，DEX 有 `SetIncomeCommanderBase` 和 `SetIncomeCommanderGrowth`。
+   - DEX 证据：`SetIncomeCommanderBase` 写入 `Lc/a/b/a/t/d;.s:I`，规则数据构造器默认把该字段设为 50；`SetIncomeCommanderGrowth` 写入 `Lc/a/b/a/t/d;.t:I`，默认值为 25。
+   - 项目：已支持 `incomeCommanderBase + level * incomeCommanderGrowth`，并把默认规则和 SD/SO skirmish 规则校准为 `base=50/growth=25`；脚本中显式 `0/0` 的关卡仍可覆盖该默认值。
+   - 状态：已实现并由 `apk:dex-report -- --check` 与 `apk:skirmish-rule-report -- --check` 门禁。
 
 4. 关卡级可招募单位列表
    - APK：dex 有 `SyncSetRecruitUnitsForTeam`。
@@ -765,11 +767,11 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 1. 继续整理已解密 APK 资源，把 `.js` 脚本里的经济、招募、单位上限、联盟和目标配置归档成可引用表。
 2. 用 APK 实测或反编译结果继续补充指挥官城堡招募后的 UI 选择流程和更多部署样例。
-3. 继续校准官方行动顺序、低可信地形和默认指挥官收入来源等仍未完全证明的对战边界。
+3. 继续校准官方行动顺序和低可信地形等仍未完全证明的对战边界。
 4. 校准 84 条 APK 地形定义到项目地形类型的映射，尤其是桥、水面、建筑和特殊地形。
 5. 继续确认 `.aem` 尾部 58 字节模板语义；在语义确认前，不应把固定尾部用于推导联盟、玩家颜色或阵营预设。
 
-当前最值得继续落地的规则任务是：继续扩大脚本配置应用面，并用 APK 实测或更完整反编译结果校准支援/突击顺序、致盲/反击风暴顺序、低可信地形和默认指挥官收入来源。
+当前最值得继续落地的规则任务是：继续扩大脚本配置应用面，并用 APK 实测或更完整反编译结果校准支援/突击顺序、致盲/反击风暴顺序和低可信地形。
 
 ## 15. 实现记录
 
@@ -861,9 +863,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 skirmish 实机规则复核工具化：
 
 - 新增 `tools/apk_skirmish_rule_report.ts`，可通过 `npm run apk:skirmish-rule-report -- --check` 复核用户实机确认的 skirmish 行为。
-- 当前覆盖 22 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD/SO 默认招募费用和人口占用，SD 指挥官不在场时可重招募，SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募，当前训练默认 SD/SO 指挥官收入 `base=0/growth=25` 及 SD/SO controller 未显式覆盖收入的静态证据，skirmish 指挥官死亡后不自动复活且重招募继承等级/经验，主动治疗超上限后下一己方回合开始先裁剪到最大生命，升级不裁剪既有超上限生命，亡灵中毒/墓碑被动回血不突破最大生命，默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，APK 地形防御参与战斗且飞行单位不吃地形防御，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
+- 当前覆盖 22 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD/SO 默认招募费用和人口占用，SD 指挥官不在场时可重招募，SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募，DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`，skirmish 指挥官死亡后不自动复活且重招募继承等级/经验，主动治疗超上限后下一己方回合开始先裁剪到最大生命，升级不裁剪既有超上限生命，亡灵中毒/墓碑被动回血不突破最大生命，默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，APK 地形防御参与战斗且飞行单位不吃地形防御，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
 - 当前复核结果为 22/22 检查通过；新增检查会门禁 SD/SO 默认招募费用和人口占用、SD 指挥官费用曲线 `400/500/600`、SO 禁用指挥官招募、skirmish 无自动复活且重招募继承等级/经验、治疗超上限后的回合开始裁剪、亡灵被动回血封顶、当前训练默认指挥官收入结算和静态来源证据、默认训练地图低可信地形风险隔离，以及 APK data.bin `defenseBonus` 进入战斗结算。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用/复活/超上限生命/收入/地形防御/招募经济假设回退。
-- 报告末尾输出 2 项当前项目边界探针和 5 项待调查清单，不参与 `--check` 失败判定。边界探针会把支援/突击、致盲/普通反击/反击风暴的当前项目行为转成可对照实机验证项；当前探针结果为：同一目标本回合只能被支援一次，狼移动 2 格后攻击仍保留 4 点突击后移动力，普通单位被致盲后不普通反击，狂战士在 2 格内可触发反击风暴而 3 格不触发。待调查清单用于后续回填低可信地形、复杂行动顺序和默认指挥官收入初始化来源等剩余边界。
+- 报告末尾输出 2 项当前项目边界探针和 4 项待调查清单，不参与 `--check` 失败判定。边界探针会把支援/突击、致盲/普通反击/反击风暴的当前项目行为转成可对照实机验证项；当前探针结果为：同一目标本回合只能被支援一次，狼移动 2 格后攻击仍保留 4 点突击后移动力，普通单位被致盲后不普通反击，狂战士在 2 格内可触发反击风暴而 3 格不触发。待调查清单用于后续回填低可信地形和复杂行动顺序等剩余边界。
 - 新增 `createDefaultAppGameState()`，前端沙盒和自动 AI 演示默认沿用现有演示棋盘，但应用 APK 正常遭遇战 `SD` 规则配置，避免实际运行入口继续使用旧的裸 demo 规则。
 
 2026-06-29 全局初始金币规则补充：
@@ -1004,7 +1006,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 语言文件显示 `SD` 模式名为 `Default/默认`，`SO` 模式名为 `AEII/原版`；用户实机确认 SD 是正常遭遇战模式，SO 更接近原版/特殊规则模式。
 - skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9，步进 1）。项目已用 `getApkSkirmishSetupOptions()` 结构化这些范围，并让训练场景、`GameState.metadata.apkSkirmishSetupOptions`、Observation metadata 和 `apk:training-report` 输出同一份设置事实。`getApkSkirmishRuleConfig(mode, setup)` 与 `createApkSkirmishGameState(..., { setup })` 会按这些范围校验自定义开局值，非法范围或步进会直接报错，避免训练端采样 APK UI 不能选择的配置。
-- SD/默认模式可招募：指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。指挥官仅在本方指挥官阵亡或不在场时可招募，data.bin 基础价格字段为 400，死亡后价格是否递增仍待实测。
+- SD/默认模式可招募：指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。指挥官仅在本方指挥官阵亡或不在场时可招募，data.bin 基础价格字段为 400，实机确认阵亡后 500 起并每死一次 +100。
 - SO/原版模式仍按 `SO/controller.js` 限制为 APK ID 0-8：战士、弓箭手、水元素、女巫、精灵、狼、石头人、投石车、龙。
 - 项目已把 `getApkSkirmishRuleConfig('SD'/'SO')` 的默认 `initialGold/unitLimit/levelCap` 分别设为 300/30/3；地图 AEM 的推荐金币仍保存在 metadata，用于记录地图建议值而不是覆盖用户开局设置。
 
@@ -1213,13 +1215,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 当前 `npm run apk:script-report -- --check` 结果：27/27 脚本匹配，API 计数差异为 0，字面量配置差异为 0。
 - 这一步不执行剧情 `Async*` API，也不把动态参数转为静态规则；它只把“脚本 manifest 的来源证据”变成可重复复核命令，防止后续忘记已确认的 APK 调用次数和字面量规则值。
 
-2026-07-01 APK DEX 字符串与方法表复核工具：
+2026-07-01 APK DEX 字符串、方法表与默认规则复核工具：
 
-- `tools/apk_dex_report.ts` 和 npm 脚本 `apk:dex-report` 默认读取 `APK/_analysis/unpack/classes.dex`，直接解析 DEX string_ids/string_data 字符串表以及 type_ids/proto_ids/method_ids 方法签名，不依赖 `jadx/apktool/baksmali`。
-- 工具按 commander、recruit、revive、setup、combat_action、support_action、status_stage 分组输出关键词命中，并用 `--check` 复核必要字符串、必要方法名和疑似指挥官复活 API 候选。
-- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，必要方法名缺失为 0，攻击动作关键词命中 4，支援动作命中 2，状态 Stage 命中 4，`revive` 关键词分组命中 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
+- `tools/apk_dex_report.ts` 和 npm 脚本 `apk:dex-report` 默认读取 `APK/_analysis/unpack/classes.dex`，直接解析 DEX string_ids/string_data 字符串表、type_ids/proto_ids/method_ids 方法签名，以及用于默认规则值的少量 class_data/code_item 字节码，不依赖 `jadx/apktool/baksmali`。
+- 工具按 commander、recruit、revive、setup、combat_action、support_action、status_stage 分组输出关键词命中，并用 `--check` 复核必要字符串、必要方法名、默认指挥官收入和疑似指挥官复活 API 候选。
+- 当前 `npm run apk:dex-report -- --check` 结果：26529 个字符串可解析，必要字符串缺失为 0，必要方法名缺失为 0，默认指挥官收入为 `base=50/growth=25`，攻击动作关键词命中 4，支援动作命中 2，状态 Stage 命中 4，`revive` 关键词分组命中 0，`ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 候选为 0。
 - 当前可重复解析的关键方法签名包括：`AsyncAttack(int, int, int)`、`AsyncAttack(int, int, int, int)`、`CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetCommander(int, int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`SyncSetUnitStatus(int, int, int, int, boolean)`。
-- 这一步不改变对战规则结算；它只把“DEX API 暴露与签名层已确认/未发现的证据”变成可重复命令。skirmish 指挥官阵亡后重招募价格递增已按实机验证落地；战役复活流程不纳入当前 AI 对战目标。
+- 这一步把“DEX API 暴露、签名层和默认规则初始化已确认/未发现的证据”变成可重复命令；项目 skirmish 指挥官收入已经按 `base=50/growth=25` 校准。skirmish 指挥官阵亡后重招募价格递增已按实机验证落地；战役复活流程不纳入当前 AI 对战目标。
 
 2026-06-29 APK 脚本配置 manifest 补充：
 

@@ -7,7 +7,7 @@ export const DEFAULT_RULE_CONFIG = {
     initialGold: undefined,
     incomeVillage: 50,
     incomeCastle: 100,
-    incomeCommanderBase: 0,
+    incomeCommanderBase: 50,
     incomeCommanderGrowth: 25,
     levelCap: 3,
     unitLimit: undefined,

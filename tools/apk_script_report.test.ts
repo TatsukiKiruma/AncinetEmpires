@@ -127,10 +127,10 @@ describe('APK 脚本复核工具', () => {
             resourcePath: 'assets/mods/AEIII/s4.js',
             incomeVillage: 100,
             incomeCastle: 100,
-            incomeCommanderBase: 0,
+            incomeCommanderBase: 50,
             incomeCommanderGrowth: 25,
             player0GoldBeforeIncome: 500,
-            player0GoldAfterIncome: 600
+            player0GoldAfterIncome: 650
         });
         expect(byId['stage-move-override-observation'].actual).toEqual({
             resourcePath: 'assets/mods/AEIII/s4.js',

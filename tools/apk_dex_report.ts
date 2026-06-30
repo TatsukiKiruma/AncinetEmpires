@@ -24,11 +24,39 @@ interface DexProtoSignature {
     parameterTypes: string[];
 }
 
+interface DexFieldId {
+    index: number;
+    classDescriptor: string;
+    typeDescriptor: string;
+    name: string;
+}
+
+interface DexMethodId extends DexMethodSignature {
+    index: number;
+}
+
+interface DexClassMethod {
+    methodIndex: number;
+    codeOffset: number;
+    method: DexMethodId;
+}
+
 export interface DexMethodSignature {
     classDescriptor: string;
     name: string;
     returnType: string;
     parameterTypes: string[];
+}
+
+export interface DexRuleDefaultIncomeEvidence {
+    ruleClassDescriptor: string;
+    ruleDataClassDescriptor: string;
+    commanderBaseSetter: string;
+    commanderBaseField: string;
+    commanderBaseDefault: number;
+    commanderGrowthSetter: string;
+    commanderGrowthField: string;
+    commanderGrowthDefault: number;
 }
 
 export interface DexKeywordGroupReport {
@@ -47,6 +75,7 @@ interface ApkDexReport {
     requiredMethodNames: string[];
     missingRequiredMethodNames: string[];
     methodSignatures: DexMethodSignature[];
+    ruleDefaultIncomeEvidence: DexRuleDefaultIncomeEvidence;
     commanderReviveApiCandidates: string[];
     keywordGroups: DexKeywordGroupReport[];
 }
@@ -93,6 +122,12 @@ const REQUIRED_METHOD_NAMES = [
 ] as const;
 
 const COMMANDER_REVIVE_API_PATTERN = /(?:ReviveCommander|RespawnCommander|CommanderRevive|CommanderRespawn)/i;
+const RULE_STAGE_CLASS_DESCRIPTOR = 'Lc/a/b/a/x/e;';
+const RULE_DATA_CLASS_DESCRIPTOR = 'Lc/a/b/a/t/d;';
+const EXPECTED_RULE_DEFAULT_INCOME = {
+    commanderBaseDefault: 50,
+    commanderGrowthDefault: 25
+} as const;
 
 const KEYWORD_GROUPS = [
     {
@@ -399,11 +434,52 @@ function parseDexProtos(buffer: Buffer, types: readonly string[]): DexProtoSigna
     return protos;
 }
 
-export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly string[]): DexMethodSignature[] {
-    const wantedNames = new Set(methodNames);
-    const strings = parseDexStrings(buffer);
-    const types = parseDexTypes(buffer, strings);
-    const protos = parseDexProtos(buffer, types);
+function parseDexFields(buffer: Buffer, strings: readonly string[], types: readonly string[]): DexFieldId[] {
+    const fieldIdsSize = buffer.readUInt32LE(0x50);
+    const fieldIdsOffset = buffer.readUInt32LE(0x54);
+    const fieldIdsEnd = fieldIdsOffset + fieldIdsSize * 8;
+
+    if (fieldIdsEnd > buffer.length) {
+        throw new Error('DEX field_ids 区域越界');
+    }
+
+    const fields: DexFieldId[] = [];
+    for (let i = 0; i < fieldIdsSize; i += 1) {
+        const itemOffset = fieldIdsOffset + i * 8;
+        const classIndex = buffer.readUInt16LE(itemOffset);
+        const typeIndex = buffer.readUInt16LE(itemOffset + 2);
+        const nameIndex = buffer.readUInt32LE(itemOffset + 4);
+        const classDescriptor = types[classIndex];
+        const typeDescriptor = types[typeIndex];
+        const name = strings[nameIndex];
+
+        if (classDescriptor === undefined) {
+            throw new Error(`DEX field_ids 类索引越界: index=${i}, class_idx=${classIndex}`);
+        }
+        if (typeDescriptor === undefined) {
+            throw new Error(`DEX field_ids 类型索引越界: index=${i}, type_idx=${typeIndex}`);
+        }
+        if (name === undefined) {
+            throw new Error(`DEX field_ids 字段名索引越界: index=${i}, string_idx=${nameIndex}`);
+        }
+
+        fields.push({
+            index: i,
+            classDescriptor,
+            typeDescriptor,
+            name
+        });
+    }
+
+    return fields;
+}
+
+function parseDexMethodIds(
+    buffer: Buffer,
+    strings: readonly string[],
+    types: readonly string[],
+    protos: readonly DexProtoSignature[]
+): DexMethodId[] {
     const methodIdsSize = buffer.readUInt32LE(0x58);
     const methodIdsOffset = buffer.readUInt32LE(0x5c);
     const methodIdsEnd = methodIdsOffset + methodIdsSize * 8;
@@ -412,7 +488,7 @@ export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly s
         throw new Error('DEX method_ids 区域越界');
     }
 
-    const signatures: DexMethodSignature[] = [];
+    const methods: DexMethodId[] = [];
     for (let i = 0; i < methodIdsSize; i += 1) {
         const itemOffset = methodIdsOffset + i * 8;
         const classIndex = buffer.readUInt16LE(itemOffset);
@@ -423,7 +499,6 @@ export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly s
         if (name === undefined) {
             throw new Error(`DEX method_ids 方法名索引越界: index=${i}, string_idx=${nameIndex}`);
         }
-        if (!wantedNames.has(name)) continue;
 
         const classDescriptor = types[classIndex];
         const proto = protos[protoIndex];
@@ -434,13 +509,32 @@ export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly s
             throw new Error(`DEX method_ids 原型索引越界: index=${i}, proto_idx=${protoIndex}`);
         }
 
-        signatures.push({
+        methods.push({
+            index: i,
             classDescriptor,
             name,
             returnType: proto.returnType,
             parameterTypes: proto.parameterTypes
         });
     }
+
+    return methods;
+}
+
+export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly string[]): DexMethodSignature[] {
+    const wantedNames = new Set(methodNames);
+    const strings = parseDexStrings(buffer);
+    const types = parseDexTypes(buffer, strings);
+    const protos = parseDexProtos(buffer, types);
+    const methods = parseDexMethodIds(buffer, strings, types, protos);
+    const signatures = methods
+        .filter(method => wantedNames.has(method.name))
+        .map(({ classDescriptor, name, returnType, parameterTypes }) => ({
+            classDescriptor,
+            name,
+            returnType,
+            parameterTypes
+        }));
 
     return signatures.sort((left, right) => {
         const byName = left.name.localeCompare(right.name);
@@ -449,6 +543,196 @@ export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly s
         if (byClass !== 0) return byClass;
         return left.parameterTypes.join(',').localeCompare(right.parameterTypes.join(','));
     });
+}
+
+function readDexClassDataMethods(
+    buffer: Buffer,
+    classDescriptor: string,
+    types: readonly string[],
+    methods: readonly DexMethodId[]
+): DexClassMethod[] {
+    const classDefsSize = buffer.readUInt32LE(0x60);
+    const classDefsOffset = buffer.readUInt32LE(0x64);
+    const classDefsEnd = classDefsOffset + classDefsSize * 32;
+
+    if (classDefsEnd > buffer.length) {
+        throw new Error('DEX class_defs 区域越界');
+    }
+
+    for (let i = 0; i < classDefsSize; i += 1) {
+        const itemOffset = classDefsOffset + i * 32;
+        const classIndex = buffer.readUInt32LE(itemOffset);
+        if (types[classIndex] !== classDescriptor) continue;
+
+        const classDataOffset = buffer.readUInt32LE(itemOffset + 24);
+        if (classDataOffset === 0) return [];
+
+        let offset = classDataOffset;
+        let read = readUleb128(buffer, offset);
+        const staticFieldsSize = read.value;
+        offset = read.nextOffset;
+        read = readUleb128(buffer, offset);
+        const instanceFieldsSize = read.value;
+        offset = read.nextOffset;
+        read = readUleb128(buffer, offset);
+        const directMethodsSize = read.value;
+        offset = read.nextOffset;
+        read = readUleb128(buffer, offset);
+        const virtualMethodsSize = read.value;
+        offset = read.nextOffset;
+
+        for (let fieldIndex = 0; fieldIndex < staticFieldsSize + instanceFieldsSize; fieldIndex += 1) {
+            read = readUleb128(buffer, offset);
+            offset = read.nextOffset;
+            read = readUleb128(buffer, offset);
+            offset = read.nextOffset;
+        }
+
+        const result: DexClassMethod[] = [];
+        let methodIndex = 0;
+        const readMethods = (count: number) => {
+            for (let methodNumber = 0; methodNumber < count; methodNumber += 1) {
+                read = readUleb128(buffer, offset);
+                methodIndex += read.value;
+                offset = read.nextOffset;
+                read = readUleb128(buffer, offset);
+                offset = read.nextOffset;
+                read = readUleb128(buffer, offset);
+                const codeOffset = read.value;
+                offset = read.nextOffset;
+                const method = methods[methodIndex];
+                if (method === undefined) {
+                    throw new Error(`DEX class_data 方法索引越界: class=${classDescriptor}, method_idx=${methodIndex}`);
+                }
+                result.push({
+                    methodIndex,
+                    codeOffset,
+                    method
+                });
+            }
+        };
+
+        readMethods(directMethodsSize);
+        methodIndex = 0;
+        readMethods(virtualMethodsSize);
+
+        return result;
+    }
+
+    throw new Error(`DEX class_defs 未找到类: ${classDescriptor}`);
+}
+
+function parseDexIputAssignments(
+    buffer: Buffer,
+    fields: readonly DexFieldId[],
+    classMethod: DexClassMethod
+): Array<{ field: DexFieldId; value: number | null }> {
+    if (classMethod.codeOffset === 0) return [];
+    const codeOffset = classMethod.codeOffset;
+    if (codeOffset + 16 > buffer.length) {
+        throw new Error(`DEX code_item 越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    const instructionCount = buffer.readUInt32LE(codeOffset + 12);
+    const instructionsOffset = codeOffset + 16;
+    const instructionsEnd = instructionsOffset + instructionCount * 2;
+    if (instructionsEnd > buffer.length) {
+        throw new Error(`DEX code_item 指令区越界: method=${classMethod.method.name}, offset=${codeOffset}`);
+    }
+
+    const registerValues = new Map<number, number>();
+    const assignments: Array<{ field: DexFieldId; value: number | null }> = [];
+    for (let pc = 0; pc < instructionCount;) {
+        const offset = instructionsOffset + pc * 2;
+        const firstUnit = buffer.readUInt16LE(offset);
+        const opcode = firstUnit & 0xff;
+        const highByte = firstUnit >>> 8;
+        let step = 1;
+
+        if (opcode === 0x12) {
+            const register = highByte & 0x0f;
+            const rawLiteral = highByte >>> 4;
+            const literal = rawLiteral >= 8 ? rawLiteral - 16 : rawLiteral;
+            registerValues.set(register, literal);
+        } else if (opcode === 0x13) {
+            if (offset + 4 > instructionsEnd) throw new Error(`DEX const/16 越界: method=${classMethod.method.name}`);
+            registerValues.set(highByte, buffer.readInt16LE(offset + 2));
+            step = 2;
+        } else if (opcode === 0x14) {
+            if (offset + 6 > instructionsEnd) throw new Error(`DEX const 越界: method=${classMethod.method.name}`);
+            registerValues.set(highByte, buffer.readInt32LE(offset + 2));
+            step = 3;
+        } else if (opcode >= 0x59 && opcode <= 0x5f) {
+            if (offset + 4 > instructionsEnd) throw new Error(`DEX iput 越界: method=${classMethod.method.name}`);
+            const sourceRegister = highByte & 0x0f;
+            const fieldIndex = buffer.readUInt16LE(offset + 2);
+            const field = fields[fieldIndex];
+            if (field === undefined) {
+                throw new Error(`DEX iput 字段索引越界: method=${classMethod.method.name}, field_idx=${fieldIndex}`);
+            }
+            assignments.push({
+                field,
+                value: registerValues.get(sourceRegister) ?? null
+            });
+            step = 2;
+        } else if (opcode === 0x1a || opcode === 0x15 || opcode === 0x22 || (opcode >= 0x52 && opcode <= 0x58)) {
+            step = 2;
+        } else if (opcode === 0x28) {
+            step = 1;
+        } else if (opcode === 0x70 || opcode === 0x71 || opcode === 0x72 || opcode === 0x6e) {
+            step = 3;
+        }
+
+        pc += step;
+    }
+
+    return assignments;
+}
+
+export function parseDexRuleDefaultIncomeEvidence(buffer: Buffer): DexRuleDefaultIncomeEvidence {
+    const strings = parseDexStrings(buffer);
+    const types = parseDexTypes(buffer, strings);
+    const protos = parseDexProtos(buffer, types);
+    const fields = parseDexFields(buffer, strings, types);
+    const methods = parseDexMethodIds(buffer, strings, types, protos);
+    const ruleMethods = readDexClassDataMethods(buffer, RULE_STAGE_CLASS_DESCRIPTOR, types, methods);
+    const ruleDataMethods = readDexClassDataMethods(buffer, RULE_DATA_CLASS_DESCRIPTOR, types, methods);
+    const constructor = ruleDataMethods.find(entry => entry.method.name === '<init>' && entry.method.parameterTypes.length === 0);
+
+    if (!constructor) {
+        throw new Error(`DEX 未找到规则数据构造器: ${RULE_DATA_CLASS_DESCRIPTOR}.<init>()`);
+    }
+
+    const getSetterField = (setterName: string) => {
+        const setter = ruleMethods.find(entry => entry.method.name === setterName);
+        if (!setter) throw new Error(`DEX 未找到规则 setter: ${setterName}`);
+        const assignment = parseDexIputAssignments(buffer, fields, setter)
+            .find(item => item.field.classDescriptor === RULE_DATA_CLASS_DESCRIPTOR && item.field.typeDescriptor === 'I');
+        if (!assignment) throw new Error(`DEX 未找到 ${setterName} 写入的规则字段`);
+        return assignment.field;
+    };
+
+    const baseField = getSetterField('SetIncomeCommanderBase');
+    const growthField = getSetterField('SetIncomeCommanderGrowth');
+    const constructorAssignments = parseDexIputAssignments(buffer, fields, constructor);
+    const getDefaultValue = (field: DexFieldId) => {
+        const assignment = constructorAssignments.find(item => item.field.index === field.index);
+        if (!assignment || assignment.value === null) {
+            throw new Error(`DEX 未能解析规则字段默认值: ${field.name}`);
+        }
+        return assignment.value;
+    };
+
+    return {
+        ruleClassDescriptor: RULE_STAGE_CLASS_DESCRIPTOR,
+        ruleDataClassDescriptor: RULE_DATA_CLASS_DESCRIPTOR,
+        commanderBaseSetter: 'SetIncomeCommanderBase',
+        commanderBaseField: `${baseField.name}:I`,
+        commanderBaseDefault: getDefaultValue(baseField),
+        commanderGrowthSetter: 'SetIncomeCommanderGrowth',
+        commanderGrowthField: `${growthField.name}:I`,
+        commanderGrowthDefault: getDefaultValue(growthField)
+    };
 }
 
 function uniqueSorted(values: readonly string[]): string[] {
@@ -478,6 +762,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
     const stringSet = new Set(strings);
     const methodSignatures = parseDexMethodSignatures(dex, REQUIRED_METHOD_NAMES);
     const methodNameSet = new Set(methodSignatures.map(method => method.name));
+    const ruleDefaultIncomeEvidence = parseDexRuleDefaultIncomeEvidence(dex);
     const commanderReviveApiCandidates = uniqueSorted(strings.filter(value => COMMANDER_REVIVE_API_PATTERN.test(value)));
 
     return {
@@ -489,6 +774,7 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
         requiredMethodNames: [...REQUIRED_METHOD_NAMES],
         missingRequiredMethodNames: REQUIRED_METHOD_NAMES.filter(value => !methodNameSet.has(value)),
         methodSignatures,
+        ruleDefaultIncomeEvidence,
         commanderReviveApiCandidates,
         keywordGroups: buildKeywordReports(strings)
     };
@@ -496,13 +782,14 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
 
 function renderMarkdown(report: ApkDexReport): string {
     const lines = [
-        '# APK DEX 字符串复核报告',
+        '# APK DEX 字符串、方法表与默认规则复核报告',
         '',
         `- APK 版本：${report.apkVersion}`,
         `- DEX 文件：\`${report.dexPath}\``,
         `- 字符串数量：${report.stringCount}`,
         `- 必要字符串缺失：${report.missingRequiredStrings.length}`,
         `- 必要方法名缺失：${report.missingRequiredMethodNames.length}`,
+        `- 默认指挥官收入：base=${report.ruleDefaultIncomeEvidence.commanderBaseDefault}, growth=${report.ruleDefaultIncomeEvidence.commanderGrowthDefault}`,
         `- 疑似指挥官复活 API 字符串：${report.commanderReviveApiCandidates.length}`,
         '',
         '## 关键词分组',
@@ -523,6 +810,16 @@ function renderMarkdown(report: ApkDexReport): string {
             : '-';
         lines.push(`| \`${signature.name}\` | \`${signature.classDescriptor}\` | \`${signature.returnType}\` | ${parameters} |`);
     }
+
+    lines.push(
+        '',
+        '## 默认指挥官收入证据',
+        '',
+        '| setter | 字段 | 默认值 |',
+        '| --- | --- | ---: |',
+        `| \`${report.ruleDefaultIncomeEvidence.commanderBaseSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderBaseField}\` | ${report.ruleDefaultIncomeEvidence.commanderBaseDefault} |`,
+        `| \`${report.ruleDefaultIncomeEvidence.commanderGrowthSetter}\` | \`${report.ruleDefaultIncomeEvidence.ruleDataClassDescriptor}.${report.ruleDefaultIncomeEvidence.commanderGrowthField}\` | ${report.ruleDefaultIncomeEvidence.commanderGrowthDefault} |`
+    );
 
     lines.push('', '## 命中明细');
 
@@ -573,6 +870,8 @@ async function main() {
             report.stringCount === 0
             || report.missingRequiredStrings.length > 0
             || report.missingRequiredMethodNames.length > 0
+            || report.ruleDefaultIncomeEvidence.commanderBaseDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderBaseDefault
+            || report.ruleDefaultIncomeEvidence.commanderGrowthDefault !== EXPECTED_RULE_DEFAULT_INCOME.commanderGrowthDefault
             || report.commanderReviveApiCandidates.length > 0
         )
     ) {

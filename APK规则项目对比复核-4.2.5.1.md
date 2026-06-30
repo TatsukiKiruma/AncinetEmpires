@@ -103,7 +103,7 @@ npm run apk:unit-report -- --check
 npm run apk:skirmish-rule-report -- --check
 ```
 
-当前命令输出确认：22/22 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、当前训练默认 SD/SO 指挥官收入 `base=0/growth=25` 及 SD/SO controller 未显式覆盖收入的静态证据、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、APK 地形防御参与战斗且飞行单位不吃地形防御、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 2 项当前项目边界探针和 5 项待调查清单，不参与 `--check` 失败判定；探针用于把支援/突击、致盲/反击风暴的当前项目行为转成可对照实机验证项。
+当前命令输出确认：22/22 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、APK 地形防御参与战斗且飞行单位不吃地形防御、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 2 项当前项目边界探针和 4 项待调查清单，不参与 `--check` 失败判定；探针用于把支援/突击、致盲/反击风暴的当前项目行为转成可对照实机验证项。
 
 同批修改还新增 `src/game/default_state.ts`：前端沙盒和自动 AI 演示默认通过 `createDefaultAppGameState()` 启动，使用 APK 正常遭遇战 `SD` 规则配置；`createDemoState()` 仍保留给测试和自定义局面。
 
@@ -131,7 +131,7 @@ npm run apk:map-report -- --check
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`classes.dex` 可解析 26529 个字符串，必要字符串缺失 0，必要方法名缺失 0；`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；方法表可解析 `CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SyncSetCommander(int, int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 两种重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；攻击动作关键词命中 4，支援动作关键词命中 2，状态 Stage 关键词命中 4；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果能证明关键 API 名称和签名存在，但仍不能替代完整控制流反编译；skirmish 指挥官重招募价格递增已按实机验证在项目规则中落地。
+当前命令输出确认：`classes.dex` 可解析 26529 个字符串，必要字符串缺失 0，必要方法名缺失 0；`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；方法表可解析 `CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SyncSetCommander(int, int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 两种重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；构造器字节码确认 `SetIncomeCommanderBase` 写入 `Lc/a/b/a/t/d;.s:I` 且默认值为 50，`SetIncomeCommanderGrowth` 写入 `Lc/a/b/a/t/d;.t:I` 且默认值为 25；攻击动作关键词命中 4，支援动作关键词命中 2，状态 Stage 关键词命中 4；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果能证明关键 API 名称、签名和默认指挥官收入存在，但仍不能替代完整控制流反编译；skirmish 指挥官重招募价格递增已按实机验证在项目规则中落地。
 
 ## 4. 语言表确认的核心规则
 
@@ -547,7 +547,7 @@ npm run apk:script-report -- --check
 4. 实机或反编译验证高风险细节
    - t80/t83 与 t81/t82 等低可信地形语义。
    - 支援/突击、致盲/反击风暴等复杂行动顺序。
-   - 默认指挥官收入的 APK 默认初始化来源。
+   - 低可信地形与复杂行动顺序仍需实机回填；默认指挥官收入已由 DEX 构造器证据确认。
    - 净化光环的精确数值和对亡灵处理。
 
 ## 13. 最终判断
