@@ -10,7 +10,7 @@ import {
     getApkSkirmishSetupOptions,
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
-import { getTileIncome, getUnitCost } from '../src/game/rule_config';
+import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
 
@@ -701,6 +701,53 @@ function buildUndeadOverhealActual() {
     };
 }
 
+function buildDefaultCommanderIncomeActual() {
+    const buildModeResult = (mode: 'SD' | 'SO') => {
+        const baseState = createDemoState(getApkSkirmishRuleConfig(mode));
+        const effectiveRules = getRuleConfig(baseState);
+
+        const runProbe = (level: NonNullable<Unit['level']>, keepCommander = true) => {
+            const state = createDemoState(getApkSkirmishRuleConfig(mode));
+            state.currentPlayer = 1;
+            state.players.find(player => player.id === 0)!.gold = 0;
+            for (const row of state.map.tiles) {
+                for (const tile of row) {
+                    tile.ownerId = null;
+                }
+            }
+
+            const commander = state.units.find(unit => unit.ownerId === 0 && unit.unitClass === 'commander');
+            if (!commander) throw new Error(`${mode} 指挥官收入检查缺少指挥官`);
+            commander.level = level;
+            if (!keepCommander) {
+                state.units = state.units.filter(unit => unit.id !== commander.id);
+            }
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+            return engine.getState().players.find(player => player.id === 0)?.gold ?? null;
+        };
+
+        return {
+            rules: {
+                incomeCommanderBase: effectiveRules.incomeCommanderBase,
+                incomeCommanderGrowth: effectiveRules.incomeCommanderGrowth
+            },
+            goldAfterTurnStart: {
+                level0: runProbe(0),
+                level1: runProbe(1),
+                level2: runProbe(2),
+                noCommander: runProbe(2, false)
+            }
+        };
+    };
+
+    return {
+        sd: buildModeResult('SD'),
+        so: buildModeResult('SO')
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -1156,6 +1203,24 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             grave100: { hp: 100, maxHp: 100, graveCount: 0 }
         },
         buildUndeadOverhealActual()
+    );
+
+    check(
+        checks,
+        'default-commander-income',
+        '当前默认 skirmish 指挥官收入',
+        'APK 语言表确认指挥官存活收入机制 + 项目当前 RuleConfig；官方默认数值仍待实机验证',
+        {
+            sd: {
+                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+            },
+            so: {
+                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+            }
+        },
+        buildDefaultCommanderIncomeActual()
     );
 
     check(

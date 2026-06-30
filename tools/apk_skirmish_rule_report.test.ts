@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(18);
+        expect(report.checkCount).toBe(19);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(10);
@@ -87,6 +87,16 @@ describe('APK skirmish rule report', () => {
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
             grave100: { hp: 100, maxHp: 100, graveCount: 0 }
+        });
+        expect(byId['default-commander-income'].actual).toEqual({
+            sd: {
+                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+            },
+            so: {
+                rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
+                goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
+            }
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
             playerGold: [450, 450],
