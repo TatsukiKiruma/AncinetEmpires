@@ -188,17 +188,25 @@ export interface Observation {
   }>;
 }
 
+export interface LegalActionEntry {
+    action: Action;
+    code: string;
+    actionMask: boolean;
+    fixedActionIndex: number | null;
+}
+
 export interface EnvStepResult {
-  state: GameState;
-  observation: Observation;
-  reward: number;
-  done: boolean;
-  info: string;
-  legalActions: Action[];
-  legalActionCodes: string[];
-  actionMask: boolean[];
-  fixedActionSpaceDescriptor: FixedActionSpaceDescriptor;
-  fixedLegalActionIndexes: number[];
+    state: GameState;
+    observation: Observation;
+    reward: number;
+    done: boolean;
+    info: string;
+    legalActions: Action[];
+    legalActionCodes: string[];
+    legalActionEntries: LegalActionEntry[];
+    actionMask: boolean[];
+    fixedActionSpaceDescriptor: FixedActionSpaceDescriptor;
+    fixedLegalActionIndexes: number[];
 }
 
 export interface FixedActionSpaceOptions {
@@ -963,6 +971,12 @@ export class AncientEmpiresEnv {
       const state = this.getState();
       const legalActions = this.getLegalActions();
       const fixedActionSpaceDescriptor = this.getFixedActionSpaceDescriptor();
+      const legalActionEntries = legalActions.map(action => ({
+          action,
+          code: encodeAction(action),
+          actionMask: true,
+          fixedActionIndex: encodeFixedActionIndex(action, state, fixedActionSpaceDescriptor)
+      }));
       return {
           state,
           observation: this.getObservation(),
@@ -970,10 +984,14 @@ export class AncientEmpiresEnv {
           done,
           info,
           legalActions,
-          legalActionCodes: legalActions.map(action => encodeAction(action)),
-          actionMask: new Array(legalActions.length).fill(true),
+          legalActionCodes: legalActionEntries.map(entry => entry.code),
+          legalActionEntries,
+          actionMask: legalActionEntries.map(entry => entry.actionMask),
           fixedActionSpaceDescriptor,
-          fixedLegalActionIndexes: getFixedLegalActionIndexes(state, legalActions, fixedActionSpaceDescriptor)
+          fixedLegalActionIndexes: legalActionEntries
+              .map(entry => entry.fixedActionIndex)
+              .filter((index): index is number => index !== null)
+              .sort((left, right) => left - right)
       };
   }
 }

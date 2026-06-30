@@ -4773,6 +4773,14 @@ describe('GameEngine Rules', () => {
             expect(resetResult.legalActionCodes).toEqual(
                 resetResult.legalActions.map(action => encodeAction(action))
             );
+            expect(resetResult.legalActionEntries).toEqual(
+                resetResult.legalActions.map((action, index) => ({
+                    action,
+                    code: resetResult.legalActionCodes[index],
+                    actionMask: true,
+                    fixedActionIndex: encodeFixedActionIndex(action, resetResult.state, resetResult.fixedActionSpaceDescriptor)
+                }))
+            );
             expect(resetResult.actionMask).toHaveLength(resetResult.legalActions.length);
             expect(resetResult.actionMask.every(Boolean)).toBe(true);
             expect(resetResult.fixedActionSpaceDescriptor.size).toBe(env.getFixedActionSpaceDescriptor().size);
@@ -4784,6 +4792,7 @@ describe('GameEngine Rules', () => {
             expect(stepResult.legalActionCodes).toEqual(
                 stepResult.legalActions.map(action => encodeAction(action))
             );
+            expect(stepResult.legalActionEntries.map(entry => entry.code)).toEqual(stepResult.legalActionCodes);
             expect(stepResult.fixedLegalActionIndexes).toEqual(env.getFixedLegalActionIndexes());
         });
     });

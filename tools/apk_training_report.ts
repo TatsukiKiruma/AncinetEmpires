@@ -221,10 +221,25 @@ function isStepResultActionSerializationMatched(result: EnvStepResult): boolean 
         .filter((index): index is number => index !== null)
         .sort((left, right) => left - right);
     const uniqueFixedIndexes = new Set(result.fixedLegalActionIndexes);
+    const entriesMatched = (
+        result.legalActionEntries.length === result.legalActions.length
+        && result.legalActionEntries.every((entry, index) => {
+            const action = result.legalActions[index];
+            const expectedFixedIndex = encodeFixedActionIndex(action, result.state, result.fixedActionSpaceDescriptor);
+            return (
+                actionEquals(entry.action, action)
+                && entry.code === expectedCodes[index]
+                && actionEquals(decodeAction(entry.code), action)
+                && entry.actionMask === result.actionMask[index]
+                && entry.fixedActionIndex === expectedFixedIndex
+            );
+        })
+    );
 
     return (
         arraysEqual(result.legalActionCodes, expectedCodes)
         && result.legalActionCodes.every((code, index) => actionEquals(decodeAction(code), result.legalActions[index]))
+        && entriesMatched
         && result.fixedActionSpaceDescriptor.width === result.state.map.width
         && result.fixedActionSpaceDescriptor.height === result.state.map.height
         && result.fixedActionSpaceDescriptor.size > 0

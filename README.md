@@ -27,7 +27,7 @@ while (!initResult.done) {
     // 演进环境状态
     const stepResult = env.step(actionIndex);
     
-    // stepResult 包含: { state, observation, reward, done, info, legalActions, legalActionCodes, actionMask, fixedActionSpaceDescriptor, fixedLegalActionIndexes }
+    // stepResult 包含: { state, observation, reward, done, info, legalActions, legalActionCodes, legalActionEntries, actionMask, fixedActionSpaceDescriptor, fixedLegalActionIndexes }
 }
 ```
 
@@ -145,6 +145,6 @@ npm run apk:training-report -- --check
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
 - **指挥官死亡/复活完整规则**：DEX 字符串层未发现通用指挥官复活 API，当前仍不能确认 APK 的死亡后重招募价格递增和完整复活流程。
-- **训练动作空间封装**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板，并提供 `getFixedActionSpaceDescriptor()`、`encodeFixedActionIndex()`、`getFixedLegalActionIndexes()`、`getFixedActionMask()` 和 `stepFixedAction()` 作为固定稀疏动作空间入口；`EnvStepResult` 会直接输出 `legalActionCodes`、`fixedActionSpaceDescriptor` 和 `fixedLegalActionIndexes`，便于训练端跨进程消费动作。`apk:training-report -- --check` 已门禁 schema、`encodeAction/decodeAction` 往返、动态 `legalActions/actionMask` 对齐、动作序列化字段对齐和 40 个默认 APK 训练场景的固定动作索引无碰撞。后续可按 PPO 等训练框架再做压缩编码或张量封装。
+- **训练动作空间封装**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板，并提供 `getFixedActionSpaceDescriptor()`、`encodeFixedActionIndex()`、`getFixedLegalActionIndexes()`、`getFixedActionMask()` 和 `stepFixedAction()` 作为固定稀疏动作空间入口；`EnvStepResult` 会直接输出 `legalActionCodes`、`legalActionEntries`、`fixedActionSpaceDescriptor` 和 `fixedLegalActionIndexes`，其中 `legalActionEntries[]` 将结构化动作、字符串编码、动态 mask 位和固定索引聚合为一条记录，便于训练端跨进程消费动作。`apk:training-report -- --check` 已门禁 schema、`encodeAction/decodeAction` 往返、动态 `legalActions/actionMask` 对齐、动作序列化字段对齐和 40 个默认 APK 训练场景的固定动作索引无碰撞。后续可按 PPO 等训练框架再做压缩编码或张量封装。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。
