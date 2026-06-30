@@ -13,7 +13,7 @@ import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApk
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
-import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
+import { createApkSkirmishGameState, getApkSkirmishRuleConfig, getApkSkirmishTrainingScenarios } from '../apk_skirmish';
 import { RandomAI } from '../ai/random_ai';
 import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
@@ -521,6 +521,56 @@ describe('GameEngine Rules', () => {
             playerCounts: [2],
             allowApproximateTerrain: true
         }).map(entry => entry.name)).toContain('(2) Mourningstar.aem');
+        const trainingScenarios = getApkSkirmishTrainingScenarios();
+        expect(trainingScenarios).toHaveLength(32);
+        expect(trainingScenarios.slice(0, 4).map(scenario => scenario.id)).toEqual([
+            'SD:(4) Crossroads.aem',
+            'SO:(4) Crossroads.aem',
+            'SD:(3) Frozen fields.aem',
+            'SO:(3) Frozen fields.aem'
+        ]);
+        expect(trainingScenarios.every(scenario => (
+            scenario.terrainConfidence.approximateTileCount === 0
+            && scenario.terrainConfidence.unmappedTileCount === 0
+        ))).toBe(true);
+
+        const soDuelScenario = getApkSkirmishTrainingScenarios({
+            playerCounts: [2],
+            modes: ['SO']
+        }).find(scenario => scenario.mapName === '(2) Duel.aem')!;
+        expect(soDuelScenario).toEqual(expect.objectContaining({
+            id: 'SO:(2) Duel.aem',
+            mode: 'SO',
+            resourcePath: 'assets/maps/(2) Duel.aem',
+            playerCount: 2,
+            initialUnitCount: 2,
+            recommendedGold: 200
+        }));
+        expect(soDuelScenario.rules).toEqual(expect.objectContaining({
+            allowSurrender: true,
+            defeatOnNoUnitsAndNoCastles: true,
+            defeatOnNoUnits: false,
+            recruitableUnits: [
+                'soldier',
+                'archer',
+                'water_elemental',
+                'witch',
+                'elf',
+                'wolf',
+                'golem',
+                'catapult',
+                'dragon'
+            ]
+        }));
+        expect(getApkSkirmishTrainingScenarios({ modes: ['SD'] })[0].rules.recruitableUnits).toBeUndefined();
+
+        const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
+        mutableScenario.rules.recruitableUnits!.push('commander');
+        mutableScenario.terrainConfidence.byConfidence.confirmed = -1;
+        const freshScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
+        expect(freshScenario.rules.recruitableUnits).not.toContain('commander');
+        expect(freshScenario.terrainConfidence.byConfidence.confirmed).toBeGreaterThan(0);
+
         const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
         expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);
         expect(swamplandsManifest.castleOwnerCounts).toEqual({ N: 2 });

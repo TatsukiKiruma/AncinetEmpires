@@ -1000,6 +1000,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该函数支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图，或只取 2/3/4 人图。
 - 验证：新增回归测试覆盖默认 16 张干净地图、默认 2 人图过滤，以及允许 approximate 后重新纳入 `(2) Mourningstar.aem`。
 
+2026-06-30 APK skirmish 训练场景清单入口：
+
+- `getApkSkirmishTrainingScenarios()` 默认基于上述 16 张干净官方地图生成 SD/SO 两种模式的训练场景，共 32 项。
+- 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景不额外限制全局可招募列表。
+- 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。
+- 验证：新增回归测试覆盖默认 32 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
+
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
 
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回 20 张官方 skirmish 地图中实际出现的 approximate tile 目标，包含 `mapName/resourcePath/playerCount/apkTerrainId/tileCount/projectTerrainId/confidence/evidence/terrainConfig`。
