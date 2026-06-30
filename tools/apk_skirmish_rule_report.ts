@@ -10,6 +10,7 @@ import {
     getApkSkirmishSetupOptions,
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
+import { UNIT_CONFIGS } from '../src/game/constants';
 import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
@@ -78,6 +79,40 @@ const SO_RECRUITABLE_UNITS: UnitClass[] = [
     'golem',
     'catapult',
     'dragon'
+];
+
+const EXPECTED_SD_RECRUIT_ECONOMY = [
+    { unitClass: 'commander', cost: 400, population: 0 },
+    { unitClass: 'soldier', cost: 150, population: 1 },
+    { unitClass: 'ghost', cost: 200, population: 1 },
+    { unitClass: 'mermaid', cost: 200, population: 1 },
+    { unitClass: 'archer', cost: 250, population: 1 },
+    { unitClass: 'slime', cost: 250, population: 1 },
+    { unitClass: 'dark_mage', cost: 300, population: 1 },
+    { unitClass: 'water_elemental', cost: 300, population: 1 },
+    { unitClass: 'paladin', cost: 400, population: 2 },
+    { unitClass: 'witch', cost: 400, population: 2 },
+    { unitClass: 'berserker', cost: 500, population: 2 },
+    { unitClass: 'elf', cost: 500, population: 2 },
+    { unitClass: 'wolf', cost: 600, population: 3 },
+    { unitClass: 'ice_elemental', cost: 600, population: 3 },
+    { unitClass: 'golem', cost: 600, population: 3 },
+    { unitClass: 'druid', cost: 600, population: 3 },
+    { unitClass: 'catapult', cost: 800, population: 4 },
+    { unitClass: 'wolf_archer', cost: 800, population: 4 },
+    { unitClass: 'dragon', cost: 1000, population: 5 }
+];
+
+const EXPECTED_SO_RECRUIT_ECONOMY = [
+    { unitClass: 'soldier', cost: 150, population: 1 },
+    { unitClass: 'archer', cost: 250, population: 1 },
+    { unitClass: 'water_elemental', cost: 300, population: 1 },
+    { unitClass: 'witch', cost: 400, population: 2 },
+    { unitClass: 'elf', cost: 500, population: 2 },
+    { unitClass: 'wolf', cost: 600, population: 3 },
+    { unitClass: 'golem', cost: 600, population: 3 },
+    { unitClass: 'catapult', cost: 800, population: 4 },
+    { unitClass: 'dragon', cost: 1000, population: 5 }
 ];
 
 function printHelp() {
@@ -776,6 +811,23 @@ function buildTerrainDefenseCombatActual() {
     };
 }
 
+function buildRecruitEconomyActual() {
+    const buildModeResult = (mode: 'SD' | 'SO') => {
+        const state = createDemoState(getApkSkirmishRuleConfig(mode));
+        const recruitableUnits = getRuleConfig(state).recruitableUnits ?? [];
+        return recruitableUnits.map(unitClass => ({
+            unitClass,
+            cost: getUnitCost(state, 0, unitClass),
+            population: UNIT_CONFIGS[unitClass].population
+        }));
+    };
+
+    return {
+        sd: buildModeResult('SD'),
+        so: buildModeResult('SO')
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -1073,6 +1125,18 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             recruitableUnits: soRules.recruitableUnits,
             commanderRecruitBaseCost: soRules.commanderRecruitBaseCost
         }
+    );
+
+    check(
+        checks,
+        'recruit-economy',
+        'SD/SO 默认招募费用和人口占用',
+        'APK data.bin 单位 cost/population + 用户 2026-06-30 实机确认 SD 招募列表 + SO/controller.js 字面量招募列表',
+        {
+            sd: EXPECTED_SD_RECRUIT_ECONOMY,
+            so: EXPECTED_SO_RECRUIT_ECONOMY
+        },
+        buildRecruitEconomyActual()
     );
 
     check(

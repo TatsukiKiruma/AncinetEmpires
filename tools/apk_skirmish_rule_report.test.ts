@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(20);
+        expect(report.checkCount).toBe(21);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(10);
@@ -52,6 +52,40 @@ describe('APK skirmish rule report', () => {
         expect(byId['so-recruitable-units'].actual).toEqual(expect.objectContaining({
             commanderRecruitBaseCost: null
         }));
+        expect(byId['recruit-economy'].actual).toEqual({
+            sd: [
+                { unitClass: 'commander', cost: 400, population: 0 },
+                { unitClass: 'soldier', cost: 150, population: 1 },
+                { unitClass: 'ghost', cost: 200, population: 1 },
+                { unitClass: 'mermaid', cost: 200, population: 1 },
+                { unitClass: 'archer', cost: 250, population: 1 },
+                { unitClass: 'slime', cost: 250, population: 1 },
+                { unitClass: 'dark_mage', cost: 300, population: 1 },
+                { unitClass: 'water_elemental', cost: 300, population: 1 },
+                { unitClass: 'paladin', cost: 400, population: 2 },
+                { unitClass: 'witch', cost: 400, population: 2 },
+                { unitClass: 'berserker', cost: 500, population: 2 },
+                { unitClass: 'elf', cost: 500, population: 2 },
+                { unitClass: 'wolf', cost: 600, population: 3 },
+                { unitClass: 'ice_elemental', cost: 600, population: 3 },
+                { unitClass: 'golem', cost: 600, population: 3 },
+                { unitClass: 'druid', cost: 600, population: 3 },
+                { unitClass: 'catapult', cost: 800, population: 4 },
+                { unitClass: 'wolf_archer', cost: 800, population: 4 },
+                { unitClass: 'dragon', cost: 1000, population: 5 }
+            ],
+            so: [
+                { unitClass: 'soldier', cost: 150, population: 1 },
+                { unitClass: 'archer', cost: 250, population: 1 },
+                { unitClass: 'water_elemental', cost: 300, population: 1 },
+                { unitClass: 'witch', cost: 400, population: 2 },
+                { unitClass: 'elf', cost: 500, population: 2 },
+                { unitClass: 'wolf', cost: 600, population: 3 },
+                { unitClass: 'golem', cost: 600, population: 3 },
+                { unitClass: 'catapult', cost: 800, population: 4 },
+                { unitClass: 'dragon', cost: 1000, population: 5 }
+            ]
+        });
         expect(byId['commander-recruit-availability'].actual).toEqual({
             sdWithAliveCommander: { canRecruitCommander: false },
             sdWithoutCommander: { canRecruitCommander: true },
