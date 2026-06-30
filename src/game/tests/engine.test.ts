@@ -753,6 +753,7 @@ describe('GameEngine Rules', () => {
             apkVersion: APK_RELEASE_VERSION,
             apkSha256: APK_RELEASE_SHA256,
             apkResourcePath: 'assets/maps/(2) Duel.aem',
+            apkSkirmishSetupOptions: getApkSkirmishSetupOptions(),
             recommendedGold: 200,
             apkTailTemplate: 'zero_suffix_58'
         }));
@@ -770,7 +771,8 @@ describe('GameEngine Rules', () => {
             apkSkirmishTrainingScenarioId: 'SO:(2) Duel.aem',
             apkVersion: APK_RELEASE_VERSION,
             apkSha256: APK_RELEASE_SHA256,
-            apkResourcePath: 'assets/maps/(2) Duel.aem'
+            apkResourcePath: 'assets/maps/(2) Duel.aem',
+            apkSkirmishSetupOptions: getApkSkirmishSetupOptions()
         }));
         expect(soDuelTrainingState.rules?.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
         const soDuelTrainingEnv = createApkSkirmishTrainingEnv(officialDuelLikeMap, 'SO:(2) Duel.aem', {
@@ -779,6 +781,10 @@ describe('GameEngine Rules', () => {
         });
         expect(soDuelTrainingEnv.getObservation().metadata?.apkSkirmishTrainingScenarioId).toBe('SO:(2) Duel.aem');
         expect(soDuelTrainingEnv.getObservation().rules.recruitableUnits).toEqual(getApkSkirmishRuleConfig('SO').recruitableUnits);
+        const setupObservation = soDuelTrainingEnv.getObservation();
+        setupObservation.metadata!.apkSkirmishSetupOptions!.initialGold.default = 999;
+        setupObservation.metadata!.apkSkirmishSetupOptions!.modes.options = [];
+        expect(soDuelTrainingEnv.getObservation().metadata?.apkSkirmishSetupOptions).toEqual(getApkSkirmishSetupOptions());
 
         const mismatchedMap = { ...officialDuelLikeMap, recommendedGold: 300 };
         expect(matchesApkSkirmishMapManifest(mismatchedMap, duelManifest)).toBe(false);
@@ -1246,6 +1252,7 @@ describe('GameEngine Rules', () => {
             source: 'apk_aem',
             apkMapName: '(2) Unit Test.aem',
             apkSkirmishMode: 'SO',
+            apkSkirmishSetupOptions: getApkSkirmishSetupOptions(),
             recommendedGold: 300,
             apkTailTemplate: 'zero_suffix_58',
             apkApproximateTerrainIds: [],

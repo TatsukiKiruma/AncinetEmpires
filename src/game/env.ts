@@ -224,6 +224,18 @@ function cloneGameMetadata(metadata: GameMetadata | undefined): GameMetadata | u
     if (!metadata) return undefined;
     return {
         ...metadata,
+        apkSkirmishSetupOptions: metadata.apkSkirmishSetupOptions
+            ? {
+                initialGold: { ...metadata.apkSkirmishSetupOptions.initialGold },
+                unitLimit: { ...metadata.apkSkirmishSetupOptions.unitLimit },
+                levelCap: { ...metadata.apkSkirmishSetupOptions.levelCap },
+                modes: {
+                    default: metadata.apkSkirmishSetupOptions.modes.default,
+                    options: [...metadata.apkSkirmishSetupOptions.modes.options],
+                    labels: { ...metadata.apkSkirmishSetupOptions.modes.labels }
+                }
+            }
+            : undefined,
         apkApproximateTerrainIds: metadata.apkApproximateTerrainIds
             ? [...metadata.apkApproximateTerrainIds]
             : undefined,

@@ -963,7 +963,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 APK skirmish 模式与默认设置实机补充：
 
 - 语言文件显示 `SD` 模式名为 `Default/默认`，`SO` 模式名为 `AEII/原版`；用户实机确认 SD 是正常遭遇战模式，SO 更接近原版/特殊规则模式。
-- skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9，步进 1）。项目已用 `getApkSkirmishSetupOptions()` 结构化这些范围，并让训练场景和 `apk:training-report` 输出同一份设置事实。
+- skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9，步进 1）。项目已用 `getApkSkirmishSetupOptions()` 结构化这些范围，并让训练场景、`GameState.metadata.apkSkirmishSetupOptions`、Observation metadata 和 `apk:training-report` 输出同一份设置事实。
 - SD/默认模式可招募：指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。指挥官仅在本方指挥官阵亡或不在场时可招募，data.bin 基础价格字段为 400，死亡后价格是否递增仍待实测。
 - SO/原版模式仍按 `SO/controller.js` 限制为 APK ID 0-8：战士、弓箭手、水元素、女巫、精灵、狼、石头人、投石车、龙。
 - 项目已把 `getApkSkirmishRuleConfig('SD'/'SO')` 的默认 `initialGold/unitLimit/levelCap` 分别设为 300/30/3；地图 AEM 的推荐金币仍保存在 metadata，用于记录地图建议值而不是覆盖用户开局设置。
@@ -1109,7 +1109,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK 全局规则和招募费用进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation()` 新增 `rules` 摘要，输出当前全局初始金币、村庄/城堡/指挥官收入、等级上限、全局单位/人口上限、全局可招募列表、价格覆盖、指挥官重招募费用配置、投降开关和失败条件。
-- `rules` 摘要同步输出 `alliances/disabledTeams/commanderUnitIds/teams` 原始配置快照；队伍级配置会保留 `initialGold/unitLimit/populationLimit/recruitableUnits`，方便训练样本复现 APK 脚本配置后的规则状态。
+- `rules` 摘要同步输出 `alliances/disabledTeams/commanderUnitIds/teams` 原始配置快照；队伍级配置会保留 `initialGold/unitLimit/populationLimit/recruitableUnits`，方便训练样本复现 APK 脚本配置后的规则状态。`metadata.apkSkirmishSetupOptions` 则保留遭遇战开局设置的合法范围和 SD/SO 标签，供训练端生成或复现实验配置。
 - `players[]` 新增 `recruitCosts`，按每个队伍当前有效 `recruitableUnits` 输出实际费用；该费用会反映 `RuleConfig.prices` 覆盖和指挥官死亡次数带来的重招募价格变化。
 - 这些字段只暴露规则快照，不改变任何合法动作或结算；目的是让训练侧不用把 APK 脚本配置、默认常量和队伍状态二次拼接后再推断经济/招募边界。
 

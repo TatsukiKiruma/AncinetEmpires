@@ -58,14 +58,35 @@ export interface PlayerState {
 export type UnitLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 export type LevelCap = UnitLevel;
 
+export type ApkSkirmishMode = 'SD' | 'SO';
+
+export interface ApkSkirmishNumericSetupOption {
+    default: number;
+    min: number;
+    max: number;
+    step: number;
+}
+
+export interface ApkSkirmishSetupOptions {
+    initialGold: ApkSkirmishNumericSetupOption;
+    unitLimit: ApkSkirmishNumericSetupOption;
+    levelCap: ApkSkirmishNumericSetupOption;
+    modes: {
+        default: ApkSkirmishMode;
+        options: readonly ApkSkirmishMode[];
+        labels: Record<ApkSkirmishMode, string>;
+    };
+}
+
 export interface GameMetadata {
     source?: 'demo' | 'apk_aem'; // 状态来源，用于训练样本追踪
     apkVersion?: string;         // APK 版本号，例如 aer-release-4.2.5.1
     apkSha256?: string;          // APK 文件 SHA256，用于锁定规则证据来源
     apkResourcePath?: string;    // APK 内资源路径，例如 assets/maps/(2) Duel.aem
     apkMapName?: string;         // APK .aem 地图资源名
-    apkSkirmishMode?: 'SD' | 'SO'; // APK 对战模式
+    apkSkirmishMode?: ApkSkirmishMode; // APK 对战模式
     apkSkirmishTrainingScenarioId?: string; // APK skirmish 训练场景稳定 ID，例如 SO:(2) Duel.aem
+    apkSkirmishSetupOptions?: ApkSkirmishSetupOptions; // APK 遭遇战开局设置范围，供训练端复现实验配置
     recommendedGold?: number | null; // AEM 推荐金币，null 表示 APK 未设置
     apkTailTemplate?: string;    // AEM 推荐金币后的尾部模板名
     apkApproximateTerrainIds?: number[]; // 当前 AEM 地图中低可信近似映射的 APK tile ID

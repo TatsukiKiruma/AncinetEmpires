@@ -12,31 +12,11 @@ import {
 import { ApkAemMap, createGameStateFromApkAemMap, CreateGameStateFromApkAemMapOptions } from './apk_map';
 import { AncientEmpiresEnv } from './env';
 import { mergeRuleConfig } from './rule_config';
-import { GameState, RuleConfig, UnitClass } from './types';
-
-export type ApkSkirmishMode = 'SD' | 'SO';
+import { ApkSkirmishMode, ApkSkirmishSetupOptions, GameState, RuleConfig, UnitClass } from './types';
 
 const SO_RECRUITABLE_APK_UNIT_IDS = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
 const SD_RECRUITABLE_APK_UNIT_IDS = [9, 0, 14, 19, 1, 18, 15, 2, 12, 3, 13, 4, 5, 17, 6, 20, 7, 16, 8] as const;
 const DEFAULT_APK_SKIRMISH_TRAINING_MODES = ['SD', 'SO'] as const satisfies readonly ApkSkirmishMode[];
-
-export interface ApkSkirmishNumericSetupOption {
-    default: number;
-    min: number;
-    max: number;
-    step: number;
-}
-
-export interface ApkSkirmishSetupOptions {
-    initialGold: ApkSkirmishNumericSetupOption;
-    unitLimit: ApkSkirmishNumericSetupOption;
-    levelCap: ApkSkirmishNumericSetupOption;
-    modes: {
-        default: ApkSkirmishMode;
-        options: readonly ApkSkirmishMode[];
-        labels: Record<ApkSkirmishMode, string>;
-    };
-}
 
 // 2026-06-30 用户实机确认的遭遇战开局设置范围。
 export const APK_SKIRMISH_SETUP_OPTIONS: ApkSkirmishSetupOptions = {
@@ -225,7 +205,8 @@ export function createApkSkirmishGameState(
         rules: mergeRuleConfig(modeRules, overrideRules),
         metadata: {
             ...(overrideMetadata ?? {}),
-            apkSkirmishMode: mode
+            apkSkirmishMode: mode,
+            apkSkirmishSetupOptions: getApkSkirmishSetupOptions()
         }
     });
 }

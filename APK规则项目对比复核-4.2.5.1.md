@@ -359,7 +359,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 
 - `src/game/apk_map.ts` 已能解析 AEM 地图结构、单位块、推荐金币和尾部。
 - `createGameStateFromApkAemMap` 可生成训练用 `GameState`。
-- `GameState.metadata` 可保留 APK 版本、APK SHA256、APK 内资源路径、地图名、skirmish 模式、推荐金币和尾部模板。
+- `GameState.metadata` 可保留 APK 版本、APK SHA256、APK 内资源路径、地图名、skirmish 模式、遭遇战开局设置范围、推荐金币和尾部模板。
 - `createGameStateFromApkAemMap` 会在推荐金币默认值之后应用 `RuleConfig.initialGold` 和队伍级 `initialGold`；`createApkSkirmishGameState` 使用公共 `mergeRuleConfig` 合并模式规则和外部规则，后续叠加 APK 脚本/场景配置时不会丢失嵌套队伍规则。
 - 水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类已优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断，项目 `terrainId` 只在缺少 APK 原始 tile 时兜底。
 - 占领、摧毁、修理、招募、收入、胜负城堡统计，以及 Stage 城堡/村庄查询和计数也已使用同一套 tile 语义 helper，避免 APK 导入地图因项目 `terrainId` 近似值而丢失建筑规则。
