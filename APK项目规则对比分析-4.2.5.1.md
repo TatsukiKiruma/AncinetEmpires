@@ -212,6 +212,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；`src/game/apk_manifest.ts` 会为每张官方图生成 `terrainConfidence`，记录 confirmed/atlas/approximate/unmapped 格子数量、低可信 tile ID 和未映射 tile ID；按当前 skirmish 映射，20 张图均无未映射 tile。
 - 20 张官方 skirmish 地图中只有 4 张含低可信 approximate tile：`(2) Mourningstar.aem` 含 `t30` 2 格，`(4) The Crucible.aem` 含 `t31` 1 格，`(4) Waterways.aem` 含 `t31` 2 格，`(4) Winterstorm.aem` 含 `t31` 4 格。其它 16 张图不含 approximate/unmapped tile，可作为更干净的基础训练地图。
 - `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的官方地图；可通过 `allowApproximateTerrain/allowUnmappedTerrain/playerCounts` 显式放开低可信地形或筛选 2/3/4 人图，避免训练入口重复写过滤逻辑。
+- approximate tile 的 evidence 已进一步拆分：`t30` 为 `low_confidence_camp_semantics`，`t31/t80` 为 `low_confidence_temple_semantics`，`t81/t82` 为 `low_confidence_water_obstacle_semantics`，`t83` 为 `low_confidence_water_temple_semantics`。这让训练管线可以把营地、陆地神庙、水中障碍和水中神庙候选分开降权或过滤。
+- 新增回合开始结算回归：`t31/t80/t83` 当前按神庙候选清除负面状态并使用 APK `healPerTurn=20` 回血；`t30/t81` 不清除负面状态，避免把营地或水面障碍误套用神庙净化。
 - Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。
 - 真实 20 张 skirmish 地图的单位 `extra` 字段全部为 `0`，当前仅作为原始证据字段保留，不参与等级或规则推断。
 - 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`；本轮进一步确认 `TILES_WITH_APK_ID 4207/4207`，可读移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
@@ -220,7 +222,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 
 - `t72` 是桥候选，但当前 20 张 skirmish 地图中没有使用它；桥更多出现在战役或其他地图。
 - skirmish 映射是训练导入近似，不等同于完整官方 tile 语义。
-- `t30` 已按贴图收窄为营地/帐篷，`t31/t80` 按贴图和数值归为低可信神庙候选；`t81/t82` 已改为水面浮冰/礁石候选，不再附加神庙净化；`t83` 仍是低可信水中治疗平台候选。`t31/t80/t83` 的净化、可占领、回血边界仍需实测或反编译确认。
+- `t30` 已按贴图收窄为营地/帐篷，`t31/t80` 按贴图、数值和神庙语言表归为低可信神庙候选；`t81/t82` 已改为水面浮冰/礁石候选，不再附加神庙净化；`t83` 仍是低可信水中神庙候选。`t31/t80/t83` 的净化、可占领、敌我归属和回血边界仍需实测或反编译确认。
 
 ## 11. 脚本 API 与项目适配差异
 

@@ -85,12 +85,18 @@ describe('GameEngine Rules', () => {
         }));
         expect(getSkirmishApkTerrainMappingInfo(31)).toEqual(expect.objectContaining({
             projectTerrainId: 12,
-            confidence: 'approximate'
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics']
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(30)).toEqual(expect.objectContaining({
+            projectTerrainId: 11,
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics']
         }));
         expect(getSkirmishApkTerrainMappingInfo(80)).toEqual(expect.objectContaining({
             projectTerrainId: 12,
             confidence: 'approximate',
-            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics']
+            evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics']
         }));
         expect(getSkirmishApkTerrainMappingInfo(81)).toEqual(expect.objectContaining({
             projectTerrainId: 2,
@@ -105,7 +111,7 @@ describe('GameEngine Rules', () => {
         expect(getSkirmishApkTerrainMappingInfo(83)).toEqual(expect.objectContaining({
             projectTerrainId: 16,
             confidence: 'approximate',
-            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_water_healing_semantics']
+            evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_water_temple_semantics']
         }));
         expect(getSkirmishApkTerrainMappingInfo(999)).toEqual({
             apkTerrainId: 999,
@@ -795,7 +801,7 @@ describe('GameEngine Rules', () => {
                 tail: '0x00000000'
             },
             apkTerrainMappingConfidence: 'approximate',
-            apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics'],
+            apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
             moveCost: 1,
             defenseBonus: 10,
             healPerTurn: 20
@@ -3955,6 +3961,70 @@ describe('GameEngine Rules', () => {
              const s = engine.getState().units.find(u => u.id === soldier.id);
              expect(s!.status).toBeUndefined(); 
              expect(s!.hp).toBe(10 + 20); 
+        });
+
+        it('APK 地形语义 - 神庙候选清毒回血，营地和水障碍不清毒', () => {
+             const state = createDemoState();
+             state.currentPlayer = 1;
+             state.map.width = 6;
+             state.map.height = 1;
+             state.map.tiles = [[
+                 { terrainId: 6, ownerId: null, apkTerrainId: 31 },
+                 { terrainId: 6, ownerId: null, apkTerrainId: 80 },
+                 { terrainId: 6, ownerId: null, apkTerrainId: 83 },
+                 { terrainId: 6, ownerId: null, apkTerrainId: 30 },
+                 { terrainId: 6, ownerId: null, apkTerrainId: 81 },
+                 { terrainId: 6, ownerId: null }
+             ]];
+
+             const base = state.units[0];
+             const createPoisonedSoldier = (id: string, x: number) => ({
+                 ...base,
+                 id,
+                 ownerId: 0,
+                 unitClass: 'soldier' as const,
+                 pos: { x, y: 0 },
+                 hp: 50,
+                 maxHp: 100,
+                 hasMoved: true,
+                 hasActed: true,
+                 status: { type: 'poisoned' as const, remainingTicks: 2 }
+             });
+
+             state.units = [
+                 createPoisonedSoldier('u_temple_31', 0),
+                 createPoisonedSoldier('u_temple_80', 1),
+                 createPoisonedSoldier('u_water_temple_83', 2),
+                 createPoisonedSoldier('u_camp_30', 3),
+                 createPoisonedSoldier('u_water_obstacle_81', 4),
+                 {
+                     ...base,
+                     id: 'u_enemy',
+                     ownerId: 1,
+                     unitClass: 'soldier',
+                     pos: { x: 5, y: 0 },
+                     hp: 100,
+                     maxHp: 100,
+                     hasMoved: false,
+                     hasActed: false,
+                     status: undefined
+                 }
+             ];
+
+             const engine = new GameEngine(state);
+             engine.step({ type: 'end_turn' });
+
+             const unitsById = Object.fromEntries(engine.getState().units.map(unit => [unit.id, unit]));
+             expect(unitsById.u_temple_31.status).toBeUndefined();
+             expect(unitsById.u_temple_31.hp).toBe(60);
+             expect(unitsById.u_temple_80.status).toBeUndefined();
+             expect(unitsById.u_temple_80.hp).toBe(60);
+             expect(unitsById.u_water_temple_83.status).toBeUndefined();
+             expect(unitsById.u_water_temple_83.hp).toBe(60);
+             expect(unitsById.u_camp_30.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_camp_30.hp).toBe(40);
+             expect(unitsById.u_water_obstacle_81.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_water_obstacle_81.hp).toBe(40);
         });
         
         it('神庙结算 - 虚弱单位在神庙消除虚弱', () => {

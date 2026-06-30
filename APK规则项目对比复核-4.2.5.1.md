@@ -444,7 +444,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - APK AEM tile 可信度 metadata：`apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`，用于样本索引阶段识别低可信或未映射 tile。
 - APK 脚本字面量规则来源 metadata：`apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于追踪当前规则配置来自哪个脚本以及哪些生命周期调用被静态转换忽略。
 
-这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信治疗建筑则会带有 `low_confidence_building_semantics` 证据标记，便于训练或数据清洗侧降权处理。
+这对 AI 训练很关键：即使地形显示语义仍待校准，训练侧也能同时看到 APK 原始 tile 数值、映射可信度、映射依据，以及当前规则实际使用的地形语义。比如 APK 城堡/城镇 tile 即使在导入时保留了项目 `terrainId=road` 这类近似值，Observation 仍会输出 `ruleTerrainId=castle/town` 对应的项目 ID、`terrainKey` 和 `terrainTags`，避免训练管线再二次推导；低可信 tile 会按营地、陆地神庙、水中障碍和水中神庙候选输出 evidence，便于训练或数据清洗侧分组降权处理。
 
 ## 11. 差异与风险清单
 
@@ -467,7 +467,8 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 1. 校准 skirmish 高频与低可信 APK tile 语义
    - 20 张地图的尺寸、玩家、推荐金币、初始单位、城堡/村庄归属、tile 使用量、可信度统计和未映射清单已进入代码清单。
    - 优先处理 `t0/t18/t17/t15/t21/t20/t36/t19/t9/t3` 等高频 tile。
-   - `t30` 已按贴图收窄为营地/帐篷，`t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；后续重点实测 `t31/t80/t83` 的净化、可占领和回血边界。
+   - `t30` 已按贴图收窄为营地/帐篷，`t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；evidence 现在会区分营地、陆地神庙、水中障碍和水中神庙候选。
+   - 回合开始回归测试已覆盖 `t31/t80/t83` 按神庙候选清毒回血、`t30/t81` 不清毒；后续重点实测 `t31/t80/t83` 的净化、可占领、敌我归属和回血边界。
    - 文档中继续区分“数值确认”和“类别推断”。
 
 2. 系统归档脚本配置

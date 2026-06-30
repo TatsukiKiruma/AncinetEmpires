@@ -1006,6 +1006,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 全 APK assets AEM 使用量：`t30=30`、`t31=16`、`t81=9`、`t82=8`、`t83=6`、`t80=0`；其中 `t81/t82/t83` 只出现在 AEIII 战役地图，不影响 20 张官方 skirmish 地图。
 - 验证：新增回归测试确认 `t80` 仍是低可信神庙候选，`t81/t82` 输出水面障碍 evidence，Observation 中 `t81` 不再带 `cleanse` 标签。
 
+2026-06-30 APK 神庙/营地 tile 证据细分与结算回归：
+
+- `getSkirmishApkTerrainMappingInfo` 的 approximate evidence 已拆分为 `low_confidence_camp_semantics`、`low_confidence_temple_semantics`、`low_confidence_water_obstacle_semantics` 和 `low_confidence_water_temple_semantics`，不再把营地、神庙和水中障碍统一标为模糊建筑语义。
+- `t31/t80` 会同时输出 `language_table_temple_description` 和 `low_confidence_temple_semantics`；这只表示“神庙规则来自语言表，tile->神庙仍是贴图/数值推断”，不会提升为 confirmed。
+- `t83` 会输出 `language_table_temple_description` 和 `low_confidence_water_temple_semantics`，继续作为低可信水中神庙候选；`t30` 只输出营地语义，不带净化证据。
+- 新增回合开始结算回归：带 `apkTerrainId` 的 `t31/t80/t83` 即使项目 `terrainId` 是兜底道路，也按当前规则清除中毒并使用 `data.bin` 的 `healPerTurn=20` 回血；`t30/t81` 不清除中毒，避免把所有回血或水中 tile 都误当成神庙。
+- 该测试锁定的是“当前训练规则语义和证据标签一致”，仍需用户实机或后续反编译确认 `t31/t80/t83` 在官方 APK 中的可占领、敌我归属、净化和回血边界。
+
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。
@@ -1160,7 +1168,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK tile 映射依据进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().tiles` 新增 `apkTerrainMappingEvidence`，其值来自 `getSkirmishApkTerrainMappingInfo(apkTerrainId).evidence`。
-- 已确证建筑/桥会输出语言表或高可信建筑证据；atlas 映射会输出 `data_bin_values/texture_atlas/skirmish_map_context`；低可信治疗建筑会输出 `low_confidence_building_semantics`，避免训练侧把近似建筑语义误读为已确证规则。
+- 已确证建筑/桥会输出语言表或高可信建筑证据；atlas 映射会输出 `data_bin_values/texture_atlas/skirmish_map_context`；低可信 tile 会按营地、神庙、水中障碍或水中神庙候选输出对应 evidence，避免训练侧把近似地形语义误读为已确证规则。
 - 该字段只是只读观测快照，不改变移动、防御、回血、招募、占领、收入或胜负判定。
 - 验证：新增回归测试覆盖 confirmed、atlas、approximate 三类 evidence，并确认修改 Observation 快照不会污染环境状态。
 

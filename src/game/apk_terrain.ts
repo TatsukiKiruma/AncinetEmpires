@@ -185,11 +185,17 @@ function getSkirmishMappingEvidence(
         return ['data_bin_values', 'language_table_building_description', 'texture_atlas'];
     }
     if (confidence === 'approximate') {
+        if (apkTerrainId === 30) {
+            return ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'];
+        }
+        if (apkTerrainId === 31 || apkTerrainId === 80) {
+            return ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'];
+        }
         if (apkTerrainId === 81 || apkTerrainId === 82) {
             return ['data_bin_values', 'texture_atlas', 'low_confidence_water_obstacle_semantics'];
         }
         if (apkTerrainId === 83) {
-            return ['data_bin_values', 'texture_atlas', 'low_confidence_water_healing_semantics'];
+            return ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_water_temple_semantics'];
         }
         return ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics'];
     }
