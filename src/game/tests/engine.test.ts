@@ -9,7 +9,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel, addExp } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
-import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTerrainVerificationTargets, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
+import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTerrainUsageSummary, getApkSkirmishTerrainVerificationTargets, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
@@ -568,15 +568,58 @@ describe('GameEngine Rules', () => {
             { mapName: '(4) Winterstorm.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
             { mapName: '(4) classic 1.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 }
         ]);
+        const terrainUsageSummary = getApkSkirmishTerrainUsageSummary();
+        expect(terrainUsageSummary.reduce((sum, entry) => sum + entry.tileCount, 0)).toBe(4207);
+        expect(terrainUsageSummary.every(entry => entry.mapCount === entry.mapNames.length)).toBe(true);
+        expect(getApkSkirmishTerrainUsageSummary({ confidences: ['unmapped'] })).toEqual([]);
+        expect(getApkSkirmishTerrainUsageSummary({ confidences: ['approximate'] }).map(entry => ({
+            apkTerrainId: entry.apkTerrainId,
+            tileCount: entry.tileCount,
+            mapCount: entry.mapCount,
+            projectTerrainId: entry.projectTerrainId,
+            confidence: entry.confidence,
+            mapNames: entry.mapNames
+        }))).toEqual([
+            {
+                apkTerrainId: 30,
+                tileCount: 2,
+                mapCount: 1,
+                projectTerrainId: 11,
+                confidence: 'approximate',
+                mapNames: ['(2) Mourningstar.aem']
+            },
+            {
+                apkTerrainId: 31,
+                tileCount: 7,
+                mapCount: 3,
+                projectTerrainId: 12,
+                confidence: 'approximate',
+                mapNames: ['(4) The Crucible.aem', '(4) Waterways.aem', '(4) Winterstorm.aem']
+            }
+        ]);
+        expect(getApkSkirmishTerrainUsageSummary({
+            apkTerrainIds: [30, 31],
+            mapNames: ['(4) Winterstorm.aem']
+        }).map(entry => ({
+            apkTerrainId: entry.apkTerrainId,
+            tileCount: entry.tileCount,
+            mapNames: entry.mapNames
+        }))).toEqual([
+            { apkTerrainId: 31, tileCount: 4, mapNames: ['(4) Winterstorm.aem'] }
+        ]);
         expect(getApkSkirmishTrainingMapManifest().map(entry => entry.name)).toEqual([
             '(4) Crossroads.aem',
             '(3) Frozen fields.aem',
             '(2) Icy Paths.aem',
             '(2) Liberty Port.aem',
+            '(2) Mourningstar.aem',
             '(2) Peak Island.aem',
             '(4) Shadowlands.aem',
             '(4) Solitude.aem',
             '(2) The Crossing.aem',
+            '(4) The Crucible.aem',
+            '(4) Waterways.aem',
+            '(4) Winterstorm.aem',
             '(4) classic 1.aem',
             '(3) classic 2.aem',
             '(2) Duel.aem',
@@ -589,6 +632,7 @@ describe('GameEngine Rules', () => {
         expect(getApkSkirmishTrainingMapManifest({ playerCounts: [2] }).map(entry => entry.name)).toEqual([
             '(2) Icy Paths.aem',
             '(2) Liberty Port.aem',
+            '(2) Mourningstar.aem',
             '(2) Peak Island.aem',
             '(2) The Crossing.aem',
             '(2) Duel.aem',
@@ -597,20 +641,39 @@ describe('GameEngine Rules', () => {
         ]);
         expect(getApkSkirmishTrainingMapManifest({
             playerCounts: [2],
-            allowApproximateTerrain: true
-        }).map(entry => entry.name)).toContain('(2) Mourningstar.aem');
+            allowVerifiedApproximateTerrain: false
+        }).map(entry => entry.name)).toEqual([
+            '(2) Icy Paths.aem',
+            '(2) Liberty Port.aem',
+            '(2) Peak Island.aem',
+            '(2) The Crossing.aem',
+            '(2) Duel.aem',
+            '(2) Crossed swords.aem',
+            '(2) Swamplands.aem'
+        ]);
         const trainingScenarios = getApkSkirmishTrainingScenarios();
-        expect(trainingScenarios).toHaveLength(32);
+        expect(trainingScenarios).toHaveLength(40);
         expect(trainingScenarios.slice(0, 4).map(scenario => scenario.id)).toEqual([
             'SD:(4) Crossroads.aem',
             'SO:(4) Crossroads.aem',
             'SD:(3) Frozen fields.aem',
             'SO:(3) Frozen fields.aem'
         ]);
-        expect(trainingScenarios.every(scenario => (
-            scenario.terrainConfidence.approximateTileCount === 0
-            && scenario.terrainConfidence.unmappedTileCount === 0
-        ))).toBe(true);
+        expect(trainingScenarios.every(scenario => scenario.terrainConfidence.unmappedTileCount === 0)).toBe(true);
+        expect(trainingScenarios.filter(scenario => scenario.terrainConfidence.approximateTileCount > 0).map(scenario => ({
+            id: scenario.id,
+            approximateTerrainIds: scenario.terrainConfidence.approximateTerrainIds,
+            approximateTileCount: scenario.terrainConfidence.approximateTileCount
+        }))).toEqual([
+            { id: 'SD:(2) Mourningstar.aem', approximateTerrainIds: [30], approximateTileCount: 2 },
+            { id: 'SO:(2) Mourningstar.aem', approximateTerrainIds: [30], approximateTileCount: 2 },
+            { id: 'SD:(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
+            { id: 'SO:(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
+            { id: 'SD:(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
+            { id: 'SO:(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
+            { id: 'SD:(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 },
+            { id: 'SO:(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+        ]);
         expect(getApkSkirmishSetupOptions()).toEqual({
             initialGold: { default: 300, min: 0, max: 2000, step: 50 },
             unitLimit: { default: 30, min: 20, max: 100, step: 10 },

@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(10);
+        expect(report.checkCount).toBe(11);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
     });
@@ -34,6 +34,11 @@ describe('APK skirmish rule report', () => {
         expect(byId['so-recruitable-units'].actual).toEqual(expect.objectContaining({
             commanderRecruitBaseCost: null
         }));
+        expect(byId['commander-recruit-availability'].actual).toEqual({
+            sdWithAliveCommander: { canRecruitCommander: false },
+            sdWithoutCommander: { canRecruitCommander: true },
+            soWithoutCommander: { canRecruitCommander: false }
+        });
     });
 
     it('固化 t30/t31、投降和淘汰行为', () => {

@@ -6,6 +6,7 @@ import {
     APK_RELEASE_SHA256,
     APK_RELEASE_VERSION,
     APK_SKIRMISH_MAP_MANIFEST,
+    getApkSkirmishTerrainUsageSummary,
     getApkSkirmishTerrainVerificationTargets,
     matchesApkSkirmishMapManifest,
     type ApkSkirmishMapManifestEntry
@@ -48,6 +49,7 @@ interface ApkMapReport {
     approximateMapCount: number;
     unmappedMapCount: number;
     maps: MapReportEntry[];
+    terrainUsageSummary: ReturnType<typeof getApkSkirmishTerrainUsageSummary>;
     verificationTargets: ReturnType<typeof getApkSkirmishTerrainVerificationTargets>;
 }
 
@@ -152,6 +154,7 @@ async function buildReport(options: CliOptions): Promise<ApkMapReport> {
         approximateMapCount: maps.filter(entry => entry.approximateTileCount > 0).length,
         unmappedMapCount: maps.filter(entry => entry.unmappedTileCount > 0).length,
         maps,
+        terrainUsageSummary: getApkSkirmishTerrainUsageSummary(),
         verificationTargets: getApkSkirmishTerrainVerificationTargets()
     };
 }
@@ -188,6 +191,41 @@ function renderMarkdown(report: ApkMapReport): string {
             map.unmappedTileCount === 0 ? '-' : `${formatIds(map.unmappedTerrainIds)} (${map.unmappedTileCount})`,
             map.manifestMatched ? '是' : '否'
         ].join(' | ') + ' |');
+    }
+
+    const lowConfidenceTerrain = report.terrainUsageSummary.filter(entry => entry.confidence !== 'atlas' && entry.confidence !== 'confirmed');
+    lines.push(
+        ``,
+        `## 低可信 tile 汇总`,
+        ``,
+        `| APK tile | 格子 | 地图数 | 地图 | 当前项目映射 | 可信度 | 当前规则语义 |`,
+        `| ---: | ---: | ---: | --- | --- | --- | --- |`
+    );
+
+    if (lowConfidenceTerrain.length === 0) {
+        lines.push(`| - | 0 | 0 | - | - | - | - |`);
+    } else {
+        for (const terrain of lowConfidenceTerrain) {
+            const semantic = terrain.projectRuleSemantics;
+            const summary = [
+                semantic.projectTerrainKey ?? '-',
+                `防御${semantic.defenseBonus ?? '-'}`,
+                `回血${semantic.healPerTurn ?? '-'}`,
+                semantic.clearsNegativeStatus ? '清异常' : '不清异常',
+                semantic.canBeCaptured ? '可占领' : '不可占领',
+                semantic.generatesIncome ? '有收入' : '无收入',
+                semantic.canRecruit ? '可招募' : '不可招募'
+            ].join('; ');
+            lines.push([
+                `| ${terrain.apkTerrainId}`,
+                terrain.tileCount,
+                terrain.mapCount,
+                terrain.mapNames.map(name => `\`${name}\``).join(', '),
+                terrain.projectTerrainId ?? '-',
+                terrain.confidence,
+                summary
+            ].join(' | ') + ' |');
+        }
     }
 
     lines.push(

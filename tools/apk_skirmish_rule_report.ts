@@ -294,6 +294,43 @@ function buildPendingRecruitActual() {
     };
 }
 
+function buildCommanderRecruitAvailabilityActual() {
+    const sdWithCommanderState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    sdWithCommanderState.players[0].gold = 1000;
+    const sdWithCommanderActions = getLegalActions(sdWithCommanderState, 0);
+
+    const sdWithoutCommanderState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    sdWithoutCommanderState.players[0].gold = 1000;
+    sdWithoutCommanderState.units = sdWithoutCommanderState.units.filter(unit => !(unit.ownerId === 0 && unit.unitClass === 'commander'));
+    const sdWithoutCommanderActions = getLegalActions(sdWithoutCommanderState, 0);
+
+    const soWithoutCommanderState = createDemoState(getApkSkirmishRuleConfig('SO'));
+    soWithoutCommanderState.players[0].gold = 1000;
+    soWithoutCommanderState.units = soWithoutCommanderState.units.filter(unit => !(unit.ownerId === 0 && unit.unitClass === 'commander'));
+    const soWithoutCommanderActions = getLegalActions(soWithoutCommanderState, 0);
+
+    return {
+        sdWithAliveCommander: {
+            canRecruitCommander: sdWithCommanderActions.some(action => (
+                (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+                && action.unitClass === 'commander'
+            ))
+        },
+        sdWithoutCommander: {
+            canRecruitCommander: sdWithoutCommanderActions.some(action => (
+                (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+                && action.unitClass === 'commander'
+            ))
+        },
+        soWithoutCommander: {
+            canRecruitCommander: soWithoutCommanderActions.some(action => (
+                (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+                && action.unitClass === 'commander'
+            ))
+        }
+    };
+}
+
 function buildSurrenderActual() {
     const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     state.map.tiles[1][1].terrainId = 9;
@@ -480,6 +517,19 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             commanderCastle: { hasEndTurn: false, hasSurrender: false }
         },
         buildPendingRecruitActual()
+    );
+
+    check(
+        checks,
+        'commander-recruit-availability',
+        'SD 指挥官不在场时可重招募，SO 不招募指挥官',
+        '用户 2026-06-30 实机确认',
+        {
+            sdWithAliveCommander: { canRecruitCommander: false },
+            sdWithoutCommander: { canRecruitCommander: true },
+            soWithoutCommander: { canRecruitCommander: false }
+        },
+        buildCommanderRecruitAvailabilityActual()
     );
 
     check(

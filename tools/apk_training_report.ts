@@ -71,7 +71,7 @@ function printHelp() {
 
 选项:
   --unpack <dir>          APK 解包目录，默认 APK/_analysis/unpack
-  --include-approximate   纳入含 approximate tile 的官方地图，默认只检查 16 张干净地图
+  --include-approximate   额外允许未实测 approximate tile；默认已包含实机确认的 t30/t31 地图
   --smoke-plies <n>       每个场景执行 n 个合法动作 smoke test，默认 4；设为 0 可关闭
   --json                  输出 JSON
   --check                 场景数量、manifest、metadata 或初始合法动作异常时以非 0 退出
@@ -258,7 +258,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- APK 版本：${report.apkVersion}`,
         `- 解包目录：\`${report.unpackDir}\``,
         `- 解密方式：${report.decryption.cipher}，key/iv = \`${report.decryption.keyHex}\``,
-        `- includeApproximate：${report.includeApproximate ? '是' : '否'}`,
+        `- 允许未实测 approximate：${report.includeApproximate ? '是' : '否'}`,
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
@@ -301,7 +301,7 @@ async function main() {
         console.log(renderMarkdown(report));
     }
 
-    const expectedScenarioCount = options.includeApproximate ? 40 : 32;
+    const expectedScenarioCount = 40;
     const scenarioCountMismatch = report.scenarioCount !== expectedScenarioCount;
     const manifestMismatch = report.manifestMatchedCount !== report.scenarioCount;
     const metadataMismatch = report.metadataMatchedCount !== report.scenarioCount;

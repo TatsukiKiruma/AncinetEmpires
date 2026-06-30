@@ -41,7 +41,7 @@ while (!initResult.done) {
 
 `src/game/apk_manifest.ts` 和 `src/game/apk_skirmish_tile_usage.ts` 已归档 APK 4.2.5.1 的 20 张官方 skirmish 地图清单。通过 `createApkSkirmishGameState` 导入地图时，只有地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、完整 APK tile 使用量、推荐金币和尾部模板都匹配官方清单，才会自动写入 APK 版本、SHA256 和资源路径。
 
-`getApkSkirmishTrainingScenarios()` 会基于默认 16 张无 approximate/unmapped tile 的官方地图生成 SD/SO 两种训练场景，并附带地图资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和对应模式规则配置。训练端可以用 `modes/playerCounts/allowApproximateTerrain` 过滤场景，避免重复拼接地图清单与 SD/SO 规则。
+`getApkSkirmishTrainingScenarios()` 会基于 20 张官方 skirmish 地图生成 SD/SO 两种训练场景，并附带地图资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和对应模式规则配置。默认只自动放行无 approximate tile 或 approximate tile 已经实机确认的地图；训练端可以用 `modes/playerCounts/allowVerifiedApproximateTerrain/allowApproximateTerrain` 过滤场景，避免重复拼接地图清单与 SD/SO 规则。
 
 训练端可用 `getApkSkirmishTrainingScenario(id)` 定位稳定场景，并通过 `createApkSkirmishTrainingGameState(map, id)` 或 `createApkSkirmishTrainingEnv(map, id)` 把已解析的官方 AEM 地图直接变成带 APK 规则、来源元数据和 manifest 严格校验的训练状态/环境。
 
@@ -114,7 +114,7 @@ npm run apk:unit-report -- --check
 ```bash
 npm run apk:skirmish-rule-report -- --check
 ```
-该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、开局设置范围、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 10/10 检查通过。
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD 指挥官不在场时可重招募且 SO 不招募指挥官、开局设置范围、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 11/11 检查通过。
 
 ### 复核 APK 脚本规则证据
 ```bash
@@ -132,7 +132,7 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景，并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 场景 manifest 匹配、metadata 匹配，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 检查含低可信地形的 40 个扩展场景。
+该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
 
 ## 待补充与未实现 (TODO List)
 
