@@ -221,6 +221,12 @@ function cloneGameMetadata(metadata: GameMetadata | undefined): GameMetadata | u
     if (!metadata) return undefined;
     return {
         ...metadata,
+        apkApproximateTerrainIds: metadata.apkApproximateTerrainIds
+            ? [...metadata.apkApproximateTerrainIds]
+            : undefined,
+        apkUnmappedTerrainIds: metadata.apkUnmappedTerrainIds
+            ? [...metadata.apkUnmappedTerrainIds]
+            : undefined,
         apkRuleScriptIgnoredRestoreTeamIds: metadata.apkRuleScriptIgnoredRestoreTeamIds
             ? [...metadata.apkRuleScriptIgnoredRestoreTeamIds]
             : undefined,

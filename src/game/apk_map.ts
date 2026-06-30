@@ -1,5 +1,5 @@
 import { APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { mapKnownApkTerrainId, mapSkirmishApkTerrainId } from './apk_terrain';
+import { getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from './apk_terrain';
 import { applyInitialRuleConfig, mergeRuleConfig } from './rule_config';
 import { TerrainId } from './terrain';
 import { GameMetadata, GameState, RuleConfig, Unit, UnitClass } from './types';
@@ -67,6 +67,13 @@ export interface CreateGameStateFromApkAemMapOptions {
     apkResourcePath?: string;
     mapName?: string;
     metadata?: GameMetadata;
+}
+
+export interface ApkAemTerrainConfidenceUsage {
+    approximateTerrainIds: number[];
+    approximateTileCount: number;
+    unmappedTerrainIds: number[];
+    unmappedTileCount: number;
 }
 
 function requireBytes(data: Uint8Array, offset: number, length: number) {
@@ -322,6 +329,32 @@ export function getUnmappedSkirmishApkTerrainIds(map: ApkAemMap): number[] {
         .sort((a, b) => a - b);
 }
 
+export function getApkAemTerrainConfidenceUsage(map: ApkAemMap): ApkAemTerrainConfidenceUsage {
+    const approximateTerrainIds: number[] = [];
+    const unmappedTerrainIds: number[] = [];
+    let approximateTileCount = 0;
+    let unmappedTileCount = 0;
+
+    for (const [terrainIdText, count] of Object.entries(getApkAemTerrainUsage(map))) {
+        const apkTerrainId = Number(terrainIdText);
+        const confidence = getSkirmishApkTerrainMappingInfo(apkTerrainId).confidence;
+        if (confidence === 'approximate') {
+            approximateTerrainIds.push(apkTerrainId);
+            approximateTileCount += count;
+        } else if (confidence === 'unmapped') {
+            unmappedTerrainIds.push(apkTerrainId);
+            unmappedTileCount += count;
+        }
+    }
+
+    return {
+        approximateTerrainIds: approximateTerrainIds.sort((a, b) => a - b),
+        approximateTileCount,
+        unmappedTerrainIds: unmappedTerrainIds.sort((a, b) => a - b),
+        unmappedTileCount
+    };
+}
+
 function getInitialGold(map: ApkAemMap, options: CreateGameStateFromApkAemMapOptions): number {
     if (options.initialGold !== undefined) return options.initialGold;
     if (options.useRecommendedGold !== false && map.recommendedGold !== null) return map.recommendedGold;
@@ -352,11 +385,16 @@ function createUnitsFromApkAemMap(map: ApkAemMap): Unit[] {
 }
 
 function createMetadataFromApkAemMap(map: ApkAemMap, options: CreateGameStateFromApkAemMapOptions): GameMetadata {
+    const confidenceUsage = getApkAemTerrainConfidenceUsage(map);
     const metadata: GameMetadata = {
         ...(options.metadata ?? {}),
         source: 'apk_aem',
         recommendedGold: map.recommendedGold,
-        apkTailTemplate: map.tail.template
+        apkTailTemplate: map.tail.template,
+        apkApproximateTerrainIds: confidenceUsage.approximateTerrainIds,
+        apkApproximateTileCount: confidenceUsage.approximateTileCount,
+        apkUnmappedTerrainIds: confidenceUsage.unmappedTerrainIds,
+        apkUnmappedTileCount: confidenceUsage.unmappedTileCount
     };
 
     if (options.mapName !== undefined) {

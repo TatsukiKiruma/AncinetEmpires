@@ -9,7 +9,7 @@ import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isFore
 import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
 import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
-import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
+import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig } from '../apk_script_manifest';
 import { applyApkScriptRuleConfig, buildApkScriptRuleConfig, getApkScriptRuleConfig } from '../apk_script_config';
 import { createApkSkirmishGameState, getApkSkirmishRuleConfig } from '../apk_skirmish';
@@ -464,6 +464,12 @@ describe('GameEngine Rules', () => {
             { apkUnitId: 9, teamId: 1, extra: 2, x: 1, y: 2, unitClass: 'commander' },
         ]);
         expect(getApkAemTerrainUsage(map)).toEqual({ 2: 1, 27: 1, 36: 1, 37: 2, 72: 1 });
+        expect(getApkAemTerrainConfidenceUsage(map)).toEqual({
+            approximateTerrainIds: [],
+            approximateTileCount: 0,
+            unmappedTerrainIds: [],
+            unmappedTileCount: 0
+        });
         expect(getUnmappedSkirmishApkTerrainIds(map)).toEqual([]);
 
         const state = createGameStateFromApkAemMap(map, { mapName: '(2) Unit Test.aem' });
@@ -488,7 +494,11 @@ describe('GameEngine Rules', () => {
             source: 'apk_aem',
             apkMapName: '(2) Unit Test.aem',
             recommendedGold: 300,
-            apkTailTemplate: 'none'
+            apkTailTemplate: 'none',
+            apkApproximateTerrainIds: [],
+            apkApproximateTileCount: 0,
+            apkUnmappedTerrainIds: [],
+            apkUnmappedTileCount: 0
         });
 
         const tracedState = createGameStateFromApkAemMap(map, {
@@ -504,8 +514,26 @@ describe('GameEngine Rules', () => {
             apkResourcePath: 'assets/maps/(2) Unit Test.aem',
             apkMapName: '(2) Unit Test.aem',
             recommendedGold: 300,
-            apkTailTemplate: 'none'
+            apkTailTemplate: 'none',
+            apkApproximateTerrainIds: [],
+            apkApproximateTileCount: 0,
+            apkUnmappedTerrainIds: [],
+            apkUnmappedTileCount: 0
         });
+        const approximateMap = JSON.parse(JSON.stringify(map)) as typeof map;
+        approximateMap.terrain[0][1].apkTerrainId = 31;
+        approximateMap.terrain[0][1].raw = (31 << 12) | 0xff;
+        const approximateState = createGameStateFromApkAemMap(approximateMap);
+        expect(approximateState.metadata).toEqual(expect.objectContaining({
+            apkApproximateTerrainIds: [31],
+            apkApproximateTileCount: 1,
+            apkUnmappedTerrainIds: [],
+            apkUnmappedTileCount: 0
+        }));
+        const approximateEnv = new AncientEmpiresEnv({ initialState: approximateState });
+        const approximateObservation = approximateEnv.getObservation();
+        approximateObservation.metadata!.apkApproximateTerrainIds!.push(80);
+        expect(approximateEnv.getObservation().metadata?.apkApproximateTerrainIds).toEqual([31]);
         const configuredGoldState = createGameStateFromApkAemMap(map, {
             rules: {
                 initialGold: 700,
@@ -546,7 +574,11 @@ describe('GameEngine Rules', () => {
             apkMapName: '(2) Unit Test.aem',
             apkSkirmishMode: 'SO',
             recommendedGold: 300,
-            apkTailTemplate: 'zero_suffix_58'
+            apkTailTemplate: 'zero_suffix_58',
+            apkApproximateTerrainIds: [],
+            apkApproximateTileCount: 0,
+            apkUnmappedTerrainIds: [],
+            apkUnmappedTileCount: 0
         });
 
         const env = new AncientEmpiresEnv({ initialState: soState });

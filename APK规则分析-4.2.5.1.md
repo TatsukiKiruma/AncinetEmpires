@@ -977,6 +977,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `AncientEmpiresEnv.getObservation().metadata` 会把同一份元数据暴露给训练侧；这些字段只用于样本追踪和复现实验配置，不参与规则判定。
 - 验证项已覆盖 AEM 导入、SO skirmish 导入和 Observation 元数据输出。
 
+2026-06-30 APK AEM 低可信 tile 统计进入 metadata：
+
+- `createGameStateFromApkAemMap` 会按当前 `getSkirmishApkTerrainMappingInfo` 对整张 AEM 地图统计 `apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`。
+- 这些字段会进入 `GameState.metadata` 和 `AncientEmpiresEnv.getObservation().metadata`，用于训练样本索引阶段直接过滤或降权含 approximate/unmapped tile 的地图，不需要先构造完整 Observation。
+- 该统计只反映当前 skirmish 映射可信度，不改变 strict terrain 校验、地形映射、移动、防御、回血、占领、招募、收入或胜负判定。
+- 验证：新增回归测试覆盖无低可信 tile 的合成 AEM、含 `t31` approximate tile 的合成 AEM，以及 Observation 元数据数组快照隔离。
+
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。

@@ -66,6 +66,10 @@ export interface GameMetadata {
     apkSkirmishMode?: 'SD' | 'SO'; // APK 对战模式
     recommendedGold?: number | null; // AEM 推荐金币，null 表示 APK 未设置
     apkTailTemplate?: string;    // AEM 推荐金币后的尾部模板名
+    apkApproximateTerrainIds?: number[]; // 当前 AEM 地图中低可信近似映射的 APK tile ID
+    apkApproximateTileCount?: number; // 当前 AEM 地图中低可信近似映射 tile 总数
+    apkUnmappedTerrainIds?: number[]; // 当前 AEM 地图中未映射的 APK tile ID
+    apkUnmappedTileCount?: number; // 当前 AEM 地图中未映射 tile 总数
     apkRuleScriptResourcePath?: string; // 生成当前规则配置的 APK 脚本资源路径
     apkRuleScriptIgnoredRestoreTeamIds?: number[]; // 静态规则生成时忽略的 SyncRestoreTeam 调用
     apkRuleScriptIgnoredGameOverAllianceIds?: number[]; // 静态规则生成时忽略的 SyncGameOver 调用
