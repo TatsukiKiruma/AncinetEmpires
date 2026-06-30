@@ -10,6 +10,11 @@ import {
     getApkSkirmishSetupOptions,
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
+import { getApkSkirmishTrainingMapManifest } from '../src/game/apk_manifest';
+import {
+    APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS,
+    getApkScriptLiteralRuleConfig
+} from '../src/game/apk_script_manifest';
 import { UNIT_CONFIGS } from '../src/game/constants';
 import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
@@ -718,6 +723,11 @@ function buildUndeadOverhealActual() {
 }
 
 function buildDefaultCommanderIncomeActual() {
+    const sdControllerRuleConfig = getApkScriptLiteralRuleConfig('assets/mods/SD/controller.js');
+    const soControllerRuleConfig = getApkScriptLiteralRuleConfig('assets/mods/SO/controller.js');
+    const zeroCommanderIncomeProfile = APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS.ruleIncomeProfiles.find(profile => (
+        profile.incomeCommanderBase === 0 && profile.incomeCommanderGrowth === 0
+    ));
     const buildModeResult = (mode: 'SD' | 'SO') => {
         const baseState = createDemoState(getApkSkirmishRuleConfig(mode));
         const effectiveRules = getRuleConfig(baseState);
@@ -759,8 +769,38 @@ function buildDefaultCommanderIncomeActual() {
     };
 
     return {
+        staticEvidence: {
+            languageConfirmsCommanderIncome: true,
+            sdControllerHasLiteralRuleConfig: sdControllerRuleConfig !== null,
+            soControllerRuleIncome: soControllerRuleConfig?.ruleIncome ?? null,
+            explicitZeroCommanderIncomeScriptCount: zeroCommanderIncomeProfile?.scriptCount ?? 0
+        },
         sd: buildModeResult('SD'),
         so: buildModeResult('SO')
+    };
+}
+
+function buildDefaultTrainingTerrainRiskActual() {
+    const entries = getApkSkirmishTrainingMapManifest();
+    const approximateIds = [...new Set(entries.flatMap(entry => entry.terrainConfidence.approximateTerrainIds))]
+        .sort((left, right) => left - right);
+    const unverifiedIds = approximateIds.filter(apkTerrainId => ![30, 31].includes(apkTerrainId));
+    const lowConfidenceIdsInDefaultTraining = approximateIds.filter(apkTerrainId => (
+        [80, 81, 82, 83].includes(apkTerrainId)
+    ));
+
+    return {
+        mapCount: entries.length,
+        approximateTerrainIds: approximateIds,
+        unverifiedApproximateTerrainIds: unverifiedIds,
+        lowConfidenceIdsInDefaultTraining,
+        mapsWithApproximateTerrain: entries
+            .filter(entry => entry.terrainConfidence.approximateTileCount > 0)
+            .map(entry => ({
+                name: entry.name,
+                approximateTerrainIds: entry.terrainConfidence.approximateTerrainIds,
+                approximateTileCount: entry.terrainConfidence.approximateTileCount
+            }))
     };
 }
 
@@ -1303,8 +1343,14 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         checks,
         'default-commander-income',
         '当前默认 skirmish 指挥官收入',
-        'APK 语言表确认指挥官存活收入机制 + 项目当前 RuleConfig；官方默认数值仍待实机验证',
+        'APK 语言表确认指挥官存活收入机制；SD/SO controller 未显式覆盖收入；项目当前 RuleConfig 默认值仍待 APK 默认初始化确认',
         {
+            staticEvidence: {
+                languageConfirmsCommanderIncome: true,
+                sdControllerHasLiteralRuleConfig: false,
+                soControllerRuleIncome: null,
+                explicitZeroCommanderIncomeScriptCount: 7
+            },
             sd: {
                 rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
                 goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
@@ -1315,6 +1361,26 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }
         },
         buildDefaultCommanderIncomeActual()
+    );
+
+    check(
+        checks,
+        'default-training-terrain-risk',
+        '默认 skirmish 训练地图不包含未验证 t80/t81/t82/t83',
+        'APK skirmish manifest + 已确认 t30/t31 approximate 放行策略',
+        {
+            mapCount: 20,
+            approximateTerrainIds: [30, 31],
+            unverifiedApproximateTerrainIds: [],
+            lowConfidenceIdsInDefaultTraining: [],
+            mapsWithApproximateTerrain: [
+                { name: '(2) Mourningstar.aem', approximateTerrainIds: [30], approximateTileCount: 2 },
+                { name: '(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
+                { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
+                { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+            ]
+        },
+        buildDefaultTrainingTerrainRiskActual()
     );
 
     check(

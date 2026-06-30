@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(21);
+        expect(report.checkCount).toBe(22);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(5);
@@ -127,6 +127,12 @@ describe('APK skirmish rule report', () => {
             flyingDefenderDamage: 50
         });
         expect(byId['default-commander-income'].actual).toEqual({
+            staticEvidence: {
+                languageConfirmsCommanderIncome: true,
+                sdControllerHasLiteralRuleConfig: false,
+                soControllerRuleIncome: null,
+                explicitZeroCommanderIncomeScriptCount: 7
+            },
             sd: {
                 rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
                 goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
@@ -135,6 +141,18 @@ describe('APK skirmish rule report', () => {
                 rules: { incomeCommanderBase: 0, incomeCommanderGrowth: 25 },
                 goldAfterTurnStart: { level0: 0, level1: 25, level2: 50, noCommander: 0 }
             }
+        });
+        expect(byId['default-training-terrain-risk'].actual).toEqual({
+            mapCount: 20,
+            approximateTerrainIds: [30, 31],
+            unverifiedApproximateTerrainIds: [],
+            lowConfidenceIdsInDefaultTraining: [],
+            mapsWithApproximateTerrain: [
+                { name: '(2) Mourningstar.aem', approximateTerrainIds: [30], approximateTileCount: 2 },
+                { name: '(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
+                { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
+                { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+            ]
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
             playerGold: [450, 450],
