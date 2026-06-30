@@ -1128,6 +1128,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该字段只是只读观测摘要，不改变地形映射、移动、防御、回血、招募、占领、收入或胜负判定。
 - 验证：新增回归测试覆盖 atlas、approximate 和 synthetic unmapped tile 的摘要输出。
 
+2026-06-30 APK tile `data.bin` 原始配置进入 AI Observation：
+
+- `AncientEmpiresEnv.getObservation().tiles[]` 新增 `apkTerrainConfig`，单位快照新增 `tileApkTerrainConfig`，按当前 `apkTerrainId` 输出 `data.bin` 中的 `id/kind/flagA/variant/linkedA/defenseBonus/healPerTurn/moveCost/flagB/linkedB/linkedC/flagC/tail`。
+- 其中 `defenseBonus/healPerTurn/moveCost` 已参与规则结算；`kind/variant/linked*/flag*/tail` 目前只作为 APK 原始证据暴露，不把未知 flag 语义硬编码成规则。
+- 该字段用于让训练、数据清洗和后续实测复核直接拿到当前 tile 的确切 APK 数值，避免每次再反查 `apk_terrain.ts` 或重新解析 `data.bin`。
+- 验证：新增回归测试覆盖水面 `t0`、近似神庙 `t31` 和单位所在 APK 城堡 `t37` 的配置快照输出。
+
 2026-06-29 APK 城镇摧毁/修理 linked tile 同步：
 
 - `data.bin` 已确认 `t36.linkedB=27`，对应村庄被摧毁后的废墟；`t27.linkedC=36`，对应废墟修理回村庄。

@@ -5,7 +5,7 @@ import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isCommanderUnit, isTeamEnabled } from './rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainConfig, getTileTerrainIdForRules, getTileTerrainKey } from './terrain_rules';
 import { getEffectiveStats } from './abilities';
-import { ApkTerrainMappingConfidence, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
+import { ApkTerrainMappingConfidence, getApkTerrainConfig, getSkirmishApkTerrainMappingInfo } from './apk_terrain';
 
 export function mulberry32(a: number): () => number {
   return function() {
@@ -22,6 +22,22 @@ export interface TerrainMappingSummary {
   apkTerrainUsage: Record<number, number>;
   approximateApkTerrainIds: number[];
   unmappedApkTerrainIds: number[];
+}
+
+export interface ApkTerrainConfigSnapshot {
+  id: number;
+  kind: number;
+  flagA: number;
+  variant: number;
+  linkedA: number;
+  defenseBonus: number;
+  healPerTurn: number;
+  moveCost: number;
+  flagB: number;
+  linkedB: number;
+  linkedC: number;
+  flagC: number;
+  tail: string;
 }
 
 export interface Observation {
@@ -88,6 +104,7 @@ export interface Observation {
     apkTerrainId?: number;
     apkTerrainRaw?: number;
     apkOwnerCode?: number;
+    apkTerrainConfig?: ApkTerrainConfigSnapshot;
     apkTerrainMappingConfidence?: ApkTerrainMappingConfidence;
     apkTerrainMappingEvidence?: string[];
     defenseBonus: number;
@@ -126,6 +143,7 @@ export interface Observation {
     tileOwnerId: number | null;
     tileApkTerrainId?: number;
     tileApkOwnerCode?: number;
+    tileApkTerrainConfig?: ApkTerrainConfigSnapshot;
     tileApkTerrainMappingConfidence?: ApkTerrainMappingConfidence;
     tileApkTerrainMappingEvidence?: string[];
     tileDefenseBonus: number | null;
@@ -193,6 +211,28 @@ function estimatePlyCount(state: GameState): number {
     const playerCount = Math.max(1, playerIds.length);
     const currentIndex = Math.max(0, playerIds.indexOf(state.currentPlayer));
     return Math.max(0, state.turn - 1) * playerCount + currentIndex + 1;
+}
+
+function buildApkTerrainConfigSnapshot(apkTerrainId: number | undefined): ApkTerrainConfigSnapshot | undefined {
+    if (apkTerrainId === undefined) return undefined;
+    const config = getApkTerrainConfig(apkTerrainId);
+    if (!config) return undefined;
+
+    return {
+        id: config.id,
+        kind: config.kind,
+        flagA: config.flagA,
+        variant: config.variant,
+        linkedA: config.linkedA,
+        defenseBonus: config.defenseBonus,
+        healPerTurn: config.healPerTurn,
+        moveCost: config.moveCost,
+        flagB: config.flagB,
+        linkedB: config.linkedB,
+        linkedC: config.linkedC,
+        flagC: config.flagC,
+        tail: config.tail
+    };
 }
 
 function buildTerrainMappingSummary(state: GameState): TerrainMappingSummary | undefined {
@@ -468,6 +508,7 @@ export class AncientEmpiresEnv {
                   apkTerrainId: t.apkTerrainId,
                   apkTerrainRaw: t.apkTerrainRaw,
                   apkOwnerCode: t.apkOwnerCode,
+                  apkTerrainConfig: buildApkTerrainConfigSnapshot(t.apkTerrainId),
                   apkTerrainMappingConfidence: apkTerrainMappingInfo?.confidence,
                   apkTerrainMappingEvidence: apkTerrainMappingInfo
                       ? [...apkTerrainMappingInfo.evidence]
@@ -516,6 +557,7 @@ export class AncientEmpiresEnv {
                   tileOwnerId: tile?.ownerId ?? null,
                   tileApkTerrainId: tile?.apkTerrainId,
                   tileApkOwnerCode: tile?.apkOwnerCode,
+                  tileApkTerrainConfig: buildApkTerrainConfigSnapshot(tile?.apkTerrainId),
                   tileApkTerrainMappingConfidence: unitTileMappingInfo?.confidence,
                   tileApkTerrainMappingEvidence: unitTileMappingInfo
                       ? [...unitTileMappingInfo.evidence]

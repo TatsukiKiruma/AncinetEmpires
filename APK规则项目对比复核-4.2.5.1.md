@@ -423,6 +423,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 队伍规则状态：`isEnabled/allianceId/unitCount/population/unitLimit/populationLimit/recruitableUnits/recruitCosts/commanderUnitId`，用于暴露 APK 脚本可配置的禁用队伍、联盟、单位上限、人口上限、可招募列表、当前招募费用和队伍指挥官。
 - 每格 `terrainId/ownerId`。
 - 每格 APK 当前字段、映射可信度和映射依据：`apkTerrainId/apkTerrainRaw/apkOwnerCode/apkTerrainMappingConfidence/apkTerrainMappingEvidence`。
+- 每格 APK `data.bin` 当前配置快照：`apkTerrainConfig.id/kind/flagA/variant/linkedA/defenseBonus/healPerTurn/moveCost/flagB/linkedB/linkedC/flagC/tail`。
 - 地图级 APK tile 映射可信度摘要：`terrainMappingSummary.apkTileCount/byConfidence/apkTerrainUsage/approximateApkTerrainIds/unmappedApkTerrainIds`，用于快速识别整张地图是否含低可信或未映射 tile。
 - 每格实际规则数值：`defenseBonus/healPerTurn/moveCost`。
 - 每格实际规则语义：`ruleTerrainId/terrainKey/terrainTags`，用于直接暴露 APK tile 映射后的城堡、城镇、水面、森林、山地等规则标签。
@@ -432,7 +433,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 单位攻击、防御、射程和移动使用 APK 等级成长与状态修正后的有效值，避免致盲、虚弱、移动成长等规则在训练观测中变成隐藏信息。
 - 单位基础数值与成长：`baseAttack/basePhysicalDefense/baseMagicDefense/baseMinRange/baseMaxRange/baseMove/attackGrowth/defenseGrowth/maxHpGrowth/moveGrowth`，直接来自 APK `data.bin` 单位表，供训练侧读取升级收益。
 - 单位静态配置：`attackType/population/cost/abilities/isCommander`，其中 `cost` 反映当前规则价格覆盖和指挥官重招募价格，`isCommander` 反映当前规则实际使用的指挥官判定。
-- 单位所在格规则地形快照：`tileTerrainId/tileRuleTerrainId/tileTerrainKey/tileTerrainTags/tileOwnerId/tileApkTerrainId/tileApkOwnerCode/tileApkTerrainMappingConfidence/tileApkTerrainMappingEvidence/tileDefenseBonus/tileHealPerTurn/tileMoveCost`，用于直接读取单位当前站位的 APK tile 映射语义和数值。
+- 单位所在格规则地形快照：`tileTerrainId/tileRuleTerrainId/tileTerrainKey/tileTerrainTags/tileOwnerId/tileApkTerrainId/tileApkOwnerCode/tileApkTerrainConfig/tileApkTerrainMappingConfidence/tileApkTerrainMappingEvidence/tileDefenseBonus/tileHealPerTurn/tileMoveCost`，用于直接读取单位当前站位的 APK tile 映射语义、原始配置和数值。
 - 单位 APK 元数据：`apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead/apkMoveOverrides`。
 - `apkScriptState.booleans` 与 `apkScriptState.integers`。
 - 墓碑信息和地图 metadata。
