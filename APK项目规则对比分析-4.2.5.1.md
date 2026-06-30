@@ -209,7 +209,8 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - AI 训练 Observation 已新增单位级 APK `data.bin` 静态数值：基础攻击、防御、射程、移动以及攻击/防御/最大生命/移动成长，让策略能直接读取升级收益。
 - AI 训练 Observation 已新增单位所在格规则地形快照：规则地形 ID/key/tags、owner、APK tile ID/owner、映射可信度/证据和当前防御/回血/移动数值，避免训练端反查 `tiles[]` 时漏掉 APK tile 映射语义。
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate/apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`；脚本字面量规则应用后还会输出 `apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于训练样本追踪、低可信 tile 过滤和复现实验配置。
-- `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；按当前 skirmish 映射，20 张图均无未映射 tile。
+- `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；`src/game/apk_manifest.ts` 会为每张官方图生成 `terrainConfidence`，记录 confirmed/atlas/approximate/unmapped 格子数量、低可信 tile ID 和未映射 tile ID；按当前 skirmish 映射，20 张图均无未映射 tile。
+- 20 张官方 skirmish 地图中只有 4 张含低可信 approximate tile：`(2) Mourningstar.aem` 含 `t30` 2 格，`(4) The Crucible.aem` 含 `t31` 1 格，`(4) Waterways.aem` 含 `t31` 2 格，`(4) Winterstorm.aem` 含 `t31` 4 格。其它 16 张图不含 approximate/unmapped tile，可作为更干净的基础训练地图。
 - Observation 也会输出单位级 `apkUnitId/apkUnitExtra/apkUnitCode/apkStatic/apkTargeted/apkUnitHead` 和 `apkScriptState.booleans/integers`，避免训练侧丢失 APK 初始单位记录和脚本目标判断状态。
 - 真实 20 张 skirmish 地图的单位 `extra` 字段全部为 `0`，当前仅作为原始证据字段保留，不参与等级或规则推断。
 - 使用真实 APK 的 20 张 skirmish 地图验证，导入结果为 `IMPORTED 20 / 20`；本轮进一步确认 `TILES_WITH_APK_ID 4207/4207`，可读移动集合 `1,2,3,16777215`、防御集合 `0,5,10,15`、回血集合 `0,3,20`。
@@ -279,7 +280,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 下一步应结合反编译字段名、编辑器保存格式或更多特殊地图样本确认该模板用途。
 
 3. 增加 APK skirmish 地图导入文档或数据表。
-   - 尺寸、玩家、推荐金币、初始单位、城堡/城镇归属、tile 使用量和未映射 tile 清单已进入官方 manifest。
+   - 尺寸、玩家、推荐金币、初始单位、城堡/城镇归属、tile 使用量、可信度统计和未映射 tile 清单已进入官方 manifest。
    - 后续围绕这份数据表补充 tile 语义校准证据，而不是重复解包统计。
    - 明确记录尾部模板为原始字节，不参与联盟或队伍配置推断。
    - 已有代码入口为 `createApkSkirmishGameState`；后续数据表应围绕该入口补足校准证据。

@@ -984,6 +984,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该统计只反映当前 skirmish 映射可信度，不改变 strict terrain 校验、地形映射、移动、防御、回血、占领、招募、收入或胜负判定。
 - 验证：新增回归测试覆盖无低可信 tile 的合成 AEM、含 `t31` approximate tile 的合成 AEM，以及 Observation 元数据数组快照隔离。
 
+2026-06-30 APK skirmish 官方地图可信度统计进入 manifest：
+
+- `src/game/apk_manifest.ts` 新增 `terrainConfidence`，基于已固化的 `tileUsage` 为每张官方 skirmish 地图统计 confirmed/atlas/approximate/unmapped 格子数，并列出 approximate/unmapped APK tile ID 与格子数量。
+- 当前 20 张官方 skirmish 地图均无 unmapped tile；只有 4 张包含 approximate tile：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格。
+- 该字段不改变 AEM 导入和规则结算，仅让训练集构建阶段在不加载地图二进制、不创建 Observation 的情况下，直接选择更干净的官方 skirmish 地图或降权低可信地图。
+- 验证：新增回归测试覆盖 `(2) Duel.aem` 的可信度统计、20 张图 tile 总数一致性、官方图无 unmapped，以及 4 张 approximate 地图清单。
+
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 
 - `AncientEmpiresEnv.getObservation().units` 新增可选 `apkUnitCode`，用于训练侧观察 APK 脚本标记的目标/关键单位。

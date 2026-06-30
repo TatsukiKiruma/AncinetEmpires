@@ -1,5 +1,5 @@
 import { getApkAemTerrainUsage, type ApkAemMap, type ApkAemTailTemplate } from './apk_map';
-import { mapSkirmishApkTerrainId } from './apk_terrain';
+import { getSkirmishApkTerrainMappingInfo, mapSkirmishApkTerrainId, type ApkTerrainMappingConfidence } from './apk_terrain';
 import { APK_SKIRMISH_TILE_USAGE, type ApkSkirmishTileUsage } from './apk_skirmish_tile_usage';
 
 export const APK_RELEASE_VERSION = 'aer-release-4.2.5.1';
@@ -15,6 +15,15 @@ export interface ApkSkirmishInitialUnit {
 
 export type ApkSkirmishOwnerCounts = Partial<Record<'0' | '1' | '2' | '3' | 'N', number>>;
 
+export interface ApkSkirmishTerrainConfidenceReport {
+    tileCount: number;
+    byConfidence: Record<ApkTerrainMappingConfidence, number>;
+    approximateTerrainIds: number[];
+    approximateTileCount: number;
+    unmappedTerrainIds: number[];
+    unmappedTileCount: number;
+}
+
 export interface ApkSkirmishMapManifestEntry {
     name: string;
     resourcePath: string;
@@ -27,6 +36,7 @@ export interface ApkSkirmishMapManifestEntry {
     castleOwnerCounts: ApkSkirmishOwnerCounts;
     villageOwnerCounts: ApkSkirmishOwnerCounts;
     tileUsage: ApkSkirmishTileUsage;
+    terrainConfidence: ApkSkirmishTerrainConfidenceReport;
     unmappedTerrainIds: number[];
     recommendedGold: number | null;
     tailTemplate: ApkAemTailTemplate;
@@ -338,7 +348,7 @@ const APK_SKIRMISH_MAP_DATA = [
         villageOwnerCounts: { N: 6 },
         recommendedGold: null
     }
-] satisfies readonly Omit<ApkSkirmishMapManifestEntry, 'resourcePath' | 'tailTemplate' | 'initialUnitCount' | 'tileUsage' | 'unmappedTerrainIds'>[];
+] satisfies readonly Omit<ApkSkirmishMapManifestEntry, 'resourcePath' | 'tailTemplate' | 'initialUnitCount' | 'tileUsage' | 'terrainConfidence' | 'unmappedTerrainIds'>[];
 
 function getRequiredTileUsage(name: string): ApkSkirmishTileUsage {
     const usage = APK_SKIRMISH_TILE_USAGE[name];
@@ -355,13 +365,53 @@ export function getUnmappedApkTerrainIdsFromUsage(usage: ApkSkirmishTileUsage): 
         .sort((a, b) => a - b);
 }
 
+export function getApkTerrainConfidenceReportFromUsage(usage: ApkSkirmishTileUsage): ApkSkirmishTerrainConfidenceReport {
+    const byConfidence: Record<ApkTerrainMappingConfidence, number> = {
+        confirmed: 0,
+        atlas: 0,
+        approximate: 0,
+        unmapped: 0
+    };
+    const approximateTerrainIds = new Set<number>();
+    const unmappedTerrainIds = new Set<number>();
+    let tileCount = 0;
+    let approximateTileCount = 0;
+    let unmappedTileCount = 0;
+
+    for (const [apkTerrainIdText, count = 0] of Object.entries(usage)) {
+        const apkTerrainId = Number(apkTerrainIdText);
+        const mappingInfo = getSkirmishApkTerrainMappingInfo(apkTerrainId);
+        byConfidence[mappingInfo.confidence] += count;
+        tileCount += count;
+
+        if (mappingInfo.confidence === 'approximate') {
+            approximateTerrainIds.add(apkTerrainId);
+            approximateTileCount += count;
+        } else if (mappingInfo.confidence === 'unmapped') {
+            unmappedTerrainIds.add(apkTerrainId);
+            unmappedTileCount += count;
+        }
+    }
+
+    return {
+        tileCount,
+        byConfidence,
+        approximateTerrainIds: [...approximateTerrainIds].sort((a, b) => a - b),
+        approximateTileCount,
+        unmappedTerrainIds: [...unmappedTerrainIds].sort((a, b) => a - b),
+        unmappedTileCount
+    };
+}
+
 export const APK_SKIRMISH_MAP_MANIFEST = APK_SKIRMISH_MAP_DATA.map(entry => {
     const tileUsage = getRequiredTileUsage(entry.name);
+    const terrainConfidence = getApkTerrainConfidenceReportFromUsage(tileUsage);
     return {
         ...entry,
         initialUnitCount: entry.initialUnits.length,
         tileUsage,
-        unmappedTerrainIds: getUnmappedApkTerrainIdsFromUsage(tileUsage),
+        terrainConfidence,
+        unmappedTerrainIds: terrainConfidence.unmappedTerrainIds,
         resourcePath: `assets/maps/${entry.name}`,
         tailTemplate: 'zero_suffix_58' as const
     };

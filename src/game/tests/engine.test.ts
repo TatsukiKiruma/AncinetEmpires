@@ -138,6 +138,19 @@ describe('GameEngine Rules', () => {
             castleOwnerCounts: { '0': 1, '1': 1 },
             villageOwnerCounts: { '1': 1, N: 4 },
             tileUsage: { 0: 67, 1: 6, 2: 7, 3: 7, 5: 3, 6: 7, 7: 5, 8: 2, 9: 7, 10: 5, 11: 7, 12: 3, 13: 2, 15: 7, 16: 4, 17: 6, 18: 4, 19: 4, 20: 2, 21: 2, 23: 1, 24: 1, 25: 1, 26: 1, 27: 1, 36: 5, 37: 2 },
+            terrainConfidence: {
+                tileCount: 169,
+                byConfidence: {
+                    confirmed: 8,
+                    atlas: 161,
+                    approximate: 0,
+                    unmapped: 0
+                },
+                approximateTerrainIds: [],
+                approximateTileCount: 0,
+                unmappedTerrainIds: [],
+                unmappedTileCount: 0
+            },
             unmappedTerrainIds: [],
             recommendedGold: 200,
             tailTemplate: 'zero_suffix_58'
@@ -148,6 +161,17 @@ describe('GameEngine Rules', () => {
             return tileCount === entry.width * entry.height;
         })).toBe(true);
         expect(APK_SKIRMISH_MAP_MANIFEST.flatMap(entry => entry.unmappedTerrainIds)).toEqual([]);
+        expect(APK_SKIRMISH_MAP_MANIFEST.every(entry => entry.terrainConfidence.tileCount === entry.width * entry.height)).toBe(true);
+        expect(APK_SKIRMISH_MAP_MANIFEST.filter(entry => entry.terrainConfidence.approximateTileCount > 0).map(entry => ({
+            name: entry.name,
+            approximateTerrainIds: entry.terrainConfidence.approximateTerrainIds,
+            approximateTileCount: entry.terrainConfidence.approximateTileCount
+        }))).toEqual([
+            { name: '(2) Mourningstar.aem', approximateTerrainIds: [30], approximateTileCount: 2 },
+            { name: '(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
+            { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
+            { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+        ]);
         const swamplandsManifest = getApkSkirmishMapManifestEntry('(2) Swamplands.aem')!;
         expect(swamplandsManifest.initialUnits.filter(unit => unit.apkUnitId === 0)).toHaveLength(4);
         expect(swamplandsManifest.castleOwnerCounts).toEqual({ N: 2 });
