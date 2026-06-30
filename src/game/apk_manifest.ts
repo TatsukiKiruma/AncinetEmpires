@@ -54,12 +54,20 @@ export interface ApkSkirmishTerrainVerificationFilter {
     mapNames?: string[];
 }
 
+export interface ApkSkirmishTerrainVerificationPosition {
+    x: number;
+    y: number;
+    ownerCode: number;
+    ownerId: number | null;
+}
+
 export interface ApkSkirmishTerrainVerificationTarget {
     mapName: string;
     resourcePath: string;
     playerCount: number;
     apkTerrainId: number;
     tileCount: number;
+    positions: ApkSkirmishTerrainVerificationPosition[];
     projectTerrainId: number | null;
     confidence: ApkTerrainMappingConfidence;
     evidence: string[];
@@ -374,6 +382,36 @@ const APK_SKIRMISH_MAP_DATA = [
     }
 ] satisfies readonly Omit<ApkSkirmishMapManifestEntry, 'resourcePath' | 'tailTemplate' | 'initialUnitCount' | 'tileUsage' | 'terrainConfidence' | 'unmappedTerrainIds'>[];
 
+// 来自 aer-release-4.2.5.1 的 20 张 assets/maps/*.aem 解密坐标复核。
+// 目前只固化官方 skirmish 中实际出现的 approximate tile 坐标，便于人工实测。
+const APK_SKIRMISH_APPROXIMATE_TERRAIN_POSITIONS = {
+    '(2) Mourningstar.aem': {
+        30: [
+            { x: 3, y: 4, ownerCode: 0xff, ownerId: null },
+            { x: 7, y: 6, ownerCode: 0xff, ownerId: null }
+        ]
+    },
+    '(4) The Crucible.aem': {
+        31: [
+            { x: 9, y: 9, ownerCode: 0xff, ownerId: null }
+        ]
+    },
+    '(4) Waterways.aem': {
+        31: [
+            { x: 7, y: 8, ownerCode: 0xff, ownerId: null },
+            { x: 7, y: 11, ownerCode: 0xff, ownerId: null }
+        ]
+    },
+    '(4) Winterstorm.aem': {
+        31: [
+            { x: 0, y: 0, ownerCode: 0xff, ownerId: null },
+            { x: 12, y: 0, ownerCode: 0xff, ownerId: null },
+            { x: 0, y: 12, ownerCode: 0xff, ownerId: null },
+            { x: 12, y: 12, ownerCode: 0xff, ownerId: null }
+        ]
+    }
+} satisfies Readonly<Record<string, Partial<Record<number, readonly ApkSkirmishTerrainVerificationPosition[]>>>>;
+
 function getRequiredTileUsage(name: string): ApkSkirmishTileUsage {
     const usage = APK_SKIRMISH_TILE_USAGE[name];
     if (usage === undefined) {
@@ -485,12 +523,14 @@ export function getApkSkirmishTerrainVerificationTargets(
             if (!allowedConfidences.has(mappingInfo.confidence)) return [];
 
             const terrainConfig = getApkTerrainConfig(apkTerrainId);
+            const positions = APK_SKIRMISH_APPROXIMATE_TERRAIN_POSITIONS[entry.name]?.[apkTerrainId] ?? [];
             return [{
                 mapName: entry.name,
                 resourcePath: entry.resourcePath,
                 playerCount: entry.playerIds.length,
                 apkTerrainId,
                 tileCount: count,
+                positions: positions.map(position => ({ ...position })),
                 projectTerrainId: mappingInfo.projectTerrainId,
                 confidence: mappingInfo.confidence,
                 evidence: [...mappingInfo.evidence],

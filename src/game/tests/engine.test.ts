@@ -206,6 +206,10 @@ describe('GameEngine Rules', () => {
                 playerCount: 2,
                 apkTerrainId: 30,
                 tileCount: 2,
+                positions: [
+                    { x: 3, y: 4, ownerCode: 0xff, ownerId: null },
+                    { x: 7, y: 6, ownerCode: 0xff, ownerId: null }
+                ],
                 projectTerrainId: 11,
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
@@ -231,6 +235,9 @@ describe('GameEngine Rules', () => {
                 playerCount: 4,
                 apkTerrainId: 31,
                 tileCount: 1,
+                positions: [
+                    { x: 9, y: 9, ownerCode: 0xff, ownerId: null }
+                ],
                 projectTerrainId: 12,
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
@@ -256,6 +263,10 @@ describe('GameEngine Rules', () => {
                 playerCount: 4,
                 apkTerrainId: 31,
                 tileCount: 2,
+                positions: [
+                    { x: 7, y: 8, ownerCode: 0xff, ownerId: null },
+                    { x: 7, y: 11, ownerCode: 0xff, ownerId: null }
+                ],
                 projectTerrainId: 12,
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
@@ -281,6 +292,12 @@ describe('GameEngine Rules', () => {
                 playerCount: 4,
                 apkTerrainId: 31,
                 tileCount: 4,
+                positions: [
+                    { x: 0, y: 0, ownerCode: 0xff, ownerId: null },
+                    { x: 12, y: 0, ownerCode: 0xff, ownerId: null },
+                    { x: 0, y: 12, ownerCode: 0xff, ownerId: null },
+                    { x: 12, y: 12, ownerCode: 0xff, ownerId: null }
+                ],
                 projectTerrainId: 12,
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
@@ -304,7 +321,12 @@ describe('GameEngine Rules', () => {
         const mutableVerificationTarget = getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0];
         mutableVerificationTarget.evidence.push('mutated');
         mutableVerificationTarget.terrainConfig!.moveCost = 99;
+        mutableVerificationTarget.positions[0].x = 99;
         expect(getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0]).toMatchObject({
+            positions: [
+                { x: 3, y: 4, ownerCode: 0xff, ownerId: null },
+                { x: 7, y: 6, ownerCode: 0xff, ownerId: null }
+            ],
             evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
             terrainConfig: { moveCost: 1 }
         });
