@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
-import { AncientEmpiresEnv, calculateArmyValue, decodeAction, encodeAction, getActionSpaceSchema } from '../env';
+import { AncientEmpiresEnv, buildFixedActionMask, calculateArmyValue, decodeAction, encodeAction, encodeFixedActionIndex, getActionSpaceSchema, getFixedActionSpaceDescriptor } from '../env';
 import type { Action } from '../types';
 import { createDemoState } from '../demo_map';
 import { createDefaultAppGameState } from '../default_state';
@@ -4710,6 +4710,60 @@ describe('GameEngine Rules', () => {
             expect(engine.getLegalActions(0).map(action => action.type).sort()).toEqual(['end_turn', 'surrender']);
             expect(new RandomAI(() => 0.99).getAction(engine, 0)).toEqual({ type: 'end_turn' });
             expect(new HeuristicAI(() => 0).getAction(engine, 0)).toEqual({ type: 'end_turn' });
+        });
+
+        it('固定全局动作空间可把当前合法动作映射为稳定索引', () => {
+            const descriptor = getFixedActionSpaceDescriptor({
+                width: 4,
+                height: 4,
+                unitClasses: ['soldier', 'archer']
+            });
+            expect(descriptor.size).toBe(2146);
+            expect(descriptor.blocks.map(block => block.type)).toEqual([
+                'move',
+                'post_attack_move',
+                'attack',
+                'heal',
+                'support',
+                'summon',
+                'recruit_to_castle',
+                'recruit_and_deploy',
+                'capture',
+                'repair',
+                'destroy_town',
+                'wait',
+                'surrender',
+                'end_turn'
+            ]);
+
+            descriptor.unitClasses.push('dragon');
+            expect(getFixedActionSpaceDescriptor({
+                width: 4,
+                height: 4,
+                unitClasses: ['soldier', 'archer']
+            }).unitClasses).toEqual(['soldier', 'archer']);
+
+            const env = new AncientEmpiresEnv({ initialState: createDemoState({ allowSurrender: true }) });
+            const legalActions = env.getLegalActions();
+            const fixedMask = env.getFixedActionMask();
+            const fixedIndexes = env.getFixedLegalActionIndexes();
+            const externalMask = buildFixedActionMask(env.getState(), legalActions);
+
+            expect(fixedMask.descriptor.size).toBe(env.getFixedActionSpaceDescriptor().size);
+            expect(fixedMask.actionMask).toHaveLength(fixedMask.descriptor.size);
+            expect(fixedMask.legalActionIndexes).toEqual(fixedIndexes);
+            expect(externalMask.legalActionIndexes).toEqual(fixedIndexes);
+            expect(fixedIndexes.length).toBeGreaterThan(0);
+            expect(fixedIndexes.every(index => index >= 0 && index < fixedMask.descriptor.size && fixedMask.actionMask[index])).toBe(true);
+
+            const executableAction = legalActions.find(action => action.type === 'wait' || action.type === 'move')!;
+            const fixedIndex = encodeFixedActionIndex(executableAction, env.getState());
+            expect(fixedIndex).not.toBeNull();
+            expect(fixedIndexes).toContain(fixedIndex);
+
+            const result = env.stepFixedAction(fixedIndex!);
+            expect(result.info).not.toContain('非法固定动作索引');
+            expect(encodeFixedActionIndex({ type: 'surrender' }, env.getState(), { includeSurrender: false })).toBeNull();
         });
     });
 

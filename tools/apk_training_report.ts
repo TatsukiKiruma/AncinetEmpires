@@ -11,6 +11,7 @@ import {
     decodeAction,
     encodeAction,
     getActionSpaceSchema,
+    type AncientEmpiresEnv,
     type Observation
 } from '../src/game/env';
 import {
@@ -56,6 +57,7 @@ interface TrainingScenarioReportEntry {
     commanderRecruitRuleMatched: boolean;
     recruitEconomyMatched: boolean;
     observationApkEvidenceMatched: boolean;
+    fixedActionSpaceMatched: boolean;
     smokeRequestedPlies: number;
     smokeExecutedPlies: number;
     smokeDone: boolean;
@@ -77,6 +79,7 @@ interface ApkTrainingReport {
     commanderRecruitRuleMismatchCount: number;
     recruitEconomyMismatchCount: number;
     observationApkEvidenceMismatchCount: number;
+    fixedActionSpaceMismatchCount: number;
     actionMaskMismatchCount: number;
     smokeActionMaskMismatchCount: number;
     actionSchemaTemplateCount: number;
@@ -292,6 +295,22 @@ function hasMatchingRecruitEconomy(
     );
 }
 
+function hasMatchingFixedActionSpace(env: AncientEmpiresEnv): boolean {
+    const descriptor = env.getFixedActionSpaceDescriptor();
+    const legalActions = env.getLegalActions();
+    const indexes = env.getFixedLegalActionIndexes();
+    const uniqueIndexes = new Set(indexes);
+
+    return (
+        descriptor.width === env.getState().map.width
+        && descriptor.height === env.getState().map.height
+        && descriptor.size > 0
+        && indexes.length === legalActions.length
+        && uniqueIndexes.size === indexes.length
+        && indexes.every(index => index >= 0 && index < descriptor.size)
+    );
+}
+
 function buildActionRoundTripSamples(): Action[] {
     return [
         { type: 'move', unitId: 'u1', to: { x: 2, y: 3 } },
@@ -493,6 +512,7 @@ function buildScenarioReportEntry(
         commanderRecruitRuleMatched,
         recruitEconomyMatched: hasMatchingRecruitEconomy(observation, scenario.mode),
         observationApkEvidenceMatched: hasCompleteObservationApkEvidence(observation),
+        fixedActionSpaceMatched: hasMatchingFixedActionSpace(env),
         ...smoke
     };
 }
@@ -523,6 +543,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         commanderRecruitRuleMismatchCount: entries.filter(entry => !entry.commanderRecruitRuleMatched).length,
         recruitEconomyMismatchCount: entries.filter(entry => !entry.recruitEconomyMatched).length,
         observationApkEvidenceMismatchCount: entries.filter(entry => !entry.observationApkEvidenceMatched).length,
+        fixedActionSpaceMismatchCount: entries.filter(entry => !entry.fixedActionSpaceMatched).length,
         actionMaskMismatchCount: entries.filter(entry => !entry.actionMaskMatched).length,
         smokeActionMaskMismatchCount: entries.filter(entry => !entry.smokeActionMaskMatched).length,
         actionSchemaTemplateCount: actionSchema.length,
@@ -551,14 +572,15 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
         `- Observation 招募经济错配场景：${report.recruitEconomyMismatchCount}`,
         `- Observation APK 证据字段错配场景：${report.observationApkEvidenceMismatchCount}`,
+        `- 固定动作空间错配场景：${report.fixedActionSpaceMismatchCount}`,
         `- actionMask 错配场景：初始 ${report.actionMaskMismatchCount} 个，smoke ${report.smokeActionMaskMismatchCount} 个`,
         `- 动作接口：schema 模板 ${report.actionSchemaTemplateCount} 个，schema 匹配 ${report.actionSchemaMatched ? '是' : '否'}，编码/解码往返 ${report.actionRoundTripMatched ? '通过' : '失败'}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | smoke | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | smoke | 固定动作 | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -577,6 +599,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.smokeError
                 ? `失败: ${scenario.smokeError}`
                 : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
+            scenario.fixedActionSpaceMatched ? '是' : '否',
             scenario.recruitableUnitCount ?? '-',
             `${formatCostProfile(scenario.commanderRecruitCostProfile)} ${scenario.commanderRecruitRuleMatched ? '是' : '否'}`,
             scenario.recruitEconomyMatched ? '是' : '否',
@@ -609,6 +632,7 @@ async function main() {
     const commanderRecruitRuleMismatches = report.commanderRecruitRuleMismatchCount > 0;
     const recruitEconomyMismatches = report.recruitEconomyMismatchCount > 0;
     const observationApkEvidenceMismatches = report.observationApkEvidenceMismatchCount > 0;
+    const fixedActionSpaceMismatches = report.fixedActionSpaceMismatchCount > 0;
     const actionMaskMismatches = report.actionMaskMismatchCount > 0 || report.smokeActionMaskMismatchCount > 0;
     const actionSchemaMismatch = !report.actionSchemaMatched || !report.actionRoundTripMatched;
     const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
@@ -622,6 +646,7 @@ async function main() {
         || commanderRecruitRuleMismatches
         || recruitEconomyMismatches
         || observationApkEvidenceMismatches
+        || fixedActionSpaceMismatches
         || actionMaskMismatches
         || actionSchemaMismatch
         || unverifiedApproximateScenarios

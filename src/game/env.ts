@@ -198,6 +198,60 @@ export interface EnvStepResult {
   actionMask: boolean[];
 }
 
+export interface FixedActionSpaceOptions {
+  width?: number;
+  height?: number;
+  unitClasses?: readonly UnitClass[];
+  includeSurrender?: boolean;
+  includeEndTurn?: boolean;
+}
+
+export interface FixedActionSpaceBlock {
+  type: Action['type'];
+  offset: number;
+  size: number;
+  dimensions: readonly string[];
+}
+
+export interface FixedActionSpaceDescriptor {
+  width: number;
+  height: number;
+  tileCount: number;
+  unitClasses: UnitClass[];
+  blocks: FixedActionSpaceBlock[];
+  size: number;
+}
+
+export interface FixedActionMask {
+  descriptor: FixedActionSpaceDescriptor;
+  legalActionIndexes: number[];
+  actionMask: boolean[];
+}
+
+const DEFAULT_FIXED_ACTION_UNIT_CLASSES: readonly UnitClass[] = [
+    'commander',
+    'soldier',
+    'ghost',
+    'mermaid',
+    'archer',
+    'slime',
+    'dark_mage',
+    'water_elemental',
+    'paladin',
+    'witch',
+    'berserker',
+    'elf',
+    'wolf',
+    'ice_elemental',
+    'golem',
+    'druid',
+    'catapult',
+    'wolf_archer',
+    'dragon',
+    'skeleton',
+    'crystal'
+];
+
 export function calculateArmyValue(state: GameState, playerId: number): number {
     const player = state.players.find(p => p.id === playerId);
     const goldValue = player?.gold ?? 0;
@@ -349,6 +403,220 @@ function evaluateTimeoutWinnerAlliance(state: GameState): number {
     return tied ? -1 : winnerAlliance;
 }
 
+function resolveFixedActionSpaceOptions(
+    options: FixedActionSpaceOptions,
+    state?: GameState
+): Required<Pick<FixedActionSpaceOptions, 'width' | 'height' | 'unitClasses' | 'includeSurrender' | 'includeEndTurn'>> {
+    const width = options.width ?? state?.map.width;
+    const height = options.height ?? state?.map.height;
+    if (!Number.isInteger(width) || !Number.isInteger(height) || !width || !height || width < 1 || height < 1) {
+        throw new Error('固定动作空间需要有效的 width/height。');
+    }
+
+    return {
+        width,
+        height,
+        unitClasses: [...(options.unitClasses ?? DEFAULT_FIXED_ACTION_UNIT_CLASSES)],
+        includeSurrender: options.includeSurrender ?? true,
+        includeEndTurn: options.includeEndTurn ?? true
+    };
+}
+
+function appendFixedActionBlock(
+    blocks: FixedActionSpaceBlock[],
+    type: Action['type'],
+    size: number,
+    dimensions: readonly string[]
+): number {
+    const offset = blocks.reduce((sum, block) => sum + block.size, 0);
+    blocks.push({ type, offset, size, dimensions });
+    return offset + size;
+}
+
+function getFixedActionBlock(
+    descriptor: FixedActionSpaceDescriptor,
+    type: Action['type']
+): FixedActionSpaceBlock | null {
+    return descriptor.blocks.find(block => block.type === type) ?? null;
+}
+
+function getTileIndex(pos: { x: number; y: number }, width: number, height: number): number | null {
+    if (!Number.isInteger(pos.x) || !Number.isInteger(pos.y)) return null;
+    if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height) return null;
+    return pos.y * width + pos.x;
+}
+
+function getFixedUnitClassIndex(unitClasses: readonly UnitClass[], unitClass: UnitClass): number | null {
+    const index = unitClasses.indexOf(unitClass);
+    return index >= 0 ? index : null;
+}
+
+export function getFixedActionSpaceDescriptor(options: FixedActionSpaceOptions): FixedActionSpaceDescriptor {
+    const resolved = resolveFixedActionSpaceOptions(options);
+    const tileCount = resolved.width * resolved.height;
+    const unitClassCount = resolved.unitClasses.length;
+    const blocks: FixedActionSpaceBlock[] = [];
+
+    appendFixedActionBlock(blocks, 'move', tileCount * tileCount, ['fromTile', 'toTile']);
+    appendFixedActionBlock(blocks, 'post_attack_move', tileCount * tileCount, ['fromTile', 'toTile']);
+    appendFixedActionBlock(blocks, 'attack', tileCount * tileCount, ['attackerTile', 'targetTile']);
+    appendFixedActionBlock(blocks, 'heal', tileCount * tileCount, ['healerTile', 'targetTile']);
+    appendFixedActionBlock(blocks, 'support', tileCount * tileCount, ['supporterTile', 'targetTile']);
+    appendFixedActionBlock(blocks, 'summon', tileCount * tileCount, ['summonerTile', 'graveTile']);
+    appendFixedActionBlock(blocks, 'recruit_to_castle', unitClassCount * tileCount, ['unitClass', 'castleTile']);
+    appendFixedActionBlock(blocks, 'recruit_and_deploy', unitClassCount * tileCount * tileCount, ['unitClass', 'castleTile', 'deployTile']);
+    appendFixedActionBlock(blocks, 'capture', tileCount, ['unitTile']);
+    appendFixedActionBlock(blocks, 'repair', tileCount, ['unitTile']);
+    appendFixedActionBlock(blocks, 'destroy_town', tileCount, ['unitTile']);
+    appendFixedActionBlock(blocks, 'wait', tileCount, ['unitTile']);
+    if (resolved.includeSurrender) {
+        appendFixedActionBlock(blocks, 'surrender', 1, []);
+    }
+    if (resolved.includeEndTurn) {
+        appendFixedActionBlock(blocks, 'end_turn', 1, []);
+    }
+
+    return {
+        width: resolved.width,
+        height: resolved.height,
+        tileCount,
+        unitClasses: [...resolved.unitClasses],
+        blocks,
+        size: blocks.reduce((sum, block) => sum + block.size, 0)
+    };
+}
+
+export function encodeFixedActionIndex(
+    action: Action,
+    state: GameState,
+    options: FixedActionSpaceOptions = {}
+): number | null {
+    const descriptor = getFixedActionSpaceDescriptor({
+        width: options.width ?? state.map.width,
+        height: options.height ?? state.map.height,
+        unitClasses: options.unitClasses,
+        includeSurrender: options.includeSurrender,
+        includeEndTurn: options.includeEndTurn
+    });
+    const block = getFixedActionBlock(descriptor, action.type);
+    if (!block) return null;
+
+    const unitById = new Map(state.units.map(unit => [unit.id, unit]));
+    const graveById = new Map((state.graves ?? []).map(grave => [grave.id, grave]));
+    const tileIndex = (pos: { x: number; y: number }) => getTileIndex(pos, descriptor.width, descriptor.height);
+    const unitTileIndex = (unitId: string): number | null => {
+        const unit = unitById.get(unitId);
+        return unit ? tileIndex(unit.pos) : null;
+    };
+
+    switch (action.type) {
+        case 'move':
+        case 'post_attack_move': {
+            const sourceIndex = unitTileIndex(action.unitId);
+            const targetIndex = tileIndex(action.to);
+            return sourceIndex === null || targetIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
+        }
+        case 'attack': {
+            const sourceIndex = unitTileIndex(action.attackerId);
+            const target = unitById.get(action.targetId);
+            const targetIndex = target ? tileIndex(target.pos) : null;
+            return sourceIndex === null || targetIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
+        }
+        case 'heal': {
+            const sourceIndex = unitTileIndex(action.healerId);
+            const target = unitById.get(action.targetId);
+            const targetIndex = target ? tileIndex(target.pos) : null;
+            return sourceIndex === null || targetIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
+        }
+        case 'support': {
+            const sourceIndex = unitTileIndex(action.supporterId);
+            const target = unitById.get(action.targetId);
+            const targetIndex = target ? tileIndex(target.pos) : null;
+            return sourceIndex === null || targetIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
+        }
+        case 'summon': {
+            const sourceIndex = unitTileIndex(action.summonerId);
+            const grave = graveById.get(action.graveId);
+            const graveIndex = grave ? tileIndex(grave.pos) : tileIndex(action.spawnPos);
+            return sourceIndex === null || graveIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + graveIndex;
+        }
+        case 'recruit_to_castle': {
+            const unitClassIndex = getFixedUnitClassIndex(descriptor.unitClasses, action.unitClass);
+            const castleIndex = tileIndex(action.castlePos);
+            return unitClassIndex === null || castleIndex === null
+                ? null
+                : block.offset + unitClassIndex * descriptor.tileCount + castleIndex;
+        }
+        case 'recruit_and_deploy': {
+            const unitClassIndex = getFixedUnitClassIndex(descriptor.unitClasses, action.unitClass);
+            const castleIndex = tileIndex(action.castlePos);
+            const deployIndex = tileIndex(action.to);
+            return unitClassIndex === null || castleIndex === null || deployIndex === null
+                ? null
+                : block.offset + unitClassIndex * descriptor.tileCount * descriptor.tileCount + castleIndex * descriptor.tileCount + deployIndex;
+        }
+        case 'capture':
+        case 'repair':
+        case 'destroy_town':
+        case 'wait': {
+            const sourceIndex = unitTileIndex(action.unitId);
+            return sourceIndex === null ? null : block.offset + sourceIndex;
+        }
+        case 'surrender':
+        case 'end_turn':
+            return block.offset;
+        default:
+            return null;
+    }
+}
+
+export function getFixedLegalActionIndexes(
+    state: GameState,
+    actions: readonly Action[],
+    options: FixedActionSpaceOptions = {}
+): number[] {
+    const seen = new Set<number>();
+    for (const action of actions) {
+        const index = encodeFixedActionIndex(action, state, options);
+        if (index !== null) {
+            seen.add(index);
+        }
+    }
+    return [...seen].sort((left, right) => left - right);
+}
+
+export function buildFixedActionMask(
+    state: GameState,
+    actions: readonly Action[],
+    options: FixedActionSpaceOptions = {}
+): FixedActionMask {
+    const descriptorOptions = {
+        width: options.width ?? state.map.width,
+        height: options.height ?? state.map.height,
+        unitClasses: options.unitClasses,
+        includeSurrender: options.includeSurrender,
+        includeEndTurn: options.includeEndTurn
+    };
+    const descriptor = getFixedActionSpaceDescriptor(descriptorOptions);
+    const legalActionIndexes = getFixedLegalActionIndexes(state, actions, descriptorOptions);
+    const actionMask = new Array(descriptor.size).fill(false);
+    for (const index of legalActionIndexes) {
+        actionMask[index] = true;
+    }
+
+    return { descriptor, legalActionIndexes, actionMask };
+}
+
 export class AncientEmpiresEnv {
   private engine: GameEngine;
   private seed: number;
@@ -450,6 +718,16 @@ export class AncientEmpiresEnv {
       return this.buildStepResult(sparseReward, done, finalInfo);
   }
 
+  public stepFixedAction(actionIndex: number, options: FixedActionSpaceOptions = {}): EnvStepResult {
+      const state = this.getState();
+      const legalActions = this.getLegalActions();
+      const matchedAction = legalActions.find(action => encodeFixedActionIndex(action, state, options) === actionIndex);
+      if (!matchedAction) {
+          return this.buildStepResult(-0.01, false, "非法固定动作索引");
+      }
+      return this.stepAction(matchedAction);
+  }
+
   public getState(): GameState {
       return this.engine.getState();
   }
@@ -465,6 +743,25 @@ export class AncientEmpiresEnv {
   public getActionMask(): boolean[] {
       const actions = this.getLegalActions();
       return new Array(actions.length).fill(true);
+  }
+
+  public getFixedActionSpaceDescriptor(options: FixedActionSpaceOptions = {}): FixedActionSpaceDescriptor {
+      const state = this.getState();
+      return getFixedActionSpaceDescriptor({
+          width: options.width ?? state.map.width,
+          height: options.height ?? state.map.height,
+          unitClasses: options.unitClasses,
+          includeSurrender: options.includeSurrender,
+          includeEndTurn: options.includeEndTurn
+      });
+  }
+
+  public getFixedLegalActionIndexes(options: FixedActionSpaceOptions = {}): number[] {
+      return getFixedLegalActionIndexes(this.getState(), this.getLegalActions(), options);
+  }
+
+  public getFixedActionMask(options: FixedActionSpaceOptions = {}): FixedActionMask {
+      return buildFixedActionMask(this.getState(), this.getLegalActions(), options);
   }
 
   public getObservation(playerId?: number): Observation {
