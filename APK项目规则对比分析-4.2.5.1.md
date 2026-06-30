@@ -150,7 +150,7 @@ APK 状态 ID 与项目状态：
 仍需确认的细节：
 
 - 治疗师主动治疗可突破最大血量，项目已实现为“已超上限仍可继续治疗”；普通封顶回血和升级回满血不会继续突破上限，也不会把既有超上限血量压回最大血量。APK 是否存在其它后续裁剪时机仍需实测或反编译确认。
-- 亡灵从墓碑/中毒获得的回血目前仍受最大血量限制，且不会压低既有超上限生命；APK 文案没有明确是否可突破。
+- 亡灵从墓碑/中毒获得的回血受最大血量限制；用户 2026-07-01 实机确认最多回复到生命上限，不突破上限。
 - 反击和突击后移动的 UI 层行为仍缺 APK 实测；pending/stacked 招募、空城堡 pending 的结束回合/投降、指挥官城堡堆叠 pending 的菜单限制已由 2026-06-30 实机结果回填。投降动作已接入规则层，但确认弹窗等纯 UI 流程仍待实机细化。
 
 ## 8. 经济、招募和上限规则对比
@@ -205,7 +205,7 @@ skirmish 控制脚本结论：
 - 若被摧毁队伍是当前队伍且游戏尚未结束，SD/SO 脚本会调用 `Stage.AsyncNextTurn()` 交给下一存活队伍；项目引擎已在结算后自动跳过失活当前玩家。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
 - 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；SD 模式会写入实机确认的指挥官+18 个普通单位可招募列表，SO 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
-- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30 实机确认的 skirmish 行为和当前项目默认费用/复活/超上限生命/收入假设固化为 21 项机器检查：SD/SO 招募、SD/SO 默认招募费用和人口占用、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认 SD/SO 指挥官收入 `base=0/growth=25`、当前默认指挥官死亡后不自动复活且可从城堡重招募、当前默认治疗超上限后不被普通回血/升级/亡灵中毒回血裁剪、当前默认亡灵中毒/墓碑被动回血不突破最大生命、开局设置、训练 observation、`t30/t31`、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 21/21 通过；报告末尾还输出 10 项待实机验证清单，不参与失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30/2026-07-01 实机确认的 skirmish 行为和当前项目默认收入假设固化为 21 项机器检查：SD/SO 招募、SD/SO 默认招募费用和人口占用、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、当前默认 SD/SO 指挥官收入 `base=0/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、开局设置、训练 observation、`t30/t31`、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 21/21 通过；报告末尾还输出 5 项待调查清单，不参与失败判定，用于回填低可信地形、复杂行动顺序和默认指挥官收入来源等剩余边界。
 - 前端沙盒和自动 AI 演示已改用 `createDefaultAppGameState()`，默认规则为 APK 正常遭遇战 `SD`；现有 demo 棋盘仍作为轻量调试地图保留。
 
 ## 10. 地形与地图导入差异
@@ -252,7 +252,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - `tools/apk_map_report.ts` 已把上述解密、解析和 manifest 对比流程工具化；`npm run apk:map-report -- --check` 当前确认 20/20 地图和项目清单一致、尾部模板 `zero_suffix_58=20`、非预期尾部 0，并在报告末尾输出 `t30/t31` 的人工验证坐标、当前项目语义清单和实机确认状态。
 - `getApkSkirmishTrainingMapManifest()` 默认返回无 unmapped tile，且只包含“无 approximate”或“approximate 已实机确认”的官方地图；当前 20 张官方 skirmish 图都会进入默认训练集。训练端仍可通过 `allowVerifiedApproximateTerrain=false` 获取 16 张更保守的无 approximate 基础图，或用 `allowApproximateTerrain/allowUnmappedTerrain/playerCounts` 显式放开低可信地形、未来未实测 approximate 地图或筛选 2/3/4 人图。
 - `getApkSkirmishTrainingScenarios()` 在训练地图清单基础上生成 SD/SO 模式场景，默认 20 张官方地图 x 2 模式共 40 项；默认训练集包含已经由实机确认的 `t30/t31` approximate tile，仍会排除未来未实测 approximate/unmapped tile。每项携带资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和模式 `RuleConfig`。SD 场景包含实机确认的指挥官+18 个普通单位招募列表；SO 场景包含脚本确认的 APK ID 0-8 招募列表。训练侧可用 `getApkSkirmishTrainingScenario(id)` 按稳定 ID 定位场景，并通过 `createApkSkirmishTrainingGameState(map, id)` / `createApkSkirmishTrainingEnv(map, id)` 直接创建带 manifest 校验、来源元数据和 `metadata.apkSkirmishSetupOptions` 的训练状态/环境。
-- `tools/apk_training_report.ts` 已把上述训练场景创建流程工具化；`npm run apk:training-report -- --check` 当前确认默认 40/40 场景可创建环境、manifest/metadata 全匹配、含未实测 approximate 的场景 0 个、模式规则错配 0 个、指挥官重招募费用错配 0 个、Observation 招募经济错配 0 个、Observation APK 地形/单位证据字段错配 0 个、固定动作空间错配 0 个、初始与 smoke 过程 actionMask 错配 0 个、动作序列化错配 0 个、动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过、初始合法动作均非 0，并且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。当前门禁锁定 SD 模式死亡次数 0/1/2 的指挥官费用曲线为 `400/400/400`，SO 模式为不可招募，并要求训练 Observation 保留 SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、APK tile 数值、映射证据、单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段、`legalActionEntries` 条目和动态 mask 对齐；这仍包含项目默认假设，官方是否递增待实机验证。
+- `tools/apk_training_report.ts` 已把上述训练场景创建流程工具化；`npm run apk:training-report -- --check` 当前确认默认 40/40 场景可创建环境、manifest/metadata 全匹配、含未实测 approximate 的场景 0 个、模式规则错配 0 个、指挥官重招募费用错配 0 个、Observation 招募经济错配 0 个、Observation APK 地形/单位证据字段错配 0 个、固定动作空间错配 0 个、初始与 smoke 过程 actionMask 错配 0 个、动作序列化错配 0 个、动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过、初始合法动作均非 0，并且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。当前门禁锁定 SD 模式死亡次数 0/1/2 的指挥官费用曲线为 `400/500/600`，SO 模式为不可招募，并要求训练 Observation 保留 SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、APK tile 数值、映射证据、单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段、`legalActionEntries` 条目和动态 mask 对齐。
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回上述 4 个低可信 skirmish 验证目标，并附带资源路径、玩家数、APK tile ID、格子数量、坐标、项目映射地形、evidence、APK `data.bin` 地形数值、`projectRuleSemantics` 当前项目语义快照、`manualChecks` 实测回填 key/value 清单和 `manualVerification` 已实测行为记录；也支持按 confidence、tile ID 或地图名查询 confirmed/atlas tile，供人工实测和训练样本降权共用。当前坐标：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`，这些格子的 APK owner code 均为 `0xff`。当前项目语义中，`t30` 按 camp 回血但不净化，`t31` 按 temple 回血并净化，二者都不可占领、无收入。
 - approximate tile 的 evidence 已进一步拆分：`t30` 为 `low_confidence_camp_semantics`，`t31/t80` 为 `low_confidence_temple_semantics`，`t81/t82` 为 `low_confidence_water_obstacle_semantics`，`t83` 为 `low_confidence_water_temple_semantics`。这让训练管线可以把营地、陆地神庙、水中障碍和水中神庙候选分开降权或过滤。
 - 新增回合开始结算回归：`t31` 已由实机确认清除负面状态并使用 APK `healPerTurn=20` 回血；`t80/t83` 当前仍按神庙候选近似处理；`t30/t81` 不清除负面状态，避免把营地或水面障碍误套用神庙净化。
@@ -293,7 +293,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | `Stage.GetDistance` | 脚本实际调用 `x1, y1, x2, y2` | 已有曼哈顿距离查询适配；兼容 `Position` 与四坐标形态 |
 | `Stage.SyncSetCommander` | 2 | 已有基础适配；兼容脚本 `x, y` 形态并按坐标单位所属队伍写入指挥官 |
 
-项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam` 的 `x, y` 形态，单位 code/查询已覆盖 `SyncSetUnitCode(x, y, code)`、`GetUnit(code)`、`GetUnit(x, y)`、`GetUnits(team)`，单位等级/状态/指挥官设置已兼容解密脚本确认的 `x, y` 坐标调用形态，单位等级设置已和经验升级保持同样的超上限生命非裁剪边界，单位 static/targeted/head 标记也已兼容无 code API 的 `x, y` 坐标形态，脚本变量和 `GetDistance(x1, y1, x2, y2)` 查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
+项目目前适配的是“同步规则配置/查询”部分；其中坐标级建筑/归属查询已覆盖 `CheckCastle`、`CheckVillage`、`GetTileTeam` 的 `x, y` 形态，单位 code/查询已覆盖 `SyncSetUnitCode(x, y, code)`、`GetUnit(code)`、`GetUnit(x, y)`、`GetUnits(team)`，单位等级/状态/指挥官设置已兼容解密脚本确认的 `x, y` 坐标调用形态，单位等级设置与经验升级仍保留超上限生命，回合开始裁剪由对战回合结算统一处理，单位 static/targeted/head 标记也已兼容无 code API 的 `x, y` 坐标形态，脚本变量和 `GetDistance(x1, y1, x2, y2)` 查询已有基础适配。大量 `Async*` API 仍属于剧情表现、增援动画、单位移动演出、地图聚焦、消息弹窗和目标展示，不应混入纯规则引擎，需要独立脚本/场景层。
 
 新增 `src/game/apk_script_manifest.ts` 后，27 个已解密脚本的 API 计数和可直接提取的字面量规则配置已有代码化记录。当前归档确认：金币配置出现 300/400/450/500/600/800；单位上限出现 10/15/20/25/30/40/50/60；全局可招募列表有 6 种组合，队伍级可招募列表有 13 种组合；联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。`APK_SCRIPT_LITERAL_RULE_CONFIGS` 进一步按资源路径记录 26 个脚本的逐脚本字面量配置。单位/坐标状态调用不属于全局规则配置，已单独进入 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS`：包含 9 个 `SyncOverrideMov` 调用和 1 个 `SyncSetUnitStatus` 调用；`applyApkScriptStageStateConfig` 可显式应用这些调用，并在 metadata/Observation 中记录来源、成功数和警告。
 
@@ -311,8 +311,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | P2 | `.aem` 尾部 58 字节模板语义未确认 | 当前 20 张 skirmish 地图均为 `zero_suffix_58`，且 `apk:map-report -- --check` 已门禁非预期尾部；该字段只保留证据，不参与联盟或玩家设置推导 |
 | P1 | `ApkAemMap -> GameState` 仍缺完整场景配置 | SD/SO 基础模式入口和地图级元数据已完成；战役、特殊脚本和非 skirmish 模式仍需独立场景层 |
 | P1 | 脚本字面量配置已可生成 `RuleConfig`，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
-| P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
-| P2 | stacked/pending 的纯 UI 选择流程未完全实测 | 菜单限制、扣费、pending 来源和行动标记已进入训练规则；剩余主要影响 UI 复刻 |
+| P2 | stacked/pending 的纯 UI 细节未完全复刻 | 菜单限制、扣费、pending 来源、行动标记、不能结束/投降/取消和部署后必须行动已进入训练规则；剩余主要影响 UI 复刻 |
 | P2 | `Async*` 剧情/演出 API 未实现 | 影响战役复刻，不影响基础 AI 训练 |
 | P2 | 水晶目标和完整目标 UI 未实现 | 影响战役目标与剧情单位；单位 code/static/targeted/head/move override 已作为基础元数据适配 |
 

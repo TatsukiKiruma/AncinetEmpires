@@ -190,34 +190,6 @@ function check(
 function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
     return [
         {
-            id: 'commander-recruit-cost-growth',
-            priority: 'P0',
-            title: '指挥官死亡后的重招募价格',
-            currentProjectAssumption: 'SD 模式无存活指挥官时可按基础 400 金币重招募；是否随死亡次数增长仍保持可配置而不写死。',
-            requestedEvidence: '记录第 1/2/3 次指挥官死亡后的城堡招募价格，以及金币不足时菜单是否隐藏或灰显。'
-        },
-        {
-            id: 'commander-auto-revive',
-            priority: 'P0',
-            title: '指挥官是否存在自动复活流程',
-            currentProjectAssumption: 'skirmish 中不自动复活，只能在无存活指挥官且规则允许时从城堡重招募。',
-            requestedEvidence: '记录指挥官死亡当回合、下一己方回合、无城堡时是否出现自动复活、复活按钮或剧情式复活。'
-        },
-        {
-            id: 'overheal-clipping',
-            priority: 'P0',
-            title: '治疗超上限后的长期裁剪',
-            currentProjectAssumption: '主动治疗可超过最大生命；普通回血、升级和回合开始不会把既有超上限生命压回最大生命。',
-            requestedEvidence: '把 100/100 单位治疗到超上限后，记录结束回合、再次轮到己方、升级、地形回血后的生命值。'
-        },
-        {
-            id: 'undead-overheal',
-            priority: 'P1',
-            title: '亡灵中毒/墓碑回血是否可突破上限',
-            currentProjectAssumption: '亡灵从中毒和墓碑获得的回血受最大生命上限限制。',
-            requestedEvidence: '记录 95/100 或 100/100 的亡灵在中毒回合开始、踩墓碑后的生命值。'
-        },
-        {
             id: 'low-confidence-tiles-t80-t83',
             priority: 'P1',
             title: '低可信 t80/t83 神庙候选语义',
@@ -232,32 +204,25 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             requestedEvidence: '记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。'
         },
         {
-            id: 'commander-castle-recruit-ui-flow',
-            priority: 'P2',
-            title: '指挥官站城堡招募后的 UI 选择流程',
-            currentProjectAssumption: '训练规则已固化扣费、pending 来源、行动标记和不能结束/投降；纯 UI 选择流程仍不复刻。',
-            requestedEvidence: '记录部署范围、部署后是否可攻击/待机/移动、点错格子是否取消选择，以及是否有确认步骤。'
-        },
-        {
             id: 'support-and-assault-edge-order',
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
             currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，突击后移动使用剩余移动力。',
-            requestedEvidence: '记录被支援单位类型限制、同一目标能否多次支援、攻击前移动后突击剩余移动力如何计算。'
+            requestedEvidence: '继续从 APK 代码/脚本和针对性实测记录被支援单位类型限制、同一目标能否多次支援、攻击前移动后突击剩余移动力如何计算。'
         },
         {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
             currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
-            requestedEvidence: '记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
+            requestedEvidence: '继续从 APK 代码/脚本和针对性实测记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
         },
         {
             id: 'default-commander-income',
             priority: 'P2',
             title: 'skirmish 默认指挥官收入',
             currentProjectAssumption: '当前 SD/SO 默认使用 commander base=0、growth=25；脚本可覆盖该配置。',
-            requestedEvidence: '在无村庄/城堡收入的局面记录指挥官 0/1/2 级时回合开始金币变化。'
+            requestedEvidence: '继续从 APK 默认 Rule 初始化和 SD/SO controller 路径确认未显式配置时的 base/growth 默认值。'
         }
     ];
 }
@@ -557,6 +522,8 @@ function buildCommanderAutoReviveActual() {
     attacker.pos = { x: 6, y: 6 };
     commander.pos = { x: 6, y: 7 };
     commander.hp = 5;
+    commander.level = 2;
+    commander.exp = 350;
 
     const engine = new GameEngine(state);
     engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
@@ -568,10 +535,20 @@ function buildCommanderAutoReviveActual() {
     engine.step({ type: 'end_turn' });
     const nextTurnState = engine.getState();
     const nextTurnActions = engine.getLegalActions(1);
+    const commanderRecruit = nextTurnActions.find(action => (
+        action.type === 'recruit_to_castle' && action.unitClass === 'commander'
+    ));
+    if (commanderRecruit) {
+        engine.step(commanderRecruit);
+    }
+    const afterRecruit = engine.getState();
+    const recruitedCommander = afterRecruit.units.find(unit => unit.ownerId === 1 && unit.unitClass === 'commander');
 
     return {
         afterDeath: {
             commanderDeathCount: afterDeath.players.find(player => player.id === 1)?.commanderDeathCount ?? null,
+            commanderReserveLevel: afterDeath.players.find(player => player.id === 1)?.commanderReserveLevel ?? null,
+            commanderReserveExp: afterDeath.players.find(player => player.id === 1)?.commanderReserveExp ?? null,
             playerAlive: afterDeath.players.find(player => player.id === 1)?.isAlive ?? null,
             hasCommander: hasCommanderImmediatelyAfterDeath
         },
@@ -580,9 +557,13 @@ function buildCommanderAutoReviveActual() {
             commanderDeathCount: nextTurnState.players.find(player => player.id === 1)?.commanderDeathCount ?? null,
             playerAlive: nextTurnState.players.find(player => player.id === 1)?.isAlive ?? null,
             commanderCount: nextTurnState.units.filter(unit => unit.ownerId === 1 && unit.unitClass === 'commander').length,
-            canRecruitCommander: nextTurnActions.some(action => (
-                action.type === 'recruit_to_castle' && action.unitClass === 'commander'
-            ))
+            commanderRecruitCost: getUnitCost(nextTurnState, 1, 'commander'),
+            canRecruitCommander: commanderRecruit !== undefined
+        },
+        afterRecruit: {
+            gold: afterRecruit.players.find(player => player.id === 1)?.gold ?? null,
+            commanderLevel: recruitedCommander?.level ?? null,
+            commanderExp: recruitedCommander?.exp ?? null
         }
     };
 }
@@ -595,7 +576,7 @@ function buildOverhealClippingActual() {
     const firstTarget = firstHealState.units.find(unit => unit.ownerId === 0 && unit.id !== firstHealer.id)!;
     firstTarget.unitClass = 'soldier';
     firstTarget.pos = { x: 0, y: 1 };
-    firstTarget.hp = 90;
+    firstTarget.hp = 100;
     firstTarget.maxHp = 100;
     const firstHealEngine = new GameEngine(firstHealState);
     const firstHealAction = firstHealEngine.getLegalActions(0).find(action => (
@@ -1251,9 +1232,9 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         checks,
         'commander-recruit-cost-profile',
         '当前 SD/SO 指挥官重招募费用曲线',
-        'data.bin 指挥官基础价格字段 + 项目默认 RuleConfig；官方是否递增仍待实机验证',
+        'data.bin 指挥官基础价格字段 + 用户 2026-07-01 实机确认每死一次 +100',
         {
-            sdDeathCounts0To2: [400, 400, 400],
+            sdDeathCounts0To2: [400, 500, 600],
             soDeathCounts0To2: [null, null, null]
         },
         buildCommanderRecruitCostActual()
@@ -1262,11 +1243,13 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'commander-no-auto-revive',
-        '当前默认指挥官死亡后不自动复活',
-        'DEX revive 关键词分组 0 命中 + 项目默认 RuleConfig；官方完整复活流程仍待实机验证',
+        'skirmish 指挥官死亡后不自动复活且重招募继承等级经验',
+        'DEX revive 关键词分组 0 命中 + 用户 2026-07-01 实机确认 skirmish 只能城堡重招募且继承等级经验',
         {
             afterDeath: {
                 commanderDeathCount: 1,
+                commanderReserveLevel: 2,
+                commanderReserveExp: 350,
                 playerAlive: true,
                 hasCommander: false
             },
@@ -1275,7 +1258,13 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
                 commanderDeathCount: 1,
                 playerAlive: true,
                 commanderCount: 0,
+                commanderRecruitCost: 500,
                 canRecruitCommander: true
+            },
+            afterRecruit: {
+                gold: 600,
+                commanderLevel: 2,
+                commanderExp: 350
             }
         },
         buildCommanderAutoReviveActual()
@@ -1284,14 +1273,14 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'overheal-clipping',
-        '当前默认治疗超上限后的长期裁剪行为',
-        'APK 语言表确认治疗师可超上限 + 项目当前回合/升级/亡灵回血规则；官方长期裁剪仍待实机验证',
+        '治疗超上限后的回合开始裁剪行为',
+        'APK 语言表确认治疗师可超上限 + 用户 2026-07-01 实机确认下一己方回合开始先裁剪到最大生命',
         {
-            firstHeal: { hp: 130, maxHp: 100, exceededMaxHp: true },
+            firstHeal: { hp: 140, maxHp: 100, exceededMaxHp: true },
             secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
-            turnStartRecovery: { hp: 130, maxHp: 100 },
+            turnStartRecovery: { hp: 100, maxHp: 100 },
             levelUp: { triggered: true, level: 1, hp: 130 },
-            undeadPoison: { hp: 130, maxHp: 100, remainingTicks: 1 }
+            undeadPoison: { hp: 100, maxHp: 100, remainingTicks: 1 }
         },
         buildOverhealClippingActual()
     );
@@ -1300,7 +1289,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         checks,
         'undead-overheal',
         '当前默认亡灵被动回血上限',
-        'APK 语言表确认亡灵中毒/墓碑转回血 + 项目当前被动回血规则；官方是否可突破上限仍待实机验证',
+        'APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限',
         {
             poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },

@@ -95,6 +95,8 @@ export interface Observation {
     recruitCosts: Partial<Record<UnitClass, number>>;
     commanderUnitId: string | null;
     commanderDeathCount: number;
+    commanderReserveLevel: LevelCap | null;
+    commanderReserveExp: number | null;
   }>;
   tiles: Array<{
     x: number;
@@ -844,7 +846,9 @@ export class AncientEmpiresEnv {
                   recruitableUnits,
                   recruitCosts,
                   commanderUnitId: getCommanderUnit(state, p.id)?.id ?? null,
-                  commanderDeathCount: p.commanderDeathCount
+                  commanderDeathCount: p.commanderDeathCount,
+                  commanderReserveLevel: p.commanderReserveLevel ?? null,
+                  commanderReserveExp: p.commanderReserveExp ?? null
               };
           }),
           tiles: state.map.tiles.flatMap((row, y) => row.map((t, x) => {

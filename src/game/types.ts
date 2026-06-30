@@ -53,6 +53,8 @@ export interface PlayerState {
     gold: number;
     isAlive: boolean; // 如果指挥官死亡或大本营被占领，变为false
     commanderDeathCount: number; // 指挥官死亡次数
+    commanderReserveLevel?: UnitLevel; // 指挥官阵亡后保留的等级，用于 APK skirmish 重招募
+    commanderReserveExp?: number; // 指挥官阵亡后保留的经验，用于 APK skirmish 重招募
 }
 
 export type UnitLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

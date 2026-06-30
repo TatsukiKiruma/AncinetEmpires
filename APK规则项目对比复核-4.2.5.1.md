@@ -40,8 +40,8 @@
 
 - APK 有 84 个 tile，项目只有抽象地形模型；数值可用，但贴图/类别/建筑语义仍有未校准项。
 - 战役脚本层只覆盖同步规则配置和部分查询，未实现大量 `Async*` 剧情、增援、目标 UI 和演出 API。
-- 水晶目标、指挥官复活/重招募价格递增官方流程仍未完整还原；单位 head 已作为脚本元数据保留，但未实现头像 UI。
-- 治疗突破最大血量后的长期裁剪规则、亡灵回血是否可突破上限仍需实机或反编译确认。
+- 水晶目标和战役失败/目标 UI 仍未完整还原；单位 head 已作为脚本元数据保留，但未实现头像 UI。
+- skirmish 指挥官重招募和治疗超上限裁剪已按 2026-07-01 实机结果回填；战役指挥官死亡后的剧情处理仍不纳入当前 AI 训练目标。
 
 判断：如果目标是 AI 训练用 skirmish 对战环境，当前规则已接近可用；如果目标是完整复刻 APK 4.2.5.1，还需要继续补齐地图语义、脚本配置和战役目标层。
 
@@ -103,7 +103,7 @@ npm run apk:unit-report -- --check
 npm run apk:skirmish-rule-report -- --check
 ```
 
-当前命令输出确认：21/21 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认 SD/SO 指挥官收入 `base=0/growth=25`、当前默认指挥官死亡后不自动复活且可从城堡重招募、当前默认治疗超上限后不被普通回血/升级/亡灵中毒回血裁剪、当前默认亡灵中毒/墓碑被动回血不突破最大生命、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、APK 地形防御参与战斗且飞行单位不吃地形防御、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+当前命令输出确认：21/21 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、当前默认 SD/SO 指挥官收入 `base=0/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、开局设置对训练状态的约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、APK 地形防御参与战斗且飞行单位不吃地形防御、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。报告末尾还输出 5 项待调查清单，不参与 `--check` 失败判定，用于回填低可信地形、复杂行动顺序和默认指挥官收入来源等剩余边界。
 
 同批修改还新增 `src/game/default_state.ts`：前端沙盒和自动 AI 演示默认通过 `createDefaultAppGameState()` 启动，使用 APK 正常遭遇战 `SD` 规则配置；`createDemoState()` 仍保留给测试和自定义局面。
 
@@ -471,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/400/400`、SO 模式禁用指挥官招募、SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段和 `legalActionEntries` 条目，以及动态 `legalActions/actionMask` 对齐；官方是否随死亡次数递增仍按待实机验证处理。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该门禁会检查 SD 模式死亡次数 0/1/2 的指挥官费用曲线 `400/500/600`、SO 模式禁用指挥官招募、SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段和 `legalActionEntries` 条目，以及动态 `legalActions/actionMask` 对齐。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 
@@ -520,9 +520,7 @@ npm run apk:script-report -- --check
 | P1 | 脚本字面量配置已可生成 `RuleConfig`，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
 | P2 | 单位 head 只做元数据透传 | 战役角色头像/单位外观 UI 未实现；不影响纯规则训练 |
 | P1 | `crystal` 只是不可行动占位 | 水晶护送/夺回等目标不能完整还原 |
-| P1 | 指挥官复活/重招募官方流程未知 | 指挥官模式可能与 APK 不一致 |
-| P2 | 招募 stacked/pending 的纯 UI 选择流程未完全实测 | 菜单限制、扣费、pending 来源和行动标记已进入训练规则；剩余主要影响 UI 复刻 |
-| P1 | 治疗突破最大血量后的长期裁剪未知 | 超上限血量在后续回合可能与 APK 不一致 |
+| P2 | 招募 stacked/pending 的纯 UI 细节未完全复刻 | 菜单限制、扣费、pending 来源、行动标记、不能结束/投降/取消和部署后必须行动已进入训练规则；剩余主要影响 UI 复刻 |
 | P2 | 大量 `Async*` 演出 API 未实现 | 不影响纯 skirmish 训练，但影响完整游戏体验 |
 | P2 | AEM 58 字节尾部语义未知 | 当前 20 张 skirmish 地图均为 `zero_suffix_58` 且已有报告门禁；只能保留证据，不应推导联盟或玩家设置 |
 
@@ -546,10 +544,9 @@ npm run apk:script-report -- --check
    - `Async*` 演出 API 可后置。
 
 4. 实机或反编译验证高风险细节
-   - 指挥官复活/重招募。
-   - 指挥官城堡招募后的 UI 选择流程和更多部署样例。
-   - 治疗突破最大血量后的裁剪。
-   - 亡灵从墓碑/中毒回血是否可突破上限。
+   - t80/t83 与 t81/t82 等低可信地形语义。
+   - 支援/突击、致盲/反击风暴等复杂行动顺序。
+   - 默认指挥官收入的 APK 默认初始化来源。
    - 净化光环的精确数值和对亡灵处理。
 
 ## 13. 最终判断

@@ -9,24 +9,15 @@ describe('APK skirmish rule report', () => {
         expect(report.checkCount).toBe(21);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
-        expect(report.manualVerificationItems).toHaveLength(10);
+        expect(report.manualVerificationItems).toHaveLength(5);
         expect(report.manualVerificationItems.map(item => item.id)).toEqual([
-            'commander-recruit-cost-growth',
-            'commander-auto-revive',
-            'overheal-clipping',
-            'undead-overheal',
             'low-confidence-tiles-t80-t83',
             'water-obstacle-tiles-t81-t82',
-            'commander-castle-recruit-ui-flow',
             'support-and-assault-edge-order',
             'counter-blind-storm-order',
             'default-commander-income'
         ]);
-        expect(report.manualVerificationItems.filter(item => item.priority === 'P0').map(item => item.id)).toEqual([
-            'commander-recruit-cost-growth',
-            'commander-auto-revive',
-            'overheal-clipping'
-        ]);
+        expect(report.manualVerificationItems.filter(item => item.priority === 'P0')).toEqual([]);
     });
 
     it('固化 SD/SO 招募列表与遭遇战开局设置', () => {
@@ -92,12 +83,14 @@ describe('APK skirmish rule report', () => {
             soWithoutCommander: { canRecruitCommander: false }
         });
         expect(byId['commander-recruit-cost-profile'].actual).toEqual({
-            sdDeathCounts0To2: [400, 400, 400],
+            sdDeathCounts0To2: [400, 500, 600],
             soDeathCounts0To2: [null, null, null]
         });
         expect(byId['commander-no-auto-revive'].actual).toEqual({
             afterDeath: {
                 commanderDeathCount: 1,
+                commanderReserveLevel: 2,
+                commanderReserveExp: 350,
                 playerAlive: true,
                 hasCommander: false
             },
@@ -106,15 +99,21 @@ describe('APK skirmish rule report', () => {
                 commanderDeathCount: 1,
                 playerAlive: true,
                 commanderCount: 0,
+                commanderRecruitCost: 500,
                 canRecruitCommander: true
+            },
+            afterRecruit: {
+                gold: 600,
+                commanderLevel: 2,
+                commanderExp: 350
             }
         });
         expect(byId['overheal-clipping'].actual).toEqual({
-            firstHeal: { hp: 130, maxHp: 100, exceededMaxHp: true },
+            firstHeal: { hp: 140, maxHp: 100, exceededMaxHp: true },
             secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
-            turnStartRecovery: { hp: 130, maxHp: 100 },
+            turnStartRecovery: { hp: 100, maxHp: 100 },
             levelUp: { triggered: true, level: 1, hp: 130 },
-            undeadPoison: { hp: 130, maxHp: 100, remainingTicks: 1 }
+            undeadPoison: { hp: 100, maxHp: 100, remainingTicks: 1 }
         });
         expect(byId['undead-overheal'].actual).toEqual({
             poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },

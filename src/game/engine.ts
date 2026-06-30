@@ -148,6 +148,8 @@ export class GameEngine {
             const player = this.state.players.find(p => p.id === unit.ownerId);
             if (player) {
                 player.commanderDeathCount += 1;
+                player.commanderReserveLevel = unit.level ?? 0;
+                player.commanderReserveExp = unit.exp ?? 0;
             }
         }
     }
@@ -220,6 +222,11 @@ export class GameEngine {
 
                 const eff = getEffectiveStats(u);
                 u.movementRemaining = eff.move;
+
+                // APK skirmish 实测：主动治疗可临时超上限，但再次轮到该单位所属队伍时先裁剪到最大生命。
+                if (u.hp > eff.maxHp) {
+                    u.hp = eff.maxHp;
+                }
 
                 // 1. 状态结算 (首当其冲是中毒扣血)
                 let isPoisonDead = false;
@@ -660,8 +667,8 @@ export class GameEngine {
                         maxHp: 100,
                         hasMoved: false, 
                         hasActed: false,
-                        level: 0,
-                        exp: 0,
+                        level: action.unitClass === 'commander' ? (player.commanderReserveLevel ?? 0) : 0,
+                        exp: action.unitClass === 'commander' ? (player.commanderReserveExp ?? 0) : 0,
                         apkPendingRecruitSource: 'empty_castle'
                     });
                     this.state.pendingUnitId = newUnitId;
@@ -690,8 +697,8 @@ export class GameEngine {
                         hasMoved: true, 
                         hasActed: false,
                         movementRemaining: 0,
-                        level: 0,
-                        exp: 0,
+                        level: action.unitClass === 'commander' ? (player.commanderReserveLevel ?? 0) : 0,
+                        exp: action.unitClass === 'commander' ? (player.commanderReserveExp ?? 0) : 0,
                         apkPendingRecruitSource: 'commander_castle'
                     });
                     this.state.pendingUnitId = newUnitId;

@@ -153,7 +153,7 @@ export function getApkSkirmishRuleConfig(
         defeatOnNoUnitsAndNoCastles: true,
         defeatOnNoUnits: false,
         commanderRecruitBaseCost: 400,
-        commanderRecruitCostGrowth: 0
+        commanderRecruitCostGrowth: 100
     };
 
     if (resolvedMode === 'SO') {

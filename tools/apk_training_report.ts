@@ -506,7 +506,7 @@ function buildScenarioReportEntry(
         observation.rules.commanderRecruitCostGrowth
     );
     const expectedCommanderRecruitCostProfile = scenario.mode === 'SD'
-        ? [400, 400, 400]
+        ? [400, 500, 600]
         : [null, null, null];
     const expectedInitialCommanderRecruitCost = scenario.mode === 'SD' ? 400 : null;
     const commanderRecruitRuleMatched = (

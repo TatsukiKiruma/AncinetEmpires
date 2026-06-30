@@ -760,7 +760,7 @@ describe('GameEngine Rules', () => {
         expect([0, 1, 2].map(deathCount => {
             sdCommanderCostState.players[0].commanderDeathCount = deathCount;
             return getUnitCost(sdCommanderCostState, 0, 'commander');
-        })).toEqual([400, 400, 400]);
+        })).toEqual([400, 500, 600]);
         expect(getUnitCost(createDemoState(getApkSkirmishRuleConfig('SO')), 0, 'commander')).toBeNull();
 
         const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
@@ -1295,7 +1295,7 @@ describe('GameEngine Rules', () => {
             unitLimit: 30,
             levelCap: 3,
             commanderRecruitBaseCost: 400,
-            commanderRecruitCostGrowth: 0,
+            commanderRecruitCostGrowth: 100,
             allowPendingRecruitEndTurn: true,
             allowPendingRecruitSurrender: true
         }));
@@ -2407,7 +2407,28 @@ describe('GameEngine Rules', () => {
             expect(resFriend.hasBeenHealedThisTurn).toBe(true);
         });
 
-        it('5.1c 普通回合回血不会压低治疗师造成的超上限生命', () => {
+        it('5.1c 治疗超上限后直接结束当前回合不会立刻裁剪', () => {
+            const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+            const paladin = state.units.find(u => u.ownerId === 0)!;
+            paladin.unitClass = 'paladin';
+            paladin.pos = { x: 0, y: 0 };
+            paladin.hasActed = false;
+
+            const friend = state.units.find(u => u.ownerId === 0 && u.id !== paladin.id)!;
+            friend.unitClass = 'soldier';
+            friend.pos = { x: 0, y: 1 };
+            friend.hp = 100;
+            friend.maxHp = 100;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'heal', healerId: paladin.id, targetId: friend.id });
+            expect(engine.getState().units.find(u => u.id === friend.id)?.hp).toBe(140);
+
+            engine.step({ type: 'end_turn' });
+            expect(engine.getState().units.find(u => u.id === friend.id)?.hp).toBe(140);
+        });
+
+        it('5.1d 下一己方回合开始会先裁剪超上限生命再结算回血', () => {
             const state = createDemoState();
             state.currentPlayer = 1;
             const unit = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
@@ -2419,10 +2440,10 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'end_turn' });
 
             const resUnit = engine.getState().units.find(u => u.id === unit.id)!;
-            expect(resUnit.hp).toBe(130);
+            expect(resUnit.hp).toBe(100);
         });
 
-        it('5.1d 亡灵中毒回血不会压低已有超上限生命', () => {
+        it('5.1e 亡灵中毒回血不会突破最大生命', () => {
             const state = createDemoState();
             state.currentPlayer = 1;
             const ghost = state.units.find(u => u.ownerId === 0)!;
@@ -2435,7 +2456,7 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'end_turn' });
 
             const resGhost = engine.getState().units.find(u => u.id === ghost.id)!;
-            expect(resGhost.hp).toBe(130);
+            expect(resGhost.hp).toBe(100);
             expect(resGhost.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
         });
 
@@ -3553,7 +3574,7 @@ describe('GameEngine Rules', () => {
             expect(finalState.units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
         });
 
-        it('APK skirmish 默认：指挥官死亡后下一己方回合不自动复活，只能城堡重招募', () => {
+        it('APK skirmish 默认：指挥官死亡后下一己方回合不自动复活，只能城堡重招募且继承等级经验', () => {
             const state = createDemoState(getApkSkirmishRuleConfig('SD'));
             state.players[1].gold = 1000;
             const attacker = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier')!;
@@ -3563,19 +3584,30 @@ describe('GameEngine Rules', () => {
             const commander = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
             commander.pos = { x: 6, y: 7 };
             commander.hp = 5;
+            commander.level = 2;
+            commander.exp = 350;
 
             const engine = new GameEngine(state);
             engine.step({ type: 'attack', attackerId: attacker.id, targetId: commander.id });
             expect(engine.getState().players[1].commanderDeathCount).toBe(1);
+            expect(engine.getState().players[1].commanderReserveLevel).toBe(2);
+            expect(engine.getState().players[1].commanderReserveExp).toBe(350);
             expect(engine.getState().units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
 
             engine.step({ type: 'end_turn' });
             const nextTurnState = engine.getState();
             expect(nextTurnState.currentPlayer).toBe(1);
             expect(nextTurnState.units.filter(u => u.ownerId === 1 && u.unitClass === 'commander')).toHaveLength(0);
-            expect(engine.getLegalActions(1).some(action => (
+            const commanderRecruit = engine.getLegalActions(1).find(action => (
                 action.type === 'recruit_to_castle' && action.unitClass === 'commander'
-            ))).toBe(true);
+            ));
+            expect(commanderRecruit).toBeDefined();
+
+            engine.step(commanderRecruit!);
+            const recruitedCommander = engine.getState().units.find(u => u.ownerId === 1 && u.unitClass === 'commander')!;
+            expect(recruitedCommander.level).toBe(2);
+            expect(recruitedCommander.exp).toBe(350);
+            expect(engine.getState().players[1].gold).toBe(600);
         });
 
         it('APK skirmish 默认：无单位但仍有城堡时不淘汰队伍', () => {

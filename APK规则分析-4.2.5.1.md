@@ -599,7 +599,7 @@ npm run apk:dex-report -- --check
 3. 治疗不能突破最大血量
    - APK：治疗师治疗可以超过目标最大血量。
    - 项目：治疗师主动治疗已可超过 `maxHp`；合法动作生成不再因为目标已经超出 `maxHp` 而隐藏治疗动作；净化、墓碑、回合回血仍保留上限，且不会把既有超上限生命压回最大生命；升级回满血时只保证至少达到当前最大生命，不会降低已有超上限生命。
-   - 状态：主动治疗已修正；普通封顶回复和升级回满血的非裁剪行为已修正；其它回血来源是否可主动突破上限、APK 升级时是否存在额外裁剪仍需确认。
+   - 状态：主动治疗已修正；用户 2026-07-01 实机确认主动治疗可临时突破最大生命，下一己方回合开始若仍超过最大生命会先裁剪到上限，再结算地形等回血；升级仍不裁剪既有超上限生命。
 
 4. 空军攻击水中目标 +10
    - APK：空军攻击水中单位获得 10 攻击加成，对同为空军目标无效。
@@ -855,9 +855,9 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 skirmish 实机规则复核工具化：
 
 - 新增 `tools/apk_skirmish_rule_report.ts`，可通过 `npm run apk:skirmish-rule-report -- --check` 复核用户实机确认的 skirmish 行为。
-- 当前覆盖 21 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD/SO 默认招募费用和人口占用，SD 指挥官不在场时可重招募，当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募，当前默认 SD/SO 指挥官收入 `base=0/growth=25`，当前默认指挥官死亡后不自动复活且可从城堡重招募，当前默认治疗超上限后不被普通回血、升级或亡灵中毒回血裁剪，当前默认亡灵中毒/墓碑被动回血不突破最大生命，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，APK 地形防御参与战斗且飞行单位不吃地形防御，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
-- 当前复核结果为 21/21 检查通过；新增检查会门禁 SD/SO 默认招募费用和人口占用、当前 SD 指挥官费用曲线 `400/400/400`、SO 禁用指挥官招募、当前默认无自动复活流程、当前默认治疗超上限后的长期非裁剪行为、当前默认亡灵被动回血封顶行为、当前默认指挥官收入结算，以及 APK data.bin `defenseBonus` 进入战斗结算。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用/复活/超上限生命/收入/地形防御/招募经济假设回退。
-- 报告末尾输出 10 项待实机验证清单，不参与 `--check` 失败判定，用于后续回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+- 当前覆盖 21 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，SD/SO 默认招募费用和人口占用，SD 指挥官不在场时可重招募，SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募，当前默认 SD/SO 指挥官收入 `base=0/growth=25`，skirmish 指挥官死亡后不自动复活且重招募继承等级/经验，主动治疗超上限后下一己方回合开始先裁剪到最大生命，升级不裁剪既有超上限生命，亡灵中毒/墓碑被动回血不突破最大生命，训练 observation 规则暴露，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，APK 地形防御参与战斗且飞行单位不吃地形防御，pending/stacked 招募菜单限制，招募后 pending 来源/扣费/行动标记，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
+- 当前复核结果为 21/21 检查通过；新增检查会门禁 SD/SO 默认招募费用和人口占用、SD 指挥官费用曲线 `400/500/600`、SO 禁用指挥官招募、skirmish 无自动复活且重招募继承等级/经验、治疗超上限后的回合开始裁剪、亡灵被动回血封顶、当前默认指挥官收入结算，以及 APK data.bin `defenseBonus` 进入战斗结算。该工具不重新解包 APK，专门用于防止已实机确认的项目行为和当前训练默认费用/复活/超上限生命/收入/地形防御/招募经济假设回退。
+- 报告末尾输出 5 项待调查清单，不参与 `--check` 失败判定，用于后续回填低可信地形、复杂行动顺序和默认指挥官收入来源等剩余边界。
 - 新增 `createDefaultAppGameState()`，前端沙盒和自动 AI 演示默认沿用现有演示棋盘，但应用 APK 正常遭遇战 `SD` 规则配置，避免实际运行入口继续使用旧的裸 demo 规则。
 
 2026-06-29 全局初始金币规则补充：
@@ -1048,7 +1048,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
-- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该报告会显示并门禁当前 SD 默认指挥官费用曲线 `400/400/400`、SO 禁用指挥官招募、SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段和 `legalActionEntries` 条目，以及动态 `legalActions/actionMask` 对齐；官方是否存在死亡次数递增仍需实机验证。
+- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且 `encodeAction/decodeAction` 往返通过，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。该报告会显示并门禁 SD 默认指挥官费用曲线 `400/500/600`、SO 禁用指挥官招募、SD/SO 可招募单位列表、每个玩家 `players[].recruitCosts` 中的 APK 默认招募费用、训练 Observation 中的 APK tile 数值、映射证据和单位静态数值字段、训练动作编码面、固定动作索引、`EnvStepResult` 动作序列化字段和 `legalActionEntries` 条目，以及动态 `legalActions/actionMask` 对齐。
 - 验证：新增回归测试覆盖默认 40 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
 
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
