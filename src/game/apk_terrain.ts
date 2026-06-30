@@ -156,13 +156,15 @@ export const SKIRMISH_APK_TERRAIN_TO_PROJECT = {
     29: 17,
     72: 17,
 
-    // 非收入治疗建筑。具体是营地还是神庙仍需反编译/实测；训练规则先保留回血能力。
+    // 非收入治疗建筑。t30 是营地/帐篷贴图；t31/t80 是神庙贴图，净化语义仍待实测。
     30: 11,
     31: 12,
     33: 14,
-    80: 11,
-    81: 16,
-    82: 16,
+    80: 12,
+    // 水域特殊 tile。t81/t82 是水面浮冰/礁石贴图，不能套用神庙净化语义。
+    81: 2,
+    82: 2,
+    // t83 是水中治疗平台候选，有 healPerTurn=20；净化语义仍保留低可信。
     83: 16,
 
     ...HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT,
@@ -183,6 +185,12 @@ function getSkirmishMappingEvidence(
         return ['data_bin_values', 'language_table_building_description', 'texture_atlas'];
     }
     if (confidence === 'approximate') {
+        if (apkTerrainId === 81 || apkTerrainId === 82) {
+            return ['data_bin_values', 'texture_atlas', 'low_confidence_water_obstacle_semantics'];
+        }
+        if (apkTerrainId === 83) {
+            return ['data_bin_values', 'texture_atlas', 'low_confidence_water_healing_semantics'];
+        }
         return ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics'];
     }
     return ['data_bin_values', 'texture_atlas', 'skirmish_map_context'];

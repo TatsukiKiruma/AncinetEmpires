@@ -302,11 +302,12 @@ skirmish 训练导入映射：
 | `t19` | `hill` | 防御 10、移动 2，atlas 为起伏雪地/丘陵，可信度中 |
 | `t20-t26`、`t73-t79` | `road` | atlas 为土路/岸边可通行陆地，防御 0、移动 1，可信度中 |
 | `t28/t29/t72` | `bridge` | atlas 为桥/木桥或桥候选，移动 1；APK 文案明确桥算水面，可信度中 |
-| `t30/t80` | `camp` | 非收入治疗建筑，防御 10、回血 20、移动 1，可信度中低 |
-| `t31` | `temple` | 非收入治疗建筑，防御 10、回血 20、移动 1；是否具备净化仍待实测，可信度中低 |
+| `t30` | `camp` | atlas 为营地/帐篷，防御 10、回血 20、移动 1，可信度中 |
+| `t31/t80` | `temple` | atlas 为神庙建筑，防御 10、回血 20、移动 1；`t80` 当前 AEM 未使用，净化语义仍待实测，可信度中低 |
 | `t33` | `special_2` | 防御 20、移动 3；skirmish 未使用，可信度低 |
 | `t35` | `special_3` | 防御 10、移动 1；skirmish 未使用，可信度低 |
-| `t81-t83` | `water_temple` | 水域/水中建筑候选，`t83` 回血 20；skirmish 未使用，可信度低 |
+| `t81/t82` | `deep_water` | atlas 为水面浮冰/礁石，防御 10、回血 0、移动 3；不应附加神庙净化语义，可信度中 |
+| `t83` | `water_temple` | atlas 为水中平台/桥候选，防御 10、回血 20、移动 3；净化语义仍待实测，可信度低 |
 | `t27/t36/t37` | `damaged_town/town/castle` | 沿用高可信映射 |
 
 该映射已在 `src/game/apk_terrain.ts` 中单独命名为 `SKIRMISH_APK_TERRAIN_TO_PROJECT`，不会覆盖 `HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT`。`getSkirmishApkTerrainMappingInfo` 会给每个 APK tile 输出 `confirmed/atlas/approximate/unmapped` 可信度，其中 `confirmed` 表示语言表或高可信建筑/桥证据明确，`atlas` 表示依赖贴图和 skirmish 上下文，`approximate` 表示训练可用但建筑/净化等细节仍需实测。`src/game/apk_map.ts` 新增 `createGameStateFromApkAemMap` 后，20 张内置 skirmish `.aem` 已全部可导入为 `GameState`；推荐金币为 `-1` 的地图导入时金币为 0，仍可由外部规则配置覆盖。导入后的 `Tile` 会保留并维护当前 `apkTerrainId/apkTerrainRaw/apkOwnerCode`，规则层通过 `terrain_rules.ts` 优先使用 APK 当前 tile 的防御、移动和回血数值；水之子/森林之子/山之子/大地之子、空军打水中单位等地形分类也优先按 `apkTerrainId -> SKIRMISH_APK_TERRAIN_TO_PROJECT` 判断。项目 `terrainId` 主要负责占领/招募/收入等抽象语义，并作为缺少 APK 当前 tile 时的兜底。
@@ -996,6 +997,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的 16 张官方 skirmish 地图，作为更稳的基础训练地图集合。
 - 该函数支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图，或只取 2/3/4 人图。
 - 验证：新增回归测试覆盖默认 16 张干净地图、默认 2 人图过滤，以及允许 approximate 后重新纳入 `(2) Mourningstar.aem`。
+
+2026-06-30 低可信水域/神庙 tile 贴图复核：
+
+- 复核 `assets/textures/main_texture.atlas/png` 后，`t30` 是营地/帐篷，`t31/t80` 是神庙建筑；`t80` 在当前 45 张 assets AEM 中未出现。
+- `t81/t82` 贴图是水面浮冰/礁石，`data.bin` 为防御 10、回血 0、移动 3；项目不再把它们映射为 `water_temple`，改为水面类地形，避免错误附加 `cleanse` 标签。
+- `t83` 贴图是水中平台/桥候选，`data.bin` 为防御 10、回血 20、移动 3；仍保留为低可信 `water_temple` 候选，等待实测确认是否净化。
+- 全 APK assets AEM 使用量：`t30=30`、`t31=16`、`t81=9`、`t82=8`、`t83=6`、`t80=0`；其中 `t81/t82/t83` 只出现在 AEIII 战役地图，不影响 20 张官方 skirmish 地图。
+- 验证：新增回归测试确认 `t80` 仍是低可信神庙候选，`t81/t82` 输出水面障碍 evidence，Observation 中 `t81` 不再带 `cleanse` 标签。
 
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 

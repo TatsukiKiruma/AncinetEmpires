@@ -87,6 +87,26 @@ describe('GameEngine Rules', () => {
             projectTerrainId: 12,
             confidence: 'approximate'
         }));
+        expect(getSkirmishApkTerrainMappingInfo(80)).toEqual(expect.objectContaining({
+            projectTerrainId: 12,
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_building_semantics']
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(81)).toEqual(expect.objectContaining({
+            projectTerrainId: 2,
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_water_obstacle_semantics']
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(82)).toEqual(expect.objectContaining({
+            projectTerrainId: 2,
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_water_obstacle_semantics']
+        }));
+        expect(getSkirmishApkTerrainMappingInfo(83)).toEqual(expect.objectContaining({
+            projectTerrainId: 16,
+            confidence: 'approximate',
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_water_healing_semantics']
+        }));
         expect(getSkirmishApkTerrainMappingInfo(999)).toEqual({
             apkTerrainId: 999,
             projectTerrainId: null,
@@ -677,12 +697,13 @@ describe('GameEngine Rules', () => {
 
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
         const state = createDemoState();
-        state.map.width = 3;
+        state.map.width = 4;
         state.map.height = 1;
         state.map.tiles = [[
             { terrainId: 6, ownerId: null },
             { terrainId: 2, ownerId: null, apkTerrainId: 0 },
-            { terrainId: 12, ownerId: null, apkTerrainId: 31 }
+            { terrainId: 12, ownerId: null, apkTerrainId: 31 },
+            { terrainId: 16, ownerId: null, apkTerrainId: 81 }
         ]];
         state.units = [{
             id: 'u_apk_move',
@@ -707,18 +728,19 @@ describe('GameEngine Rules', () => {
         const env = new AncientEmpiresEnv({ initialState: state });
         const observation = env.getObservation();
         expect(observation.terrainMappingSummary).toEqual({
-            apkTileCount: 2,
+            apkTileCount: 3,
             byConfidence: {
                 confirmed: 0,
                 atlas: 1,
-                approximate: 1,
+                approximate: 2,
                 unmapped: 0
             },
             apkTerrainUsage: {
                 0: 1,
-                31: 1
+                31: 1,
+                81: 1
             },
-            approximateApkTerrainIds: [31],
+            approximateApkTerrainIds: [31, 81],
             unmappedApkTerrainIds: []
         });
 
@@ -778,6 +800,20 @@ describe('GameEngine Rules', () => {
             defenseBonus: 10,
             healPerTurn: 20
         }));
+        const apkWaterObstacleTileObservation = observation.tiles.find(tile => tile.x === 3 && tile.y === 0)!;
+        expect(apkWaterObstacleTileObservation).toEqual(expect.objectContaining({
+            terrainId: 16,
+            ruleTerrainId: 2,
+            terrainKey: 'deep_water',
+            terrainTags: expect.arrayContaining(['water']),
+            apkTerrainId: 81,
+            apkTerrainMappingConfidence: 'approximate',
+            apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'low_confidence_water_obstacle_semantics'],
+            moveCost: 3,
+            defenseBonus: 10,
+            healPerTurn: 0
+        }));
+        expect(apkWaterObstacleTileObservation.terrainTags).toEqual(expect.not.arrayContaining(['cleanse']));
 
         const unmappedState = createDemoState();
         unmappedState.map.tiles[0][0] = { terrainId: 6, ownerId: null, apkTerrainId: 999 };
