@@ -84,6 +84,22 @@ export interface ApkSkirmishTerrainManualCheck {
     currentProjectValue: string | number | boolean | null;
 }
 
+export interface ApkSkirmishTerrainManualVerification {
+    status: 'confirmed' | 'pending';
+    source: string | null;
+    observedAt: string | null;
+    observed: {
+        canHeal?: boolean;
+        clearsPoisoned?: boolean;
+        clearsBlinded?: boolean;
+        clearsWeakened?: boolean;
+        canBeCaptured?: boolean;
+        generatesIncome?: boolean;
+        canRecruit?: boolean;
+    };
+    notes: string[];
+}
+
 export interface ApkSkirmishTerrainVerificationTarget {
     mapName: string;
     resourcePath: string;
@@ -97,6 +113,7 @@ export interface ApkSkirmishTerrainVerificationTarget {
     terrainConfig: ApkTerrainConfig | null;
     projectRuleSemantics: ApkSkirmishTerrainVerificationRuleSemantics;
     manualChecks: ApkSkirmishTerrainManualCheck[];
+    manualVerification: ApkSkirmishTerrainManualVerification;
 }
 
 // 来自 aer-release-4.2.5.1 的 assets/maps/_list.json 与 20 张根目录 skirmish AEM 解析结果。
@@ -562,7 +579,8 @@ export function getApkSkirmishTerrainVerificationTargets(
                 evidence: [...mappingInfo.evidence],
                 terrainConfig: terrainConfig ? { ...terrainConfig } : null,
                 projectRuleSemantics,
-                manualChecks: buildManualChecks(projectRuleSemantics)
+                manualChecks: buildManualChecks(projectRuleSemantics),
+                manualVerification: buildManualVerification(apkTerrainId)
             }];
         });
     }).sort((left, right) => (
@@ -637,6 +655,60 @@ function buildManualChecks(
         { key: 'isWater', currentProjectValue: semantics.isWater },
         { key: 'isLand', currentProjectValue: semantics.isLand }
     ];
+}
+
+function buildManualVerification(apkTerrainId: number): ApkSkirmishTerrainManualVerification {
+    if (apkTerrainId === 30) {
+        return {
+            status: 'confirmed',
+            source: '用户实机验证',
+            observedAt: '2026-06-30',
+            observed: {
+                canHeal: true,
+                clearsPoisoned: false,
+                clearsBlinded: false,
+                clearsWeakened: false,
+                canBeCaptured: false,
+                generatesIncome: false,
+                canRecruit: false
+            },
+            notes: [
+                't30 能回血。',
+                't30 不能清除中毒、致盲、虚弱。',
+                't30 不能占领、无收入、不能招募。'
+            ]
+        };
+    }
+
+    if (apkTerrainId === 31) {
+        return {
+            status: 'confirmed',
+            source: '用户实机验证',
+            observedAt: '2026-06-30',
+            observed: {
+                canHeal: true,
+                clearsPoisoned: true,
+                clearsBlinded: true,
+                clearsWeakened: true,
+                canBeCaptured: false,
+                generatesIncome: false,
+                canRecruit: false
+            },
+            notes: [
+                't31 能回血。',
+                't31 能清除中毒、致盲、虚弱。',
+                't31 不能占领、无收入、不能招募。'
+            ]
+        };
+    }
+
+    return {
+        status: 'pending',
+        source: null,
+        observedAt: null,
+        observed: {},
+        notes: []
+    };
 }
 
 function sameNumberArray(left: number[], right: number[]): boolean {

@@ -1023,7 +1023,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 当前默认目标为 4 项：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格。返回的 `terrainConfig` 来自 APK `data.bin`，其中 `t30` 与 `t31` 均为防御 10、回血 20、移动 1；类别语义仍按 evidence 标记为低可信。
 - 继续用 DES key `72 6b 00 00 00 00 46 46` 解密上述官方 AEM 后，已把低可信 tile 坐标固化到 `positions`：`(2) Mourningstar.aem` 的 `t30` 在 `(3,4)`、`(7,6)`；`(4) The Crucible.aem` 的 `t31` 在 `(9,9)`；`(4) Waterways.aem` 的 `t31` 在 `(7,8)`、`(7,11)`；`(4) Winterstorm.aem` 的 `t31` 在四角 `(0,0)`、`(12,0)`、`(0,12)`、`(12,12)`。这些格子的 `ownerCode` 均为 `0xff`，即中立/无归属。
 - 返回值新增 `projectRuleSemantics`，用于说明项目当前会如何结算该 tile：映射地形 key/name/tags、防御、回血、移动，以及是否清除负面状态、可占领、有收入、可招募、可摧毁、可修理、水面/陆地。2026-06-30 用户实机确认：`t30` 能回血，不能清除中毒/致盲/虚弱，不能占领/收入/招募；`t31` 能回血，能清除中毒/致盲/虚弱，不能占领/收入/招募。当前项目语义与该实测一致。
-- 返回值还新增 `manualChecks`，把需要实机回填的项目当前值结构化为 key/value：`projectTerrainKey`、`defenseBonus`、`healPerTurn`、`moveCost`、`clearsNegativeStatus`、`canBeCaptured`、`generatesIncome`、`canRecruit`、`canBeDestroyed`、`canBeRepaired`、`isWater`、`isLand`。后续实测只需要按这些 key 标注 APK 是否一致，避免重新推断要测哪些边界。
+- 返回值还新增 `manualChecks`，把需要实机回填的项目当前值结构化为 key/value：`projectTerrainKey`、`defenseBonus`、`healPerTurn`、`moveCost`、`clearsNegativeStatus`、`canBeCaptured`、`generatesIncome`、`canRecruit`、`canBeDestroyed`、`canBeRepaired`、`isWater`、`isLand`。`manualVerification` 会单独记录已由实机确认的 APK 行为、来源和日期；当前 `t30/t31` 已标记为 2026-06-30 用户实机确认，后续实测只需要按这些 key 继续补充 APK 是否一致，避免重新推断要测哪些边界。
 - 该入口支持按 `confidences`、`apkTerrainIds` 和 `mapNames` 过滤，也可查询 confirmed/atlas tile 的同类数据；返回值会复制 evidence 和 terrainConfig，避免训练端或验证脚本修改后污染 manifest 常量。
 - 这一步不改变任何规则结算，只把人工实测和训练集降权需要的数据结构化，避免后续再临时扫描 `tileUsage`、terrain 映射和 `data.bin` 表。
 
@@ -1161,7 +1161,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 新增 `tools/apk_resource_crypto.ts`，把 APK `.aem/.js/.json` 资源共用的 `DES/CBC/PKCS7`、key/iv `72 6b 00 00 00 00 46 46` 作为 Node 侧解密工具固化；该工具不进入前端运行包。
 - 新增 `tools/apk_map_report.ts` 和 npm 脚本 `apk:map-report`，默认读取 `APK/_analysis/unpack`，解密 20 张官方 skirmish AEM，复用 `parseApkAemMap` 与 `matchesApkSkirmishMapManifest` 生成 Markdown/JSON 报告。
-- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标和当前项目语义 checklist。
+- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标、当前项目语义 checklist，并显示 `t30/t31` 的实机确认状态。
 - 这一步不改变对战规则结算；它把“从 APK 资源复核地图规则证据”的临时流程变成可重复命令，后续可用于确认新的 APK、重新生成地图证据或定位 manifest 漂移。
 
 2026-06-30 APK 脚本解密复核工具：

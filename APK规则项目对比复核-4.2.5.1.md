@@ -328,7 +328,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - `src/game/apk_skirmish_tile_usage.ts` 固化了每张地图实际出现的 APK tile ID 及格子数量；`terrainConfidence` 会按当前 `SKIRMISH_APK_TERRAIN_TO_PROJECT` 映射统计 confirmed/atlas/approximate/unmapped 格子数。20 张官方 skirmish 地图的 `unmappedTerrainIds` 均为空。
 - 低可信 approximate tile 只出现在 4 张官方 skirmish 图：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格；其余 16 张图不含 approximate/unmapped tile。
 - `getApkSkirmishTrainingMapManifest()` 默认只返回不含 approximate/unmapped tile 的 16 张官方图，并支持按玩家数量或显式允许低可信 tile 筛选训练地图。
-- `getApkSkirmishTerrainVerificationTargets()` 默认输出这 4 个低可信 skirmish 验证目标，并附带坐标、evidence、APK `data.bin` 地形配置副本、`projectRuleSemantics` 当前项目语义快照和 `manualChecks` 实测回填 key/value 清单；需要时可按 confidence、tile ID 或地图名查询其它 confirmed/atlas tile 的同类数据。当前坐标为：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`。2026-06-30 用户实机确认：`t30` 回血但不净化，`t31` 回血且净化，二者都不可占领、无收入、不可招募。
+- `getApkSkirmishTerrainVerificationTargets()` 默认输出这 4 个低可信 skirmish 验证目标，并附带坐标、evidence、APK `data.bin` 地形配置副本、`projectRuleSemantics` 当前项目语义快照、`manualChecks` 实测回填 key/value 清单和 `manualVerification` 已实测行为记录；需要时可按 confidence、tile ID 或地图名查询其它 confirmed/atlas tile 的同类数据。当前坐标为：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`。2026-06-30 用户实机确认：`t30` 回血但不净化，`t31` 回血且净化，二者都不可占领、无收入、不可招募。
 - `createApkSkirmishGameState` 只在地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、完整 tile 使用量、推荐金币和尾部模板同时匹配清单时，自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成地图被误标为 APK 官方资源。
 - 20 张图的初始单位 `extra` 字段全部为 `0`，当前不能解释为等级。
 - 推荐金币分布：50 有 5 张，150 有 4 张，200 有 2 张，250 有 1 张，300 有 2 张，null 有 6 张。
@@ -493,7 +493,7 @@ npm run apk:script-report -- --check
 
 1. 校准 skirmish 高频与低可信 APK tile 语义
    - 20 张地图的尺寸、玩家、推荐金币、初始单位、城堡/村庄归属、tile 使用量、可信度统计和未映射清单已进入代码清单。
-   - 低可信 tile 实测目标已可由 `getApkSkirmishTerrainVerificationTargets()` 直接导出，默认只列官方 skirmish 中实际出现的 `t30/t31` 目标，并附带精确坐标、APK owner code、项目当前规则语义和实测回填 key/value 清单。
+   - 低可信 tile 实测目标已可由 `getApkSkirmishTerrainVerificationTargets()` 直接导出，默认只列官方 skirmish 中实际出现的 `t30/t31` 目标，并附带精确坐标、APK owner code、项目当前规则语义、实测回填 key/value 清单和已确认实机行为。
    - 优先处理 `t0/t18/t17/t15/t21/t20/t36/t19/t9/t3` 等高频 tile。
    - `t30` 已按贴图收窄为营地/帐篷，`t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；evidence 现在会区分营地、陆地神庙、水中障碍和水中神庙候选。
    - 回合开始回归测试已覆盖 `t31/t80/t83` 按神庙候选清毒回血、`t30/t81` 不清毒；其中 `t31` 已由 2026-06-30 实机确认会回血和净化且不可占领/无收入/不可招募，后续重点实测 `t80/t83` 的净化、可占领、敌我归属和回血边界。

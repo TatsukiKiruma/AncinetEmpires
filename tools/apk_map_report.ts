@@ -194,14 +194,19 @@ function renderMarkdown(report: ApkMapReport): string {
         ``,
         `## 人工验证目标`,
         ``,
-        `| 地图 | APK tile | 坐标 | 当前项目语义 | 需验证 |`,
-        `| --- | ---: | --- | --- | --- |`
+        `| 地图 | APK tile | 坐标 | 当前项目语义 | 实测状态 | 实测结果 | 项目 checklist |`,
+        `| --- | ---: | --- | --- | --- | --- | --- |`
     );
 
     for (const target of report.verificationTargets) {
         const positions = target.positions.map(position => `(${position.x},${position.y})`).join(', ');
         const checks = target.manualChecks.map(check => `${check.key}=${check.currentProjectValue}`).join('; ');
-        lines.push(`| \`${target.mapName}\` | ${target.apkTerrainId} | ${positions} | ${target.projectRuleSemantics.projectTerrainKey ?? '-'} | ${checks} |`);
+        const verification = target.manualVerification;
+        const status = verification.status === 'confirmed'
+            ? `已实测（${verification.observedAt ?? '-'}，${verification.source ?? '-'}）`
+            : '待验证';
+        const observed = verification.notes.length > 0 ? verification.notes.join(' ') : '-';
+        lines.push(`| \`${target.mapName}\` | ${target.apkTerrainId} | ${positions} | ${target.projectRuleSemantics.projectTerrainKey ?? '-'} | ${status} | ${observed} | ${checks} |`);
     }
 
     return lines.join('\n');

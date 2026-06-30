@@ -199,7 +199,9 @@ describe('GameEngine Rules', () => {
             { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
             { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
         ]);
-        expect(getApkSkirmishTerrainVerificationTargets()).toEqual([
+        const verificationTargets = getApkSkirmishTerrainVerificationTargets();
+        expect(verificationTargets).toHaveLength(4);
+        expect(verificationTargets).toMatchObject([
             {
                 mapName: '(2) Mourningstar.aem',
                 resourcePath: 'assets/maps/(2) Mourningstar.aem',
@@ -436,6 +438,69 @@ describe('GameEngine Rules', () => {
                     { key: 'isWater', currentProjectValue: false },
                     { key: 'isLand', currentProjectValue: true }
                 ]
+            }
+        ]);
+        expect(verificationTargets.map(target => ({
+            apkTerrainId: target.apkTerrainId,
+            status: target.manualVerification.status,
+            observedAt: target.manualVerification.observedAt,
+            observed: target.manualVerification.observed
+        }))).toEqual([
+            {
+                apkTerrainId: 30,
+                status: 'confirmed',
+                observedAt: '2026-06-30',
+                observed: {
+                    canHeal: true,
+                    clearsPoisoned: false,
+                    clearsBlinded: false,
+                    clearsWeakened: false,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false
+                }
+            },
+            {
+                apkTerrainId: 31,
+                status: 'confirmed',
+                observedAt: '2026-06-30',
+                observed: {
+                    canHeal: true,
+                    clearsPoisoned: true,
+                    clearsBlinded: true,
+                    clearsWeakened: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false
+                }
+            },
+            {
+                apkTerrainId: 31,
+                status: 'confirmed',
+                observedAt: '2026-06-30',
+                observed: {
+                    canHeal: true,
+                    clearsPoisoned: true,
+                    clearsBlinded: true,
+                    clearsWeakened: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false
+                }
+            },
+            {
+                apkTerrainId: 31,
+                status: 'confirmed',
+                observedAt: '2026-06-30',
+                observed: {
+                    canHeal: true,
+                    clearsPoisoned: true,
+                    clearsBlinded: true,
+                    clearsWeakened: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false
+                }
             }
         ]);
         const mutableVerificationTarget = getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0];
