@@ -195,7 +195,10 @@ export interface EnvStepResult {
   done: boolean;
   info: string;
   legalActions: Action[];
+  legalActionCodes: string[];
   actionMask: boolean[];
+  fixedActionSpaceDescriptor: FixedActionSpaceDescriptor;
+  fixedLegalActionIndexes: number[];
 }
 
 export interface FixedActionSpaceOptions {
@@ -957,14 +960,20 @@ export class AncientEmpiresEnv {
   }
 
   private buildStepResult(reward: number, done: boolean, info: string): EnvStepResult {
+      const state = this.getState();
+      const legalActions = this.getLegalActions();
+      const fixedActionSpaceDescriptor = this.getFixedActionSpaceDescriptor();
       return {
-          state: this.getState(),
+          state,
           observation: this.getObservation(),
           reward,
           done,
           info,
-          legalActions: this.getLegalActions(),
-          actionMask: this.getActionMask()
+          legalActions,
+          legalActionCodes: legalActions.map(action => encodeAction(action)),
+          actionMask: new Array(legalActions.length).fill(true),
+          fixedActionSpaceDescriptor,
+          fixedLegalActionIndexes: getFixedLegalActionIndexes(state, legalActions, fixedActionSpaceDescriptor)
       };
   }
 }

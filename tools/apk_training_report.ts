@@ -10,8 +10,10 @@ import { parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
 import {
     decodeAction,
     encodeAction,
+    encodeFixedActionIndex,
     getActionSpaceSchema,
     type AncientEmpiresEnv,
+    type EnvStepResult,
     type Observation
 } from '../src/game/env';
 import {
@@ -50,6 +52,7 @@ interface TrainingScenarioReportEntry {
     turnPlayerIds: number[];
     legalActionCount: number;
     actionMaskMatched: boolean;
+    actionSerializationMatched: boolean;
     recruitableUnitCount: number | null;
     modeRuleMatched: boolean;
     commanderInitialRecruitCosts: (number | null)[];
@@ -63,6 +66,7 @@ interface TrainingScenarioReportEntry {
     smokeDone: boolean;
     smokeError: string | null;
     smokeActionMaskMatched: boolean;
+    smokeActionSerializationMatched: boolean;
     smokeFinalLegalActionCount: number;
 }
 
@@ -82,6 +86,8 @@ interface ApkTrainingReport {
     fixedActionSpaceMismatchCount: number;
     actionMaskMismatchCount: number;
     smokeActionMaskMismatchCount: number;
+    actionSerializationMismatchCount: number;
+    smokeActionSerializationMismatchCount: number;
     actionSchemaTemplateCount: number;
     actionSchemaMatched: boolean;
     actionRoundTripMatched: boolean;
@@ -204,6 +210,32 @@ function isActionMaskMatched(actions: readonly Action[], mask: readonly boolean[
     return actions.length === mask.length && mask.every(value => value === true);
 }
 
+function numbersEqual(left: readonly number[], right: readonly number[]): boolean {
+    return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function isStepResultActionSerializationMatched(result: EnvStepResult): boolean {
+    const expectedCodes = result.legalActions.map(action => encodeAction(action));
+    const expectedFixedIndexes = result.legalActions
+        .map(action => encodeFixedActionIndex(action, result.state, result.fixedActionSpaceDescriptor))
+        .filter((index): index is number => index !== null)
+        .sort((left, right) => left - right);
+    const uniqueFixedIndexes = new Set(result.fixedLegalActionIndexes);
+
+    return (
+        arraysEqual(result.legalActionCodes, expectedCodes)
+        && result.legalActionCodes.every((code, index) => actionEquals(decodeAction(code), result.legalActions[index]))
+        && result.fixedActionSpaceDescriptor.width === result.state.map.width
+        && result.fixedActionSpaceDescriptor.height === result.state.map.height
+        && result.fixedActionSpaceDescriptor.size > 0
+        && numbersEqual(result.fixedLegalActionIndexes, expectedFixedIndexes)
+        && uniqueFixedIndexes.size === result.fixedLegalActionIndexes.length
+        && result.fixedLegalActionIndexes.every(index => (
+            index >= 0 && index < result.fixedActionSpaceDescriptor.size
+        ))
+    );
+}
+
 function runScenarioSmoke(
     env: ReturnType<typeof createApkSkirmishTrainingEnv>,
     requestedPlies: number
@@ -214,12 +246,14 @@ function runScenarioSmoke(
     | 'smokeDone'
     | 'smokeError'
     | 'smokeActionMaskMatched'
+    | 'smokeActionSerializationMatched'
     | 'smokeFinalLegalActionCount'
 > {
     let executed = 0;
     let done = false;
     let smokeError: string | null = null;
     let smokeActionMaskMatched = true;
+    let smokeActionSerializationMatched = true;
 
     for (let ply = 0; ply < requestedPlies; ply += 1) {
         const actions = env.getLegalActions();
@@ -238,6 +272,9 @@ function runScenarioSmoke(
         if (!isActionMaskMatched(result.legalActions, result.actionMask)) {
             smokeActionMaskMatched = false;
         }
+        if (!isStepResultActionSerializationMatched(result)) {
+            smokeActionSerializationMatched = false;
+        }
 
         if (result.info.includes('非法动作')) {
             smokeError = `第 ${ply + 1} 步执行 ${action.type} 返回非法动作: ${result.info}`;
@@ -254,6 +291,7 @@ function runScenarioSmoke(
         smokeDone: done,
         smokeError,
         smokeActionMaskMatched,
+        smokeActionSerializationMatched,
         smokeFinalLegalActionCount: env.getLegalActions().length
     };
 }
@@ -436,11 +474,13 @@ function buildScenarioReportEntry(
     const manifestEntry = getApkSkirmishMapManifestEntry(scenario.mapName);
     const manifestMatched = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
     const env = createApkSkirmishTrainingEnv(map, scenario, { maxPlies: 200 });
-    const observation = env.getObservation();
+    const initialResult = env.reset();
+    const observation = initialResult.observation;
     const metadata = observation.metadata;
-    const initialLegalActions = env.getLegalActions();
+    const initialLegalActions = initialResult.legalActions;
     const legalActionCount = initialLegalActions.length;
-    const actionMaskMatched = isActionMaskMatched(initialLegalActions, env.getActionMask());
+    const actionMaskMatched = isActionMaskMatched(initialLegalActions, initialResult.actionMask);
+    const actionSerializationMatched = isStepResultActionSerializationMatched(initialResult);
     const smoke = runScenarioSmoke(env, smokePlies);
     const recruitableUnits = observation.rules.recruitableUnits ?? [];
     const commanderInitialRecruitCosts = observation.players.map(player => (
@@ -505,6 +545,7 @@ function buildScenarioReportEntry(
         turnPlayerIds: observation.turnPlayerIds,
         legalActionCount,
         actionMaskMatched,
+        actionSerializationMatched,
         recruitableUnitCount: observation.rules.recruitableUnits?.length ?? null,
         modeRuleMatched,
         commanderInitialRecruitCosts,
@@ -546,6 +587,8 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         fixedActionSpaceMismatchCount: entries.filter(entry => !entry.fixedActionSpaceMatched).length,
         actionMaskMismatchCount: entries.filter(entry => !entry.actionMaskMatched).length,
         smokeActionMaskMismatchCount: entries.filter(entry => !entry.smokeActionMaskMatched).length,
+        actionSerializationMismatchCount: entries.filter(entry => !entry.actionSerializationMatched).length,
+        smokeActionSerializationMismatchCount: entries.filter(entry => !entry.smokeActionSerializationMatched).length,
         actionSchemaTemplateCount: actionSchema.length,
         actionSchemaMatched: isActionSchemaMatched(),
         actionRoundTripMatched: isActionRoundTripMatched(),
@@ -574,13 +617,14 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- Observation APK 证据字段错配场景：${report.observationApkEvidenceMismatchCount}`,
         `- 固定动作空间错配场景：${report.fixedActionSpaceMismatchCount}`,
         `- actionMask 错配场景：初始 ${report.actionMaskMismatchCount} 个，smoke ${report.smokeActionMaskMismatchCount} 个`,
+        `- 动作序列化错配场景：初始 ${report.actionSerializationMismatchCount} 个，smoke ${report.smokeActionSerializationMismatchCount} 个`,
         `- 动作接口：schema 模板 ${report.actionSchemaTemplateCount} 个，schema 匹配 ${report.actionSchemaMatched ? '是' : '否'}，编码/解码往返 ${report.actionRoundTripMatched ? '通过' : '失败'}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | smoke | 固定动作 | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | 序列化 | smoke | 固定动作 | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -596,6 +640,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.unmappedTileCount,
             scenario.legalActionCount,
             scenario.actionMaskMatched && scenario.smokeActionMaskMatched ? '是' : '否',
+            scenario.actionSerializationMatched && scenario.smokeActionSerializationMatched ? '是' : '否',
             scenario.smokeError
                 ? `失败: ${scenario.smokeError}`
                 : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
@@ -634,6 +679,7 @@ async function main() {
     const observationApkEvidenceMismatches = report.observationApkEvidenceMismatchCount > 0;
     const fixedActionSpaceMismatches = report.fixedActionSpaceMismatchCount > 0;
     const actionMaskMismatches = report.actionMaskMismatchCount > 0 || report.smokeActionMaskMismatchCount > 0;
+    const actionSerializationMismatches = report.actionSerializationMismatchCount > 0 || report.smokeActionSerializationMismatchCount > 0;
     const actionSchemaMismatch = !report.actionSchemaMatched || !report.actionRoundTripMatched;
     const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
     const smokeFailures = report.smokeFailureCount > 0;
@@ -648,6 +694,7 @@ async function main() {
         || observationApkEvidenceMismatches
         || fixedActionSpaceMismatches
         || actionMaskMismatches
+        || actionSerializationMismatches
         || actionSchemaMismatch
         || unverifiedApproximateScenarios
         || smokeFailures

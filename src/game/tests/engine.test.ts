@@ -4765,6 +4765,27 @@ describe('GameEngine Rules', () => {
             expect(result.info).not.toContain('非法固定动作索引');
             expect(encodeFixedActionIndex({ type: 'surrender' }, env.getState(), { includeSurrender: false })).toBeNull();
         });
+
+        it('StepResult 输出可序列化动作编码和固定动作索引', () => {
+            const env = new AncientEmpiresEnv({ initialState: createDemoState({ allowSurrender: true }) });
+            const resetResult = env.reset();
+
+            expect(resetResult.legalActionCodes).toEqual(
+                resetResult.legalActions.map(action => encodeAction(action))
+            );
+            expect(resetResult.actionMask).toHaveLength(resetResult.legalActions.length);
+            expect(resetResult.actionMask.every(Boolean)).toBe(true);
+            expect(resetResult.fixedActionSpaceDescriptor.size).toBe(env.getFixedActionSpaceDescriptor().size);
+            expect(resetResult.fixedLegalActionIndexes).toEqual(env.getFixedLegalActionIndexes());
+            expect(resetResult.fixedLegalActionIndexes).toHaveLength(resetResult.legalActions.length);
+
+            const firstIndex = resetResult.fixedLegalActionIndexes[0];
+            const stepResult = env.stepFixedAction(firstIndex);
+            expect(stepResult.legalActionCodes).toEqual(
+                stepResult.legalActions.map(action => encodeAction(action))
+            );
+            expect(stepResult.fixedLegalActionIndexes).toEqual(env.getFixedLegalActionIndexes());
+        });
     });
 
     describe('核心规则回归测试', () => {
