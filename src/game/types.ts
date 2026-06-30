@@ -38,6 +38,7 @@ export interface Unit {
     hasPostAttackMoved?: boolean; // 突击部队是否执行了攻击后移动
     hasBeenHealedThisTurn?: boolean; // 本回合是否被治疗过
     hasBeenSupportedThisTurn?: boolean; // 本回合是否被支援过
+    apkPendingRecruitSource?: 'empty_castle' | 'commander_castle'; // APK 招募待处理来源；空城堡 pending 与指挥官堆叠招募 pending 的菜单限制不同
     apkUnitId?: number; // APK .aem 原始单位 ID，仅导入 APK 地图时存在
     apkUnitExtra?: number; // APK .aem 单位记录 extra 字段；语义未确认，仅保留证据
     apkUnitCode?: string; // APK 脚本层单位 code，用于 Stage.GetUnit/SyncSetUnitCode 查询
@@ -107,6 +108,8 @@ export interface RuleConfig {
     commanderRecruitBaseCost?: number | null; // 指挥官重招募基础价格，null 表示禁用
     commanderRecruitCostGrowth?: number;      // 每次指挥官死亡后的价格增量
     allowSurrender?: boolean;       // 是否允许玩家主动投降；APK skirmish 菜单存在投降入口
+    allowPendingRecruitEndTurn?: boolean; // APK skirmish：空城堡招募 pending 时仍允许结束回合
+    allowPendingRecruitSurrender?: boolean; // APK skirmish：空城堡招募 pending 时仍允许投降
     defeatOnNoUnitsAndNoCastles?: boolean; // APK skirmish：同时无单位且无城堡时淘汰
     defeatOnNoUnits?: boolean;        // 无存活单位时淘汰
     defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰

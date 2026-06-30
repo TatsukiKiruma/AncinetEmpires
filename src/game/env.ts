@@ -65,6 +65,8 @@ export interface Observation {
     commanderRecruitBaseCost: number | null;
     commanderRecruitCostGrowth: number;
     allowSurrender: boolean;
+    allowPendingRecruitEndTurn: boolean;
+    allowPendingRecruitSurrender: boolean;
     defeatOnNoUnitsAndNoCastles: boolean;
     defeatOnNoUnits: boolean;
     defeatOnCommanderDeath: boolean;
@@ -172,6 +174,7 @@ export interface Observation {
     hasBeenHealedThisTurn: boolean;
     hasBeenSupportedThisTurn: boolean;
     isPending: boolean;
+    apkPendingRecruitSource?: 'empty_castle' | 'commander_castle';
     status: string | null;
     apkStatusId: number | null;
     statusRemainingTicks: number | null;
@@ -483,6 +486,8 @@ export class AncientEmpiresEnv {
               commanderRecruitBaseCost: rules.commanderRecruitBaseCost,
               commanderRecruitCostGrowth: rules.commanderRecruitCostGrowth,
               allowSurrender: rules.allowSurrender,
+              allowPendingRecruitEndTurn: rules.allowPendingRecruitEndTurn,
+              allowPendingRecruitSurrender: rules.allowPendingRecruitSurrender,
               defeatOnNoUnitsAndNoCastles: rules.defeatOnNoUnitsAndNoCastles,
               defeatOnNoUnits: rules.defeatOnNoUnits,
               defeatOnCommanderDeath: rules.defeatOnCommanderDeath,
@@ -616,6 +621,7 @@ export class AncientEmpiresEnv {
                   hasBeenHealedThisTurn: !!u.hasBeenHealedThisTurn,
                   hasBeenSupportedThisTurn: !!u.hasBeenSupportedThisTurn,
                   isPending: state.pendingUnitId === u.id,
+                  apkPendingRecruitSource: u.apkPendingRecruitSource,
                   status: u.status ? u.status.type : null,
                   apkStatusId: u.status ? APK_STATUS_TYPE_TO_ID[u.status.type] : null,
                   statusRemainingTicks: u.status?.remainingTicks ?? null,

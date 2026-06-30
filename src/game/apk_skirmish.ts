@@ -17,6 +17,7 @@ import { GameState, RuleConfig, UnitClass } from './types';
 export type ApkSkirmishMode = 'SD' | 'SO';
 
 const SO_RECRUITABLE_APK_UNIT_IDS = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
+const SD_RECRUITABLE_APK_UNIT_IDS = [9, 0, 14, 19, 1, 18, 15, 2, 12, 3, 13, 4, 5, 17, 6, 20, 7, 16, 8] as const;
 const DEFAULT_APK_SKIRMISH_TRAINING_MODES = ['SD', 'SO'] as const satisfies readonly ApkSkirmishMode[];
 
 export interface ApkSkirmishTrainingScenarioFilter extends ApkSkirmishTrainingMapFilter {
@@ -59,14 +60,25 @@ function mapApkUnitIds(apkUnitIds: readonly number[]): UnitClass[] {
 
 export function getApkSkirmishRuleConfig(mode: ApkSkirmishMode = 'SD'): RuleConfig {
     const rules: RuleConfig = {
+        initialGold: 300,
+        unitLimit: 30,
+        levelCap: 3,
         allowSurrender: true,
+        allowPendingRecruitEndTurn: true,
+        allowPendingRecruitSurrender: true,
         defeatOnNoUnitsAndNoCastles: true,
-        defeatOnNoUnits: false
+        defeatOnNoUnits: false,
+        commanderRecruitBaseCost: 400,
+        commanderRecruitCostGrowth: 0
     };
 
     if (mode === 'SO') {
         // SO/controller.js 的 OnGameStart 明确调用 SyncSetRecruitUnits(0..8)。
         rules.recruitableUnits = mapApkUnitIds(SO_RECRUITABLE_APK_UNIT_IDS);
+        rules.commanderRecruitBaseCost = null;
+    } else {
+        // SD/Default 模式经实机验证可招募指挥官和 18 个普通单位，不包含骷髅/水晶。
+        rules.recruitableUnits = mapApkUnitIds(SD_RECRUITABLE_APK_UNIT_IDS);
     }
 
     return rules;

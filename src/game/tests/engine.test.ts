@@ -562,7 +562,27 @@ describe('GameEngine Rules', () => {
                 'dragon'
             ]
         }));
-        expect(getApkSkirmishTrainingScenarios({ modes: ['SD'] })[0].rules.recruitableUnits).toBeUndefined();
+        expect(getApkSkirmishTrainingScenarios({ modes: ['SD'] })[0].rules.recruitableUnits).toEqual([
+            'commander',
+            'soldier',
+            'ghost',
+            'mermaid',
+            'archer',
+            'slime',
+            'dark_mage',
+            'water_elemental',
+            'paladin',
+            'witch',
+            'berserker',
+            'elf',
+            'wolf',
+            'ice_elemental',
+            'golem',
+            'druid',
+            'catapult',
+            'wolf_archer',
+            'dragon'
+        ]);
 
         const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
         mutableScenario.rules.recruitableUnits!.push('commander');
@@ -1081,9 +1101,39 @@ describe('GameEngine Rules', () => {
         expect(mapWithSkirmishTail.tail.template).toBe('zero_suffix_58');
         expect(mapWithSkirmishTail.tail.length).toBe(58);
 
-        expect(getApkSkirmishRuleConfig('SD').recruitableUnits).toBeUndefined();
+        expect(getApkSkirmishRuleConfig('SD')).toEqual(expect.objectContaining({
+            initialGold: 300,
+            unitLimit: 30,
+            levelCap: 3,
+            commanderRecruitBaseCost: 400,
+            commanderRecruitCostGrowth: 0,
+            allowPendingRecruitEndTurn: true,
+            allowPendingRecruitSurrender: true
+        }));
+        expect(getApkSkirmishRuleConfig('SD').recruitableUnits).toEqual([
+            'commander',
+            'soldier',
+            'ghost',
+            'mermaid',
+            'archer',
+            'slime',
+            'dark_mage',
+            'water_elemental',
+            'paladin',
+            'witch',
+            'berserker',
+            'elf',
+            'wolf',
+            'ice_elemental',
+            'golem',
+            'druid',
+            'catapult',
+            'wolf_archer',
+            'dragon'
+        ]);
         expect(getApkSkirmishRuleConfig('SD').allowSurrender).toBe(true);
         expect(getApkSkirmishRuleConfig('SO').allowSurrender).toBe(true);
+        expect(getApkSkirmishRuleConfig('SO').commanderRecruitBaseCost).toBeNull();
         expect(getApkSkirmishRuleConfig('SO').recruitableUnits).toEqual([
             'soldier',
             'archer',
@@ -3063,6 +3113,7 @@ describe('GameEngine Rules', () => {
             expect(getLegalActions(createDemoState(), 0).some(action => action.type === 'surrender')).toBe(false);
 
             const state = createDemoState({ allowSurrender: true });
+            state.map.tiles[6][6].ownerId = 0;
             const actions = getLegalActions(state, 0);
             expect(actions.some(action => action.type === 'surrender')).toBe(true);
 
@@ -3072,7 +3123,39 @@ describe('GameEngine Rules', () => {
             expect(result.done).toBe(true);
             expect(result.reward).toBe(-1);
             expect(result.state.players.find(player => player.id === 0)?.isAlive).toBe(false);
+            expect(result.state.units.some(unit => unit.ownerId === 0)).toBe(false);
+            expect(result.state.map.tiles.flat().some(tile => tile.ownerId === 0)).toBe(false);
             expect(result.state.winner).toBe(1);
+        });
+
+        it('APK skirmish 空城堡招募 pending 时允许结束回合或投降，但指挥官城堡堆叠招募不允许', () => {
+            const emptyCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
+            emptyCastleState.units.find(unit => unit.id === 'u1')!.pos = { x: 2, y: 2 };
+            emptyCastleState.players[0].gold = 1000;
+            const emptyCastleEngine = new GameEngine(emptyCastleState);
+            const recruitToCastle = emptyCastleEngine.getLegalActions(0).find(action => (
+                action.type === 'recruit_to_castle' && action.unitClass === 'soldier'
+            ))!;
+
+            emptyCastleEngine.step(recruitToCastle);
+            const emptyCastleActions = emptyCastleEngine.getLegalActions(0);
+            expect(emptyCastleActions.some(action => action.type === 'end_turn')).toBe(true);
+            expect(emptyCastleActions.some(action => action.type === 'surrender')).toBe(true);
+            expect(emptyCastleActions.some(action => (
+                ('unitId' in action && action.unitId !== emptyCastleEngine.getState().pendingUnitId)
+            ))).toBe(false);
+
+            const commanderCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
+            commanderCastleState.players[0].gold = 1000;
+            const commanderCastleEngine = new GameEngine(commanderCastleState);
+            const recruitAndDeploy = commanderCastleEngine.getLegalActions(0).find(action => (
+                action.type === 'recruit_and_deploy' && action.unitClass === 'soldier'
+            ))!;
+
+            commanderCastleEngine.step(recruitAndDeploy);
+            const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
+            expect(commanderCastleActions.some(action => action.type === 'end_turn')).toBe(false);
+            expect(commanderCastleActions.some(action => action.type === 'surrender')).toBe(false);
         });
 
         it('单位数量上限会阻止继续招募', () => {
@@ -3247,6 +3330,25 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             expect(finalState.players[1].isAlive).toBe(true);
             expect(finalState.winner).toBeNull();
+        });
+
+        it('APK skirmish：敌军站在己方城堡上时回合开始扣 50 且无可操作对象会跳过', () => {
+            const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+            state.units = state.units.filter(unit => unit.ownerId !== 1);
+            const intruder = state.units.find(unit => unit.ownerId === 0 && unit.unitClass === 'soldier')!;
+            intruder.pos = { x: 7, y: 7 };
+            intruder.hp = 100;
+            state.currentPlayer = 0;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+
+            const finalState = engine.getState();
+            expect(finalState.units.find(unit => unit.id === intruder.id)?.hp).toBe(50);
+            expect(finalState.players[1].isAlive).toBe(true);
+            expect(finalState.players[0].gold).toBeGreaterThan(300);
+            expect(finalState.players[1].gold).toBeGreaterThan(300);
+            expect(finalState.currentPlayer).toBe(0);
         });
 
         it('APK skirmish 默认：同时无单位且无城堡时淘汰队伍', () => {
@@ -4136,6 +4238,8 @@ describe('GameEngine Rules', () => {
                 commanderRecruitBaseCost: 500,
                 commanderRecruitCostGrowth: 90,
                 allowSurrender: true,
+                allowPendingRecruitEndTurn: false,
+                allowPendingRecruitSurrender: false,
                 defeatOnNoUnitsAndNoCastles: false,
                 defeatOnNoUnits: true,
                 defeatOnCommanderDeath: true,
@@ -4167,6 +4271,8 @@ describe('GameEngine Rules', () => {
                 commanderRecruitBaseCost: 500,
                 commanderRecruitCostGrowth: 90,
                 allowSurrender: true,
+                allowPendingRecruitEndTurn: false,
+                allowPendingRecruitSurrender: false,
                 defeatOnNoUnitsAndNoCastles: false,
                 defeatOnNoUnits: true,
                 defeatOnCommanderDeath: true,

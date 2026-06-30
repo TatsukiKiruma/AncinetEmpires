@@ -89,8 +89,11 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         return actions;
     }
     
-    // APK stacked 规则：pending 单位未处理时只能操作该单位，不能招募或结束回合。
+    // APK stacked 规则：pending 单位未处理时只能操作该单位；空城堡招募 pending 可额外结束回合/投降。
     const pendingUnitId = state.pendingUnitId;
+    const pendingUnit = pendingUnitId ? state.units.find(u => u.id === pendingUnitId) : undefined;
+    const rules = getRuleConfig(state);
+    const canResolveEmptyCastlePendingWithTurnAction = pendingUnit?.apkPendingRecruitSource === 'empty_castle';
     
     // 只属于当前玩家、未行动完且未被 APK 脚本静态锁定的单位
     let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed && !u.apkStatic);
@@ -249,12 +252,14 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
     }
 
-    // 4. 投降/结束回合: APK 明确存在 Cannot surrender/end turn when stacked，因此 pending 状态下不生成。
-    if (!pendingUnitId) {
-        if (getRuleConfig(state).allowSurrender) {
+    // 4. 投降/结束回合：APK 实测为空城堡招募 pending 时允许，指挥官站城堡的堆叠招募 pending 时禁止。
+    if (!pendingUnitId || canResolveEmptyCastlePendingWithTurnAction) {
+        if (rules.allowSurrender && (!pendingUnitId || rules.allowPendingRecruitSurrender)) {
             actions.push({ type: 'surrender' });
         }
-        actions.push({ type: 'end_turn' });
+        if (!pendingUnitId || rules.allowPendingRecruitEndTurn) {
+            actions.push({ type: 'end_turn' });
+        }
     }
 
     return actions;

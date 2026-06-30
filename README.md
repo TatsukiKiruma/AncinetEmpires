@@ -60,9 +60,9 @@ while (!initResult.done) {
 
 `observation.units[].apkMoveOverrides` 会输出 APK `Stage.SyncOverrideMov(code, tileType, mov)` 写入的单位级地形移动消耗覆盖。移动规则会优先按 `tile.apkTerrainId` 匹配，其次按 APK terrain `kind` 匹配，没有 APK 原始 tile 时才用项目 `terrainId` 兜底。
 
-`observation.units[].isPending` 会标记当前 APK stacked/pending 招募状态下的待处理单位；该状态存在时，合法动作只会围绕该单位生成，不能继续招募、投降或结束回合。
+`observation.units[].isPending` 会标记当前 APK stacked/pending 招募状态下的待处理单位；该状态存在时，合法动作只会围绕该单位生成，不能继续招募或选择其它单位。APK skirmish 实测显示空城堡招募 pending 时仍可结束回合/投降，指挥官站城堡触发的堆叠招募 pending 则不能结束回合或投降。
 
-APK skirmish 规则配置会通过 `allowSurrender` 开启结构化 `surrender` 动作；普通 demo/自定义规则默认不启用，避免改变既有训练动作空间。内置 Random AI 与 Heuristic AI 会把投降视为兜底/负收益动作，不会当作普通推进动作随机优先选择。
+APK skirmish 规则配置会通过 `allowSurrender` 开启结构化 `surrender` 动作；投降会删除当前阵营全部单位并把该阵营占领建筑变为无主。普通 demo/自定义规则默认不启用，避免改变既有训练动作空间。内置 Random AI 与 Heuristic AI 会把投降视为兜底/负收益动作，不会当作普通推进动作随机优先选择。
 
 ## Reward (奖励设定)
 

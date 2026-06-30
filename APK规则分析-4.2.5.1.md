@@ -154,7 +154,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 
 注意：
 
-- `commander/skeleton/crystal` 虽有价格字段，但 APK 单位定义中的 `q=false`；项目仍默认不把它们作为普通可招募单位，指挥官重招募通过单独规则配置控制。
+- `skeleton/crystal` 虽有价格字段，但 APK 单位定义中的 `q=false`，项目仍默认不把它们作为普通可招募单位。用户实机确认 SD skirmish 在本方无存活指挥官时可招募指挥官；项目通过 `commanderRecruitBaseCost=400` 和 SD 招募列表单独开启。
 - `crystal` 在 data.bin 中移动为 4，但战役脚本会配合 `SyncSetUnitTargetedWithCode`、`SyncOverrideMov`、`SyncSetUnitStaticWithCode` 等接口控制目标单位行为；项目当前保留不可招募占位，并已把 static/targeted 作为脚本元数据接入，仍不把它当普通可招募作战单位处理。
 
 ## 5. APK 确认的能力规则
@@ -233,13 +233,13 @@ APK Wiki 明确说明：
 dex 字符串确认或强烈暗示：
 
 - 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!`、`Cannot surrender when stacked!`。
-- 这说明官方规则中有“单位堆叠/待处理”的临时状态，会禁止继续招募、结束回合或选择其他对象。
-- 当前项目的 `pendingUnitId` 已禁止继续招募、投降和结束回合，和 APK stacked 字符串方向一致。
+- 这说明官方规则中有“单位堆叠/待处理”的临时状态，会禁止继续招募或选择其他对象；结束回合/投降限制需要区分 pending 来源。
+- 2026-06-30 用户实机确认：空城堡招募后必须先控制新单位，不能控制其它单位或继续招募，但可以选择结束回合或投降；己方指挥官站城堡招募后会出现指挥官与新单位堆叠，此时不能结束回合或投降。
 
 仍需确认：
 
-- APK 里“指挥官站城堡招募”之后，新单位的精确部署范围、是否消耗移动力、是否还可移动，目前只能通过 dex 字符串推断，尚未从脚本或反编译代码确认。
-- APK 的单位上限、人口上限和关卡级可招募列表需要反编译或解码脚本确认。
+- APK 里“指挥官站城堡招募”之后，新单位的精确部署范围、是否消耗移动力、是否还可移动，仍需更多实机样例或反编译确认。
+- 指挥官重招募费用是否按死亡次数增长仍需实测；当前 data.bin 单位表确认指挥官基础价格字段为 400。
 
 ## 8. APK 确认的战斗与地形规则
 
@@ -303,7 +303,7 @@ skirmish 训练导入映射：
 | `t20-t26`、`t73-t79` | `road` | atlas 为土路/岸边可通行陆地，防御 0、移动 1，可信度中 |
 | `t28/t29/t72` | `bridge` | atlas 为桥/木桥或桥候选，移动 1；APK 文案明确桥算水面，可信度中 |
 | `t30` | `camp` | atlas 为营地/帐篷，防御 10、回血 20、移动 1，可信度中 |
-| `t31/t80` | `temple` | atlas 为神庙建筑，防御 10、回血 20、移动 1；`t80` 当前 AEM 未使用，净化语义仍待实测，可信度中低 |
+| `t31/t80` | `temple` | atlas 为神庙建筑，防御 10、回血 20、移动 1；`t31` 已实测确认回血并净化，`t80` 当前 AEM 未使用且净化语义仍待实测，可信度中低 |
 | `t33` | `special_2` | 防御 20、移动 3；skirmish 未使用，可信度低 |
 | `t35` | `special_3` | 防御 10、移动 1；skirmish 未使用，可信度低 |
 | `t81/t82` | `deep_water` | atlas 为水面浮冰/礁石，防御 10、回血 0、移动 3；不应附加神庙净化语义，可信度中 |
@@ -960,6 +960,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该尾部不随玩家数量、队伍 ID、初始单位或推荐金币变化，当前不能作为玩家/联盟预设使用；联盟规则仍应优先来自脚本 `SyncSetAlliance` 或明确的模式配置。
 - 验证：`npm test` 204 个测试通过，`npm run lint` 通过；使用真实 APK 的 20 张 `assets/maps/*.aem` 验证 `createApkSkirmishGameState` 的 SD/SO 导入，结果为 `SKIRMISH_IMPORTED 20`，尾部模板统计为 `{"zero_suffix_58":20}`。
 
+2026-06-30 APK skirmish 模式与默认设置实机补充：
+
+- 语言文件显示 `SD` 模式名为 `Default/默认`，`SO` 模式名为 `AEII/原版`；用户实机确认 SD 是正常遭遇战模式，SO 更接近原版/特殊规则模式。
+- skirmish 开始前可设置起始金币、单位上限、等级上限和模式。实机默认值：起始金币 300（范围 0-2000，步进 50）、单位上限 30（范围 20-100，步进 10）、等级上限 3（范围 0-9）。
+- SD/默认模式可招募：指挥官、战士、幽灵、人鱼、弓箭手、史莱姆、黑魔法师、水元素、圣骑士、女巫、狂战士、精灵、狼、冰元素、石头人、德鲁伊、投石车、狼骑射手、龙；不能招募水晶和骷髅。指挥官仅在本方指挥官阵亡或不在场时可招募，data.bin 基础价格字段为 400，死亡后价格是否递增仍待实测。
+- SO/原版模式仍按 `SO/controller.js` 限制为 APK ID 0-8：战士、弓箭手、水元素、女巫、精灵、狼、石头人、投石车、龙。
+- 项目已把 `getApkSkirmishRuleConfig('SD'/'SO')` 的默认 `initialGold/unitLimit/levelCap` 分别设为 300/30/3；地图 AEM 的推荐金币仍保存在 metadata，用于记录地图建议值而不是覆盖用户开局设置。
+
 2026-06-29 APK 原始 tile 数值接入：
 
 - `Tile` 新增 `apkTerrainId/apkTerrainRaw/apkOwnerCode` 可选字段，`createGameStateFromApkAemMap` 会把每个 AEM 格子的原始地形记录写入导入后的 `GameState`。
@@ -1003,7 +1011,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 APK skirmish 训练场景清单入口：
 
 - `getApkSkirmishTrainingScenarios()` 默认基于上述 16 张干净官方地图生成 SD/SO 两种模式的训练场景，共 32 项。
-- 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景不额外限制全局可招募列表。
+- 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
 - `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 manifest 匹配、32/32 metadata 匹配，且初始合法动作数均大于 0；加 `--include-approximate` 时为 40/40 场景通过。
@@ -1014,7 +1022,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回 20 张官方 skirmish 地图中实际出现的 approximate tile 目标，包含 `mapName/resourcePath/playerCount/apkTerrainId/tileCount/projectTerrainId/confidence/evidence/terrainConfig`。
 - 当前默认目标为 4 项：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格。返回的 `terrainConfig` 来自 APK `data.bin`，其中 `t30` 与 `t31` 均为防御 10、回血 20、移动 1；类别语义仍按 evidence 标记为低可信。
 - 继续用 DES key `72 6b 00 00 00 00 46 46` 解密上述官方 AEM 后，已把低可信 tile 坐标固化到 `positions`：`(2) Mourningstar.aem` 的 `t30` 在 `(3,4)`、`(7,6)`；`(4) The Crucible.aem` 的 `t31` 在 `(9,9)`；`(4) Waterways.aem` 的 `t31` 在 `(7,8)`、`(7,11)`；`(4) Winterstorm.aem` 的 `t31` 在四角 `(0,0)`、`(12,0)`、`(0,12)`、`(12,12)`。这些格子的 `ownerCode` 均为 `0xff`，即中立/无归属。
-- 返回值新增 `projectRuleSemantics`，用于说明项目当前会如何结算该 tile：映射地形 key/name/tags、防御、回血、移动，以及是否清除负面状态、可占领、有收入、可招募、可摧毁、可修理、水面/陆地。当前 `t30` 映射为 camp：回血但不净化、不可占领、无收入；`t31` 映射为 temple：回血并净化、不可占领、无收入。这是项目当前语义，不等同于 APK 已实测结论。
+- 返回值新增 `projectRuleSemantics`，用于说明项目当前会如何结算该 tile：映射地形 key/name/tags、防御、回血、移动，以及是否清除负面状态、可占领、有收入、可招募、可摧毁、可修理、水面/陆地。2026-06-30 用户实机确认：`t30` 能回血，不能清除中毒/致盲/虚弱，不能占领/收入/招募；`t31` 能回血，能清除中毒/致盲/虚弱，不能占领/收入/招募。当前项目语义与该实测一致。
 - 返回值还新增 `manualChecks`，把需要实机回填的项目当前值结构化为 key/value：`projectTerrainKey`、`defenseBonus`、`healPerTurn`、`moveCost`、`clearsNegativeStatus`、`canBeCaptured`、`generatesIncome`、`canRecruit`、`canBeDestroyed`、`canBeRepaired`、`isWater`、`isLand`。后续实测只需要按这些 key 标注 APK 是否一致，避免重新推断要测哪些边界。
 - 该入口支持按 `confidences`、`apkTerrainIds` 和 `mapNames` 过滤，也可查询 confirmed/atlas tile 的同类数据；返回值会复制 evidence 和 terrainConfig，避免训练端或验证脚本修改后污染 manifest 常量。
 - 这一步不改变任何规则结算，只把人工实测和训练集降权需要的数据结构化，避免后续再临时扫描 `tileUsage`、terrain 映射和 `data.bin` 表。
@@ -1033,7 +1041,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `t31/t80` 会同时输出 `language_table_temple_description` 和 `low_confidence_temple_semantics`；这只表示“神庙规则来自语言表，tile->神庙仍是贴图/数值推断”，不会提升为 confirmed。
 - `t83` 会输出 `language_table_temple_description` 和 `low_confidence_water_temple_semantics`，继续作为低可信水中神庙候选；`t30` 只输出营地语义，不带净化证据。
 - 新增回合开始结算回归：带 `apkTerrainId` 的 `t31/t80/t83` 即使项目 `terrainId` 是兜底道路，也按当前规则清除中毒并使用 `data.bin` 的 `healPerTurn=20` 回血；`t30/t81` 不清除中毒，避免把所有回血或水中 tile 都误当成神庙。
-- 该测试锁定的是“当前训练规则语义和证据标签一致”，仍需用户实机或后续反编译确认 `t31/t80/t83` 在官方 APK 中的可占领、敌我归属、净化和回血边界。
+- 该测试锁定的是“当前训练规则语义和证据标签一致”；`t31` 已由 2026-06-30 实机确认会回血和净化且不可占领/无收入/不可招募，仍需用户实机或后续反编译确认 `t80/t83` 在官方 APK 中的可占领、敌我归属、净化和回血边界。
 
 2026-06-29 APK 单位 code 与脚本变量进入 AI Observation：
 
@@ -1133,14 +1141,14 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-29 APK stacked/pending 状态进入 AI Observation：
 
 - DEX 字符串确认 APK 存在 `Cannot recruit when stacked!`、`Cannot end turn when stacked!`、`Cannot select when stacked!` 等 stacked 限制。
-- 规则层已用 `pendingUnitId` 表达招募后的待处理单位，并在 pending 存在时只生成该单位动作。
-- `AncientEmpiresEnv.getObservation()` 新增 `pendingUnitId`，`observation.units[]` 新增 `isPending`，让训练侧不用只靠合法动作集合反推当前 stacked 状态。
+- 规则层已用 `pendingUnitId` 表达招募后的待处理单位，并区分 `apkPendingRecruitSource=empty_castle/commander_castle`：空城堡 pending 允许结束回合/投降，指挥官城堡堆叠 pending 禁止结束回合/投降。
+- `AncientEmpiresEnv.getObservation()` 新增 `pendingUnitId`，`observation.units[]` 新增 `isPending/apkPendingRecruitSource`，让训练侧不用只靠合法动作集合反推当前 stacked 状态。
 
 2026-06-29 APK skirmish 投降动作接入：
 
-- DEX 字符串确认 APK 存在 `Cannot surrender when stacked!`，说明投降入口受 stacked/pending 限制。
+- DEX 字符串确认 APK 存在 `Cannot surrender when stacked!`；2026-06-30 实机补充显示只有指挥官城堡堆叠招募 pending 禁止投降，空城堡招募 pending 仍可投降。
 - `RuleConfig.allowSurrender` 新增投降开关；普通规则默认关闭，`getApkSkirmishRuleConfig('SD'/'SO')` 默认开启。
-- 合法动作在非 pending 状态下生成 `surrender`，pending 状态下不生成；执行后当前队伍失活，并复用联盟胜负结算。
+- 合法动作在普通状态和空城堡 pending 状态下生成 `surrender`；执行后当前队伍失活、己方单位全部删除、己方占领建筑变为无主，并复用联盟胜负结算。
 - `encodeAction/decodeAction` 已支持 `surrender`；内置 Random AI 与 Heuristic AI 不会把投降当作普通推进动作优先选择。
 
 2026-06-30 AI 训练动作 schema 补充：

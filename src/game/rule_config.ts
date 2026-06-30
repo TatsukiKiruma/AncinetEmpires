@@ -17,6 +17,8 @@ export const DEFAULT_RULE_CONFIG = {
     commanderRecruitBaseCost: null,
     commanderRecruitCostGrowth: 100,
     allowSurrender: false,
+    allowPendingRecruitEndTurn: false,
+    allowPendingRecruitSurrender: false,
     defeatOnNoUnitsAndNoCastles: true,
     defeatOnNoUnits: false,
     defeatOnCommanderDeath: false,
@@ -90,6 +92,8 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
     if (overrides.commanderRecruitBaseCost !== undefined) merged.commanderRecruitBaseCost = overrides.commanderRecruitBaseCost;
     if (overrides.commanderRecruitCostGrowth !== undefined) merged.commanderRecruitCostGrowth = overrides.commanderRecruitCostGrowth;
     if (overrides.allowSurrender !== undefined) merged.allowSurrender = overrides.allowSurrender;
+    if (overrides.allowPendingRecruitEndTurn !== undefined) merged.allowPendingRecruitEndTurn = overrides.allowPendingRecruitEndTurn;
+    if (overrides.allowPendingRecruitSurrender !== undefined) merged.allowPendingRecruitSurrender = overrides.allowPendingRecruitSurrender;
     if (overrides.defeatOnNoUnitsAndNoCastles !== undefined) merged.defeatOnNoUnitsAndNoCastles = overrides.defeatOnNoUnitsAndNoCastles;
     if (overrides.defeatOnNoUnits !== undefined) merged.defeatOnNoUnits = overrides.defeatOnNoUnits;
     if (overrides.defeatOnCommanderDeath !== undefined) merged.defeatOnCommanderDeath = overrides.defeatOnCommanderDeath;
