@@ -1,6 +1,7 @@
 import { getApkAemTerrainUsage, type ApkAemMap, type ApkAemTailTemplate } from './apk_map';
 import { getApkTerrainConfig, getSkirmishApkTerrainMappingInfo, mapSkirmishApkTerrainId, type ApkTerrainConfig, type ApkTerrainMappingConfidence } from './apk_terrain';
 import { APK_SKIRMISH_TILE_USAGE, type ApkSkirmishTileUsage } from './apk_skirmish_tile_usage';
+import { TERRAIN_CONFIG, type TerrainId } from './terrain';
 
 export const APK_RELEASE_VERSION = 'aer-release-4.2.5.1';
 export const APK_RELEASE_SHA256 = '51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B';
@@ -61,6 +62,23 @@ export interface ApkSkirmishTerrainVerificationPosition {
     ownerId: number | null;
 }
 
+export interface ApkSkirmishTerrainVerificationRuleSemantics {
+    projectTerrainKey: string | null;
+    projectTerrainName: string | null;
+    projectTerrainTags: string[];
+    defenseBonus: number | null;
+    healPerTurn: number | null;
+    moveCost: number | null;
+    clearsNegativeStatus: boolean;
+    canBeCaptured: boolean;
+    generatesIncome: boolean;
+    canRecruit: boolean;
+    canBeDestroyed: boolean;
+    canBeRepaired: boolean;
+    isWater: boolean;
+    isLand: boolean;
+}
+
 export interface ApkSkirmishTerrainVerificationTarget {
     mapName: string;
     resourcePath: string;
@@ -72,6 +90,7 @@ export interface ApkSkirmishTerrainVerificationTarget {
     confidence: ApkTerrainMappingConfidence;
     evidence: string[];
     terrainConfig: ApkTerrainConfig | null;
+    projectRuleSemantics: ApkSkirmishTerrainVerificationRuleSemantics;
 }
 
 // 来自 aer-release-4.2.5.1 的 assets/maps/_list.json 与 20 张根目录 skirmish AEM 解析结果。
@@ -534,7 +553,8 @@ export function getApkSkirmishTerrainVerificationTargets(
                 projectTerrainId: mappingInfo.projectTerrainId,
                 confidence: mappingInfo.confidence,
                 evidence: [...mappingInfo.evidence],
-                terrainConfig: terrainConfig ? { ...terrainConfig } : null
+                terrainConfig: terrainConfig ? { ...terrainConfig } : null,
+                projectRuleSemantics: buildProjectRuleSemantics(mappingInfo.projectTerrainId, terrainConfig)
             }];
         });
     }).sort((left, right) => (
@@ -546,6 +566,50 @@ export function getApkSkirmishTerrainVerificationTargets(
 
 function compareText(left: string, right: string): number {
     return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function buildProjectRuleSemantics(
+    projectTerrainId: number | null,
+    terrainConfig: ApkTerrainConfig | null
+): ApkSkirmishTerrainVerificationRuleSemantics {
+    if (projectTerrainId === null) {
+        return {
+            projectTerrainKey: null,
+            projectTerrainName: null,
+            projectTerrainTags: [],
+            defenseBonus: terrainConfig?.defenseBonus ?? null,
+            healPerTurn: terrainConfig?.healPerTurn ?? null,
+            moveCost: terrainConfig?.moveCost ?? null,
+            clearsNegativeStatus: false,
+            canBeCaptured: false,
+            generatesIncome: false,
+            canRecruit: false,
+            canBeDestroyed: false,
+            canBeRepaired: false,
+            isWater: false,
+            isLand: false
+        };
+    }
+
+    const projectConfig = TERRAIN_CONFIG[projectTerrainId as TerrainId];
+    const tags = [...projectConfig.tags];
+
+    return {
+        projectTerrainKey: projectConfig.key,
+        projectTerrainName: projectConfig.name,
+        projectTerrainTags: tags,
+        defenseBonus: terrainConfig?.defenseBonus ?? projectConfig.defenseBonus,
+        healPerTurn: terrainConfig?.healPerTurn ?? projectConfig.healPerTurn,
+        moveCost: terrainConfig?.moveCost ?? projectConfig.moveCost,
+        clearsNegativeStatus: tags.includes('cleanse'),
+        canBeCaptured: tags.includes('capturable'),
+        generatesIncome: projectConfig.incomePerTurn > 0 || tags.includes('income'),
+        canRecruit: tags.includes('recruit_source'),
+        canBeDestroyed: tags.includes('destructible'),
+        canBeRepaired: tags.includes('repairable'),
+        isWater: tags.includes('water'),
+        isLand: tags.includes('land')
+    };
 }
 
 function sameNumberArray(left: number[], right: number[]): boolean {

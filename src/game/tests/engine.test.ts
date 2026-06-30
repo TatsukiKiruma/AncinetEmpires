@@ -227,6 +227,22 @@ describe('GameEngine Rules', () => {
                     linkedC: -1,
                     flagC: 0,
                     tail: '0x00000000'
+                },
+                projectRuleSemantics: {
+                    projectTerrainKey: 'camp',
+                    projectTerrainName: '野外营地',
+                    projectTerrainTags: ['land', 'building', 'camp', 'healing', 'not_capturable', 'not_recruit_source'],
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    clearsNegativeStatus: false,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false,
+                    canBeDestroyed: false,
+                    canBeRepaired: false,
+                    isWater: false,
+                    isLand: true
                 }
             },
             {
@@ -255,6 +271,22 @@ describe('GameEngine Rules', () => {
                     linkedC: -1,
                     flagC: 0,
                     tail: '0x00000000'
+                },
+                projectRuleSemantics: {
+                    projectTerrainKey: 'temple',
+                    projectTerrainName: '神庙',
+                    projectTerrainTags: ['land', 'building', 'temple', 'healing', 'cleanse'],
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    clearsNegativeStatus: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false,
+                    canBeDestroyed: false,
+                    canBeRepaired: false,
+                    isWater: false,
+                    isLand: true
                 }
             },
             {
@@ -284,6 +316,22 @@ describe('GameEngine Rules', () => {
                     linkedC: -1,
                     flagC: 0,
                     tail: '0x00000000'
+                },
+                projectRuleSemantics: {
+                    projectTerrainKey: 'temple',
+                    projectTerrainName: '神庙',
+                    projectTerrainTags: ['land', 'building', 'temple', 'healing', 'cleanse'],
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    clearsNegativeStatus: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false,
+                    canBeDestroyed: false,
+                    canBeRepaired: false,
+                    isWater: false,
+                    isLand: true
                 }
             },
             {
@@ -315,6 +363,22 @@ describe('GameEngine Rules', () => {
                     linkedC: -1,
                     flagC: 0,
                     tail: '0x00000000'
+                },
+                projectRuleSemantics: {
+                    projectTerrainKey: 'temple',
+                    projectTerrainName: '神庙',
+                    projectTerrainTags: ['land', 'building', 'temple', 'healing', 'cleanse'],
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    clearsNegativeStatus: true,
+                    canBeCaptured: false,
+                    generatesIncome: false,
+                    canRecruit: false,
+                    canBeDestroyed: false,
+                    canBeRepaired: false,
+                    isWater: false,
+                    isLand: true
                 }
             }
         ]);
@@ -322,13 +386,17 @@ describe('GameEngine Rules', () => {
         mutableVerificationTarget.evidence.push('mutated');
         mutableVerificationTarget.terrainConfig!.moveCost = 99;
         mutableVerificationTarget.positions[0].x = 99;
+        mutableVerificationTarget.projectRuleSemantics.projectTerrainTags.push('mutated');
         expect(getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0]).toMatchObject({
             positions: [
                 { x: 3, y: 4, ownerCode: 0xff, ownerId: null },
                 { x: 7, y: 6, ownerCode: 0xff, ownerId: null }
             ],
             evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
-            terrainConfig: { moveCost: 1 }
+            terrainConfig: { moveCost: 1 },
+            projectRuleSemantics: {
+                projectTerrainTags: ['land', 'building', 'camp', 'healing', 'not_capturable', 'not_recruit_source']
+            }
         });
         expect(getApkSkirmishTerrainVerificationTargets({ confidences: ['confirmed'], apkTerrainIds: [37] }).map(target => ({
             mapName: target.mapName,

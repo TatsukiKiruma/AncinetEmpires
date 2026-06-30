@@ -1003,6 +1003,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回 20 张官方 skirmish 地图中实际出现的 approximate tile 目标，包含 `mapName/resourcePath/playerCount/apkTerrainId/tileCount/projectTerrainId/confidence/evidence/terrainConfig`。
 - 当前默认目标为 4 项：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格。返回的 `terrainConfig` 来自 APK `data.bin`，其中 `t30` 与 `t31` 均为防御 10、回血 20、移动 1；类别语义仍按 evidence 标记为低可信。
 - 继续用 DES key `72 6b 00 00 00 00 46 46` 解密上述官方 AEM 后，已把低可信 tile 坐标固化到 `positions`：`(2) Mourningstar.aem` 的 `t30` 在 `(3,4)`、`(7,6)`；`(4) The Crucible.aem` 的 `t31` 在 `(9,9)`；`(4) Waterways.aem` 的 `t31` 在 `(7,8)`、`(7,11)`；`(4) Winterstorm.aem` 的 `t31` 在四角 `(0,0)`、`(12,0)`、`(0,12)`、`(12,12)`。这些格子的 `ownerCode` 均为 `0xff`，即中立/无归属。
+- 返回值新增 `projectRuleSemantics`，用于说明项目当前会如何结算该 tile：映射地形 key/name/tags、防御、回血、移动，以及是否清除负面状态、可占领、有收入、可招募、可摧毁、可修理、水面/陆地。当前 `t30` 映射为 camp：回血但不净化、不可占领、无收入；`t31` 映射为 temple：回血并净化、不可占领、无收入。这是项目当前语义，不等同于 APK 已实测结论。
 - 该入口支持按 `confidences`、`apkTerrainIds` 和 `mapNames` 过滤，也可查询 confirmed/atlas tile 的同类数据；返回值会复制 evidence 和 terrainConfig，避免训练端或验证脚本修改后污染 manifest 常量。
 - 这一步不改变任何规则结算，只把人工实测和训练集降权需要的数据结构化，避免后续再临时扫描 `tileUsage`、terrain 映射和 `data.bin` 表。
 
