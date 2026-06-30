@@ -197,7 +197,7 @@ DEX 与脚本确认：
 - 20 张根目录 skirmish `.aem` 的尾部长度均为 58 字节，模板均为 `zero_suffix_58`。
 - 全部可按当前结构解析的 42 个 `.aem` 里，`zero_suffix_58` 出现 34 次，`ff_suffix_58` 出现 8 次；另有 3 个战役地图因单位块格式特殊暂未解析。
 - 由于根目录 skirmish 地图的尾部完全一致，不能据此推导 2/3/4 人地图的联盟、玩家颜色或阵营预设。当前应把它记录为“固定尾部模板，语义未确认”。
-- 代码侧 `parseApkAemMap` 已保留尾部原始字节、十六进制和模板名，供后续继续比对；当前不会把尾部写入联盟或队伍规则。
+- 代码侧 `parseApkAemMap` 已保留尾部原始字节、十六进制和模板名，供后续继续比对；当前不会把尾部写入联盟或队伍规则。`npm run apk:map-report -- --check` 也会检查 20 张 skirmish 地图是否仍全部为 `zero_suffix_58`，防止未来样本漂移被忽略。
 
 skirmish 控制脚本结论：
 
@@ -249,7 +249,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - APK AEM 导入会在 `GameState.metadata` 和 `observation.metadata` 中输出 `source/apkMapName/apkSkirmishMode/recommendedGold/apkTailTemplate/apkApproximateTerrainIds/apkApproximateTileCount/apkUnmappedTerrainIds/apkUnmappedTileCount`；脚本字面量规则应用后还会输出 `apkRuleScriptResourcePath/apkRuleScriptIgnoredRestoreTeamIds/apkRuleScriptIgnoredGameOverAllianceIds/apkRuleScriptWarnings`，用于训练样本追踪、低可信 tile 过滤和复现实验配置。
 - `src/game/apk_skirmish_tile_usage.ts` 已固化 20 张官方 skirmish 地图的逐图 APK tile 使用量；`src/game/apk_manifest.ts` 会为每张官方图生成 `terrainConfidence`，记录 confirmed/atlas/approximate/unmapped 格子数量、低可信 tile ID 和未映射 tile ID；按当前 skirmish 映射，20 张图均无未映射 tile。
 - 20 张官方 skirmish 地图中只有 4 张含低可信 approximate tile：`(2) Mourningstar.aem` 含 `t30` 2 格，`(4) The Crucible.aem` 含 `t31` 1 格，`(4) Waterways.aem` 含 `t31` 2 格，`(4) Winterstorm.aem` 含 `t31` 4 格。其它 16 张图不含 approximate/unmapped tile，可作为更干净的基础训练地图。
-- `tools/apk_map_report.ts` 已把上述解密、解析和 manifest 对比流程工具化；`npm run apk:map-report -- --check` 当前确认 20/20 地图和项目清单一致，并在报告末尾输出 `t30/t31` 的人工验证坐标、当前项目语义清单和实机确认状态。
+- `tools/apk_map_report.ts` 已把上述解密、解析和 manifest 对比流程工具化；`npm run apk:map-report -- --check` 当前确认 20/20 地图和项目清单一致、尾部模板 `zero_suffix_58=20`、非预期尾部 0，并在报告末尾输出 `t30/t31` 的人工验证坐标、当前项目语义清单和实机确认状态。
 - `getApkSkirmishTrainingMapManifest()` 默认返回无 unmapped tile，且只包含“无 approximate”或“approximate 已实机确认”的官方地图；当前 20 张官方 skirmish 图都会进入默认训练集。训练端仍可通过 `allowVerifiedApproximateTerrain=false` 获取 16 张更保守的无 approximate 基础图，或用 `allowApproximateTerrain/allowUnmappedTerrain/playerCounts` 显式放开低可信地形、未来未实测 approximate 地图或筛选 2/3/4 人图。
 - `getApkSkirmishTrainingScenarios()` 在训练地图清单基础上生成 SD/SO 模式场景，默认 20 张官方地图 x 2 模式共 40 项；默认训练集包含已经由实机确认的 `t30/t31` approximate tile，仍会排除未来未实测 approximate/unmapped tile。每项携带资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和模式 `RuleConfig`。SD 场景包含实机确认的指挥官+18 个普通单位招募列表；SO 场景包含脚本确认的 APK ID 0-8 招募列表。训练侧可用 `getApkSkirmishTrainingScenario(id)` 按稳定 ID 定位场景，并通过 `createApkSkirmishTrainingGameState(map, id)` / `createApkSkirmishTrainingEnv(map, id)` 直接创建带 manifest 校验、来源元数据和 `metadata.apkSkirmishSetupOptions` 的训练状态/环境。
 - `tools/apk_training_report.ts` 已把上述训练场景创建流程工具化；`npm run apk:training-report -- --check` 当前确认默认 40/40 场景可创建环境、manifest/metadata 全匹配、含未实测 approximate 的场景 0 个、模式规则错配 0 个、初始合法动作均非 0，并且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
@@ -308,7 +308,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 | 优先级 | 差异 | 影响 |
 | --- | --- | --- |
 | P1 | 非 skirmish 或未来地图的低可信 APK tile 语义未校准 | 当前默认 skirmish 训练集只包含无 approximate 或已确认 t30/t31；t80/t83/t81/t82 等未确认 tile 不进入默认训练集 |
-| P0 | `.aem` 尾部 58 字节模板语义未确认 | 当前没有证据表明 skirmish 依赖该尾部表达联盟；仍需反编译或更多地图格式样本确认 |
+| P2 | `.aem` 尾部 58 字节模板语义未确认 | 当前 20 张 skirmish 地图均为 `zero_suffix_58`，且 `apk:map-report -- --check` 已门禁非预期尾部；该字段只保留证据，不参与联盟或玩家设置推导 |
 | P1 | `ApkAemMap -> GameState` 仍缺完整场景配置 | SD/SO 基础模式入口和地图级元数据已完成；战役、特殊脚本和非 skirmish 模式仍需独立场景层 |
 | P1 | 脚本字面量配置已可生成 `RuleConfig`，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
 | P1 | 指挥官复活/重招募官方默认流程未知 | 指挥官模式可能和 APK 有差异 |
@@ -323,9 +323,9 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 结合 `data.bin` 的防御、回血、移动、kind、variant、linked 字段和贴图资源确认映射。
    - 对无法确认的 tile 保留“低可信/待确认”标记，避免误写成高可信规则。
 
-2. 继续确认 `.aem` 尾部 58 字节模板语义。
-   - 当前 20 张 skirmish 地图尾部完全一致，暂不应把它作为玩家/联盟预设。
-   - 下一步应结合反编译字段名、编辑器保存格式或更多特殊地图样本确认该模板用途。
+2. 继续确认非 skirmish `.aem` 尾部 58 字节模板语义。
+   - 当前 20 张 skirmish 地图尾部完全一致，且已经作为报告门禁，不应把它作为玩家/联盟预设。
+   - 下一步仅在引入更多特殊地图样本或战役场景配置时，再结合反编译字段名、编辑器保存格式确认该模板用途。
 
 3. 增加 APK skirmish 地图导入文档或数据表。
    - 尺寸、玩家、推荐金币、初始单位、城堡/城镇归属、tile 使用量、可信度统计和未映射 tile 清单已进入官方 manifest。

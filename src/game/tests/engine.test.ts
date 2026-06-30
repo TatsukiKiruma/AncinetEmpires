@@ -200,6 +200,7 @@ describe('GameEngine Rules', () => {
             const tileCount = Object.values(entry.tileUsage).reduce((sum, count) => sum + count, 0);
             return tileCount === entry.width * entry.height;
         })).toBe(true);
+        expect([...new Set(APK_SKIRMISH_MAP_MANIFEST.map(entry => entry.tailTemplate))]).toEqual(['zero_suffix_58']);
         expect(APK_SKIRMISH_MAP_MANIFEST.flatMap(entry => entry.unmappedTerrainIds)).toEqual([]);
         expect(APK_SKIRMISH_MAP_MANIFEST.every(entry => entry.terrainConfidence.tileCount === entry.width * entry.height)).toBe(true);
         expect(APK_SKIRMISH_MAP_MANIFEST.filter(entry => entry.terrainConfidence.approximateTileCount > 0).map(entry => ({

@@ -437,7 +437,7 @@ skirmish 训练导入映射：
 
 本轮已把头部、地形矩阵、初始单位和推荐金币作为已确认格式接入。推荐金币之后每张 skirmish 地图还剩固定 58 字节；复核结果显示 20 张根目录 skirmish 地图全部是同一个 `zero_suffix_58` 模板，不随 2/3/4 人数量、队伍 ID、初始单位或推荐金币变化。因此当前不能把该尾部解释为玩家/联盟预设，只能记录为“固定尾部模板，语义未确认”。
 
-2026-06-30 起，`tools/apk_map_report.ts` 已把 20 张官方 skirmish `.aem` 的解密、解析和 manifest 对比工具化。运行 `npm run apk:map-report -- --check` 会读取 `APK/_analysis/unpack/assets/maps/*.aem`，使用 DES/CBC/PKCS7 和 key/iv `72 6b 00 00 00 00 46 46` 解密后调用 `parseApkAemMap`，并确认 APK SHA256、地图结构、tile 使用量、推荐金币和尾部模板是否仍与项目清单一致。当前结果为 20/20 地图匹配、0 个 unmapped tile。
+2026-06-30 起，`tools/apk_map_report.ts` 已把 20 张官方 skirmish `.aem` 的解密、解析和 manifest 对比工具化。运行 `npm run apk:map-report -- --check` 会读取 `APK/_analysis/unpack/assets/maps/*.aem`，使用 DES/CBC/PKCS7 和 key/iv `72 6b 00 00 00 00 46 46` 解密后调用 `parseApkAemMap`，并确认 APK SHA256、地图结构、tile 使用量、推荐金币和尾部模板是否仍与项目清单一致。当前结果为 20/20 地图匹配、尾部模板 `zero_suffix_58=20`、非预期尾部 0、0 个 unmapped tile。
 
 本轮复核与实现统计：
 
@@ -448,7 +448,7 @@ skirmish 训练导入映射：
 
 另有 3 个战役 `.aem` 在当前解析器下出现 `unitValueCount = -256`，说明单位块可能有特殊格式，暂未纳入尾部模板结论。
 
-代码侧 `parseApkAemMap` 已把尾部记录为 `tail.offset/tail.length/tail.hex/tail.bytes/tail.template`。该字段只保留证据，不参与联盟、玩家颜色或阵营推断。
+代码侧 `parseApkAemMap` 已把尾部记录为 `tail.offset/tail.length/tail.hex/tail.bytes/tail.template`。该字段只保留证据，不参与联盟、玩家颜色或阵营推断；`apk:map-report -- --check` 会在当前 20 张 skirmish 图出现非 `zero_suffix_58` 尾部时失败。
 
 20 张内置 skirmish 地图的头部、关键地形、初始单位和推荐金币如下。`N` 表示中立/无归属；城堡/城镇统计只统计 APK tile `t37/t36`。单位格式为 `team@x,y#apkUnitId`，当前 20 张图中 `#9` 为指挥官。
 
@@ -1195,7 +1195,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 新增 `tools/apk_resource_crypto.ts`，把 APK `.aem/.js/.json` 资源共用的 `DES/CBC/PKCS7`、key/iv `72 6b 00 00 00 00 46 46` 作为 Node 侧解密工具固化；该工具不进入前端运行包。
 - 新增 `tools/apk_map_report.ts` 和 npm 脚本 `apk:map-report`，默认读取 `APK/_analysis/unpack`，解密 20 张官方 skirmish AEM，复用 `parseApkAemMap` 与 `matchesApkSkirmishMapManifest` 生成 Markdown/JSON 报告。
-- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标、当前项目语义 checklist，并显示 `t30/t31` 的实机确认状态。
+- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，尾部模板 `zero_suffix_58=20`，非预期尾部 0，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标、当前项目语义 checklist，并显示 `t30/t31` 的实机确认状态。
 - 这一步不改变对战规则结算；它把“从 APK 资源复核地图规则证据”的临时流程变成可重复命令，后续可用于确认新的 APK、重新生成地图证据或定位 manifest 漂移。
 
 2026-06-30 APK 脚本解密复核工具：

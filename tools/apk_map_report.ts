@@ -14,6 +14,8 @@ import {
 import { getApkAemTerrainConfidenceUsage, parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
+const EXPECTED_SKIRMISH_TAIL_TEMPLATE = 'zero_suffix_58';
+
 interface CliOptions {
     unpackDir: string;
     apkPath: string;
@@ -48,6 +50,8 @@ interface ApkMapReport {
     matchedManifestCount: number;
     approximateMapCount: number;
     unmappedMapCount: number;
+    tailTemplateCounts: Record<string, number>;
+    unexpectedTailTemplateCount: number;
     maps: MapReportEntry[];
     terrainUsageSummary: ReturnType<typeof getApkSkirmishTerrainUsageSummary>;
     verificationTargets: ReturnType<typeof getApkSkirmishTerrainVerificationTargets>;
@@ -141,6 +145,10 @@ async function buildReport(options: CliOptions): Promise<ApkMapReport> {
         const map = await readDecryptedMap(options.unpackDir, entry);
         maps.push(buildMapReportEntry(map, entry));
     }
+    const tailTemplateCounts = maps.reduce<Record<string, number>>((counts, map) => {
+        counts[map.tailTemplate] = (counts[map.tailTemplate] ?? 0) + 1;
+        return counts;
+    }, {});
 
     return {
         apkVersion: APK_RELEASE_VERSION,
@@ -153,6 +161,8 @@ async function buildReport(options: CliOptions): Promise<ApkMapReport> {
         matchedManifestCount: maps.filter(entry => entry.manifestMatched).length,
         approximateMapCount: maps.filter(entry => entry.approximateTileCount > 0).length,
         unmappedMapCount: maps.filter(entry => entry.unmappedTileCount > 0).length,
+        tailTemplateCounts,
+        unexpectedTailTemplateCount: maps.filter(entry => entry.tailTemplate !== EXPECTED_SKIRMISH_TAIL_TEMPLATE).length,
         maps,
         terrainUsageSummary: getApkSkirmishTerrainUsageSummary(),
         verificationTargets: getApkSkirmishTerrainVerificationTargets()
@@ -164,6 +174,10 @@ function formatIds(ids: readonly number[]): string {
 }
 
 function renderMarkdown(report: ApkMapReport): string {
+    const tailSummary = Object.entries(report.tailTemplateCounts)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([template, count]) => `${template}=${count}`)
+        .join('，');
     const lines = [
         `# APK skirmish 地图解密复核报告`,
         ``,
@@ -174,6 +188,7 @@ function renderMarkdown(report: ApkMapReport): string {
         `- 解密方式：${report.decryption.cipher}，key/iv = \`${report.decryption.keyHex}\``,
         `- 官方 skirmish 地图：${report.mapCount} 张，manifest 匹配 ${report.matchedManifestCount} 张`,
         `- 含低可信 approximate tile 地图：${report.approximateMapCount} 张；含 unmapped tile 地图：${report.unmappedMapCount} 张`,
+        `- 尾部模板：${tailSummary || '-'}；非 ${EXPECTED_SKIRMISH_TAIL_TEMPLATE}：${report.unexpectedTailTemplateCount} 张`,
         ``,
         `| 地图 | 尺寸 | 玩家 | 单位 | 推荐金币 | 尾部 | approximate | unmapped | manifest |`,
         `| --- | --- | --- | ---: | ---: | --- | --- | --- | --- |`
@@ -263,7 +278,8 @@ async function main() {
     const shaMismatch = report.apkSha256 !== report.expectedApkSha256;
     const manifestMismatch = report.matchedManifestCount !== report.mapCount;
     const unmapped = report.unmappedMapCount > 0;
-    if (options.check && (shaMismatch || manifestMismatch || unmapped)) {
+    const unexpectedTail = report.unexpectedTailTemplateCount > 0;
+    if (options.check && (shaMismatch || manifestMismatch || unmapped || unexpectedTail)) {
         process.exitCode = 1;
     }
 }
