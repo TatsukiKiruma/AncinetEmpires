@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -11,10 +11,31 @@ import {
     matchesApkSkirmishMapManifest,
     type ApkSkirmishMapManifestEntry
 } from '../src/game/apk_manifest';
-import { getApkAemTerrainConfidenceUsage, parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
+import {
+    getApkAemTerrainConfidenceUsage,
+    getApkAemTerrainUsage,
+    parseApkAemMap,
+    parseApkAemTerrainOnly,
+    type ApkAemMap
+} from '../src/game/apk_map';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
 const EXPECTED_SKIRMISH_TAIL_TEMPLATE = 'zero_suffix_58';
+const LOW_CONFIDENCE_AEM_TERRAIN_IDS = [30, 31, 80, 81, 82, 83] as const;
+const EXPECTED_ALL_AEM_COUNT = 45;
+const EXPECTED_FULL_PARSE_FAILURE_RESOURCE_PATHS = [
+    'assets/mods/AEII/s5.aem',
+    'assets/mods/AEII/s7.aem',
+    'assets/mods/AEIII/s1.aem'
+] as const;
+const EXPECTED_LOW_CONFIDENCE_ALL_AEM_USAGE = [
+    { apkTerrainId: 30, tileCount: 30, skirmishTileCount: 2, nonSkirmishTileCount: 28, resourceCount: 11 },
+    { apkTerrainId: 31, tileCount: 16, skirmishTileCount: 7, nonSkirmishTileCount: 9, resourceCount: 11 },
+    { apkTerrainId: 80, tileCount: 0, skirmishTileCount: 0, nonSkirmishTileCount: 0, resourceCount: 0 },
+    { apkTerrainId: 81, tileCount: 9, skirmishTileCount: 0, nonSkirmishTileCount: 9, resourceCount: 1 },
+    { apkTerrainId: 82, tileCount: 8, skirmishTileCount: 0, nonSkirmishTileCount: 8, resourceCount: 1 },
+    { apkTerrainId: 83, tileCount: 6, skirmishTileCount: 0, nonSkirmishTileCount: 6, resourceCount: 2 }
+] as const;
 
 interface CliOptions {
     unpackDir: string;
@@ -39,6 +60,22 @@ interface MapReportEntry {
     manifestMatched: boolean;
 }
 
+interface AllAemTerrainUsageEntry {
+    apkTerrainId: number;
+    tileCount: number;
+    resourceCount: number;
+    skirmishTileCount: number;
+    nonSkirmishTileCount: number;
+    resources: { resourcePath: string; tileCount: number; isSkirmish: boolean }[];
+}
+
+interface AllAemTerrainUsageReport {
+    aemCount: number;
+    fullParseFailureCount: number;
+    fullParseFailures: { resourcePath: string; error: string }[];
+    lowConfidenceTerrainUsage: AllAemTerrainUsageEntry[];
+}
+
 interface ApkMapReport {
     apkVersion: string;
     apkPath: string;
@@ -55,6 +92,7 @@ interface ApkMapReport {
     maps: MapReportEntry[];
     terrainUsageSummary: ReturnType<typeof getApkSkirmishTerrainUsageSummary>;
     verificationTargets: ReturnType<typeof getApkSkirmishTerrainVerificationTargets>;
+    allAemTerrainUsage: AllAemTerrainUsageReport;
 }
 
 const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack');
@@ -120,6 +158,87 @@ async function readDecryptedMap(unpackDir: string, entry: ApkSkirmishMapManifest
     return parseApkAemMap(decryptApkResourceBytes(encrypted));
 }
 
+async function listAemFiles(dir: string): Promise<string[]> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    const files = await Promise.all(entries.map(async entry => {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) return listAemFiles(fullPath);
+        return entry.isFile() && entry.name.endsWith('.aem') ? [fullPath] : [];
+    }));
+    return files.flat().sort((left, right) => left.localeCompare(right));
+}
+
+function toResourcePath(unpackDir: string, filePath: string): string {
+    return path.relative(unpackDir, filePath).split(path.sep).join('/');
+}
+
+async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemTerrainUsageReport> {
+    const aemFiles = await listAemFiles(path.join(unpackDir, 'assets'));
+    const skirmishResourcePaths = new Set(APK_SKIRMISH_MAP_MANIFEST.map(entry => entry.resourcePath));
+    const grouped = new Map<number, AllAemTerrainUsageEntry>();
+    const fullParseFailures: { resourcePath: string; error: string }[] = [];
+
+    for (const filePath of aemFiles) {
+        const resourcePath = toResourcePath(unpackDir, filePath);
+        const decrypted = decryptApkResourceBytes(await readFile(filePath));
+        const terrainOnly = parseApkAemTerrainOnly(decrypted);
+        const terrainUsage = getApkAemTerrainUsage(terrainOnly);
+        const isSkirmish = skirmishResourcePaths.has(resourcePath);
+
+        try {
+            parseApkAemMap(decrypted);
+        } catch (error) {
+            fullParseFailures.push({
+                resourcePath,
+                error: error instanceof Error ? error.message : String(error)
+            });
+        }
+
+        for (const apkTerrainId of LOW_CONFIDENCE_AEM_TERRAIN_IDS) {
+            const tileCount = terrainUsage[apkTerrainId] ?? 0;
+            if (tileCount === 0) continue;
+
+            const existing = grouped.get(apkTerrainId) ?? {
+                apkTerrainId,
+                tileCount: 0,
+                resourceCount: 0,
+                skirmishTileCount: 0,
+                nonSkirmishTileCount: 0,
+                resources: []
+            };
+            existing.tileCount += tileCount;
+            existing.resourceCount += 1;
+            if (isSkirmish) {
+                existing.skirmishTileCount += tileCount;
+            } else {
+                existing.nonSkirmishTileCount += tileCount;
+            }
+            existing.resources.push({ resourcePath, tileCount, isSkirmish });
+            grouped.set(apkTerrainId, existing);
+        }
+    }
+
+    for (const apkTerrainId of LOW_CONFIDENCE_AEM_TERRAIN_IDS) {
+        if (!grouped.has(apkTerrainId)) {
+            grouped.set(apkTerrainId, {
+                apkTerrainId,
+                tileCount: 0,
+                resourceCount: 0,
+                skirmishTileCount: 0,
+                nonSkirmishTileCount: 0,
+                resources: []
+            });
+        }
+    }
+
+    return {
+        aemCount: aemFiles.length,
+        fullParseFailureCount: fullParseFailures.length,
+        fullParseFailures,
+        lowConfidenceTerrainUsage: [...grouped.values()].sort((left, right) => left.apkTerrainId - right.apkTerrainId)
+    };
+}
+
 function buildMapReportEntry(map: ApkAemMap, entry: ApkSkirmishMapManifestEntry): MapReportEntry {
     const confidence = getApkAemTerrainConfidenceUsage(map);
     return {
@@ -165,7 +284,8 @@ async function buildReport(options: CliOptions): Promise<ApkMapReport> {
         unexpectedTailTemplateCount: maps.filter(entry => entry.tailTemplate !== EXPECTED_SKIRMISH_TAIL_TEMPLATE).length,
         maps,
         terrainUsageSummary: getApkSkirmishTerrainUsageSummary(),
-        verificationTargets: getApkSkirmishTerrainVerificationTargets()
+        verificationTargets: getApkSkirmishTerrainVerificationTargets(),
+        allAemTerrainUsage: await buildAllAemTerrainUsageReport(options.unpackDir)
     };
 }
 
@@ -245,6 +365,35 @@ function renderMarkdown(report: ApkMapReport): string {
 
     lines.push(
         ``,
+        `## 全 AEM 低可信 tile 使用范围`,
+        ``,
+        `- 全 assets AEM：${report.allAemTerrainUsage.aemCount} 张`,
+        `- 可完整解析单位段失败：${report.allAemTerrainUsage.fullParseFailureCount} 张；地形段仍已纳入统计`,
+        ``,
+        `| APK tile | 总格子 | skirmish 格子 | 非 skirmish 格子 | 资源数 | 资源 |`,
+        `| ---: | ---: | ---: | ---: | ---: | --- |`
+    );
+    for (const entry of report.allAemTerrainUsage.lowConfidenceTerrainUsage) {
+        lines.push([
+            `| ${entry.apkTerrainId}`,
+            entry.tileCount,
+            entry.skirmishTileCount,
+            entry.nonSkirmishTileCount,
+            entry.resourceCount,
+            entry.resources.length === 0
+                ? '-'
+                : entry.resources.map(item => `\`${item.resourcePath}\`(${item.tileCount}${item.isSkirmish ? ',skirmish' : ''})`).join(', ')
+        ].join(' | ') + ' |');
+    }
+    if (report.allAemTerrainUsage.fullParseFailures.length > 0) {
+        lines.push('', '单位段解析失败资源：');
+        for (const failure of report.allAemTerrainUsage.fullParseFailures) {
+            lines.push(`- \`${failure.resourcePath}\`: ${failure.error}`);
+        }
+    }
+
+    lines.push(
+        ``,
         `## 人工验证目标`,
         ``,
         `| 地图 | APK tile | 坐标 | 当前项目语义 | 实测状态 | 实测结果 | 项目 checklist |`,
@@ -265,6 +414,24 @@ function renderMarkdown(report: ApkMapReport): string {
     return lines.join('\n');
 }
 
+function hasAllAemTerrainUsageMismatch(report: ApkMapReport): boolean {
+    if (report.allAemTerrainUsage.aemCount !== EXPECTED_ALL_AEM_COUNT) return true;
+
+    const failurePaths = report.allAemTerrainUsage.fullParseFailures.map(failure => failure.resourcePath);
+    if (JSON.stringify(failurePaths) !== JSON.stringify([...EXPECTED_FULL_PARSE_FAILURE_RESOURCE_PATHS])) {
+        return true;
+    }
+
+    const actual = report.allAemTerrainUsage.lowConfidenceTerrainUsage.map(entry => ({
+        apkTerrainId: entry.apkTerrainId,
+        tileCount: entry.tileCount,
+        skirmishTileCount: entry.skirmishTileCount,
+        nonSkirmishTileCount: entry.nonSkirmishTileCount,
+        resourceCount: entry.resourceCount
+    }));
+    return JSON.stringify(actual) !== JSON.stringify([...EXPECTED_LOW_CONFIDENCE_ALL_AEM_USAGE]);
+}
+
 async function main() {
     const options = parseArgs(process.argv.slice(2));
     const report = await buildReport(options);
@@ -279,7 +446,8 @@ async function main() {
     const manifestMismatch = report.matchedManifestCount !== report.mapCount;
     const unmapped = report.unmappedMapCount > 0;
     const unexpectedTail = report.unexpectedTailTemplateCount > 0;
-    if (options.check && (shaMismatch || manifestMismatch || unmapped || unexpectedTail)) {
+    const allAemTerrainUsageMismatch = hasAllAemTerrainUsageMismatch(report);
+    if (options.check && (shaMismatch || manifestMismatch || unmapped || unexpectedTail || allAemTerrainUsageMismatch)) {
         process.exitCode = 1;
     }
 }

@@ -96,7 +96,7 @@ npm run lint
 ```bash
 npm run apk:map-report -- --check
 ```
-该命令会用 APK 4.2.5.1 的 DES key/iv 解密 `APK/_analysis/unpack/assets/maps/*.aem`，重新解析 20 张官方 skirmish 地图并和项目内 manifest 对比。当前复核结果为 APK SHA256 匹配、20/20 地图匹配、尾部模板 `zero_suffix_58=20`、非预期尾部 0、0 个 unmapped tile，并输出 `t30/t31` 低可信地形的实机验证坐标、当前项目语义和已确认实机行为。
+该命令会用 APK 4.2.5.1 的 DES key/iv 解密 `APK/_analysis/unpack/assets/maps/*.aem`，重新解析 20 张官方 skirmish 地图并和项目内 manifest 对比。当前复核结果为 APK SHA256 匹配、20/20 地图匹配、尾部模板 `zero_suffix_58=20`、非预期尾部 0、0 个 unmapped tile，并输出 `t30/t31` 低可信地形的实机验证坐标、当前项目语义和已确认实机行为。该报告还会扫描 `assets` 下全部 45 张 `.aem` 的地形段并门禁低可信 tile 使用范围：`t30=30`、`t31=16`、`t80=0`、`t81=9`、`t82=8`、`t83=6`；其中 `t81/t82/t83` 的 skirmish 格子数均为 0，只出现在非 skirmish 战役资源中。
 
 ### 复核 APK data.bin 地形数值
 ```bash

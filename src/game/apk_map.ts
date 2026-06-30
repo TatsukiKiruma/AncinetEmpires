@@ -55,6 +55,18 @@ export interface ApkAemMap {
     tail: ApkAemTail;
 }
 
+export interface ApkAemTerrainOnly {
+    magic: number;
+    width: number;
+    height: number;
+    author: string | null;
+    playerIds: number[];
+    terrainRecordOffset: number;
+    terrainCount: number;
+    terrain: ApkAemTerrainCell[][];
+    terrainEndOffset: number;
+}
+
 export interface CreateGameStateFromApkAemMapOptions {
     initialGold?: number;
     useRecommendedGold?: boolean;
@@ -241,7 +253,7 @@ function parseUnits(data: Uint8Array, offset: number, width: number, height: num
     };
 }
 
-export function parseApkAemMap(data: Uint8Array): ApkAemMap {
+export function parseApkAemTerrainOnly(data: Uint8Array): ApkAemTerrainOnly {
     const magic = readUInt32BE(data, 0);
     if (magic !== APK_AEM_MAGIC) {
         throw new Error(`未知 AEM magic: ${magic}`);
@@ -294,10 +306,6 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
         }
         terrain.push(row);
     }
-    const tailStart = offset + terrainCount * APK_AEM_TERRAIN_RECORD_SIZE;
-    const unitBlock = parseUnits(data, tailStart, width, height);
-    const tail = parseTail(data, unitBlock.tailOffset);
-
     return {
         magic,
         width,
@@ -307,12 +315,30 @@ export function parseApkAemMap(data: Uint8Array): ApkAemMap {
         terrainRecordOffset: offset,
         terrainCount,
         terrain,
+        terrainEndOffset: offset + terrainCount * APK_AEM_TERRAIN_RECORD_SIZE
+    };
+}
+
+export function parseApkAemMap(data: Uint8Array): ApkAemMap {
+    const terrainOnly = parseApkAemTerrainOnly(data);
+    const unitBlock = parseUnits(data, terrainOnly.terrainEndOffset, terrainOnly.width, terrainOnly.height);
+    const tail = parseTail(data, unitBlock.tailOffset);
+
+    return {
+        magic: terrainOnly.magic,
+        width: terrainOnly.width,
+        height: terrainOnly.height,
+        author: terrainOnly.author,
+        playerIds: terrainOnly.playerIds,
+        terrainRecordOffset: terrainOnly.terrainRecordOffset,
+        terrainCount: terrainOnly.terrainCount,
+        terrain: terrainOnly.terrain,
         ...unitBlock,
         tail
     };
 }
 
-export function getApkAemTerrainUsage(map: ApkAemMap): Record<number, number> {
+export function getApkAemTerrainUsage(map: { terrain: ApkAemTerrainCell[][] }): Record<number, number> {
     const usage: Record<number, number> = {};
     for (const row of map.terrain) {
         for (const cell of row) {

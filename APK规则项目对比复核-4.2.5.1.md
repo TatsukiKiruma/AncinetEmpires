@@ -123,7 +123,7 @@ npm run apk:skirmish-rule-report -- --check
 npm run apk:map-report -- --check
 ```
 
-当前命令输出确认：APK SHA256 匹配 `51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`，20 张 `assets/maps/*.aem` 全部可解密解析，20/20 与 `src/game/apk_manifest.ts` 清单匹配，unmapped tile 数为 0。报告同时列出 4 张含 approximate tile 的地图和 `t30/t31` 人工验证坐标。
+当前命令输出确认：APK SHA256 匹配 `51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B`，20 张 `assets/maps/*.aem` 全部可解密解析，20/20 与 `src/game/apk_manifest.ts` 清单匹配，unmapped tile 数为 0。报告同时列出 4 张含 approximate tile 的地图和 `t30/t31` 人工验证坐标；还会扫描全 `assets` 下 45 张 `.aem` 的地形段并门禁低可信 tile 使用范围：`t30=30`、`t31=16`、`t80=0`、`t81=9`、`t82=8`、`t83=6`，其中 `t81/t82/t83` 的 skirmish 格子数均为 0。
 
 2026-06-30 补充：DEX 字符串表复核已固化为 `tools/apk_dex_report.ts`，可通过以下命令重复验证：
 
@@ -532,6 +532,7 @@ npm run apk:script-report -- --check
    - 优先处理 `t0/t18/t17/t15/t21/t20/t36/t19/t9/t3` 等高频 tile。
    - `t30` 已按贴图收窄为营地/帐篷，`t31` 已由 2026-06-30 实机确认会回血和净化且不可占领/无收入/不可招募；默认训练集当前没有未实测 approximate tile。
    - `t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；evidence 现在会区分营地、陆地神庙、水中障碍和水中神庙候选。
+   - `apk:map-report -- --check` 已门禁全 45 张 assets AEM 的低可信 tile 分布：`t80=0`，`t81/t82/t83` 的 skirmish 格子数均为 0，仅出现在非 skirmish 战役资源中。
    - 回合开始回归测试已覆盖 `t31/t80/t83` 按神庙候选清毒回血、`t30/t81` 不清毒；`t80/t83` 不出现在当前默认 skirmish 训练集，后续重点实测其净化、可占领、敌我归属和回血边界。
    - 文档中继续区分“数值确认”和“类别推断”。
 

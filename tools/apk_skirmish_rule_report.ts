@@ -207,15 +207,15 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'low-confidence-tiles-t80-t83',
             priority: 'P1',
             title: '低可信 t80/t83 神庙候选语义',
-            currentProjectAssumption: 't80/t83 仍按贴图、data.bin 数值和语言表近似处理，不提升为 confirmed。',
-            requestedEvidence: '分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。'
+            currentProjectAssumption: 't80/t83 仍按贴图、data.bin 数值和语言表近似处理，不提升为 confirmed；t80 当前全 AEM 未出现，t83 不在 skirmish 地图中。',
+            requestedEvidence: '若未来地图或实机局面出现 t80/t83，分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。'
         },
         {
             id: 'water-obstacle-tiles-t81-t82',
             priority: 'P1',
             title: 't81/t82 水面障碍语义',
-            currentProjectAssumption: 't81/t82 按水面障碍候选处理，不带神庙净化标签。',
-            requestedEvidence: '记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。'
+            currentProjectAssumption: 't81/t82 按水面障碍候选处理，不带神庙净化标签；二者只出现在非 skirmish 战役资源中。',
+            requestedEvidence: '若未来对战地图使用 t81/t82，记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。'
         },
         {
             id: 'support-and-assault-edge-order',
