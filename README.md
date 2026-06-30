@@ -128,11 +128,11 @@ npm run apk:script-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置；同时会把代表性脚本配置应用到训练状态，确认全局/队伍招募、联盟、禁用队伍、收入覆盖、移动覆盖和状态覆盖都能进入 observation，且脚本禁用队伍会影响合法动作和回合轮转、脚本收入会影响回合开始金币结算。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异、应用检查 7/7 通过。
 
-### 复核 APK DEX 字符串证据
+### 复核 APK DEX 字符串与方法表证据
 ```bash
 npm run apk:dex-report -- --check
 ```
-该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表，复核指挥官、招募、开局设置、攻击、支援、状态和复活相关关键词。当前复核结果为 26529 个字符串可解析，`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot attack from (`、`Cannot support from (`、`SyncSetUnitStatus` 等必要字符串均存在；关键词分组命中为攻击动作 4、支援动作 2、状态 Stage 4；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
+该命令会解析 `APK/_analysis/unpack/classes.dex` 的字符串表和 `method_ids` 方法表，复核指挥官、招募、开局设置、攻击、支援、状态和复活相关关键词。当前复核结果为 26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0；已解析到 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 等关键方法签名；关键词分组命中为攻击动作 4、支援动作 2、状态 Stage 4；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander` 一类通用指挥官复活 API 字符串。
 
 ### 复核 APK skirmish 训练场景
 ```bash
@@ -144,7 +144,7 @@ npm run apk:training-report -- --check
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
-- **指挥官死亡/复活完整规则**：DEX 字符串层未发现通用指挥官复活 API，当前仍不能确认 APK 的死亡后重招募价格递增和完整复活流程。
+- **指挥官死亡/复活完整规则**：skirmish 已按实机确认实现“阵亡后只能城堡重招募、费用 500 起并每次 +100、保留等级/经验”；DEX 字符串与方法表仍未发现通用指挥官复活 API，战役复活/失败流程不纳入当前 AI 对战目标。
 - **训练动作空间封装**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板，并提供 `getFixedActionSpaceDescriptor()`、`encodeFixedActionIndex()`、`getFixedLegalActionIndexes()`、`getFixedActionMask()` 和 `stepFixedAction()` 作为固定稀疏动作空间入口；`EnvStepResult` 会直接输出 `legalActionCodes`、`legalActionEntries`、`fixedActionSpaceDescriptor` 和 `fixedLegalActionIndexes`，其中 `legalActionEntries[]` 将结构化动作、字符串编码、动态 mask 位和固定索引聚合为一条记录，便于训练端跨进程消费动作。`apk:training-report -- --check` 已门禁 schema、`encodeAction/decodeAction` 往返、动态 `legalActions/actionMask` 对齐、动作序列化字段对齐和 40 个默认 APK 训练场景的固定动作索引无碰撞。后续可按 PPO 等训练框架再做压缩编码或张量封装。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。

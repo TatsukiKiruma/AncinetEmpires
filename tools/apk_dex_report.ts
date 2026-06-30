@@ -19,6 +19,18 @@ interface DexStringReadResult {
     nextOffset: number;
 }
 
+interface DexProtoSignature {
+    returnType: string;
+    parameterTypes: string[];
+}
+
+export interface DexMethodSignature {
+    classDescriptor: string;
+    name: string;
+    returnType: string;
+    parameterTypes: string[];
+}
+
 export interface DexKeywordGroupReport {
     group: string;
     keywords: string[];
@@ -32,6 +44,9 @@ interface ApkDexReport {
     stringCount: number;
     requiredStrings: string[];
     missingRequiredStrings: string[];
+    requiredMethodNames: string[];
+    missingRequiredMethodNames: string[];
+    methodSignatures: DexMethodSignature[];
     commanderReviveApiCandidates: string[];
     keywordGroups: DexKeywordGroupReport[];
 }
@@ -63,6 +78,18 @@ const REQUIRED_STRINGS = [
     '[Stage.SyncSetUnitStatus] No unit at (',
     '[Stage.SyncSetUnitStatus] Invalid status: ',
     '[Stage.SyncSetUnitStatus] Invalid rounds: '
+] as const;
+
+const REQUIRED_METHOD_NAMES = [
+    'CheckCommander',
+    'GetCommander',
+    'SyncSetCommander',
+    'SetIncomeCommanderBase',
+    'SetIncomeCommanderGrowth',
+    'SyncSetRecruitUnits',
+    'SyncSetRecruitUnitsForTeam',
+    'SyncSetUnitStatus',
+    'AsyncAttack'
 ] as const;
 
 const COMMANDER_REVIVE_API_PATTERN = /(?:ReviveCommander|RespawnCommander|CommanderRevive|CommanderRespawn)/i;
@@ -289,6 +316,141 @@ export function parseDexStrings(buffer: Buffer): string[] {
     return strings;
 }
 
+function parseDexTypes(buffer: Buffer, strings: readonly string[]): string[] {
+    if (buffer.length < 0x70) {
+        throw new Error('DEX 文件过小');
+    }
+
+    const typeIdsSize = buffer.readUInt32LE(0x40);
+    const typeIdsOffset = buffer.readUInt32LE(0x44);
+    const typeIdsEnd = typeIdsOffset + typeIdsSize * 4;
+
+    if (typeIdsEnd > buffer.length) {
+        throw new Error('DEX type_ids 区域越界');
+    }
+
+    const types: string[] = [];
+    for (let i = 0; i < typeIdsSize; i += 1) {
+        const descriptorIndex = buffer.readUInt32LE(typeIdsOffset + i * 4);
+        const descriptor = strings[descriptorIndex];
+        if (descriptor === undefined) {
+            throw new Error(`DEX type_ids 字符串索引越界: index=${i}, string_idx=${descriptorIndex}`);
+        }
+        types.push(descriptor);
+    }
+
+    return types;
+}
+
+function parseTypeList(buffer: Buffer, offset: number, types: readonly string[]): string[] {
+    if (offset === 0) return [];
+    if (offset + 4 > buffer.length) {
+        throw new Error(`DEX type_list 越界: offset=${offset}`);
+    }
+
+    const size = buffer.readUInt32LE(offset);
+    const listEnd = offset + 4 + size * 2;
+    if (listEnd > buffer.length) {
+        throw new Error(`DEX type_list 内容越界: offset=${offset}, size=${size}`);
+    }
+
+    const result: string[] = [];
+    for (let i = 0; i < size; i += 1) {
+        const typeIndex = buffer.readUInt16LE(offset + 4 + i * 2);
+        const type = types[typeIndex];
+        if (type === undefined) {
+            throw new Error(`DEX type_list 类型索引越界: offset=${offset}, type_idx=${typeIndex}`);
+        }
+        result.push(type);
+    }
+
+    return result;
+}
+
+function parseDexProtos(buffer: Buffer, types: readonly string[]): DexProtoSignature[] {
+    if (buffer.length < 0x70) {
+        throw new Error('DEX 文件过小');
+    }
+
+    const protoIdsSize = buffer.readUInt32LE(0x48);
+    const protoIdsOffset = buffer.readUInt32LE(0x4c);
+    const protoIdsEnd = protoIdsOffset + protoIdsSize * 12;
+
+    if (protoIdsEnd > buffer.length) {
+        throw new Error('DEX proto_ids 区域越界');
+    }
+
+    const protos: DexProtoSignature[] = [];
+    for (let i = 0; i < protoIdsSize; i += 1) {
+        const itemOffset = protoIdsOffset + i * 12;
+        const returnTypeIndex = buffer.readUInt32LE(itemOffset + 4);
+        const parametersOffset = buffer.readUInt32LE(itemOffset + 8);
+        const returnType = types[returnTypeIndex];
+        if (returnType === undefined) {
+            throw new Error(`DEX proto_ids 返回类型索引越界: index=${i}, type_idx=${returnTypeIndex}`);
+        }
+
+        protos.push({
+            returnType,
+            parameterTypes: parseTypeList(buffer, parametersOffset, types)
+        });
+    }
+
+    return protos;
+}
+
+export function parseDexMethodSignatures(buffer: Buffer, methodNames: readonly string[]): DexMethodSignature[] {
+    const wantedNames = new Set(methodNames);
+    const strings = parseDexStrings(buffer);
+    const types = parseDexTypes(buffer, strings);
+    const protos = parseDexProtos(buffer, types);
+    const methodIdsSize = buffer.readUInt32LE(0x58);
+    const methodIdsOffset = buffer.readUInt32LE(0x5c);
+    const methodIdsEnd = methodIdsOffset + methodIdsSize * 8;
+
+    if (methodIdsEnd > buffer.length) {
+        throw new Error('DEX method_ids 区域越界');
+    }
+
+    const signatures: DexMethodSignature[] = [];
+    for (let i = 0; i < methodIdsSize; i += 1) {
+        const itemOffset = methodIdsOffset + i * 8;
+        const classIndex = buffer.readUInt16LE(itemOffset);
+        const protoIndex = buffer.readUInt16LE(itemOffset + 2);
+        const nameIndex = buffer.readUInt32LE(itemOffset + 4);
+        const name = strings[nameIndex];
+
+        if (name === undefined) {
+            throw new Error(`DEX method_ids 方法名索引越界: index=${i}, string_idx=${nameIndex}`);
+        }
+        if (!wantedNames.has(name)) continue;
+
+        const classDescriptor = types[classIndex];
+        const proto = protos[protoIndex];
+        if (classDescriptor === undefined) {
+            throw new Error(`DEX method_ids 类索引越界: index=${i}, class_idx=${classIndex}`);
+        }
+        if (proto === undefined) {
+            throw new Error(`DEX method_ids 原型索引越界: index=${i}, proto_idx=${protoIndex}`);
+        }
+
+        signatures.push({
+            classDescriptor,
+            name,
+            returnType: proto.returnType,
+            parameterTypes: proto.parameterTypes
+        });
+    }
+
+    return signatures.sort((left, right) => {
+        const byName = left.name.localeCompare(right.name);
+        if (byName !== 0) return byName;
+        const byClass = left.classDescriptor.localeCompare(right.classDescriptor);
+        if (byClass !== 0) return byClass;
+        return left.parameterTypes.join(',').localeCompare(right.parameterTypes.join(','));
+    });
+}
+
 function uniqueSorted(values: readonly string[]): string[] {
     return [...new Set(values)].sort((left, right) => left.localeCompare(right));
 }
@@ -311,8 +473,11 @@ export function buildKeywordReports(strings: readonly string[]): DexKeywordGroup
 
 export async function buildApkDexReport(options: CliOptions): Promise<ApkDexReport> {
     const dexPath = path.join(options.unpackDir, 'classes.dex');
-    const strings = parseDexStrings(await readFile(dexPath));
+    const dex = await readFile(dexPath);
+    const strings = parseDexStrings(dex);
     const stringSet = new Set(strings);
+    const methodSignatures = parseDexMethodSignatures(dex, REQUIRED_METHOD_NAMES);
+    const methodNameSet = new Set(methodSignatures.map(method => method.name));
     const commanderReviveApiCandidates = uniqueSorted(strings.filter(value => COMMANDER_REVIVE_API_PATTERN.test(value)));
 
     return {
@@ -321,6 +486,9 @@ export async function buildApkDexReport(options: CliOptions): Promise<ApkDexRepo
         stringCount: strings.length,
         requiredStrings: [...REQUIRED_STRINGS],
         missingRequiredStrings: REQUIRED_STRINGS.filter(value => !stringSet.has(value)),
+        requiredMethodNames: [...REQUIRED_METHOD_NAMES],
+        missingRequiredMethodNames: REQUIRED_METHOD_NAMES.filter(value => !methodNameSet.has(value)),
+        methodSignatures,
         commanderReviveApiCandidates,
         keywordGroups: buildKeywordReports(strings)
     };
@@ -334,6 +502,7 @@ function renderMarkdown(report: ApkDexReport): string {
         `- DEX 文件：\`${report.dexPath}\``,
         `- 字符串数量：${report.stringCount}`,
         `- 必要字符串缺失：${report.missingRequiredStrings.length}`,
+        `- 必要方法名缺失：${report.missingRequiredMethodNames.length}`,
         `- 疑似指挥官复活 API 字符串：${report.commanderReviveApiCandidates.length}`,
         '',
         '## 关键词分组',
@@ -344,6 +513,15 @@ function renderMarkdown(report: ApkDexReport): string {
 
     for (const group of report.keywordGroups) {
         lines.push(`| ${group.group} | ${group.count} | ${group.keywords.map(value => `\`${value}\``).join(', ')} |`);
+    }
+
+    lines.push('', '## 关键方法签名', '', '| 方法 | 类 | 返回 | 参数 |', '| --- | --- | --- | --- |');
+
+    for (const signature of report.methodSignatures) {
+        const parameters = signature.parameterTypes.length > 0
+            ? signature.parameterTypes.map(value => `\`${value}\``).join(', ')
+            : '-';
+        lines.push(`| \`${signature.name}\` | \`${signature.classDescriptor}\` | \`${signature.returnType}\` | ${parameters} |`);
     }
 
     lines.push('', '## 命中明细');
@@ -359,10 +537,17 @@ function renderMarkdown(report: ApkDexReport): string {
         }
     }
 
-    if (report.missingRequiredStrings.length > 0 || report.commanderReviveApiCandidates.length > 0) {
+    if (
+        report.missingRequiredStrings.length > 0
+        || report.missingRequiredMethodNames.length > 0
+        || report.commanderReviveApiCandidates.length > 0
+    ) {
         lines.push('', '## 差异', '');
         for (const value of report.missingRequiredStrings) {
             lines.push(`- 缺少必要字符串：\`${value}\``);
+        }
+        for (const value of report.missingRequiredMethodNames) {
+            lines.push(`- 缺少必要方法名：\`${value}\``);
         }
         for (const value of report.commanderReviveApiCandidates) {
             lines.push(`- 疑似指挥官复活 API：\`${value}\``);
@@ -387,6 +572,7 @@ async function main() {
         && (
             report.stringCount === 0
             || report.missingRequiredStrings.length > 0
+            || report.missingRequiredMethodNames.length > 0
             || report.commanderReviveApiCandidates.length > 0
         )
     ) {

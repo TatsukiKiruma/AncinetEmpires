@@ -29,7 +29,7 @@
 | `assets/data.bin` | 自定义 magic `365703`，含 DES key；已解析 21 条单位数据和 84 条地形 tile 数据 | 可确认单位数值、成长、人口、地形防御/回血/移动 |
 | `assets/maps/*.aem` | 20 张内置 skirmish 地图可解密解析 | 可确认地图尺寸、玩家 ID、初始单位、建筑归属、推荐金币；推荐金币后固定 58 字节尾部暂不能证明为玩家/联盟配置 |
 | `assets/mods/**/*.js` | 27 个脚本可解密，出现大量 `Stage.*` 调用 | 可确认关卡配置能力、目标判断和 skirmish 控制逻辑 |
-| `classes.dex` 字符串 | 暴露 `Stage.*`、`Rule.*`、`Cannot ... when stacked!` 等字符串 | 可确认官方引擎有待处理/堆叠状态、脚本配置 API |
+| `classes.dex` 字符串与方法表 | 暴露 `Stage.*`、`Rule.*`、`Cannot ... when stacked!` 等字符串，并可解析关键 `method_ids` 签名 | 可确认官方引擎有待处理/堆叠状态、脚本配置 API 和部分参数形态 |
 
 2026-06-30 起，项目新增可重复复核命令：
 
@@ -39,13 +39,13 @@ npm run apk:map-report -- --check
 
 该命令读取 `APK/_analysis/unpack`，用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密 20 张官方 skirmish `.aem`，再用 `parseApkAemMap` 和 `matchesApkSkirmishMapManifest` 校验项目 manifest。当前运行结果：APK SHA256 匹配、20/20 地图匹配、0 个 unmapped tile、4 张地图含 approximate tile。
 
-DEX 字符串证据也已工具化：
+DEX 字符串与方法表证据也已工具化：
 
 ```bash
 npm run apk:dex-report -- --check
 ```
 
-该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表。当前运行结果：26529 个字符串可解析，指挥官/招募/开局设置相关必要字符串均存在，`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论只覆盖字符串层证据，不能替代完整控制流反编译。
+该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表和 `method_ids` 方法表。当前运行结果：26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0；指挥官/招募/开局设置相关必要字符串均存在，并可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 的关键方法签名；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论只覆盖 API 暴露和签名证据，不能替代完整控制流反编译。
 
 `data.bin` 地形数值证据也已工具化：
 
@@ -71,7 +71,7 @@ npm run apk:unit-report -- --check
 - `.js`：55 个脚本文件；其中 `mods` 下 27 个脚本已可用 `data.bin` 的 DES key 解密。
 - `.lang`：38 个语言表，核心规则文案明文可读。
 - `data.bin`：单位与地形基础规则数据。
-- `classes.dex`：包含 libGDX、Rhino JavaScript 运行时和 Stage/Rule API 字符串。
+- `classes.dex`：包含 libGDX、Rhino JavaScript 运行时、Stage/Rule API 字符串和可解析的方法表签名。
 
 加密资源使用 `DES/CBC/PKCS5Padding`，key 与 IV 相同；当前已能解密 `.aem/.js/.json` 这一类资源。
 
@@ -86,14 +86,14 @@ npm run apk:unit-report -- --check
 | 伤害公式 | 语言表说明“攻击-防御后乘血量比例”，能力继续修正 | `rules.ts` 按血量比例、地形防御、能力加成计算 | 大体对齐 |
 | 地形 | `data.bin` 有 84 条 tile 定义 | 项目有 17 个抽象地形；高可信映射 4 个，另有 skirmish 训练导入近似映射；APK 导入地图优先使用当前 tile 的移动/防御/回血数值；地形之子、空军打水中单位、占领/招募/收入/Stage 建筑查询等规则语义优先按 `apkTerrainId` 映射判断；城镇摧毁/修理会按 `t36.linkedB=27`、`t27.linkedC=36` 同步 APK tile | skirmish 数值和核心语义更接近 APK，完整贴图/类别语义仍待校准 |
 | 收入 | 城堡/村庄/指挥官存活收入 | `RuleConfig` 支持城镇、城堡、指挥官基础和成长收入 | 配置能力已对齐 |
-| 招募 | 城堡空置可招募；己方指挥官站城堡例外；SD 默认可招募指挥官和 18 个普通单位，不含骷髅/水晶 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现；SD/SO 招募列表已按实机和脚本配置 | 基础对齐，指挥官重招募递增价格待确认 |
+| 招募 | 城堡空置可招募；己方指挥官站城堡例外；SD 默认可招募指挥官和 18 个普通单位，不含骷髅/水晶 | `recruit_to_castle` / `recruit_and_deploy` 和 `pendingUnitId` 已实现；SD/SO 招募列表和 SD 指挥官重招募递增价格已按实机和脚本配置落地 | 基础对齐，仍需更多 UI 边界样例 |
 | 投降 | skirmish 允许投降；空城堡招募 pending 时可投降，指挥官城堡堆叠 pending 时不可投降；投降后建筑无主、己方单位删除 | `RuleConfig.allowSurrender` + `surrender` 动作已实现；APK skirmish 默认开启，并区分 pending 来源 | 已按实机修正 |
 | 上限/价格 | DEX 暴露单位上限、价格和招募列表 API | `RuleConfig` 支持单位上限、人口上限、价格覆盖、可招募列表 | 配置能力已对齐 |
 | skirmish 终局/模式 | `SD/SO controller.js` 使用 `CountUnit == 0 && CountCastle == 0` 淘汰队伍；SD 为默认正常模式，SO 为原版/特殊模式；`SO` 调用 `SyncSetRecruitUnits(0..8)` | 默认 `defeatOnNoUnitsAndNoCastles = true`；`apk_skirmish.ts` 可按 SD/SO 生成规则配置，默认金币 300、单位上限 30、等级上限 3，并按 APK 实机范围/步进校验自定义 setup | 已对齐，起始设置可由训练端覆盖 |
 | 战役目标 | 脚本使用 `SyncGameOver`、计数、指挥官检查、城堡检查等 | 只实现基础 Stage 查询/同步适配 | 部分对齐 |
 | skirmish 地图导入 | 20 张 `assets/maps/*.aem` | `parseApkAemMap` + `createApkSkirmishGameState` 可生成训练用 `GameState`，并保留 AEM 尾部原始模板、每格 APK 原始 tile 信息和地图级元数据；官方 manifest 已固化作者、开局单位、城堡/城镇归属和完整 tile 使用量，并用于防止同名外部地图被误标；AEM 导入会在推荐金币之后应用 `RuleConfig` 初始金币覆盖 | 基础导入已完成 |
 | 多队伍/联盟 | APK 有 3/4 人地图和 `SyncSetAlliance` | 项目支持多队伍轮转、联盟、禁用队伍 | 基础对齐 |
-| 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官和指挥官死亡计数；Observation 输出 `commanderUnitId/isCommander` | 基础对齐，复活流程未知 |
+| 指挥官 | 脚本 API 有 `SyncSetCommander`、`CheckCommander`、`GetCommander` | 项目支持脚本指定指挥官、指挥官死亡计数、skirmish 重招募继承等级/经验；Observation 输出 `commanderUnitId/isCommander` | skirmish 基础对齐，战役复活/失败流程不纳入当前目标 |
 
 ## 6. 单位、状态与能力对比
 
@@ -167,7 +167,7 @@ DEX 与脚本确认：
 
 - DEX 暴露 `Stage.SyncSetGold`、`Stage.SyncSetGoldForTeam`、`Stage.SyncSetUnitLimit`、`Stage.SyncSetUnitLimitForTeam`、`Stage.SyncSetRecruitUnits`、`Stage.SyncSetRecruitUnitsForTeam`。
 - DEX 暴露 `Rule.SetIncomeVillage`、`Rule.SetIncomeCastle`、`Rule.SetIncomeCommanderBase`、`Rule.SetIncomeCommanderGrowth`、`Rule.SetLevelCap`、`Rule.SetPrices`。
-- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认 `Cannot attack from (`、`Cannot attack in state [`、`Cannot support from (`、`Cannot support in state [`、`AsyncAttack`、`SyncSetUnitStatus` 等攻击/支援/状态相关字符串存在；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；疑似通用指挥官复活 API 字符串为 0。
+- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认必要方法名缺失为 0；方法表可解析 `SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；攻击动作关键词命中 4、支援动作命中 2、状态 Stage 命中 4；疑似通用指挥官复活 API 字符串为 0。
 - 已解密脚本中 `Stage.SyncSetUnitLimit` 出现 25 次，`Stage.SyncSetGold` 出现 16 次，`Stage.SyncSetRecruitUnits` 出现 13 次，`Stage.SyncSetRecruitUnitsForTeam` 出现 14 次。
 
 项目当前状态：
@@ -337,7 +337,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
    - 已有静态入口把安全字面量配置生成 `RuleConfig`；下一步按关卡输出场景配置表，处理动态参数，并继续区分“规则配置”“目标判断”“剧情演出”三类。
 
 5. 针对 APK 实机或反编译补测高风险细节。
-   - 指挥官死亡后是否可复活、复活价格默认值。
+   - 战役或非 skirmish 场景中指挥官死亡后是否触发复活、剧情失败或特殊脚本。
    - 指挥官城堡招募后的 UI 选择流程和更多部署样例。
    - 治疗突破最大血量后的后续裁剪规则。
 
