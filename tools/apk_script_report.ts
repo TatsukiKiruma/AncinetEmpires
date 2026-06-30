@@ -357,6 +357,24 @@ function addApplicationCheck(
     });
 }
 
+function createSixTeamScriptProbeState() {
+    const state = createDemoState();
+    for (let teamId = 2; teamId <= 5; teamId += 1) {
+        state.players.push({ id: teamId, gold: 0, isAlive: true, commanderDeathCount: 0 });
+        state.units.push({
+            id: `script_team_${teamId}`,
+            ownerId: teamId,
+            unitClass: 'soldier',
+            pos: { x: teamId, y: 3 },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false
+        });
+    }
+    return state;
+}
+
 function buildApiMismatches(actualCounts: ApiCounts): CountMismatch[] {
     const keys = new Set([
         ...Object.keys(APK_SCRIPT_API_CALL_COUNTS),
@@ -484,6 +502,35 @@ export function buildApkScriptApplicationChecks(): ApplicationCheck[] {
             team5RecruitableUnitCount: teamRuleObservation.rules.teams[5]?.recruitableUnits?.length ?? null,
             ignoredRestoreTeamIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredRestoreTeamIds ?? null,
             ignoredGameOverAllianceIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredGameOverAllianceIds ?? null
+        }
+    );
+
+    const teamRuleTurnState = createSixTeamScriptProbeState();
+    applyApkScriptRuleConfig(teamRuleTurnState, 'assets/mods/AEIII/s6.js');
+    teamRuleTurnState.currentPlayer = 2;
+    const teamRuleTurnObservation = new AncientEmpiresEnv({ initialState: teamRuleTurnState }).getObservation();
+    const teamRuleTurnEngine = new GameEngine(teamRuleTurnState);
+    const disabledTeamLegalActionCount = teamRuleTurnEngine.getLegalActions(3).length;
+    teamRuleTurnEngine.step({ type: 'end_turn' });
+    addApplicationCheck(
+        checks,
+        'team-rule-turn-application',
+        '脚本联盟和禁用队伍会影响训练回合轮转与合法动作',
+        {
+            resourcePath: 'assets/mods/AEIII/s6.js',
+            turnPlayerIds: [0, 1, 2, 4, 5],
+            player3Enabled: false,
+            player3AllianceId: 2,
+            disabledTeamLegalActionCount: 0,
+            currentPlayerAfterTeam2EndTurn: 4
+        },
+        {
+            resourcePath: teamRuleTurnObservation.metadata?.apkRuleScriptResourcePath ?? null,
+            turnPlayerIds: teamRuleTurnObservation.turnPlayerIds,
+            player3Enabled: teamRuleTurnObservation.players.find(player => player.id === 3)?.isEnabled ?? null,
+            player3AllianceId: teamRuleTurnObservation.players.find(player => player.id === 3)?.allianceId ?? null,
+            disabledTeamLegalActionCount,
+            currentPlayerAfterTeam2EndTurn: teamRuleTurnEngine.getState().currentPlayer
         }
     );
 

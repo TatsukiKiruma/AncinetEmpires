@@ -1226,7 +1226,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 新增 `src/game/apk_script_config.ts`，提供 `buildApkScriptRuleConfig`、`getApkScriptRuleConfig` 和 `applyApkScriptRuleConfig`。
 - 支持把收入、全局/队伍初始金币、单位上限、全局/队伍可招募单位、联盟和禁用队伍转为项目规则。
 - `SyncRestoreTeam`、`SyncGameOver` 只记录为被忽略的生命周期/终局调用，不写入开局静态规则，避免误用全脚本扫描结果。
-- `tools/apk_script_report.ts` 的应用检查已覆盖 `assets/mods/AEIII/s4.js` 的 `rule.SetIncomeVillage(100)`：Observation 会显示脚本收入配置，且只拥有一个村庄的队伍在回合开始金币从 500 增至 600。
+- `tools/apk_script_report.ts` 的应用检查已覆盖 `assets/mods/AEIII/s6.js` 的联盟/禁用队伍配置：Observation 会显示脚本联盟与禁用队伍，禁用队伍不会生成合法动作，且回合轮转会跳过该队伍；也覆盖 `assets/mods/AEIII/s4.js` 的 `rule.SetIncomeVillage(100)`：Observation 会显示脚本收入配置，且只拥有一个村庄的队伍在回合开始金币从 500 增至 600。当前应用检查为 7/7 通过。
 - 验证：`npm test` 229 个测试通过，`npm run lint` 通过，`npm run build` 通过。
 
 2026-06-30 APK 脚本规则来源进入 metadata：

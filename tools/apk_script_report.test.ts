@@ -82,7 +82,7 @@ describe('APK 脚本复核工具', () => {
         const applicationChecks = buildApkScriptApplicationChecks();
         const byId = Object.fromEntries(applicationChecks.map(check => [check.id, check]));
 
-        expect(applicationChecks).toHaveLength(6);
+        expect(applicationChecks).toHaveLength(7);
         expect(applicationChecks.every(check => check.status === 'pass')).toBe(true);
         expect(byId['rule-config-observation'].actual).toEqual({
             resourcePath: 'assets/mods/AEI/s5.js',
@@ -114,6 +114,14 @@ describe('APK 脚本复核工具', () => {
             team5RecruitableUnitCount: 12,
             ignoredRestoreTeamIds: [3],
             ignoredGameOverAllianceIds: [1, 2]
+        });
+        expect(byId['team-rule-turn-application'].actual).toEqual({
+            resourcePath: 'assets/mods/AEIII/s6.js',
+            turnPlayerIds: [0, 1, 2, 4, 5],
+            player3Enabled: false,
+            player3AllianceId: 2,
+            disabledTeamLegalActionCount: 0,
+            currentPlayerAfterTeam2EndTurn: 4
         });
         expect(byId['script-income-application'].actual).toEqual({
             resourcePath: 'assets/mods/AEIII/s4.js',
