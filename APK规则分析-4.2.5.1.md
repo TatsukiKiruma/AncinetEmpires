@@ -998,6 +998,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 该函数支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图，或只取 2/3/4 人图。
 - 验证：新增回归测试覆盖默认 16 张干净地图、默认 2 人图过滤，以及允许 approximate 后重新纳入 `(2) Mourningstar.aem`。
 
+2026-06-30 APK skirmish 低可信 tile 验证目标入口：
+
+- `getApkSkirmishTerrainVerificationTargets()` 默认返回 20 张官方 skirmish 地图中实际出现的 approximate tile 目标，包含 `mapName/resourcePath/playerCount/apkTerrainId/tileCount/projectTerrainId/confidence/evidence/terrainConfig`。
+- 当前默认目标为 4 项：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格。返回的 `terrainConfig` 来自 APK `data.bin`，其中 `t30` 与 `t31` 均为防御 10、回血 20、移动 1；类别语义仍按 evidence 标记为低可信。
+- 该入口支持按 `confidences`、`apkTerrainIds` 和 `mapNames` 过滤，也可查询 confirmed/atlas tile 的同类数据；返回值会复制 evidence 和 terrainConfig，避免训练端或验证脚本修改后污染 manifest 常量。
+- 这一步不改变任何规则结算，只把人工实测和训练集降权需要的数据结构化，避免后续再临时扫描 `tileUsage`、terrain 映射和 `data.bin` 表。
+
 2026-06-30 低可信水域/神庙 tile 贴图复核：
 
 - 复核 `assets/textures/main_texture.atlas/png` 后，`t30` 是营地/帐篷，`t31/t80` 是神庙建筑；`t80` 在当前 45 张 assets AEM 中未出现。

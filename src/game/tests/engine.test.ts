@@ -8,7 +8,7 @@ import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
 import { getMoveCostForUnit, isFlying, isWaterTerrain, isMountainTerrain, isForestTerrain, getAttackBonus, getDefenseBonus, clearNegativeStatus, getEffectiveStats, getExpThresholdForLevel, addExp } from '../abilities';
 import { APK_ABILITY_ID_TO_TYPE, APK_ABILITY_TYPE_TO_ID, APK_STATUS_ID_TO_TYPE, APK_STATUS_TYPE_TO_ID, APK_UNIT_CLASS_TO_ID, APK_UNIT_ID_TO_CLASS } from '../apk_compat';
-import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
+import { APK_RELEASE_SHA256, APK_RELEASE_VERSION, APK_SKIRMISH_MAP_MANIFEST, getApkSkirmishMapManifestEntry, getApkSkirmishTerrainVerificationTargets, getApkSkirmishTrainingMapManifest, matchesApkSkirmishMapManifest } from '../apk_manifest';
 import { APK_TERRAIN_CONFIGS, APK_TERRAIN_COUNT, APK_TERRAIN_RECORD_SIZE, getApkTerrainConfig, getKnownApkTerrainIdsForProject, getSkirmishApkTerrainIdsForProject, getSkirmishApkTerrainMappingInfo, mapKnownApkTerrainId, mapSkirmishApkTerrainId } from '../apk_terrain';
 import { APK_AEM_MAGIC, APK_AEM_ZERO_SUFFIX_TAIL_HEX, parseApkAemMap, getApkAemTerrainUsage, createGameStateFromApkAemMap, getApkAemTerrainConfidenceUsage, getUnmappedSkirmishApkTerrainIds } from '../apk_map';
 import { APK_SCRIPT_API_CALL_COUNTS, APK_SCRIPT_DECRYPTED_JS_FILE_COUNT, APK_SCRIPT_DECRYPTION_INFO, APK_SCRIPT_LITERAL_RULE_CONFIGS, APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS, APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS, getApkScriptApiCallCount, getApkScriptLiteralRuleConfig, getApkScriptLiteralStageStateConfig } from '../apk_script_manifest';
@@ -198,6 +198,143 @@ describe('GameEngine Rules', () => {
             { name: '(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
             { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
             { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+        ]);
+        expect(getApkSkirmishTerrainVerificationTargets()).toEqual([
+            {
+                mapName: '(2) Mourningstar.aem',
+                resourcePath: 'assets/maps/(2) Mourningstar.aem',
+                playerCount: 2,
+                apkTerrainId: 30,
+                tileCount: 2,
+                projectTerrainId: 11,
+                confidence: 'approximate',
+                evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
+                terrainConfig: {
+                    id: 30,
+                    kind: 5,
+                    flagA: 1,
+                    variant: 0,
+                    linkedA: -1,
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    flagB: 0,
+                    linkedB: -1,
+                    linkedC: -1,
+                    flagC: 0,
+                    tail: '0x00000000'
+                }
+            },
+            {
+                mapName: '(4) The Crucible.aem',
+                resourcePath: 'assets/maps/(4) The Crucible.aem',
+                playerCount: 4,
+                apkTerrainId: 31,
+                tileCount: 1,
+                projectTerrainId: 12,
+                confidence: 'approximate',
+                evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
+                terrainConfig: {
+                    id: 31,
+                    kind: 8,
+                    flagA: 1,
+                    variant: 5,
+                    linkedA: -1,
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    flagB: 0,
+                    linkedB: -1,
+                    linkedC: -1,
+                    flagC: 0,
+                    tail: '0x00000000'
+                }
+            },
+            {
+                mapName: '(4) Waterways.aem',
+                resourcePath: 'assets/maps/(4) Waterways.aem',
+                playerCount: 4,
+                apkTerrainId: 31,
+                tileCount: 2,
+                projectTerrainId: 12,
+                confidence: 'approximate',
+                evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
+                terrainConfig: {
+                    id: 31,
+                    kind: 8,
+                    flagA: 1,
+                    variant: 5,
+                    linkedA: -1,
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    flagB: 0,
+                    linkedB: -1,
+                    linkedC: -1,
+                    flagC: 0,
+                    tail: '0x00000000'
+                }
+            },
+            {
+                mapName: '(4) Winterstorm.aem',
+                resourcePath: 'assets/maps/(4) Winterstorm.aem',
+                playerCount: 4,
+                apkTerrainId: 31,
+                tileCount: 4,
+                projectTerrainId: 12,
+                confidence: 'approximate',
+                evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
+                terrainConfig: {
+                    id: 31,
+                    kind: 8,
+                    flagA: 1,
+                    variant: 5,
+                    linkedA: -1,
+                    defenseBonus: 10,
+                    healPerTurn: 20,
+                    moveCost: 1,
+                    flagB: 0,
+                    linkedB: -1,
+                    linkedC: -1,
+                    flagC: 0,
+                    tail: '0x00000000'
+                }
+            }
+        ]);
+        const mutableVerificationTarget = getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0];
+        mutableVerificationTarget.evidence.push('mutated');
+        mutableVerificationTarget.terrainConfig!.moveCost = 99;
+        expect(getApkSkirmishTerrainVerificationTargets({ mapNames: ['(2) Mourningstar.aem'] })[0]).toMatchObject({
+            evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
+            terrainConfig: { moveCost: 1 }
+        });
+        expect(getApkSkirmishTerrainVerificationTargets({ confidences: ['confirmed'], apkTerrainIds: [37] }).map(target => ({
+            mapName: target.mapName,
+            tileCount: target.tileCount,
+            confidence: target.confidence,
+            projectTerrainId: target.projectTerrainId,
+            defenseBonus: target.terrainConfig?.defenseBonus
+        }))).toEqual([
+            { mapName: '(2) Crossed swords.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Duel.aem', tileCount: 2, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Icy Paths.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Liberty Port.aem', tileCount: 3, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Mourningstar.aem', tileCount: 2, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Peak Island.aem', tileCount: 2, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) Swamplands.aem', tileCount: 2, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(2) The Crossing.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(3) Frozen fields.aem', tileCount: 3, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(3) Glu.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(3) Midway.aem', tileCount: 6, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(3) classic 2.aem', tileCount: 3, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Critical mass.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Crossroads.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Shadowlands.aem', tileCount: 10, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Solitude.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) The Crucible.aem', tileCount: 8, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Waterways.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) Winterstorm.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 },
+            { mapName: '(4) classic 1.aem', tileCount: 4, confidence: 'confirmed', projectTerrainId: 10, defenseBonus: 15 }
         ]);
         expect(getApkSkirmishTrainingMapManifest().map(entry => entry.name)).toEqual([
             '(4) Crossroads.aem',

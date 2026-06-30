@@ -1,5 +1,5 @@
 import { getApkAemTerrainUsage, type ApkAemMap, type ApkAemTailTemplate } from './apk_map';
-import { getSkirmishApkTerrainMappingInfo, mapSkirmishApkTerrainId, type ApkTerrainMappingConfidence } from './apk_terrain';
+import { getApkTerrainConfig, getSkirmishApkTerrainMappingInfo, mapSkirmishApkTerrainId, type ApkTerrainConfig, type ApkTerrainMappingConfidence } from './apk_terrain';
 import { APK_SKIRMISH_TILE_USAGE, type ApkSkirmishTileUsage } from './apk_skirmish_tile_usage';
 
 export const APK_RELEASE_VERSION = 'aer-release-4.2.5.1';
@@ -46,6 +46,24 @@ export interface ApkSkirmishTrainingMapFilter {
     allowApproximateTerrain?: boolean;
     allowUnmappedTerrain?: boolean;
     playerCounts?: number[];
+}
+
+export interface ApkSkirmishTerrainVerificationFilter {
+    confidences?: ApkTerrainMappingConfidence[];
+    apkTerrainIds?: number[];
+    mapNames?: string[];
+}
+
+export interface ApkSkirmishTerrainVerificationTarget {
+    mapName: string;
+    resourcePath: string;
+    playerCount: number;
+    apkTerrainId: number;
+    tileCount: number;
+    projectTerrainId: number | null;
+    confidence: ApkTerrainMappingConfidence;
+    evidence: string[];
+    terrainConfig: ApkTerrainConfig | null;
 }
 
 // 来自 aer-release-4.2.5.1 的 assets/maps/_list.json 与 20 张根目录 skirmish AEM 解析结果。
@@ -443,6 +461,51 @@ export function getApkSkirmishTrainingMapManifest(
         if (allowedPlayerCounts && !allowedPlayerCounts.has(entry.playerIds.length)) return false;
         return true;
     });
+}
+
+export function getApkSkirmishTerrainVerificationTargets(
+    filter: ApkSkirmishTerrainVerificationFilter = {}
+): ApkSkirmishTerrainVerificationTarget[] {
+    const {
+        confidences = ['approximate'],
+        apkTerrainIds,
+        mapNames
+    } = filter;
+    const allowedConfidences = new Set(confidences);
+    const allowedTerrainIds = apkTerrainIds ? new Set(apkTerrainIds) : null;
+    const allowedMapNames = mapNames ? new Set(mapNames) : null;
+
+    return APK_SKIRMISH_MAP_MANIFEST.flatMap(entry => {
+        if (allowedMapNames && !allowedMapNames.has(entry.name)) return [];
+        return Object.entries(entry.tileUsage).flatMap(([apkTerrainIdText, count = 0]) => {
+            const apkTerrainId = Number(apkTerrainIdText);
+            if (allowedTerrainIds && !allowedTerrainIds.has(apkTerrainId)) return [];
+
+            const mappingInfo = getSkirmishApkTerrainMappingInfo(apkTerrainId);
+            if (!allowedConfidences.has(mappingInfo.confidence)) return [];
+
+            const terrainConfig = getApkTerrainConfig(apkTerrainId);
+            return [{
+                mapName: entry.name,
+                resourcePath: entry.resourcePath,
+                playerCount: entry.playerIds.length,
+                apkTerrainId,
+                tileCount: count,
+                projectTerrainId: mappingInfo.projectTerrainId,
+                confidence: mappingInfo.confidence,
+                evidence: [...mappingInfo.evidence],
+                terrainConfig: terrainConfig ? { ...terrainConfig } : null
+            }];
+        });
+    }).sort((left, right) => (
+        compareText(left.confidence, right.confidence)
+        || left.apkTerrainId - right.apkTerrainId
+        || compareText(left.mapName, right.mapName)
+    ));
+}
+
+function compareText(left: string, right: string): number {
+    return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function sameNumberArray(left: number[], right: number[]): boolean {
