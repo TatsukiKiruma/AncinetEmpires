@@ -1,6 +1,9 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createDemoState } from '../src/game/demo_map';
+import { AncientEmpiresEnv } from '../src/game/env';
+import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig } from '../src/game/apk_script_config';
 import {
     APK_SCRIPT_API_CALL_COUNTS,
     APK_SCRIPT_DECRYPTED_JS_FILE_COUNT,
@@ -42,6 +45,14 @@ interface LiteralMismatch {
     actual: JsonValue;
 }
 
+interface ApplicationCheck {
+    id: string;
+    title: string;
+    expected: JsonValue;
+    actual: JsonValue;
+    status: 'pass' | 'fail';
+}
+
 interface ApkScriptReport {
     apkVersion: string;
     unpackDir: string;
@@ -53,6 +64,7 @@ interface ApkScriptReport {
     literalRuleConfigs: ApkScriptLiteralRuleConfig[];
     literalStageStateConfigs: ApkScriptLiteralStageStateConfig[];
     literalMismatches: LiteralMismatch[];
+    applicationChecks: ApplicationCheck[];
     scripts: ScriptReportEntry[];
 }
 
@@ -328,6 +340,22 @@ function stableStringify(value: unknown): string {
     return JSON.stringify(value);
 }
 
+function addApplicationCheck(
+    checks: ApplicationCheck[],
+    id: string,
+    title: string,
+    expected: JsonValue,
+    actual: JsonValue
+) {
+    checks.push({
+        id,
+        title,
+        expected,
+        actual,
+        status: stableStringify(expected) === stableStringify(actual) ? 'pass' : 'fail'
+    });
+}
+
 function buildApiMismatches(actualCounts: ApiCounts): CountMismatch[] {
     const keys = new Set([
         ...Object.keys(APK_SCRIPT_API_CALL_COUNTS),
@@ -361,8 +389,176 @@ function buildLiteralMismatches(
     return mismatches;
 }
 
-async function buildReport(options: CliOptions): Promise<ApkScriptReport> {
-    const scriptsDir = path.join(options.unpackDir, 'assets', 'mods');
+export function buildApkScriptApplicationChecks(): ApplicationCheck[] {
+    const checks: ApplicationCheck[] = [];
+
+    const ruleState = createDemoState({
+        alliances: { 0: 1 },
+        teams: { 0: { unitLimit: 5 } }
+    });
+    applyApkScriptRuleConfig(ruleState, 'assets/mods/AEI/s5.js');
+    const ruleObservation = new AncientEmpiresEnv({ initialState: ruleState }).getObservation();
+    const rulePlayer0 = ruleObservation.players.find(player => player.id === 0);
+    const rulePlayer1 = ruleObservation.players.find(player => player.id === 1);
+    addApplicationCheck(
+        checks,
+        'rule-config-observation',
+        '脚本规则配置应用后会进入训练 observation',
+        {
+            resourcePath: 'assets/mods/AEI/s5.js',
+            rulesInitialGold: 800,
+            team0InitialGold: 900,
+            player0Gold: 900,
+            player1Gold: 800,
+            player0AllianceId: 1,
+            player0UnitLimit: 5,
+            ignoredGameOverAllianceIds: [1, 2],
+            warningCount: 0
+        },
+        {
+            resourcePath: ruleObservation.metadata?.apkRuleScriptResourcePath ?? null,
+            rulesInitialGold: ruleObservation.rules.initialGold,
+            team0InitialGold: ruleObservation.rules.teams[0]?.initialGold ?? null,
+            player0Gold: rulePlayer0?.gold ?? null,
+            player1Gold: rulePlayer1?.gold ?? null,
+            player0AllianceId: rulePlayer0?.allianceId ?? null,
+            player0UnitLimit: rulePlayer0?.unitLimit ?? null,
+            ignoredGameOverAllianceIds: ruleObservation.metadata?.apkRuleScriptIgnoredGameOverAllianceIds ?? null,
+            warningCount: ruleObservation.metadata?.apkRuleScriptWarnings?.length ?? null
+        }
+    );
+
+    const soState = createDemoState();
+    applyApkScriptRuleConfig(soState, 'assets/mods/SO/controller.js');
+    const soObservation = new AncientEmpiresEnv({ initialState: soState }).getObservation();
+    addApplicationCheck(
+        checks,
+        'so-recruit-observation',
+        'SO 脚本招募列表会进入训练 observation',
+        {
+            resourcePath: 'assets/mods/SO/controller.js',
+            recruitableUnitCount: 9,
+            includesSoldier: true,
+            includesDragon: true,
+            includesCommander: false,
+            commanderRecruitCost: null
+        },
+        {
+            resourcePath: soObservation.metadata?.apkRuleScriptResourcePath ?? null,
+            recruitableUnitCount: soObservation.rules.recruitableUnits?.length ?? null,
+            includesSoldier: soObservation.rules.recruitableUnits?.includes('soldier') ?? null,
+            includesDragon: soObservation.rules.recruitableUnits?.includes('dragon') ?? null,
+            includesCommander: soObservation.rules.recruitableUnits?.includes('commander') ?? null,
+            commanderRecruitCost: soObservation.players.find(player => player.id === 0)?.recruitCosts.commander ?? null
+        }
+    );
+
+    const teamRuleState = createDemoState();
+    applyApkScriptRuleConfig(teamRuleState, 'assets/mods/AEIII/s6.js');
+    const teamRuleObservation = new AncientEmpiresEnv({ initialState: teamRuleState }).getObservation();
+    addApplicationCheck(
+        checks,
+        'team-rule-observation',
+        '脚本队伍招募、联盟和禁用队伍会进入训练 observation',
+        {
+            resourcePath: 'assets/mods/AEIII/s6.js',
+            initialGold: 500,
+            unitLimit: 50,
+            disabledTeams: [3],
+            alliances: { 1: 2, 2: 2, 3: 2, 4: 2, 5: 2 },
+            team0RecruitableUnitCount: 15,
+            team1RecruitableUnitCount: 10,
+            team5RecruitableUnitCount: 12,
+            ignoredRestoreTeamIds: [3],
+            ignoredGameOverAllianceIds: [1, 2]
+        },
+        {
+            resourcePath: teamRuleObservation.metadata?.apkRuleScriptResourcePath ?? null,
+            initialGold: teamRuleObservation.rules.initialGold,
+            unitLimit: teamRuleObservation.rules.unitLimit,
+            disabledTeams: teamRuleObservation.rules.disabledTeams,
+            alliances: teamRuleObservation.rules.alliances,
+            team0RecruitableUnitCount: teamRuleObservation.rules.teams[0]?.recruitableUnits?.length ?? null,
+            team1RecruitableUnitCount: teamRuleObservation.rules.teams[1]?.recruitableUnits?.length ?? null,
+            team5RecruitableUnitCount: teamRuleObservation.rules.teams[5]?.recruitableUnits?.length ?? null,
+            ignoredRestoreTeamIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredRestoreTeamIds ?? null,
+            ignoredGameOverAllianceIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredGameOverAllianceIds ?? null
+        }
+    );
+
+    const moveState = createDemoState();
+    moveState.units[0].apkUnitCode = 'g1';
+    applyApkScriptStageStateConfig(moveState, 'assets/mods/AEIII/s4.js');
+    const moveObservation = new AncientEmpiresEnv({ initialState: moveState }).getObservation();
+    const moveUnit = moveObservation.units.find(unit => unit.id === 'u1');
+    addApplicationCheck(
+        checks,
+        'stage-move-override-observation',
+        '脚本移动覆盖应用后会进入训练 observation',
+        {
+            resourcePath: 'assets/mods/AEIII/s4.js',
+            appliedSyncOverrideMovCount: 1,
+            appliedSyncSetUnitStatusCount: 0,
+            warningCount: 4,
+            unitMoveOverrides: { 0: 1 }
+        },
+        {
+            resourcePath: moveObservation.metadata?.apkStageStateScriptResourcePath ?? null,
+            appliedSyncOverrideMovCount: moveObservation.metadata?.apkStageStateAppliedSyncOverrideMovCount ?? null,
+            appliedSyncSetUnitStatusCount: moveObservation.metadata?.apkStageStateAppliedSyncSetUnitStatusCount ?? null,
+            warningCount: moveObservation.metadata?.apkStageStateScriptWarnings?.length ?? null,
+            unitMoveOverrides: moveUnit?.apkMoveOverrides ?? null
+        }
+    );
+
+    const statusState = createDemoState();
+    statusState.map.width = 7;
+    statusState.map.height = 10;
+    statusState.map.tiles = Array.from({ length: 10 }, () => (
+        Array.from({ length: 7 }, () => ({ terrainId: 6 as const, ownerId: null }))
+    ));
+    const statusTarget = statusState.units[0];
+    statusTarget.pos = { x: 6, y: 9 };
+    statusTarget.status = { type: 'poisoned', remainingTicks: 2 };
+    applyApkScriptStageStateConfig(statusState, 'assets/mods/AEIII/s7.js');
+    const statusObservation = new AncientEmpiresEnv({ initialState: statusState }).getObservation();
+    const statusUnit = statusObservation.units.find(unit => unit.id === statusTarget.id);
+    addApplicationCheck(
+        checks,
+        'stage-status-observation',
+        '脚本状态覆盖应用后会进入训练 observation',
+        {
+            resourcePath: 'assets/mods/AEIII/s7.js',
+            appliedSyncOverrideMovCount: 0,
+            appliedSyncSetUnitStatusCount: 1,
+            warningCount: 0,
+            status: 'inspired',
+            apkStatusId: 2,
+            statusRemainingTurns: 2,
+            statusRemainingTicks: null
+        },
+        {
+            resourcePath: statusObservation.metadata?.apkStageStateScriptResourcePath ?? null,
+            appliedSyncOverrideMovCount: statusObservation.metadata?.apkStageStateAppliedSyncOverrideMovCount ?? null,
+            appliedSyncSetUnitStatusCount: statusObservation.metadata?.apkStageStateAppliedSyncSetUnitStatusCount ?? null,
+            warningCount: statusObservation.metadata?.apkStageStateScriptWarnings?.length ?? null,
+            status: statusUnit?.status ?? null,
+            apkStatusId: statusUnit?.apkStatusId ?? null,
+            statusRemainingTurns: statusUnit?.statusRemainingTurns ?? null,
+            statusRemainingTicks: statusUnit?.statusRemainingTicks ?? null
+        }
+    );
+
+    return checks;
+}
+
+export async function buildApkScriptReport(options: Partial<CliOptions> = {}): Promise<ApkScriptReport> {
+    const resolvedOptions: CliOptions = {
+        unpackDir: path.resolve(options.unpackDir ?? DEFAULT_UNPACK_DIR),
+        json: options.json ?? false,
+        check: options.check ?? false
+    };
+    const scriptsDir = path.join(resolvedOptions.unpackDir, 'assets', 'mods');
     const files = await listScriptFiles(scriptsDir);
     const scripts: ScriptReportEntry[] = [];
     const apiCallCounts: ApiCounts = {};
@@ -373,7 +569,7 @@ async function buildReport(options: CliOptions): Promise<ApkScriptReport> {
         const encrypted = await readFile(filePath);
         const decrypted = decryptApkResourceBytes(encrypted);
         const source = decrypted.toString('utf8');
-        const resourcePath = toResourcePath(options.unpackDir, filePath);
+        const resourcePath = toResourcePath(resolvedOptions.unpackDir, filePath);
         const counts = countApkScriptApiCalls(source);
         const ruleConfig = extractApkScriptLiteralRuleConfig(resourcePath, source);
         const stageStateConfig = extractApkScriptLiteralStageStateConfig(resourcePath, source);
@@ -395,7 +591,7 @@ async function buildReport(options: CliOptions): Promise<ApkScriptReport> {
 
     return {
         apkVersion: APK_SCRIPT_MANIFEST_VERSION,
-        unpackDir: options.unpackDir,
+        unpackDir: resolvedOptions.unpackDir,
         decryption: APK_RESOURCE_DECRYPTION_INFO,
         scriptCount: scripts.length,
         expectedScriptCount: APK_SCRIPT_DECRYPTED_JS_FILE_COUNT,
@@ -404,6 +600,7 @@ async function buildReport(options: CliOptions): Promise<ApkScriptReport> {
         literalRuleConfigs: sortedRuleConfigs,
         literalStageStateConfigs: sortedStageStateConfigs,
         literalMismatches: buildLiteralMismatches(sortedRuleConfigs, sortedStageStateConfigs),
+        applicationChecks: buildApkScriptApplicationChecks(),
         scripts
     };
 }
@@ -418,6 +615,7 @@ function renderMarkdown(report: ApkScriptReport): string {
         `- 脚本数量：${report.scriptCount}/${report.expectedScriptCount}`,
         `- API 计数差异：${report.apiCountMismatches.length}`,
         `- 字面量配置差异：${report.literalMismatches.length}`,
+        `- 应用检查：${report.applicationChecks.filter(check => check.status === 'pass').length}/${report.applicationChecks.length}`,
         ``,
         `## API 调用次数`,
         ``,
@@ -453,13 +651,31 @@ function renderMarkdown(report: ApkScriptReport): string {
         lines.push(`| \`${config.resourcePath}\` | ${Object.keys(config).filter(key => key !== 'resourcePath').join(', ')} |`);
     }
 
-    if (report.apiCountMismatches.length > 0 || report.literalMismatches.length > 0) {
+    lines.push(
+        ``,
+        `## 应用检查`,
+        ``,
+        `| ID | 检查 | 状态 |`,
+        `| --- | --- | --- |`
+    );
+    for (const check of report.applicationChecks) {
+        lines.push(`| \`${check.id}\` | ${check.title} | ${check.status === 'pass' ? '通过' : '失败'} |`);
+    }
+
+    if (
+        report.apiCountMismatches.length > 0
+        || report.literalMismatches.length > 0
+        || report.applicationChecks.some(check => check.status === 'fail')
+    ) {
         lines.push(``, `## 差异`, ``);
         for (const mismatch of report.apiCountMismatches) {
             lines.push(`- API \`${mismatch.apiName}\`: expected=${mismatch.expected}, actual=${mismatch.actual}`);
         }
         for (const mismatch of report.literalMismatches) {
             lines.push(`- ${mismatch.kind} 不匹配`);
+        }
+        for (const check of report.applicationChecks.filter(item => item.status === 'fail')) {
+            lines.push(`- 应用检查 \`${check.id}\` 不匹配`);
         }
     }
 
@@ -468,7 +684,7 @@ function renderMarkdown(report: ApkScriptReport): string {
 
 async function main() {
     const options = parseArgs(process.argv.slice(2));
-    const report = await buildReport(options);
+    const report = await buildApkScriptReport(options);
 
     if (options.json) {
         console.log(JSON.stringify(report, null, 2));
@@ -482,6 +698,7 @@ async function main() {
             report.scriptCount !== report.expectedScriptCount
             || report.apiCountMismatches.length > 0
             || report.literalMismatches.length > 0
+            || report.applicationChecks.some(check => check.status === 'fail')
         )
     ) {
         process.exitCode = 1;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    buildApkScriptApplicationChecks,
     countApkScriptApiCalls,
     extractApkScriptLiteralRuleConfig,
     extractApkScriptLiteralStageStateConfig
@@ -74,6 +75,62 @@ describe('APK 脚本复核工具', () => {
             resourcePath: 'assets/mods/X/s1.js',
             syncOverrideMovCalls: [{ code: 'crystal', tileType: 1, mov: 99 }],
             syncSetUnitStatusCalls: [{ x: 6, y: 9, statusId: 2, rounds: 2, replaceExisting: true }]
+        });
+    });
+
+    it('复核脚本配置应用后能进入训练 observation', () => {
+        const applicationChecks = buildApkScriptApplicationChecks();
+        const byId = Object.fromEntries(applicationChecks.map(check => [check.id, check]));
+
+        expect(applicationChecks).toHaveLength(5);
+        expect(applicationChecks.every(check => check.status === 'pass')).toBe(true);
+        expect(byId['rule-config-observation'].actual).toEqual({
+            resourcePath: 'assets/mods/AEI/s5.js',
+            rulesInitialGold: 800,
+            team0InitialGold: 900,
+            player0Gold: 900,
+            player1Gold: 800,
+            player0AllianceId: 1,
+            player0UnitLimit: 5,
+            ignoredGameOverAllianceIds: [1, 2],
+            warningCount: 0
+        });
+        expect(byId['so-recruit-observation'].actual).toEqual({
+            resourcePath: 'assets/mods/SO/controller.js',
+            recruitableUnitCount: 9,
+            includesSoldier: true,
+            includesDragon: true,
+            includesCommander: false,
+            commanderRecruitCost: null
+        });
+        expect(byId['team-rule-observation'].actual).toEqual({
+            resourcePath: 'assets/mods/AEIII/s6.js',
+            initialGold: 500,
+            unitLimit: 50,
+            disabledTeams: [3],
+            alliances: { 1: 2, 2: 2, 3: 2, 4: 2, 5: 2 },
+            team0RecruitableUnitCount: 15,
+            team1RecruitableUnitCount: 10,
+            team5RecruitableUnitCount: 12,
+            ignoredRestoreTeamIds: [3],
+            ignoredGameOverAllianceIds: [1, 2]
+        });
+        expect(byId['stage-move-override-observation'].actual).toEqual({
+            resourcePath: 'assets/mods/AEIII/s4.js',
+            appliedSyncOverrideMovCount: 1,
+            appliedSyncSetUnitStatusCount: 0,
+            warningCount: 4,
+            unitMoveOverrides: { 0: 1 }
+        });
+        expect(byId['stage-status-observation'].actual).toEqual({
+            resourcePath: 'assets/mods/AEIII/s7.js',
+            appliedSyncOverrideMovCount: 0,
+            appliedSyncSetUnitStatusCount: 1,
+            warningCount: 0,
+            status: 'inspired',
+            apkStatusId: 2,
+            statusRemainingTurns: 2,
+            statusRemainingTicks: null
         });
     });
 });
