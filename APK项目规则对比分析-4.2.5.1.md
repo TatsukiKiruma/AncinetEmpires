@@ -205,7 +205,7 @@ skirmish 控制脚本结论：
 - 若被摧毁队伍是当前队伍且游戏尚未结束，SD/SO 脚本会调用 `Stage.AsyncNextTurn()` 交给下一存活队伍；项目引擎已在结算后自动跳过失活当前玩家。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
 - 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；SD 模式会写入实机确认的指挥官+18 个普通单位可招募列表，SO 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
-- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30 实机确认的 skirmish 行为和当前项目默认费用/复活假设固化为 16 项机器检查：SD/SO 招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认指挥官死亡后不自动复活且可从城堡重招募、开局设置、训练 observation、`t30/t31`、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 16/16 通过；报告末尾还输出 10 项待实机验证清单，不参与失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
+- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30 实机确认的 skirmish 行为和当前项目默认费用/复活/超上限生命假设固化为 17 项机器检查：SD/SO 招募、当前 SD 指挥官费用曲线 `400/400/400` 与 SO 禁用指挥官招募、当前默认指挥官死亡后不自动复活且可从城堡重招募、当前默认治疗超上限后不被普通回血/升级/亡灵中毒回血裁剪、开局设置、训练 observation、`t30/t31`、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 17/17 通过；报告末尾还输出 10 项待实机验证清单，不参与失败判定，用于回填指挥官复活/重招募、治疗超上限、低可信地形和复杂行动顺序等剩余边界。
 - 前端沙盒和自动 AI 演示已改用 `createDefaultAppGameState()`，默认规则为 APK 正常遭遇战 `SD`；现有 demo 棋盘仍作为轻量调试地图保留。
 
 ## 10. 地形与地图导入差异

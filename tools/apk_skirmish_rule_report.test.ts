@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(16);
+        expect(report.checkCount).toBe(17);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.manualVerificationItems).toHaveLength(10);
@@ -74,6 +74,13 @@ describe('APK skirmish rule report', () => {
                 commanderCount: 0,
                 canRecruitCommander: true
             }
+        });
+        expect(byId['overheal-clipping'].actual).toEqual({
+            firstHeal: { hp: 130, maxHp: 100, exceededMaxHp: true },
+            secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
+            turnStartRecovery: { hp: 130, maxHp: 100 },
+            levelUp: { triggered: true, level: 1, hp: 130 },
+            undeadPoison: { hp: 130, maxHp: 100, remainingTicks: 1 }
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
             playerGold: [450, 450],

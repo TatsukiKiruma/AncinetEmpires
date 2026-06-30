@@ -4,6 +4,7 @@ import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
 import { AncientEmpiresEnv } from '../src/game/env';
 import { getLegalActions } from '../src/game/rules';
+import { addExp } from '../src/game/abilities';
 import {
     getApkSkirmishRuleConfig,
     getApkSkirmishSetupOptions,
@@ -551,6 +552,100 @@ function buildCommanderAutoReviveActual() {
     };
 }
 
+function buildOverhealClippingActual() {
+    const firstHealState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    const firstHealer = firstHealState.units.find(unit => unit.ownerId === 0)!;
+    firstHealer.unitClass = 'paladin';
+    firstHealer.pos = { x: 0, y: 0 };
+    const firstTarget = firstHealState.units.find(unit => unit.ownerId === 0 && unit.id !== firstHealer.id)!;
+    firstTarget.unitClass = 'soldier';
+    firstTarget.pos = { x: 0, y: 1 };
+    firstTarget.hp = 90;
+    firstTarget.maxHp = 100;
+    const firstHealEngine = new GameEngine(firstHealState);
+    const firstHealAction = firstHealEngine.getLegalActions(0).find(action => (
+        action.type === 'heal' && action.healerId === firstHealer.id && action.targetId === firstTarget.id
+    ));
+    if (!firstHealAction) throw new Error('治疗超上限检查缺少首次治疗动作');
+    firstHealEngine.step(firstHealAction);
+    const firstHealTarget = firstHealEngine.getState().units.find(unit => unit.id === firstTarget.id)!;
+
+    const secondHealState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    const secondHealer = secondHealState.units.find(unit => unit.ownerId === 0)!;
+    secondHealer.unitClass = 'paladin';
+    secondHealer.pos = { x: 0, y: 0 };
+    const secondTarget = secondHealState.units.find(unit => unit.ownerId === 0 && unit.id !== secondHealer.id)!;
+    secondTarget.unitClass = 'soldier';
+    secondTarget.pos = { x: 0, y: 1 };
+    secondTarget.hp = 130;
+    secondTarget.maxHp = 100;
+    const secondHealEngine = new GameEngine(secondHealState);
+    const secondHealAction = secondHealEngine.getLegalActions(0).find(action => (
+        action.type === 'heal' && action.healerId === secondHealer.id && action.targetId === secondTarget.id
+    ));
+    if (!secondHealAction) throw new Error('治疗超上限检查缺少二次治疗动作');
+    secondHealEngine.step(secondHealAction);
+    const secondHealTarget = secondHealEngine.getState().units.find(unit => unit.id === secondTarget.id)!;
+
+    const turnStartState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    turnStartState.currentPlayer = 1;
+    const turnStartUnit = turnStartState.units.find(unit => unit.ownerId === 0 && unit.unitClass === 'commander')!;
+    turnStartUnit.hp = 130;
+    turnStartUnit.maxHp = 100;
+    turnStartUnit.pos = { x: 0, y: 0 };
+    const turnStartEngine = new GameEngine(turnStartState);
+    turnStartEngine.step({ type: 'end_turn' });
+    const turnStartFinalUnit = turnStartEngine.getState().units.find(unit => unit.id === turnStartUnit.id)!;
+
+    const levelUpState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    const levelUpUnit = levelUpState.units[0];
+    levelUpUnit.unitClass = 'soldier';
+    levelUpUnit.exp = 90;
+    levelUpUnit.level = 0;
+    levelUpUnit.hp = 130;
+    const levelUpTriggered = addExp(levelUpUnit, 10, levelUpState.rules?.levelCap);
+
+    const undeadPoisonState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    undeadPoisonState.currentPlayer = 1;
+    const undead = undeadPoisonState.units.find(unit => unit.ownerId === 0)!;
+    undead.unitClass = 'ghost';
+    undead.hp = 130;
+    undead.maxHp = 100;
+    undead.status = { type: 'poisoned', remainingTicks: 2 };
+    const undeadPoisonEngine = new GameEngine(undeadPoisonState);
+    undeadPoisonEngine.step({ type: 'end_turn' });
+    const undeadAfterPoison = undeadPoisonEngine.getState().units.find(unit => unit.id === undead.id)!;
+
+    return {
+        firstHeal: {
+            hp: firstHealTarget.hp,
+            maxHp: firstHealTarget.maxHp,
+            exceededMaxHp: firstHealTarget.hp > firstHealTarget.maxHp
+        },
+        secondHeal: {
+            hp: secondHealTarget.hp,
+            maxHp: secondHealTarget.maxHp,
+            exceededMaxHp: secondHealTarget.hp > secondHealTarget.maxHp
+        },
+        turnStartRecovery: {
+            hp: turnStartFinalUnit.hp,
+            maxHp: turnStartFinalUnit.maxHp
+        },
+        levelUp: {
+            triggered: levelUpTriggered,
+            level: levelUpUnit.level,
+            hp: levelUpUnit.hp
+        },
+        undeadPoison: {
+            hp: undeadAfterPoison.hp,
+            maxHp: undeadAfterPoison.maxHp,
+            remainingTicks: undeadAfterPoison.status?.type === 'poisoned'
+                ? undeadAfterPoison.status.remainingTicks ?? null
+                : null
+        }
+    };
+}
+
 function buildSetupApplicationActual() {
     const setupState = createDemoState(getApkSkirmishRuleConfig('SD', {
         initialGold: 450,
@@ -977,6 +1072,21 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }
         },
         buildCommanderAutoReviveActual()
+    );
+
+    check(
+        checks,
+        'overheal-clipping',
+        '当前默认治疗超上限后的长期裁剪行为',
+        'APK 语言表确认治疗师可超上限 + 项目当前回合/升级/亡灵回血规则；官方长期裁剪仍待实机验证',
+        {
+            firstHeal: { hp: 130, maxHp: 100, exceededMaxHp: true },
+            secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
+            turnStartRecovery: { hp: 130, maxHp: 100 },
+            levelUp: { triggered: true, level: 1, hp: 130 },
+            undeadPoison: { hp: 130, maxHp: 100, remainingTicks: 1 }
+        },
+        buildOverhealClippingActual()
     );
 
     check(
