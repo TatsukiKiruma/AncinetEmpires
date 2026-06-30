@@ -465,7 +465,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 npm run apk:script-report -- --check
 ```
 
-当前命令输出确认：27/27 个 `assets/mods/**/*.js` 可用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密；`Stage.*` 与 `rule.SetIncome*` API 计数和 `APK_SCRIPT_API_CALL_COUNTS` 完全一致；可安全提取的 `APK_SCRIPT_LITERAL_RULE_CONFIGS` 与 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 均无差异。
+当前命令输出确认：27/27 个 `assets/mods/**/*.js` 可用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密；`Stage.*` 与 `rule.SetIncome*` API 计数和 `APK_SCRIPT_API_CALL_COUNTS` 完全一致；可安全提取的 `APK_SCRIPT_LITERAL_RULE_CONFIGS` 与 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 均无差异；应用检查 6/6 通过，覆盖脚本招募、联盟、禁用队伍、收入覆盖、移动覆盖和状态覆盖进入 Observation，其中 `assets/mods/AEIII/s4.js` 的 `rule.SetIncomeVillage(100)` 已验证会让只拥有一个村庄的队伍在回合开始金币从 500 增至 600。
 
 2026-06-30 补充：`getApkSkirmishTrainingScenarios()` 已提供官方 skirmish 训练场景清单。默认返回 20 张官方地图乘以 SD/SO 两种模式，共 40 个场景；默认训练集允许已经实机确认的 `t30/t31` approximate tile，仍会排除未来未实测 approximate/unmapped tile。每个场景包含地图资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和对应 `RuleConfig` 快照。SD 场景使用实机确认的正常对战招募列表，SO 场景使用脚本确认的 APK ID 0-8 招募列表，避免训练脚本重复拼接地图 manifest 与模式规则。
 

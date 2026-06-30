@@ -82,7 +82,7 @@ describe('APK 脚本复核工具', () => {
         const applicationChecks = buildApkScriptApplicationChecks();
         const byId = Object.fromEntries(applicationChecks.map(check => [check.id, check]));
 
-        expect(applicationChecks).toHaveLength(5);
+        expect(applicationChecks).toHaveLength(6);
         expect(applicationChecks.every(check => check.status === 'pass')).toBe(true);
         expect(byId['rule-config-observation'].actual).toEqual({
             resourcePath: 'assets/mods/AEI/s5.js',
@@ -114,6 +114,15 @@ describe('APK 脚本复核工具', () => {
             team5RecruitableUnitCount: 12,
             ignoredRestoreTeamIds: [3],
             ignoredGameOverAllianceIds: [1, 2]
+        });
+        expect(byId['script-income-application'].actual).toEqual({
+            resourcePath: 'assets/mods/AEIII/s4.js',
+            incomeVillage: 100,
+            incomeCastle: 100,
+            incomeCommanderBase: 0,
+            incomeCommanderGrowth: 25,
+            player0GoldBeforeIncome: 500,
+            player0GoldAfterIncome: 600
         });
         expect(byId['stage-move-override-observation'].actual).toEqual({
             resourcePath: 'assets/mods/AEIII/s4.js',

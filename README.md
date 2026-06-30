@@ -126,7 +126,7 @@ npm run apk:skirmish-rule-report -- --check
 ```bash
 npm run apk:script-report -- --check
 ```
-该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置；同时会把代表性脚本配置应用到训练状态，确认全局/队伍招募、联盟、禁用队伍、移动覆盖和状态覆盖都能进入 observation。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异、应用检查 5/5 通过。
+该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置；同时会把代表性脚本配置应用到训练状态，确认全局/队伍招募、联盟、禁用队伍、收入覆盖、移动覆盖和状态覆盖都能进入 observation，且脚本收入会影响回合开始金币结算。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异、应用检查 6/6 通过。
 
 ### 复核 APK DEX 字符串证据
 ```bash

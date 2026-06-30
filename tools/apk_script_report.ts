@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createDemoState } from '../src/game/demo_map';
+import { GameEngine } from '../src/game/engine';
 import { AncientEmpiresEnv } from '../src/game/env';
 import { applyApkScriptRuleConfig, applyApkScriptStageStateConfig } from '../src/game/apk_script_config';
 import {
@@ -483,6 +484,43 @@ export function buildApkScriptApplicationChecks(): ApplicationCheck[] {
             team5RecruitableUnitCount: teamRuleObservation.rules.teams[5]?.recruitableUnits?.length ?? null,
             ignoredRestoreTeamIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredRestoreTeamIds ?? null,
             ignoredGameOverAllianceIds: teamRuleObservation.metadata?.apkRuleScriptIgnoredGameOverAllianceIds ?? null
+        }
+    );
+
+    const incomeState = createDemoState();
+    applyApkScriptRuleConfig(incomeState, 'assets/mods/AEIII/s4.js');
+    for (const row of incomeState.map.tiles) {
+        for (const tile of row) {
+            tile.ownerId = null;
+        }
+    }
+    incomeState.map.tiles[1][3].ownerId = 0;
+    incomeState.currentPlayer = 1;
+    const incomeObservation = new AncientEmpiresEnv({ initialState: incomeState }).getObservation();
+    const incomeEngine = new GameEngine(incomeState);
+    incomeEngine.step({ type: 'end_turn' });
+    const incomeFinalPlayer0 = incomeEngine.getState().players.find(player => player.id === 0);
+    addApplicationCheck(
+        checks,
+        'script-income-application',
+        '脚本收入配置会进入训练 observation 并影响回合收入',
+        {
+            resourcePath: 'assets/mods/AEIII/s4.js',
+            incomeVillage: 100,
+            incomeCastle: 100,
+            incomeCommanderBase: 0,
+            incomeCommanderGrowth: 25,
+            player0GoldBeforeIncome: 500,
+            player0GoldAfterIncome: 600
+        },
+        {
+            resourcePath: incomeObservation.metadata?.apkRuleScriptResourcePath ?? null,
+            incomeVillage: incomeObservation.rules.incomeVillage,
+            incomeCastle: incomeObservation.rules.incomeCastle,
+            incomeCommanderBase: incomeObservation.rules.incomeCommanderBase,
+            incomeCommanderGrowth: incomeObservation.rules.incomeCommanderGrowth,
+            player0GoldBeforeIncome: incomeObservation.players.find(player => player.id === 0)?.gold ?? null,
+            player0GoldAfterIncome: incomeFinalPlayer0?.gold ?? null
         }
     );
 
