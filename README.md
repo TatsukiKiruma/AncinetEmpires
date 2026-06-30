@@ -103,6 +103,12 @@ npm run apk:terrain-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 84 条 40 字节地形记录，并和 `src/game/apk_terrain.ts` 的归档逐项对比。当前复核结果为 84/84 地形记录匹配、项目归档差异 0；报告会输出防御、回血、移动消耗分布和每个 APK tile 的 skirmish 映射可信度。
 
+### 复核 APK data.bin 单位数值
+```bash
+npm run apk:unit-report -- --check
+```
+该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 21 条单位记录，并和 `src/game/units.ts` 的战斗数值、成长、射程、人口和能力 ID 对比。当前复核结果为 21/21 单位记录匹配、项目单位配置差异 0；指挥官/骷髅/水晶价格和水晶移动力属于已记录的刻意差异。
+
 ### 复核 APK 脚本规则证据
 ```bash
 npm run apk:script-report -- --check

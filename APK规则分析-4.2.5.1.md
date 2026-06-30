@@ -121,6 +121,14 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 
 `data.bin` 解密后包含 21 条 `Lc/a/b/a/v/c` 单位定义。已确认字段公式：
 
+2026-06-30 起，`data.bin` 单位数值复核已固化为 `tools/apk_unit_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:unit-report -- --check
+```
+
+当前命令输出确认：`APK/_analysis/unpack/data.bin` 中 21/21 条单位记录可解析，单位 section marker 为 8，section magic 为 `365703`；和 `src/game/units.ts` 的战斗数值、成长、射程、人口、能力 ID 对比后，项目单位配置差异为 0。报告将指挥官/骷髅/水晶的 `UnitConfig.cost=null`、水晶项目移动力 0 记录为刻意差异；其中指挥官 raw cost 为 400，由 `RuleConfig.commanderRecruitBaseCost` 表达。该工具本轮校准出黑魔法师 APK 射程为 `1-2`，项目已同步修正。
+
 - 价格：`a`；人口：`b`；攻击元素：`c`，项目中按 `0=physical`、`1=magic` 映射。
 - 元素防御修正：`d`。APK 伤害公式中，攻击元素等于防守方元素时防御 `+d`，不同时防御 `-d`。
 - 攻击：`e + g * level`；防御基值：`h + i * level`；最大生命：`j + k * level`；最大移动：`l + m * level`。
@@ -145,7 +153,7 @@ APK 资源能确认一批核心规则：单位、能力、状态、招募、收�
 | 12 | `paladin` | 400 | 2 | physical | 50 | 10 | 10 | 100+0/Lv | 4+0/Lv | 1-1 | 0,7 |
 | 13 | `berserker` | 500 | 2 | physical | 70 | 20 | 10 | 100+0/Lv | 5+0/Lv | 1-1 | 15,16,22 |
 | 14 | `ghost` | 200 | 1 | magic | 50 | 5 | 15 | 100+0/Lv | 4+1/Lv | 1-1 | 3,9,25 |
-| 15 | `dark_mage` | 300 | 1 | magic | 50 | 0 | 20 | 100+0/Lv | 4+0/Lv | 1-1 | 23 |
+| 15 | `dark_mage` | 300 | 1 | magic | 50 | 0 | 20 | 100+0/Lv | 4+0/Lv | 1-2 | 23 |
 | 16 | `wolf_archer` | 800 | 4 | physical | 60 | 20 | 10 | 100+0/Lv | 6+0/Lv | 1-3 | 4,13,21,23 |
 | 17 | `ice_elemental` | 600 | 3 | magic | 55 | 10 | 20 | 100+10/Lv | 4+0/Lv | 1-3 | 12,17 |
 | 18 | `slime` | 250 | 1 | magic | 50 | 40 | -10 | 100+5/Lv | 4+0/Lv | 1-1 | 17 |
@@ -838,6 +846,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 已解出 21 条 APK 单位基础数值，并记录到第 4.1 节。
 - 黑魔法师攻击从 45 校准为 APK 的 50。
+- 2026-06-30 复核 `data.bin` 单位表后，黑魔法师最大射程从 1 校准为 APK 的 2。
 - 史莱姆魔法防御按 APK 元素防御公式从 -20 校准为 -10。
 - `UnitConfig` 新增攻击、防御、最大生命和移动成长字段，`getEffectiveStats` 改为按 APK `data.bin` 单位成长表计算，不再在逻辑函数里硬编码兵种分支。
 - 合法移动范围和实际移动消耗校验已改为使用 `getEffectiveStats(unit).move`，确保指挥官、幽灵、德鲁伊等 APK `moveGrowth=1` 的单位升级后移动成长会实际进入对战规则。

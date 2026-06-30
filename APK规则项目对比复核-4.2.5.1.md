@@ -89,6 +89,14 @@ npm run apk:terrain-report -- --check
 
 当前命令输出确认：`data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，84/84 条 40 字节地形记录可解析，和 `src/game/apk_terrain.ts` 归档差异为 0；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。
 
+2026-06-30 补充：`data.bin` 单位数值复核已固化为 `tools/apk_unit_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:unit-report -- --check
+```
+
+当前命令输出确认：21/21 条单位记录可解析，和 `src/game/units.ts` 的战斗数值、成长、射程、人口、能力 ID 对比后项目单位配置差异为 0。报告单独记录 4 项刻意差异：指挥官/骷髅/水晶的 `UnitConfig.cost=null`，以及水晶项目移动力为 0。本轮据此确认并修正黑魔法师最大射程为 2。
+
 本次用同一 key 临时解密：
 
 | 类型 | 解密数量 | 说明 |
@@ -167,6 +175,8 @@ npm run apk:dex-report -- --check
 - `src/game/apk_compat.ts`：APK 数字 ID 到项目 key 的映射
 
 注意：APK `data.bin` 中 `crystal` 有基础移动字段，但项目将 `crystal` 作为不可招募、不可行动的战役目标占位处理。这对 skirmish 训练影响较小，但不等同于完整 APK 战役行为。
+
+2026-06-30 复核补充：`npm run apk:unit-report -- --check` 已确认 21 个 APK 单位与项目战斗配置差异为 0；黑魔法师最大射程按 APK `data.bin` 从 1 修正为 2。
 
 ### 5.2 状态规则
 

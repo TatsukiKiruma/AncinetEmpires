@@ -1830,6 +1830,7 @@ describe('GameEngine Rules', () => {
         expect(UNIT_CONFIGS.crystal.name).toBe('水晶');
         expect(UNIT_CONFIGS.crystal.cost).toBeNull();
         expect(UNIT_CONFIGS.dark_mage.attack).toBe(50);
+        expect(UNIT_CONFIGS.dark_mage.maxRange).toBe(2);
         expect(UNIT_CONFIGS.slime.magicDefense).toBe(-10);
         expect(UNIT_CONFIGS.golem.maxHpGrowth).toBe(25);
         expect(UNIT_CONFIGS.ice_elemental.maxHpGrowth).toBe(10);
