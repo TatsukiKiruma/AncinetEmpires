@@ -421,6 +421,14 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - 联盟、禁用队伍和 `rule.SetIncome*` 收入覆盖已有分布表。
 - `APK_SCRIPT_LITERAL_RULE_CONFIGS` 已按资源路径记录 26 个脚本的逐脚本字面量配置；`SD/controller.js` 只有动态队伍摧毁/胜负调用，没有固定规则字面量表项。
 
+2026-06-30 补充：脚本解密复核已固化为 `tools/apk_script_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:script-report -- --check
+```
+
+当前命令输出确认：27/27 个 `assets/mods/**/*.js` 可用 `DES/CBC/PKCS7` 和 key/iv `72 6b 00 00 00 00 46 46` 解密；`Stage.*` 与 `rule.SetIncome*` API 计数和 `APK_SCRIPT_API_CALL_COUNTS` 完全一致；可安全提取的 `APK_SCRIPT_LITERAL_RULE_CONFIGS` 与 `APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 均无差异。
+
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 
 ## 10. Observation 与训练数据

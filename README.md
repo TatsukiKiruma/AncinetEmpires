@@ -91,6 +91,12 @@ npm run apk:map-report -- --check
 ```
 该命令会用 APK 4.2.5.1 的 DES key/iv 解密 `APK/_analysis/unpack/assets/maps/*.aem`，重新解析 20 张官方 skirmish 地图并和项目内 manifest 对比。当前复核结果为 APK SHA256 匹配、20/20 地图匹配、0 个 unmapped tile，并输出 `t30/t31` 低可信地形的实机验证坐标。
 
+### 复核 APK 脚本规则证据
+```bash
+npm run apk:script-report -- --check
+```
+该命令会解密 `APK/_analysis/unpack/assets/mods/**/*.js`，重新统计 27 个脚本的 Stage/Rule API 调用次数，并复核可安全提取的字面量规则配置和单位/坐标状态配置。当前复核结果为 27/27 脚本匹配、API 计数无差异、字面量配置无差异。
+
 ## 待补充与未实现 (TODO List)
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：

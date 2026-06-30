@@ -1147,6 +1147,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标和当前项目语义 checklist。
 - 这一步不改变对战规则结算；它把“从 APK 资源复核地图规则证据”的临时流程变成可重复命令，后续可用于确认新的 APK、重新生成地图证据或定位 manifest 漂移。
 
+2026-06-30 APK 脚本解密复核工具：
+
+- 新增 `tools/apk_script_report.ts` 和 npm 脚本 `apk:script-report`，默认读取 `APK/_analysis/unpack/assets/mods/**/*.js`，使用同一 DES key/iv 解密 27 个脚本。
+- 工具会重新统计 `Stage.*` 与 `rule.SetIncome*` API 调用次数，并和 `APK_SCRIPT_API_CALL_COUNTS` 对比；同时重新提取可安全转为 `RuleConfig` 的字面量规则配置，以及 `SyncOverrideMov/SyncSetUnitStatus` 单位/坐标状态配置，并和 `APK_SCRIPT_LITERAL_RULE_CONFIGS`、`APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS` 对比。
+- 当前 `npm run apk:script-report -- --check` 结果：27/27 脚本匹配，API 计数差异为 0，字面量配置差异为 0。
+- 这一步不执行剧情 `Async*` API，也不把动态参数转为静态规则；它只把“脚本 manifest 的来源证据”变成可重复复核命令，防止后续忘记已确认的 APK 调用次数和字面量规则值。
+
 2026-06-29 APK 脚本配置 manifest 补充：
 
 - `src/game/apk_script_manifest.ts` 归档 27 个已解密 `assets/mods/**/*.js` 的 `Stage.*` 与 `rule.SetIncome*` 调用次数。

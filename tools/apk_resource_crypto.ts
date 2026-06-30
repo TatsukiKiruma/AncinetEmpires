@@ -27,7 +27,7 @@ export function hexToBytes(hex: string): Buffer {
 }
 
 export function getLegacyDesProviderHint(): string {
-    return '当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report 或 node --openssl-legacy-provider 启动。';
+    return '当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。';
 }
 
 export function decryptApkResourceBytes(
