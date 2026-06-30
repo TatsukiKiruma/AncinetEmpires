@@ -6,9 +6,27 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(13);
+        expect(report.checkCount).toBe(14);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
+        expect(report.manualVerificationItems).toHaveLength(10);
+        expect(report.manualVerificationItems.map(item => item.id)).toEqual([
+            'commander-recruit-cost-growth',
+            'commander-auto-revive',
+            'overheal-clipping',
+            'undead-overheal',
+            'low-confidence-tiles-t80-t83',
+            'water-obstacle-tiles-t81-t82',
+            'commander-castle-recruit-ui-flow',
+            'support-and-assault-edge-order',
+            'counter-blind-storm-order',
+            'default-commander-income'
+        ]);
+        expect(report.manualVerificationItems.filter(item => item.priority === 'P0').map(item => item.id)).toEqual([
+            'commander-recruit-cost-growth',
+            'commander-auto-revive',
+            'overheal-clipping'
+        ]);
     });
 
     it('固化 SD/SO 招募列表与遭遇战开局设置', () => {
@@ -80,6 +98,40 @@ describe('APK skirmish rule report', () => {
                 pendingUnitIsMarked: true,
                 pendingUnitSource: 'empty_castle',
                 observationPendingMatchesState: true
+            }
+        });
+        expect(byId['recruit-execution-state'].actual).toEqual({
+            emptyCastle: {
+                playerGold: 850,
+                pendingUnitId: 'u_100',
+                pendingUnit: {
+                    unitClass: 'soldier',
+                    x: 0,
+                    y: 0,
+                    hasMoved: false,
+                    hasActed: false,
+                    movementRemaining: null,
+                    source: 'empty_castle'
+                },
+                actionTypes: ['end_turn', 'move', 'surrender', 'wait'],
+                canControlOtherUnit: false,
+                canRecruitAgain: false
+            },
+            commanderCastle: {
+                playerGold: 850,
+                pendingUnitId: 'u_100',
+                pendingUnit: {
+                    unitClass: 'soldier',
+                    x: 0,
+                    y: 1,
+                    hasMoved: true,
+                    hasActed: false,
+                    movementRemaining: 0,
+                    source: 'commander_castle'
+                },
+                actionTypes: ['wait'],
+                canControlOtherUnit: false,
+                canRecruitAgain: false
             }
         });
     });

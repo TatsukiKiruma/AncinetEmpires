@@ -29,11 +29,20 @@ export interface ApkSkirmishRuleCheck {
     status: CheckStatus;
 }
 
+export interface ApkSkirmishManualVerificationItem {
+    id: string;
+    priority: 'P0' | 'P1' | 'P2';
+    title: string;
+    currentProjectAssumption: string;
+    requestedEvidence: string;
+}
+
 export interface ApkSkirmishRuleReport {
     generatedAt: string;
     checkCount: number;
     failedCheckCount: number;
     checks: ApkSkirmishRuleCheck[];
+    manualVerificationItems: ApkSkirmishManualVerificationItem[];
 }
 
 const SD_RECRUITABLE_UNITS: UnitClass[] = [
@@ -140,6 +149,81 @@ function check(
         actual,
         status: sameValue(expected, actual) ? 'pass' : 'fail'
     });
+}
+
+function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
+    return [
+        {
+            id: 'commander-recruit-cost-growth',
+            priority: 'P0',
+            title: '指挥官死亡后的重招募价格',
+            currentProjectAssumption: 'SD 模式无存活指挥官时可按基础 400 金币重招募；是否随死亡次数增长仍保持可配置而不写死。',
+            requestedEvidence: '记录第 1/2/3 次指挥官死亡后的城堡招募价格，以及金币不足时菜单是否隐藏或灰显。'
+        },
+        {
+            id: 'commander-auto-revive',
+            priority: 'P0',
+            title: '指挥官是否存在自动复活流程',
+            currentProjectAssumption: 'skirmish 中不自动复活，只能在无存活指挥官且规则允许时从城堡重招募。',
+            requestedEvidence: '记录指挥官死亡当回合、下一己方回合、无城堡时是否出现自动复活、复活按钮或剧情式复活。'
+        },
+        {
+            id: 'overheal-clipping',
+            priority: 'P0',
+            title: '治疗超上限后的长期裁剪',
+            currentProjectAssumption: '主动治疗可超过最大生命；普通回血、升级和回合开始不会把既有超上限生命压回最大生命。',
+            requestedEvidence: '把 100/100 单位治疗到超上限后，记录结束回合、再次轮到己方、升级、地形回血后的生命值。'
+        },
+        {
+            id: 'undead-overheal',
+            priority: 'P1',
+            title: '亡灵中毒/墓碑回血是否可突破上限',
+            currentProjectAssumption: '亡灵从中毒和墓碑获得的回血受最大生命上限限制。',
+            requestedEvidence: '记录 95/100 或 100/100 的亡灵在中毒回合开始、踩墓碑后的生命值。'
+        },
+        {
+            id: 'low-confidence-tiles-t80-t83',
+            priority: 'P1',
+            title: '低可信 t80/t83 神庙候选语义',
+            currentProjectAssumption: 't80/t83 仍按贴图、data.bin 数值和语言表近似处理，不提升为 confirmed。',
+            requestedEvidence: '分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。'
+        },
+        {
+            id: 'water-obstacle-tiles-t81-t82',
+            priority: 'P1',
+            title: 't81/t82 水面障碍语义',
+            currentProjectAssumption: 't81/t82 按水面障碍候选处理，不带神庙净化标签。',
+            requestedEvidence: '记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。'
+        },
+        {
+            id: 'commander-castle-recruit-ui-flow',
+            priority: 'P2',
+            title: '指挥官站城堡招募后的 UI 选择流程',
+            currentProjectAssumption: '训练规则已固化扣费、pending 来源、行动标记和不能结束/投降；纯 UI 选择流程仍不复刻。',
+            requestedEvidence: '记录部署范围、部署后是否可攻击/待机/移动、点错格子是否取消选择，以及是否有确认步骤。'
+        },
+        {
+            id: 'support-and-assault-edge-order',
+            priority: 'P2',
+            title: '支援与突击后移动边界顺序',
+            currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，突击后移动使用剩余移动力。',
+            requestedEvidence: '记录被支援单位类型限制、同一目标能否多次支援、攻击前移动后突击剩余移动力如何计算。'
+        },
+        {
+            id: 'counter-blind-storm-order',
+            priority: 'P2',
+            title: '致盲、反击和反击风暴顺序',
+            currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
+            requestedEvidence: '记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
+        },
+        {
+            id: 'default-commander-income',
+            priority: 'P2',
+            title: 'skirmish 默认指挥官收入',
+            currentProjectAssumption: '当前 SD/SO 默认使用 commander base=0、growth=25；脚本可覆盖该配置。',
+            requestedEvidence: '在无村庄/城堡收入的局面记录指挥官 0/1/2 级时回合开始金币变化。'
+        }
+    ];
 }
 
 function actionTypes(actions: Action[]): string[] {
@@ -291,6 +375,81 @@ function buildPendingRecruitActual() {
         commanderCastle: {
             hasEndTurn: commanderCastleActions.some(action => action.type === 'end_turn'),
             hasSurrender: commanderCastleActions.some(action => action.type === 'surrender')
+        }
+    };
+}
+
+function buildRecruitExecutionActual() {
+    const emptyCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    emptyCastleState.units.find(unit => unit.id === 'u1')!.pos = { x: 2, y: 2 };
+    emptyCastleState.players[0].gold = 1000;
+    const emptyCastleEngine = new GameEngine(emptyCastleState);
+    const recruitToCastle = emptyCastleEngine.getLegalActions(0).find(action => (
+        action.type === 'recruit_to_castle' && action.unitClass === 'soldier'
+    ));
+    if (!recruitToCastle) throw new Error('空城堡招募动作缺失');
+    emptyCastleEngine.step(recruitToCastle);
+    const emptyCastleFinal = emptyCastleEngine.getState();
+    const emptyCastlePendingUnit = emptyCastleFinal.units.find(unit => unit.id === emptyCastleFinal.pendingUnitId);
+    const emptyCastleActions = emptyCastleEngine.getLegalActions(0);
+
+    const commanderCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    commanderCastleState.players[0].gold = 1000;
+    const commanderCastleEngine = new GameEngine(commanderCastleState);
+    const recruitAndDeploy = commanderCastleEngine.getLegalActions(0).find(action => (
+        action.type === 'recruit_and_deploy'
+        && action.unitClass === 'soldier'
+        && action.castlePos.x === 0
+        && action.castlePos.y === 0
+        && action.to.x === 0
+        && action.to.y === 1
+    ));
+    if (!recruitAndDeploy) throw new Error('指挥官城堡部署招募动作缺失');
+    commanderCastleEngine.step(recruitAndDeploy);
+    const commanderCastleFinal = commanderCastleEngine.getState();
+    const commanderCastlePendingUnit = commanderCastleFinal.units.find(unit => unit.id === commanderCastleFinal.pendingUnitId);
+    const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
+
+    return {
+        emptyCastle: {
+            playerGold: emptyCastleFinal.players.find(player => player.id === 0)?.gold ?? null,
+            pendingUnitId: emptyCastleFinal.pendingUnitId ?? null,
+            pendingUnit: {
+                unitClass: emptyCastlePendingUnit?.unitClass ?? null,
+                x: emptyCastlePendingUnit?.pos.x ?? null,
+                y: emptyCastlePendingUnit?.pos.y ?? null,
+                hasMoved: emptyCastlePendingUnit?.hasMoved ?? null,
+                hasActed: emptyCastlePendingUnit?.hasActed ?? null,
+                movementRemaining: emptyCastlePendingUnit?.movementRemaining ?? null,
+                source: emptyCastlePendingUnit?.apkPendingRecruitSource ?? null
+            },
+            actionTypes: actionTypes(emptyCastleActions),
+            canControlOtherUnit: emptyCastleActions.some(action => (
+                'unitId' in action && action.unitId !== emptyCastleFinal.pendingUnitId
+            )),
+            canRecruitAgain: emptyCastleActions.some(action => (
+                action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy'
+            ))
+        },
+        commanderCastle: {
+            playerGold: commanderCastleFinal.players.find(player => player.id === 0)?.gold ?? null,
+            pendingUnitId: commanderCastleFinal.pendingUnitId ?? null,
+            pendingUnit: {
+                unitClass: commanderCastlePendingUnit?.unitClass ?? null,
+                x: commanderCastlePendingUnit?.pos.x ?? null,
+                y: commanderCastlePendingUnit?.pos.y ?? null,
+                hasMoved: commanderCastlePendingUnit?.hasMoved ?? null,
+                hasActed: commanderCastlePendingUnit?.hasActed ?? null,
+                movementRemaining: commanderCastlePendingUnit?.movementRemaining ?? null,
+                source: commanderCastlePendingUnit?.apkPendingRecruitSource ?? null
+            },
+            actionTypes: actionTypes(commanderCastleActions),
+            canControlOtherUnit: commanderCastleActions.some(action => (
+                'unitId' in action && action.unitId !== commanderCastleFinal.pendingUnitId
+            )),
+            canRecruitAgain: commanderCastleActions.some(action => (
+                action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy'
+            ))
         }
     };
 }
@@ -673,6 +832,48 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
 
     check(
         checks,
+        'recruit-execution-state',
+        '招募动作执行后的 pending 来源、扣费和行动标记',
+        '用户 2026-06-30 实机确认 + GameEngine pending 状态',
+        {
+            emptyCastle: {
+                playerGold: 850,
+                pendingUnitId: 'u_100',
+                pendingUnit: {
+                    unitClass: 'soldier',
+                    x: 0,
+                    y: 0,
+                    hasMoved: false,
+                    hasActed: false,
+                    movementRemaining: null,
+                    source: 'empty_castle'
+                },
+                actionTypes: ['end_turn', 'move', 'surrender', 'wait'],
+                canControlOtherUnit: false,
+                canRecruitAgain: false
+            },
+            commanderCastle: {
+                playerGold: 850,
+                pendingUnitId: 'u_100',
+                pendingUnit: {
+                    unitClass: 'soldier',
+                    x: 0,
+                    y: 1,
+                    hasMoved: true,
+                    hasActed: false,
+                    movementRemaining: 0,
+                    source: 'commander_castle'
+                },
+                actionTypes: ['wait'],
+                canControlOtherUnit: false,
+                canRecruitAgain: false
+            }
+        },
+        buildRecruitExecutionActual()
+    );
+
+    check(
+        checks,
         'commander-recruit-availability',
         'SD 指挥官不在场时可重招募，SO 不招募指挥官',
         '用户 2026-06-30 实机确认',
@@ -777,7 +978,8 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         generatedAt,
         checkCount: checks.length,
         failedCheckCount: checks.filter(item => item.status === 'fail').length,
-        checks
+        checks,
+        manualVerificationItems: buildManualVerificationItems()
     };
 }
 
@@ -794,6 +996,17 @@ function renderMarkdown(report: ApkSkirmishRuleReport): string {
 
     for (const checkItem of report.checks) {
         lines.push(`| \`${checkItem.id}\` | ${checkItem.title} | ${checkItem.source} | ${checkItem.status === 'pass' ? '通过' : '失败'} |`);
+    }
+
+    lines.push(
+        '',
+        '## 待实机验证',
+        '',
+        '| 优先级 | ID | 规则 | 当前项目假设 | 需要回填的 APK 证据 |',
+        '| --- | --- | --- | --- | --- |'
+    );
+    for (const item of report.manualVerificationItems) {
+        lines.push(`| ${item.priority} | \`${item.id}\` | ${item.title} | ${item.currentProjectAssumption} | ${item.requestedEvidence} |`);
     }
 
     const failed = report.checks.filter(checkItem => checkItem.status === 'fail');
