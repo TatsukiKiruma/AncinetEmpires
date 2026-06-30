@@ -364,7 +364,7 @@ APK `data.bin` 已确认含 84 条 tile 定义。当前项目稳定使用的字�
 - `src/game/apk_manifest.ts` 已把上述 20 张官方 skirmish 地图清单代码化，包含资源路径、作者、尺寸、玩家、初始单位明细、城堡/城镇归属、完整 APK tile 使用量、tile 映射可信度统计、推荐金币和尾部模板。
 - `src/game/apk_skirmish_tile_usage.ts` 固化了每张地图实际出现的 APK tile ID 及格子数量；`terrainConfidence` 会按当前 `SKIRMISH_APK_TERRAIN_TO_PROJECT` 映射统计 confirmed/atlas/approximate/unmapped 格子数。20 张官方 skirmish 地图的 `unmappedTerrainIds` 均为空。
 - 低可信 approximate tile 只出现在 4 张官方 skirmish 图：`(2) Mourningstar.aem` 的 `t30` 2 格，`(4) The Crucible.aem` 的 `t31` 1 格，`(4) Waterways.aem` 的 `t31` 2 格，`(4) Winterstorm.aem` 的 `t31` 4 格；其余 16 张图不含 approximate/unmapped tile。
-- `getApkSkirmishTrainingMapManifest()` 默认只返回不含 approximate/unmapped tile 的 16 张官方图，并支持按玩家数量或显式允许低可信 tile 筛选训练地图。
+- `getApkSkirmishTrainingMapManifest()` 默认返回无 unmapped tile，且只包含“无 approximate”或“approximate 已实机确认”的官方图；当前 20 张官方 skirmish 图都会进入默认训练集。需要更保守训练集时，可用 `allowVerifiedApproximateTerrain=false` 只取 16 张无 approximate 官方图，也支持按玩家数量或显式允许低可信 tile 筛选训练地图。
 - `getApkSkirmishTerrainVerificationTargets()` 默认输出这 4 个低可信 skirmish 验证目标，并附带坐标、evidence、APK `data.bin` 地形配置副本、`projectRuleSemantics` 当前项目语义快照、`manualChecks` 实测回填 key/value 清单和 `manualVerification` 已实测行为记录；需要时可按 confidence、tile ID 或地图名查询其它 confirmed/atlas tile 的同类数据。当前坐标为：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`。2026-06-30 用户实机确认：`t30` 回血但不净化，`t31` 回血且净化，二者都不可占领、无收入、不可招募。
 - `createApkSkirmishGameState` 只在地图名、作者、尺寸、玩家、开局单位集合、城堡/城镇归属、完整 tile 使用量、推荐金币和尾部模板同时匹配清单时，自动写入 `apkVersion/apkSha256/apkResourcePath`，避免合成地图被误标为 APK 官方资源。
 - 20 张图的初始单位 `extra` 字段全部为 `0`，当前不能解释为等级。
@@ -471,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 40/40 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 
@@ -514,7 +514,7 @@ npm run apk:script-report -- --check
 
 | 优先级 | 差异 | 影响 |
 | --- | --- | --- |
-| P0 | 84 个 APK tile 的完整类别/贴图/建筑语义未校准 | 地形能力、建筑功能和移动分类可能与 APK 有偏差 |
+| P1 | 非 skirmish 或未来地图的低可信 APK tile 语义未校准 | 当前默认 skirmish 训练集只包含无 approximate 或已确认 t30/t31；t80/t83/t81/t82 等未确认 tile 不进入默认训练集 |
 | P0 | 战役脚本未系统转为场景配置 | 无法完整复刻战役、教程、特殊胜负条件 |
 | P1 | `SyncOverrideMov` 字面量调用已归档，但脚本场景未系统应用 | 特定单位/地形移动覆盖已有规则入口和证据表，仍缺批量场景配置执行 |
 | P1 | 脚本字面量配置已可生成 `RuleConfig`，动态逐关卡配置仍未转场景表 | 战役和特殊 skirmish 规则无法批量复现 |
@@ -528,12 +528,13 @@ npm run apk:script-report -- --check
 
 ## 12. 建议后续任务
 
-1. 校准 skirmish 高频与低可信 APK tile 语义
+1. 维护 skirmish 高频 tile 语义，并继续校准非默认低可信 APK tile
    - 20 张地图的尺寸、玩家、推荐金币、初始单位、城堡/村庄归属、tile 使用量、可信度统计和未映射清单已进入代码清单。
    - 低可信 tile 实测目标已可由 `getApkSkirmishTerrainVerificationTargets()` 直接导出，默认只列官方 skirmish 中实际出现的 `t30/t31` 目标，并附带精确坐标、APK owner code、项目当前规则语义、实测回填 key/value 清单和已确认实机行为。
    - 优先处理 `t0/t18/t17/t15/t21/t20/t36/t19/t9/t3` 等高频 tile。
-   - `t30` 已按贴图收窄为营地/帐篷，`t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；evidence 现在会区分营地、陆地神庙、水中障碍和水中神庙候选。
-   - 回合开始回归测试已覆盖 `t31/t80/t83` 按神庙候选清毒回血、`t30/t81` 不清毒；其中 `t31` 已由 2026-06-30 实机确认会回血和净化且不可占领/无收入/不可招募，后续重点实测 `t80/t83` 的净化、可占领、敌我归属和回血边界。
+   - `t30` 已按贴图收窄为营地/帐篷，`t31` 已由 2026-06-30 实机确认会回血和净化且不可占领/无收入/不可招募；默认训练集当前没有未实测 approximate tile。
+   - `t81/t82` 已从水中神庙候选改为水面浮冰/礁石候选；evidence 现在会区分营地、陆地神庙、水中障碍和水中神庙候选。
+   - 回合开始回归测试已覆盖 `t31/t80/t83` 按神庙候选清毒回血、`t30/t81` 不清毒；`t80/t83` 不出现在当前默认 skirmish 训练集，后续重点实测其净化、可占领、敌我归属和回血边界。
    - 文档中继续区分“数值确认”和“类别推断”。
 
 2. 系统归档脚本配置

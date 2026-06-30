@@ -138,7 +138,7 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
+该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
 
 ## 待补充与未实现 (TODO List)
 

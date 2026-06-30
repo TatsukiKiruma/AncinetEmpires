@@ -629,6 +629,10 @@ describe('GameEngine Rules', () => {
             '(2) Swamplands.aem',
             '(3) Glu.aem'
         ]);
+        expect(getApkSkirmishTrainingMapManifest()).toHaveLength(20);
+        expect(getApkSkirmishTrainingMapManifest({
+            allowVerifiedApproximateTerrain: false
+        })).toHaveLength(16);
         expect(getApkSkirmishTrainingMapManifest({ playerCounts: [2] }).map(entry => entry.name)).toEqual([
             '(2) Icy Paths.aem',
             '(2) Liberty Port.aem',

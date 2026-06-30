@@ -35,6 +35,7 @@ interface TrainingScenarioReportEntry {
     initialUnitCount: number;
     recommendedGold: number | null;
     approximateTileCount: number;
+    hasUnverifiedApproximateTerrain: boolean;
     unmappedTileCount: number;
     manifestMatched: boolean;
     metadataMatched: boolean;
@@ -42,6 +43,7 @@ interface TrainingScenarioReportEntry {
     turnPlayerIds: number[];
     legalActionCount: number;
     recruitableUnitCount: number | null;
+    modeRuleMatched: boolean;
     smokeRequestedPlies: number;
     smokeExecutedPlies: number;
     smokeDone: boolean;
@@ -58,6 +60,8 @@ interface ApkTrainingReport {
     manifestMatchedCount: number;
     metadataMatchedCount: number;
     zeroLegalActionCount: number;
+    modeRuleMismatchCount: number;
+    unverifiedApproximateScenarioCount: number;
     smokePlies: number;
     smokeFailureCount: number;
     setupOptions: ReturnType<typeof getApkSkirmishSetupOptions>;
@@ -65,6 +69,7 @@ interface ApkTrainingReport {
 }
 
 const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack');
+const VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS = new Set([30, 31]);
 
 function printHelp() {
     console.log(`用法: npm run apk:training-report -- [选项]
@@ -195,6 +200,29 @@ function buildScenarioReportEntry(
     const metadata = observation.metadata;
     const legalActionCount = env.getLegalActions().length;
     const smoke = runScenarioSmoke(env, smokePlies);
+    const recruitableUnits = observation.rules.recruitableUnits ?? [];
+    const hasUnverifiedApproximateTerrain = scenario.terrainConfidence.approximateTerrainIds.some(
+        apkTerrainId => !VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS.has(apkTerrainId)
+    );
+    const modeRuleMatched = scenario.mode === 'SD'
+        ? (
+            recruitableUnits.length === 19
+            && recruitableUnits.includes('commander')
+            && !recruitableUnits.includes('skeleton')
+            && !recruitableUnits.includes('crystal')
+            && observation.rules.allowSurrender
+            && observation.rules.defeatOnNoUnitsAndNoCastles
+            && !observation.rules.defeatOnNoUnits
+        )
+        : (
+            recruitableUnits.length === 9
+            && !recruitableUnits.includes('commander')
+            && !recruitableUnits.includes('skeleton')
+            && !recruitableUnits.includes('crystal')
+            && observation.rules.allowSurrender
+            && observation.rules.defeatOnNoUnitsAndNoCastles
+            && !observation.rules.defeatOnNoUnits
+        );
 
     return {
         id: scenario.id,
@@ -207,6 +235,7 @@ function buildScenarioReportEntry(
         initialUnitCount: observation.units.length,
         recommendedGold: metadata?.recommendedGold ?? null,
         approximateTileCount: metadata?.apkApproximateTileCount ?? 0,
+        hasUnverifiedApproximateTerrain,
         unmappedTileCount: metadata?.apkUnmappedTileCount ?? 0,
         manifestMatched,
         metadataMatched: (
@@ -219,6 +248,7 @@ function buildScenarioReportEntry(
         turnPlayerIds: observation.turnPlayerIds,
         legalActionCount,
         recruitableUnitCount: observation.rules.recruitableUnits?.length ?? null,
+        modeRuleMatched,
         ...smoke
     };
 }
@@ -244,6 +274,8 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         manifestMatchedCount: entries.filter(entry => entry.manifestMatched).length,
         metadataMatchedCount: entries.filter(entry => entry.metadataMatched).length,
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
+        modeRuleMismatchCount: entries.filter(entry => !entry.modeRuleMatched).length,
+        unverifiedApproximateScenarioCount: entries.filter(entry => entry.hasUnverifiedApproximateTerrain).length,
         smokePlies: options.smokePlies,
         smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
         setupOptions: getApkSkirmishSetupOptions(),
@@ -259,13 +291,16 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 解包目录：\`${report.unpackDir}\``,
         `- 解密方式：${report.decryption.cipher}，key/iv = \`${report.decryption.keyHex}\``,
         `- 允许未实测 approximate：${report.includeApproximate ? '是' : '否'}`,
+        `- 默认地形策略：包含无 approximate 地图和已实机确认的 t30/t31 approximate 地图，继续排除未来未实测 approximate/unmapped 地图`,
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
+        `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}`,
+        `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | unmapped | 合法动作 | smoke | 可招募 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | smoke | 可招募 | 模式规则 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | ---: | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -277,12 +312,14 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.initialUnitCount,
             scenario.recommendedGold ?? '-',
             scenario.approximateTileCount,
+            scenario.hasUnverifiedApproximateTerrain ? '是' : '否',
             scenario.unmappedTileCount,
             scenario.legalActionCount,
             scenario.smokeError
                 ? `失败: ${scenario.smokeError}`
                 : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
             scenario.recruitableUnitCount ?? '-',
+            scenario.modeRuleMatched ? '是' : '否',
             scenario.manifestMatched ? '是' : '否',
             scenario.metadataMatched ? '是' : '否'
         ].join(' | ') + ' |');
@@ -306,8 +343,18 @@ async function main() {
     const manifestMismatch = report.manifestMatchedCount !== report.scenarioCount;
     const metadataMismatch = report.metadataMatchedCount !== report.scenarioCount;
     const zeroLegalActions = report.zeroLegalActionCount > 0;
+    const modeRuleMismatches = report.modeRuleMismatchCount > 0;
+    const unverifiedApproximateScenarios = !report.includeApproximate && report.unverifiedApproximateScenarioCount > 0;
     const smokeFailures = report.smokeFailureCount > 0;
-    if (options.check && (scenarioCountMismatch || manifestMismatch || metadataMismatch || zeroLegalActions || smokeFailures)) {
+    if (options.check && (
+        scenarioCountMismatch
+        || manifestMismatch
+        || metadataMismatch
+        || zeroLegalActions
+        || modeRuleMismatches
+        || unverifiedApproximateScenarios
+        || smokeFailures
+    )) {
         process.exitCode = 1;
     }
 }

@@ -1038,8 +1038,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 2026-06-30 APK skirmish 训练地图筛选入口：
 
-- `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的 16 张官方 skirmish 地图，作为更稳的基础训练地图集合。
-- 该函数支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图，或只取 2/3/4 人图。
+- `getApkSkirmishTrainingMapManifest()` 默认返回无 unmapped tile，且只包含“无 approximate”或“approximate 已实机确认”的官方 skirmish 地图；当前 20 张官方图都会进入默认训练集。
+- 该函数支持 `allowVerifiedApproximateTerrain=false` 获取 16 张无 approximate 的保守基础图，也支持 `allowApproximateTerrain`、`allowUnmappedTerrain` 和 `playerCounts`，训练代码可以显式选择是否纳入低可信地图、未来未实测 approximate 地图，或只取 2/3/4 人图。
 - 验证：新增回归测试覆盖默认 20 张官方 skirmish 地图、默认 2 人图过滤，以及已实机确认的 approximate tile 地图纳入训练集。
 
 2026-06-30 APK skirmish 训练场景清单入口：
@@ -1048,7 +1048,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
-- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
+- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 40/40 manifest 匹配、40/40 metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 仍可用于未来放行未实测 approximate 地图。
 - 验证：新增回归测试覆盖默认 32 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
 
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
