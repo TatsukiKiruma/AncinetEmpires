@@ -205,6 +205,8 @@ skirmish 控制脚本结论：
 - 若被摧毁队伍是当前队伍且游戏尚未结束，SD/SO 脚本会调用 `Stage.AsyncNextTurn()` 交给下一存活队伍；项目引擎已在结算后自动跳过失活当前玩家。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
 - 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；SD 模式会写入实机确认的指挥官+18 个普通单位可招募列表，SO 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
+- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30 实机确认的 skirmish 行为固化为 10 项机器检查：SD/SO 招募、开局设置、`t30/t31`、投降、pending/stacked、淘汰和敌军压城堡扣血。当前结果为 10/10 通过。
+- 前端沙盒和自动 AI 演示已改用 `createDefaultAppGameState()`，默认规则为 APK 正常遭遇战 `SD`；现有 demo 棋盘仍作为轻量调试地图保留。
 
 ## 10. 地形与地图导入差异
 
@@ -250,7 +252,7 @@ APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象
 - `tools/apk_map_report.ts` 已把上述解密、解析和 manifest 对比流程工具化；`npm run apk:map-report -- --check` 当前确认 20/20 地图和项目清单一致，并在报告末尾输出 `t30/t31` 的人工验证坐标、当前项目语义清单和实机确认状态。
 - `getApkSkirmishTrainingMapManifest()` 默认返回不含 approximate/unmapped tile 的官方地图；可通过 `allowApproximateTerrain/allowUnmappedTerrain/playerCounts` 显式放开低可信地形或筛选 2/3/4 人图，避免训练入口重复写过滤逻辑。
 - `getApkSkirmishTrainingScenarios()` 在训练地图清单基础上生成 SD/SO 模式场景，默认 16 张干净地图 x 2 模式共 32 项；每项携带资源路径、玩家数、推荐金币、地形可信度摘要、遭遇战开局设置范围和模式 `RuleConfig`。SD 场景包含实机确认的指挥官+18 个普通单位招募列表；SO 场景包含脚本确认的 APK ID 0-8 招募列表。训练侧可用 `getApkSkirmishTrainingScenario(id)` 按稳定 ID 定位场景，并通过 `createApkSkirmishTrainingGameState(map, id)` / `createApkSkirmishTrainingEnv(map, id)` 直接创建带 manifest 校验、来源元数据和 `metadata.apkSkirmishSetupOptions` 的训练状态/环境。
-- `tools/apk_training_report.ts` 已把上述训练场景创建流程工具化；`npm run apk:training-report -- --check` 当前确认默认 32/32 场景可创建环境、manifest/metadata 全匹配、初始合法动作均非 0；`--include-approximate` 扩展检查为 40/40 通过。
+- `tools/apk_training_report.ts` 已把上述训练场景创建流程工具化；`npm run apk:training-report -- --check` 当前确认默认 32/32 场景可创建环境、manifest/metadata 全匹配、初始合法动作均非 0，并且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 扩展检查为 40/40 通过。
 - `getApkSkirmishTerrainVerificationTargets()` 默认返回上述 4 个低可信 skirmish 验证目标，并附带资源路径、玩家数、APK tile ID、格子数量、坐标、项目映射地形、evidence、APK `data.bin` 地形数值、`projectRuleSemantics` 当前项目语义快照、`manualChecks` 实测回填 key/value 清单和 `manualVerification` 已实测行为记录；也支持按 confidence、tile ID 或地图名查询 confirmed/atlas tile，供人工实测和训练样本降权共用。当前坐标：`Mourningstar t30=(3,4),(7,6)`，`The Crucible t31=(9,9)`，`Waterways t31=(7,8),(7,11)`，`Winterstorm t31=(0,0),(12,0),(0,12),(12,12)`，这些格子的 APK owner code 均为 `0xff`。当前项目语义中，`t30` 按 camp 回血但不净化，`t31` 按 temple 回血并净化，二者都不可占领、无收入。
 - approximate tile 的 evidence 已进一步拆分：`t30` 为 `low_confidence_camp_semantics`，`t31/t80` 为 `low_confidence_temple_semantics`，`t81/t82` 为 `low_confidence_water_obstacle_semantics`，`t83` 为 `low_confidence_water_temple_semantics`。这让训练管线可以把营地、陆地神庙、水中障碍和水中神庙候选分开降权或过滤。
 - 新增回合开始结算回归：`t31` 已由实机确认清除负面状态并使用 APK `healPerTurn=20` 回血；`t80/t83` 当前仍按神庙候选近似处理；`t30/t81` 不清除负面状态，避免把营地或水面障碍误套用神庙净化。

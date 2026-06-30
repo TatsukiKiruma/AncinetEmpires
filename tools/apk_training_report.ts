@@ -13,6 +13,7 @@ import {
     getApkSkirmishTrainingScenarios,
     type ApkSkirmishTrainingScenario
 } from '../src/game/apk_skirmish';
+import type { Action } from '../src/game/types';
 import { decryptApkResourceBytes, APK_RESOURCE_DECRYPTION_INFO } from './apk_resource_crypto';
 
 interface CliOptions {
@@ -20,6 +21,7 @@ interface CliOptions {
     json: boolean;
     check: boolean;
     includeApproximate: boolean;
+    smokePlies: number;
 }
 
 interface TrainingScenarioReportEntry {
@@ -40,6 +42,11 @@ interface TrainingScenarioReportEntry {
     turnPlayerIds: number[];
     legalActionCount: number;
     recruitableUnitCount: number | null;
+    smokeRequestedPlies: number;
+    smokeExecutedPlies: number;
+    smokeDone: boolean;
+    smokeError: string | null;
+    smokeFinalLegalActionCount: number;
 }
 
 interface ApkTrainingReport {
@@ -51,6 +58,8 @@ interface ApkTrainingReport {
     manifestMatchedCount: number;
     metadataMatchedCount: number;
     zeroLegalActionCount: number;
+    smokePlies: number;
+    smokeFailureCount: number;
     setupOptions: ReturnType<typeof getApkSkirmishSetupOptions>;
     scenarios: TrainingScenarioReportEntry[];
 }
@@ -63,6 +72,7 @@ function printHelp() {
 选项:
   --unpack <dir>          APK 解包目录，默认 APK/_analysis/unpack
   --include-approximate   纳入含 approximate tile 的官方地图，默认只检查 16 张干净地图
+  --smoke-plies <n>       每个场景执行 n 个合法动作 smoke test，默认 4；设为 0 可关闭
   --json                  输出 JSON
   --check                 场景数量、manifest、metadata 或初始合法动作异常时以非 0 退出
   --help                  显示帮助
@@ -74,7 +84,8 @@ function parseArgs(argv: string[]): CliOptions {
         unpackDir: DEFAULT_UNPACK_DIR,
         json: false,
         check: false,
-        includeApproximate: false
+        includeApproximate: false,
+        smokePlies: 4
     };
 
     for (let i = 0; i < argv.length; i += 1) {
@@ -88,6 +99,14 @@ function parseArgs(argv: string[]): CliOptions {
             options.check = true;
         } else if (arg === '--include-approximate') {
             options.includeApproximate = true;
+        } else if (arg === '--smoke-plies') {
+            const value = argv[++i];
+            if (!value) throw new Error('--smoke-plies 缺少数值参数');
+            const parsed = Number(value);
+            if (!Number.isInteger(parsed) || parsed < 0) {
+                throw new Error('--smoke-plies 必须是非负整数');
+            }
+            options.smokePlies = parsed;
         } else if (arg === '--unpack') {
             const value = argv[++i];
             if (!value) throw new Error('--unpack 缺少目录参数');
@@ -98,6 +117,51 @@ function parseArgs(argv: string[]): CliOptions {
     }
 
     return options;
+}
+
+function chooseSmokeAction(actions: Action[]): Action | null {
+    return actions.find(action => action.type !== 'surrender') ?? actions[0] ?? null;
+}
+
+function runScenarioSmoke(
+    env: ReturnType<typeof createApkSkirmishTrainingEnv>,
+    requestedPlies: number
+): Pick<
+    TrainingScenarioReportEntry,
+    'smokeRequestedPlies' | 'smokeExecutedPlies' | 'smokeDone' | 'smokeError' | 'smokeFinalLegalActionCount'
+> {
+    let executed = 0;
+    let done = false;
+    let smokeError: string | null = null;
+
+    for (let ply = 0; ply < requestedPlies; ply += 1) {
+        const actions = env.getLegalActions();
+        const action = chooseSmokeAction(actions);
+        if (!action) {
+            smokeError = `第 ${ply + 1} 步无合法动作`;
+            break;
+        }
+
+        const result = env.stepAction(action);
+        executed += 1;
+        done = result.done;
+
+        if (result.info.includes('非法动作')) {
+            smokeError = `第 ${ply + 1} 步执行 ${action.type} 返回非法动作: ${result.info}`;
+            break;
+        }
+        if (done) {
+            break;
+        }
+    }
+
+    return {
+        smokeRequestedPlies: requestedPlies,
+        smokeExecutedPlies: executed,
+        smokeDone: done,
+        smokeError,
+        smokeFinalLegalActionCount: env.getLegalActions().length
+    };
 }
 
 async function readDecryptedMap(unpackDir: string, scenario: ApkSkirmishTrainingScenario): Promise<ApkAemMap> {
@@ -121,13 +185,16 @@ async function getCachedMap(
 
 function buildScenarioReportEntry(
     scenario: ApkSkirmishTrainingScenario,
-    map: ApkAemMap
+    map: ApkAemMap,
+    smokePlies: number
 ): TrainingScenarioReportEntry {
     const manifestEntry = getApkSkirmishMapManifestEntry(scenario.mapName);
     const manifestMatched = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
     const env = createApkSkirmishTrainingEnv(map, scenario, { maxPlies: 200 });
     const observation = env.getObservation();
     const metadata = observation.metadata;
+    const legalActionCount = env.getLegalActions().length;
+    const smoke = runScenarioSmoke(env, smokePlies);
 
     return {
         id: scenario.id,
@@ -150,8 +217,9 @@ function buildScenarioReportEntry(
         ),
         currentPlayer: observation.currentPlayer,
         turnPlayerIds: observation.turnPlayerIds,
-        legalActionCount: env.getLegalActions().length,
-        recruitableUnitCount: observation.rules.recruitableUnits?.length ?? null
+        legalActionCount,
+        recruitableUnitCount: observation.rules.recruitableUnits?.length ?? null,
+        ...smoke
     };
 }
 
@@ -164,7 +232,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
 
     for (const scenario of scenarios) {
         const map = await getCachedMap(mapCache, options.unpackDir, scenario);
-        entries.push(buildScenarioReportEntry(scenario, map));
+        entries.push(buildScenarioReportEntry(scenario, map, options.smokePlies));
     }
 
     return {
@@ -176,6 +244,8 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         manifestMatchedCount: entries.filter(entry => entry.manifestMatched).length,
         metadataMatchedCount: entries.filter(entry => entry.metadataMatched).length,
         zeroLegalActionCount: entries.filter(entry => entry.legalActionCount === 0).length,
+        smokePlies: options.smokePlies,
+        smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
         setupOptions: getApkSkirmishSetupOptions(),
         scenarios: entries
     };
@@ -191,10 +261,11 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- includeApproximate：${report.includeApproximate ? '是' : '否'}`,
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
         `- 初始合法动作数为 0 的场景：${report.zeroLegalActionCount}`,
+        `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | unmapped | 合法动作 | 可招募 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | unmapped | 合法动作 | smoke | 可招募 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -208,6 +279,9 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.approximateTileCount,
             scenario.unmappedTileCount,
             scenario.legalActionCount,
+            scenario.smokeError
+                ? `失败: ${scenario.smokeError}`
+                : `${scenario.smokeExecutedPlies}/${scenario.smokeRequestedPlies}${scenario.smokeDone ? ' done' : ''}`,
             scenario.recruitableUnitCount ?? '-',
             scenario.manifestMatched ? '是' : '否',
             scenario.metadataMatched ? '是' : '否'
@@ -232,7 +306,8 @@ async function main() {
     const manifestMismatch = report.manifestMatchedCount !== report.scenarioCount;
     const metadataMismatch = report.metadataMatchedCount !== report.scenarioCount;
     const zeroLegalActions = report.zeroLegalActionCount > 0;
-    if (options.check && (scenarioCountMismatch || manifestMismatch || metadataMismatch || zeroLegalActions)) {
+    const smokeFailures = report.smokeFailureCount > 0;
+    if (options.check && (scenarioCountMismatch || manifestMismatch || metadataMismatch || zeroLegalActions || smokeFailures)) {
         process.exitCode = 1;
     }
 }

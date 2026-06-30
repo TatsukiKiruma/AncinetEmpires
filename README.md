@@ -5,6 +5,7 @@
 ## 环境接口 (AncientEmpiresEnv)
 
 核心训练接口位于 `src/game/env.ts` 中。
+前端沙盒与自动 AI 演示默认使用 `createDefaultAppGameState()`，即沿用现有演示棋盘，但规则配置为 APK 正常遭遇战 `SD` 模式；裸 `createDemoState()` 仍保留给测试和自定义局面使用。
 
 ```ts
 import { AncientEmpiresEnv } from './src/game/env';
@@ -109,6 +110,12 @@ npm run apk:unit-report -- --check
 ```
 该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 21 条单位记录，并和 `src/game/units.ts` 的战斗数值、成长、射程、人口和能力 ID 对比。当前复核结果为 21/21 单位记录匹配、项目单位配置差异 0；指挥官/骷髅/水晶价格和水晶移动力属于已记录的刻意差异。
 
+### 复核 APK skirmish 对战行为
+```bash
+npm run apk:skirmish-rule-report -- --check
+```
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、开局设置范围、`t30/t31` 回血与清状态差异、投降、pending/stacked 招募菜单限制、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 10/10 检查通过。
+
 ### 复核 APK 脚本规则证据
 ```bash
 npm run apk:script-report -- --check
@@ -125,7 +132,7 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景，并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 场景 manifest 匹配、metadata 匹配，且所有场景初始合法动作数均大于 0；可加 `--include-approximate` 检查含低可信地形的 40 个扩展场景。
+该命令会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景，并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 场景 manifest 匹配、metadata 匹配，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；可加 `--include-approximate` 检查含低可信地形的 40 个扩展场景。
 
 ## 待补充与未实现 (TODO List)
 

@@ -97,6 +97,16 @@ npm run apk:unit-report -- --check
 
 当前命令输出确认：21/21 条单位记录可解析，和 `src/game/units.ts` 的战斗数值、成长、射程、人口、能力 ID 对比后项目单位配置差异为 0。报告单独记录 4 项刻意差异：指挥官/骷髅/水晶的 `UnitConfig.cost=null`，以及水晶项目移动力为 0。本轮据此确认并修正黑魔法师最大射程为 2。
 
+2026-06-30 补充：用户实机确认的 skirmish 对战行为已固化为 `tools/apk_skirmish_rule_report.ts`，可通过以下命令重复验证：
+
+```bash
+npm run apk:skirmish-rule-report -- --check
+```
+
+当前命令输出确认：10/10 项检查通过，覆盖遭遇战开局设置范围、SD/SO 招募列表、`t30/t31` 回血与清状态差异、`t30/t31` 不占领/不收入/不招募、pending/stacked 招募菜单限制、投降结算、skirmish 淘汰条件和敌军压己方城堡回合开始扣 50 血。
+
+同批修改还新增 `src/game/default_state.ts`：前端沙盒和自动 AI 演示默认通过 `createDefaultAppGameState()` 启动，使用 APK 正常遭遇战 `SD` 规则配置；`createDemoState()` 仍保留给测试和自定义局面。
+
 本次用同一 key 临时解密：
 
 | 类型 | 解密数量 | 说明 |
@@ -461,7 +471,7 @@ npm run apk:script-report -- --check
 
 2026-06-30 补充：`getApkSkirmishTrainingScenario(id)`、`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 已把场景清单接到训练状态/环境创建流程。默认会校验传入 AEM 地图与官方 manifest 匹配，匹配时在 metadata 中保留 APK 版本、SHA256、资源路径、模式和 `apkSkirmishTrainingScenarioId`。
 
-2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 32/32 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，初始合法动作数均大于 0；`--include-approximate` 扩展到 40/40 场景同样通过。
+2026-06-30 补充：`tools/apk_training_report.ts` 已提供训练场景复核命令 `npm run apk:training-report -- --check`。当前默认 32/32 场景可从解密 AEM 创建 `AncientEmpiresEnv`，manifest 与 metadata 均匹配，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；`--include-approximate` 扩展到 40/40 场景同样通过。
 
 `src/game/apk_script_config.ts` 已提供字面量配置到项目 `RuleConfig` 的静态生成入口，可安全转换金币、收入、单位上限、全局/队伍可招募列表、联盟和禁用队伍。`SyncRestoreTeam` 与 `SyncGameOver` 属于生命周期/终局调用，只保留为被忽略证据，不写入开局静态规则。该入口仍不是完整脚本执行器；含动态参数的配置和剧情触发仍需独立场景层处理。
 

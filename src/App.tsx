@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GameEngine } from './game/engine';
-import { createDemoState } from './game/demo_map';
+import { createDefaultAppGameState } from './game/default_state';
 import { playAutoGame } from './game/ai/play';
 import { GameState, Action, Position, Unit, UnitClass } from './game/types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './game/constants';
@@ -43,13 +43,13 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'auto' | 'sandbox'>('sandbox');
 
   // --- 自动对局模式状态 ---
-  const [autoGameState, setAutoGameState] = useState<GameState>(createDemoState());
+  const [autoGameState, setAutoGameState] = useState<GameState>(createDefaultAppGameState());
   const [autoLogs, setAutoLogs] = useState<string[]>([]);
   const [autoIsRunning, setAutoIsRunning] = useState(false);
   const bottomAutoRef = useRef<HTMLDivElement>(null);
 
   // --- 手动沙盒对抗状态 ---
-  const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDemoState());
+  const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDefaultAppGameState());
   const [sandboxLogs, setSandboxLogs] = useState<string[]>([
     "[系统] 欢迎来到手动沙盒试炼场！这里允许玩家交互点击棋盘，自由操纵红蓝两大阵营对抗，用于体验和调试各种兵种光环、状态削弱与核心机能。"
   ]);
@@ -85,13 +85,13 @@ export default function App() {
   };
 
   const handleResetAuto = () => {
-    setAutoGameState(createDemoState());
+    setAutoGameState(createDefaultAppGameState());
     setAutoLogs(prev => [...prev, "[INFO] 自动对局状态已重置"]);
   };
 
   // --- 沙盒模式控制 ---
   const handleResetSandbox = () => {
-    setSandboxGameState(createDemoState());
+    setSandboxGameState(createDefaultAppGameState());
     setSelectedUnitId(null);
     setSelectedCastlePos(null);
     setSelectedRecruitUnitClass(null);

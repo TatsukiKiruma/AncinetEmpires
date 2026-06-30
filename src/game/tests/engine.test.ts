@@ -3,6 +3,7 @@ import { GameEngine } from '../engine';
 import { AncientEmpiresEnv, calculateArmyValue, decodeAction, encodeAction, getActionSpaceSchema } from '../env';
 import type { Action } from '../types';
 import { createDemoState } from '../demo_map';
+import { createDefaultAppGameState } from '../default_state';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
 import { calculateDamage, getLegalActions } from '../rules';
 import { getMoveCostTo, getReachablePositions } from '../map';
@@ -21,6 +22,18 @@ import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamD
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainKey } from '../terrain_rules';
 
 describe('GameEngine Rules', () => {
+
+    it('应用默认对局使用 APK SD skirmish 规则', () => {
+        const state = createDefaultAppGameState();
+
+        expect(state.players.map(player => player.gold)).toEqual([300, 300]);
+        expect(state.rules).toEqual(getApkSkirmishRuleConfig('SD'));
+        expect(getLegalActions(state, 0).some(action => action.type === 'surrender')).toBe(true);
+        expect(getLegalActions(state, 0).some(action => (
+            (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
+            && action.unitClass === 'skeleton'
+        ))).toBe(false);
+    });
 
     it('17类地形配置存在，数值正确', () => {
         expect(TERRAIN_CONFIG[1].key).toBe('snow');

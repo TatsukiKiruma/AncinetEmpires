@@ -851,6 +851,13 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - `UnitConfig` 新增攻击、防御、最大生命和移动成长字段，`getEffectiveStats` 改为按 APK `data.bin` 单位成长表计算，不再在逻辑函数里硬编码兵种分支。
 - 合法移动范围和实际移动消耗校验已改为使用 `getEffectiveStats(unit).move`，确保指挥官、幽灵、德鲁伊等 APK `moveGrowth=1` 的单位升级后移动成长会实际进入对战规则。
 
+2026-06-30 skirmish 实机规则复核工具化：
+
+- 新增 `tools/apk_skirmish_rule_report.ts`，可通过 `npm run apk:skirmish-rule-report -- --check` 复核用户实机确认的 skirmish 行为。
+- 当前覆盖 10 项：开局金币/单位上限/等级上限/模式范围，SD/SO 招募列表，`t30/t31` 回血与清状态差异，`t30/t31` 不占领/不收入/不招募，pending/stacked 招募菜单限制，投降结算，skirmish 淘汰条件，以及敌军压城堡回合开始扣 50 血并跳过无操作队伍。
+- 当前复核结果为 10/10 检查通过；该工具不重新解包 APK，专门用于防止已实机确认的项目行为回退。
+- 新增 `createDefaultAppGameState()`，前端沙盒和自动 AI 演示默认沿用现有演示棋盘，但应用 APK 正常遭遇战 `SD` 规则配置，避免实际运行入口继续使用旧的裸 demo 规则。
+
 2026-06-29 全局初始金币规则补充：
 
 - 解密脚本确认 `Stage.SyncSetGold(value)` 是单参数全局金币设置，战役中常见 300、400、450、500、600、800 等配置。
@@ -1039,7 +1046,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 每个场景包含稳定 ID（如 `SO:(2) Duel.aem`）、模式、地图名、资源路径、尺寸、玩家数、开局单位数量、推荐金币、地形可信度摘要和该模式的 `RuleConfig` 快照。SO 场景会带上 APK ID 0-8 的基础可招募单位限制；SD 场景会带上实机确认的 19 个可招募单位列表，包含指挥官，不包含骷髅/水晶。
 - 该函数同样支持 `modes/playerCounts/allowApproximateTerrain/allowUnmappedTerrain`，用于训练调度直接选择模式和地图集合，不需要外部训练脚本再手工拼接 `getApkSkirmishTrainingMapManifest()` 与 `getApkSkirmishRuleConfig()`。若训练需要自定义金币、单位上限或等级上限，应通过 `setup` 入口生成规则，保留 APK 范围/步进校验。
 - `getApkSkirmishTrainingScenario(id)` 可按稳定 ID 定位单个场景；`createApkSkirmishTrainingGameState(map, id)` 与 `createApkSkirmishTrainingEnv(map, id)` 会把已解析 AEM 地图转换为带 APK skirmish 规则的训练状态/环境，并默认严格校验地图与官方 manifest 匹配。匹配时会写入 APK 版本、SHA256、资源路径、`apkSkirmishMode` 和 `apkSkirmishTrainingScenarioId`。
-- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 manifest 匹配、32/32 metadata 匹配，且初始合法动作数均大于 0；加 `--include-approximate` 时为 40/40 场景通过。
+- `tools/apk_training_report.ts` / `npm run apk:training-report -- --check` 会解密默认 16 张干净官方 skirmish 地图，生成 SD/SO 共 32 个训练场景并逐一创建 `AncientEmpiresEnv`。当前复核结果为 32/32 manifest 匹配、32/32 metadata 匹配，初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；加 `--include-approximate` 时为 40/40 场景同样通过。
 - 验证：新增回归测试覆盖默认 32 个场景、2 人 SO 场景筛选、SO 可招募列表，以及返回的规则/地形可信度快照不会被调用方修改污染。
 
 2026-06-30 APK skirmish 低可信 tile 验证目标入口：
