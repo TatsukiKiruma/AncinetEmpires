@@ -13,6 +13,21 @@ import {
 } from '../src/game/apk_skirmish';
 import { getApkSkirmishTrainingMapManifest } from '../src/game/apk_manifest';
 import {
+    APK_ABILITY_ID_TO_TYPE,
+    APK_STATUS_ID_TO_TYPE,
+    APK_UNIT_ID_TO_CLASS,
+    APK_UNIT_CLASS_TO_ID,
+    APK_ABILITY_TYPE_TO_ID,
+    APK_STATUS_TYPE_TO_ID
+} from '../src/game/apk_compat';
+import {
+    APK_TERRAIN_CONFIGS,
+    APK_TERRAIN_COUNT,
+    APK_TERRAIN_RECORD_SIZE,
+    getSkirmishApkTerrainMappingInfo,
+    type ApkTerrainMappingConfidence
+} from '../src/game/apk_terrain';
+import {
     APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS,
     APK_SCRIPT_API_CALL_COUNTS,
     APK_SCRIPT_DECRYPTED_JS_FILE_COUNT,
@@ -164,6 +179,13 @@ const SCRIPT_RULE_REQUIRED_APPLICATION_CHECK_IDS = [
     'script-income-application',
     'stage-move-override-observation',
     'stage-status-observation'
+];
+
+const DATA_BIN_TERRAIN_MAPPING_CONFIDENCE_ORDER: ApkTerrainMappingConfidence[] = [
+    'confirmed',
+    'atlas',
+    'approximate',
+    'unmapped'
 ];
 
 function printHelp() {
@@ -1055,6 +1077,39 @@ function buildScriptRuleEvidenceActual() {
     };
 }
 
+function buildDataBinManifestEvidenceActual() {
+    const apkUnitClasses = Object.values(APK_UNIT_ID_TO_CLASS);
+    const projectUnitClasses = Object.keys(UNIT_CONFIGS) as UnitClass[];
+    const terrainMappingSummary = DATA_BIN_TERRAIN_MAPPING_CONFIDENCE_ORDER.reduce(
+        (summary, confidence) => ({ ...summary, [confidence]: 0 }),
+        {} as Record<ApkTerrainMappingConfidence, number>
+    );
+    for (const config of APK_TERRAIN_CONFIGS) {
+        terrainMappingSummary[getSkirmishApkTerrainMappingInfo(config.id).confidence] += 1;
+    }
+
+    return {
+        unitClassCount: projectUnitClasses.length,
+        apkUnitIdCount: Object.keys(APK_UNIT_ID_TO_CLASS).length,
+        projectMissingApkUnitClasses: apkUnitClasses.filter(unitClass => !(unitClass in UNIT_CONFIGS)),
+        apkMissingProjectUnitClasses: projectUnitClasses.filter(unitClass => APK_UNIT_CLASS_TO_ID[unitClass] === undefined),
+        projectCostedUnitCount: projectUnitClasses.filter(unitClass => UNIT_CONFIGS[unitClass].cost !== null).length,
+        ruleDrivenUnitCosts: projectUnitClasses
+            .filter(unitClass => UNIT_CONFIGS[unitClass].cost === null)
+            .sort(),
+        abilityIdCount: Object.keys(APK_ABILITY_ID_TO_TYPE).length,
+        abilityRoundTripCount: Object.values(APK_ABILITY_ID_TO_TYPE)
+            .filter(ability => APK_ABILITY_TYPE_TO_ID[ability] !== undefined).length,
+        statusIdCount: Object.keys(APK_STATUS_ID_TO_TYPE).length,
+        statusRoundTripCount: Object.values(APK_STATUS_ID_TO_TYPE)
+            .filter(status => APK_STATUS_TYPE_TO_ID[status] !== undefined).length,
+        terrainCount: APK_TERRAIN_CONFIGS.length,
+        expectedTerrainCount: APK_TERRAIN_COUNT,
+        terrainRecordSize: APK_TERRAIN_RECORD_SIZE,
+        terrainMappingSummary
+    };
+}
+
 function buildTerrainDefenseCombatActual() {
     const buildState = (defenderClass: UnitClass): GameState => {
         const state = createDemoState(getApkSkirmishRuleConfig('SD'));
@@ -1689,6 +1744,35 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }))
         },
         buildScriptRuleEvidenceActual()
+    );
+
+    check(
+        checks,
+        'data-bin-manifest-evidence',
+        'APK data.bin 单位和地形归档证据',
+        '已归档 data.bin 单位/能力/状态/地形 manifest；完整 DES 解密由 apk:unit-report 和 apk:terrain-report 单独门禁',
+        {
+            unitClassCount: 21,
+            apkUnitIdCount: 21,
+            projectMissingApkUnitClasses: [],
+            apkMissingProjectUnitClasses: [],
+            projectCostedUnitCount: 18,
+            ruleDrivenUnitCosts: ['commander', 'crystal', 'skeleton'],
+            abilityIdCount: 26,
+            abilityRoundTripCount: 26,
+            statusIdCount: 4,
+            statusRoundTripCount: 4,
+            terrainCount: 84,
+            expectedTerrainCount: 84,
+            terrainRecordSize: 40,
+            terrainMappingSummary: {
+                confirmed: 4,
+                atlas: 73,
+                approximate: 7,
+                unmapped: 0
+            }
+        },
+        buildDataBinManifestEvidenceActual()
     );
 
     check(

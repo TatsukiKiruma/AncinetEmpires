@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(25);
+        expect(report.checkCount).toBe(26);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(2);
@@ -254,6 +254,27 @@ describe('APK skirmish rule report', () => {
                 { id: 'stage-move-override-observation', status: 'pass' },
                 { id: 'stage-status-observation', status: 'pass' }
             ]
+        });
+        expect(byId['data-bin-manifest-evidence'].actual).toEqual({
+            unitClassCount: 21,
+            apkUnitIdCount: 21,
+            projectMissingApkUnitClasses: [],
+            apkMissingProjectUnitClasses: [],
+            projectCostedUnitCount: 18,
+            ruleDrivenUnitCosts: ['commander', 'crystal', 'skeleton'],
+            abilityIdCount: 26,
+            abilityRoundTripCount: 26,
+            statusIdCount: 4,
+            statusRoundTripCount: 4,
+            terrainCount: 84,
+            expectedTerrainCount: 84,
+            terrainRecordSize: 40,
+            terrainMappingSummary: {
+                confirmed: 4,
+                atlas: 73,
+                approximate: 7,
+                unmapped: 0
+            }
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
             playerGold: [450, 450],
