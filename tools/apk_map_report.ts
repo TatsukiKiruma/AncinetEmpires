@@ -36,6 +36,8 @@ const EXPECTED_LOW_CONFIDENCE_ALL_AEM_USAGE = [
     { apkTerrainId: 82, tileCount: 8, skirmishTileCount: 0, nonSkirmishTileCount: 8, resourceCount: 1 },
     { apkTerrainId: 83, tileCount: 6, skirmishTileCount: 0, nonSkirmishTileCount: 6, resourceCount: 2 }
 ] as const;
+const MAX_RESOURCE_POSITION_SAMPLES = 6;
+const MAX_TERRAIN_POSITION_SAMPLES = 12;
 
 interface CliOptions {
     unpackDir: string;
@@ -60,13 +62,43 @@ interface MapReportEntry {
     manifestMatched: boolean;
 }
 
+export interface AemTerrainPosition {
+    x: number;
+    y: number;
+    ownerCode: number;
+    ownerId: number | null;
+}
+
+interface AemTerrainPositionSource {
+    terrain: {
+        x: number;
+        y: number;
+        apkTerrainId: number;
+        ownerCode: number;
+        ownerId: number | null;
+    }[][];
+}
+
+interface AemTerrainPositionSample extends AemTerrainPosition {
+    resourcePath: string;
+    isSkirmish: boolean;
+}
+
+interface AllAemTerrainResourceUsage {
+    resourcePath: string;
+    tileCount: number;
+    isSkirmish: boolean;
+    samplePositions: AemTerrainPosition[];
+}
+
 interface AllAemTerrainUsageEntry {
     apkTerrainId: number;
     tileCount: number;
     resourceCount: number;
     skirmishTileCount: number;
     nonSkirmishTileCount: number;
-    resources: { resourcePath: string; tileCount: number; isSkirmish: boolean }[];
+    resources: AllAemTerrainResourceUsage[];
+    samplePositions: AemTerrainPositionSample[];
 }
 
 interface AllAemTerrainUsageReport {
@@ -172,6 +204,23 @@ function toResourcePath(unpackDir: string, filePath: string): string {
     return path.relative(unpackDir, filePath).split(path.sep).join('/');
 }
 
+export function collectAemTerrainPositions(
+    terrainOnly: AemTerrainPositionSource,
+    apkTerrainId: number
+): AemTerrainPosition[] {
+    return terrainOnly.terrain.flatMap(row => (
+        row.flatMap(cell => cell.apkTerrainId === apkTerrainId
+            ? [{
+                x: cell.x,
+                y: cell.y,
+                ownerCode: cell.ownerCode,
+                ownerId: cell.ownerId
+            }]
+            : []
+        )
+    ));
+}
+
 async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemTerrainUsageReport> {
     const aemFiles = await listAemFiles(path.join(unpackDir, 'assets'));
     const skirmishResourcePaths = new Set(APK_SKIRMISH_MAP_MANIFEST.map(entry => entry.resourcePath));
@@ -195,6 +244,7 @@ async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemT
         }
 
         for (const apkTerrainId of LOW_CONFIDENCE_AEM_TERRAIN_IDS) {
+            const positions = collectAemTerrainPositions(terrainOnly, apkTerrainId);
             const tileCount = terrainUsage[apkTerrainId] ?? 0;
             if (tileCount === 0) continue;
 
@@ -204,7 +254,8 @@ async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemT
                 resourceCount: 0,
                 skirmishTileCount: 0,
                 nonSkirmishTileCount: 0,
-                resources: []
+                resources: [],
+                samplePositions: []
             };
             existing.tileCount += tileCount;
             existing.resourceCount += 1;
@@ -213,7 +264,16 @@ async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemT
             } else {
                 existing.nonSkirmishTileCount += tileCount;
             }
-            existing.resources.push({ resourcePath, tileCount, isSkirmish });
+            existing.resources.push({
+                resourcePath,
+                tileCount,
+                isSkirmish,
+                samplePositions: positions.slice(0, MAX_RESOURCE_POSITION_SAMPLES)
+            });
+            for (const position of positions) {
+                if (existing.samplePositions.length >= MAX_TERRAIN_POSITION_SAMPLES) break;
+                existing.samplePositions.push({ ...position, resourcePath, isSkirmish });
+            }
             grouped.set(apkTerrainId, existing);
         }
     }
@@ -226,7 +286,8 @@ async function buildAllAemTerrainUsageReport(unpackDir: string): Promise<AllAemT
                 resourceCount: 0,
                 skirmishTileCount: 0,
                 nonSkirmishTileCount: 0,
-                resources: []
+                resources: [],
+                samplePositions: []
             });
         }
     }
@@ -370,19 +431,30 @@ function renderMarkdown(report: ApkMapReport): string {
         `- 全 assets AEM：${report.allAemTerrainUsage.aemCount} 张`,
         `- 可完整解析单位段失败：${report.allAemTerrainUsage.fullParseFailureCount} 张；地形段仍已纳入统计`,
         ``,
-        `| APK tile | 总格子 | skirmish 格子 | 非 skirmish 格子 | 资源数 | 资源 |`,
-        `| ---: | ---: | ---: | ---: | ---: | --- |`
+        `| APK tile | 总格子 | skirmish 格子 | 非 skirmish 格子 | 资源数 | 坐标样例 | 资源 |`,
+        `| ---: | ---: | ---: | ---: | ---: | --- | --- |`
     );
     for (const entry of report.allAemTerrainUsage.lowConfidenceTerrainUsage) {
+        const samplePositions = entry.samplePositions.length === 0
+            ? '-'
+            : entry.samplePositions.map(position => (
+                `\`${position.resourcePath}\`(${position.x},${position.y},owner=${position.ownerCode}${position.isSkirmish ? ',skirmish' : ''})`
+            )).join(', ');
         lines.push([
             `| ${entry.apkTerrainId}`,
             entry.tileCount,
             entry.skirmishTileCount,
             entry.nonSkirmishTileCount,
             entry.resourceCount,
+            samplePositions,
             entry.resources.length === 0
                 ? '-'
-                : entry.resources.map(item => `\`${item.resourcePath}\`(${item.tileCount}${item.isSkirmish ? ',skirmish' : ''})`).join(', ')
+                : entry.resources.map(item => {
+                    const resourceSamples = item.samplePositions.length === 0
+                        ? ''
+                        : `: ${item.samplePositions.map(position => `(${position.x},${position.y})`).join(' ')}`;
+                    return `\`${item.resourcePath}\`(${item.tileCount}${item.isSkirmish ? ',skirmish' : ''})${resourceSamples}`;
+                }).join(', ')
         ].join(' | ') + ' |');
     }
     if (report.allAemTerrainUsage.fullParseFailures.length > 0) {

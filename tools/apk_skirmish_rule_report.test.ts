@@ -23,6 +23,30 @@ describe('APK skirmish rule report', () => {
             'counter-blind-storm-order'
         ]);
         expect(report.manualVerificationItems.filter(item => item.priority === 'P0')).toEqual([]);
+        expect(report.manualVerificationItems.every(item => item.verificationSteps.length >= 4)).toBe(true);
+        expect(report.manualVerificationItems.every(item => item.recordTemplate.length >= 4)).toBe(true);
+        expect(report.manualVerificationItems.find(item => item.id === 'support-and-assault-edge-order')).toEqual(
+            expect.objectContaining({
+                verificationSteps: expect.arrayContaining([
+                    '用德鲁伊测试目标未行动、已行动、等级高于德鲁伊、等级等于德鲁伊、同联盟不同队伍五种情况能否支援。',
+                    '用狼或狼骑射手先移动若干格后攻击，记录攻击后可移动范围是否等于攻击前剩余移动力。'
+                ]),
+                recordTemplate: expect.arrayContaining([
+                    '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟目标 可/不可'
+                ])
+            })
+        );
+        expect(report.manualVerificationItems.find(item => item.id === 'counter-blind-storm-order')).toEqual(
+            expect.objectContaining({
+                verificationSteps: expect.arrayContaining([
+                    '用黑魔法师或狼骑射手本次攻击附加致盲，目标为可普通反击单位，记录本次反击是否发生。',
+                    '分别测试鼓舞攻击者、虚弱防守者、鼓舞攻击虚弱防守者的近战和远程伤害。'
+                ]),
+                recordTemplate: expect.arrayContaining([
+                    '反击风暴距离 1/2/3：发生情况：'
+                ])
+            })
+        );
     });
 
     it('固化待实机验证边界的当前项目探针输出', () => {

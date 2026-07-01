@@ -437,7 +437,7 @@ skirmish 训练导入映射：
 
 本轮已把头部、地形矩阵、初始单位和推荐金币作为已确认格式接入。推荐金币之后每张 skirmish 地图还剩固定 58 字节；复核结果显示 20 张根目录 skirmish 地图全部是同一个 `zero_suffix_58` 模板，不随 2/3/4 人数量、队伍 ID、初始单位或推荐金币变化。因此当前不能把该尾部解释为玩家/联盟预设，只能记录为“固定尾部模板，语义未确认”。
 
-2026-06-30 起，`tools/apk_map_report.ts` 已把 20 张官方 skirmish `.aem` 的解密、解析和 manifest 对比工具化。运行 `npm run apk:map-report -- --check` 会读取 `APK/_analysis/unpack/assets/maps/*.aem`，使用 DES/CBC/PKCS7 和 key/iv `72 6b 00 00 00 00 46 46` 解密后调用 `parseApkAemMap`，并确认 APK SHA256、地图结构、tile 使用量、推荐金币和尾部模板是否仍与项目清单一致。当前结果为 20/20 地图匹配、尾部模板 `zero_suffix_58=20`、非预期尾部 0、0 个 unmapped tile。
+2026-06-30 起，`tools/apk_map_report.ts` 已把 20 张官方 skirmish `.aem` 的解密、解析和 manifest 对比工具化。运行 `npm run apk:map-report -- --check` 会读取 `APK/_analysis/unpack/assets/maps/*.aem`，使用 DES/CBC/PKCS7 和 key/iv `72 6b 00 00 00 00 46 46` 解密后调用 `parseApkAemMap`，并确认 APK SHA256、地图结构、tile 使用量、推荐金币和尾部模板是否仍与项目清单一致。当前结果为 20/20 地图匹配、尾部模板 `zero_suffix_58=20`、非预期尾部 0、0 个 unmapped tile。该报告还会扫描全 `assets` 下 45 张 `.aem` 的低可信 tile，并输出资源路径和坐标样例。
 
 本轮复核与实现统计：
 
@@ -1080,7 +1080,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 - 复核 `assets/textures/main_texture.atlas/png` 后，`t30` 是营地/帐篷，`t31/t80` 是神庙建筑；`t80` 在当前 45 张 assets AEM 中未出现。
 - `t81/t82` 贴图是水面浮冰/礁石，`data.bin` 为防御 10、回血 0、移动 3；项目不再把它们映射为 `water_temple`，改为水面类地形，避免错误附加 `cleanse` 标签。
 - `t83` 贴图是水中平台/桥候选，`data.bin` 为防御 10、回血 20、移动 3；仍保留为低可信 `water_temple` 候选，等待实测确认是否净化。
-- 全 APK assets AEM 使用量已由 `npm run apk:map-report -- --check` 门禁：`t30=30`、`t31=16`、`t81=9`、`t82=8`、`t83=6`、`t80=0`；其中 `t81/t82/t83` 只出现在 AEIII 战役地图，不影响 20 张官方 skirmish 地图。该统计对 `assets/mods/AEII/s5.aem`、`assets/mods/AEII/s7.aem`、`assets/mods/AEIII/s1.aem` 使用只解析地形段的路径，因为这 3 张战役图单位段不符合当前 skirmish 单位解析格式。
+- 全 APK assets AEM 使用量已由 `npm run apk:map-report -- --check` 门禁：`t30=30`、`t31=16`、`t81=9`、`t82=8`、`t83=6`、`t80=0`；其中 `t81/t82/t83` 只出现在 AEIII 战役地图，不影响 20 张官方 skirmish 地图。报告会输出资源路径和坐标样例：`t81/t82` 均只出现在 `assets/mods/AEIII/s4.aem`，`t83` 出现在 `assets/mods/AEIII/s4.aem` 与 `assets/mods/AEIII/s6.aem`。该统计对 `assets/mods/AEII/s5.aem`、`assets/mods/AEII/s7.aem`、`assets/mods/AEIII/s1.aem` 使用只解析地形段的路径，因为这 3 张战役图单位段不符合当前 skirmish 单位解析格式。
 - 验证：新增回归测试确认 `t80` 仍是低可信神庙候选，`t81/t82` 输出水面障碍 evidence，Observation 中 `t81` 不再带 `cleanse` 标签。
 
 2026-06-30 APK 神庙/营地 tile 证据细分与结算回归：
@@ -1211,7 +1211,7 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 
 - 新增 `tools/apk_resource_crypto.ts`，把 APK `.aem/.js/.json` 资源共用的 `DES/CBC/PKCS7`、key/iv `72 6b 00 00 00 00 46 46` 作为 Node 侧解密工具固化；该工具不进入前端运行包。
 - 新增 `tools/apk_map_report.ts` 和 npm 脚本 `apk:map-report`，默认读取 `APK/_analysis/unpack`，解密 20 张官方 skirmish AEM，复用 `parseApkAemMap` 与 `matchesApkSkirmishMapManifest` 生成 Markdown/JSON 报告。
-- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，尾部模板 `zero_suffix_58=20`，非预期尾部 0，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标、当前项目语义 checklist，并显示 `t30/t31` 的实机确认状态。该命令还会扫描全 `assets` 下 45 张 `.aem` 的地形段并门禁低可信 tile 使用范围：`t30=30`、`t31=16`、`t80=0`、`t81=9`、`t82=8`、`t83=6`，其中 `t81/t82/t83` 的 skirmish 格子数均为 0。
+- 当前 `npm run apk:map-report -- --check` 结果：APK SHA256 匹配，20/20 地图 manifest 匹配，尾部模板 `zero_suffix_58=20`，非预期尾部 0，4 张地图含 approximate tile，0 张地图含 unmapped tile；报告末尾直接输出 `t30/t31` 人工验证坐标、当前项目语义 checklist，并显示 `t30/t31` 的实机确认状态。该命令还会扫描全 `assets` 下 45 张 `.aem` 的地形段并门禁低可信 tile 使用范围：`t30=30`、`t31=16`、`t80=0`、`t81=9`、`t82=8`、`t83=6`，其中 `t81/t82/t83` 的 skirmish 格子数均为 0，并输出资源路径与坐标样例。
 - 这一步不改变对战规则结算；它把“从 APK 资源复核地图规则证据”的临时流程变成可重复命令，后续可用于确认新的 APK、重新生成地图证据或定位 manifest 漂移。
 
 2026-06-30 APK 脚本解密复核工具：

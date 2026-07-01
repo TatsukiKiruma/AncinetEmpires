@@ -67,6 +67,8 @@ export interface ApkSkirmishManualVerificationItem {
     title: string;
     currentProjectAssumption: string;
     requestedEvidence: string;
+    verificationSteps: string[];
+    recordTemplate: string[];
 }
 
 export interface ApkSkirmishProjectProbeItem {
@@ -269,28 +271,79 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             priority: 'P1',
             title: '低可信 t80/t83 神庙候选语义',
             currentProjectAssumption: 't80/t83 仍按贴图、data.bin 数值和语言表近似处理，不提升为 confirmed；t80 当前全 AEM 未出现，t83 不在 skirmish 地图中。',
-            requestedEvidence: '若未来地图或实机局面出现 t80/t83，分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。'
+            requestedEvidence: '若未来地图或实机局面出现 t80/t83，分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。',
+            verificationSteps: [
+                '找到或构造包含 t80/t83 的局面；优先记录地图名、坐标和站立单位。',
+                '让中毒、致盲、虚弱单位分别在该地形上开始己方回合，记录回血和状态是否清除。',
+                '用可占领单位尝试占领；结束回合后记录该地形是否产生收入。',
+                '若该地形显示为建筑，尝试是否能从该格招募；再用水之子、陆地单位和飞行单位记录移动/能力表现。'
+            ],
+            recordTemplate: [
+                '地形：t80 或 t83；地图/坐标：',
+                '回血：是/否；清中毒：是/否；清致盲：是/否；清虚弱：是/否',
+                '可占领：是/否；收入：数值或无；可招募：是/否',
+                '水/陆地分类证据：移动消耗、能力触发、截图或文字描述'
+            ]
         },
         {
             id: 'water-obstacle-tiles-t81-t82',
             priority: 'P1',
             title: 't81/t82 水面障碍语义',
             currentProjectAssumption: 't81/t82 按水面障碍候选处理，不带神庙净化标签；二者只出现在非 skirmish 战役资源中。',
-            requestedEvidence: '若未来对战地图使用 t81/t82，记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。'
+            requestedEvidence: '若未来对战地图使用 t81/t82，记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。',
+            verificationSteps: [
+                '找到或构造包含 t81/t82 的局面；记录地图名、坐标和相邻可进入格。',
+                '分别用普通陆地单位、人鱼/水元素、飞行单位尝试进入，记录是否可进入和移动消耗。',
+                '让水之子单位站在该格或攻击该格目标，记录是否触发水上攻防/回血。',
+                '测试远程攻击和近战攻击是否被该格阻挡，若有明显障碍表现则记录。'
+            ],
+            recordTemplate: [
+                '地形：t81 或 t82；地图/坐标：',
+                '陆地单位：可进入/不可进入，移动消耗：',
+                '水系单位：可进入/不可进入，移动消耗：',
+                '飞行单位：可进入/不可进入，移动消耗：',
+                '水之子攻防/回血：触发/不触发；攻击阻挡：是/否'
+            ]
         },
         {
             id: 'support-and-assault-edge-order',
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
             currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，目标必须已行动且等级不高于支援者；支援按联盟关系判友军；突击后移动使用剩余移动力，执行后不再生成二次突击移动。',
-            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、未行动/高等级/同联盟目标的支援可用性，以及攻击前移动后突击剩余移动力和执行突击后移动后的动作结束状态。'
+            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、未行动/高等级/同联盟目标的支援可用性，以及攻击前移动后突击剩余移动力和执行突击后移动后的动作结束状态。',
+            verificationSteps: [
+                '用德鲁伊测试目标未行动、已行动、等级高于德鲁伊、等级等于德鲁伊、同联盟不同队伍五种情况能否支援。',
+                '让同一目标被支援后再次行动，再观察第二个德鲁伊是否还能支援该目标。',
+                '用狼或狼骑射手先移动若干格后攻击，记录攻击后可移动范围是否等于攻击前剩余移动力。',
+                '执行突击后移动后，再检查该单位是否还能攻击、待机、再次突击移动或被支援。'
+            ],
+            recordTemplate: [
+                '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟目标 可/不可',
+                '同一目标第二次支援：可/不可；前置步骤：',
+                '突击：攻击前剩余移动力：；攻击后可移动最大距离：',
+                '突击后移动后：还能攻击/待机/再次移动/被支援：'
+            ]
         },
         {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
             currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；本次主动攻击刚附加的致盲不取消同一次普通反击；反击风暴在 2 格内可反击。',
-            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
+            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。',
+            verificationSteps: [
+                '让已致盲的普通近战/远程单位被攻击，记录是否还能普通反击。',
+                '用黑魔法师或狼骑射手本次攻击附加致盲，目标为可普通反击单位，记录本次反击是否发生。',
+                '用黑魔法师或狼骑射手攻击 1/2/3 格外的狂战士，记录反击风暴是否发生。',
+                '让攻击直接击杀防守方，或防守方反击击杀攻击方，记录后续普通反击/反击风暴/突击后移动是否取消。',
+                '分别测试鼓舞攻击者、虚弱防守者、鼓舞攻击虚弱防守者的近战和远程伤害。'
+            ],
+            recordTemplate: [
+                '攻击前已致盲防守方：普通反击 发生/不发生',
+                '本次攻击附加致盲：普通反击 发生/不发生；防守方剩余 HP：',
+                '反击风暴距离 1/2/3：发生情况：',
+                '击杀边界：攻击方死亡/防守方死亡；后续反击或突击移动：',
+                '伤害数值：普通/鼓舞/虚弱/鼓舞打虚弱，近战：；远程：'
+            ]
         }
     ];
 }
@@ -2068,6 +2121,19 @@ function renderMarkdown(report: ApkSkirmishRuleReport): string {
     );
     for (const item of report.manualVerificationItems) {
         lines.push(`| ${item.priority} | \`${item.id}\` | ${item.title} | ${item.currentProjectAssumption} | ${item.requestedEvidence} |`);
+    }
+
+    lines.push('', '## 实机验证步骤', '');
+    for (const item of report.manualVerificationItems) {
+        lines.push(`### ${item.priority} ${item.id}`, '', item.title, '', '步骤：');
+        item.verificationSteps.forEach((step, index) => {
+            lines.push(`${index + 1}. ${step}`);
+        });
+        lines.push('', '记录模板：');
+        for (const line of item.recordTemplate) {
+            lines.push(`- ${line}`);
+        }
+        lines.push('');
     }
 
     const failed = report.checks.filter(checkItem => checkItem.status === 'fail');
