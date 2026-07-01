@@ -1208,6 +1208,7 @@ function buildUndeadOverhealActual() {
 
         const engine = new GameEngine(state);
         engine.step({ type: 'move', unitId: undead.id, to: { x: 0, y: 1 } });
+        engine.step({ type: 'wait', unitId: undead.id });
         const finalState = engine.getState();
         const finalUnit = finalState.units.find(unit => unit.id === undead.id)!;
 

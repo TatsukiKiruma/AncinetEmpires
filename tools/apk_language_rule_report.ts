@@ -592,10 +592,14 @@ function buildSummonAndGraveActual() {
 
     const skeleton = createUnit('skeleton', 0, 'skeleton', 0, 0);
     skeleton.hp = 50;
-    const undeadGraveState = createRoadState([skeleton]);
+    const undeadGraveState = createRoadState([
+        skeleton,
+        createUnit('enemy', 1, 'soldier', 4, 4)
+    ]);
     undeadGraveState.graves = [{ id: 'grave', pos: { x: 1, y: 0 }, remainingTurns: 2 }];
     const undeadGraveEngine = new GameEngine(undeadGraveState);
     undeadGraveEngine.step({ type: 'move', unitId: skeleton.id, to: { x: 1, y: 0 } });
+    undeadGraveEngine.step({ type: 'wait', unitId: skeleton.id });
     const healedSkeleton = undeadGraveEngine.getState().units.find(unit => unit.id === skeleton.id)!;
 
     const undeadDeathState = createRoadState([

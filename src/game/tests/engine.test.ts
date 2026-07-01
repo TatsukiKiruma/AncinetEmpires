@@ -2671,11 +2671,6 @@ describe('GameEngine Rules', () => {
 
             const graveState = createDemoState();
             graveState.currentPlayer = 0;
-            graveState.map.width = 2;
-            graveState.map.height = 2;
-            graveState.map.tiles = Array.from({ length: 2 }, () => (
-                Array.from({ length: 2 }, () => ({ terrainId: 6 as const, ownerId: null }))
-            ));
             graveState.graves = [{ id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }];
 
             const ghost = graveState.units.find(u => u.ownerId === 0)!;
@@ -2687,6 +2682,10 @@ describe('GameEngine Rules', () => {
 
             const graveEngine = new GameEngine(graveState);
             graveEngine.step({ type: 'move', unitId: ghost.id, to: { x: 0, y: 1 } });
+            expect(graveEngine.getState().units.find(u => u.id === ghost.id)?.hp).toBe(130);
+            expect(graveEngine.getState().graves).toHaveLength(1);
+
+            graveEngine.step({ type: 'wait', unitId: ghost.id });
             const finalGraveState = graveEngine.getState();
             expect(finalGraveState.units.find(u => u.id === ghost.id)?.hp).toBe(130);
             expect(finalGraveState.graves).toHaveLength(0);
@@ -2846,7 +2845,7 @@ describe('GameEngine Rules', () => {
             expect(state.graves[0].pos.x).toBe(3);
         });
 
-        it('5.5 普通单位踩墓碑扣 10 且墓碑消失', () => {
+        it('5.5 普通单位踩墓碑后在行动结束扣 10 且墓碑消失', () => {
             const state = createDemoState();
             state.currentPlayer = 0;
             state.graves = [
@@ -2859,14 +2858,20 @@ describe('GameEngine Rules', () => {
 
             const engine = new GameEngine(state);
             engine.step({ type: 'move', unitId: soldier.id, to: { x: 0, y: 1 } });
+            const afterMove = engine.getState();
+            const movedSoldier = afterMove.units.find(u => u.id === soldier.id)!;
+            expect(movedSoldier.hp).toBe(80);
+            expect(afterMove.graves?.length).toBe(1);
+
+            engine.step({ type: 'wait', unitId: soldier.id });
 
             const finalState = engine.getState();
             const resSoldier = finalState.units.find(u => u.id === soldier.id)!;
-            expect(resSoldier.hp).toBe(70); // 80 - 10 = 70
-            expect(finalState.graves?.length).toBe(0); // 墓碑消失了
+            expect(resSoldier.hp).toBe(70); // 行动结束：80 - 10 = 70
+            expect(finalState.graves?.length).toBe(0);
         });
 
-        it('5.6 骷髅/幽灵踩墓碑回复 10 且墓碑消失', () => {
+        it('5.6 骷髅/幽灵踩墓碑后在行动结束回复 10 且墓碑消失', () => {
             const state = createDemoState();
             state.currentPlayer = 0;
             state.graves = [
@@ -2879,10 +2884,16 @@ describe('GameEngine Rules', () => {
 
             const engine = new GameEngine(state);
             engine.step({ type: 'move', unitId: ghost.id, to: { x: 0, y: 1 } });
+            const afterMove = engine.getState();
+            const movedGhost = afterMove.units.find(u => u.id === ghost.id)!;
+            expect(movedGhost.hp).toBe(80);
+            expect(afterMove.graves?.length).toBe(1);
+
+            engine.step({ type: 'wait', unitId: ghost.id });
 
             const finalState = engine.getState();
             const resGhost = finalState.units.find(u => u.id === ghost.id)!;
-            expect(resGhost.hp).toBe(90); // 80 + 10 = 90
+            expect(resGhost.hp).toBe(90); // 行动结束：80 + 10 = 90
             expect(finalState.graves?.length).toBe(0); // 墓碑消失
         });
 
@@ -2899,10 +2910,126 @@ describe('GameEngine Rules', () => {
 
             const engine = new GameEngine(state);
             engine.step({ type: 'move', unitId: witch.id, to: { x: 0, y: 1 } });
+            const afterMove = engine.getState();
+            expect(afterMove.units.find(u => u.id === witch.id)?.hp).toBe(80);
+            expect(afterMove.graves?.length).toBe(1);
+
+            engine.step({ type: 'wait', unitId: witch.id });
 
             const finalState = engine.getState();
             const resWitch = finalState.units.find(u => u.id === witch.id)!;
             expect(resWitch.hp).toBe(80);
+            expect(finalState.graves?.length).toBe(0);
+        });
+
+        it('5.6.2 骷髅移动到墓碑后攻击时，墓碑在反击后才结算', () => {
+            const state = createDemoState();
+            state.currentPlayer = 0;
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            state.graves = [{ id: 'grave1', pos: { x: 1, y: 1 }, remainingTurns: 2 }];
+
+            const skeleton: Unit = {
+                id: 'u_skeleton',
+                ownerId: 0,
+                unitClass: 'skeleton',
+                pos: { x: 1, y: 0 },
+                hp: 60,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            const defender: Unit = {
+                id: 'u_defender',
+                ownerId: 1,
+                unitClass: 'dragon',
+                pos: { x: 1, y: 2 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            state.units = [skeleton, defender];
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'move', unitId: skeleton.id, to: { x: 1, y: 1 } });
+
+            const afterMove = engine.getState();
+            expect(afterMove.units.find(u => u.id === skeleton.id)?.hp).toBe(60);
+            expect(afterMove.graves?.length).toBe(1);
+
+            engine.step({ type: 'attack', attackerId: skeleton.id, targetId: defender.id });
+
+            const finalState = engine.getState();
+            expect(finalState.units.some(u => u.id === skeleton.id)).toBe(false);
+            expect(finalState.graves?.some(grave => (
+                grave.pos.x === 1 && grave.pos.y === 1
+            ))).toBe(true);
+        });
+
+        it('5.6.3 突击部队攻击后移动到墓碑时，在攻击后移动结束结算', () => {
+            const state = createDemoState();
+            state.currentPlayer = 0;
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            state.graves = [{ id: 'grave1', pos: { x: 0, y: 0 }, remainingTurns: 2 }];
+
+            const wolf: Unit = {
+                id: 'u_wolf',
+                ownerId: 0,
+                unitClass: 'wolf',
+                pos: { x: 1, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            const defender: Unit = {
+                id: 'u_defender',
+                ownerId: 1,
+                unitClass: 'soldier',
+                pos: { x: 1, y: 1 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            state.units = [wolf, defender];
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: wolf.id, targetId: defender.id });
+
+            const afterAttack = engine.getState();
+            const wolfAfterAttack = afterAttack.units.find(u => u.id === wolf.id)!;
+            expect(afterAttack.graves?.length).toBe(1);
+
+            const postMove = getLegalActions(afterAttack, 0).find(action => (
+                action.type === 'post_attack_move' &&
+                action.unitId === wolf.id &&
+                action.to.x === 0 &&
+                action.to.y === 0
+            ));
+            expect(postMove).toBeDefined();
+
+            engine.step(postMove!);
+
+            const finalState = engine.getState();
+            const finalWolf = finalState.units.find(u => u.id === wolf.id)!;
+            expect(finalWolf.hp).toBe(wolfAfterAttack.hp - 10);
             expect(finalState.graves?.length).toBe(0);
         });
 

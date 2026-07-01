@@ -430,8 +430,6 @@ export class GameEngine {
                     unit.pos = { ...action.to };
                     unit.hasMoved = true;
                     info = `Unit ${unit.id} moved to ${action.to.x},${action.to.y}`;
-
-                    this.consumeGraveAtUnitPosition(unit);
                 }
                 break;
             }
@@ -444,7 +442,7 @@ export class GameEngine {
                     unit.hasPostAttackMoved = true;
                     unit.hasActed = true;
 
-                    this.consumeGraveAtUnitPosition(unit);
+                    standbyUnitId = unit.id;
                     info = `Unit ${unit.id} post-attack moved to ${action.to.x},${action.to.y}`;
                 }
                 break;
@@ -822,7 +820,10 @@ export class GameEngine {
         if (standbyUnitId) {
             const standbyUnit = this.state.units.find(unit => unit.id === standbyUnitId && unit.hp > 0);
             if (standbyUnit?.hasActed) {
-                applyCampaignEvents(this.state, { type: 'unit_standby', unit: { ...standbyUnit, pos: { ...standbyUnit.pos } } });
+                this.consumeGraveAtUnitPosition(standbyUnit);
+                if (standbyUnit.hp > 0) {
+                    applyCampaignEvents(this.state, { type: 'unit_standby', unit: { ...standbyUnit, pos: { ...standbyUnit.pos } } });
+                }
             }
         }
 
