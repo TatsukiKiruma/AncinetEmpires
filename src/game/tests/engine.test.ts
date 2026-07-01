@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
 import { AncientEmpiresEnv, buildFixedActionMask, calculateArmyValue, decodeAction, encodeAction, encodeFixedActionIndex, getActionSpaceSchema, getFixedActionSpaceDescriptor } from '../env';
-import type { Action } from '../types';
+import type { Action, Unit } from '../types';
 import { createDemoState } from '../demo_map';
 import { createDefaultAppGameState } from '../default_state';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
@@ -2715,6 +2715,99 @@ describe('GameEngine Rules', () => {
             expect(resFriend.hasBeenSupportedThisTurn).toBe(true);
         });
 
+        it('5.8b 支援者可以支援同联盟友军', () => {
+            const state = createDemoState({
+                alliances: { 0: 1, 1: 1 }
+            });
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const druid: Unit = {
+                id: 'druid',
+                ownerId: 0,
+                unitClass: 'druid',
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 1,
+                exp: 0
+            };
+            const ally: Unit = {
+                id: 'ally',
+                ownerId: 1,
+                unitClass: 'soldier',
+                pos: { x: 0, y: 2 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: true,
+                hasActed: true,
+                level: 1,
+                exp: 0
+            };
+            state.units = [druid, ally];
+
+            const supportAct = getLegalActions(state, 0).find(action => (
+                action.type === 'support' && action.supporterId === druid.id && action.targetId === ally.id
+            ));
+            expect(supportAct).toBeDefined();
+        });
+
+        it('5.8c 支援者不能支援未行动目标或更高等级目标', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const druid: Unit = {
+                id: 'druid',
+                ownerId: 0,
+                unitClass: 'druid',
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 1,
+                exp: 0
+            };
+            const freshTarget: Unit = {
+                id: 'fresh_target',
+                ownerId: 0,
+                unitClass: 'soldier',
+                pos: { x: 0, y: 1 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 1,
+                exp: 0
+            };
+            const highLevelTarget: Unit = {
+                id: 'high_level_target',
+                ownerId: 0,
+                unitClass: 'soldier',
+                pos: { x: 0, y: 2 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: true,
+                hasActed: true,
+                level: 2,
+                exp: 0
+            };
+            state.units = [druid, freshTarget, highLevelTarget];
+
+            const actions = getLegalActions(state, 0);
+            expect(actions.some(action => action.type === 'support' && action.targetId === freshTarget.id)).toBe(false);
+            expect(actions.some(action => action.type === 'support' && action.targetId === highLevelTarget.id)).toBe(false);
+        });
+
         it('5.9 支援者不能支援突击部队、城堡捕获者、支援者', () => {
             const state = createDemoState();
             const druid = state.units.find(u => u.ownerId === 0)!;
@@ -2911,6 +3004,62 @@ describe('GameEngine Rules', () => {
             const hasPostMove = actions.some(a => a.type === 'post_attack_move' && a.unitId === wolf.id);
             expect(hasPostMove).toBe(true);
         });
+
+        it('5.16b 突击部队执行攻击后移动后消耗剩余移动力并结束突击移动', () => {
+            const state = createDemoState();
+            state.currentPlayer = 0;
+            state.map.width = 5;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 5 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const wolf: Unit = {
+                id: 'wolf',
+                ownerId: 0,
+                unitClass: 'wolf',
+                pos: { x: 2, y: 1 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0,
+                movementRemaining: 6
+            };
+            const enemy: Unit = {
+                id: 'enemy',
+                ownerId: 1,
+                unitClass: 'slime',
+                pos: { x: 2, y: 2 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            state.units = [wolf, enemy];
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: wolf.id, targetId: enemy.id });
+            const postMove = getLegalActions(engine.getState(), 0).find(action => (
+                action.type === 'post_attack_move' && action.unitId === wolf.id && action.to.x === 1 && action.to.y === 1
+            ));
+            expect(postMove).toBeDefined();
+
+            engine.step(postMove!);
+
+            const finalState = engine.getState();
+            const finalWolf = finalState.units.find(unit => unit.id === wolf.id)!;
+            expect(finalWolf.pos).toEqual({ x: 1, y: 1 });
+            expect(finalWolf.movementRemaining).toBe(5);
+            expect(finalWolf.hasPostAttackMoved).toBe(true);
+            expect(finalWolf.hasActed).toBe(true);
+            expect(getLegalActions(finalState, 0).some(action => (
+                action.type === 'post_attack_move' && action.unitId === wolf.id
+            ))).toBe(false);
+        });
     });
 
     describe('第 6 步：经验、等级与升级测试', () => {
@@ -2995,6 +3144,96 @@ describe('GameEngine Rules', () => {
             const resDefender = engine.getState().units.find(u => u.id === defender.id)!;
             // 反击 10 + 击杀 60 = 70
             expect(resDefender.exp).toBe(70);
+        });
+
+        it('6.4.1 主动攻击击杀目标后目标不会反击', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const attacker = state.units[0];
+            attacker.unitClass = 'dragon';
+            attacker.pos = { x: 1, y: 1 };
+            attacker.hp = 100;
+            attacker.exp = 0;
+            attacker.level = 0;
+
+            const defender = state.units[1];
+            defender.unitClass = 'soldier';
+            defender.pos = { x: 1, y: 2 };
+            defender.hp = 5;
+            defender.exp = 0;
+            defender.level = 0;
+            state.units = [attacker, defender, ...state.units.slice(2)];
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+            const finalState = engine.getState();
+            const finalAttacker = finalState.units.find(u => u.id === attacker.id)!;
+            expect(finalAttacker.hp).toBe(100);
+            expect(finalAttacker.exp).toBe(90);
+            expect(finalState.units.some(u => u.id === defender.id)).toBe(false);
+        });
+
+        it('6.4.2 突击单位被反击击杀后不会保留攻击后移动动作', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const attacker: Unit = {
+                id: 'wolf_attacker',
+                ownerId: 0,
+                unitClass: 'wolf' as const,
+                pos: { x: 1, y: 1 },
+                hp: 5,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            const ally: Unit = {
+                id: 'p0_anchor',
+                ownerId: 0,
+                unitClass: 'soldier' as const,
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            const defender: Unit = {
+                id: 'soldier_defender',
+                ownerId: 1,
+                unitClass: 'soldier' as const,
+                pos: { x: 1, y: 2 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            state.units = [attacker, ally, defender];
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+            const finalState = engine.getState();
+            expect(finalState.units.some(u => u.id === attacker.id)).toBe(false);
+            expect(finalState.graves?.some(grave => grave.pos.x === 1 && grave.pos.y === 1)).toBe(true);
+            expect(getLegalActions(finalState, 0).some(action => (
+                action.type === 'post_attack_move' && action.unitId === attacker.id
+            ))).toBe(false);
         });
 
         it('6.5 治疗后治疗者 +30', () => {

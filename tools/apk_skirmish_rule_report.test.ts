@@ -32,16 +32,26 @@ describe('APK skirmish rule report', () => {
             support: {
                 initialSupportActionCount: 2,
                 targetHasActedAfterSupport: false,
+                targetHasMovedAfterSupport: false,
+                targetMovementRemainingAfterSupport: 4,
                 targetSupportedFlagAfterSupport: true,
                 supporterHasActedAfterSupport: true,
-                secondSupportAvailableAfterTargetActsAgain: false
+                secondSupportAvailableAfterTargetActsAgain: false,
+                freshTargetSupportAvailable: false,
+                highLevelTargetSupportAvailable: false,
+                equalLevelTargetSupportAvailable: true,
+                alliedTeamSupportAvailable: true
             },
             assault: {
                 movementRemainingAfterMove: 4,
                 movementRemainingAfterAttack: 4,
                 hasActedAfterAttack: true,
                 postAttackMoveCount: 9,
-                farthestPostAttackMoveDistance: 4
+                farthestPostAttackMoveDistance: 4,
+                oneStepPostAttackMoveResolved: true,
+                movementRemainingAfterPostAttackMove: 3,
+                hasPostAttackMovedAfterPostAttackMove: true,
+                postAttackMoveAvailableAfterPostAttackMove: false
             }
         });
         expect(byId['counter-blind-storm-project-probe'].currentProjectBehavior).toEqual({
@@ -59,6 +69,15 @@ describe('APK skirmish rule report', () => {
                 defenderStatusAfterAttack: 'blinded',
                 attackerHpAfterAttack: 100,
                 counterStormTriggered: false
+            },
+            activeKillPreventsCounter: {
+                attackerHpAfterAttack: 100,
+                defenderAliveAfterAttack: false
+            },
+            counterKillClearsAssaultPostMove: {
+                attackerAliveAfterCounter: false,
+                attackerGraveCreated: true,
+                postAttackMoveAvailable: false
             }
         });
     });

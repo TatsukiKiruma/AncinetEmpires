@@ -280,8 +280,8 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'support-and-assault-edge-order',
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
-            currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，突击后移动使用剩余移动力。',
-            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、攻击前移动后突击剩余移动力如何计算。'
+            currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，目标必须已行动且等级不高于支援者；支援按联盟关系判友军；突击后移动使用剩余移动力，执行后不再生成二次突击移动。',
+            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、未行动/高等级/同联盟目标的支援可用性，以及攻击前移动后突击剩余移动力和执行突击后移动后的动作结束状态。'
         },
         {
             id: 'counter-blind-storm-order',
@@ -366,6 +366,27 @@ function buildSupportAssaultProbeBehavior() {
     const secondSupportAvailableAfterTargetActsAgain = supportEngine.getLegalActions(0)
         .some(action => action.type === 'support' && action.supporterId === 'supporter_b' && action.targetId === 'target');
 
+    const supportRestrictionState = createRoadProbeState([
+        createProbeUnit('supporter', 0, 'druid', 0, 0, { level: 1 }),
+        createProbeUnit('fresh_target', 0, 'soldier', 0, 1, { level: 1 }),
+        createProbeUnit('high_level_target', 0, 'soldier', 0, 2, { level: 2, hasMoved: true, hasActed: true }),
+        createProbeUnit('equal_level_target', 0, 'soldier', 1, 1, { level: 1, hasMoved: true, hasActed: true }),
+        createProbeUnit('enemy_anchor', 1, 'soldier', 7, 2)
+    ]);
+    const supportRestrictionActions = new GameEngine(supportRestrictionState).getLegalActions(0);
+
+    const alliedSupportState = createRoadProbeState([
+        createProbeUnit('supporter', 0, 'druid', 0, 0, { level: 1 }),
+        createProbeUnit('allied_target', 1, 'soldier', 0, 2, { level: 1, hasMoved: true, hasActed: true }),
+        createProbeUnit('enemy_anchor', 2, 'soldier', 7, 2)
+    ]);
+    alliedSupportState.rules = {
+        ...alliedSupportState.rules,
+        alliances: { 0: 1, 1: 1, 2: 2 }
+    };
+    const alliedSupportAvailable = new GameEngine(alliedSupportState).getLegalActions(0)
+        .some(action => action.type === 'support' && action.supporterId === 'supporter' && action.targetId === 'allied_target');
+
     const assaultState = createRoadProbeState([
         createProbeUnit('wolf', 0, 'wolf', 0, 0),
         createProbeUnit('enemy', 1, 'soldier', 3, 0)
@@ -378,14 +399,34 @@ function buildSupportAssaultProbeBehavior() {
     const afterAttackWolf = afterAttackState.units.find(unit => unit.id === 'wolf')!;
     const postAttackMoves = assaultEngine.getLegalActions(0)
         .filter(action => action.type === 'post_attack_move' && action.unitId === 'wolf');
+    const oneStepPostAttackMove = postAttackMoves.find(action => (
+        action.type === 'post_attack_move' && action.to.x === 1 && action.to.y === 0
+    ));
+    if (oneStepPostAttackMove) {
+        assaultEngine.step(oneStepPostAttackMove);
+    }
+    const afterPostAttackMoveState = assaultEngine.getState();
+    const afterPostAttackMoveWolf = afterPostAttackMoveState.units.find(unit => unit.id === 'wolf');
 
     return {
         support: {
             initialSupportActionCount: initialSupportActions.length,
             targetHasActedAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.hasActed ?? null,
+            targetHasMovedAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.hasMoved ?? null,
+            targetMovementRemainingAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.movementRemaining ?? null,
             targetSupportedFlagAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'target')?.hasBeenSupportedThisTurn ?? null,
             supporterHasActedAfterSupport: afterFirstSupport.units.find(unit => unit.id === 'supporter_a')?.hasActed ?? null,
-            secondSupportAvailableAfterTargetActsAgain
+            secondSupportAvailableAfterTargetActsAgain,
+            freshTargetSupportAvailable: supportRestrictionActions.some(action => (
+                action.type === 'support' && action.targetId === 'fresh_target'
+            )),
+            highLevelTargetSupportAvailable: supportRestrictionActions.some(action => (
+                action.type === 'support' && action.targetId === 'high_level_target'
+            )),
+            equalLevelTargetSupportAvailable: supportRestrictionActions.some(action => (
+                action.type === 'support' && action.targetId === 'equal_level_target'
+            )),
+            alliedTeamSupportAvailable: alliedSupportAvailable
         },
         assault: {
             movementRemainingAfterMove: afterMove.movementRemaining ?? null,
@@ -399,7 +440,12 @@ function buildSupportAssaultProbeBehavior() {
                         ? Math.abs(action.to.x - afterAttackWolf.pos.x) + Math.abs(action.to.y - afterAttackWolf.pos.y)
                         : 0
                 ))
-            )
+            ),
+            oneStepPostAttackMoveResolved: oneStepPostAttackMove !== undefined,
+            movementRemainingAfterPostAttackMove: afterPostAttackMoveWolf?.movementRemaining ?? null,
+            hasPostAttackMovedAfterPostAttackMove: afterPostAttackMoveWolf?.hasPostAttackMoved ?? null,
+            postAttackMoveAvailableAfterPostAttackMove: assaultEngine.getLegalActions(0)
+                .some(action => action.type === 'post_attack_move' && action.unitId === 'wolf')
         }
     };
 }
@@ -429,6 +475,23 @@ function buildCounterBlindStormProbeBehavior() {
     rangeThreeStormEngine.step({ type: 'attack', attackerId: 'wolf_archer', targetId: 'berserker' });
     const rangeThreeStormUnits = Object.fromEntries(rangeThreeStormEngine.getState().units.map(unit => [unit.id, unit]));
 
+    const activeKillNoCounterState = createRoadProbeState([
+        createProbeUnit('dragon', 0, 'dragon', 0, 0),
+        createProbeUnit('soldier', 1, 'soldier', 1, 0, { hp: 5 })
+    ]);
+    const activeKillNoCounterEngine = new GameEngine(activeKillNoCounterState);
+    activeKillNoCounterEngine.step({ type: 'attack', attackerId: 'dragon', targetId: 'soldier' });
+    const activeKillNoCounterUnits = Object.fromEntries(activeKillNoCounterEngine.getState().units.map(unit => [unit.id, unit]));
+
+    const counterKillAssaultState = createRoadProbeState([
+        createProbeUnit('wolf', 0, 'wolf', 0, 0, { hp: 5 }),
+        createProbeUnit('p0_anchor', 0, 'soldier', 0, 2),
+        createProbeUnit('soldier', 1, 'soldier', 1, 0)
+    ]);
+    const counterKillAssaultEngine = new GameEngine(counterKillAssaultState);
+    counterKillAssaultEngine.step({ type: 'attack', attackerId: 'wolf', targetId: 'soldier' });
+    const counterKillAssaultStateFinal = counterKillAssaultEngine.getState();
+
     return {
         blindingAttackAgainstNormalCounter: {
             defenderStatusAfterAttack: normalCounterUnits.soldier?.status?.type ?? null,
@@ -444,6 +507,19 @@ function buildCounterBlindStormProbeBehavior() {
             defenderStatusAfterAttack: rangeThreeStormUnits.berserker?.status?.type ?? null,
             attackerHpAfterAttack: rangeThreeStormUnits.wolf_archer?.hp ?? null,
             counterStormTriggered: (rangeThreeStormUnits.wolf_archer?.hp ?? 100) < 100
+        },
+        activeKillPreventsCounter: {
+            attackerHpAfterAttack: activeKillNoCounterUnits.dragon?.hp ?? null,
+            defenderAliveAfterAttack: activeKillNoCounterUnits.soldier !== undefined
+        },
+        counterKillClearsAssaultPostMove: {
+            attackerAliveAfterCounter: counterKillAssaultStateFinal.units.some(unit => unit.id === 'wolf'),
+            attackerGraveCreated: counterKillAssaultStateFinal.graves?.some(grave => (
+                grave.pos.x === 0 && grave.pos.y === 0
+            )) ?? false,
+            postAttackMoveAvailable: counterKillAssaultEngine.getLegalActions(0).some(action => (
+                action.type === 'post_attack_move' && action.unitId === 'wolf'
+            ))
         }
     };
 }
@@ -455,7 +531,7 @@ function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
             title: '当前项目支援与突击边界行为快照',
             purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
             currentProjectBehavior: buildSupportAssaultProbeBehavior(),
-            suggestedVerification: '在原版 skirmish 中测试同一单位被支援后再次行动，第二个支援者是否还能再次支援；再测试狼移动后攻击，攻击后可移动范围是否等于攻击前剩余移动力。'
+            suggestedVerification: '在原版 skirmish 中测试未行动目标、更高等级目标、等等级目标和同联盟目标能否被支援；再测试同一单位被支援后再次行动，第二个支援者是否还能再次支援；最后测试狼移动后攻击，攻击后可移动范围是否等于攻击前剩余移动力，执行突击后移动后是否彻底结束该单位行动。'
         },
         {
             id: 'counter-blind-storm-project-probe',
