@@ -1,9 +1,7 @@
 import { Action, GameState, Position, UnitClass, Ability } from './types';
-import { UNIT_CONFIGS } from './constants';
+import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
-import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getRecruitableUnits, getRuleConfig, isActivePlayer, isCommanderUnit } from './rule_config';
-import { getTileDefenseBonus, getTileTerrainConfig, getTileTerrainKey } from './terrain_rules';
+import { isFlying, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
 
 /**
  * 纯规则校验模块
@@ -25,8 +23,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
 
     const atkStats = UNIT_CONFIGS[attacker.unitClass];
     const defTile = state.map.tiles[defender.pos.y][defender.pos.x];
-    const defTerrain = getTileTerrainConfig(defTile);
-    const dist = getDistance(attacker.pos, defender.pos);
+    const defTerrain = TERRAIN_CONFIG[defTile.terrainId];
 
     // 其他攻击加成
     let extraAttack = 0;
@@ -36,32 +33,33 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
     if (hasAbi(attacker, 'destroyer') && defTerrain.key === 'town') {
         extraAttack += 10;
     }
-    if (hasAbi(attacker, 'flying') && isWaterTerrain(defTile) && !hasAbi(defender, 'flying')) {
-        extraAttack += 10;
-    }
     if (hasAbi(attacker, 'death_reaper') && defender.status && (defender.status.type === 'poisoned' || defender.status.type === 'blinded' || defender.status.type === 'weakened')) {
         extraAttack += 20;
     }
 
     // 地形防御加成
-    const defBonus = isFlying(defender) ? 0 : getTileDefenseBonus(defTile);
+    const defBonus = isFlying(defender) ? 0 : defTerrain.defenseBonus;
 
     // 动态能力增加的攻防加成（如地形之子）
     const abilityAtkBonus = getAttackBonus(state, attacker, defender);
     const abilityDefBonus = getDefenseBonus(state, attacker, defender);
 
-    // 鼓舞状态：攻击 +10，远程攻击减半为 +5。
-    const inspiredAttackBonus = attacker.status?.type === 'inspired'
-        ? (dist > 1 ? 5 : 10)
-        : 0;
+    // 攻击光环附加 (近战 +10, 远程 +5)
+    let auraAttackBonus = 0;
+    if (attacker.attackAuraActive) {
+        if (effAtk.maxRange === 1) {
+            auraAttackBonus += 10;
+        } else {
+            auraAttackBonus += 5;
+        }
+    }
 
     // 选择物理防御还是魔法防御
     const isMagic = atkStats.attackType === 'magic';
-    const weakenedRangedDefenseAdjustment = defender.status?.type === 'weakened' && dist > 1 ? 5 : 0;
-    const actualDefenderDefense = (isMagic ? effDef.magicDefense : effDef.physicalDefense) + weakenedRangedDefenseAdjustment;
+    const actualDefenderDefense = isMagic ? effDef.magicDefense : effDef.physicalDefense;
 
     // 最终伤害 = (单位攻击 + 地形之子攻击 + 其他伤害加成 + 光环加成 - 实际防御 - 地形防御加成 - 地形之子防御)
-    let rawDamage = (effAtk.attack + abilityAtkBonus + extraAttack + inspiredAttackBonus) - (actualDefenderDefense + defBonus + abilityDefBonus);
+    let rawDamage = (effAtk.attack + abilityAtkBonus + extraAttack + auraAttackBonus) - (actualDefenderDefense + defBonus + abilityDefBonus);
 
     // fighting_spirit 保证 1 (满状态)，否则按当前血量 / 最大血量
     const isFightingSpirit = hasAbi(attacker, 'fighting_spirit');
@@ -69,6 +67,7 @@ export function calculateDamage(state: GameState, attackerId: string, defenderId
 
     let finalDamage = Math.floor(rawDamage * hpRatio);
 
+    const dist = getDistance(attacker.pos, defender.pos);
     const finalMultiplier = getFinalDamageMultiplier(state, attacker, defender, dist);
     finalDamage = Math.floor(finalDamage * finalMultiplier);
 
@@ -84,19 +83,12 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
 // 获取当前玩家所有合法动作
 export function getLegalActions(state: GameState, playerId: number): Action[] {
     const actions: Action[] = [];
-
-    if (!isActivePlayer(state, playerId)) {
-        return actions;
-    }
     
-    // APK stacked 规则：pending 单位未处理时只能操作该单位；空城堡招募 pending 可额外结束回合/投降。
+    // 如果有 pendingUnitId，只能执行该 unit 的操作，并且不能招募，通常也不能 end_turn (如果可能的话最好限制)
     const pendingUnitId = state.pendingUnitId;
-    const pendingUnit = pendingUnitId ? state.units.find(u => u.id === pendingUnitId) : undefined;
-    const rules = getRuleConfig(state);
-    const canResolveEmptyCastlePendingWithTurnAction = pendingUnit?.apkPendingRecruitSource === 'empty_castle';
     
-    // 只属于当前玩家、未行动完且未被 APK 脚本静态锁定的单位
-    let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed && !u.apkStatic);
+    // 只属于当前玩家的未行动完的单位
+    let validUnits = state.units.filter(u => u.ownerId === playerId && !u.hasActed);
     if (pendingUnitId) {
         validUnits = validUnits.filter(u => u.id === pendingUnitId);
     }
@@ -107,16 +99,14 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         u.hasActed && 
         hasAbi(u, 'assault_troop') && 
         (u.movementRemaining ?? 0) > 0 && 
-        !u.hasPostAttackMoved &&
-        !u.apkStatic
+        !u.hasPostAttackMoved
     );
     if (pendingUnitId) {
         assaultUnits = assaultUnits.filter(u => u.id === pendingUnitId);
     }
 
-    const enemyUnits = state.units.filter(u => areEnemyPlayers(state, u.ownerId, playerId));
-    const friendUnits = state.units.filter(u => areAlliedPlayers(state, u.ownerId, playerId));
-    const sameTeamUnits = state.units.filter(u => u.ownerId === playerId);
+    const enemyUnits = state.units.filter(u => u.ownerId !== playerId);
+    const friendUnits = state.units.filter(u => u.ownerId === playerId);
 
     // 1. 突击二次移动作为专用合法指令生成
     for (const unit of assaultUnits) {
@@ -134,7 +124,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
     for (const unit of validUnits) {
         const eff = getEffectiveStats(unit);
         const tileUnder = state.map.tiles[unit.pos.y][unit.pos.x];
-        const terrainConfig = getTileTerrainConfig(tileUnder);
+        const terrainConfig = TERRAIN_CONFIG[tileUnder.terrainId];
 
         // 2.1 移动 (在还没移动的情况下)
         if (!unit.hasMoved) {
@@ -159,11 +149,13 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         if (hasAbi(unit, 'healer')) {
             for (const friend of friendUnits) {
                 if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 1) {
+                    const friendEff = getEffectiveStats(friend);
+                    const isBelowMaxHp = friend.hp < friendEff.maxHp;
                     const notHealedYet = !friend.hasBeenHealedThisTurn;
                     const notPoisoned = !(friend.status && friend.status.type === 'poisoned');
                     const isNotGroundToFlying = !(isFlying(friend) && !isFlying(unit));
 
-                    if (notHealedYet && notPoisoned && isNotGroundToFlying) {
+                    if (isBelowMaxHp && notHealedYet && notPoisoned && isNotGroundToFlying) {
                         actions.push({ type: 'heal', healerId: unit.id, targetId: friend.id });
                     }
                 }
@@ -184,7 +176,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
         // 2.5 支援 (supporter，2格内被重置，除豁免兵种外)
         if (hasAbi(unit, 'supporter')) {
-            for (const friend of sameTeamUnits) {
+            for (const friend of friendUnits) {
                 if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 2) {
                     const isFriendActed = friend.hasActed;
                     const isExcluded = hasAbi(friend, 'assault_troop') || hasAbi(friend, 'castle_capturer') || hasAbi(friend, 'supporter');
@@ -199,11 +191,10 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
 
         // 2.6 占领 (城镇和城堡)
-        const canCaptureOwner = tileUnder.ownerId === null || areEnemyPlayers(state, playerId, tileUnder.ownerId);
-        if (terrainConfig.key === 'town' && canCaptureOwner && hasAbi(unit, 'village_capturer')) {
+        if (terrainConfig.key === 'town' && tileUnder.ownerId !== playerId && hasAbi(unit, 'village_capturer')) {
             actions.push({ type: 'capture', unitId: unit.id });
         }
-        if (terrainConfig.key === 'castle' && canCaptureOwner && hasAbi(unit, 'castle_capturer')) {
+        if (terrainConfig.key === 'castle' && tileUnder.ownerId !== playerId && hasAbi(unit, 'castle_capturer')) {
             actions.push({ type: 'capture', unitId: unit.id });
         }
 
@@ -223,28 +214,32 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
     // 3. 招募: 只有在没有 pendingUnitId 时才能招募。
     if (!pendingUnitId) {
-        const recruitClasses = getRecruitableUnits(state, playerId)
-            .filter(c => canRecruitUnitClass(state, playerId, c));
+        const playerGold = state.players.find(p => p.id === playerId)?.gold || 0;
+        const recruitClasses = Object.keys(UNIT_CONFIGS).filter(c => c !== 'commander' && UNIT_CONFIGS[c].cost !== null) as UnitClass[];
         
         // Find all castles owned by player
         for (let y = 0; y < state.map.height; y++) {
             for (let x = 0; x < state.map.width; x++) {
                 const tile = state.map.tiles[y][x];
-                if (getTileTerrainKey(tile) === 'castle' && tile.ownerId === playerId) {
+                if (TERRAIN_CONFIG[tile.terrainId].key === 'castle' && tile.ownerId === playerId) {
                     const occupant = state.units.find(u => u.pos.x === x && u.pos.y === y);
                     
                     if (!occupant) {
                         // 城堡为空：使用 recruit_to_castle
                         for (const c of recruitClasses) {
-                            actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
+                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
+                                actions.push({ type: 'recruit_to_castle', unitClass: c, castlePos: { x, y } });
+                            }
                         }
-                    } else if (occupant.ownerId === playerId && isCommanderUnit(state, occupant, playerId)) {
+                    } else if (occupant.ownerId === playerId && occupant.unitClass === 'commander') {
                         // 城堡上有己方指挥官：使用 recruit_and_deploy
                         for (const c of recruitClasses) {
-                            // 检查可部署的位置
-                            const validSpawns = getRecruitDeployPositions(state, playerId, c, { x, y });
-                            for (const to of validSpawns) {
-                                actions.push({ type: 'recruit_and_deploy', unitClass: c, castlePos: { x, y }, to });
+                            if (playerGold >= UNIT_CONFIGS[c].cost!) {
+                                // 检查可部署的位置
+                                const validSpawns = getRecruitDeployPositions(state, playerId, c, { x, y });
+                                for (const to of validSpawns) {
+                                    actions.push({ type: 'recruit_and_deploy', unitClass: c, castlePos: { x, y }, to });
+                                }
                             }
                         }
                     }
@@ -253,13 +248,14 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
         }
     }
 
-    // 4. 投降/结束回合：APK 实测为空城堡招募 pending 时允许，指挥官站城堡的堆叠招募 pending 时禁止。
-    if (!pendingUnitId || canResolveEmptyCastlePendingWithTurnAction) {
-        if (rules.allowSurrender && (!pendingUnitId || rules.allowPendingRecruitSurrender)) {
-            actions.push({ type: 'surrender' });
-        }
-        if (!pendingUnitId || rules.allowPendingRecruitEndTurn) {
-            actions.push({ type: 'end_turn' });
+    // 4. 结束回合: 仅在无 pendingUnitId 或该单位已完成行动(但还没被engine清理，理论上清理会在动作结束时发生)时允许
+    if (!pendingUnitId) {
+        actions.push({ type: 'end_turn' });
+    } else {
+        // 安全起见，如果 pendingUnit 死活无法行动，或者已经行动，还是允许 end_turn 防止卡死
+        const unit = state.units.find(u => u.id === pendingUnitId);
+        if (!unit || unit.hasActed) {
+             actions.push({ type: 'end_turn' });
         }
     }
 

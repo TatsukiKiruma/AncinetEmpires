@@ -1,10 +1,10 @@
 import { GameEngine } from '../engine';
 import { HeuristicAI } from './heuristic_ai';
 import { RandomAI } from './random_ai';
-import { createDefaultAppGameState } from '../default_state';
+import { createDemoState } from '../demo_map';
 
 export async function playAutoGame(delayMs: number = 0, onStep?: (engine: GameEngine, turnInfo: string) => void) {
-    const engine = new GameEngine(createDefaultAppGameState());
+    const engine = new GameEngine(createDemoState());
     const ais = [new HeuristicAI(), new RandomAI()]; // P0 is Heuristic, P1 is Random
     
     let logs: string[] = [];

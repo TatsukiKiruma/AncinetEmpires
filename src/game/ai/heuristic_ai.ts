@@ -1,6 +1,5 @@
 import { Action } from '../types';
 import { GameEngine } from '../engine';
-import { areEnemyPlayers } from '../rule_config';
 
 export type Rng = () => number;
 
@@ -27,10 +26,8 @@ export class HeuristicAI {
                     const sim = engine.clone();
                     sim.step(action);
                     
-                    const beforeState = engine.getState();
-                    const afterState = sim.getState();
-                    const oldEnemyCount = beforeState.units.filter(u => areEnemyPlayers(beforeState, playerId, u.ownerId)).length;
-                    const newEnemyCount = afterState.units.filter(u => areEnemyPlayers(afterState, playerId, u.ownerId)).length;
+                    const oldEnemyCount = engine.getState().units.filter(u => u.ownerId !== playerId).length;
+                    const newEnemyCount = sim.getState().units.filter(u => u.ownerId !== playerId).length;
                     
                     if (newEnemyCount < oldEnemyCount) {
                         score += 5000;
@@ -52,9 +49,6 @@ export class HeuristicAI {
                     break;
                 case 'wait':
                     score = 0; 
-                    break;
-                case 'surrender':
-                    score = -10000;
                     break;
                 case 'end_turn':
                     score = -100; 

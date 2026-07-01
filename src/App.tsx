@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GameEngine } from './game/engine';
-import { createDefaultAppGameState } from './game/default_state';
+import { createDemoState } from './game/demo_map';
 import { playAutoGame } from './game/ai/play';
 import { GameState, Action, Position, Unit, UnitClass } from './game/types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './game/constants';
@@ -28,13 +28,11 @@ const unitNameMap: Record<string, string> = {
   dragon: '龙',
   commander: '帅',
   skeleton: '骷',
-  crystal: '晶',
 };
 
 // 状态对应的中文翻译
 const statusNameMap: Record<string, string> = {
   poisoned: '中毒',
-  inspired: '鼓舞',
   blinded: '致盲',
   weakened: '虚弱'
 };
@@ -43,13 +41,13 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'auto' | 'sandbox'>('sandbox');
 
   // --- 自动对局模式状态 ---
-  const [autoGameState, setAutoGameState] = useState<GameState>(createDefaultAppGameState());
+  const [autoGameState, setAutoGameState] = useState<GameState>(createDemoState());
   const [autoLogs, setAutoLogs] = useState<string[]>([]);
   const [autoIsRunning, setAutoIsRunning] = useState(false);
   const bottomAutoRef = useRef<HTMLDivElement>(null);
 
   // --- 手动沙盒对抗状态 ---
-  const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDefaultAppGameState());
+  const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDemoState());
   const [sandboxLogs, setSandboxLogs] = useState<string[]>([
     "[系统] 欢迎来到手动沙盒试炼场！这里允许玩家交互点击棋盘，自由操纵红蓝两大阵营对抗，用于体验和调试各种兵种光环、状态削弱与核心机能。"
   ]);
@@ -85,13 +83,13 @@ export default function App() {
   };
 
   const handleResetAuto = () => {
-    setAutoGameState(createDefaultAppGameState());
+    setAutoGameState(createDemoState());
     setAutoLogs(prev => [...prev, "[INFO] 自动对局状态已重置"]);
   };
 
   // --- 沙盒模式控制 ---
   const handleResetSandbox = () => {
-    setSandboxGameState(createDefaultAppGameState());
+    setSandboxGameState(createDemoState());
     setSelectedUnitId(null);
     setSelectedCastlePos(null);
     setSelectedRecruitUnitClass(null);
@@ -127,7 +125,6 @@ export default function App() {
       case 'wait': actionDesc = `待命: 单位 ${action.unitId} 在原地结束了本回合行动`; break;
       case 'recruit_to_castle': actionDesc = `招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 招募了 [${UNIT_CONFIGS[action.unitClass]?.name}]`; break;
       case 'recruit_and_deploy': actionDesc = `空投招募: 城堡 (${action.castlePos.x}, ${action.castlePos.y}) 空投招募了 [${UNIT_CONFIGS[action.unitClass]?.name}] 至 (${action.to.x}, ${action.to.y})`; break;
-      case 'surrender': actionDesc = `投降：当前玩家主动认输`; break;
       case 'end_turn': actionDesc = `回合结束：交替行动控制权`; break;
     }
 
@@ -584,7 +581,7 @@ export default function App() {
                         {/* 特殊状态(Poisoned / Blinded / Weakened) 指示标贴 */}
                         {u && u.status && (
                           <div className="absolute bottom-0 left-0 bg-orange-600 text-white rounded-full text-[7px] w-3 h-3 flex items-center justify-center font-black" title={statusNameMap[u.status.type]}>
-                            {u.status.type === 'poisoned' ? '毒' : u.status.type === 'inspired' ? '鼓' : u.status.type === 'blinded' ? '盲' : '弱'}
+                            {u.status.type === 'poisoned' ? '毒' : u.status.type === 'blinded' ? '盲' : '弱'}
                           </div>
                         )}
 
