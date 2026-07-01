@@ -1,4 +1,4 @@
-import { Action, GameState, Position, UnitClass, Ability } from './types';
+import { Action, GameState, Position, Unit, UnitClass, Ability } from './types';
 import { UNIT_CONFIGS } from './constants';
 import { getDistance, getReachablePositions, isWithinBounds, getRecruitDeployPositions } from './map';
 import { isFlying, isUndead, isWaterTerrain, getAttackBonus, getDefenseBonus, getFinalDamageMultiplier, getEffectiveStats, hasAbility as hasAbi } from './abilities';
@@ -81,6 +81,21 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
     return dist >= minRange && dist <= maxRange;
 }
 
+function canHealTarget(state: GameState, healer: Unit, target: Unit): boolean {
+    if (healer.id === target.id) return false;
+    if (getDistance(healer.pos, target.pos) > 1) return false;
+    if (target.hasBeenHealedThisTurn) return false;
+
+    // APK 反编译 C0600q.m4276k：亡灵目标直接允许治疗，不再限制阵营或中毒状态。
+    if (isUndead(target)) {
+        return true;
+    }
+
+    const notPoisoned = !(target.status && target.status.type === 'poisoned');
+    const isNotGroundToFlying = !(isFlying(target) && !isFlying(healer));
+    return areAlliedPlayers(state, healer.ownerId, target.ownerId) && notPoisoned && isNotGroundToFlying;
+}
+
 // 获取当前玩家所有合法动作
 export function getLegalActions(state: GameState, playerId: number): Action[] {
     const actions: Action[] = [];
@@ -115,7 +130,6 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
     }
 
     const enemyUnits = state.units.filter(u => areEnemyPlayers(state, u.ownerId, playerId));
-    const friendUnits = state.units.filter(u => areAlliedPlayers(state, u.ownerId, playerId));
     const sameTeamUnits = state.units.filter(u => u.ownerId === playerId);
 
     // 1. 突击二次移动作为专用合法指令生成
@@ -157,15 +171,9 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
         // 2.3 治疗 (healer，仅对相邻格生效/或者曼哈顿距离为1)
         if (hasAbi(unit, 'healer')) {
-            for (const friend of friendUnits) {
-                if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 1) {
-                    const notHealedYet = !friend.hasBeenHealedThisTurn;
-                    const notPoisoned = !(friend.status && friend.status.type === 'poisoned');
-                    const isNotGroundToFlying = !(isFlying(friend) && !isFlying(unit));
-
-                    if (notHealedYet && notPoisoned && isNotGroundToFlying) {
-                        actions.push({ type: 'heal', healerId: unit.id, targetId: friend.id });
-                    }
+            for (const target of state.units) {
+                if (canHealTarget(state, unit, target)) {
+                    actions.push({ type: 'heal', healerId: unit.id, targetId: target.id });
                 }
             }
         }

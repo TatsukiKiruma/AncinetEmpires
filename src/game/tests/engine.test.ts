@@ -2692,7 +2692,7 @@ describe('GameEngine Rules', () => {
             expect(finalGraveState.graves).toHaveLength(0);
         });
 
-        it('5.2 治疗师治疗骷髅/幽灵造成 40 伤害', () => {
+        it('5.2 治疗师治疗骷髅/幽灵造成 1.5 倍治疗伤害', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;
             paladin.unitClass = 'paladin';
@@ -2710,7 +2710,7 @@ describe('GameEngine Rules', () => {
 
             const finalState = engine.getState();
             const resGhost = finalState.units.find(u => u.id === ghostFriend.id)!;
-            expect(resGhost.hp).toBe(40); // 80 - 40 = 40 (变为伤害)
+            expect(resGhost.hp).toBe(20); // 80 - 60 = 20，亡灵受到 1.5 倍治疗伤害
         });
 
         it('5.2b 亡灵受到治疗伤害后也会消耗本回合被治疗次数', () => {
@@ -2742,13 +2742,82 @@ describe('GameEngine Rules', () => {
 
             const afterHeal = engine.getState();
             const resSkeleton = afterHeal.units.find(u => u.id === skeletonFriend.id)!;
-            expect(resSkeleton.hp).toBe(60);
+            expect(resSkeleton.hp).toBe(40);
             expect(resSkeleton.hasBeenHealedThisTurn).toBe(true);
             expect(engine.getLegalActions(0).some(action =>
                 action.type === 'heal'
                 && action.healerId === 'u_second_paladin'
                 && action.targetId === skeletonFriend.id
             )).toBe(false);
+        });
+
+        it('5.2c 治疗师可以治疗敌方骷髅但不能治疗普通敌军', () => {
+            const state = createDemoState();
+            const paladin = state.units.find(u => u.ownerId === 0)!;
+            paladin.unitClass = 'paladin';
+            paladin.pos = { x: 0, y: 0 };
+
+            const enemySkeleton = state.units.find(u => u.ownerId === 1)!;
+            enemySkeleton.unitClass = 'skeleton';
+            enemySkeleton.pos = { x: 0, y: 1 };
+            enemySkeleton.hp = 100;
+
+            const enemySoldier = state.units.find(u => u.ownerId === 1 && u.id !== enemySkeleton.id)!;
+            enemySoldier.unitClass = 'soldier';
+            enemySoldier.pos = { x: 1, y: 0 };
+            enemySoldier.hp = 50;
+
+            const actions = getLegalActions(state, 0);
+            const healEnemySkeleton = actions.find(action =>
+                action.type === 'heal'
+                && action.healerId === paladin.id
+                && action.targetId === enemySkeleton.id
+            );
+
+            expect(healEnemySkeleton).toBeDefined();
+            expect(actions.some(action =>
+                action.type === 'heal'
+                && action.healerId === paladin.id
+                && action.targetId === enemySoldier.id
+            )).toBe(false);
+
+            const engine = new GameEngine(state);
+            engine.step(healEnemySkeleton!);
+
+            const resSkeleton = engine.getState().units.find(u => u.id === enemySkeleton.id)!;
+            expect(resSkeleton.hp).toBe(40);
+        });
+
+        it('5.2d 治疗击杀敌方骷髅给击杀经验且不生成墓碑', () => {
+            const state = createDemoState();
+            const paladin = state.units.find(u => u.ownerId === 0)!;
+            paladin.unitClass = 'paladin';
+            paladin.pos = { x: 0, y: 0 };
+            paladin.exp = 0;
+            paladin.level = 0;
+
+            const enemySkeleton = state.units.find(u => u.ownerId === 1)!;
+            enemySkeleton.unitClass = 'skeleton';
+            enemySkeleton.pos = { x: 0, y: 1 };
+            enemySkeleton.hp = 60;
+
+            const healEnemySkeleton = getLegalActions(state, 0).find(action =>
+                action.type === 'heal'
+                && action.healerId === paladin.id
+                && action.targetId === enemySkeleton.id
+            );
+            expect(healEnemySkeleton).toBeDefined();
+
+            const engine = new GameEngine(state);
+            engine.step(healEnemySkeleton!);
+
+            const finalState = engine.getState();
+            const resPaladin = finalState.units.find(u => u.id === paladin.id)!;
+            expect(finalState.units.some(u => u.id === enemySkeleton.id)).toBe(false);
+            expect(finalState.graves?.some(grave => (
+                grave.pos.x === enemySkeleton.pos.x && grave.pos.y === enemySkeleton.pos.y
+            )) ?? false).toBe(false);
+            expect(resPaladin.exp).toBe(60);
         });
 
         it('5.3 中毒单位不能被治疗师治疗', () => {

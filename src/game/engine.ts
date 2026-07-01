@@ -550,10 +550,13 @@ export class GameEngine {
                 if (healer && target) {
                     const level = healer.level ?? 0;
                     const healVal = healer.unitClass === 'paladin' ? (40 + level * 10) : 40;
+                    let hpDelta = healVal;
                     
                     target.hasBeenHealedThisTurn = true;
                     if (isUndead(target)) {
-                        target.hp = Math.max(0, target.hp - healVal);
+                        // APK 反编译 C0600q.m4312e：治疗亡灵时变为 1.5 倍伤害。
+                        hpDelta = -Math.floor((healVal * 3) / 2);
+                        target.hp = Math.max(0, target.hp + hpDelta);
                         if (target.hp <= 0 && !hasAbility(healer, 'undead')) {
                             addExp(healer, 60, ruleConfig.levelCap); // 击杀经验
                         }
@@ -562,13 +565,14 @@ export class GameEngine {
                         target.hp += healVal;
                     }
                     
-                    // 经验
-                    addExp(healer, 30, ruleConfig.levelCap);
+                    if (target.hp > 0) {
+                        addExp(healer, 30, ruleConfig.levelCap);
+                    }
                     
                     healer.hasMoved = true;
                     healer.hasActed = true;
                     standbyUnitId = healer.id;
-                    info = `Healer ${healer.id} healed ${target.id} for ${healVal} points.`;
+                    info = `Healer ${healer.id} changed ${target.id} HP by ${hpDelta}.`;
                 }
                 break;
             }
