@@ -9,10 +9,11 @@ describe('APK skirmish rule report', () => {
         expect(report.checkCount).toBe(26);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
-        expect(report.projectProbeItems).toHaveLength(2);
+        expect(report.projectProbeItems).toHaveLength(3);
         expect(report.projectProbeItems.map(item => item.id)).toEqual([
             'support-assault-project-probe',
-            'counter-blind-storm-project-probe'
+            'counter-blind-storm-project-probe',
+            'status-damage-project-probe'
         ]);
         expect(report.manualVerificationItems).toHaveLength(4);
         expect(report.manualVerificationItems.map(item => item.id)).toEqual([
@@ -78,6 +79,20 @@ describe('APK skirmish rule report', () => {
                 attackerAliveAfterCounter: false,
                 attackerGraveCreated: true,
                 postAttackMoveAvailable: false
+            }
+        });
+        expect(byId['status-damage-project-probe'].currentProjectBehavior).toEqual({
+            meleeSoldierVsSoldier: {
+                normal: 50,
+                inspired: 60,
+                weakened: 60,
+                inspiredAgainstWeakened: 70
+            },
+            rangedArcherVsSoldier: {
+                normal: 40,
+                inspired: 45,
+                weakened: 45,
+                inspiredAgainstWeakened: 50
             }
         });
     });
@@ -181,7 +196,8 @@ describe('APK skirmish rule report', () => {
             poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
-            grave100: { hp: 100, maxHp: 100, graveCount: 0 }
+            grave100: { hp: 100, maxHp: 100, graveCount: 0 },
+            grave130: { hp: 130, maxHp: 100, graveCount: 0 }
         });
         expect(byId['terrain-defense-combat'].actual).toEqual({
             apkTile: { id: 33, defenseBonus: 20 },

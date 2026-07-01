@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { GameEngine } from '../engine';
 import { AncientEmpiresEnv, buildFixedActionMask, calculateArmyValue, decodeAction, encodeAction, encodeFixedActionIndex, getActionSpaceSchema, getFixedActionSpaceDescriptor } from '../env';
-import type { Action, Unit } from '../types';
+import type { Action, Unit, UnitClass } from '../types';
 import { createDemoState } from '../demo_map';
 import { createDefaultAppGameState } from '../default_state';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from '../constants';
@@ -2516,6 +2516,45 @@ describe('GameEngine Rules', () => {
             expect(resGhost.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
         });
 
+        it('5.1f 封顶回复不会压低既有超上限生命', () => {
+            const auraState = createDemoState();
+            const elf = auraState.units.find(u => u.ownerId === 0)!;
+            elf.unitClass = 'elf';
+            elf.pos = { x: 0, y: 0 };
+
+            const ally = auraState.units.find(u => u.ownerId === 0 && u.id !== elf.id)!;
+            ally.unitClass = 'soldier';
+            ally.pos = { x: 0, y: 1 };
+            ally.hp = 130;
+            ally.maxHp = 100;
+
+            const auraEngine = new GameEngine(auraState);
+            auraEngine.step({ type: 'wait', unitId: elf.id });
+            expect(auraEngine.getState().units.find(u => u.id === ally.id)?.hp).toBe(130);
+
+            const graveState = createDemoState();
+            graveState.currentPlayer = 0;
+            graveState.map.width = 2;
+            graveState.map.height = 2;
+            graveState.map.tiles = Array.from({ length: 2 }, () => (
+                Array.from({ length: 2 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            graveState.graves = [{ id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }];
+
+            const ghost = graveState.units.find(u => u.ownerId === 0)!;
+            ghost.unitClass = 'ghost';
+            ghost.pos = { x: 0, y: 0 };
+            ghost.hp = 130;
+            ghost.maxHp = 100;
+            graveState.units = [ghost, ...graveState.units.filter(u => u.id !== ghost.id && u.ownerId === 1)];
+
+            const graveEngine = new GameEngine(graveState);
+            graveEngine.step({ type: 'move', unitId: ghost.id, to: { x: 0, y: 1 } });
+            const finalGraveState = graveEngine.getState();
+            expect(finalGraveState.units.find(u => u.id === ghost.id)?.hp).toBe(130);
+            expect(finalGraveState.graves).toHaveLength(0);
+        });
+
         it('5.2 治疗师治疗骷髅/幽灵造成 40 伤害', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;
@@ -2914,6 +2953,56 @@ describe('GameEngine Rules', () => {
             attacker.pos = { x: 1, y: 0 };
             defender.pos = { x: 1, y: 2 };
             expect(calculateDamage(state, attacker.id, defender.id)).toBe(45);
+        });
+
+        it('5.12b 鼓舞和虚弱可分别作用于攻防两端并按距离减半', () => {
+            const buildState = (attackerClass: UnitClass, distance: number) => {
+                const state = createDemoState();
+                state.map.width = 4;
+                state.map.height = 4;
+                state.map.tiles = Array.from({ length: 4 }, () => (
+                    Array.from({ length: 4 }, () => ({ terrainId: 6 as const, ownerId: null }))
+                ));
+
+                const attacker = state.units[0];
+                attacker.unitClass = attackerClass;
+                attacker.pos = { x: 1, y: 1 };
+                attacker.hp = 100;
+                attacker.level = 0;
+                attacker.exp = 0;
+                delete attacker.status;
+
+                const defender = state.units[1];
+                defender.unitClass = 'soldier';
+                defender.pos = { x: 1, y: 1 + distance };
+                defender.hp = 100;
+                defender.level = 0;
+                defender.exp = 0;
+                delete defender.status;
+
+                state.units = [attacker, defender, ...state.units.slice(2)];
+                return { state, attacker, defender };
+            };
+
+            const melee = buildState('soldier', 1);
+            expect(calculateDamage(melee.state, melee.attacker.id, melee.defender.id)).toBe(50);
+            melee.attacker.status = { type: 'inspired', remainingTurns: 1 };
+            expect(calculateDamage(melee.state, melee.attacker.id, melee.defender.id)).toBe(60);
+            delete melee.attacker.status;
+            melee.defender.status = { type: 'weakened', remainingTurns: 1 };
+            expect(calculateDamage(melee.state, melee.attacker.id, melee.defender.id)).toBe(60);
+            melee.attacker.status = { type: 'inspired', remainingTurns: 1 };
+            expect(calculateDamage(melee.state, melee.attacker.id, melee.defender.id)).toBe(70);
+
+            const ranged = buildState('archer', 2);
+            expect(calculateDamage(ranged.state, ranged.attacker.id, ranged.defender.id)).toBe(40);
+            ranged.attacker.status = { type: 'inspired', remainingTurns: 1 };
+            expect(calculateDamage(ranged.state, ranged.attacker.id, ranged.defender.id)).toBe(45);
+            delete ranged.attacker.status;
+            ranged.defender.status = { type: 'weakened', remainingTurns: 1 };
+            expect(calculateDamage(ranged.state, ranged.attacker.id, ranged.defender.id)).toBe(45);
+            ranged.attacker.status = { type: 'inspired', remainingTurns: 1 };
+            expect(calculateDamage(ranged.state, ranged.attacker.id, ranged.defender.id)).toBe(50);
         });
 
         it('5.13 净化光环结束回合后触发，清除 debuff 并回血', () => {

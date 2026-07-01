@@ -524,6 +524,38 @@ function buildCounterBlindStormProbeBehavior() {
     };
 }
 
+function buildStatusDamageProbeBehavior() {
+    const buildDamage = (attackerClass: UnitClass, distance: number) => {
+        const state = createRoadProbeState([
+            createProbeUnit('attacker', 0, attackerClass, 0, 0),
+            createProbeUnit('defender', 1, 'soldier', 0, distance)
+        ], 4, 4);
+        const attacker = state.units.find(unit => unit.id === 'attacker')!;
+        const defender = state.units.find(unit => unit.id === 'defender')!;
+
+        const normal = calculateDamage(state, attacker.id, defender.id);
+        attacker.status = { type: 'inspired', remainingTurns: 1 };
+        const inspired = calculateDamage(state, attacker.id, defender.id);
+        delete attacker.status;
+        defender.status = { type: 'weakened', remainingTurns: 1 };
+        const weakened = calculateDamage(state, attacker.id, defender.id);
+        attacker.status = { type: 'inspired', remainingTurns: 1 };
+        const inspiredAgainstWeakened = calculateDamage(state, attacker.id, defender.id);
+
+        return {
+            normal,
+            inspired,
+            weakened,
+            inspiredAgainstWeakened
+        };
+    };
+
+    return {
+        meleeSoldierVsSoldier: buildDamage('soldier', 1),
+        rangedArcherVsSoldier: buildDamage('archer', 2)
+    };
+}
+
 function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
     return [
         {
@@ -539,6 +571,13 @@ function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
             purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
             currentProjectBehavior: buildCounterBlindStormProbeBehavior(),
             suggestedVerification: '在原版 skirmish 中分别测试攻击前已致盲的普通单位是否不能反击，以及黑魔法师/狼骑射手本次致盲攻击后普通 1 格反击是否仍发生；再测试狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
+        },
+        {
+            id: 'status-damage-project-probe',
+            title: '当前项目鼓舞与虚弱伤害组合快照',
+            purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
+            currentProjectBehavior: buildStatusDamageProbeBehavior(),
+            suggestedVerification: '在原版 skirmish 中分别测试鼓舞攻击者、虚弱防守者、鼓舞攻击虚弱防守者的近战/远程伤害数值；重点确认远程鼓舞与远程虚弱是否都按 5 点处理。'
         }
     ];
 }
@@ -1009,7 +1048,8 @@ function buildUndeadOverhealActual() {
         poison95: buildPoisonResult(95),
         poison100: buildPoisonResult(100),
         grave95: buildGraveResult(95),
-        grave100: buildGraveResult(100)
+        grave100: buildGraveResult(100),
+        grave130: buildGraveResult(130)
     };
 }
 
@@ -1710,13 +1750,14 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'undead-overheal',
-        '当前默认亡灵被动回血上限',
-        'APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限',
+        '当前默认亡灵被动回血上限与既有超上限保留',
+        'APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限；项目封顶回复不会压低既有超上限生命',
         {
             poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
-            grave100: { hp: 100, maxHp: 100, graveCount: 0 }
+            grave100: { hp: 100, maxHp: 100, graveCount: 0 },
+            grave130: { hp: 130, maxHp: 100, graveCount: 0 }
         },
         buildUndeadOverhealActual()
     );
