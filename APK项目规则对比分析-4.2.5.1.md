@@ -45,7 +45,7 @@ DEX 字符串与方法表证据也已工具化：
 npm run apk:dex-report -- --check
 ```
 
-该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表、`method_ids` 方法表、关键字符串引用和少量规则构造器/关键动作方法字节码。当前运行结果：26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个，攻击/支援/招募关键规则方法证据 6 个且缺失期望 0 项；指挥官/招募/开局设置相关必要字符串均存在，并可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 的关键方法签名；`Cannot attack from/state`、`Cannot support from/state` 和 `Cannot recruit when stacked!` 已能定位到具体校验方法；攻击目标校验 `q.a(Unit,int,int)`、支援坐标校验 `q.h(Unit,int,int)`、支援目标校验 `q.n(Unit,Unit)` 的字段/调用引用也已纳入门禁；默认指挥官收入解析为 `base=50/growth=25`；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论已覆盖 API 暴露、签名、字符串引用、默认规则初始化，以及攻击/支援/招募入口和二级规则校验的关键字段与调用引用证据，但仍不能替代完整控制流反编译。
+该命令直接解析 `APK/_analysis/unpack/classes.dex` 字符串表、`method_ids` 方法表、关键字符串引用和少量规则构造器/关键动作方法字节码。当前运行结果：26529 个字符串可解析，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个，关键规则方法证据 8 个且缺失期望 0 项；指挥官/招募/开局设置相关必要字符串均存在，并可解析 `CheckCommander`、`GetCommander`、`SyncSetCommander`、`SetIncomeCommanderBase/Growth`、`SyncSetRecruitUnits*`、`AsyncAttack`、`SyncSetUnitStatus` 的关键方法签名；`Cannot attack from/state`、`Cannot support from/state` 和 `Cannot recruit when stacked!` 已能定位到具体校验方法；攻击目标校验 `q.a(Unit,int,int)`、反击/反击风暴校验 `q.i(Unit,Unit)`、攻击附加状态 `q.c(Unit,Unit)`、支援坐标校验 `q.h(Unit,int,int)`、支援目标校验 `q.n(Unit,Unit)` 的字段/调用引用也已纳入门禁；默认指挥官收入解析为 `base=50/growth=25`；`revive` 关键词分组命中 0，未发现 `ReviveCommander/RespawnCommander/CommanderRevive/CommanderRespawn` 一类通用指挥官复活 API 字符串。该结论已覆盖 API 暴露、签名、字符串引用、默认规则初始化，以及攻击/支援/招募入口、反击风暴、攻击附加状态和支援目标二级校验的关键字段与调用引用证据，但仍不能替代完整控制流反编译。
 
 `data.bin` 地形数值证据也已工具化：
 
@@ -151,7 +151,7 @@ APK 状态 ID 与项目状态：
 
 - 治疗师主动治疗可突破最大血量，项目已实现为“已超上限仍可继续治疗”；普通封顶回血和升级回满血不会继续突破上限，也不会把既有超上限血量压回最大血量。APK 是否存在其它后续裁剪时机仍需实测或反编译确认。
 - 亡灵从墓碑/中毒获得的回血受最大血量限制；用户 2026-07-01 实机确认最多回复到生命上限，不突破上限。
-- 反击和突击后移动的 UI 层行为仍缺 APK 实测；pending/stacked 招募、空城堡 pending 的结束回合/投降、指挥官城堡堆叠 pending 的菜单限制已由 2026-06-30 实机结果回填。投降动作已接入规则层，但确认弹窗等纯 UI 流程仍待实机细化。
+- 反击/反击风暴和攻击附加状态已有 DEX 方法证据，但同一次攻击内的伤害、致盲附加、普通反击、反击风暴和死亡边界精确顺序仍缺 APK 实测；突击后移动的 UI 层行为也仍需实测。pending/stacked 招募、空城堡 pending 的结束回合/投降、指挥官城堡堆叠 pending 的菜单限制已由 2026-06-30 实机结果回填。投降动作已接入规则层，但确认弹窗等纯 UI 流程仍待实机细化。
 
 ## 8. 经济、招募和上限规则对比
 
@@ -167,7 +167,7 @@ DEX 与脚本确认：
 
 - DEX 暴露 `Stage.SyncSetGold`、`Stage.SyncSetGoldForTeam`、`Stage.SyncSetUnitLimit`、`Stage.SyncSetUnitLimitForTeam`、`Stage.SyncSetRecruitUnits`、`Stage.SyncSetRecruitUnitsForTeam`。
 - DEX 暴露 `Rule.SetIncomeVillage`、`Rule.SetIncomeCastle`、`Rule.SetIncomeCommanderBase`、`Rule.SetIncomeCommanderGrowth`、`Rule.SetLevelCap`、`Rule.SetPrices`。
-- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认必要方法名缺失为 0、关键字符串引用方法为 9、攻击/支援/招募关键规则方法证据为 6 个且缺失期望 0 项；方法表可解析 `SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；字符串引用可定位攻击、支援、招募 stacked 和状态设置校验方法；关键方法字节码引用确认攻击/支援入口都检查动作状态 2，招募入口检查状态 1 与 pending 字段 `Lc/a/b/a/t/a;.d`，并分别调用 `q.a(Unit,int,int)`、`q.h(Unit,int,int)`、`q.b(int,int,int)` 做规则校验；二级方法进一步确认 `q.a(Unit,int,int)` 引用攻击目标/地形/能力校验，`q.h(Unit,int,int)` 委托 `q.n(Unit,Unit)`，`q.n(Unit,Unit)` 引用目标行动状态、已支援标记、等级字段和支援者能力排除校验；疑似通用指挥官复活 API 字符串为 0。
+- `npm run apk:dex-report -- --check` 当前确认上述关键字符串可从 `classes.dex` 复核，并额外确认必要方法名缺失为 0、关键字符串引用方法为 9、关键规则方法证据为 8 个且缺失期望 0 项；方法表可解析 `SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；字符串引用可定位攻击、支援、招募 stacked 和状态设置校验方法；关键方法字节码引用确认攻击/支援入口都检查动作状态 2，招募入口检查状态 1 与 pending 字段 `Lc/a/b/a/t/a;.d`，并分别调用 `q.a(Unit,int,int)`、`q.h(Unit,int,int)`、`q.b(int,int,int)` 做规则校验；二级方法进一步确认 `q.a(Unit,int,int)` 引用攻击目标/地形/能力校验，`q.i(Unit,Unit)` 引用 `counter_storm` 能力、距离/射程判断和字面量 2，`q.c(Unit,Unit)` 引用 `poisoner`、`blinder`、状态枚举与状态应用方法，`q.h(Unit,int,int)` 委托 `q.n(Unit,Unit)`，`q.n(Unit,Unit)` 引用目标行动状态、已支援标记、等级字段和支援者能力排除校验；疑似通用指挥官复活 API 字符串为 0。
 - 已解密脚本中 `Stage.SyncSetUnitLimit` 出现 25 次，`Stage.SyncSetGold` 出现 16 次，`Stage.SyncSetRecruitUnits` 出现 13 次，`Stage.SyncSetRecruitUnitsForTeam` 出现 14 次。
 
 项目当前状态：

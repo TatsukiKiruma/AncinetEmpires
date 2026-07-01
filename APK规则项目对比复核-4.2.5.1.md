@@ -131,7 +131,7 @@ npm run apk:map-report -- --check
 npm run apk:dex-report -- --check
 ```
 
-当前命令输出确认：`classes.dex` 可解析 26529 个字符串，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个，攻击/支援/招募关键规则方法证据 6 个且缺失期望 0 项；`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；方法表可解析 `CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SyncSetCommander(int, int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 两种重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；字符串反查确认 `Cannot attack from/state` 位于 `Lc/a/b/a/l;.i(int,int)`，`Cannot support from/state` 位于 `Lc/a/b/a/l;.m(int,int)`，`Cannot recruit when stacked!` 位于 `Lc/a/b/a/l;.c(int,int,int)`；关键方法字节码引用进一步确认攻击/支援入口读取 `Lc/a/b/a/t/e;.a:I` 并匹配状态字面量 2，招募入口读取 pending 字段 `Lc/a/b/a/t/a;.d:Unit` 并匹配状态字面量 1，三者分别调用 `Lc/a/b/a/q;.a(Unit,int,int):boolean`、`Lc/a/b/a/q;.h(Unit,int,int):boolean`、`Lc/a/b/a/q;.b(int,int,int):boolean` 作为核心规则校验；二级方法确认 `q.a(Unit,int,int)` 引用攻击目标/地形/能力校验，`q.h(Unit,int,int)` 按坐标取目标后委托 `q.n(Unit,Unit)`，`q.n(Unit,Unit)` 引用目标行动状态、已支援标记、等级字段和支援者能力排除校验；构造器字节码确认 `SetIncomeCommanderBase` 写入 `Lc/a/b/a/t/d;.s:I` 且默认值为 50，`SetIncomeCommanderGrowth` 写入 `Lc/a/b/a/t/d;.t:I` 且默认值为 25；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果能证明关键 API 名称、签名、字符串引用、默认指挥官收入，以及攻击/支援/招募入口和支援目标二级校验关键调用存在，但仍不能替代完整控制流反编译；skirmish 指挥官重招募价格递增已按实机验证在项目规则中落地。
+当前命令输出确认：`classes.dex` 可解析 26529 个字符串，必要字符串缺失 0，必要方法名缺失 0，关键字符串引用方法 9 个，关键规则方法证据 8 个且缺失期望 0 项；`CheckCommander/GetCommander/SyncSetCommander`、`SyncSetRecruitUnits*`、`SetPrices/SetLevelCap`、`Cannot recruit when stacked!` 等关键字符串均存在；方法表可解析 `CheckCommander(Unit)`、`CheckCommander(Unit, int)`、`GetCommander(int)`、`SyncSetCommander(int, int)`、`SetIncomeCommanderBase(int)`、`SetIncomeCommanderGrowth(int)`、`SyncSetRecruitUnits(int[])`、`SyncSetRecruitUnitsForTeam(int, int[])`、`AsyncAttack` 两种重载和 `SyncSetUnitStatus(int, int, int, int, boolean)`；字符串反查确认 `Cannot attack from/state` 位于 `Lc/a/b/a/l;.i(int,int)`，`Cannot support from/state` 位于 `Lc/a/b/a/l;.m(int,int)`，`Cannot recruit when stacked!` 位于 `Lc/a/b/a/l;.c(int,int,int)`；关键方法字节码引用进一步确认攻击/支援入口读取 `Lc/a/b/a/t/e;.a:I` 并匹配状态字面量 2，招募入口读取 pending 字段 `Lc/a/b/a/t/a;.d:Unit` 并匹配状态字面量 1，三者分别调用 `Lc/a/b/a/q;.a(Unit,int,int):boolean`、`Lc/a/b/a/q;.h(Unit,int,int):boolean`、`Lc/a/b/a/q;.b(int,int,int):boolean` 作为核心规则校验；二级方法确认 `q.a(Unit,int,int)` 引用攻击目标/地形/能力校验，`q.i(Unit,Unit)` 引用 `counter_storm` 能力、距离/射程判断和字面量 2，`q.c(Unit,Unit)` 引用 `poisoner`、`blinder`、状态枚举与状态应用方法，`q.h(Unit,int,int)` 按坐标取目标后委托 `q.n(Unit,Unit)`，`q.n(Unit,Unit)` 引用目标行动状态、已支援标记、等级字段和支援者能力排除校验；构造器字节码确认 `SetIncomeCommanderBase` 写入 `Lc/a/b/a/t/d;.s:I` 且默认值为 50，`SetIncomeCommanderGrowth` 写入 `Lc/a/b/a/t/d;.t:I` 且默认值为 25；`revive` 关键词分组命中 0，疑似通用指挥官复活 API 字符串候选为 0。该结果能证明关键 API 名称、签名、字符串引用、默认指挥官收入，以及攻击/支援/招募入口、反击风暴、攻击附加状态和支援目标二级校验关键调用存在，但仍不能替代完整控制流反编译；skirmish 指挥官重招募价格递增已按实机验证在项目规则中落地。
 
 ## 4. 语言表确认的核心规则
 
@@ -242,7 +242,7 @@ npm run apk:dex-report -- --check
 
 - 治疗师主动治疗已允许持续突破最大血量；普通封顶回血和升级回满血不会继续突破上限，也不会把既有超上限生命压回最大生命。APK 是否存在其它后续裁剪时机仍未知。
 - 地形/光环/墓碑/亡灵中毒回血目前保留最大血量上限；APK 对这些回血是否允许突破上限未知。
-- 反击风暴、致盲、反击、突击移动在复杂状态下的官方顺序仍需更多实测。当前项目探针结果：普通单位被致盲后不会普通反击；带 `counter_storm` 的狂战士在 2 格内即使被致盲也会反击，3 格不反击；同一目标被支援并再次行动后，本回合第二名支援者不能再次支援；狼移动 2 格后攻击，攻击后剩余移动力为 4，最远突击后移动距离为 4。
+- 反击风暴和攻击附加状态已有 DEX 方法证据，但致盲、普通反击、反击风暴、死亡边界与突击移动在复杂状态下的官方精确顺序仍需更多实测。当前项目探针结果：普通单位被致盲后不会普通反击；带 `counter_storm` 的狂战士在 2 格内即使被致盲也会反击，3 格不反击；同一目标被支援并再次行动后，本回合第二名支援者不能再次支援；狼移动 2 格后攻击，攻击后剩余移动力为 4，最远突击后移动距离为 4。
 
 ## 7. 经济、招募、回合与胜负
 

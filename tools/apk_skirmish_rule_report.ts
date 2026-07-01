@@ -229,7 +229,7 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
             currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
-            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录致盲单位是否能反击、反击风暴在 1/2/3 格时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
+            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 引用 counter_storm 能力、距离/射程判断和字面量 2；q.c(Unit,Unit) 引用 poisoner/blinder 能力、状态枚举与状态应用方法；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
         }
     ];
 }

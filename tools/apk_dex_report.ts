@@ -242,6 +242,42 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
         ]
     },
     {
+        id: 'counter-attack-validation',
+        label: '反击/反击风暴规则校验',
+        classDescriptor: 'Lc/a/b/a/q;',
+        name: 'i',
+        parameterTypes: ['Lc/a/b/a/t/f;', 'Lc/a/b/a/t/f;'],
+        expectedStateLiteral: 2,
+        expectedStrings: [],
+        expectedFields: ['Lc/a/b/a/t/g;.q:Lc/a/b/a/t/g;'],
+        expectedMethods: [
+            'Lc/a/b/a/q;.k(Lc/a/b/a/t/f;):Z',
+            'Lc/a/b/a/q;.j(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z',
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'Lc/a/b/a/q;.p(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):I',
+            'Lc/a/b/a/q;.l(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ]
+    },
+    {
+        id: 'attack-status-application',
+        label: '攻击附加状态规则',
+        classDescriptor: 'Lc/a/b/a/q;',
+        name: 'c',
+        parameterTypes: ['Lc/a/b/a/t/f;', 'Lc/a/b/a/t/f;'],
+        expectedStateLiteral: null,
+        expectedStrings: [],
+        expectedFields: [
+            'Lc/a/b/a/t/g;.i:Lc/a/b/a/t/g;',
+            'Lc/a/b/a/t/g;.x:Lc/a/b/a/t/g;',
+            'Lc/a/b/a/t/h;.c:Lc/a/b/a/t/h;',
+            'Lc/a/b/a/t/h;.e:Lc/a/b/a/t/h;'
+        ],
+        expectedMethods: [
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V'
+        ]
+    },
+    {
         id: 'recruit-pending-validation',
         label: '招募 pending/堆叠校验',
         classDescriptor: 'Lc/a/b/a/l;',
