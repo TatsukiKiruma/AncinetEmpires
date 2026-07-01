@@ -240,6 +240,14 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
         expectedMethods: [
             'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
             'Lc/a/b/a/q;.g(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ],
+        expectedOperationTrace: [
+            'field:Lc/a/b/a/t/f;.i:Z',
+            'field:Lc/a/b/a/t/f;.j:Z',
+            'method:Lc/a/b/a/q;.g(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z',
+            'field:Lc/a/b/a/t/g;.y:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'field:Lc/a/b/a/t/f;.n:I'
         ]
     },
     {
@@ -257,6 +265,12 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
             'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
             'Lc/a/b/a/q;.p(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):I',
             'Lc/a/b/a/q;.l(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ],
+        expectedOperationTrace: [
+            'field:Lc/a/b/a/t/g;.q:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'literal:2',
+            'method:Lc/a/b/a/q;.l(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
         ]
     },
     {
@@ -276,6 +290,16 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
         expectedMethods: [
             'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
             'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V'
+        ],
+        expectedOperationTrace: [
+            'field:Lc/a/b/a/t/g;.i:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'field:Lc/a/b/a/t/h;.c:Lc/a/b/a/t/h;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V',
+            'field:Lc/a/b/a/t/g;.x:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'field:Lc/a/b/a/t/h;.e:Lc/a/b/a/t/h;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V'
         ]
     },
     {
@@ -1227,6 +1251,13 @@ export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodE
                 summary.literalInts.includes(expectation.expectedStateLiteral)
             );
         }
+        if ('expectedOperationTrace' in expectation) {
+            checkExpectation(
+                'operation-order',
+                expectation.expectedOperationTrace.join(' -> '),
+                includesOrderedSubsequence(summary.operationTrace, expectation.expectedOperationTrace)
+            );
+        }
         const expectedOperations = new Set<string>([
             ...expectation.expectedStrings.map(value => `string:${value}`),
             ...expectation.expectedFields.map(value => `field:${value}`),
@@ -1259,6 +1290,16 @@ export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodE
 
 function uniqueSorted(values: readonly string[]): string[] {
     return [...new Set(values)].sort((left, right) => left.localeCompare(right));
+}
+
+function includesOrderedSubsequence(values: readonly string[], expected: readonly string[]): boolean {
+    let searchFrom = 0;
+    for (const expectedValue of expected) {
+        const foundIndex = values.indexOf(expectedValue, searchFrom);
+        if (foundIndex < 0) return false;
+        searchFrom = foundIndex + 1;
+    }
+    return true;
 }
 
 function containsAnyKeyword(value: string, keywords: readonly string[]): boolean {

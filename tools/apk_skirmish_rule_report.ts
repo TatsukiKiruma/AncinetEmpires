@@ -222,7 +222,7 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
             currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，突击后移动使用剩余移动力。',
-            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 引用目标行动状态、已支援标记、等级字段和支援者能力排除校验。仍需针对性实测记录 UI 是否允许同一目标多次支援、攻击前移动后突击剩余移动力如何计算。'
+            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、攻击前移动后突击剩余移动力如何计算。'
         },
         {
             id: 'counter-blind-storm-order',
