@@ -1,6 +1,7 @@
 import { GameState, Position, UnitClass } from './types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
-import { isFlying, getMoveCostForUnit } from './abilities';
+import { isFlying, getMoveCostForUnit, getEffectiveStats } from './abilities';
+import { areEnemyPlayers } from './rule_config';
 
 // 计算曼哈顿距离
 export function getDistance(a: Position, b: Position): number {
@@ -17,7 +18,7 @@ export function getReachablePositions(state: GameState, unitId: string, customMa
     const unit = state.units.find(u => u.id === unitId);
     if (!unit) return [];
 
-    const stats = UNIT_CONFIGS[unit.unitClass];
+    const stats = getEffectiveStats(unit);
     let maxMove = customMaxMove !== undefined ? customMaxMove : stats.move;
     if (unit.status && unit.status.type === 'weakened') {
         maxMove = Math.min(maxMove, 1);
@@ -30,11 +31,10 @@ export function getReachablePositions(state: GameState, unitId: string, customMa
     reachable.set(startKey, 0);
     queue.push({ pos: unit.pos, cost: 0 });
 
-    // 记录场上其他单位的位置及其归属
-    // 我们假设不能穿过敌方单位，可以穿过友方单位但不能停留
-    const unitsMap = new Map<string, number>();
+    // 记录场上其他单位的位置；敌对单位阻挡，同盟单位可穿过但不可停留。
+    const unitsMap = new Map<string, typeof state.units[number]>();
     for (const u of state.units) {
-        unitsMap.set(`${u.pos.x},${u.pos.y}`, u.ownerId);
+        unitsMap.set(`${u.pos.x},${u.pos.y}`, u);
     }
 
     const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
@@ -54,10 +54,9 @@ export function getReachablePositions(state: GameState, unitId: string, customMa
             if (!isWithinBounds(state, nPos)) continue;
 
             // 检查是否有敌方单位阻挡
-            const occupyOwner = unitsMap.get(nKey);
-            if (occupyOwner !== undefined && occupyOwner !== unit.ownerId) {
-                const enemyUnit = state.units.find(u => u.pos.x === nx && u.pos.y === ny);
-                if (isFlying(unit) && enemyUnit && !isFlying(enemyUnit)) {
+            const occupyingUnit = unitsMap.get(nKey);
+            if (occupyingUnit && areEnemyPlayers(state, unit.ownerId, occupyingUnit.ownerId)) {
+                if (isFlying(unit) && !isFlying(occupyingUnit)) {
                     // 可以飞越
                 } else {
                     continue; // 遇到敌人阻挡，不能通行
@@ -104,7 +103,7 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
     if (!unit) return 999;
     if (unit.pos.x === to.x && unit.pos.y === to.y) return 0;
 
-    const stats = UNIT_CONFIGS[unit.unitClass];
+    const stats = getEffectiveStats(unit);
     let maxMove = stats.move;
     if (unit.status && unit.status.type === 'weakened') {
         maxMove = 1;
@@ -117,9 +116,9 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
     reachable.set(startKey, 0);
     queue.push({ pos: unit.pos, cost: 0 });
 
-    const unitsMap = new Map<string, number>();
+    const unitsMap = new Map<string, typeof state.units[number]>();
     for (const u of state.units) {
-        unitsMap.set(`${u.pos.x},${u.pos.y}`, u.ownerId);
+        unitsMap.set(`${u.pos.x},${u.pos.y}`, u);
     }
 
     const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
@@ -138,10 +137,9 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
 
             if (!isWithinBounds(state, nPos)) continue;
 
-            const occupyOwner = unitsMap.get(nKey);
-            if (occupyOwner !== undefined && occupyOwner !== unit.ownerId) {
-                const enemyUnit = state.units.find(u => u.pos.x === nx && u.pos.y === ny);
-                if (isFlying(unit) && enemyUnit && !isFlying(enemyUnit)) {
+            const occupyingUnit = unitsMap.get(nKey);
+            if (occupyingUnit && areEnemyPlayers(state, unit.ownerId, occupyingUnit.ownerId)) {
+                if (isFlying(unit) && !isFlying(occupyingUnit)) {
                     // 飞越
                 } else {
                     continue;
@@ -193,9 +191,9 @@ export function getRecruitDeployPositions(
     reachable.set(startKey, 0);
     queue.push({ pos: castlePos, cost: 0 });
 
-    const unitsMap = new Map<string, number>();
+    const unitsMap = new Map<string, typeof state.units[number]>();
     for (const u of state.units) {
-        unitsMap.set(`${u.pos.x},${u.pos.y}`, u.ownerId);
+        unitsMap.set(`${u.pos.x},${u.pos.y}`, u);
     }
 
     const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
@@ -214,10 +212,9 @@ export function getRecruitDeployPositions(
 
             if (!isWithinBounds(state, nPos)) continue;
 
-            const occupyOwner = unitsMap.get(nKey);
-            if (occupyOwner !== undefined && occupyOwner !== ownerId) {
-                const enemyUnit = state.units.find(u => u.pos.x === nx && u.pos.y === ny);
-                if (isFlying(virtualUnit as any) && enemyUnit && !isFlying(enemyUnit)) {
+            const occupyingUnit = unitsMap.get(nKey);
+            if (occupyingUnit && areEnemyPlayers(state, ownerId, occupyingUnit.ownerId)) {
+                if (isFlying(virtualUnit as any) && !isFlying(occupyingUnit)) {
                     // 飞越
                 } else {
                     continue;
