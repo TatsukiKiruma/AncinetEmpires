@@ -247,14 +247,19 @@ export function getExpThresholdForLevel(level: UnitLevel): number {
     return ((level + 1) * 100 * level) / 2;
 }
 
+const MAX_EXP = 99999;
+
+function clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
+}
+
 export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): boolean {
     if (unit.level === undefined) unit.level = 0;
     if (unit.exp === undefined) unit.exp = 0;
-    
-    if (unit.level >= levelCap) return false; // 满级
-    
-    unit.exp += amount;
+
+    unit.exp = clamp(unit.exp + amount, 0, MAX_EXP);
     let upgraded = false;
+    let levelsGained = 0;
     
     while (unit.level < levelCap) {
         // APK 的单位配置类中使用同一公式计算等级经验阈值：1=100、2=300、3=600，最高内部检查到 9。
@@ -263,11 +268,27 @@ export function addExp(unit: Unit, amount: number, levelCap: LevelCap = 3): bool
         if (unit.exp >= threshold) {
             unit.level = nextLevel;
             upgraded = true;
-            // 升级至少回满血，但不裁剪治疗师造成的超上限生命。
-            unit.hp = Math.max(unit.hp, getEffectiveStats(unit).maxHp);
+            levelsGained += 1;
         } else {
             break;
         }
     }
+
+    if (levelsGained > 0) {
+        const config = UNIT_CONFIGS[unit.unitClass];
+        const hpGain = config.maxHpGrowth * levelsGained;
+        const moveGain = config.moveGrowth * levelsGained;
+
+        // APK 升级只把当前 HP 增加生命成长值，不会给没有生命成长的单位回满血。
+        if (hpGain !== 0) {
+            unit.hp = clamp(unit.hp + hpGain, 1, 9999);
+        }
+
+        // 项目只在需要追踪剩余移动力时保存 movementRemaining；有值时同步 APK 的当前移动力增长。
+        if (moveGain !== 0 && unit.movementRemaining !== undefined) {
+            unit.movementRemaining = clamp(unit.movementRemaining + moveGain, 0, 99);
+        }
+    }
+
     return upgraded;
 }

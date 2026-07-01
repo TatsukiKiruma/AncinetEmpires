@@ -2167,7 +2167,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
             unitLimitBlocksRecruit: true,
             levelAfterAtCapAttack: 1,
-            expAfterAtCapAttack: 600
+            expAfterAtCapAttack: 630
         },
         buildSetupApplicationActual()
     );

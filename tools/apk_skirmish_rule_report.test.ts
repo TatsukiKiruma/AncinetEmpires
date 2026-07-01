@@ -381,7 +381,7 @@ describe('APK skirmish rule report', () => {
             rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
             unitLimitBlocksRecruit: true,
             levelAfterAtCapAttack: 1,
-            expAfterAtCapAttack: 600
+            expAfterAtCapAttack: 630
         });
         expect(byId['training-observation-skirmish-rules'].actual).toEqual({
             rules: {
