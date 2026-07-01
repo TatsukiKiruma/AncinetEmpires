@@ -6,6 +6,11 @@ import { GameState, Action, Position, Unit, UnitClass } from './game/types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './game/constants';
 import { getLegalActions } from './game/rules';
 import { getEffectiveStats } from './game/abilities';
+import {
+  DEFAULT_APP_APK_MAP_NAME,
+  createAppApkSkirmishGameState,
+  getAppApkSkirmishMapOptions
+} from './game/apk_skirmish_map_assets';
 
 const unitNameMap: Record<string, string> = {
   soldier: '兵',
@@ -39,6 +44,84 @@ const statusNameMap: Record<string, string> = {
   weakened: '虚弱'
 };
 
+const sandboxMapOptions = getAppApkSkirmishMapOptions();
+
+const playerStyleMap: Record<number, {
+  name: string;
+  marker: string;
+  textClass: string;
+  badgeClass: string;
+  panelClass: string;
+  buttonClass: string;
+  buildingClass: string;
+  unitClass: string;
+}> = {
+  0: {
+    name: '红方',
+    marker: '■',
+    textClass: 'text-red-400',
+    badgeClass: 'bg-red-500 text-black',
+    panelClass: 'bg-[#1A1111] border-red-950/50',
+    buttonClass: 'bg-[#2E1A1A] text-red-400 hover:bg-red-950 border-red-900/40',
+    buildingClass: 'bg-red-900/50 text-red-300 border-red-800',
+    unitClass: 'bg-[#3C1313] border border-red-500 text-red-400'
+  },
+  1: {
+    name: '蓝方',
+    marker: '■',
+    textClass: 'text-blue-400',
+    badgeClass: 'bg-blue-400 text-black',
+    panelClass: 'bg-[#10141D] border-blue-950/50',
+    buttonClass: 'bg-[#1A2535] text-blue-400 hover:bg-blue-950 border-blue-900/40',
+    buildingClass: 'bg-blue-900/50 text-blue-300 border-blue-800',
+    unitClass: 'bg-[#141C31] border border-blue-400 text-blue-300'
+  },
+  2: {
+    name: '绿方',
+    marker: '■',
+    textClass: 'text-emerald-400',
+    badgeClass: 'bg-emerald-400 text-black',
+    panelClass: 'bg-[#0E1B15] border-emerald-950/50',
+    buttonClass: 'bg-[#123323] text-emerald-400 hover:bg-emerald-950 border-emerald-900/40',
+    buildingClass: 'bg-emerald-900/50 text-emerald-300 border-emerald-800',
+    unitClass: 'bg-[#102A1D] border border-emerald-400 text-emerald-300'
+  },
+  3: {
+    name: '黄方',
+    marker: '■',
+    textClass: 'text-amber-400',
+    badgeClass: 'bg-amber-400 text-black',
+    panelClass: 'bg-[#1D170A] border-amber-950/50',
+    buttonClass: 'bg-[#34270E] text-amber-400 hover:bg-amber-950 border-amber-900/40',
+    buildingClass: 'bg-amber-900/50 text-amber-300 border-amber-800',
+    unitClass: 'bg-[#2D220E] border border-amber-400 text-amber-300'
+  }
+};
+
+const neutralBuildingClass = 'bg-zinc-800 text-zinc-400 border-zinc-700';
+const fallbackPlayerStyle = {
+  name: '未知方',
+  marker: '■',
+  textClass: 'text-zinc-300',
+  badgeClass: 'bg-zinc-400 text-black',
+  panelClass: 'bg-[#17171D] border-zinc-800',
+  buttonClass: 'bg-[#22222A] text-zinc-300 hover:bg-zinc-800 border-zinc-700',
+  buildingClass: 'bg-zinc-800 text-zinc-300 border-zinc-700',
+  unitClass: 'bg-[#202026] border border-zinc-400 text-zinc-300'
+};
+
+function getPlayerStyle(playerId: number) {
+  return playerStyleMap[playerId] ?? fallbackPlayerStyle;
+}
+
+function getPlayerLabel(playerId: number): string {
+  return `${getPlayerStyle(playerId).name} (P${playerId})`;
+}
+
+function getGraveAt(state: GameState, x: number, y: number) {
+  return state.graves?.find(grave => grave.pos.x === x && grave.pos.y === y);
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'auto' | 'sandbox'>('sandbox');
 
@@ -49,9 +132,10 @@ export default function App() {
   const bottomAutoRef = useRef<HTMLDivElement>(null);
 
   // --- 手动沙盒对抗状态 ---
+  const [selectedSandboxMapName, setSelectedSandboxMapName] = useState(DEFAULT_APP_APK_MAP_NAME);
   const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDefaultAppGameState());
   const [sandboxLogs, setSandboxLogs] = useState<string[]>([
-    "[系统] 欢迎来到手动沙盒试炼场！这里允许玩家交互点击棋盘，自由操纵红蓝两大阵营对抗，用于体验和调试各种兵种光环、状态削弱与核心机能。"
+    "[系统] 欢迎来到手动沙盒试炼场！默认载入 APK 官方 Duel 地图，可切换 20 张官方 skirmish 地图并手动操纵各阵营对战。"
   ]);
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedCastlePos, setSelectedCastlePos] = useState<Position | null>(null);
@@ -90,12 +174,24 @@ export default function App() {
   };
 
   // --- 沙盒模式控制 ---
-  const handleResetSandbox = () => {
-    setSandboxGameState(createDefaultAppGameState());
+  const resetSandboxSelections = () => {
     setSelectedUnitId(null);
     setSelectedCastlePos(null);
     setSelectedRecruitUnitClass(null);
-    setSandboxLogs(prev => [...prev, "[系统] 沙盒已重置为初始状态！"]);
+    setHoveredTilePos(null);
+  };
+
+  const handleResetSandbox = () => {
+    setSandboxGameState(createAppApkSkirmishGameState(selectedSandboxMapName));
+    resetSandboxSelections();
+    setSandboxLogs(prev => [...prev, `[系统] 沙盒已重置为 ${selectedSandboxMapName}。`]);
+  };
+
+  const handleChangeSandboxMap = (mapName: string) => {
+    setSelectedSandboxMapName(mapName);
+    setSandboxGameState(createAppApkSkirmishGameState(mapName));
+    resetSandboxSelections();
+    setSandboxLogs(prev => [...prev, `[系统] 已切换 APK 地图：${mapName}`]);
   };
 
   const handleAddGold = (playerId: number, amount: number) => {
@@ -107,7 +203,7 @@ export default function App() {
       }
       return copy;
     });
-    setSandboxLogs(prev => [...prev, `[调试] 为玩家 ${playerId === 0 ? '红方' : '蓝方'} 补充了 ${amount} 金币`]);
+    setSandboxLogs(prev => [...prev, `[调试] 为${getPlayerLabel(playerId)}补充了 ${amount} 金币`]);
   };
 
   const executeSandboxAction = (action: Action) => {
@@ -179,6 +275,12 @@ export default function App() {
   const deploySpawns = selectedRecruitUnitClass && selectedCastlePos
     ? castleRecruitsAndDeploy.filter(a => (a as any).unitClass === selectedRecruitUnitClass)
     : [];
+  const selectedSandboxMapOption = sandboxMapOptions.find(option => option.name === selectedSandboxMapName);
+  const sandboxMaxDimension = Math.max(sandboxGameState.map.width, sandboxGameState.map.height);
+  const sandboxTileSize = Math.max(28, Math.min(48, Math.floor(640 / sandboxMaxDimension)));
+  const sandboxUnitSize = Math.max(22, sandboxTileSize - 10);
+  const sandboxTileStyle: React.CSSProperties = { width: sandboxTileSize, height: sandboxTileSize };
+  const sandboxUnitStyle: React.CSSProperties = { width: sandboxUnitSize, height: sandboxUnitSize };
 
   // 获取格子对应的地形色彩
   const getTerrainColor = (terrainId: number) => {
@@ -220,10 +322,11 @@ export default function App() {
     
     const tile = displayGameState.map.tiles[y][x];
     const u = displayGameState.units.find(u => u.pos.x === x && u.pos.y === y);
+    const grave = getGraveAt(displayGameState, x, y);
     const terrainConf = TERRAIN_CONFIG[tile.terrainId];
 
     return (
-      <div className="bg-[#111116]/95 border border-zinc-700/60 p-3 rounded-md text-xs space-y-2 w-full max-w-sm h-36 shrink-0 shadow-lg backdrop-blur text-gray-300">
+      <div className="bg-[#111116]/95 border border-zinc-700/60 p-3 rounded-md text-xs space-y-2 w-full max-w-sm min-h-[9rem] shrink-0 shadow-lg backdrop-blur text-gray-300">
          <div className="flex justify-between items-center pb-1 border-b border-zinc-850">
            <span className="font-extrabold text-blue-400 text-[11px] flex items-center space-x-1">
              <span>🕵️ 战地检视 [X: {x}, Y: {y}]</span>
@@ -247,7 +350,12 @@ export default function App() {
            </div>
            {tile.ownerId !== null && (
              <div className="text-[11px] text-zinc-400">
-               据点势力: <strong className={tile.ownerId === 0 ? "text-red-400 font-bold" : "text-blue-400 font-bold"}>{tile.ownerId === 0 ? "红方 (P0)" : "蓝方 (P1)"}</strong>
+               据点势力: <strong className={`${getPlayerStyle(tile.ownerId).textClass} font-bold`}>{getPlayerLabel(tile.ownerId)}</strong>
+             </div>
+           )}
+           {grave && (
+             <div className="text-[11px] text-zinc-400">
+               墓碑: <strong className="text-purple-300 font-bold">剩余 {grave.remainingTurns} 回合</strong>
              </div>
            )}
          </div>
@@ -255,9 +363,9 @@ export default function App() {
          {u ? (
            <div className="pt-1 border-t border-dashed border-zinc-800 space-y-1">
              <div className="flex justify-between items-center leading-none">
-               <span className={`font-black text-[11px] ${u.ownerId === 0 ? 'text-red-400' : 'text-blue-400'}`}>
-                 [{u.ownerId === 0 ? '红方' : '蓝方'}] {UNIT_CONFIGS[u.unitClass]?.name} {u.hasActed ? ' (已行动)' : ''}
-               </span>
+              <span className={`font-black text-[11px] ${getPlayerStyle(u.ownerId).textClass}`}>
+                [{getPlayerLabel(u.ownerId)}] {UNIT_CONFIGS[u.unitClass]?.name} {u.hasActed ? ' (已行动)' : ''}
+              </span>
                <span className="text-yellow-500 text-[9px] font-bold bg-yellow-500/10 px-1 rounded scale-90">Lv.{u.level || 0}</span>
              </div>
 
@@ -380,7 +488,7 @@ export default function App() {
             onClick={() => setActiveTab('sandbox')}
             className={`px-4 py-1.5 text-xs font-bold uppercase transition-all rounded-sm ${activeTab === 'sandbox' ? 'bg-[#1C2C3D] text-blue-400 border border-blue-900/50' : 'text-[#8E8E99] hover:text-white'}`}
           >
-            🕹️ 手动沙盒试炼 (红蓝手操)
+            🕹️ 手动沙盒试炼 (APK地图)
           </button>
           <button 
             onClick={() => setActiveTab('auto')}
@@ -418,6 +526,7 @@ export default function App() {
                 <div key={y} className="flex space-x-1">
                   {row.map((tile, x) => {
                     const u = autoGameState.units.find(u => u.pos.x === x && u.pos.y === y);
+                    const grave = getGraveAt(autoGameState, x, y);
                     const isBuilding = [8, 9, 10, 11, 12, 13, 16].includes(tile.terrainId);
                     const terrainConf = TERRAIN_CONFIG[tile.terrainId];
 
@@ -428,7 +537,16 @@ export default function App() {
                         onMouseLeave={() => setHoveredTilePos(null)}
                         className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e24] ${getTerrainColor(tile.terrainId)}`}
                       >
-                        {!u && !isBuilding && <span className="text-[9px] text-[#ffffff1D]">{terrainConf?.name?.substring(0,3)}</span>}
+                        {!u && !isBuilding && !grave && <span className="text-[9px] text-[#ffffff1D]">{terrainConf?.name?.substring(0,3)}</span>}
+
+                        {grave && (
+                          <div
+                            className={`absolute z-[6] flex items-center justify-center border border-purple-300/50 bg-purple-950/70 text-purple-100 font-black shadow-sm pointer-events-none ${u ? 'bottom-0 right-0 w-4 h-4 text-[9px] rounded-sm' : 'inset-2 text-[13px] rounded'}`}
+                            title={`墓碑：剩余 ${grave.remainingTurns} 回合`}
+                          >
+                            碑
+                          </div>
+                        )}
 
                         {isBuilding && (
                           <div className={`absolute bottom-0 w-full text-[9px] text-center font-bold tracking-tighter border-t border-[#22222A] ${tile.ownerId === 0 ? 'bg-red-900/40 text-red-400 border-red-800' : tile.ownerId === 1 ? 'bg-blue-900/40 text-blue-400 border-blue-800' : 'bg-[#16161D] text-[#8E8E99]'}`}>
@@ -503,23 +621,45 @@ export default function App() {
           {/* 左侧：沙盒大地图交互 */}
           <div className="flex-1 p-6 flex flex-col items-center justify-center border-r border-[#2C2C35] bg-[#08080C] overflow-y-auto">
             {/* 顶排：回合头顶指示 */}
-            <div className="mb-4 flex items-center justify-between w-full max-w-lg bg-[#0F0F14] border border-[#22222E] px-4 py-2 text-xs">
-              <span className="text-gray-400 font-bold uppercase">当前决策权限:</span>
-              <div className="flex items-center space-x-3">
-                <span className={`font-black uppercase tracking-wider px-2 py-0.5 text-black rounded ${sandboxGameState.currentPlayer === 0 ? 'bg-red-500' : 'bg-blue-400'}`}>
-                  玩家 {sandboxGameState.currentPlayer === 0 ? '0 (红)' : '1 (蓝)'}
+            <div className="mb-4 w-full max-w-3xl bg-[#0F0F14] border border-[#22222E] px-4 py-3 text-xs space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-gray-400 font-bold uppercase">当前决策权限:</span>
+                <div className="flex items-center space-x-3">
+                  <span className={`font-black uppercase tracking-wider px-2 py-0.5 rounded ${getPlayerStyle(sandboxGameState.currentPlayer).badgeClass}`}>
+                    {getPlayerLabel(sandboxGameState.currentPlayer)}
+                  </span>
+                  <span className="text-gray-500">|</span>
+                  <span className="text-yellow-400 font-bold">第 {sandboxGameState.turn} 回合</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-gray-500 font-bold shrink-0" htmlFor="sandbox-map-select">APK 地图</label>
+                <select
+                  id="sandbox-map-select"
+                  value={selectedSandboxMapName}
+                  onChange={event => handleChangeSandboxMap(event.target.value)}
+                  className="min-w-0 flex-1 bg-[#07070A] border border-[#2C2C35] text-zinc-200 px-3 py-1.5 rounded-sm outline-none focus:border-blue-500"
+                >
+                  {sandboxMapOptions.map(option => (
+                    <option key={option.name} value={option.name}>
+                      {option.label} / {option.width}x{option.height} / {option.playerCount}人
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-zinc-500 shrink-0">
+                  {selectedSandboxMapOption?.resourcePath ?? '未找到地图'}
                 </span>
-                <span className="text-gray-500">|</span>
-                <span className="text-yellow-400 font-bold">第 {sandboxGameState.turn} 回合</span>
               </div>
             </div>
 
             {/* 核心棋盘 */}
-            <div className="relative border border-[#262630] bg-[#020203] p-3 flex flex-col space-y-1">
+            <div className="w-full flex justify-center overflow-auto pb-1">
+            <div className="relative border border-[#262630] bg-[#020203] p-3 flex flex-col gap-1 shrink-0">
               {sandboxGameState.map.tiles.map((row, y) => (
-                <div key={y} className="flex space-x-1">
+                <div key={y} className="flex gap-1">
                   {row.map((tile, x) => {
                     const u = sandboxGameState.units.find(u => u.pos.x === x && u.pos.y === y);
+                    const grave = getGraveAt(sandboxGameState, x, y);
                     const isBuilding = [8, 9, 10, 11, 12, 13, 16].includes(tile.terrainId);
                     const terrainConf = TERRAIN_CONFIG[tile.terrainId];
 
@@ -562,21 +702,35 @@ export default function App() {
                         onClick={() => handleTileClick(x, y)}
                         onMouseEnter={() => setHoveredTilePos({ x, y })}
                         onMouseLeave={() => setHoveredTilePos(null)}
-                        className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e25] cursor-pointer transition-all duration-150 ${getTerrainColor(tile.terrainId)} ${overlayClass}`}
+                        style={sandboxTileStyle}
+                        className={`flex relative items-center justify-center border border-[#1e1e25] cursor-pointer transition-all duration-150 ${getTerrainColor(tile.terrainId)} ${overlayClass}`}
                       >
                         {/* 如果是空地，印一个微弱的地形名称做底 */}
-                        {!u && !isBuilding && <span className="text-[8px] text-[#ffffff20] select-none pointer-events-none">{terrainConf?.name?.substring(0,3)}</span>}
+                        {!u && !isBuilding && !grave && <span className="text-[8px] text-[#ffffff20] select-none pointer-events-none">{terrainConf?.name?.substring(0,3)}</span>}
+
+                        {/* APK 墓碑格显示 */}
+                        {grave && (
+                          <div
+                            className={`absolute z-[6] flex items-center justify-center border border-purple-300/50 bg-purple-950/70 text-purple-100 font-black shadow-sm pointer-events-none select-none ${u ? 'bottom-0 right-0 w-4 h-4 text-[9px] rounded-sm' : 'inset-1.5 text-[13px] rounded'}`}
+                            title={`墓碑：剩余 ${grave.remainingTurns} 回合`}
+                          >
+                            碑
+                          </div>
+                        )}
 
                         {/* 建筑据点底部标签 */}
                         {isBuilding && (
-                          <div className={`absolute bottom-0 w-full text-[9px] text-center font-bold tracking-tighter border-t border-[#22222A] overflow-hidden select-none ${tile.ownerId === 0 ? 'bg-red-900/50 text-red-300 border-red-800' : tile.ownerId === 1 ? 'bg-blue-900/50 text-blue-300 border-blue-800' : 'bg-zinc-800 text-zinc-400'}`}>
+                          <div className={`absolute bottom-0 w-full text-[9px] text-center font-bold tracking-tighter border-t border-[#22222A] overflow-hidden select-none ${tile.ownerId === null ? neutralBuildingClass : getPlayerStyle(tile.ownerId).buildingClass}`}>
                              {terrainConf?.name?.substring(0,2)}
                           </div>
                         )}
 
                         {/* 棋子渲染 */}
                         {u && (
-                          <div className={`z-10 w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center font-bold text-[10px] rounded-md transition-opacity select-none ${u.ownerId === 0 ? 'bg-[#3C1313] border border-red-500 text-red-400' : 'bg-[#141C31] border border-blue-400 text-blue-300'} ${u.hasActed ? 'opacity-35 line-through' : ''}`}>
+                          <div
+                            style={sandboxUnitStyle}
+                            className={`z-10 flex items-center justify-center font-bold text-[10px] rounded-md transition-opacity select-none ${getPlayerStyle(u.ownerId).unitClass} ${u.hasActed ? 'opacity-35 line-through' : ''}`}
+                          >
                              {unitNameMap[u.unitClass] || '?'}
                           </div>
                         )}
@@ -602,6 +756,7 @@ export default function App() {
                   })}
                 </div>
               ))}
+            </div>
             </div>
 
             {/* 沙盘环境的简易操作辅助区 */}
@@ -629,26 +784,21 @@ export default function App() {
           <div className="w-[420px] bg-[#0E0E12] flex flex-col border-l border-[#2C2C35] shrink-0 overflow-y-auto">
             {/* 顶排据点拥资统计 */}
             <div className="p-4 bg-[#121217] border-b border-[#22222A] grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2 bg-[#1A1111] border border-red-950/50 rounded flex flex-col">
-                <span className="text-red-500 font-bold">🟥 红方状态 (P0)</span>
-                <span className="text-yellow-500 font-bold mt-1">金币: {sandboxGameState.players[0].gold} G</span>
-                <button 
-                  onClick={() => handleAddGold(0, 200)}
-                  className="mt-2 text-[10px] bg-[#2E1A1A] text-red-400 py-0.5 rounded hover:bg-red-950 transition-colors border border-red-900/40"
-                >
-                  ➕ 注入 200 金币
-                </button>
-              </div>
-              <div className="p-2 bg-[#10141D] border border-blue-950/50 rounded flex flex-col">
-                <span className="text-blue-400 font-bold">🟦 蓝方状态 (P1)</span>
-                <span className="text-yellow-500 font-bold mt-1">金币: {sandboxGameState.players[1].gold} G</span>
-                <button 
-                  onClick={() => handleAddGold(1, 200)}
-                  className="mt-2 text-[10px] bg-[#1A2535] text-blue-400 py-0.5 rounded hover:bg-blue-950 transition-colors border border-blue-900/40"
-                >
-                  ➕ 注入 200 金币
-                </button>
-              </div>
+              {sandboxGameState.players.map(player => {
+                const style = getPlayerStyle(player.id);
+                return (
+                  <div key={player.id} className={`p-2 border rounded flex flex-col ${style.panelClass}`}>
+                    <span className={`${style.textClass} font-bold`}>{style.marker} {getPlayerLabel(player.id)} 状态</span>
+                    <span className="text-yellow-500 font-bold mt-1">金币: {player.gold} G</span>
+                    <button
+                      onClick={() => handleAddGold(player.id, 200)}
+                      className={`mt-2 text-[10px] py-0.5 rounded transition-colors border ${style.buttonClass}`}
+                    >
+                      ➕ 注入 200 金币
+                    </button>
+                  </div>
+                );
+              })}
             </div>
 
             {/* 中区：动作构建与选定查看器 */}
@@ -659,8 +809,8 @@ export default function App() {
               {selectedUnit ? (
                 <div className="bg-[#15151B] border border-[#2D2D37] p-3 rounded text-xs space-y-2 flex-1">
                   <div className="flex justify-between items-center pb-2 border-b border-[#2A2A34]">
-                    <span className="font-bold text-white text-sm">
-                      [{selectedUnit.ownerId === 0 ? '红方' : '蓝方'}] {UNIT_CONFIGS[selectedUnit.unitClass]?.name} (id: {selectedUnit.id})
+                    <span className={`font-bold text-sm ${getPlayerStyle(selectedUnit.ownerId).textClass}`}>
+                      [{getPlayerLabel(selectedUnit.ownerId)}] {UNIT_CONFIGS[selectedUnit.unitClass]?.name} (id: {selectedUnit.id})
                     </span>
                     <button 
                       onClick={() => { setSelectedUnitId(null); setSelectedCastlePos(null); }}
@@ -824,7 +974,7 @@ export default function App() {
                         <button 
                           key={u.id}
                           onClick={() => { setSelectedUnitId(u.id); setSelectedCastlePos(null); }}
-                          className="bg-[#1C2C3D] hover:bg-[#2A3F55] text-blue-300 py-0.5 px-1.5 rounded transition-colors"
+                          className={`py-0.5 px-1.5 rounded transition-colors border ${getPlayerStyle(u.ownerId).buttonClass}`}
                         >
                           {UNIT_CONFIGS[u.unitClass]?.name} ({u.pos.x}, {u.pos.y})
                         </button>

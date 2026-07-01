@@ -5,7 +5,7 @@
 ## 环境接口 (AncientEmpiresEnv)
 
 核心训练接口位于 `src/game/env.ts` 中。
-前端沙盒与自动 AI 演示默认使用 `createDefaultAppGameState()`，即沿用现有演示棋盘，但规则配置为 APK 正常遭遇战 `SD` 模式；裸 `createDemoState()` 仍保留给测试和自定义局面使用。
+前端沙盒与自动 AI 演示默认使用 `createDefaultAppGameState()`，即载入 APK 官方 `(2) Duel.aem` 地图并使用 APK 正常遭遇战 `SD` 模式；沙盒界面可切换 20 张官方 skirmish 地图。裸 `createDemoState()` 仍保留给测试和自定义局面使用。
 
 ```ts
 import { AncientEmpiresEnv } from './src/game/env';
