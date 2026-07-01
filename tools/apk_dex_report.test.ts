@@ -770,9 +770,28 @@ describe('APK DEX 复核工具', () => {
         expect(byId['counter-attack-validation'].referencedFields).toContain('Lc/a/b/a/t/g;.q:Lc/a/b/a/t/g;');
         expect(byId['counter-attack-validation'].literalInts).toContain(2);
         expect(byId['counter-attack-validation'].referencedMethods).toContain('Lc/a/b/a/q;.l(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z');
+        expect(byId['counter-attack-validation'].operationTrace).toEqual([
+            'method:Lc/a/b/a/q;.k(Lc/a/b/a/t/f;):Z',
+            'method:Lc/a/b/a/q;.j(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z',
+            'field:Lc/a/b/a/t/g;.q:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'literal:2',
+            'method:Lc/a/b/a/q;.p(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):I',
+            'method:Lc/a/b/a/q;.l(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ]);
         expect(byId['attack-status-application'].missingExpectations).toEqual([]);
         expect(byId['attack-status-application'].referencedFields).toContain('Lc/a/b/a/t/g;.x:Lc/a/b/a/t/g;');
         expect(byId['attack-status-application'].referencedFields).toContain('Lc/a/b/a/t/h;.e:Lc/a/b/a/t/h;');
+        expect(byId['attack-status-application'].operationTrace).toEqual([
+            'field:Lc/a/b/a/t/g;.i:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'field:Lc/a/b/a/t/h;.c:Lc/a/b/a/t/h;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V',
+            'field:Lc/a/b/a/t/g;.x:Lc/a/b/a/t/g;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'field:Lc/a/b/a/t/h;.e:Lc/a/b/a/t/h;',
+            'method:Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/h;,I,Z):V'
+        ]);
         expect(byId['recruit-pending-validation'].missingExpectations).toEqual([]);
         expect(byId['recruit-pending-validation'].referencedFields).toContain('Lc/a/b/a/t/a;.d:Lc/a/b/a/t/f;');
     });

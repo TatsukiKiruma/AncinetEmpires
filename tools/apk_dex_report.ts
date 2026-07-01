@@ -82,6 +82,7 @@ export interface DexKeyRuleMethodEvidence extends DexMethodSignature {
     referencedStrings: string[];
     referencedFields: string[];
     referencedMethods: string[];
+    operationTrace: string[];
     matchedExpectations: string[];
     missingExpectations: string[];
 }
@@ -942,12 +943,14 @@ function readDexCodeReferenceSummary(
     const referencedFields = new Set<string>();
     const referencedMethods = new Set<string>();
     const literalInts = new Set<number>();
+    const operationTrace: string[] = [];
     if (!bounds) {
         return {
             referencedStrings: [],
             referencedFields: [],
             referencedMethods: [],
-            literalInts: []
+            literalInts: [],
+            operationTrace: []
         };
     }
 
@@ -961,26 +964,46 @@ function readDexCodeReferenceSummary(
 
         if (opcode === 0x12) {
             const rawLiteral = highByte >>> 4;
-            literalInts.add(rawLiteral >= 8 ? rawLiteral - 16 : rawLiteral);
+            const literal = rawLiteral >= 8 ? rawLiteral - 16 : rawLiteral;
+            literalInts.add(literal);
+            operationTrace.push(`literal:${literal}`);
         } else if (opcode === 0x13 && offset + 4 <= instructionsEnd) {
-            literalInts.add(buffer.readInt16LE(offset + 2));
+            const literal = buffer.readInt16LE(offset + 2);
+            literalInts.add(literal);
+            operationTrace.push(`literal:${literal}`);
         } else if (opcode === 0x14 && offset + 6 <= instructionsEnd) {
-            literalInts.add(buffer.readInt32LE(offset + 2));
+            const literal = buffer.readInt32LE(offset + 2);
+            literalInts.add(literal);
+            operationTrace.push(`literal:${literal}`);
         } else if (opcode === 0x1a && offset + 4 <= instructionsEnd) {
             const value = strings[buffer.readUInt16LE(offset + 2)];
-            if (value !== undefined) referencedStrings.add(value);
+            if (value !== undefined) {
+                referencedStrings.add(value);
+                operationTrace.push(`string:${value}`);
+            }
         } else if (opcode === 0x1b && offset + 6 <= instructionsEnd) {
             const value = strings[buffer.readUInt32LE(offset + 2)];
-            if (value !== undefined) referencedStrings.add(value);
+            if (value !== undefined) {
+                referencedStrings.add(value);
+                operationTrace.push(`string:${value}`);
+            }
         } else if (opcode >= 0x52 && opcode <= 0x6d && offset + 4 <= instructionsEnd) {
             const field = fields[buffer.readUInt16LE(offset + 2)];
-            if (field !== undefined) referencedFields.add(formatDexFieldDescriptor(field));
+            if (field !== undefined) {
+                const descriptor = formatDexFieldDescriptor(field);
+                referencedFields.add(descriptor);
+                operationTrace.push(`field:${descriptor}`);
+            }
         } else if (
             ((opcode >= 0x6e && opcode <= 0x72) || (opcode >= 0x74 && opcode <= 0x78))
             && offset + 4 <= instructionsEnd
         ) {
             const method = methods[buffer.readUInt16LE(offset + 2)];
-            if (method !== undefined) referencedMethods.add(formatDexMethodDescriptor(method));
+            if (method !== undefined) {
+                const descriptor = formatDexMethodDescriptor(method);
+                referencedMethods.add(descriptor);
+                operationTrace.push(`method:${descriptor}`);
+            }
         }
 
         pc += width;
@@ -990,7 +1013,8 @@ function readDexCodeReferenceSummary(
         referencedStrings: uniqueSorted([...referencedStrings]),
         referencedFields: uniqueSorted([...referencedFields]),
         referencedMethods: uniqueSorted([...referencedMethods]),
-        literalInts: [...literalInts].sort((left, right) => left - right)
+        literalInts: [...literalInts].sort((left, right) => left - right),
+        operationTrace
     };
 }
 
@@ -1203,6 +1227,14 @@ export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodE
                 summary.literalInts.includes(expectation.expectedStateLiteral)
             );
         }
+        const expectedOperations = new Set<string>([
+            ...expectation.expectedStrings.map(value => `string:${value}`),
+            ...expectation.expectedFields.map(value => `field:${value}`),
+            ...expectation.expectedMethods.map(value => `method:${value}`)
+        ]);
+        if (expectation.expectedStateLiteral !== null) {
+            expectedOperations.add(`literal:${expectation.expectedStateLiteral}`);
+        }
 
         return {
             id: expectation.id,
@@ -1218,6 +1250,7 @@ export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodE
             referencedStrings: summary.referencedStrings,
             referencedFields: summary.referencedFields,
             referencedMethods: summary.referencedMethods,
+            operationTrace: summary.operationTrace.filter(value => expectedOperations.has(value)),
             matchedExpectations: uniqueSorted(matchedExpectations),
             missingExpectations: uniqueSorted(missingExpectations)
         };
@@ -1339,6 +1372,15 @@ function renderMarkdown(report: ApkDexReport): string {
             ? evidence.missingExpectations.map(value => `\`${value}\``).join('<br>')
             : '-';
         lines.push(`| ${evidence.label} | \`${method}\` | ${evidence.expectedStateLiteral ?? '-'} | ${fields} | ${methods} | ${strings} | ${missing} |`);
+    }
+
+    lines.push('', '## 关键规则操作顺序', '', '| 规则点 | 关键操作顺序 |', '| --- | --- |');
+
+    for (const evidence of report.keyRuleMethodEvidence) {
+        const trace = evidence.operationTrace.length > 0
+            ? evidence.operationTrace.map(value => `\`${value}\``).join('<br>')
+            : '-';
+        lines.push(`| ${evidence.label} | ${trace} |`);
     }
 
     lines.push('', '## 关键字符串引用方法', '', '| 字符串 | 方法 | 类 | 参数 | code offset |', '| --- | --- | --- | --- | ---: |');

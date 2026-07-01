@@ -2356,6 +2356,44 @@ describe('GameEngine Rules', () => {
         expect(finalAttacker.status).toBeUndefined(); // 被反击的一方绝对不能被附加中毒 or 致盲
     });
 
+    it('状态系统测试: 普通反击受致盲射程 0 限制', () => {
+        const state = createDemoState();
+        const attacker = { ...state.units[0], unitClass: 'soldier' as const, pos: { x: 1, y: 1 }, hp: 100 };
+        const defender = {
+            ...state.units[1],
+            unitClass: 'soldier' as const,
+            pos: { x: 1, y: 2 },
+            hp: 100,
+            status: { type: 'blinded' as const }
+        };
+        state.units = [attacker, defender];
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+        const finalAttacker = engine.getState().units.find(u => u.id === attacker.id)!;
+        expect(finalAttacker.hp).toBe(100);
+    });
+
+    it('状态系统测试: 反击风暴在致盲时仍可按 2 格规则反击', () => {
+        const state = createDemoState();
+        const attacker = { ...state.units[0], unitClass: 'wolf_archer' as const, pos: { x: 1, y: 1 }, hp: 100 };
+        const defender = {
+            ...state.units[1],
+            unitClass: 'berserker' as const,
+            pos: { x: 3, y: 1 },
+            hp: 100,
+            status: { type: 'blinded' as const }
+        };
+        state.units = [attacker, defender];
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+        const finalAttacker = engine.getState().units.find(u => u.id === attacker.id)!;
+        expect(finalAttacker.hp).toBeLessThan(100);
+    });
+
     describe('第 5 步：主动技能、光环、墓碑与二次移动测试', () => {
         it('5.1 治疗师治疗普通友军 +40，且可突破最大血量', () => {
             const state = createDemoState();
