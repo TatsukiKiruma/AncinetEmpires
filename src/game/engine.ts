@@ -445,6 +445,20 @@ export class GameEngine {
                     // 经验值：攻击者获得 30 经验
                     addExp(attacker, 30, ruleConfig.levelCap);
 
+                    let canCounter = false;
+                    if (target.hp > 0) {
+                        // APK DEX 中反击规则校验和攻击附加状态是两个独立方法；
+                        // 先缓存反击资格，避免本次攻击刚附加的致盲反向取消同一次普通反击。
+                        const targetStatsBeforeAttackStatus = getEffectiveStats(target);
+                        const isCounterStorm = hasAbility(target, 'counter_storm') && getDistance(target.pos, attacker.pos) <= 2;
+                        canCounter = isCounterStorm || inRange(
+                            target.pos,
+                            attacker.pos,
+                            targetStatsBeforeAttackStatus.minRange,
+                            targetStatsBeforeAttackStatus.maxRange
+                        );
+                    }
+
                     // 被动状态附加（反击不触发中毒和致盲）
                     if (target.hp > 0 && !target.status) {
                         if (hasAbility(attacker, 'poisoner') && !hasAbility(target, 'poisoner')) {
@@ -456,10 +470,6 @@ export class GameEngine {
                     
                     // 如果被攻击方存活，则可能反击
                     if (target.hp > 0) {
-                        const targetStats = getEffectiveStats(target);
-                        const isCounterStorm = hasAbility(target, 'counter_storm') && getDistance(target.pos, attacker.pos) <= 2;
-                        const canCounter = isCounterStorm || inRange(target.pos, attacker.pos, targetStats.minRange, targetStats.maxRange);
-
                         if (canCounter) {
                             const counterDmg = calculateDamage(this.state, target.id, attacker.id);
                             attacker.hp -= counterDmg;

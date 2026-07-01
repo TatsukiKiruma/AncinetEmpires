@@ -47,8 +47,8 @@ describe('APK skirmish rule report', () => {
         expect(byId['counter-blind-storm-project-probe'].currentProjectBehavior).toEqual({
             blindingAttackAgainstNormalCounter: {
                 defenderStatusAfterAttack: 'blinded',
-                attackerHpAfterAttack: 100,
-                normalCounterTriggered: false
+                attackerHpAfterAttack: 70,
+                normalCounterTriggered: true
             },
             blindingAttackAgainstCounterStormAtRange2: {
                 defenderStatusAfterAttack: 'blinded',

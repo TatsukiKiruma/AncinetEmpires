@@ -287,7 +287,7 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
-            currentProjectAssumption: '致盲通过射程降为 0 限制普通反击；反击风暴在 2 格内可反击。',
+            currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；本次主动攻击刚附加的致盲不取消同一次普通反击；反击风暴在 2 格内可反击。',
             requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。'
         }
     ];
@@ -462,7 +462,7 @@ function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
             title: '当前项目致盲、普通反击与反击风暴顺序快照',
             purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
             currentProjectBehavior: buildCounterBlindStormProbeBehavior(),
-            suggestedVerification: '在原版 skirmish 中测试黑魔法师/狼骑射手致盲攻击后，普通 1 格反击是否被阻止，狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
+            suggestedVerification: '在原版 skirmish 中分别测试攻击前已致盲的普通单位是否不能反击，以及黑魔法师/狼骑射手本次致盲攻击后普通 1 格反击是否仍发生；再测试狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
         }
     ];
 }

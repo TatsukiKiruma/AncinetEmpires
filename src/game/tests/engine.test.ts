@@ -2375,6 +2375,22 @@ describe('GameEngine Rules', () => {
         expect(finalAttacker.hp).toBe(100);
     });
 
+    it('状态系统测试: 本次攻击附加的致盲不会取消同一次普通反击', () => {
+        const state = createDemoState();
+        const attacker = { ...state.units[0], unitClass: 'dark_mage' as const, pos: { x: 1, y: 1 }, hp: 100 };
+        const defender = { ...state.units[1], unitClass: 'soldier' as const, pos: { x: 1, y: 2 }, hp: 100 };
+        state.units = [attacker, defender];
+        state.map.tiles[1][1] = { terrainId: 6, ownerId: null };
+        state.map.tiles[2][1] = { terrainId: 6, ownerId: null };
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+        const finalUnits = Object.fromEntries(engine.getState().units.map(u => [u.id, u]));
+        expect(finalUnits[defender.id].status?.type).toBe('blinded');
+        expect(finalUnits[attacker.id].hp).toBe(70);
+    });
+
     it('状态系统测试: 反击风暴在致盲时仍可按 2 格规则反击', () => {
         const state = createDemoState();
         const attacker = { ...state.units[0], unitClass: 'wolf_archer' as const, pos: { x: 1, y: 1 }, hp: 100 };
