@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+    buildSkirmishRuleTerrainTable,
     buildValueDistribution,
     parseApkTerrainConfigsFromDecryptedDataBin,
     parseApkTerrainRecord
@@ -120,5 +121,60 @@ describe('APK data.bin 地形复核工具', () => {
             { value: 0, count: 1, ids: [0] },
             { value: 10, count: 2, ids: [1, 2] }
         ]);
+    });
+
+    it('输出官方 skirmish 实际使用地形的训练规则表', () => {
+        const table = buildSkirmishRuleTerrainTable();
+        const byId = new Map(table.map(item => [item.apkTerrainId, item]));
+
+        expect(table.length).toBeGreaterThan(0);
+        expect(byId.get(30)).toEqual(expect.objectContaining({
+            apkTerrainId: 30,
+            tileCount: 2,
+            confidence: 'approximate',
+            projectTerrainId: 11
+        }));
+        expect(byId.get(30)?.projectRuleSemantics).toEqual(expect.objectContaining({
+            projectTerrainKey: 'camp',
+            defenseBonus: 10,
+            healPerTurn: 20,
+            moveCost: 1,
+            clearsNegativeStatus: false,
+            canBeCaptured: false,
+            generatesIncome: false,
+            canRecruit: false
+        }));
+
+        expect(byId.get(31)).toEqual(expect.objectContaining({
+            apkTerrainId: 31,
+            tileCount: 7,
+            confidence: 'approximate',
+            projectTerrainId: 12
+        }));
+        expect(byId.get(31)?.projectRuleSemantics).toEqual(expect.objectContaining({
+            projectTerrainKey: 'temple',
+            defenseBonus: 10,
+            healPerTurn: 20,
+            moveCost: 1,
+            clearsNegativeStatus: true,
+            canBeCaptured: false,
+            generatesIncome: false,
+            canRecruit: false
+        }));
+
+        expect(byId.get(36)?.projectRuleSemantics).toEqual(expect.objectContaining({
+            projectTerrainKey: 'town',
+            canBeCaptured: true,
+            generatesIncome: true,
+            canRecruit: false
+        }));
+        expect(byId.get(37)?.projectRuleSemantics).toEqual(expect.objectContaining({
+            projectTerrainKey: 'castle',
+            canBeCaptured: true,
+            generatesIncome: true,
+            canRecruit: true
+        }));
+
+        expect([...byId.keys()]).not.toEqual(expect.arrayContaining([80, 81, 82, 83]));
     });
 });

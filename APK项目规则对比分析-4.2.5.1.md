@@ -53,7 +53,7 @@ npm run apk:dex-report -- --check
 npm run apk:terrain-report -- --check
 ```
 
-该命令从 `APK/_analysis/unpack/data.bin` 文件头读取 DES key/iv，解密 payload 后重新解析 84 条 40 字节地形记录，并和项目归档逐项对比。当前运行结果：84/84 地形记录匹配、项目归档差异 0，报告会输出防御/回血/移动消耗分布和 skirmish 映射可信度。
+该命令从 `APK/_analysis/unpack/data.bin` 文件头读取 DES key/iv，解密 payload 后重新解析 84 条 40 字节地形记录，并和项目归档逐项对比。当前运行结果：84/84 地形记录匹配、项目归档差异 0，报告会输出防御/回血/移动消耗分布、skirmish 映射可信度，以及 20 张官方 skirmish 地图实际使用 tile 的训练规则表。该表把 APK tile 用量、项目地形映射、可信度、data.bin 防御/回血/移动数值和清状态/占领/收入/招募语义放在同一处，便于训练侧直接复核地形规则。
 
 `data.bin` 单位数值证据也已工具化：
 
@@ -212,7 +212,7 @@ skirmish 控制脚本结论：
 
 APK `data.bin` 已确认有 84 条 tile 定义；项目目前只有 17 个抽象地形。二者不是一一对应关系，APK 的 tile 更像“规则类型 + 贴图变体 + 关联 tile”的组合。
 
-`tools/apk_terrain_report.ts` 已把 `data.bin` 地形数值复核工具化；`npm run apk:terrain-report -- --check` 当前确认 84/84 条地形记录与 `src/game/apk_terrain.ts` 归档完全一致。当前数值分布为：防御加成 0/5/10/15/20，回合回血 0/3/20，移动消耗 1/2/3/16777215；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。
+`tools/apk_terrain_report.ts` 已把 `data.bin` 地形数值复核工具化；`npm run apk:terrain-report -- --check` 当前确认 84/84 条地形记录与 `src/game/apk_terrain.ts` 归档完全一致。当前数值分布为：防御加成 0/5/10/15/20，回合回血 0/3/20，移动消耗 1/2/3/16777215；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。报告还会输出官方 skirmish 实际使用地形的训练规则表；已验证 approximate 中 `t30` 对应 camp，不清状态且不可占领/收入/招募，`t31` 对应 temple，可清中毒/致盲/虚弱且不可占领/收入/招募；`t80/t81/t82/t83` 当前不在 20 张官方 skirmish 地图表内。
 
 当前高可信映射：
 

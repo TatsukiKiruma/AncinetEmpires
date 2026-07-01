@@ -283,7 +283,7 @@ APK 规则中涉及的加成：
 npm run apk:terrain-report -- --check
 ```
 
-当前命令输出确认：`APK/_analysis/unpack/data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，加密 payload 从 offset 17 开始；解密后地形记录为 84/84，记录长度为 40/40，和 `src/game/apk_terrain.ts` 的项目归档差异为 0。报告会同时输出防御、回血、移动消耗分布和 skirmish 映射可信度汇总；当前汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。
+当前命令输出确认：`APK/_analysis/unpack/data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，加密 payload 从 offset 17 开始；解密后地形记录为 84/84，记录长度为 40/40，和 `src/game/apk_terrain.ts` 的项目归档差异为 0。报告会同时输出防御、回血、移动消耗分布、skirmish 映射可信度汇总和官方 skirmish 实际使用地形的训练规则表；当前汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。训练规则表集中列出每个 APK tile 的用量、项目地形映射、可信度、data.bin 防御/回血/移动数值，以及清状态、占领、收入和招募语义。
 
 | 偏移 | 类型 | 字段名 | 说明 |
 | ---: | --- | --- | --- |
@@ -1304,8 +1304,8 @@ APK dex 还暴露了当前项目未建模的脚本能力：
 2026-06-30 APK `data.bin` 地形数值复核工具：
 
 - 新增 `tools/apk_terrain_report.ts` 和 npm 脚本 `apk:terrain-report`，默认读取 `APK/_analysis/unpack/data.bin`，从文件头取 DES key/iv，解密 payload 后重新解析 84 条 40 字节地形记录。
-- 工具会逐项对比真实 `data.bin` 解析结果和 `APK_TERRAIN_CONFIGS` 归档，并输出防御、回血、移动消耗分布与 skirmish 映射可信度汇总。
-- 当前 `npm run apk:terrain-report -- --check` 结果：84/84 地形记录匹配，项目归档差异为 0；防御分布为 0/5/10/15/20，回血分布为 0/3/20，移动分布为 1/2/3/16777215。
+- 工具会逐项对比真实 `data.bin` 解析结果和 `APK_TERRAIN_CONFIGS` 归档，并输出防御、回血、移动消耗分布、skirmish 映射可信度汇总，以及官方 skirmish 实际使用地形的训练规则表。
+- 当前 `npm run apk:terrain-report -- --check` 结果：84/84 地形记录匹配，项目归档差异为 0；防御分布为 0/5/10/15/20，回血分布为 0/3/20，移动分布为 1/2/3/16777215；训练规则表包含 `t30/t31` 已验证语义，不包含 `t80/t81/t82/t83`。
 - 这一步不改变对战规则结算；它把“地形基础数值来自 APK data.bin 且当前归档无漂移”的证据变成可重复命令。
 
 2026-06-29 APK 城镇摧毁/修理 linked tile 同步：

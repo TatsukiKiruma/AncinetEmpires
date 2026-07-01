@@ -102,7 +102,7 @@ npm run apk:map-report -- --check
 ```bash
 npm run apk:terrain-report -- --check
 ```
-该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 84 条 40 字节地形记录，并和 `src/game/apk_terrain.ts` 的归档逐项对比。当前复核结果为 84/84 地形记录匹配、项目归档差异 0；报告会输出防御、回血、移动消耗分布和每个 APK tile 的 skirmish 映射可信度。
+该命令会解密 `APK/_analysis/unpack/data.bin`，重新解析 84 条 40 字节地形记录，并和 `src/game/apk_terrain.ts` 的归档逐项对比。当前复核结果为 84/84 地形记录匹配、项目归档差异 0；报告会输出防御、回血、移动消耗分布、每个 APK tile 的 skirmish 映射可信度，以及 20 张官方 skirmish 地图实际使用 tile 的训练规则表。规则表会列出每个 APK tile 的格子数、地图数、项目地形映射、可信度、data.bin 防御/回血/移动数值，以及清状态、占领、收入和招募语义；当前表中 `t30` 为野外营地语义、`t31` 为神庙语义，`t80/t81/t82/t83` 不出现在官方 skirmish 训练地图表内。
 
 ### 复核 APK data.bin 单位数值
 ```bash

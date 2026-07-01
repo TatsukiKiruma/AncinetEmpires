@@ -1,7 +1,11 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { APK_RELEASE_VERSION } from '../src/game/apk_manifest';
+import {
+    APK_RELEASE_VERSION,
+    getApkSkirmishTerrainUsageSummary,
+    type ApkSkirmishTerrainUsageSummaryEntry
+} from '../src/game/apk_manifest';
 import {
     APK_TERRAIN_CONFIGS,
     APK_TERRAIN_COUNT,
@@ -59,6 +63,7 @@ interface ApkTerrainReport {
     healPerTurnDistribution: ValueDistribution[];
     moveCostDistribution: ValueDistribution[];
     mappingSummary: TerrainMappingSummary;
+    skirmishRuleTerrainTable: ApkSkirmishTerrainUsageSummaryEntry[];
     terrainConfigs: ApkTerrainConfig[];
 }
 
@@ -251,6 +256,10 @@ export function buildValueDistribution(
         .map(([value, ids]) => ({ value, count: ids.length, ids }));
 }
 
+export function buildSkirmishRuleTerrainTable(): ApkSkirmishTerrainUsageSummaryEntry[] {
+    return getApkSkirmishTerrainUsageSummary();
+}
+
 function buildMappingSummary(configs: readonly ApkTerrainConfig[]): TerrainMappingSummary {
     const summary: TerrainMappingSummary = {
         confirmed: 0,
@@ -287,6 +296,7 @@ export async function buildApkTerrainReport(options: CliOptions): Promise<ApkTer
         healPerTurnDistribution: buildValueDistribution(terrainConfigs, 'healPerTurn'),
         moveCostDistribution: buildValueDistribution(terrainConfigs, 'moveCost'),
         mappingSummary: buildMappingSummary(terrainConfigs),
+        skirmishRuleTerrainTable: buildSkirmishRuleTerrainTable(),
         terrainConfigs
     };
 }
@@ -305,6 +315,48 @@ function renderDistribution(title: string, distribution: readonly ValueDistribut
 
     for (const item of distribution) {
         lines.push(`| ${item.value} | ${item.count} | ${formatIds(item.ids)} |`);
+    }
+
+    return lines;
+}
+
+function formatNullable(value: number | string | null): string {
+    return value === null ? '-' : String(value);
+}
+
+function formatBoolean(value: boolean): string {
+    return value ? '是' : '否';
+}
+
+function renderSkirmishRuleTerrainTable(
+    table: readonly ApkSkirmishTerrainUsageSummaryEntry[]
+): string[] {
+    const lines = [
+        '## skirmish 训练地形规则表',
+        '',
+        '该表只覆盖 APK 20 张官方 skirmish 地图实际出现的 tile。数值来自 data.bin；占领、收入、招募、清状态等语义来自当前项目规则映射，并保留映射可信度供训练侧过滤。',
+        '',
+        '| APK tile | 格子 | 地图 | 项目地形 | 可信度 | 防御 | 回血 | 移动 | 清状态 | 可占领 | 收入 | 招募 | 地图名 |',
+        '| ---: | ---: | ---: | --- | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- |'
+    ];
+
+    for (const item of table) {
+        const semantics = item.projectRuleSemantics;
+        lines.push([
+            `| t${item.apkTerrainId}`,
+            item.tileCount,
+            item.mapCount,
+            `${formatNullable(item.projectTerrainId)} / ${formatNullable(semantics.projectTerrainKey)}`,
+            item.confidence,
+            semantics.defenseBonus ?? item.terrainConfig?.defenseBonus ?? '-',
+            semantics.healPerTurn ?? item.terrainConfig?.healPerTurn ?? '-',
+            semantics.moveCost ?? item.terrainConfig?.moveCost ?? '-',
+            formatBoolean(semantics.clearsNegativeStatus),
+            formatBoolean(semantics.canBeCaptured),
+            formatBoolean(semantics.generatesIncome),
+            formatBoolean(semantics.canRecruit),
+            item.mapNames.join('<br>')
+        ].join(' | ') + ' |');
     }
 
     return lines;
@@ -330,6 +382,8 @@ function renderMarkdown(report: ApkTerrainReport): string {
         ...renderDistribution('回合回血分布', report.healPerTurnDistribution),
         '',
         ...renderDistribution('移动消耗分布', report.moveCostDistribution),
+        '',
+        ...renderSkirmishRuleTerrainTable(report.skirmishRuleTerrainTable),
         '',
         '## 完整地形记录',
         '',

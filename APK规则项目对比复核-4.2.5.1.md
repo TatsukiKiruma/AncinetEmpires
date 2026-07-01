@@ -87,7 +87,7 @@
 npm run apk:terrain-report -- --check
 ```
 
-当前命令输出确认：`data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，84/84 条 40 字节地形记录可解析，和 `src/game/apk_terrain.ts` 归档差异为 0；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。
+当前命令输出确认：`data.bin` envelope magic 和解密后 magic 均为 `365703`，DES key/iv 为 `72 6b 00 00 00 00 46 46`，84/84 条 40 字节地形记录可解析，和 `src/game/apk_terrain.ts` 归档差异为 0；skirmish 映射可信度汇总为 confirmed=4、atlas=73、approximate=7、unmapped=0。报告同时输出 20 张官方 skirmish 地图实际使用 tile 的训练规则表，集中列出 APK tile 用量、项目地形映射、可信度、data.bin 防御/回血/移动数值，以及清状态、占领、收入和招募语义；当前表内包含已实机确认的 `t30/t31`，不包含非 skirmish 边界 `t80/t81/t82/t83`。
 
 2026-06-30 补充：`data.bin` 单位数值复核已固化为 `tools/apk_unit_report.ts`，可通过以下命令重复验证：
 
