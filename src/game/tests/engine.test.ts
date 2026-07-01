@@ -2390,6 +2390,9 @@ describe('GameEngine Rules', () => {
         
         const u = engine.getState().units.find(item => item.id === soldier.id);
         expect(u).toBeUndefined(); // 该单位应该已经致死退场
+        expect(engine.getState().graves?.some(grave => (
+            grave.pos.x === soldier.pos.x && grave.pos.y === soldier.pos.y
+        ))).toBe(true);
     });
 
     it('状态系统测试: 致盲后攻击范围为 0', () => {
@@ -2843,6 +2846,103 @@ describe('GameEngine Rules', () => {
             ];
             expect(state.graves.length).toBe(1);
             expect(state.graves[0].pos.x).toBe(3);
+        });
+
+        it('5.4b APK墓碑规则：亡灵死亡不生成墓碑，精灵死亡生成墓碑', () => {
+            const createStateWithTarget = (unitClass: UnitClass) => {
+                const state = createDemoState();
+                state.map.width = 3;
+                state.map.height = 3;
+                state.map.tiles = Array.from({ length: 3 }, () => (
+                    Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+                ));
+                state.graves = [];
+                state.units = [
+                    {
+                        id: 'u_attacker',
+                        ownerId: 0,
+                        unitClass: 'dragon',
+                        pos: { x: 1, y: 1 },
+                        hp: 100,
+                        maxHp: 100,
+                        hasMoved: false,
+                        hasActed: false,
+                        level: 0,
+                        exp: 0
+                    },
+                    {
+                        id: 'u_target',
+                        ownerId: 1,
+                        unitClass,
+                        pos: { x: 1, y: 2 },
+                        hp: 1,
+                        maxHp: 100,
+                        hasMoved: false,
+                        hasActed: false,
+                        level: 0,
+                        exp: 0
+                    }
+                ];
+                return state;
+            };
+
+            for (const undeadClass of ['skeleton', 'ghost'] as const) {
+                const state = createStateWithTarget(undeadClass);
+                const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+                engine.step({ type: 'attack', attackerId: 'u_attacker', targetId: 'u_target' });
+
+                expect(engine.getState().units.some(unit => unit.id === 'u_target')).toBe(false);
+                expect(engine.getState().graves?.some(grave => grave.pos.x === 1 && grave.pos.y === 2)).toBe(false);
+            }
+
+            const elfState = createStateWithTarget('elf');
+            const elfEngine = new GameEngine(elfState, { unsafeBypassValidationForTests: true });
+            elfEngine.step({ type: 'attack', attackerId: 'u_attacker', targetId: 'u_target' });
+
+            expect(elfEngine.getState().units.some(unit => unit.id === 'u_target')).toBe(false);
+            expect(elfEngine.getState().graves?.some(grave => grave.pos.x === 1 && grave.pos.y === 2)).toBe(true);
+        });
+
+        it('5.4c APK墓碑规则：指挥官死亡不生成墓碑', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+            state.graves = [];
+            state.units = [
+                {
+                    id: 'u_attacker',
+                    ownerId: 0,
+                    unitClass: 'dragon',
+                    pos: { x: 1, y: 1 },
+                    hp: 100,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    level: 0,
+                    exp: 0
+                },
+                {
+                    id: 'u_commander',
+                    ownerId: 1,
+                    unitClass: 'commander',
+                    pos: { x: 1, y: 2 },
+                    hp: 1,
+                    maxHp: 100,
+                    hasMoved: false,
+                    hasActed: false,
+                    level: 0,
+                    exp: 0
+                }
+            ];
+
+            const engine = new GameEngine(state, { unsafeBypassValidationForTests: true });
+            engine.step({ type: 'attack', attackerId: 'u_attacker', targetId: 'u_commander' });
+
+            expect(engine.getState().units.some(unit => unit.id === 'u_commander')).toBe(false);
+            expect(engine.getState().graves?.some(grave => grave.pos.x === 1 && grave.pos.y === 2)).toBe(false);
         });
 
         it('5.5 普通单位踩墓碑后在行动结束扣 10 且墓碑消失', () => {
@@ -3525,7 +3625,7 @@ describe('GameEngine Rules', () => {
             expect(resDefender.exp).toBe(10); // 反击获得 10 经验
         });
 
-        it('6.3 主动攻击击杀额外 +60', () => {
+        it('6.3 主动攻击击杀获得 60 经验且不叠加普通攻击经验', () => {
             const state = createDemoState();
             const attacker = state.units[0];
             attacker.unitClass = 'soldier';
@@ -3542,11 +3642,11 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
 
             const resAttacker = engine.getState().units.find(u => u.id === attacker.id)!;
-            // 攻击 30 + 击杀 60 = 90
-            expect(resAttacker.exp).toBe(90);
+            // APK 击杀经验会替换普通攻击经验，不会变成 30 + 60。
+            expect(resAttacker.exp).toBe(60);
         });
 
-        it('6.4 反击击杀额外 +60', () => {
+        it('6.4 反击击杀获得 60 经验且不叠加助攻经验', () => {
             const state = createDemoState();
             const attacker = state.units[0];
             attacker.unitClass = 'soldier';
@@ -3564,8 +3664,7 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
 
             const resDefender = engine.getState().units.find(u => u.id === defender.id)!;
-            // 反击 10 + 击杀 60 = 70
-            expect(resDefender.exp).toBe(70);
+            expect(resDefender.exp).toBe(60);
         });
 
         it('6.4.1 主动攻击击杀目标后目标不会反击', () => {
@@ -3597,7 +3696,7 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             const finalAttacker = finalState.units.find(u => u.id === attacker.id)!;
             expect(finalAttacker.hp).toBe(100);
-            expect(finalAttacker.exp).toBe(90);
+            expect(finalAttacker.exp).toBe(60);
             expect(finalState.units.some(u => u.id === defender.id)).toBe(false);
         });
 
@@ -3750,10 +3849,10 @@ describe('GameEngine Rules', () => {
 
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
             expect(resSoldier.level).toBe(1);
-            expect(resSoldier.hp).toBe(100); // 升级回满血（基准100）
+            expect(resSoldier.hp).toBe(50); // APK：士兵生命成长为 0，升级不回满血。
         });
 
-        it('6.9b 升级回满血但不裁剪治疗师造成的超上限生命', () => {
+        it('6.9b 升级只按生命成长增加当前 HP，不裁剪治疗师造成的超上限生命', () => {
             const state = createDemoState();
             const wounded = state.units[0];
             wounded.unitClass = 'soldier';
@@ -3763,7 +3862,7 @@ describe('GameEngine Rules', () => {
 
             expect(addExp(wounded, 10)).toBe(true);
             expect(wounded.level).toBe(1);
-            expect(wounded.hp).toBe(100);
+            expect(wounded.hp).toBe(50);
 
             const overhealed = state.units[1];
             overhealed.unitClass = 'soldier';
@@ -3774,6 +3873,31 @@ describe('GameEngine Rules', () => {
             expect(addExp(overhealed, 10)).toBe(true);
             expect(overhealed.level).toBe(1);
             expect(overhealed.hp).toBe(130);
+        });
+
+        it('6.9c 升级会按 APK 成长增加当前 HP 和剩余移动力', () => {
+            const state = createDemoState();
+            const golem = state.units[0];
+            golem.unitClass = 'golem';
+            golem.exp = 90;
+            golem.level = 0;
+            golem.hp = 50;
+
+            expect(addExp(golem, 10)).toBe(true);
+            expect(golem.level).toBe(1);
+            expect(golem.hp).toBe(75);
+
+            const druid = state.units[1];
+            druid.unitClass = 'druid';
+            druid.exp = 90;
+            druid.level = 0;
+            druid.hp = 80;
+            druid.movementRemaining = 2;
+
+            expect(addExp(druid, 10)).toBe(true);
+            expect(druid.level).toBe(1);
+            expect(druid.hp).toBe(80);
+            expect(druid.movementRemaining).toBe(3);
         });
 
         it('6.10 经验达到 300 后升到 2 级', () => {
@@ -3987,6 +4111,20 @@ describe('GameEngine Rules', () => {
             const resSoldier = engine.getState().units.find(u => u.id === soldier.id)!;
             expect(resSoldier.level).toBe(1);
             expect(resSoldier.exp).toBe(610);
+        });
+
+        it('6.18b 达到等级上限后仍累计经验但不继续升级', () => {
+            const state = createDemoState();
+            state.rules = { levelCap: 1 };
+
+            const soldier = state.units[0];
+            soldier.unitClass = 'soldier';
+            soldier.exp = 600;
+            soldier.level = 1;
+
+            expect(addExp(soldier, 30, state.rules?.levelCap)).toBe(false);
+            expect(soldier.level).toBe(1);
+            expect(soldier.exp).toBe(630);
         });
 
         it('6.18 RuleConfig 可以扩展到 APK 内部 9 级范围', () => {

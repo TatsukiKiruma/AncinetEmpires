@@ -33,6 +33,10 @@ function setStatusDuration(status: UnitStatus, duration: number): void {
     delete status.remainingTicks;
 }
 
+const ATTACK_EXP = 30;
+const ASSIST_EXP = 10;
+const KILL_EXP = 60;
+
 function areActionsEqual(a1: Action, a2: Action): boolean {
     if (a1.type !== a2.type) return false;
     switch (a1.type) {
@@ -197,9 +201,35 @@ export class GameEngine {
         unit.hp = Math.max(0, Math.min(maxHp, unit.hp + delta));
     }
 
+    private shouldCreateGraveForDeadUnit(unit: Unit): boolean {
+        return !isCommanderUnit(this.state, unit) && !isUndead(unit);
+    }
+
+    private createGraveAt(pos: Position) {
+        this.state.graves = this.state.graves || [];
+        if (this.state.graves.some(g => g.pos.x === pos.x && g.pos.y === pos.y)) return;
+
+        const ngId = this.state.nextGraveId ?? 100;
+        this.state.graves.push({
+            id: `g_${ngId}`,
+            pos: { ...pos },
+            remainingTurns: 2
+        });
+        this.state.nextGraveId = ngId + 1;
+    }
+
+    private createGravesForDeadUnits(deadUnits: Unit[]) {
+        for (const unit of deadUnits) {
+            if (this.shouldCreateGraveForDeadUnit(unit)) {
+                this.createGraveAt(unit.pos);
+            }
+        }
+    }
+
     private removeDeadUnits(): Unit[] {
         const deadUnits = this.state.units.filter(u => u.hp <= 0);
         this.recordCommanderDeaths(deadUnits);
+        this.createGravesForDeadUnits(deadUnits);
         this.state.units = this.state.units.filter(u => u.hp > 0);
         return deadUnits;
     }
@@ -457,10 +487,10 @@ export class GameEngine {
                     info = `Unit ${attacker.id} attacked ${target.id} for ${dmg} dmg.`;
                     reward += dmg * 0.1; 
 
-                    // 经验值：攻击者获得 30 经验
-                    addExp(attacker, 30, ruleConfig.levelCap);
-
                     this.applyCombatStatusEffects(attacker, target);
+
+                    // APK 主动攻击经验：未击杀为 30，击杀时改用击杀经验 60，不与普通攻击经验叠加。
+                    addExp(attacker, target.hp <= 0 ? KILL_EXP : ATTACK_EXP, ruleConfig.levelCap);
 
                     let canCounter = false;
                     if (target.hp > 0) {
@@ -486,45 +516,11 @@ export class GameEngine {
                             info += ` Target counterattacked for ${counterDmg} dmg.`;
                             this.applyCombatStatusEffects(target, attacker);
 
-                            // 经验值：反击者获得 10 经验
-                            addExp(target, 10, ruleConfig.levelCap);
-
-                            // 如果反击导致攻击者死亡
-                            if (attacker.hp <= 0) {
-                                addExp(target, 60, ruleConfig.levelCap); // 击杀经验 +60
-                                
-                                // 生成墓碑（若非亡灵）
-                                if (!isUndead(attacker)) {
-                                    this.state.graves = this.state.graves || [];
-                                    if (!this.state.graves.some(g => g.pos.x === attacker.pos.x && g.pos.y === attacker.pos.y)) {
-                                        const ngId = this.state.nextGraveId ?? 100;
-                                        this.state.graves.push({
-                                            id: `g_${ngId}`,
-                                            pos: { ...attacker.pos },
-                                            remainingTurns: 2
-                                        });
-                                        this.state.nextGraveId = ngId + 1;
-                                    }
-                                }
-                            }
+                            // APK 反击经验：未击杀为助攻 10，击杀时改用击杀经验 60。
+                            addExp(target, attacker.hp <= 0 ? KILL_EXP : ASSIST_EXP, ruleConfig.levelCap);
                         }
                     } else {
-                        // 主动攻击导致击杀：获得 60 经验
-                        addExp(attacker, 60, ruleConfig.levelCap);
-
-                        // 生成墓碑（若非亡灵）
-                        if (!isUndead(target)) {
-                            this.state.graves = this.state.graves || [];
-                            if (!this.state.graves.some(g => g.pos.x === target.pos.x && g.pos.y === target.pos.y)) {
-                                const ngId = this.state.nextGraveId ?? 100;
-                                this.state.graves.push({
-                                    id: `g_${ngId}`,
-                                    pos: { ...target.pos },
-                                    remainingTurns: 2
-                                });
-                                this.state.nextGraveId = ngId + 1;
-                            }
-                        }
+                        // 主动攻击击杀经验已在反击判定前发放。
                     }
                     
                     attacker.hasMoved = true;
