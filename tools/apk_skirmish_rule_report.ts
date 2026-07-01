@@ -25,6 +25,7 @@ import {
     APK_TERRAIN_CONFIGS,
     APK_TERRAIN_COUNT,
     APK_TERRAIN_RECORD_SIZE,
+    getApkTerrainConfig,
     getSkirmishApkTerrainMappingInfo,
     type ApkTerrainMappingConfidence
 } from '../src/game/apk_terrain';
@@ -267,11 +268,11 @@ function check(
 function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
     return [
         {
-            id: 'low-confidence-tiles-t80-t83',
-            priority: 'P1',
-            title: '低可信 t80/t83 神庙候选语义',
-            currentProjectAssumption: 't80/t83 仍按贴图、data.bin 数值和语言表近似处理，不提升为 confirmed；t80 当前全 AEM 未出现，t83 不在 skirmish 地图中。',
-            requestedEvidence: '若未来地图或实机局面出现 t80/t83，分别记录是否回血、是否清中毒/致盲/虚弱、是否可占领、是否有收入、是否可招募，以及水/陆地分类表现。',
+            id: 'opencode-tiles-t80-t83-ui-check',
+            priority: 'P2',
+            title: 't80/t83 OPENCODE 地形语义 UI 复核',
+            currentProjectAssumption: 't80 按特殊村庄/神庙混合处理，t83 按水中治疗平台处理；二者回血、不清状态、不可占领/收入/招募。',
+            requestedEvidence: 'OPENCODE 已确认 data.bin 语义并已进入门禁；若实机局面出现 t80/t83，只需复核 UI/动画表现和地图出现位置。',
             verificationSteps: [
                 '找到或构造包含 t80/t83 的局面；优先记录地图名、坐标和站立单位。',
                 '让中毒、致盲、虚弱单位分别在该地形上开始己方回合，记录回血和状态是否清除。',
@@ -286,11 +287,11 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             ]
         },
         {
-            id: 'water-obstacle-tiles-t81-t82',
-            priority: 'P1',
-            title: 't81/t82 水面障碍语义',
-            currentProjectAssumption: 't81/t82 按水面障碍候选处理，不带神庙净化标签；二者只出现在非 skirmish 战役资源中。',
-            requestedEvidence: '若未来对战地图使用 t81/t82，记录普通陆地单位、水系单位、飞行单位的移动消耗，以及水之子/水地形相关能力是否触发。',
+            id: 'opencode-water-obstacle-t81-t82-ui-check',
+            priority: 'P2',
+            title: 't81/t82 OPENCODE 水面障碍 UI 复核',
+            currentProjectAssumption: 't81/t82 按水面障碍处理，不带神庙净化和回血标签；项目映射到水地形。',
+            requestedEvidence: 'OPENCODE 已确认 data.bin 语义并已进入门禁；若实机局面出现 t81/t82，只需复核移动 UI、阻挡表现和地图出现位置。',
             verificationSteps: [
                 '找到或构造包含 t81/t82 的局面；记录地图名、坐标和相邻可进入格。',
                 '分别用普通陆地单位、人鱼/水元素、飞行单位尝试进入，记录是否可进入和移动消耗。',
@@ -309,8 +310,8 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'support-and-assault-edge-order',
             priority: 'P2',
             title: '支援与突击后移动边界顺序',
-            currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，目标必须已行动且等级不高于支援者；支援按联盟关系判友军；突击后移动使用剩余移动力，执行后不再生成二次突击移动。',
-            requestedEvidence: 'DEX 已确认 Cannot support from/state 字符串引用到 Lc/a/b/a/l;.m(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.h(Unit,int,int)；q.h 会取目标单位并委托 q.n(Unit,Unit)，q.n 的关键操作顺序为目标行动状态、已支援标记、队伍/关系校验、supporter 能力排除、等级字段比较。仍需针对性实测记录 UI 是否允许同一目标多次支援、未行动/高等级/同联盟目标的支援可用性，以及攻击前移动后突击剩余移动力和执行突击后移动后的动作结束状态。',
+            currentProjectAssumption: '支援排除城堡捕获者/支援者/突击单位，目标必须已行动、未被支援、等级不高于支援者且属于同一队伍；突击后移动使用剩余移动力，执行后不再生成二次突击移动。',
+            requestedEvidence: 'OPENCODE 反编译确认支援使用 sameTeam(supporter,target)，第二次支援被已支援标记排除。仍建议实机记录 UI 是否完全一致，以及攻击前移动后突击剩余移动力和执行突击后移动后的动作结束状态。',
             verificationSteps: [
                 '用德鲁伊测试目标未行动、已行动、等级高于德鲁伊、等级等于德鲁伊、同联盟不同队伍五种情况能否支援。',
                 '让同一目标被支援后再次行动，再观察第二个德鲁伊是否还能支援该目标。',
@@ -318,7 +319,7 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
                 '执行突击后移动后，再检查该单位是否还能攻击、待机、再次突击移动或被支援。'
             ],
             recordTemplate: [
-                '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟目标 可/不可',
+                '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟不同队伍目标 可/不可',
                 '同一目标第二次支援：可/不可；前置步骤：',
                 '突击：攻击前剩余移动力：；攻击后可移动最大距离：',
                 '突击后移动后：还能攻击/待机/再次移动/被支援：'
@@ -328,8 +329,8 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
-            currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；普通反击必须距离 1 且在防守方射程内；本次主动攻击刚附加的致盲暂不取消同一次普通反击；反击风暴在 2 格内可反击；反击命中后同样附加中毒/致盲。',
-            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；OPENCODE 反编译确认普通反击距离 1 与反击附加状态。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。',
+            currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；普通反击必须距离 1 且在防守方射程内；本次主动攻击刚附加的致盲会取消同一次普通反击；反击风暴在 2 格内可反击且不受致盲射程影响；反击命中后同样附加中毒/致盲。',
+            requestedEvidence: 'OPENCODE 反编译确认 ATTACK 先附加状态、COUNTER_ATTACK 后检查反击，因此新致盲会取消普通反击；反击风暴距离 1/2 触发、3 不触发，防守方死亡不反击。仍建议实机记录 UI/动画表现，以及虚弱/鼓舞叠加时伤害顺序。',
             verificationSteps: [
                 '让已致盲的普通近战/远程单位被攻击，记录是否还能普通反击。',
                 '用黑魔法师或狼骑射手本次攻击附加致盲，目标为可普通反击单位，记录本次反击是否发生。',
@@ -508,6 +509,16 @@ function buildSupportAssaultProbeBehavior() {
 }
 
 function buildCounterBlindStormProbeBehavior() {
+    const plainNormalCounterState = createRoadProbeState([
+        createProbeUnit('plain_attacker', 0, 'soldier', 0, 0),
+        createProbeUnit('plain_defender', 1, 'soldier', 1, 0)
+    ]);
+    const plainNormalCounterEngine = new GameEngine(plainNormalCounterState);
+    plainNormalCounterEngine.step({ type: 'attack', attackerId: 'plain_attacker', targetId: 'plain_defender' });
+    const plainNormalCounterUnits = Object.fromEntries(
+        plainNormalCounterEngine.getState().units.map(unit => [unit.id, unit])
+    );
+
     const normalCounterState = createRoadProbeState([
         createProbeUnit('dark_mage', 0, 'dark_mage', 0, 0),
         createProbeUnit('soldier', 1, 'soldier', 1, 0)
@@ -566,6 +577,10 @@ function buildCounterBlindStormProbeBehavior() {
     const counterKillAssaultStateFinal = counterKillAssaultEngine.getState();
 
     return {
+        normalCounterAtRange1: {
+            attackerHpAfterAttack: plainNormalCounterUnits.plain_attacker?.hp ?? null,
+            normalCounterTriggered: (plainNormalCounterUnits.plain_attacker?.hp ?? 100) < 100
+        },
         blindingAttackAgainstNormalCounter: {
             defenderStatusAfterAttack: normalCounterUnits.soldier?.status?.type ?? null,
             attackerHpAfterAttack: normalCounterUnits.dark_mage?.hp ?? null,
@@ -642,11 +657,24 @@ function buildStatusDamageProbeBehavior() {
 function buildCounterStatusSemanticsActual() {
     const behavior = buildCounterBlindStormProbeBehavior();
     return {
-        normalCounterAtRange1: behavior.blindingAttackAgainstNormalCounter.normalCounterTriggered,
+        normalCounterAtRange1: behavior.normalCounterAtRange1.normalCounterTriggered,
         normalCounterAtRange2: behavior.rangedNormalCounterAtRange2.normalCounterTriggered,
+        newBlindCancelsOrdinaryCounter: (
+            behavior.blindingAttackAgainstNormalCounter.defenderStatusAfterAttack === 'blinded' &&
+            !behavior.blindingAttackAgainstNormalCounter.normalCounterTriggered
+        ),
         counterStormAtRange2: behavior.blindingAttackAgainstCounterStormAtRange2.counterStormTriggered,
         counterStormAtRange3: behavior.counterStormAtRange3.counterStormTriggered,
         counterAttackAppliesPoison: behavior.counterStatusApplication
+    };
+}
+
+function buildSupportSameTeamSemanticsActual() {
+    const behavior = buildSupportAssaultProbeBehavior().support;
+    return {
+        sameTeamSupportAvailable: behavior.equalLevelTargetSupportAvailable,
+        alliedDifferentTeamSupportAvailable: behavior.alliedTeamSupportAvailable,
+        secondSupportAvailableAfterTargetActsAgain: behavior.secondSupportAvailableAfterTargetActsAgain
     };
 }
 
@@ -657,14 +685,14 @@ function buildProjectProbeItems(): ApkSkirmishProjectProbeItem[] {
             title: '当前项目支援与突击边界行为快照',
             purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
             currentProjectBehavior: buildSupportAssaultProbeBehavior(),
-            suggestedVerification: '在原版 skirmish 中测试未行动目标、更高等级目标、等等级目标和同联盟目标能否被支援；再测试同一单位被支援后再次行动，第二个支援者是否还能再次支援；最后测试狼移动后攻击，攻击后可移动范围是否等于攻击前剩余移动力，执行突击后移动后是否彻底结束该单位行动。'
+            suggestedVerification: '在原版 skirmish 中测试未行动目标、更高等级目标、等等级目标和同联盟不同队伍目标能否被支援；再测试同一单位被支援后再次行动，第二个支援者是否还能再次支援；最后测试狼移动后攻击，攻击后可移动范围是否等于攻击前剩余移动力，执行突击后移动后是否彻底结束该单位行动。'
         },
         {
             id: 'counter-blind-storm-project-probe',
             title: '当前项目致盲、普通反击与反击风暴顺序快照',
             purpose: '给实机验证提供可复现对照；该项不代表 APK 已确认。',
             currentProjectBehavior: buildCounterBlindStormProbeBehavior(),
-            suggestedVerification: '在原版 skirmish 中分别测试攻击前已致盲的普通单位是否不能反击，以及黑魔法师/狼骑射手本次致盲攻击后普通 1 格反击是否仍发生；再测试狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
+            suggestedVerification: '在原版 skirmish 中分别测试攻击前已致盲的普通单位是否不能反击，以及黑魔法师/狼骑射手本次致盲攻击后普通 1 格反击是否取消；再测试狂战士 2 格反击风暴是否仍触发，3 格是否不触发。'
         },
         {
             id: 'status-damage-project-probe',
@@ -770,6 +798,42 @@ function buildT30T31TerrainActual() {
             )))
         }
     };
+}
+
+function buildT80T83TerrainActual() {
+    return Object.fromEntries([80, 81, 82, 83].map(apkTerrainId => {
+        const config = getApkTerrainConfig(apkTerrainId);
+        const mapping = getSkirmishApkTerrainMappingInfo(apkTerrainId);
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        const tile = {
+            terrainId: mapping.projectTerrainId ?? 6,
+            ownerId: 0,
+            apkTerrainId
+        };
+        state.map.tiles[0][0] = tile;
+        state.units[0].pos = { x: 0, y: 0 };
+        state.units[0].unitClass = 'commander';
+        state.players[0].gold = 1000;
+
+        return [
+            `t${apkTerrainId}`,
+            {
+                kind: config?.kind ?? null,
+                flagA: config?.flagA ?? null,
+                defenseBonus: config?.defenseBonus ?? null,
+                moveCost: config?.moveCost ?? null,
+                healPerTurn: getTileHealPerTurn(tile),
+                projectTerrainId: mapping.projectTerrainId,
+                terrainKey: getTileTerrainKey(tile),
+                income: getTileIncome(state, tile),
+                actionTypes: actionTypes(getLegalActions(state, 0).filter(action => (
+                    action.type === 'capture'
+                    || action.type === 'recruit_to_castle'
+                    || action.type === 'recruit_and_deploy'
+                )))
+            }
+        ];
+    }));
 }
 
 function buildPendingRecruitActual() {
@@ -1747,6 +1811,20 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
 
     check(
         checks,
+        'opencode-t80-t83-terrain-semantics',
+        'OPENCODE 反编译确认的 t80/t83/t81/t82 地形语义',
+        'data.bin 地形记录 + OPENCODE 语义表：t80 为非收入治疗建筑，t81/t82 为水面障碍，t83 为水中治疗平台，均不可占领/收入/招募',
+        {
+            t80: { kind: 4, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
+            t81: { kind: 8, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t82: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t83: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
+        },
+        buildT80T83TerrainActual()
+    );
+
+    check(
+        checks,
         'terrain-defense-combat',
         'APK 地形防御参与战斗结算',
         'APK data.bin 地形 defenseBonus + 用户 2026-06-30 实机确认地形防御存在',
@@ -1930,7 +2008,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'default-training-terrain-risk',
-        '默认 skirmish 训练地图不包含未验证 t80/t81/t82/t83',
+        '默认 skirmish 训练地图不包含 t80/t81/t82/t83',
         'APK skirmish manifest + 已确认 t30/t31 approximate 放行策略',
         {
             mapCount: 20,
@@ -1950,7 +2028,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'training-scenario-terrain-gate',
-        '默认 skirmish 训练场景不包含未实测 approximate 地形',
+        '默认 skirmish 训练场景不包含额外 approximate 地形',
         'getApkSkirmishTrainingScenarios + apk:training-report 未实测 approximate ID 计算逻辑',
         {
             scenarioCount: 40,
@@ -1988,6 +2066,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         {
             normalCounterAtRange1: true,
             normalCounterAtRange2: false,
+            newBlindCancelsOrdinaryCounter: true,
             counterStormAtRange2: true,
             counterStormAtRange3: false,
             counterAttackAppliesPoison: {
@@ -1996,6 +2075,19 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }
         },
         buildCounterStatusSemanticsActual()
+    );
+
+    check(
+        checks,
+        'opencode-support-same-team-semantics',
+        'OPENCODE 反编译确认的同队支援限制',
+        'OPENCODE q.n(Unit,Unit)：支援目标必须已行动、未被支援、同队且等级不高于支援者；第二次支援被 hasBeenSupported 标记排除',
+        {
+            sameTeamSupportAvailable: true,
+            alliedDifferentTeamSupportAvailable: false,
+            secondSupportAvailableAfterTargetActsAgain: false
+        },
+        buildSupportSameTeamSemanticsActual()
     );
 
     check(

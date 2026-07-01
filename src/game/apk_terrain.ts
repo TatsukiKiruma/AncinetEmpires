@@ -156,15 +156,15 @@ export const SKIRMISH_APK_TERRAIN_TO_PROJECT = {
     29: 17,
     72: 17,
 
-    // 非收入治疗建筑。t30/t31 已实测；t80 仍按神庙贴图和 data.bin 数值近似处理。
+    // 非收入治疗建筑。t30/t31 已实测；t80 按 OPENCODE 反编译确认的特殊村庄/神庙混合语义处理。
     30: 11,
     31: 12,
     33: 14,
     80: 12,
-    // 水域特殊 tile。t81/t82 是水面浮冰/礁石贴图，不能套用神庙净化语义。
+    // 水域特殊 tile。OPENCODE 确认为水面障碍，不能套用神庙净化语义。
     81: 2,
     82: 2,
-    // t83 是水中治疗平台候选，有 healPerTurn=20；净化语义仍保留低可信。
+    // t83 是水中治疗平台，有 healPerTurn=20，不提供神庙净化。
     83: 16,
 
     ...HIGH_CONFIDENCE_APK_TERRAIN_TO_PROJECT,

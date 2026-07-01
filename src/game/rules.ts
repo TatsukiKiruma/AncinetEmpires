@@ -116,6 +116,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
     const enemyUnits = state.units.filter(u => areEnemyPlayers(state, u.ownerId, playerId));
     const friendUnits = state.units.filter(u => areAlliedPlayers(state, u.ownerId, playerId));
+    const sameTeamUnits = state.units.filter(u => u.ownerId === playerId);
 
     // 1. 突击二次移动作为专用合法指令生成
     for (const unit of assaultUnits) {
@@ -183,7 +184,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
 
         // 2.5 支援 (supporter，2格内被重置，除豁免兵种外)
         if (hasAbi(unit, 'supporter')) {
-            for (const friend of friendUnits) {
+            for (const friend of sameTeamUnits) {
                 if (friend.id !== unit.id && getDistance(unit.pos, friend.pos) <= 2) {
                     const isFriendActed = friend.hasActed;
                     const isExcluded = hasAbi(friend, 'assault_troop') || hasAbi(friend, 'castle_capturer') || hasAbi(friend, 'supporter');

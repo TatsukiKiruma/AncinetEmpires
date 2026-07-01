@@ -2395,7 +2395,7 @@ describe('GameEngine Rules', () => {
         expect(finalAttacker.hp).toBe(100);
     });
 
-    it('状态系统测试: 本次攻击附加的致盲不会取消同一次普通反击', () => {
+    it('状态系统测试: 本次攻击附加的致盲会取消同一次普通反击', () => {
         const state = createDemoState();
         const attacker = { ...state.units[0], unitClass: 'dark_mage' as const, pos: { x: 1, y: 1 }, hp: 100 };
         const defender = { ...state.units[1], unitClass: 'soldier' as const, pos: { x: 1, y: 2 }, hp: 100 };
@@ -2408,7 +2408,7 @@ describe('GameEngine Rules', () => {
 
         const finalUnits = Object.fromEntries(engine.getState().units.map(u => [u.id, u]));
         expect(finalUnits[defender.id].status?.type).toBe('blinded');
-        expect(finalUnits[attacker.id].hp).toBe(70);
+        expect(finalUnits[attacker.id].hp).toBe(100);
     });
 
     it('状态系统测试: 反击风暴在致盲时仍可按 2 格规则反击', () => {
@@ -2774,7 +2774,7 @@ describe('GameEngine Rules', () => {
             expect(resFriend.hasBeenSupportedThisTurn).toBe(true);
         });
 
-        it('5.8b 支援者可以支援同联盟友军', () => {
+        it('5.8b 支援者不能支援同联盟不同队伍友军', () => {
             const state = createDemoState({
                 alliances: { 0: 1, 1: 1 }
             });
@@ -2813,7 +2813,7 @@ describe('GameEngine Rules', () => {
             const supportAct = getLegalActions(state, 0).find(action => (
                 action.type === 'support' && action.supporterId === druid.id && action.targetId === ally.id
             ));
-            expect(supportAct).toBeDefined();
+            expect(supportAct).toBeUndefined();
         });
 
         it('5.8c 支援者不能支援未行动目标或更高等级目标', () => {

@@ -463,23 +463,23 @@ export class GameEngine {
                     // 经验值：攻击者获得 30 经验
                     addExp(attacker, 30, ruleConfig.levelCap);
 
+                    this.applyCombatStatusEffects(attacker, target);
+
                     let canCounter = false;
                     if (target.hp > 0) {
-                        // APK DEX 中反击规则校验和攻击附加状态是两个独立方法；
-                        // 先缓存反击资格，避免本次攻击刚附加的致盲反向取消同一次普通反击。
-                        const targetStatsBeforeAttackStatus = getEffectiveStats(target);
+                        // APK 反编译确认 ATTACK 先附加状态，COUNTER_ATTACK 后检查反击。
+                        // 因此本次致盲会阻止普通反击；反击风暴只看能力与距离。
+                        const targetStats = getEffectiveStats(target);
                         const isCounterStorm = hasAbility(target, 'counter_storm') && getDistance(target.pos, attacker.pos) <= 2;
                         const distance = getDistance(target.pos, attacker.pos);
                         const canNormalCounter = distance === 1 && inRange(
                             target.pos,
                             attacker.pos,
-                            targetStatsBeforeAttackStatus.minRange,
-                            targetStatsBeforeAttackStatus.maxRange
+                            targetStats.minRange,
+                            targetStats.maxRange
                         );
                         canCounter = isCounterStorm || canNormalCounter;
                     }
-
-                    this.applyCombatStatusEffects(attacker, target);
                     
                     // 如果被攻击方存活，则可能反击
                     if (target.hp > 0) {

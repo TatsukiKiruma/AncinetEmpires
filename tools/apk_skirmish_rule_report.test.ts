@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(28);
+        expect(report.checkCount).toBe(30);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(3);
@@ -17,8 +17,8 @@ describe('APK skirmish rule report', () => {
         ]);
         expect(report.manualVerificationItems).toHaveLength(4);
         expect(report.manualVerificationItems.map(item => item.id)).toEqual([
-            'low-confidence-tiles-t80-t83',
-            'water-obstacle-tiles-t81-t82',
+            'opencode-tiles-t80-t83-ui-check',
+            'opencode-water-obstacle-t81-t82-ui-check',
             'support-and-assault-edge-order',
             'counter-blind-storm-order'
         ]);
@@ -32,7 +32,7 @@ describe('APK skirmish rule report', () => {
                     '用狼或狼骑射手先移动若干格后攻击，记录攻击后可移动范围是否等于攻击前剩余移动力。'
                 ]),
                 recordTemplate: expect.arrayContaining([
-                    '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟目标 可/不可'
+                    '支援：未行动目标 可/不可；已行动目标 可/不可；高等级目标 可/不可；等等级目标 可/不可；同联盟不同队伍目标 可/不可'
                 ])
             })
         );
@@ -65,7 +65,7 @@ describe('APK skirmish rule report', () => {
                 freshTargetSupportAvailable: false,
                 highLevelTargetSupportAvailable: false,
                 equalLevelTargetSupportAvailable: true,
-                alliedTeamSupportAvailable: true
+                alliedTeamSupportAvailable: false
             },
             assault: {
                 movementRemainingAfterMove: 4,
@@ -80,10 +80,14 @@ describe('APK skirmish rule report', () => {
             }
         });
         expect(byId['counter-blind-storm-project-probe'].currentProjectBehavior).toEqual({
+            normalCounterAtRange1: {
+                attackerHpAfterAttack: 75,
+                normalCounterTriggered: true
+            },
             blindingAttackAgainstNormalCounter: {
                 defenderStatusAfterAttack: 'blinded',
-                attackerHpAfterAttack: 70,
-                normalCounterTriggered: true
+                attackerHpAfterAttack: 100,
+                normalCounterTriggered: false
             },
             rangedNormalCounterAtRange2: {
                 attackerHpAfterAttack: 100,
@@ -298,12 +302,24 @@ describe('APK skirmish rule report', () => {
         expect(byId['opencode-counter-status-semantics'].actual).toEqual({
             normalCounterAtRange1: true,
             normalCounterAtRange2: false,
+            newBlindCancelsOrdinaryCounter: true,
             counterStormAtRange2: true,
             counterStormAtRange3: false,
             counterAttackAppliesPoison: {
                 attackerStatusAfterCounter: 'poisoned',
                 attackerStatusRemainingTicks: 2
             }
+        });
+        expect(byId['opencode-support-same-team-semantics'].actual).toEqual({
+            sameTeamSupportAvailable: true,
+            alliedDifferentTeamSupportAvailable: false,
+            secondSupportAvailableAfterTargetActsAgain: false
+        });
+        expect(byId['opencode-t80-t83-terrain-semantics'].actual).toEqual({
+            t80: { kind: 4, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
+            t81: { kind: 8, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t82: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t83: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
         });
         expect(byId['language-rule-evidence'].actual).toEqual({
             langPath: 'APK/_analysis/unpack/assets/languages/en.lang',
