@@ -14,6 +14,10 @@ import {
 import { getApkSkirmishTrainingMapManifest } from '../src/game/apk_manifest';
 import {
     APK_SCRIPT_LITERAL_RULE_DISTRIBUTIONS,
+    APK_SCRIPT_API_CALL_COUNTS,
+    APK_SCRIPT_DECRYPTED_JS_FILE_COUNT,
+    APK_SCRIPT_LITERAL_RULE_CONFIGS,
+    APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS,
     getApkScriptLiteralRuleConfig
 } from '../src/game/apk_script_manifest';
 import { UNIT_CONFIGS } from '../src/game/constants';
@@ -22,6 +26,7 @@ import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../s
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
 import { parseDexKeyRuleMethodEvidence } from './apk_dex_report';
 import { buildApkLanguageRuleReportSync } from './apk_language_rule_report';
+import { buildApkScriptApplicationChecks } from './apk_script_report';
 
 interface CliOptions {
     json: boolean;
@@ -149,6 +154,16 @@ const LANGUAGE_RULE_REQUIRED_CHECK_IDS = [
     'single-status-slot',
     'tile-language-rules',
     'status-blind-weaken'
+];
+
+const SCRIPT_RULE_REQUIRED_APPLICATION_CHECK_IDS = [
+    'rule-config-observation',
+    'so-recruit-observation',
+    'team-rule-observation',
+    'team-rule-turn-application',
+    'script-income-application',
+    'stage-move-override-observation',
+    'stage-status-observation'
 ];
 
 function printHelp() {
@@ -1022,6 +1037,24 @@ function buildLanguageRuleEvidenceActual() {
     };
 }
 
+function buildScriptRuleEvidenceActual() {
+    const applicationChecks = buildApkScriptApplicationChecks();
+    const applicationChecksById = Object.fromEntries(applicationChecks.map(item => [item.id, item]));
+
+    return {
+        manifestScriptCount: APK_SCRIPT_DECRYPTED_JS_FILE_COUNT,
+        apiCallKindCount: Object.keys(APK_SCRIPT_API_CALL_COUNTS).length,
+        literalRuleConfigCount: APK_SCRIPT_LITERAL_RULE_CONFIGS.length,
+        literalStageStateConfigCount: APK_SCRIPT_LITERAL_STAGE_STATE_CONFIGS.length,
+        applicationCheckCount: applicationChecks.length,
+        failedApplicationCheckCount: applicationChecks.filter(item => item.status === 'fail').length,
+        requiredApplicationChecks: SCRIPT_RULE_REQUIRED_APPLICATION_CHECK_IDS.map(id => ({
+            id,
+            status: applicationChecksById[id]?.status ?? null
+        }))
+    };
+}
+
 function buildTerrainDefenseCombatActual() {
     const buildState = (defenderClass: UnitClass): GameState => {
         const state = createDemoState(getApkSkirmishRuleConfig('SD'));
@@ -1636,6 +1669,26 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }))
         },
         buildLanguageRuleEvidenceActual()
+    );
+
+    check(
+        checks,
+        'script-rule-evidence',
+        'APK 脚本规则配置证据',
+        '已归档脚本 manifest + 7 项脚本规则/状态配置应用检查；完整 DES 解密由 apk:script-report 单独门禁',
+        {
+            manifestScriptCount: 27,
+            apiCallKindCount: 60,
+            literalRuleConfigCount: 26,
+            literalStageStateConfigCount: 4,
+            applicationCheckCount: 7,
+            failedApplicationCheckCount: 0,
+            requiredApplicationChecks: SCRIPT_RULE_REQUIRED_APPLICATION_CHECK_IDS.map(id => ({
+                id,
+                status: 'pass'
+            }))
+        },
+        buildScriptRuleEvidenceActual()
     );
 
     check(

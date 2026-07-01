@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(24);
+        expect(report.checkCount).toBe(25);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(2);
@@ -236,6 +236,23 @@ describe('APK skirmish rule report', () => {
                 { id: 'single-status-slot', status: 'pass' },
                 { id: 'tile-language-rules', status: 'pass' },
                 { id: 'status-blind-weaken', status: 'pass' }
+            ]
+        });
+        expect(byId['script-rule-evidence'].actual).toEqual({
+            manifestScriptCount: 27,
+            apiCallKindCount: 60,
+            literalRuleConfigCount: 26,
+            literalStageStateConfigCount: 4,
+            applicationCheckCount: 7,
+            failedApplicationCheckCount: 0,
+            requiredApplicationChecks: [
+                { id: 'rule-config-observation', status: 'pass' },
+                { id: 'so-recruit-observation', status: 'pass' },
+                { id: 'team-rule-observation', status: 'pass' },
+                { id: 'team-rule-turn-application', status: 'pass' },
+                { id: 'script-income-application', status: 'pass' },
+                { id: 'stage-move-override-observation', status: 'pass' },
+                { id: 'stage-status-observation', status: 'pass' }
             ]
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({
