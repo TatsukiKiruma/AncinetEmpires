@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(26);
+        expect(report.checkCount).toBe(27);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(3);
@@ -233,6 +233,13 @@ describe('APK skirmish rule report', () => {
                 { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
                 { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
             ]
+        });
+        expect(byId['training-scenario-terrain-gate'].actual).toEqual({
+            scenarioCount: 40,
+            modes: ['SD', 'SO'],
+            approximateTerrainIds: [30, 31],
+            unverifiedApproximateTerrainIds: [],
+            scenariosWithUnverifiedApproximate: []
         });
         expect(byId['dex-operation-order-evidence'].actual).toEqual({
             dexPath: 'APK/_analysis/unpack/classes.dex',

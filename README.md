@@ -120,7 +120,7 @@ npm run apk:language-rule-report -- --check
 ```bash
 npm run apk:skirmish-rule-report -- --check
 ```
-该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募且 SO 不招募指挥官、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗可超上限但下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命且不压低既有超上限生命、默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`、DEX 支援目标/反击风暴/攻击附加状态关键顺序证据、APK 语言表能力/状态规则 28 项复核汇总、APK 脚本 manifest 与 7 项脚本规则/状态配置应用检查汇总、APK data.bin 单位/能力/状态/地形 manifest 摘要、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 26/26 检查通过，并在报告末尾输出 3 项当前项目边界探针和 4 项待调查清单；探针用于对照实机验证支援/突击、致盲/反击风暴、鼓舞/虚弱伤害组合的当前项目行为，不参与 APK 已确认检查。
+该命令会把已确认的 skirmish 规则跑成机器检查：SD/SO 招募列表、SD/SO 默认招募费用和人口占用、SD 指挥官不在场时可重招募且 SO 不招募指挥官、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗可超上限但下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命且不压低既有超上限生命、默认 20 张 skirmish 训练地图与 40 个训练场景只包含已验证 approximate `t30/t31` 且不含未实测 approximate/t80/t81/t82/t83、DEX 支援目标/反击风暴/攻击附加状态关键顺序证据、APK 语言表能力/状态规则 28 项复核汇总、APK 脚本 manifest 与 7 项脚本规则/状态配置应用检查汇总、APK data.bin 单位/能力/状态/地形 manifest 摘要、开局设置范围及其对起始金币/单位上限/等级上限的实际约束、训练 observation 暴露的规则/费用/指挥官/pending 状态、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 招募菜单限制、招募后 pending 来源/扣费/行动标记、无单位且无城堡淘汰、敌军压城堡回合开始扣 50 血等。当前复核结果为 27/27 检查通过，并在报告末尾输出 3 项当前项目边界探针和 4 项待调查清单；探针用于对照实机验证支援/突击、致盲/反击风暴、鼓舞/虚弱伤害组合的当前项目行为，不参与 APK 已确认检查。
 
 ### 复核 APK 脚本规则证据
 ```bash
@@ -138,7 +138,7 @@ npm run apk:dex-report -- --check
 ```bash
 npm run apk:training-report -- --check
 ```
-该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且编码/解码往返通过，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；该门禁还会检查 SD/SO 可招募单位列表和每个玩家 `players[].recruitCosts` 中的默认招募费用是否与 APK data.bin 及已确认模式规则一致。可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
+该命令会解密默认 20 张官方 skirmish 地图，生成 SD/SO 共 40 个训练场景，并逐一创建 `AncientEmpiresEnv`。默认训练集包含已经由 2026-06-30 实机确认的 `t30/t31` approximate tile 地图，但仍会排除未实测 approximate/unmapped tile；报告表格会同时列出每个场景的 approximate ID 和未实测 approximate ID。当前复核结果为 40/40 场景 manifest 匹配、metadata 匹配，含未实测 approximate 的场景 0 个且涉及 APK tile ID 为无，模式规则错配 0 个，指挥官重招募费用错配 0 个，Observation 招募经济错配 0 个，Observation APK 地形/单位证据字段错配 0 个，固定动作空间错配 0 个，初始与 smoke 过程 actionMask 错配 0 个，动作序列化错配 0 个，动作接口 schema 14 个模板匹配且编码/解码往返通过，所有场景初始合法动作数均大于 0，且默认每场景执行 4 个合法动作 smoke test 无失败；该门禁还会检查 SD/SO 可招募单位列表和每个玩家 `players[].recruitCosts` 中的默认招募费用是否与 APK data.bin 及已确认模式规则一致。可加 `--include-approximate` 放行未来可能出现的未实测 approximate 地图。
 
 ## 待补充与未实现 (TODO List)
 

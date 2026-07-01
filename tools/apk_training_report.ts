@@ -44,7 +44,9 @@ interface TrainingScenarioReportEntry {
     initialUnitCount: number;
     recommendedGold: number | null;
     approximateTileCount: number;
+    approximateTerrainIds: number[];
     hasUnverifiedApproximateTerrain: boolean;
+    unverifiedApproximateTerrainIds: number[];
     unmappedTileCount: number;
     manifestMatched: boolean;
     metadataMatched: boolean;
@@ -92,6 +94,7 @@ interface ApkTrainingReport {
     actionSchemaMatched: boolean;
     actionRoundTripMatched: boolean;
     unverifiedApproximateScenarioCount: number;
+    unverifiedApproximateTerrainIds: number[];
     smokePlies: number;
     smokeFailureCount: number;
     setupOptions: ReturnType<typeof getApkSkirmishSetupOptions>;
@@ -148,6 +151,11 @@ const EXPECTED_SO_RECRUIT_ECONOMY: ReadonlyArray<{ unitClass: UnitClass; cost: n
     { unitClass: 'catapult', cost: 800 },
     { unitClass: 'dragon', cost: 1000 }
 ];
+
+export function getUnverifiedSkirmishApproximateTerrainIds(apkTerrainIds: readonly number[]): number[] {
+    return apkTerrainIds
+        .filter(apkTerrainId => !VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS.has(apkTerrainId));
+}
 
 function printHelp() {
     console.log(`用法: npm run apk:training-report -- [选项]
@@ -513,9 +521,10 @@ function buildScenarioReportEntry(
         sameCostProfile(commanderRecruitCostProfile, expectedCommanderRecruitCostProfile)
         && commanderInitialRecruitCosts.every(cost => cost === expectedInitialCommanderRecruitCost)
     );
-    const hasUnverifiedApproximateTerrain = scenario.terrainConfidence.approximateTerrainIds.some(
-        apkTerrainId => !VERIFIED_SKIRMISH_APPROXIMATE_TERRAIN_IDS.has(apkTerrainId)
+    const unverifiedApproximateTerrainIds = getUnverifiedSkirmishApproximateTerrainIds(
+        scenario.terrainConfidence.approximateTerrainIds
     );
+    const hasUnverifiedApproximateTerrain = unverifiedApproximateTerrainIds.length > 0;
     const modeRuleMatched = scenario.mode === 'SD'
         ? (
             recruitableUnits.length === 19
@@ -547,7 +556,9 @@ function buildScenarioReportEntry(
         initialUnitCount: observation.units.length,
         recommendedGold: metadata?.recommendedGold ?? null,
         approximateTileCount: metadata?.apkApproximateTileCount ?? 0,
+        approximateTerrainIds: [...scenario.terrainConfidence.approximateTerrainIds],
         hasUnverifiedApproximateTerrain,
+        unverifiedApproximateTerrainIds,
         unmappedTileCount: metadata?.apkUnmappedTileCount ?? 0,
         manifestMatched,
         metadataMatched: (
@@ -573,7 +584,7 @@ function buildScenarioReportEntry(
     };
 }
 
-async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
+export async function buildApkTrainingReport(options: CliOptions): Promise<ApkTrainingReport> {
     const scenarios = getApkSkirmishTrainingScenarios({
         allowApproximateTerrain: options.includeApproximate
     });
@@ -586,6 +597,10 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
     }
 
     const actionSchema = getActionSpaceSchema();
+    const unverifiedApproximateTerrainIds = [...new Set(
+        entries.flatMap(entry => entry.unverifiedApproximateTerrainIds)
+    )].sort((left, right) => left - right);
+
     return {
         apkVersion: APK_RELEASE_VERSION,
         unpackDir: options.unpackDir,
@@ -608,6 +623,7 @@ async function buildReport(options: CliOptions): Promise<ApkTrainingReport> {
         actionSchemaMatched: isActionSchemaMatched(),
         actionRoundTripMatched: isActionRoundTripMatched(),
         unverifiedApproximateScenarioCount: entries.filter(entry => entry.hasUnverifiedApproximateTerrain).length,
+        unverifiedApproximateTerrainIds,
         smokePlies: options.smokePlies,
         smokeFailureCount: entries.filter(entry => entry.smokeError !== null).length,
         setupOptions: getApkSkirmishSetupOptions(),
@@ -625,7 +641,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- 允许未实测 approximate：${report.includeApproximate ? '是' : '否'}`,
         `- 默认地形策略：包含无 approximate 地图和已实机确认的 t30/t31 approximate 地图，继续排除未来未实测 approximate/unmapped 地图`,
         `- 训练场景：${report.scenarioCount} 个，manifest 匹配 ${report.manifestMatchedCount} 个，metadata 匹配 ${report.metadataMatchedCount} 个`,
-        `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}`,
+        `- 含未实测 approximate 的场景：${report.unverifiedApproximateScenarioCount}；涉及 APK tile ID：${report.unverifiedApproximateTerrainIds.length > 0 ? report.unverifiedApproximateTerrainIds.join(', ') : '无'}`,
         `- 模式规则错配场景：${report.modeRuleMismatchCount}`,
         `- 指挥官重招募费用错配场景：${report.commanderRecruitRuleMismatchCount}`,
         `- Observation 招募经济错配场景：${report.recruitEconomyMismatchCount}`,
@@ -638,8 +654,8 @@ function renderMarkdown(report: ApkTrainingReport): string {
         `- smoke plies：每场景 ${report.smokePlies} 步，失败场景 ${report.smokeFailureCount} 个`,
         `- 开局设置范围：起始金币 ${report.setupOptions.initialGold.default}（${report.setupOptions.initialGold.min}-${report.setupOptions.initialGold.max}，步进 ${report.setupOptions.initialGold.step}）；单位上限 ${report.setupOptions.unitLimit.default}（${report.setupOptions.unitLimit.min}-${report.setupOptions.unitLimit.max}，步进 ${report.setupOptions.unitLimit.step}）；等级上限 ${report.setupOptions.levelCap.default}（${report.setupOptions.levelCap.min}-${report.setupOptions.levelCap.max}，步进 ${report.setupOptions.levelCap.step}）；模式 ${report.setupOptions.modes.options.map(mode => `${mode}=${report.setupOptions.modes.labels[mode]}`).join('、')}`,
         ``,
-        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | 未实测 approximate | unmapped | 合法动作 | mask | 序列化 | smoke | 固定动作 | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
-        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
+        `| 场景 | 模式 | 地图 | 玩家 | 单位 | 金币 | approximate | approximate ID | 未实测 approximate ID | unmapped | 合法动作 | mask | 序列化 | smoke | 固定动作 | 可招募 | 指挥官费用 | 招募经济 | 模式规则 | APK 观测 | manifest | metadata |`,
+        `| --- | --- | --- | ---: | ---: | ---: | ---: | --- | --- | ---: | ---: | --- | --- | --- | --- | ---: | --- | --- | --- | --- | --- | --- |`
     ];
 
     for (const scenario of report.scenarios) {
@@ -651,7 +667,8 @@ function renderMarkdown(report: ApkTrainingReport): string {
             scenario.initialUnitCount,
             scenario.recommendedGold ?? '-',
             scenario.approximateTileCount,
-            scenario.hasUnverifiedApproximateTerrain ? '是' : '否',
+            scenario.approximateTerrainIds.length > 0 ? scenario.approximateTerrainIds.join(', ') : '无',
+            scenario.unverifiedApproximateTerrainIds.length > 0 ? scenario.unverifiedApproximateTerrainIds.join(', ') : '无',
             scenario.unmappedTileCount,
             scenario.legalActionCount,
             scenario.actionMaskMatched && scenario.smokeActionMaskMatched ? '是' : '否',
@@ -675,7 +692,7 @@ function renderMarkdown(report: ApkTrainingReport): string {
 
 async function main() {
     const options = parseArgs(process.argv.slice(2));
-    const report = await buildReport(options);
+    const report = await buildApkTrainingReport(options);
 
     if (options.json) {
         console.log(JSON.stringify(report, null, 2));

@@ -9,6 +9,7 @@ import { addExp } from '../src/game/abilities';
 import {
     getApkSkirmishRuleConfig,
     getApkSkirmishSetupOptions,
+    getApkSkirmishTrainingScenarios,
     resolveApkSkirmishSetupSelection
 } from '../src/game/apk_skirmish';
 import { getApkSkirmishTrainingMapManifest } from '../src/game/apk_manifest';
@@ -42,6 +43,7 @@ import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game
 import { parseDexKeyRuleMethodEvidence } from './apk_dex_report';
 import { buildApkLanguageRuleReportSync } from './apk_language_rule_report';
 import { buildApkScriptApplicationChecks } from './apk_script_report';
+import { getUnverifiedSkirmishApproximateTerrainIds } from './apk_training_report';
 
 interface CliOptions {
     json: boolean;
@@ -1117,7 +1119,7 @@ function buildDefaultTrainingTerrainRiskActual() {
     const entries = getApkSkirmishTrainingMapManifest();
     const approximateIds = [...new Set(entries.flatMap(entry => entry.terrainConfidence.approximateTerrainIds))]
         .sort((left, right) => left - right);
-    const unverifiedIds = approximateIds.filter(apkTerrainId => ![30, 31].includes(apkTerrainId));
+    const unverifiedIds = getUnverifiedSkirmishApproximateTerrainIds(approximateIds);
     const lowConfidenceIdsInDefaultTraining = approximateIds.filter(apkTerrainId => (
         [80, 81, 82, 83].includes(apkTerrainId)
     ));
@@ -1133,6 +1135,31 @@ function buildDefaultTrainingTerrainRiskActual() {
                 name: entry.name,
                 approximateTerrainIds: entry.terrainConfidence.approximateTerrainIds,
                 approximateTileCount: entry.terrainConfidence.approximateTileCount
+            }))
+    };
+}
+
+function buildTrainingScenarioTerrainGateActual() {
+    const scenarios = getApkSkirmishTrainingScenarios();
+    const approximateIds = [...new Set(scenarios.flatMap(scenario => (
+        scenario.terrainConfidence.approximateTerrainIds
+    )))].sort((left, right) => left - right);
+    const unverifiedIds = getUnverifiedSkirmishApproximateTerrainIds(approximateIds);
+
+    return {
+        scenarioCount: scenarios.length,
+        modes: [...new Set(scenarios.map(scenario => scenario.mode))].sort(),
+        approximateTerrainIds: approximateIds,
+        unverifiedApproximateTerrainIds: unverifiedIds,
+        scenariosWithUnverifiedApproximate: scenarios
+            .filter(scenario => (
+                getUnverifiedSkirmishApproximateTerrainIds(
+                    scenario.terrainConfidence.approximateTerrainIds
+                ).length > 0
+            ))
+            .map(scenario => ({
+                id: scenario.id,
+                approximateTerrainIds: scenario.terrainConfidence.approximateTerrainIds
             }))
     };
 }
@@ -1806,6 +1833,21 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             ]
         },
         buildDefaultTrainingTerrainRiskActual()
+    );
+
+    check(
+        checks,
+        'training-scenario-terrain-gate',
+        '默认 skirmish 训练场景不包含未实测 approximate 地形',
+        'getApkSkirmishTrainingScenarios + apk:training-report 未实测 approximate ID 计算逻辑',
+        {
+            scenarioCount: 40,
+            modes: ['SD', 'SO'],
+            approximateTerrainIds: [30, 31],
+            unverifiedApproximateTerrainIds: [],
+            scenariosWithUnverifiedApproximate: []
+        },
+        buildTrainingScenarioTerrainGateActual()
     );
 
     check(
