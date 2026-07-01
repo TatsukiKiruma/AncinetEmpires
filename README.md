@@ -144,7 +144,8 @@ npm run apk:training-report -- --check
 
 为了后续扩展以及更完善的游戏训练体验，以下部分特性和规则当前仍作为保留项目：
 
-- **指挥官死亡/复活完整规则**：skirmish 已按实机确认实现“阵亡后只能城堡重招募、费用 500 起并每次 +100、保留等级/经验”；DEX 字符串与方法表仍未发现通用指挥官复活 API，战役复活/失败流程不纳入当前 AI 对战目标。
+- **战役事件训练配置**：当前 `RuleConfig.campaignEvents` 已支持静态化表达常见 APK 战役脚本事件，包括回合开始刷兵/伤害、单位结束行动进入区域触发伏兵、击杀指定 code 单位胜利、占领指定地块胜利、启停队伍、改联盟、改金币、改地形、改单位阵营等。该入口用于在不嵌入 Rhino/JS 运行时的前提下构造战役式训练场景；完整 AEI/AEII/AEIII 单图复刻仍需要把反编译脚本逐关转换为事件配置。
+- **指挥官死亡/复活完整规则**：skirmish 已按实机确认实现“阵亡后只能城堡重招募、费用 500 起并每次 +100、保留等级/经验”；DEX 字符串与方法表仍未发现通用指挥官复活 API。战役中“指挥官死亡即失败”可通过 `defeatOnCommanderDeath` 或 `campaignEvents` 的 `unit_destroyed` 触发实现，具体每关仍需按脚本配置。
 - **训练动作空间封装**：当前已提供 `getActionSpaceSchema()` 描述可变参数动作编码模板，并提供 `getFixedActionSpaceDescriptor()`、`encodeFixedActionIndex()`、`getFixedLegalActionIndexes()`、`getFixedActionMask()` 和 `stepFixedAction()` 作为固定稀疏动作空间入口；`EnvStepResult` 会直接输出 `legalActionCodes`、`legalActionEntries`、`fixedActionSpaceDescriptor` 和 `fixedLegalActionIndexes`，其中 `legalActionEntries[]` 将结构化动作、字符串编码、动态 mask 位和固定索引聚合为一条记录，便于训练端跨进程消费动作。`apk:training-report -- --check` 已门禁 schema、`encodeAction/decodeAction` 往返、动态 `legalActions/actionMask` 对齐、动作序列化字段对齐和 40 个默认 APK 训练场景的固定动作索引无碰撞。后续可按 PPO 等训练框架再做压缩编码或张量封装。
 - **战争迷雾 (Fog of War)**：当前为完全公开信息博弈 (Perfect Information Game)。
 - **MCTS / 强化学习模型构建**：目前自带的仅有 Random AI 与基础 Heuristic AI，真正的深度 AI 搜索尚待实现。

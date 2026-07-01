@@ -1432,6 +1432,123 @@ describe('GameEngine Rules', () => {
         expect(env.getObservation().units.find(unit => unit.id === state.units[0].id)!.apkMoveOverrides).toEqual({ 2: 1 });
     });
 
+    it('战役事件: 回合开始可以按静态配置刷兵并记录 once 标记', () => {
+        const state = createDemoState({
+            campaignEvents: [{
+                id: 'wave_p1_t1',
+                trigger: { type: 'turn_start', playerId: 1, turn: 1 },
+                effects: [{
+                    type: 'create_unit',
+                    unit: {
+                        unitClass: 'skeleton',
+                        teamId: 1,
+                        pos: { x: 3, y: 3 },
+                        level: 2,
+                        code: 'wave_skeleton'
+                    }
+                }]
+            }]
+        });
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'end_turn' });
+        const nextState = engine.getState();
+        const spawned = nextState.units.find(unit => unit.apkUnitCode === 'wave_skeleton');
+
+        expect(spawned).toEqual(expect.objectContaining({
+            ownerId: 1,
+            unitClass: 'skeleton',
+            pos: { x: 3, y: 3 },
+            level: 2
+        }));
+        expect(nextState.apkScriptState?.booleans?.['#campaignEvent:wave_p1_t1']).toBe(true);
+        expect(new AncientEmpiresEnv({ initialState: nextState }).getObservation().rules.campaignEvents).toEqual([{
+            id: 'wave_p1_t1',
+            triggerType: 'turn_start',
+            once: true,
+            fired: true
+        }]);
+    });
+
+    it('战役事件: 单位结束行动进入区域可以恢复队伍并触发伏兵', () => {
+        const state = createDemoState({
+            disabledTeams: [1],
+            campaignEvents: [{
+                id: 'ambush_zone',
+                trigger: {
+                    type: 'unit_standby',
+                    selector: { teamId: 0, area: { minX: 1, maxX: 1, minY: 0, maxY: 0 } }
+                },
+                effects: [
+                    { type: 'restore_team', teamId: 1 },
+                    {
+                        type: 'reinforce',
+                        units: [{ unitClass: 'skeleton', teamId: 1, pos: { x: 3, y: 3 }, code: 'ambusher' }]
+                    }
+                ]
+            }]
+        });
+        state.players.push({ id: 2, gold: 500, isAlive: true, commanderDeathCount: 0 });
+        state.units.push({
+            id: 'u_team2',
+            ownerId: 2,
+            unitClass: 'commander',
+            pos: { x: 4, y: 4 },
+            hp: 100,
+            maxHp: 100,
+            hasMoved: false,
+            hasActed: false
+        });
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'wait', unitId: 'u3' });
+        const nextState = engine.getState();
+
+        expect(nextState.rules?.disabledTeams).toEqual([]);
+        expect(nextState.units.find(unit => unit.apkUnitCode === 'ambusher')).toEqual(expect.objectContaining({
+            ownerId: 1,
+            unitClass: 'skeleton',
+            pos: { x: 3, y: 3 }
+        }));
+    });
+
+    it('战役事件: 击杀指定 code 单位可以触发胜利', () => {
+        const state = createDemoState({
+            campaignEvents: [{
+                id: 'boss_defeated',
+                trigger: { type: 'unit_destroyed', selector: { unitCode: 'saeth' } },
+                effects: [{ type: 'game_over', allianceId: 0 }]
+            }]
+        });
+        state.units = [
+            { id: 'attacker', ownerId: 0, unitClass: 'dragon', pos: { x: 0, y: 0 }, hp: 100, maxHp: 100, hasMoved: false, hasActed: false },
+            { id: 'boss', ownerId: 1, unitClass: 'soldier', pos: { x: 1, y: 0 }, hp: 5, maxHp: 100, hasMoved: false, hasActed: false, apkUnitCode: 'saeth' }
+        ];
+
+        const engine = new GameEngine(state);
+        const result = engine.step({ type: 'attack', attackerId: 'attacker', targetId: 'boss' });
+
+        expect(result.done).toBe(true);
+        expect(result.state.winner).toBe(0);
+    });
+
+    it('战役事件: 占领指定地块可以触发胜利', () => {
+        const state = createDemoState({
+            campaignEvents: [{
+                id: 'occupy_target',
+                trigger: { type: 'tile_occupied', pos: { x: 3, y: 1 }, ownerId: 0 },
+                effects: [{ type: 'game_over', allianceId: 0 }]
+            }]
+        });
+        state.units.find(unit => unit.id === 'u3')!.pos = { x: 3, y: 1 };
+
+        const engine = new GameEngine(state);
+        const result = engine.step({ type: 'capture', unitId: 'u3' });
+
+        expect(result.done).toBe(true);
+        expect(result.state.winner).toBe(0);
+    });
+
     it('APK 导入地图优先使用 data.bin 的原始 tile 数值', () => {
         const state = createDemoState();
         state.map.width = 4;
@@ -5001,6 +5118,7 @@ describe('GameEngine Rules', () => {
                 alliances: { 0: 5, 1: 5 },
                 disabledTeams: [1],
                 commanderUnitIds: {},
+                campaignEvents: [],
                 teams: {
                     0: {
                         initialGold: null,

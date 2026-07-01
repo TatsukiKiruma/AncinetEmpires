@@ -5,6 +5,7 @@ import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndea
 import { getMoveCostTo, getDistance } from './map';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
 import { getTileHealPerTurn, getTileTerrainKey, setTileOwnerForRules, setTileTerrainForRules, tileHasTerrainTag } from './terrain_rules';
+import { applyCampaignEvents } from './campaign_events';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
@@ -159,12 +160,11 @@ export class GameEngine {
         unit.hp = Math.min(maxHp, unit.hp + amount);
     }
 
-    private removeDeadUnits(): number {
-        const preLen = this.state.units.length;
+    private removeDeadUnits(): Unit[] {
         const deadUnits = this.state.units.filter(u => u.hp <= 0);
         this.recordCommanderDeaths(deadUnits);
         this.state.units = this.state.units.filter(u => u.hp > 0);
-        return preLen - this.state.units.length;
+        return deadUnits;
     }
 
     private startTurnForPlayer(playerId: number) {
@@ -308,6 +308,8 @@ export class GameEngine {
                 }
             }
         });
+
+        applyCampaignEvents(this.state, { type: 'turn_start', playerId, turn: this.state.turn });
     }
 
     private consumeGraveAtUnitPosition(unit: Unit) {
@@ -413,6 +415,7 @@ export class GameEngine {
         let reward = 0;
         let info = '';
         const ruleConfig = getRuleConfig(this.state);
+        let standbyUnitId: string | null = null;
 
         switch (action.type) {
             case 'move': {
@@ -537,6 +540,7 @@ export class GameEngine {
                     } else {
                         attacker.hasActed = true;
                     }
+                    standbyUnitId = attacker.id;
                 }
                 break;
             }
@@ -563,6 +567,7 @@ export class GameEngine {
                     
                     healer.hasMoved = true;
                     healer.hasActed = true;
+                    standbyUnitId = healer.id;
                     info = `Healer ${healer.id} healed ${target.id} for ${healVal} points.`;
                 }
                 break;
@@ -597,6 +602,7 @@ export class GameEngine {
                     
                     summoner.hasMoved = true;
                     summoner.hasActed = true;
+                    standbyUnitId = summoner.id;
                     info = `Summoner ${summoner.id} summoned skeleton at ${action.spawnPos.x},${action.spawnPos.y}.`;
                 }
                 break;
@@ -615,6 +621,7 @@ export class GameEngine {
                     
                     supporter.hasMoved = true;
                     supporter.hasActed = true;
+                    standbyUnitId = supporter.id;
                     info = `Supporter ${supporter.id} reset action state of ${target.id}.`;
                 }
                 break;
@@ -634,6 +641,7 @@ export class GameEngine {
                     
                     destroyer.hasMoved = true;
                     destroyer.hasActed = true;
+                    standbyUnitId = destroyer.id;
                 }
                 break;
             }
@@ -641,11 +649,19 @@ export class GameEngine {
                 const unit = this.state.units.find(u => u.id === action.unitId);
                 if (unit) {
                     const tile = this.state.map.tiles[unit.pos.y][unit.pos.x];
+                    const previousOwnerId = tile.ownerId;
                     setTileOwnerForRules(tile, unit.ownerId);
                     info = `Unit ${unit.id} captured terrain at ${unit.pos.x},${unit.pos.y}`;
                     reward += 10;
                     unit.hasMoved = true;
                     unit.hasActed = true;
+                    standbyUnitId = unit.id;
+                    applyCampaignEvents(this.state, {
+                        type: 'tile_occupied',
+                        pos: { ...unit.pos },
+                        ownerId: unit.ownerId,
+                        previousOwnerId
+                    });
                 }
                 break;
             }
@@ -661,6 +677,7 @@ export class GameEngine {
                     }
                     unit.hasMoved = true;
                     unit.hasActed = true;
+                    standbyUnitId = unit.id;
                 }
                 break;
             }
@@ -670,6 +687,7 @@ export class GameEngine {
                     unit.hasMoved = true;
                     unit.hasActed = true;
                     this.triggerAuras(unit);
+                    standbyUnitId = unit.id;
                     info = `Unit ${unit.id} waited.`;
                 }
                 break;
@@ -726,6 +744,7 @@ export class GameEngine {
                         apkPendingRecruitSource: 'commander_castle'
                     });
                     this.state.pendingUnitId = newUnitId;
+                    standbyUnitId = newUnitId;
                     info = `招募单位已部署，等待完成行动 at ${action.to.x},${action.to.y}`;
                     reward += 1; 
                 } else {
@@ -796,12 +815,22 @@ export class GameEngine {
             }
         }
 
+        if (standbyUnitId) {
+            const standbyUnit = this.state.units.find(unit => unit.id === standbyUnitId && unit.hp > 0);
+            if (standbyUnit?.hasActed) {
+                applyCampaignEvents(this.state, { type: 'unit_standby', unit: { ...standbyUnit, pos: { ...standbyUnit.pos } } });
+            }
+        }
+
         this.checkWinConditions();
 
-        const removedDeadUnits = this.removeDeadUnits();
-        if (removedDeadUnits > 0) {
+        const deadUnits = this.removeDeadUnits();
+        if (deadUnits.length > 0) {
+            for (const deadUnit of deadUnits) {
+                applyCampaignEvents(this.state, { type: 'unit_destroyed', unit: deadUnit });
+            }
             info += ` Unit(s) died.`;
-            reward += removedDeadUnits * 10;
+            reward += deadUnits.length * 10;
         }
 
         // 清理 pendingUnitId：如果指定的单位已经执行完动作(hasActed) 或 死亡(不存在)，或者当前回合结束了，或它是非法状态
@@ -873,7 +902,10 @@ export class GameEngine {
                 this.state.turn += 1;
             }
             this.startTurnForPlayer(nextTurn.playerId);
-            this.removeDeadUnits();
+            const deadUnits = this.removeDeadUnits();
+            for (const deadUnit of deadUnits) {
+                applyCampaignEvents(this.state, { type: 'unit_destroyed', unit: deadUnit });
+            }
             this.checkWinConditions();
             guard += 1;
         }

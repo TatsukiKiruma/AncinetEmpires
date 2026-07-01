@@ -51,7 +51,7 @@ export interface Observation {
   metadata?: GameMetadata;
   terrainMappingSummary?: TerrainMappingSummary;
   apkScriptState?: ApkScriptState;
-  rules: {
+    rules: {
     initialGold: number | null;
     incomeVillage: number;
     incomeCastle: number;
@@ -74,6 +74,12 @@ export interface Observation {
     alliances: Record<number, number>;
     disabledTeams: number[];
     commanderUnitIds: Record<number, string>;
+    campaignEvents: Array<{
+      id: string;
+      triggerType: string;
+      once: boolean;
+      fired: boolean;
+    }>;
     teams: Record<number, {
       initialGold: number | null;
       unitLimit: number | null;
@@ -817,6 +823,12 @@ export class AncientEmpiresEnv {
               alliances: { ...rules.alliances },
               disabledTeams: [...rules.disabledTeams],
               commanderUnitIds: { ...rules.commanderUnitIds },
+              campaignEvents: rules.campaignEvents.map(event => ({
+                  id: event.id,
+                  triggerType: event.trigger.type,
+                  once: event.once !== false,
+                  fired: state.apkScriptState?.booleans?.[`#campaignEvent:${event.id}`] === true
+              })),
               teams: Object.fromEntries(Object.entries(rules.teams).map(([teamId, teamRules]) => [
                   Number(teamId),
                   {

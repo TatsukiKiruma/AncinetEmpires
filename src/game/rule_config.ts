@@ -26,6 +26,7 @@ export const DEFAULT_RULE_CONFIG = {
     alliances: {},
     disabledTeams: [],
     commanderUnitIds: {},
+    campaignEvents: [],
     teams: {}
 } satisfies Required<RuleConfig>;
 
@@ -47,6 +48,9 @@ export function getRuleConfig(state: GameState): Required<RuleConfig> {
             ...DEFAULT_RULE_CONFIG.commanderUnitIds,
             ...(rules.commanderUnitIds ?? {})
         },
+        campaignEvents: rules.campaignEvents
+            ? JSON.parse(JSON.stringify(rules.campaignEvents))
+            : [...DEFAULT_RULE_CONFIG.campaignEvents],
         teams: {
             ...DEFAULT_RULE_CONFIG.teams,
             ...(rules.teams ?? {})
@@ -71,6 +75,7 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
         if (base.prices) merged.prices = { ...base.prices };
         if (base.alliances) merged.alliances = { ...base.alliances };
         if (base.commanderUnitIds) merged.commanderUnitIds = { ...base.commanderUnitIds };
+        if (base.campaignEvents) merged.campaignEvents = JSON.parse(JSON.stringify(base.campaignEvents));
         if (base.teams) {
             merged.teams = Object.fromEntries(
                 Object.entries(base.teams).map(([teamId, teamRules]) => [teamId, cloneTeamRuleConfig(teamRules)])
@@ -99,6 +104,9 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
     if (overrides.defeatOnCommanderDeath !== undefined) merged.defeatOnCommanderDeath = overrides.defeatOnCommanderDeath;
     if (overrides.defeatOnNoCastles !== undefined) merged.defeatOnNoCastles = overrides.defeatOnNoCastles;
     if (overrides.disabledTeams !== undefined) merged.disabledTeams = [...overrides.disabledTeams];
+    if (overrides.campaignEvents !== undefined) {
+        merged.campaignEvents = JSON.parse(JSON.stringify(overrides.campaignEvents));
+    }
 
     if (overrides.prices) {
         merged.prices = {

@@ -117,6 +117,88 @@ export interface TeamRuleConfig {
     recruitableUnits?: UnitClass[]; // 队伍允许招募的单位列表
 }
 
+export interface CampaignArea {
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+}
+
+export interface CampaignUnitSelector {
+    teamId?: number;
+    unitId?: string;
+    unitCode?: string;
+    unitClass?: UnitClass;
+    commanderOfTeam?: number;
+    pos?: Position;
+    area?: CampaignArea;
+}
+
+export type CampaignEventTrigger =
+    | {
+        type: 'turn_start';
+        playerId?: number;
+        turn?: number;
+        minTurn?: number;
+        maxTurn?: number;
+        everyTurns?: number;
+    }
+    | {
+        type: 'unit_standby';
+        selector?: CampaignUnitSelector;
+    }
+    | {
+        type: 'unit_destroyed';
+        selector?: CampaignUnitSelector;
+    }
+    | {
+        type: 'tile_occupied';
+        pos?: Position;
+        ownerId?: number;
+        previousOwnerId?: number | null;
+    };
+
+export interface CampaignReinforcement {
+    unitClass: UnitClass;
+    teamId: number;
+    pos: Position;
+    level?: UnitLevel;
+    hp?: number;
+    head?: number;
+    code?: string;
+    static?: boolean;
+    targeted?: boolean;
+    hasActed?: boolean;
+}
+
+export type CampaignEventEffect =
+    | { type: 'create_unit'; unit: CampaignReinforcement }
+    | { type: 'reinforce'; units: CampaignReinforcement[] }
+    | { type: 'damage_units'; selector?: CampaignUnitSelector; amount: number }
+    | { type: 'change_unit_hp'; selector?: CampaignUnitSelector; delta: number }
+    | { type: 'change_unit_team'; selector?: CampaignUnitSelector; teamId: number; resetStatus?: boolean }
+    | { type: 'destroy_units'; selector?: CampaignUnitSelector }
+    | { type: 'remove_units'; selector?: CampaignUnitSelector }
+    | { type: 'move_unit'; selector?: CampaignUnitSelector; to: Position; endAction?: boolean }
+    | { type: 'set_tile'; pos: Position; terrainId?: number; ownerId?: number | null }
+    | { type: 'restore_team'; teamId: number }
+    | { type: 'disable_team'; teamId: number }
+    | { type: 'destroy_team'; teamId: number }
+    | { type: 'set_alliance'; teamId: number; allianceId: number }
+    | { type: 'game_over'; allianceId: number }
+    | { type: 'set_boolean'; key: string; value: boolean }
+    | { type: 'set_integer'; key: string; value: number }
+    | { type: 'change_gold'; teamId: number; delta: number }
+    | { type: 'set_current_team'; teamId: number };
+
+export interface CampaignEventConfig {
+    id: string;
+    trigger: CampaignEventTrigger;
+    effects: CampaignEventEffect[];
+    once?: boolean;
+    enabled?: boolean;
+}
+
 export interface RuleConfig {
     initialGold?: number;             // 全局初始金币，队伍配置可覆盖
     incomeVillage?: number;          // 村庄每回合收入
@@ -140,6 +222,7 @@ export interface RuleConfig {
     alliances?: Record<number, number>; // 队伍到联盟 ID 的映射；未配置时每队自成联盟
     disabledTeams?: number[];         // 被脚本/配置禁用的队伍；禁用队伍不参与回合和胜负判定
     commanderUnitIds?: Record<number, string>; // 脚本指定的队伍指挥官单位 ID；未配置时按 commander 兵种判断
+    campaignEvents?: CampaignEventConfig[]; // APK 战役脚本事件的静态化表达；用于训练复现刷兵、胜负、改队伍等中途变化
     teams?: Record<number, TeamRuleConfig>;
 }
 
