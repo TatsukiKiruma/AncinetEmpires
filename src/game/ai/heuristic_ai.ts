@@ -21,18 +21,36 @@ export class HeuristicAI {
         if (actions.length === 0) return { type: 'end_turn' };
 
         const state = engine.getState();
-        let bestAction = actions[0];
-        let maxScore = -Infinity;
+        const scoredActions = actions.map(action => ({
+            action,
+            score: this.scoreAction(engine, state, playerId, action)
+        }));
+        const urgentAction = this.pickBest(scoredActions.filter(item => item.score >= 50000));
+        if (urgentAction) return urgentAction.action;
 
-        for (const action of actions) {
-            const score = this.scoreAction(engine, state, playerId, action);
-            if (score > maxScore) {
-                maxScore = score;
-                bestAction = action;
+        const realUnitActions = scoredActions.filter(({ action }) => (
+            action.type !== 'recruit_to_castle'
+            && action.type !== 'recruit_and_deploy'
+            && action.type !== 'wait'
+            && action.type !== 'end_turn'
+            && action.type !== 'surrender'
+        ));
+        const bestRealUnitAction = this.pickBest(realUnitActions);
+        if (bestRealUnitAction) return bestRealUnitAction.action;
+
+        return this.pickBest(scoredActions)?.action ?? actions[0];
+    }
+
+    private pickBest<T extends { score: number }>(items: T[]): T | null {
+        let bestItem: T | null = null;
+        let bestScore = -Infinity;
+        for (const item of items) {
+            if (item.score > bestScore) {
+                bestScore = item.score;
+                bestItem = item;
             }
         }
-
-        return bestAction;
+        return bestItem;
     }
 
     private scoreAction(engine: GameEngine, state: GameState, playerId: number, action: Action): number {
@@ -89,11 +107,25 @@ export class HeuristicAI {
         const attackerAfter = this.getUnit(afterState, attacker.id);
         const killsTarget = !targetAfter || targetAfter.hp <= 0;
         const losesAttacker = !attackerAfter || attackerAfter.hp <= 0;
+        const attackerHpAfter = Math.max(0, attackerAfter?.hp ?? 0);
+        const hpLost = Math.max(0, attacker.hp - attackerHpAfter);
+        const counterRiskMultiplier = isCommanderUnit(state, attacker) ? 2.8 : 1;
+        const newTargetStatus = !target.status && targetAfter?.status ? targetAfter.status.type : null;
+        const newAttackerStatus = !attacker.status && attackerAfter?.status ? attackerAfter.status.type : null;
+        const targetOnOwnCastle = this.isOwnCastleTile(state, playerId, target.pos);
 
         let score = 5200 + targetValue * damageRatio * 8 + damage * 22;
         if (killsTarget) score += 15000 + targetValue * 8;
         if (isCommanderUnit(state, target)) score += killsTarget ? 18000 : 4500;
-        if (losesAttacker) score -= attackerValue * 6 + 2200;
+        if (targetOnOwnCastle) score += 6000;
+        if (newTargetStatus === 'poisoned') score += targetValue * 0.7;
+        if (newTargetStatus === 'blinded') score += targetValue * 1.1;
+        if (newTargetStatus === 'weakened') score += targetValue * 0.8;
+        if (newAttackerStatus === 'poisoned') score -= attackerValue * 0.6;
+        if (newAttackerStatus === 'blinded') score -= attackerValue;
+        if (newAttackerStatus === 'weakened') score -= attackerValue * 0.7;
+        score -= hpLost * attackerValue * counterRiskMultiplier / Math.max(1, getEffectiveStats(attacker).maxHp);
+        if (losesAttacker) score -= attackerValue * (isCommanderUnit(state, attacker) ? 14 : 8) + 2200;
         if (attacker.hp < getEffectiveStats(attacker).maxHp * 0.35 && !killsTarget) score -= 900;
 
         return score + this.rng() * 30;
@@ -106,7 +138,7 @@ export class HeuristicAI {
         if (!tile) return -1000;
         const terrain = getTileTerrainConfig(tile);
         const isEnemyOwned = tile.ownerId !== null && areEnemyPlayers(state, playerId, tile.ownerId);
-        const base = terrain.key === 'castle' ? 14000 : 9500;
+        const base = terrain.key === 'castle' ? 18000 : 16500;
         return base + (isEnemyOwned ? 2200 : 700) + this.rng() * 20;
     }
 
@@ -157,13 +189,17 @@ export class HeuristicAI {
 
         const abilities = UNIT_CONFIGS[unit.unitClass].abilities;
         const canCaptureCastle = abilities.includes('castle_capturer');
+        const strategicTarget = this.getStrategicTarget(state, playerId, unit);
         const objectiveBefore = this.nearestObjectiveDistance(state, playerId, unit, unit.pos);
         const objectiveAfter = this.nearestObjectiveDistance(state, playerId, unit, to);
+        const strategicBefore = strategicTarget ? getDistance(unit.pos, strategicTarget) : null;
+        const strategicAfter = strategicTarget ? getDistance(to, strategicTarget) : null;
         const castleBefore = this.nearestCastleObjectiveDistance(state, playerId, unit.pos);
         const castleAfter = this.nearestCastleObjectiveDistance(state, playerId, to);
         const enemyBefore = this.nearestEnemyDistance(state, playerId, unit.pos);
         const enemyAfter = this.nearestEnemyDistance(state, playerId, to);
         const objectiveImprovement = this.distanceImprovement(objectiveBefore, objectiveAfter);
+        const strategicImprovement = this.distanceImprovement(strategicBefore, strategicAfter);
         const castleImprovement = this.distanceImprovement(castleBefore, castleAfter);
         const enemyImprovement = this.distanceImprovement(enemyBefore, enemyAfter);
         const tile = state.map.tiles[to.y]?.[to.x];
@@ -171,21 +207,31 @@ export class HeuristicAI {
         const positionPressure = this.scorePositionPressure(state, playerId, to);
         const captureSetup = this.isCapturableTileForUnit(state, playerId, unit, to) ? 2400 : 0;
         const castleSetup = this.isUnfriendlyCastleTile(state, playerId, to)
-            ? (canCaptureCastle ? 5200 : 650)
+            ? (canCaptureCastle ? 5200 : -2400)
             : 0;
         const attackSetup = this.canThreatenEnemyFrom(state, playerId, unit, to) ? 1300 : 0;
         const castleDefenseSetup = this.isThreatenedOwnCastle(state, playerId, to) ? 68000 : 0;
+        const cleanupMode = this.isCleanupMode(state, playerId);
+        const cleanupPressure = cleanupMode && strategicAfter !== null ? Math.max(0, 18 - strategicAfter) * 130 : 0;
+        const commanderCastlePush = cleanupMode && canCaptureCastle && castleAfter !== null ? Math.max(0, 24 - castleAfter) * 190 : 0;
+        const ownCastleBlockPenalty = this.isOwnCastleTile(state, playerId, to) && !this.isThreatenedOwnCastle(state, playerId, to)
+            ? (canCaptureCastle ? 0 : -900)
+            : 0;
 
         return (
             base
             + castleDefenseSetup
+            + cleanupPressure
+            + commanderCastlePush
             + objectiveImprovement * 620
+            + strategicImprovement * (cleanupMode ? 1100 : 720)
             + castleImprovement * (canCaptureCastle ? 980 : 180)
             + enemyImprovement * 340
             + captureSetup
             + castleSetup
             + attackSetup
             + terrainBonus
+            + ownCastleBlockPenalty
             + positionPressure
             - Math.max(0, objectiveAfter ?? 0) * 12
             + this.rng() * 25
@@ -222,7 +268,7 @@ export class HeuristicAI {
         if (shouldRestoreCommander && unitClass === 'commander') {
             const distanceToCastle = this.nearestCastleObjectiveDistance(state, playerId, deployPos) ?? distanceToObjective;
             return (
-                16500
+                56000
                 + this.countEnemyOwnedCastles(state, playerId) * 500
                 + Math.max(0, 24 - distanceToCastle) * 130
                 + Math.max(0, goldAfterRecruit) * 0.04
@@ -232,12 +278,14 @@ export class HeuristicAI {
 
         const classPriority = this.getRecruitClassPriority(unitClass);
         const advancedRecruitBonus = this.scoreAdvancedRecruitBonus(state, playerId, unitClass);
+        const counterRecruitBonus = this.scoreCounterRecruitBonus(state, playerId, unitClass);
 
         return (
             3600
             + classPriority
             + cost * 6.8
             + advancedRecruitBonus
+            + counterRecruitBonus
             + Math.min(unitCount, 14) * 90
             + Math.max(0, 18 - distanceToObjective) * 35
             + Math.max(0, 14 - distanceToEnemy) * 22
@@ -305,6 +353,36 @@ export class HeuristicAI {
         return 0;
     }
 
+    private scoreCounterRecruitBonus(state: GameState, playerId: number, unitClass: UnitClass): number {
+        const enemies = state.units.filter(unit => unit.hp > 0 && areEnemyPlayers(state, playerId, unit.ownerId));
+        let score = 0;
+
+        for (const enemy of enemies) {
+            const enemyAbilities = UNIT_CONFIGS[enemy.unitClass].abilities;
+            const enemyValue = this.getUnitValue(state, enemy);
+            if (enemyAbilities.includes('flying') && (unitClass === 'archer' || unitClass === 'wolf_archer')) {
+                score += enemyValue * 1.4;
+            }
+            if (enemy.unitClass === 'dragon' && (unitClass === 'mermaid' || unitClass === 'wolf_archer')) {
+                score += 850;
+            }
+            if ((enemy.unitClass === 'dark_mage' || enemy.unitClass === 'witch') && (unitClass === 'catapult' || unitClass === 'paladin')) {
+                score += 650;
+            }
+            if (enemy.unitClass === 'wolf' && (unitClass === 'wolf_archer' || unitClass === 'druid' || unitClass === 'catapult')) {
+                score += 700;
+            }
+            if (enemy.unitClass === 'golem' && (unitClass === 'water_elemental' || unitClass === 'paladin' || unitClass === 'ice_elemental')) {
+                score += 600;
+            }
+            if (enemyAbilities.includes('summoner') && (unitClass === 'wolf' || unitClass === 'wolf_archer')) {
+                score += 500;
+            }
+        }
+
+        return Math.min(score, 3600);
+    }
+
     private distanceImprovement(before: number | null, after: number | null): number {
         if (before === null || after === null) return 0;
         return before - after;
@@ -327,6 +405,89 @@ export class HeuristicAI {
             .map(unit => getDistance(pos, unit.pos));
         const nearest = distances.length > 0 ? Math.min(...distances) : 99;
         return Math.max(0, 8 - nearest) * 90;
+    }
+
+    private getStrategicTarget(state: GameState, playerId: number, unit: Unit): Position | null {
+        const abilities = UNIT_CONFIGS[unit.unitClass].abilities;
+
+        if (abilities.includes('supporter')) {
+            const ally = this.getHighestValueSupportTarget(state, playerId, unit);
+            if (ally) return ally.pos;
+        }
+
+        if (abilities.includes('castle_capturer')) {
+            const castle = this.nearestEnemyCastlePosition(state, playerId, unit.pos);
+            if (castle) return castle;
+        }
+
+        if (abilities.includes('village_capturer')) {
+            const village = this.nearestCapturableVillagePosition(state, playerId, unit.pos);
+            if (village) return village;
+        }
+
+        if (abilities.includes('repairer')) {
+            const damagedTown = this.nearestDamagedTownPosition(state, playerId, unit.pos);
+            if (damagedTown) return damagedTown;
+        }
+
+        if (abilities.includes('healer')) {
+            const ally = this.getHighestValueHurtAlly(state, playerId, unit);
+            if (ally) return ally.pos;
+        }
+
+        const enemy = this.getBestEnemyTarget(state, playerId, unit.pos);
+        return enemy?.pos ?? this.nearestGlobalObjectivePosition(state, playerId, unit.pos);
+    }
+
+    private getHighestValueSupportTarget(state: GameState, playerId: number, supporter: Unit): Unit | null {
+        let bestUnit: Unit | null = null;
+        let bestScore = -Infinity;
+        for (const unit of state.units) {
+            if (unit.id === supporter.id || unit.ownerId !== playerId || unit.hp <= 0 || !unit.hasActed) continue;
+            const score = this.getUnitValue(state, unit) + getEffectiveStats(unit).attack * 8;
+            if (score > bestScore) {
+                bestScore = score;
+                bestUnit = unit;
+            }
+        }
+        return bestUnit;
+    }
+
+    private getHighestValueHurtAlly(state: GameState, playerId: number, healer: Unit): Unit | null {
+        let bestUnit: Unit | null = null;
+        let bestScore = -Infinity;
+        for (const unit of state.units) {
+            if (unit.id === healer.id || unit.ownerId !== playerId || unit.hp <= 0) continue;
+            const missingHp = getEffectiveStats(unit).maxHp - unit.hp;
+            if (missingHp <= 0) continue;
+            const score = this.getUnitValue(state, unit) * missingHp / Math.max(1, getEffectiveStats(unit).maxHp);
+            if (score > bestScore) {
+                bestScore = score;
+                bestUnit = unit;
+            }
+        }
+        return bestUnit;
+    }
+
+    private getBestEnemyTarget(state: GameState, playerId: number, from: Position): Unit | null {
+        let bestUnit: Unit | null = null;
+        let bestScore = -Infinity;
+        for (const enemy of state.units) {
+            if (enemy.hp <= 0 || !areEnemyPlayers(state, playerId, enemy.ownerId)) continue;
+            const enemyValue = this.getUnitValue(state, enemy);
+            const hpRatio = enemy.hp / Math.max(1, getEffectiveStats(enemy).maxHp);
+            const score = (
+                enemyValue * (1.4 - hpRatio * 0.35)
+                + (isCommanderUnit(state, enemy) ? 5200 : 0)
+                + (this.isOwnCastleTile(state, playerId, enemy.pos) ? 6000 : 0)
+                - getDistance(from, enemy.pos) * 85
+            );
+            if (score > bestScore) {
+                bestScore = score;
+                bestUnit = enemy;
+            }
+        }
+        return bestUnit;
     }
 
     private nearestObjectiveDistance(state: GameState, playerId: number, unit: Unit, pos: Position): number | null {
@@ -362,6 +523,24 @@ export class HeuristicAI {
             }
         }
         return distances.length > 0 ? Math.min(...distances) : this.nearestEnemyDistance(state, playerId, pos);
+    }
+
+    private nearestGlobalObjectivePosition(state: GameState, playerId: number, pos: Position): Position | null {
+        let bestPos: Position | null = null;
+        let bestDistance = Infinity;
+        for (let y = 0; y < state.map.height; y += 1) {
+            for (let x = 0; x < state.map.width; x += 1) {
+                const tile = state.map.tiles[y][x];
+                const terrain = getTileTerrainConfig(tile);
+                if ((terrain.key !== 'town' && terrain.key !== 'castle') || !this.isUnfriendlyOwner(state, playerId, tile.ownerId)) continue;
+                const distance = getDistance(pos, { x, y });
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestPos = { x, y };
+                }
+            }
+        }
+        return bestPos;
     }
 
     private isCapturableTileForUnit(state: GameState, playerId: number, unit: Unit, pos: Position): boolean {
@@ -411,6 +590,33 @@ export class HeuristicAI {
         return count;
     }
 
+    private countEnemyUnits(state: GameState, playerId: number): number {
+        return state.units.filter(unit => unit.hp > 0 && areEnemyPlayers(state, playerId, unit.ownerId)).length;
+    }
+
+    private totalCombatValue(state: GameState, playerId: number): number {
+        return state.units
+            .filter(unit => unit.ownerId === playerId && unit.hp > 0)
+            .reduce((sum, unit) => (
+                sum + this.getUnitValue(state, unit) * Math.max(0, unit.hp) / Math.max(1, getEffectiveStats(unit).maxHp)
+            ), 0);
+    }
+
+    private totalEnemyCombatValue(state: GameState, playerId: number): number {
+        return state.units
+            .filter(unit => unit.hp > 0 && areEnemyPlayers(state, playerId, unit.ownerId))
+            .reduce((sum, unit) => (
+                sum + this.getUnitValue(state, unit) * Math.max(0, unit.hp) / Math.max(1, getEffectiveStats(unit).maxHp)
+            ), 0);
+    }
+
+    private isCleanupMode(state: GameState, playerId: number): boolean {
+        const enemyUnits = this.countEnemyUnits(state, playerId);
+        const ownValue = this.totalCombatValue(state, playerId);
+        const enemyValue = this.totalEnemyCombatValue(state, playerId);
+        return enemyUnits <= 6 || ownValue > enemyValue * 1.8 + 900;
+    }
+
     private isThreatenedOwnCastle(state: GameState, playerId: number, pos: Position): boolean {
         const tile = state.map.tiles[pos.y]?.[pos.x];
         if (!tile || tile.ownerId !== playerId || getTileTerrainConfig(tile).key !== 'castle') return false;
@@ -449,6 +655,43 @@ export class HeuristicAI {
             )).length;
     }
 
+    private nearestEnemyCastlePosition(state: GameState, playerId: number, pos: Position): Position | null {
+        return this.nearestTerrainPosition(state, playerId, pos, 'castle', true);
+    }
+
+    private nearestCapturableVillagePosition(state: GameState, playerId: number, pos: Position): Position | null {
+        return this.nearestTerrainPosition(state, playerId, pos, 'town', true);
+    }
+
+    private nearestDamagedTownPosition(state: GameState, playerId: number, pos: Position): Position | null {
+        return this.nearestTerrainPosition(state, playerId, pos, 'damaged_town', false);
+    }
+
+    private nearestTerrainPosition(
+        state: GameState,
+        playerId: number,
+        pos: Position,
+        terrainKey: string,
+        requireUnfriendlyOwner: boolean
+    ): Position | null {
+        let bestPos: Position | null = null;
+        let bestDistance = Infinity;
+        for (let y = 0; y < state.map.height; y += 1) {
+            for (let x = 0; x < state.map.width; x += 1) {
+                const tile = state.map.tiles[y][x];
+                if (getTileTerrainConfig(tile).key !== terrainKey) continue;
+                if (requireUnfriendlyOwner && !this.isUnfriendlyOwner(state, playerId, tile.ownerId)) continue;
+                if (!requireUnfriendlyOwner && tile.ownerId !== playerId && tile.ownerId !== null) continue;
+                const distance = getDistance(pos, { x, y });
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    bestPos = { x, y };
+                }
+            }
+        }
+        return bestPos;
+    }
+
     private nearestCastleObjectiveDistance(state: GameState, playerId: number, pos: Position): number | null {
         const distances: number[] = [];
         for (let y = 0; y < state.map.height; y += 1) {
@@ -465,6 +708,11 @@ export class HeuristicAI {
     private isUnfriendlyCastleTile(state: GameState, playerId: number, pos: Position): boolean {
         const tile = state.map.tiles[pos.y]?.[pos.x];
         return !!tile && getTileTerrainConfig(tile).key === 'castle' && this.isUnfriendlyOwner(state, playerId, tile.ownerId);
+    }
+
+    private isOwnCastleTile(state: GameState, playerId: number, pos: Position): boolean {
+        const tile = state.map.tiles[pos.y]?.[pos.x];
+        return !!tile && tile.ownerId === playerId && getTileTerrainConfig(tile).key === 'castle';
     }
 
     private scorePositionPressure(state: GameState, playerId: number, pos: Position): number {

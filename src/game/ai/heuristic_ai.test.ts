@@ -83,6 +83,25 @@ describe('HeuristicAI', () => {
         expect(action).toMatchObject({ type: 'recruit_and_deploy', unitClass: 'dragon', castlePos: { x: 0, y: 0 } });
     });
 
+    it('有真实单位动作时不先普通招募', () => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        state.players.find(player => player.id === 0)!.gold = 2000;
+
+        const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
+
+        expect(action.type).not.toMatch(/^recruit/);
+    });
+
+    it('收官时指挥官优先向敌方城堡推进', () => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        state.units = state.units.filter(unit => unit.id !== 'u3' && unit.id !== 'u4');
+        state.players.find(player => player.id === 0)!.gold = 2000;
+
+        const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
+
+        expect(action).toMatchObject({ type: 'move', unitId: 'u1' });
+    });
+
     it('敌方指挥官下回合可到己方空城堡时优先移动占位', () => {
         const state = createDemoState(getApkSkirmishRuleConfig('SD'));
         state.units = state.units.filter(unit => unit.id !== 'u1');
