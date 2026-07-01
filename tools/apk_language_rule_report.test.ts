@@ -128,7 +128,7 @@ describe('APK 语言表能力规则复核工具', () => {
         });
         expect(byId['tile-language-rules'].actual).toEqual({
             templeStatusAfterTurnStart: null,
-            templeHpAfterTurnStart: 60,
+            templeHpAfterTurnStart: 70,
             ruinCanBeRepaired: true,
             repairedTerrainId: 9,
             repairedOwnerId: 0,

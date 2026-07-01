@@ -1298,7 +1298,7 @@ function buildApkLanguageRuleReportFromEntries(
         'P_TILE_TEMPLE_DESCRIPTION; P_TILE_RUIN_DESCRIPTION; P_TILE_VILLAGE_DESCRIPTION',
         {
             templeStatusAfterTurnStart: null,
-            templeHpAfterTurnStart: 60,
+            templeHpAfterTurnStart: 70,
             ruinCanBeRepaired: true,
             repairedTerrainId: 9,
             repairedOwnerId: 0,

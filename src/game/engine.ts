@@ -1,15 +1,36 @@
-import { Action, GameState, StepResult, Unit, Position, UnitClass } from './types';
+import { Action, GameState, StepResult, Unit, Position, UnitClass, UnitStatus } from './types';
 import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
 import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
-import { getTileHealPerTurn, getTileTerrainKey, setTileOwnerForRules, setTileTerrainForRules, tileHasTerrainTag } from './terrain_rules';
+import { getTileHealPerTurn, getTileTerrainKey, setTileOwnerForRules, setTileTerrainForRules, tileClearsNegativeStatusAtTurnStart } from './terrain_rules';
 import { applyCampaignEvents } from './campaign_events';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
     if (!p1 || !p2) return p1 === p2;
     return p1.x === p2.x && p1.y === p2.y;
+}
+
+function isNegativeStatus(status?: UnitStatus): boolean {
+    return status?.type === 'poisoned' || status?.type === 'blinded' || status?.type === 'weakened';
+}
+
+function getStatusDuration(status: UnitStatus): number {
+    return status.type === 'poisoned'
+        ? (status.remainingTicks ?? status.remainingTurns ?? 0)
+        : (status.remainingTurns ?? status.remainingTicks ?? 0);
+}
+
+function setStatusDuration(status: UnitStatus, duration: number): void {
+    if (status.type === 'poisoned') {
+        status.remainingTicks = duration;
+        delete status.remainingTurns;
+        return;
+    }
+
+    status.remainingTurns = duration;
+    delete status.remainingTicks;
 }
 
 function areActionsEqual(a1: Action, a2: Action): boolean {
@@ -160,6 +181,22 @@ export class GameEngine {
         unit.hp = Math.min(maxHp, unit.hp + amount);
     }
 
+    private decayStatusAtTurnStart(unit: Unit) {
+        if (!unit.status) return;
+
+        const nextDuration = getStatusDuration(unit.status) - 1;
+        if (nextDuration < 0) {
+            delete unit.status;
+            return;
+        }
+
+        setStatusDuration(unit.status, nextDuration);
+    }
+
+    private applyTurnStartHpDelta(unit: Unit, maxHp: number, delta: number) {
+        unit.hp = Math.max(0, Math.min(maxHp, unit.hp + delta));
+    }
+
     private removeDeadUnits(): Unit[] {
         const deadUnits = this.state.units.filter(u => u.hp <= 0);
         this.recordCommanderDeaths(deadUnits);
@@ -211,9 +248,19 @@ export class GameEngine {
             nextPlayer.gold += totalIncome;
         }
 
-        // 重置行动状态 && 结算回血与状态
+        // APK C0595l.m4472a：先处理神庙/状态衰减，再重置行动状态并统一结算 HP delta。
         this.state.units.forEach(u => {
             if (u.ownerId === playerId) {
+                const tile = this.state.map.tiles[u.pos.y][u.pos.x];
+
+                if (u.status) {
+                    if (isNegativeStatus(u.status) && tileClearsNegativeStatusAtTurnStart(tile)) {
+                        delete u.status;
+                    } else {
+                        this.decayStatusAtTurnStart(u);
+                    }
+                }
+
                 u.hasMoved = false;
                 u.hasActed = false;
                 u.hasBeenHealedThisTurn = false;
@@ -223,88 +270,37 @@ export class GameEngine {
                 const eff = getEffectiveStats(u);
                 u.movementRemaining = eff.move;
 
-                // APK skirmish 实测：主动治疗可临时超上限，但再次轮到该单位所属队伍时先裁剪到最大生命。
-                if (u.hp > eff.maxHp) {
-                    u.hp = eff.maxHp;
-                }
+                let hpDelta = 0;
 
-                // 1. 状态结算 (首当其冲是中毒扣血)
-                let isPoisonDead = false;
-                if (u.status && u.status.type === 'poisoned') {
-                    const remainingTicks = u.status.remainingTicks ?? 0;
-                    if (remainingTicks > 0) {
-                        // 扣血或若为亡灵则回血 10
-                        if (isUndead(u)) {
-                            this.applyCappedRecovery(u, eff.maxHp, 10);
-                        } else {
-                            u.hp -= 10;
-                            if (u.hp <= 0) {
-                                isPoisonDead = true;
-                            }
-                        }
-                        u.status.remainingTicks = remainingTicks - 1;
-                    } else {
-                        // 第三次己方回合开始时状态消除，该回合不扣血
-                        delete u.status;
-                    }
-                }
-
-                // 如果因中毒致死，普通单位立即死亡，不再结算后续回复。
-                // APK 自我修复文案明确“不论是否中毒”都会在回合开始回复 25% HP，
-                // 因此中毒把自我修复单位扣到 0 以下时，仍先给它一次自我修复机会。
-                if (isPoisonDead) {
-                    if (hasAbility(u, 'self_repair')) {
-                        this.applyCappedRecovery(u, eff.maxHp, Math.floor(eff.maxHp * 0.25));
-                        if (u.hp > 0) {
-                            return;
-                        }
-                    }
-
-                    u.hp = 0; // 确保致死并被 filter 级联清除
-                    return;
-                }
-
-                const tile = this.state.map.tiles[u.pos.y][u.pos.x];
-
-                // 神庙类地形在回合开始清除负面状态，APK 文案未限定只能是陆地神庙。
-                if (tileHasTerrainTag(tile, 'cleanse')) {
-                    clearNegativeStatus(u);
-                    // 若清除了 weakened，可能恢复移动力，重新更新 movementRemaining
-                    const updatedEff = getEffectiveStats(u);
-                    u.movementRemaining = updatedEff.move;
-                }
-
-                // 中毒期间普通地形回复及地形回血失效（自我修复不受影响）
-                const isCurrentlyPoisoned = u.status && u.status.type === 'poisoned';
-
-                let healAmount = 0;
-
-                // 2. 地形回复
                 const terrainHealPerTurn = getTileHealPerTurn(tile);
-                if (!isCurrentlyPoisoned && isFriendlyOrNeutralOwner(this.state, playerId, tile.ownerId) && terrainHealPerTurn > 0) {
-                    healAmount += terrainHealPerTurn;
+                if (isFriendlyOrNeutralOwner(this.state, playerId, tile.ownerId) && terrainHealPerTurn > 0) {
+                    hpDelta += terrainHealPerTurn;
                 }
 
-                // 3. 水之子/森林之子/山之子地形回血
-                if (!isCurrentlyPoisoned) {
-                    if (hasAbility(u, 'water_child') && isWaterTerrain(tile)) {
-                        healAmount += 10;
-                    }
-                    if (hasAbility(u, 'forest_child') && isForestTerrain(tile)) {
-                        healAmount += 10;
-                    }
-                    if (hasAbility(u, 'mountain_child') && isMountainTerrain(tile)) {
-                        healAmount += 10;
-                    }
+                if (hasAbility(u, 'water_child') && isWaterTerrain(tile)) {
+                    hpDelta += 10;
+                }
+                if (hasAbility(u, 'forest_child') && isForestTerrain(tile)) {
+                    hpDelta += 10;
+                }
+                if (hasAbility(u, 'mountain_child') && isMountainTerrain(tile)) {
+                    hpDelta += 10;
                 }
 
-                // 4. 自自我修复
+                if (u.status?.type === 'poisoned') {
+                    hpDelta = isUndead(u) ? hpDelta + 10 : -10;
+                }
+
                 if (hasAbility(u, 'self_repair')) {
-                    healAmount += Math.floor(eff.maxHp * 0.25);
+                    hpDelta += Math.floor(eff.maxHp * 0.25);
                 }
 
-                if (healAmount > 0) {
-                    this.applyCappedRecovery(u, eff.maxHp, healAmount);
+                if (u.hp > eff.maxHp) {
+                    hpDelta -= u.hp - eff.maxHp;
+                }
+
+                if (hpDelta !== 0 || u.hp > eff.maxHp) {
+                    this.applyTurnStartHpDelta(u, eff.maxHp, hpDelta);
                 }
             }
         });
@@ -773,23 +769,6 @@ export class GameEngine {
             }
             case 'end_turn': {
                 const prevPlayerId = this.state.currentPlayer;
-                this.state.units.forEach(u => {
-                    const hasTurnStatus = u.status
-                        && (
-                            u.status.type === 'weakened'
-                            || u.status.type === 'inspired'
-                            || (u.status.type === 'blinded' && u.status.remainingTurns !== undefined)
-                        );
-                    if (u.ownerId === prevPlayerId && hasTurnStatus && u.status) {
-                        const remainingTurns = u.status.remainingTurns ?? 0;
-                        if (remainingTurns <= 1) {
-                            delete u.status;
-                        } else {
-                            u.status.remainingTurns = remainingTurns - 1;
-                        }
-                    }
-                });
-
                 // 墓碑减少时常
                 if (this.state.graves) {
                     this.state.graves = this.state.graves.map(g => ({

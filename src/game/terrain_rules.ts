@@ -40,6 +40,13 @@ export function tileHasTerrainTag(tile: Tile, tag: string): boolean {
     return getTileTerrainConfig(tile).tags.includes(tag);
 }
 
+export function tileClearsNegativeStatusAtTurnStart(tile: Tile): boolean {
+    if (tile.apkTerrainId !== undefined) {
+        return getApkTerrainConfig(tile.apkTerrainId)?.kind === 5;
+    }
+    return tileHasTerrainTag(tile, 'cleanse');
+}
+
 export function setTileTerrainForRules(tile: Tile, terrainId: TerrainId): void {
     tile.terrainId = terrainId;
 

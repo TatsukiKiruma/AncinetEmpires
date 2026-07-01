@@ -464,12 +464,12 @@ describe('APK skirmish rule report', () => {
         const byId = Object.fromEntries(report.checks.map(check => [check.id, check]));
 
         expect(byId['t30-t31-recovery'].actual).toEqual({
-            t30Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
-            t31Poisoned: { hp: 60, status: null, remainingTicks: null, remainingTurns: null },
-            t30Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 1 },
-            t31Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t30Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 1 },
-            t31Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null }
+            t30Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
+            t30Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
+            t30Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 }
         });
         expect(byId.surrender.actual).toEqual({
             playerAlive: false,

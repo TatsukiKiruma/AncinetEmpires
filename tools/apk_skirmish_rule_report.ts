@@ -1788,12 +1788,12 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         't30/t31 回血与清状态差异',
         '用户 2026-06-30 实机确认',
         {
-            t30Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
-            t31Poisoned: { hp: 60, status: null, remainingTicks: null, remainingTurns: null },
-            t30Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 1 },
-            t31Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t30Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 1 },
-            t31Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null }
+            t30Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
+            t30Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
+            t30Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t31Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 }
         },
         buildT30T31RecoveryActual()
     );

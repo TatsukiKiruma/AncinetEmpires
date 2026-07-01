@@ -4686,6 +4686,7 @@ describe('GameEngine Rules', () => {
             const soldier = state.units.find(unit => unit.id === 'u3')!;
             soldier.pos = { x: 2, y: 2 };
             soldier.hp = 50;
+            state.map.tiles[2][2].terrainId = 6;
 
             expect(syncSetUnitLevel(state, { x: 2, y: 2 }, 2)).toBe(true);
             expect(soldier.level).toBe(2);
@@ -4717,7 +4718,16 @@ describe('GameEngine Rules', () => {
 
             const engine = new GameEngine(state);
             engine.step({ type: 'end_turn' });
-            const after = engine.getState().units.find(unit => unit.id === soldier.id)!;
+            let after = engine.getState().units.find(unit => unit.id === soldier.id)!;
+            expect(after.status).toEqual({ type: 'blinded', remainingTurns: 1 });
+
+            engine.step({ type: 'end_turn' });
+            after = engine.getState().units.find(unit => unit.id === soldier.id)!;
+            expect(after.status).toEqual({ type: 'blinded', remainingTurns: 0 });
+
+            engine.step({ type: 'end_turn' });
+            engine.step({ type: 'end_turn' });
+            after = engine.getState().units.find(unit => unit.id === soldier.id)!;
             expect(after.status).toBeUndefined();
         });
 
@@ -5686,10 +5696,10 @@ describe('GameEngine Rules', () => {
 
              const s = engine.getState().units.find(u => u.id === soldier.id);
              expect(s!.status).toBeUndefined(); 
-             expect(s!.hp).toBe(10 + 20); 
+             expect(s!.hp).toBe(40);
         });
 
-        it('APK 地形语义 - 神庙候选清毒回血，营地和水障碍不清毒', () => {
+        it('APK 地形语义 - 仅 kind=5 在回合开始清除负面状态', () => {
              const state = createDemoState();
              state.currentPlayer = 1;
              state.map.width = 6;
@@ -5741,14 +5751,14 @@ describe('GameEngine Rules', () => {
              engine.step({ type: 'end_turn' });
 
              const unitsById = Object.fromEntries(engine.getState().units.map(unit => [unit.id, unit]));
-             expect(unitsById.u_temple_31.status).toBeUndefined();
-             expect(unitsById.u_temple_31.hp).toBe(60);
-             expect(unitsById.u_temple_80.status).toBeUndefined();
-             expect(unitsById.u_temple_80.hp).toBe(60);
-             expect(unitsById.u_water_temple_83.status).toBeUndefined();
-             expect(unitsById.u_water_temple_83.hp).toBe(60);
-             expect(unitsById.u_camp_30.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
-             expect(unitsById.u_camp_30.hp).toBe(40);
+             expect(unitsById.u_temple_31.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_temple_31.hp).toBe(40);
+             expect(unitsById.u_temple_80.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_temple_80.hp).toBe(40);
+             expect(unitsById.u_water_temple_83.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_water_temple_83.hp).toBe(40);
+             expect(unitsById.u_camp_30.status).toBeUndefined();
+             expect(unitsById.u_camp_30.hp).toBe(70);
              expect(unitsById.u_water_obstacle_81.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
              expect(unitsById.u_water_obstacle_81.hp).toBe(40);
         });
