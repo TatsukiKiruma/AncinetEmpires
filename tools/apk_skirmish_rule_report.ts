@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GameEngine } from '../src/game/engine';
@@ -19,6 +20,8 @@ import { UNIT_CONFIGS } from '../src/game/constants';
 import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
+import { parseDexKeyRuleMethodEvidence } from './apk_dex_report';
+import { buildApkLanguageRuleReportSync } from './apk_language_rule_report';
 
 interface CliOptions {
     json: boolean;
@@ -127,6 +130,25 @@ const EXPECTED_SO_RECRUIT_ECONOMY = [
     { unitClass: 'golem', cost: 600, population: 3 },
     { unitClass: 'catapult', cost: 800, population: 4 },
     { unitClass: 'dragon', cost: 1000, population: 5 }
+];
+
+const DEX_OPERATION_ORDER_METHOD_IDS = [
+    'support-target-validation',
+    'counter-attack-validation',
+    'attack-status-application'
+];
+
+const LANGUAGE_RULE_REQUIRED_CHECK_IDS = [
+    'language-entries',
+    'support-restrictions',
+    'support-reset-action',
+    'combat-modifiers',
+    'assault-post-attack-move',
+    'aura-abilities',
+    'summon-and-undead-graves',
+    'single-status-slot',
+    'tile-language-rules',
+    'status-blind-weaken'
 ];
 
 function printHelp() {
@@ -962,6 +984,44 @@ function buildDefaultTrainingTerrainRiskActual() {
     };
 }
 
+function buildDexOperationOrderEvidenceActual() {
+    const dexPath = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack', 'classes.dex');
+    const evidence = parseDexKeyRuleMethodEvidence(readFileSync(dexPath));
+    const evidenceById = Object.fromEntries(evidence.map(item => [item.id, item]));
+    const requiredOperationOrders = DEX_OPERATION_ORDER_METHOD_IDS.map(id => {
+        const item = evidenceById[id];
+
+        return {
+            id,
+            operationOrderMatched: item?.matchedExpectations.some(expectation => expectation.startsWith('operation-order:')) ?? false,
+            missingOperationOrderExpectations: item?.missingExpectations
+                .filter(expectation => expectation.startsWith('operation-order:')) ?? null
+        };
+    });
+
+    return {
+        dexPath: path.relative(process.cwd(), dexPath).replaceAll(path.sep, '/'),
+        methodCount: evidence.length,
+        missingExpectationCount: evidence.reduce((count, item) => count + item.missingExpectations.length, 0),
+        requiredOperationOrders
+    };
+}
+
+function buildLanguageRuleEvidenceActual() {
+    const report = buildApkLanguageRuleReportSync();
+    const checksById = Object.fromEntries(report.checks.map(item => [item.id, item]));
+
+    return {
+        langPath: path.relative(process.cwd(), report.langPath).replaceAll(path.sep, '/'),
+        checkCount: report.checkCount,
+        failedCheckCount: report.failedCheckCount,
+        requiredChecks: LANGUAGE_RULE_REQUIRED_CHECK_IDS.map(id => ({
+            id,
+            status: checksById[id]?.status ?? null
+        }))
+    };
+}
+
 function buildTerrainDefenseCombatActual() {
     const buildState = (defenderClass: UnitClass): GameState => {
         const state = createDemoState(getApkSkirmishRuleConfig('SD'));
@@ -1541,6 +1601,41 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             ]
         },
         buildDefaultTrainingTerrainRiskActual()
+    );
+
+    check(
+        checks,
+        'dex-operation-order-evidence',
+        'DEX 关键规则操作顺序证据',
+        'classes.dex 关键方法字节码引用顺序；支援目标、反击风暴和攻击附加状态已进入 operation-order 门禁',
+        {
+            dexPath: 'APK/_analysis/unpack/classes.dex',
+            methodCount: 8,
+            missingExpectationCount: 0,
+            requiredOperationOrders: DEX_OPERATION_ORDER_METHOD_IDS.map(id => ({
+                id,
+                operationOrderMatched: true,
+                missingOperationOrderExpectations: []
+            }))
+        },
+        buildDexOperationOrderEvidenceActual()
+    );
+
+    check(
+        checks,
+        'language-rule-evidence',
+        'APK 文案支撑的能力和状态规则证据',
+        'assets/languages/en.lang + apk:language-rule-report 28 项能力/状态/建筑地形行为检查',
+        {
+            langPath: 'APK/_analysis/unpack/assets/languages/en.lang',
+            checkCount: 28,
+            failedCheckCount: 0,
+            requiredChecks: LANGUAGE_RULE_REQUIRED_CHECK_IDS.map(id => ({
+                id,
+                status: 'pass'
+            }))
+        },
+        buildLanguageRuleEvidenceActual()
     );
 
     check(

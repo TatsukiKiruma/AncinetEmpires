@@ -205,7 +205,7 @@ skirmish 控制脚本结论：
 - 若被摧毁队伍是当前队伍且游戏尚未结束，SD/SO 脚本会调用 `Stage.AsyncNextTurn()` 交给下一存活队伍；项目引擎已在结算后自动跳过失活当前玩家。
 - `SO/controller.js` 在开局调用 `SyncSetRecruitUnits(0,1,2,3,4,5,6,7,8)`，即 AEII skirmish 默认只招募 APK ID 0-8 的基础单位。
 - 当前项目默认 `defeatOnNoUnitsAndNoCastles = true`，`createApkSkirmishGameState` 可按 `SD/SO` 模式生成训练状态；SD 模式会写入实机确认的指挥官+18 个普通单位可招募列表，SO 模式会写入 APK ID 0-8 对应的 9 个基础可招募单位。
-- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30/2026-07-01 实机确认的 skirmish 行为和 DEX 默认收入证据固化为 22 项机器检查：SD/SO 招募、SD/SO 默认招募费用和人口占用、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`、开局设置、训练 observation、`t30/t31`、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 22/22 通过；报告末尾还输出 2 项当前项目边界探针和 4 项待调查清单，不参与失败判定，用于对照实机回填低可信地形和复杂行动顺序。
+- `npm run apk:skirmish-rule-report -- --check` 已把用户 2026-06-30/2026-07-01 实机确认的 skirmish 行为、DEX 默认收入证据、DEX 关键操作顺序证据和 APK 语言表能力/状态规则复核汇总固化为 24 项机器检查：SD/SO 招募、SD/SO 默认招募费用和人口占用、SD 指挥官费用曲线 `400/500/600` 与 SO 禁用指挥官招募、DEX 默认规则数据确认的 SD/SO 指挥官收入 `base=50/growth=25`、DEX 支援目标/反击风暴/攻击附加状态关键顺序证据、APK 语言表能力/状态规则 28 项复核汇总、skirmish 指挥官死亡后不自动复活且重招募继承等级/经验、主动治疗超上限后下一己方回合开始先裁剪到最大生命、升级不裁剪既有超上限生命、亡灵中毒/墓碑被动回血不突破最大生命、默认 20 张 skirmish 训练地图只包含已验证 approximate `t30/t31` 且不含 `t80/t81/t82/t83`、开局设置、训练 observation、`t30/t31`、APK 地形防御参与战斗且飞行单位不吃地形防御、投降、pending/stacked 菜单限制、招募后 pending 来源/扣费/行动标记、淘汰和敌军压城堡扣血。当前结果为 24/24 通过；报告末尾还输出 2 项当前项目边界探针和 4 项待调查清单，不参与失败判定，用于对照实机回填低可信地形和复杂行动顺序。
 - 前端沙盒和自动 AI 演示已改用 `createDefaultAppGameState()`，默认规则为 APK 正常遭遇战 `SD`；现有 demo 棋盘仍作为轻量调试地图保留。
 
 ## 10. 地形与地图导入差异

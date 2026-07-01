@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(22);
+        expect(report.checkCount).toBe(24);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(2);
@@ -197,6 +197,45 @@ describe('APK skirmish rule report', () => {
                 { name: '(4) The Crucible.aem', approximateTerrainIds: [31], approximateTileCount: 1 },
                 { name: '(4) Waterways.aem', approximateTerrainIds: [31], approximateTileCount: 2 },
                 { name: '(4) Winterstorm.aem', approximateTerrainIds: [31], approximateTileCount: 4 }
+            ]
+        });
+        expect(byId['dex-operation-order-evidence'].actual).toEqual({
+            dexPath: 'APK/_analysis/unpack/classes.dex',
+            methodCount: 8,
+            missingExpectationCount: 0,
+            requiredOperationOrders: [
+                {
+                    id: 'support-target-validation',
+                    operationOrderMatched: true,
+                    missingOperationOrderExpectations: []
+                },
+                {
+                    id: 'counter-attack-validation',
+                    operationOrderMatched: true,
+                    missingOperationOrderExpectations: []
+                },
+                {
+                    id: 'attack-status-application',
+                    operationOrderMatched: true,
+                    missingOperationOrderExpectations: []
+                }
+            ]
+        });
+        expect(byId['language-rule-evidence'].actual).toEqual({
+            langPath: 'APK/_analysis/unpack/assets/languages/en.lang',
+            checkCount: 28,
+            failedCheckCount: 0,
+            requiredChecks: [
+                { id: 'language-entries', status: 'pass' },
+                { id: 'support-restrictions', status: 'pass' },
+                { id: 'support-reset-action', status: 'pass' },
+                { id: 'combat-modifiers', status: 'pass' },
+                { id: 'assault-post-attack-move', status: 'pass' },
+                { id: 'aura-abilities', status: 'pass' },
+                { id: 'summon-and-undead-graves', status: 'pass' },
+                { id: 'single-status-slot', status: 'pass' },
+                { id: 'tile-language-rules', status: 'pass' },
+                { id: 'status-blind-weaken', status: 'pass' }
             ]
         });
         expect(byId['setup-applied-to-gameplay'].actual).toEqual({

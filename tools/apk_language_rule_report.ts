@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -950,9 +951,22 @@ function buildStatusActual() {
     };
 }
 
+export function buildApkLanguageRuleReportSync(options: Partial<CliOptions> = {}): ApkLanguageRuleReport {
+    const langPath = path.resolve(options.langPath ?? DEFAULT_LANG_PATH);
+    const entries = parseLanguageEntries(readFileSync(langPath, 'utf8'));
+    return buildApkLanguageRuleReportFromEntries(langPath, entries);
+}
+
 export async function buildApkLanguageRuleReport(options: Partial<CliOptions> = {}): Promise<ApkLanguageRuleReport> {
     const langPath = path.resolve(options.langPath ?? DEFAULT_LANG_PATH);
     const entries = parseLanguageEntries(await readFile(langPath, 'utf8'));
+    return buildApkLanguageRuleReportFromEntries(langPath, entries);
+}
+
+function buildApkLanguageRuleReportFromEntries(
+    langPath: string,
+    entries: Record<string, string>
+): ApkLanguageRuleReport {
     const checks: ApkLanguageRuleCheck[] = [];
 
     check(
