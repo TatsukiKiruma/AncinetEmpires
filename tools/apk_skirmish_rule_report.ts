@@ -328,11 +328,12 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             id: 'counter-blind-storm-order',
             priority: 'P2',
             title: '致盲、反击和反击风暴顺序',
-            currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；本次主动攻击刚附加的致盲不取消同一次普通反击；反击风暴在 2 格内可反击。',
-            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；AsyncAttack 和 SyncSetUnitStatus 签名已确认。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。',
+            currentProjectAssumption: '攻击前已有致盲通过射程降为 0 限制普通反击；普通反击必须距离 1 且在防守方射程内；本次主动攻击刚附加的致盲暂不取消同一次普通反击；反击风暴在 2 格内可反击；反击命中后同样附加中毒/致盲。',
+            requestedEvidence: 'DEX 已确认 Cannot attack from/state 引用到 Lc/a/b/a/l;.i(int,int)，且该方法检查动作状态 2 并调用 Lc/a/b/a/q;.a(Unit,int,int) 做攻击规则校验；q.i(Unit,Unit) 的关键操作顺序为可反击状态/队伍校验、counter_storm 能力校验、距离字面量 2、普通射程校验；q.c(Unit,Unit) 的关键操作顺序为 poisoner 能力/中毒状态应用，再到 blinder 能力/致盲状态应用；OPENCODE 反编译确认普通反击距离 1 与反击附加状态。仍需针对性实测记录本次攻击附加致盲后是否影响同一次普通反击、反击风暴在 1/2/3 格和防守方死亡边界时是否反击，以及虚弱/鼓舞叠加时伤害顺序。',
             verificationSteps: [
                 '让已致盲的普通近战/远程单位被攻击，记录是否还能普通反击。',
                 '用黑魔法师或狼骑射手本次攻击附加致盲，目标为可普通反击单位，记录本次反击是否发生。',
+                '用普通远程单位在 2 格被攻击，确认不会普通反击；再让带投毒/致盲的防守方反击，记录原攻击者是否获得状态。',
                 '用黑魔法师或狼骑射手攻击 1/2/3 格外的狂战士，记录反击风暴是否发生。',
                 '让攻击直接击杀防守方，或防守方反击击杀攻击方，记录后续普通反击/反击风暴/突击后移动是否取消。',
                 '分别测试鼓舞攻击者、虚弱防守者、鼓舞攻击虚弱防守者的近战和远程伤害。'
@@ -340,6 +341,7 @@ function buildManualVerificationItems(): ApkSkirmishManualVerificationItem[] {
             recordTemplate: [
                 '攻击前已致盲防守方：普通反击 发生/不发生',
                 '本次攻击附加致盲：普通反击 发生/不发生；防守方剩余 HP：',
+                '普通反击距离 2：发生/不发生；反击附加状态：中毒/致盲/无',
                 '反击风暴距离 1/2/3：发生情况：',
                 '击杀边界：攻击方死亡/防守方死亡；后续反击或突击移动：',
                 '伤害数值：普通/鼓舞/虚弱/鼓舞打虚弱，近战：；远程：'
@@ -514,6 +516,22 @@ function buildCounterBlindStormProbeBehavior() {
     normalCounterEngine.step({ type: 'attack', attackerId: 'dark_mage', targetId: 'soldier' });
     const normalCounterUnits = Object.fromEntries(normalCounterEngine.getState().units.map(unit => [unit.id, unit]));
 
+    const rangedNormalCounterState = createRoadProbeState([
+        createProbeUnit('archer_attacker', 0, 'archer', 0, 0),
+        createProbeUnit('archer_defender', 1, 'archer', 0, 2)
+    ], 4, 4);
+    const rangedNormalCounterEngine = new GameEngine(rangedNormalCounterState);
+    rangedNormalCounterEngine.step({ type: 'attack', attackerId: 'archer_attacker', targetId: 'archer_defender' });
+    const rangedNormalCounterUnits = Object.fromEntries(rangedNormalCounterEngine.getState().units.map(unit => [unit.id, unit]));
+
+    const counterStatusState = createRoadProbeState([
+        createProbeUnit('soldier_attacker', 0, 'soldier', 0, 0),
+        createProbeUnit('wolf_defender', 1, 'wolf', 0, 1)
+    ]);
+    const counterStatusEngine = new GameEngine(counterStatusState);
+    counterStatusEngine.step({ type: 'attack', attackerId: 'soldier_attacker', targetId: 'wolf_defender' });
+    const counterStatusUnits = Object.fromEntries(counterStatusEngine.getState().units.map(unit => [unit.id, unit]));
+
     const stormCounterState = createRoadProbeState([
         createProbeUnit('wolf_archer', 0, 'wolf_archer', 0, 0),
         createProbeUnit('berserker', 1, 'berserker', 2, 0)
@@ -552,6 +570,16 @@ function buildCounterBlindStormProbeBehavior() {
             defenderStatusAfterAttack: normalCounterUnits.soldier?.status?.type ?? null,
             attackerHpAfterAttack: normalCounterUnits.dark_mage?.hp ?? null,
             normalCounterTriggered: (normalCounterUnits.dark_mage?.hp ?? 100) < 100
+        },
+        rangedNormalCounterAtRange2: {
+            attackerHpAfterAttack: rangedNormalCounterUnits.archer_attacker?.hp ?? null,
+            normalCounterTriggered: (rangedNormalCounterUnits.archer_attacker?.hp ?? 100) < 100
+        },
+        counterStatusApplication: {
+            attackerStatusAfterCounter: counterStatusUnits.soldier_attacker?.status?.type ?? null,
+            attackerStatusRemainingTicks: counterStatusUnits.soldier_attacker?.status?.type === 'poisoned'
+                ? counterStatusUnits.soldier_attacker.status.remainingTicks ?? null
+                : null
         },
         blindingAttackAgainstCounterStormAtRange2: {
             defenderStatusAfterAttack: stormCounterUnits.berserker?.status?.type ?? null,
@@ -608,6 +636,17 @@ function buildStatusDamageProbeBehavior() {
     return {
         meleeSoldierVsSoldier: buildDamage('soldier', 1),
         rangedArcherVsSoldier: buildDamage('archer', 2)
+    };
+}
+
+function buildCounterStatusSemanticsActual() {
+    const behavior = buildCounterBlindStormProbeBehavior();
+    return {
+        normalCounterAtRange1: behavior.blindingAttackAgainstNormalCounter.normalCounterTriggered,
+        normalCounterAtRange2: behavior.rangedNormalCounterAtRange2.normalCounterTriggered,
+        counterStormAtRange2: behavior.blindingAttackAgainstCounterStormAtRange2.counterStormTriggered,
+        counterStormAtRange3: behavior.counterStormAtRange3.counterStormTriggered,
+        counterAttackAppliesPoison: behavior.counterStatusApplication
     };
 }
 
@@ -801,6 +840,16 @@ function buildRecruitExecutionActual() {
     const commanderCastlePendingUnit = commanderCastleFinal.units.find(unit => unit.id === commanderCastleFinal.pendingUnitId);
     const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
 
+    const commanderCastleNoDeployState = createDemoState(getApkSkirmishRuleConfig('SD'));
+    commanderCastleNoDeployState.map.width = 1;
+    commanderCastleNoDeployState.map.height = 1;
+    commanderCastleNoDeployState.map.tiles = [[{ terrainId: 10 as const, ownerId: 0 }]];
+    commanderCastleNoDeployState.units = [
+        createProbeUnit('commander', 0, 'commander', 0, 0)
+    ];
+    commanderCastleNoDeployState.players[0].gold = 1000;
+    const commanderCastleNoDeployActions = getLegalActions(commanderCastleNoDeployState, 0);
+
     return {
         emptyCastle: {
             playerGold: emptyCastleFinal.players.find(player => player.id === 0)?.gold ?? null,
@@ -841,6 +890,12 @@ function buildRecruitExecutionActual() {
             canRecruitAgain: commanderCastleActions.some(action => (
                 action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy'
             ))
+        },
+        commanderCastleNoDeployTarget: {
+            canRecruitAndDeploy: commanderCastleNoDeployActions.some(action => (
+                action.type === 'recruit_and_deploy'
+            )),
+            actionTypes: actionTypes(commanderCastleNoDeployActions)
         }
     };
 }
@@ -1752,6 +1807,10 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
                 actionTypes: ['wait'],
                 canControlOtherUnit: false,
                 canRecruitAgain: false
+            },
+            commanderCastleNoDeployTarget: {
+                canRecruitAndDeploy: false,
+                actionTypes: ['end_turn', 'surrender', 'wait']
             }
         },
         buildRecruitExecutionActual()
@@ -1919,6 +1978,24 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             }))
         },
         buildDexOperationOrderEvidenceActual()
+    );
+
+    check(
+        checks,
+        'opencode-counter-status-semantics',
+        'OPENCODE 反编译确认的反击射程与反击状态附加',
+        'OPENCODE C0600q.m4287i / C0595l.m4469a：普通反击需距离 1 且在射程内；反击命中后同样调用攻击状态附加',
+        {
+            normalCounterAtRange1: true,
+            normalCounterAtRange2: false,
+            counterStormAtRange2: true,
+            counterStormAtRange3: false,
+            counterAttackAppliesPoison: {
+                attackerStatusAfterCounter: 'poisoned',
+                attackerStatusRemainingTicks: 2
+            }
+        },
+        buildCounterStatusSemanticsActual()
     );
 
     check(

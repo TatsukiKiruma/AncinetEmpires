@@ -2339,21 +2339,41 @@ describe('GameEngine Rules', () => {
         expect(unit.status).toBeUndefined();
     });
 
-    it('状态系统测试: 反击不会附加中毒或致盲', () => {
+    it('状态系统测试: 反击会按 APK 攻击状态规则附加中毒或致盲', () => {
         const state = createDemoState();
-        // attacker (P0) 是普通兵种 (soldier) 无任何状态
-        const attacker = state.units[0];
-        attacker.unitClass = 'soldier'; 
-        // target (P1) 是投毒者 (wolf)
-        const target = state.units[1];
-        target.unitClass = 'wolf';
+        state.map.width = 3;
+        state.map.height = 3;
+        state.map.tiles = Array.from({ length: 3 }, () => (
+            Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+        ));
+        const attacker = { ...state.units[0], unitClass: 'soldier' as const, pos: { x: 1, y: 1 }, hp: 100 };
+        const target = { ...state.units[1], unitClass: 'wolf' as const, pos: { x: 1, y: 2 }, hp: 100 };
+        state.units = [attacker, target];
         
         const engine = new GameEngine(state);
         // 主动攻击，期待 target 会由于存活并在射程内进行反击
         engine.step({ type: 'attack', attackerId: attacker.id, targetId: target.id });
         
         const finalAttacker = engine.getState().units.find(u => u.id === attacker.id)!;
-        expect(finalAttacker.status).toBeUndefined(); // 被反击的一方绝对不能被附加中毒 or 致盲
+        expect(finalAttacker.status).toEqual({ type: 'poisoned', remainingTicks: 2 });
+    });
+
+    it('状态系统测试: 普通反击必须距离为 1，远程单位 2 格不会普通反击', () => {
+        const state = createDemoState();
+        state.map.width = 5;
+        state.map.height = 5;
+        state.map.tiles = Array.from({ length: 5 }, () => (
+            Array.from({ length: 5 }, () => ({ terrainId: 6 as const, ownerId: null }))
+        ));
+        const attacker = { ...state.units[0], unitClass: 'archer' as const, pos: { x: 1, y: 1 }, hp: 100 };
+        const defender = { ...state.units[1], unitClass: 'archer' as const, pos: { x: 1, y: 3 }, hp: 100 };
+        state.units = [attacker, defender];
+
+        const engine = new GameEngine(state);
+        engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+        const finalAttacker = engine.getState().units.find(u => u.id === attacker.id)!;
+        expect(finalAttacker.hp).toBe(100);
     });
 
     it('状态系统测试: 普通反击受致盲射程 0 限制', () => {
@@ -3794,6 +3814,33 @@ describe('GameEngine Rules', () => {
             const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
             expect(commanderCastleActions.some(action => action.type === 'end_turn')).toBe(false);
             expect(commanderCastleActions.some(action => action.type === 'surrender')).toBe(false);
+        });
+
+        it('APK skirmish 指挥官站城堡但无部署格时不允许招募', () => {
+            const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+            state.map.width = 1;
+            state.map.height = 1;
+            state.map.tiles = [[{ terrainId: 10, ownerId: 0 }]];
+            state.units = [{
+                id: 'commander',
+                ownerId: 0,
+                unitClass: 'commander',
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            }];
+            state.players[0].gold = 1000;
+
+            const actions = getLegalActions(state, 0);
+
+            expect(actions.some(action => action.type === 'recruit_and_deploy')).toBe(false);
+            expect(actions.some(action => action.type === 'wait' && action.unitId === 'commander')).toBe(true);
+            expect(actions.some(action => action.type === 'end_turn')).toBe(true);
+            expect(actions.some(action => action.type === 'surrender')).toBe(true);
         });
 
         it('单位数量上限会阻止继续招募', () => {

@@ -6,7 +6,7 @@ describe('APK skirmish rule report', () => {
         const report = buildApkSkirmishRuleReport('2026-06-30T00:00:00.000Z');
 
         expect(report.generatedAt).toBe('2026-06-30T00:00:00.000Z');
-        expect(report.checkCount).toBe(27);
+        expect(report.checkCount).toBe(28);
         expect(report.failedCheckCount).toBe(0);
         expect(report.checks.every(check => check.status === 'pass')).toBe(true);
         expect(report.projectProbeItems).toHaveLength(3);
@@ -84,6 +84,14 @@ describe('APK skirmish rule report', () => {
                 defenderStatusAfterAttack: 'blinded',
                 attackerHpAfterAttack: 70,
                 normalCounterTriggered: true
+            },
+            rangedNormalCounterAtRange2: {
+                attackerHpAfterAttack: 100,
+                normalCounterTriggered: false
+            },
+            counterStatusApplication: {
+                attackerStatusAfterCounter: 'poisoned',
+                attackerStatusRemainingTicks: 2
             },
             blindingAttackAgainstCounterStormAtRange2: {
                 defenderStatusAfterAttack: 'blinded',
@@ -287,6 +295,16 @@ describe('APK skirmish rule report', () => {
                 }
             ]
         });
+        expect(byId['opencode-counter-status-semantics'].actual).toEqual({
+            normalCounterAtRange1: true,
+            normalCounterAtRange2: false,
+            counterStormAtRange2: true,
+            counterStormAtRange3: false,
+            counterAttackAppliesPoison: {
+                attackerStatusAfterCounter: 'poisoned',
+                attackerStatusRemainingTicks: 2
+            }
+        });
         expect(byId['language-rule-evidence'].actual).toEqual({
             langPath: 'APK/_analysis/unpack/assets/languages/en.lang',
             checkCount: 28,
@@ -417,6 +435,10 @@ describe('APK skirmish rule report', () => {
                 actionTypes: ['wait'],
                 canControlOtherUnit: false,
                 canRecruitAgain: false
+            },
+            commanderCastleNoDeployTarget: {
+                canRecruitAndDeploy: false,
+                actionTypes: ['end_turn', 'surrender', 'wait']
             }
         });
     });

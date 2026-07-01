@@ -326,6 +326,24 @@ export class GameEngine {
         this.state.graves.splice(graveIdx, 1);
     }
 
+    private applyCombatStatusEffects(source: Unit, target: Unit) {
+        if (target.hp <= 0) return;
+
+        // APK 反编译确认攻击与反击共用同一套状态附加：先中毒，再致盲。
+        // force=false 语义为：无状态或同状态可刷新，不覆盖已有不同状态。
+        if (hasAbility(source, 'poisoner') && !hasAbility(target, 'poisoner')) {
+            if (!target.status || target.status.type === 'poisoned') {
+                target.status = { type: 'poisoned', remainingTicks: 2 };
+            }
+        }
+
+        if (hasAbility(source, 'blinder') && !hasAbility(target, 'blinder')) {
+            if (!target.status || target.status.type === 'blinded') {
+                target.status = { type: 'blinded', remainingTurns: 1 };
+            }
+        }
+    }
+
     private triggerAuras(unit: Unit) {
         if (unit.hp <= 0) return;
         
@@ -451,22 +469,17 @@ export class GameEngine {
                         // 先缓存反击资格，避免本次攻击刚附加的致盲反向取消同一次普通反击。
                         const targetStatsBeforeAttackStatus = getEffectiveStats(target);
                         const isCounterStorm = hasAbility(target, 'counter_storm') && getDistance(target.pos, attacker.pos) <= 2;
-                        canCounter = isCounterStorm || inRange(
+                        const distance = getDistance(target.pos, attacker.pos);
+                        const canNormalCounter = distance === 1 && inRange(
                             target.pos,
                             attacker.pos,
                             targetStatsBeforeAttackStatus.minRange,
                             targetStatsBeforeAttackStatus.maxRange
                         );
+                        canCounter = isCounterStorm || canNormalCounter;
                     }
 
-                    // 被动状态附加（反击不触发中毒和致盲）
-                    if (target.hp > 0 && !target.status) {
-                        if (hasAbility(attacker, 'poisoner') && !hasAbility(target, 'poisoner')) {
-                            target.status = { type: 'poisoned', remainingTicks: 2 };
-                        } else if (hasAbility(attacker, 'blinder') && !hasAbility(target, 'blinder')) {
-                            target.status = { type: 'blinded' };
-                        }
-                    }
+                    this.applyCombatStatusEffects(attacker, target);
                     
                     // 如果被攻击方存活，则可能反击
                     if (target.hp > 0) {
@@ -474,6 +487,7 @@ export class GameEngine {
                             const counterDmg = calculateDamage(this.state, target.id, attacker.id);
                             attacker.hp -= counterDmg;
                             info += ` Target counterattacked for ${counterDmg} dmg.`;
+                            this.applyCombatStatusEffects(target, attacker);
 
                             // 经验值：反击者获得 10 经验
                             addExp(target, 10, ruleConfig.levelCap);
