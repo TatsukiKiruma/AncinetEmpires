@@ -414,19 +414,39 @@ function createMinimalKeyRuleMethodDex(): Buffer {
         'Cannot attack in state [',
         'Cannot support from (',
         'Cannot support in state [',
-        'Cannot recruit when stacked!'
+        'Cannot recruit when stacked!',
+        'Lc/a/b/a/t/b;',
+        'Lc/a/b/a/v/b;',
+        'Lc/a/b/a/t/g;',
+        'e',
+        'k',
+        'n',
+        'g',
+        'j',
+        'f',
+        'y'
     ];
-    const typeStringIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const typeStringIndexes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 23];
     const protos = [
         { returnTypeIndex: 7, parameterTypeIndexes: [6, 6] },
         { returnTypeIndex: 7, parameterTypeIndexes: [6, 6, 6] },
         { returnTypeIndex: 8, parameterTypeIndexes: [4, 6, 6] },
         { returnTypeIndex: 5, parameterTypeIndexes: [4] },
-        { returnTypeIndex: 8, parameterTypeIndexes: [6, 6, 6] }
+        { returnTypeIndex: 8, parameterTypeIndexes: [6, 6, 6] },
+        { returnTypeIndex: 8, parameterTypeIndexes: [4, 11] },
+        { returnTypeIndex: 8, parameterTypeIndexes: [4, 4] },
+        { returnTypeIndex: 4, parameterTypeIndexes: [6, 6] }
     ];
     const fields = [
         { classIndex: 2, typeIndex: 6, nameStringIndex: 12 },
-        { classIndex: 3, typeIndex: 4, nameStringIndex: 15 }
+        { classIndex: 3, typeIndex: 4, nameStringIndex: 15 },
+        { classIndex: 1, typeIndex: 9, nameStringIndex: 24 },
+        { classIndex: 11, typeIndex: 11, nameStringIndex: 29 },
+        { classIndex: 10, typeIndex: 6, nameStringIndex: 13 },
+        { classIndex: 4, typeIndex: 8, nameStringIndex: 9 },
+        { classIndex: 4, typeIndex: 8, nameStringIndex: 28 },
+        { classIndex: 4, typeIndex: 6, nameStringIndex: 26 },
+        { classIndex: 11, typeIndex: 11, nameStringIndex: 30 }
     ];
     const methods = [
         { classIndex: 0, protoIndex: 0, nameStringIndex: 9 },
@@ -435,7 +455,13 @@ function createMinimalKeyRuleMethodDex(): Buffer {
         { classIndex: 1, protoIndex: 2, nameStringIndex: 12 },
         { classIndex: 1, protoIndex: 3, nameStringIndex: 10 },
         { classIndex: 1, protoIndex: 2, nameStringIndex: 13 },
-        { classIndex: 1, protoIndex: 4, nameStringIndex: 14 }
+        { classIndex: 1, protoIndex: 4, nameStringIndex: 14 },
+        { classIndex: 1, protoIndex: 5, nameStringIndex: 12 },
+        { classIndex: 1, protoIndex: 2, nameStringIndex: 24 },
+        { classIndex: 1, protoIndex: 6, nameStringIndex: 28 },
+        { classIndex: 1, protoIndex: 7, nameStringIndex: 25 },
+        { classIndex: 1, protoIndex: 6, nameStringIndex: 26 },
+        { classIndex: 1, protoIndex: 6, nameStringIndex: 27 }
     ];
     const typeLists = protos.map(proto => createTypeList(proto.parameterTypeIndexes));
     const stringDataItems = strings.map(createDexString);
@@ -446,7 +472,7 @@ function createMinimalKeyRuleMethodDex(): Buffer {
     const fieldIdsOffset = protoIdsOffset + protos.length * 12;
     const methodIdsOffset = fieldIdsOffset + fields.length * 8;
     const classDefsOffset = methodIdsOffset + methods.length * 8;
-    const typeListsOffset = classDefsOffset + 32;
+    const typeListsOffset = classDefsOffset + 2 * 32;
     const stringDataOffset = typeListsOffset + typeLists.reduce((sum, item) => sum + item.length, 0);
     const rawStringDataEnd = stringDataOffset + stringDataItems.reduce((sum, item) => sum + item.length, 0);
     const attackCodeOffset = alignToFour(rawStringDataEnd);
@@ -476,7 +502,33 @@ function createMinimalKeyRuleMethodDex(): Buffer {
         0x006e, 6, 0,
         0x000e
     ]);
-    const classData = Buffer.from([
+    const qAttackCodeOffset = alignToFour(recruitCodeOffset + recruitCode.length);
+    const qAttackCode = createCodeItem(5, 3, [
+        0x0052, 2,
+        0x0062, 3,
+        0x0052, 4,
+        0x006e, 7, 0,
+        0x006e, 8, 0,
+        0x006e, 9, 0,
+        0x000f
+    ]);
+    const qSupportPositionCodeOffset = alignToFour(qAttackCodeOffset + qAttackCode.length);
+    const qSupportPositionCode = createCodeItem(4, 3, [
+        0x006e, 10, 0,
+        0x006e, 11, 0,
+        0x000f
+    ]);
+    const qSupportTargetCodeOffset = alignToFour(qSupportPositionCodeOffset + qSupportPositionCode.length);
+    const qSupportTargetCode = createCodeItem(4, 2, [
+        0x0052, 5,
+        0x0052, 6,
+        0x0052, 7,
+        0x0062, 8,
+        0x006e, 7, 0,
+        0x006e, 12, 0,
+        0x000f
+    ]);
+    const lClassData = Buffer.from([
         ...encodeUleb128(0),
         ...encodeUleb128(0),
         ...encodeUleb128(0),
@@ -491,8 +543,24 @@ function createMinimalKeyRuleMethodDex(): Buffer {
         ...encodeUleb128(0),
         ...encodeUleb128(recruitCodeOffset)
     ]);
-    const classDataOffset = alignToFour(recruitCodeOffset + recruitCode.length);
-    const totalSize = classDataOffset + classData.length;
+    const lClassDataOffset = alignToFour(qSupportTargetCodeOffset + qSupportTargetCode.length);
+    const qClassData = Buffer.from([
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(0),
+        ...encodeUleb128(3),
+        ...encodeUleb128(3),
+        ...encodeUleb128(0),
+        ...encodeUleb128(qAttackCodeOffset),
+        ...encodeUleb128(2),
+        ...encodeUleb128(0),
+        ...encodeUleb128(qSupportPositionCodeOffset),
+        ...encodeUleb128(6),
+        ...encodeUleb128(0),
+        ...encodeUleb128(qSupportTargetCodeOffset)
+    ]);
+    const qClassDataOffset = lClassDataOffset + lClassData.length;
+    const totalSize = qClassDataOffset + qClassData.length;
     const buffer = Buffer.alloc(totalSize);
 
     buffer.write('dex\n035\0', 0, 'ascii');
@@ -506,7 +574,7 @@ function createMinimalKeyRuleMethodDex(): Buffer {
     buffer.writeUInt32LE(fieldIdsOffset, 0x54);
     buffer.writeUInt32LE(methods.length, 0x58);
     buffer.writeUInt32LE(methodIdsOffset, 0x5c);
-    buffer.writeUInt32LE(1, 0x60);
+    buffer.writeUInt32LE(2, 0x60);
     buffer.writeUInt32LE(classDefsOffset, 0x64);
 
     let currentOffset = stringDataOffset;
@@ -545,11 +613,17 @@ function createMinimalKeyRuleMethodDex(): Buffer {
     }
 
     buffer.writeUInt32LE(0, classDefsOffset);
-    buffer.writeUInt32LE(classDataOffset, classDefsOffset + 24);
+    buffer.writeUInt32LE(lClassDataOffset, classDefsOffset + 24);
+    buffer.writeUInt32LE(1, classDefsOffset + 32);
+    buffer.writeUInt32LE(qClassDataOffset, classDefsOffset + 32 + 24);
     attackCode.copy(buffer, attackCodeOffset);
     supportCode.copy(buffer, supportCodeOffset);
     recruitCode.copy(buffer, recruitCodeOffset);
-    classData.copy(buffer, classDataOffset);
+    qAttackCode.copy(buffer, qAttackCodeOffset);
+    qSupportPositionCode.copy(buffer, qSupportPositionCodeOffset);
+    qSupportTargetCode.copy(buffer, qSupportTargetCodeOffset);
+    lClassData.copy(buffer, lClassDataOffset);
+    qClassData.copy(buffer, qClassDataOffset);
 
     return buffer;
 }
@@ -631,8 +705,16 @@ describe('APK DEX 复核工具', () => {
         expect(byId['attack-action-validation'].missingExpectations).toEqual([]);
         expect(byId['attack-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,I,I):Z');
         expect(byId['attack-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.m(Lc/a/b/a/t/f;):Lc/a/b/a/s/b;');
+        expect(byId['attack-target-validation'].missingExpectations).toEqual([]);
+        expect(byId['attack-target-validation'].referencedFields).toContain('Lc/a/b/a/t/g;.f:Lc/a/b/a/t/g;');
+        expect(byId['attack-target-validation'].referencedMethods).toContain('Lc/a/b/a/q;.j(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z');
         expect(byId['support-action-validation'].missingExpectations).toEqual([]);
         expect(byId['support-action-validation'].referencedMethods).toContain('Lc/a/b/a/q;.h(Lc/a/b/a/t/f;,I,I):Z');
+        expect(byId['support-position-validation'].missingExpectations).toEqual([]);
+        expect(byId['support-position-validation'].referencedMethods).toContain('Lc/a/b/a/q;.n(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z');
+        expect(byId['support-target-validation'].missingExpectations).toEqual([]);
+        expect(byId['support-target-validation'].referencedFields).toContain('Lc/a/b/a/t/g;.y:Lc/a/b/a/t/g;');
+        expect(byId['support-target-validation'].referencedMethods).toContain('Lc/a/b/a/q;.g(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z');
         expect(byId['recruit-pending-validation'].missingExpectations).toEqual([]);
         expect(byId['recruit-pending-validation'].referencedFields).toContain('Lc/a/b/a/t/a;.d:Lc/a/b/a/t/f;');
     });

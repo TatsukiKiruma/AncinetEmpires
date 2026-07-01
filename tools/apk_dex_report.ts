@@ -179,6 +179,25 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
         ]
     },
     {
+        id: 'attack-target-validation',
+        label: '攻击目标规则校验',
+        classDescriptor: 'Lc/a/b/a/q;',
+        name: 'a',
+        parameterTypes: ['Lc/a/b/a/t/f;', 'I', 'I'],
+        expectedStateLiteral: null,
+        expectedStrings: [],
+        expectedFields: [
+            'Lc/a/b/a/q;.e:Lc/a/b/a/t/b;',
+            'Lc/a/b/a/t/g;.f:Lc/a/b/a/t/g;',
+            'Lc/a/b/a/v/b;.h:I'
+        ],
+        expectedMethods: [
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'Lc/a/b/a/q;.e(Lc/a/b/a/t/f;,I,I):Z',
+            'Lc/a/b/a/q;.j(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ]
+    },
+    {
         id: 'support-action-validation',
         label: '支援动作校验',
         classDescriptor: 'Lc/a/b/a/l;',
@@ -188,6 +207,39 @@ const KEY_RULE_METHOD_EXPECTATIONS = [
         expectedStrings: ['Cannot support from (', 'Cannot support in state ['],
         expectedFields: ['Lc/a/b/a/t/e;.a:I'],
         expectedMethods: ['Lc/a/b/a/q;.h(Lc/a/b/a/t/f;,I,I):Z']
+    },
+    {
+        id: 'support-position-validation',
+        label: '支援坐标规则校验',
+        classDescriptor: 'Lc/a/b/a/q;',
+        name: 'h',
+        parameterTypes: ['Lc/a/b/a/t/f;', 'I', 'I'],
+        expectedStateLiteral: null,
+        expectedStrings: [],
+        expectedFields: [],
+        expectedMethods: [
+            'Lc/a/b/a/q;.k(I,I):Lc/a/b/a/t/f;',
+            'Lc/a/b/a/q;.n(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ]
+    },
+    {
+        id: 'support-target-validation',
+        label: '支援目标规则校验',
+        classDescriptor: 'Lc/a/b/a/q;',
+        name: 'n',
+        parameterTypes: ['Lc/a/b/a/t/f;', 'Lc/a/b/a/t/f;'],
+        expectedStateLiteral: null,
+        expectedStrings: [],
+        expectedFields: [
+            'Lc/a/b/a/t/f;.i:Z',
+            'Lc/a/b/a/t/f;.j:Z',
+            'Lc/a/b/a/t/f;.n:I',
+            'Lc/a/b/a/t/g;.y:Lc/a/b/a/t/g;'
+        ],
+        expectedMethods: [
+            'Lc/a/b/a/q;.a(Lc/a/b/a/t/f;,Lc/a/b/a/t/g;):Z',
+            'Lc/a/b/a/q;.g(Lc/a/b/a/t/f;,Lc/a/b/a/t/f;):Z'
+        ]
     },
     {
         id: 'recruit-pending-validation',
@@ -1067,10 +1119,17 @@ export function parseDexKeyRuleMethodEvidence(buffer: Buffer): DexKeyRuleMethodE
     const protos = parseDexProtos(buffer, types);
     const fields = parseDexFields(buffer, strings, types);
     const methods = parseDexMethodIds(buffer, strings, types, protos);
-    const classMethods = readDexClassDataMethods(buffer, 'Lc/a/b/a/l;', types, methods);
+    const classMethodCache = new Map<string, DexClassMethod[]>();
+    const getClassMethods = (classDescriptor: string) => {
+        const cached = classMethodCache.get(classDescriptor);
+        if (cached) return cached;
+        const classMethods = readDexClassDataMethods(buffer, classDescriptor, types, methods);
+        classMethodCache.set(classDescriptor, classMethods);
+        return classMethods;
+    };
 
     return KEY_RULE_METHOD_EXPECTATIONS.map(expectation => {
-        const classMethod = classMethods.find(entry => (
+        const classMethod = getClassMethods(expectation.classDescriptor).find(entry => (
             entry.method.classDescriptor === expectation.classDescriptor
             && entry.method.name === expectation.name
             && entry.method.parameterTypes.length === expectation.parameterTypes.length
