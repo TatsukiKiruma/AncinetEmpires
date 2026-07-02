@@ -82,7 +82,6 @@ export function inRange(pos1: Position, pos2: Position, minRange: number, maxRan
 }
 
 function canHealTarget(state: GameState, healer: Unit, target: Unit): boolean {
-    if (healer.id === target.id) return false;
     if (getDistance(healer.pos, target.pos) > 1) return false;
     if (target.hasBeenHealedThisTurn) return false;
 
@@ -169,7 +168,7 @@ export function getLegalActions(state: GameState, playerId: number): Action[] {
             }
         }
 
-        // 2.3 治疗 (healer，仅对相邻格生效/或者曼哈顿距离为1)
+        // 2.3 治疗 (healer，对相邻格或自身生效)
         if (hasAbi(unit, 'healer')) {
             for (const target of state.units) {
                 if (canHealTarget(state, unit, target)) {

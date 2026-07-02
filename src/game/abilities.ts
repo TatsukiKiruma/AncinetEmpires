@@ -114,7 +114,7 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
     // 大地之子
     if (hasAbility(unit, 'earth_child')) {
         if (isWaterTerrain(tile)) {
-            return 2; // 水地形移动消耗 2
+            return 2; // 水面和桥等水地形移动消耗 2
         }
         if (isLandTerrain(tile)) {
             return 1; // 陆地移动消耗 1
@@ -170,7 +170,7 @@ export function getDefenseBonus(state: GameState, attacker: Unit, defender: Unit
 export function getFinalDamageMultiplier(state: GameState, attacker: Unit, defender: Unit, distance: number): number {
     let multiplier = 1.0;
     
-    if (hasAbility(attacker, 'melee_master') && distance === 1) {
+    if (hasAbility(attacker, 'melee_master') && !hasAbility(defender, 'melee_master') && distance === 1) {
         multiplier *= 1.5;
     }
     

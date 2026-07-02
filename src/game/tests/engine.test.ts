@@ -2147,6 +2147,20 @@ describe('GameEngine Rules', () => {
         expect(dmg).toBe(97);
     });
 
+    it('伤害公式: 近战大师攻击近战大师时不触发加成', () => {
+        const state = createDemoState();
+        state.units[0].unitClass = 'dragon';
+        state.units[1].unitClass = 'dragon';
+
+        state.units[0].pos = { x: 1, y: 1 };
+        state.units[1].pos = { x: 1, y: 2 };
+        state.map.tiles[2][1].terrainId = 6;
+
+        // dragon ATK: 70 magic. dragon magic DEF: 25。同为近战大师时 APK 不给 1.5 倍。
+        const dmg = calculateDamage(state, 'u1', 'u2');
+        expect(dmg).toBe(45);
+    });
+
     it('伤害公式: 远程防御对远程攻击减半', () => {
         const state = createDemoState();
         state.units[0].unitClass = 'archer'; // P0 archer (range 2-3)
@@ -2573,6 +2587,30 @@ describe('GameEngine Rules', () => {
             const resFriend = finalState.units.find(u => u.id === friend.id)!;
             expect(resFriend.hp).toBe(130); // APK：治疗师治疗可以突破最大血量
             expect(resFriend.hasBeenHealedThisTurn).toBe(true);
+        });
+
+        it('5.1a 治疗师可以治疗自己', () => {
+            const state = createDemoState();
+            const paladin = state.units.find(u => u.ownerId === 0)!;
+            paladin.unitClass = 'paladin';
+            paladin.pos = { x: 0, y: 0 };
+            paladin.hp = 60;
+            paladin.maxHp = 100;
+            paladin.hasActed = false;
+
+            const healAction = getLegalActions(state, 0).find(action =>
+                action.type === 'heal'
+                && action.healerId === paladin.id
+                && action.targetId === paladin.id
+            );
+            expect(healAction).toBeDefined();
+
+            const engine = new GameEngine(state);
+            engine.step(healAction!);
+
+            const resPaladin = engine.getState().units.find(u => u.id === paladin.id)!;
+            expect(resPaladin.hp).toBe(100);
+            expect(resPaladin.hasBeenHealedThisTurn).toBe(true);
         });
 
         it('5.1b 治疗师可以继续治疗已经超过最大血量的友军', () => {
