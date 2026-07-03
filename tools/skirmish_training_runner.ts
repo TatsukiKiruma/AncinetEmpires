@@ -17,8 +17,26 @@ import { UNIT_CONFIGS } from '../src/game/constants';
 import { getAllianceId, getTurnPlayerIds, getUnitCost } from '../src/game/rule_config';
 import type { Action, ApkSkirmishMode, GameState, Unit } from '../src/game/types';
 import { decryptApkResourceBytes } from './apk_resource_crypto';
+import {
+    buildCandidateFeatures,
+    loadBcModel,
+    type SkirmishBcModel
+} from './skirmish_bc_train';
+import type { SkirmishDatasetSample } from './skirmish_dataset_export';
 
-export type BaselinePolicyPreset = 'random' | 'heuristic' | 'heuristic-vs-random';
+export type BaselinePolicyPreset =
+    | 'random'
+    | 'heuristic'
+    | 'heuristic-vs-random'
+    | 'bc'
+    | 'bc-vs-random'
+    | 'bc-vs-heuristic'
+    | 'bc-hybrid'
+    | 'bc-hybrid-vs-random'
+    | 'bc-hybrid-vs-heuristic'
+    | 'bc-blend'
+    | 'bc-blend-vs-random'
+    | 'bc-blend-vs-heuristic';
 
 export interface SkirmishPolicyContext {
     result: EnvStepResult;
@@ -68,6 +86,7 @@ export interface SkirmishEpisodeStep {
     illegal: boolean;
     spendValue: number;
     killValueByPlayer: Record<number, number>;
+    lostValueByPlayer: Record<number, number>;
 }
 
 export interface SkirmishPlayerEconomy {
@@ -138,10 +157,12 @@ export interface SkirmishRunnerOptions {
     outFile: string;
     append: boolean;
     episodesPerScenario: number;
-    maxPlies: number;
+    maxTurns: number;
+    maxPlies: number | null;
     maxSteps: number | null;
     seed: number;
     preset: BaselinePolicyPreset;
+    modelFile: string | null;
     modes: ApkSkirmishMode[] | null;
     scenarioIds: string[];
     limit: number | null;
@@ -150,6 +171,9 @@ export interface SkirmishRunnerOptions {
     progress: boolean;
     progressIntervalMs: number;
     progressIntervalSteps: number;
+    tempLogs: boolean;
+    tempDir: string;
+    tempLogTurnInterval: number;
 }
 
 export interface SkirmishEpisodeProgress {
@@ -179,7 +203,7 @@ export interface SkirmishWorkerData {
     jobs: SkirmishEpisodeJob[];
     options: Pick<
         SkirmishRunnerOptions,
-        'unpackDir' | 'preset' | 'maxPlies' | 'maxSteps' | 'progressIntervalSteps'
+        'unpackDir' | 'preset' | 'modelFile' | 'maxTurns' | 'maxPlies' | 'maxSteps' | 'progressIntervalSteps'
     >;
 }
 
@@ -215,16 +239,23 @@ function printHelp() {
   --out <file>            episode JSONL 输出文件，默认 training_runs/skirmish-baseline-时间戳.jsonl
   --append                追加写入 --out 文件；默认会覆盖
   --episodes <n>          每个场景跑几局，默认 1
-  --max-plies <n>         环境最大 ply 数，默认 1000
-  --max-steps <n>         runner 最大动作步数，默认 max-plies * 64
+  --max-turns <n>         环境最大回合数，默认 150；会按玩家数换算为 ply
+  --max-plies <n>         环境最大 ply 数；指定后覆盖 --max-turns
+  --max-steps <n>         runner 最大动作步数，默认 每局 maxPlies * 64
   --seed <n>              起始 seed，默认 1
-  --preset <name>         random、heuristic、heuristic-vs-random，默认 heuristic-vs-random
+  --preset <name>         random、heuristic、heuristic-vs-random、bc、bc-vs-random、bc-vs-heuristic、
+                          bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、
+                          bc-blend、bc-blend-vs-random、bc-blend-vs-heuristic，默认 heuristic-vs-random
+  --model <file>          BC 模型 JSON；使用 bc、bc-hybrid 或 bc-blend 相关 preset 时必填
   --workers <n>           并行 worker 数，默认 1；例如 --workers 5
   --mode <SD|SO>          只跑单个模式；可重复
   --scenario <id>         只跑指定场景；可重复
   --limit <n>             只取前 n 个筛选后的场景，便于 smoke test
   --progress-interval-ms <n>     进度刷新间隔毫秒，默认 1000
   --progress-interval-steps <n>  worker 每隔多少步回传一次进度，默认 25
+  --temp-dir <dir>        单局详细行为日志目录，默认 输出目录/temp
+  --temp-log-turn-interval <n>   单局日志每多少回合记录一个窗口，默认 5
+  --no-temp-log           关闭单局详细行为日志
   --no-progress           关闭进度显示
   --json                  摘要输出 JSON
   --help                  显示帮助
@@ -239,10 +270,12 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
         outFile: defaultOutFile(),
         append: false,
         episodesPerScenario: 1,
-        maxPlies: 1000,
+        maxTurns: 150,
+        maxPlies: null,
         maxSteps: null,
         seed: 1,
         preset: 'heuristic-vs-random',
+        modelFile: null,
         modes: null,
         scenarioIds,
         limit: null,
@@ -250,7 +283,10 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
         workers: 1,
         progress: true,
         progressIntervalMs: 1000,
-        progressIntervalSteps: 25
+        progressIntervalSteps: 25,
+        tempLogs: true,
+        tempDir: '',
+        tempLogTurnInterval: 5
     };
 
     for (let i = 0; i < argv.length; i += 1) {
@@ -270,6 +306,8 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
             options.append = true;
         } else if (arg === '--episodes') {
             options.episodesPerScenario = parsePositiveInteger(argv[++i], '--episodes');
+        } else if (arg === '--max-turns') {
+            options.maxTurns = parsePositiveInteger(argv[++i], '--max-turns');
         } else if (arg === '--max-plies') {
             options.maxPlies = parsePositiveInteger(argv[++i], '--max-plies');
         } else if (arg === '--max-steps') {
@@ -278,6 +316,10 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
             options.seed = parseInteger(argv[++i], '--seed');
         } else if (arg === '--preset') {
             options.preset = parsePreset(argv[++i]);
+        } else if (arg === '--model') {
+            const value = argv[++i];
+            if (!value) throw new Error('--model 缺少文件参数');
+            options.modelFile = path.resolve(value);
         } else if (arg === '--workers') {
             options.workers = parsePositiveInteger(argv[++i], '--workers');
         } else if (arg === '--mode') {
@@ -292,6 +334,14 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
             options.progressIntervalMs = parsePositiveInteger(argv[++i], '--progress-interval-ms');
         } else if (arg === '--progress-interval-steps') {
             options.progressIntervalSteps = parsePositiveInteger(argv[++i], '--progress-interval-steps');
+        } else if (arg === '--temp-dir') {
+            const value = argv[++i];
+            if (!value) throw new Error('--temp-dir 缺少目录参数');
+            options.tempDir = path.resolve(value);
+        } else if (arg === '--temp-log-turn-interval') {
+            options.tempLogTurnInterval = parsePositiveInteger(argv[++i], '--temp-log-turn-interval');
+        } else if (arg === '--no-temp-log') {
+            options.tempLogs = false;
         } else if (arg === '--no-progress') {
             options.progress = false;
         } else if (arg === '--json') {
@@ -303,7 +353,10 @@ export function parseRunnerArgs(argv: readonly string[]): SkirmishRunnerOptions 
     }
 
     options.modes = modes.length > 0 ? modes : null;
-    options.maxSteps = options.maxSteps ?? options.maxPlies * 64;
+    options.tempDir = options.tempDir || path.join(path.dirname(options.outFile), 'temp');
+    if (isBcPreset(options.preset) && !options.modelFile) {
+        throw new Error('使用 bc 相关 preset 时必须提供 --model <file>');
+    }
     return options;
 }
 
@@ -320,16 +373,60 @@ function parsePositiveInteger(value: string | undefined, label: string): number 
     return parsed;
 }
 
+function isBcPreset(preset: BaselinePolicyPreset): boolean {
+    return preset === 'bc'
+        || preset === 'bc-vs-random'
+        || preset === 'bc-vs-heuristic'
+        || preset === 'bc-hybrid'
+        || preset === 'bc-hybrid-vs-random'
+        || preset === 'bc-hybrid-vs-heuristic'
+        || preset === 'bc-blend'
+        || preset === 'bc-blend-vs-random'
+        || preset === 'bc-blend-vs-heuristic';
+}
+
 function parsePreset(value: string | undefined): BaselinePolicyPreset {
-    if (value === 'random' || value === 'heuristic' || value === 'heuristic-vs-random') {
+    if (
+        value === 'random'
+        || value === 'heuristic'
+        || value === 'heuristic-vs-random'
+        || value === 'bc'
+        || value === 'bc-vs-random'
+        || value === 'bc-vs-heuristic'
+        || value === 'bc-hybrid'
+        || value === 'bc-hybrid-vs-random'
+        || value === 'bc-hybrid-vs-heuristic'
+        || value === 'bc-blend'
+        || value === 'bc-blend-vs-random'
+        || value === 'bc-blend-vs-heuristic'
+    ) {
         return value;
     }
-    throw new Error('--preset 只能是 random、heuristic 或 heuristic-vs-random');
+    throw new Error(
+        '--preset 只能是 random、heuristic、heuristic-vs-random、bc、bc-vs-random、bc-vs-heuristic、'
+        + 'bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、bc-blend、bc-blend-vs-random '
+        + '或 bc-blend-vs-heuristic'
+    );
 }
 
 function parseMode(value: string | undefined): ApkSkirmishMode {
     if (value === 'SD' || value === 'SO') return value;
     throw new Error('--mode 只能是 SD 或 SO');
+}
+
+export function resolveScenarioMaxPlies(
+    options: Pick<SkirmishRunnerOptions, 'maxTurns' | 'maxPlies'>,
+    scenario: Pick<ApkSkirmishTrainingScenario, 'playerCount'>
+): number {
+    if (options.maxPlies !== null) return options.maxPlies;
+    return options.maxTurns * Math.max(1, scenario.playerCount);
+}
+
+export function resolveScenarioMaxSteps(
+    options: Pick<SkirmishRunnerOptions, 'maxSteps'>,
+    maxPlies: number
+): number {
+    return options.maxSteps ?? maxPlies * 64;
 }
 
 export function createSeededRng(seed: number): () => number {
@@ -485,12 +582,393 @@ export function createHeuristicBaselinePolicy(seed: number): SkirmishPolicy {
     return createActionBackedPolicy('heuristic', (engine, playerId) => ai.getAction(engine, playerId));
 }
 
-export function createPresetPolicyFactory(preset: BaselinePolicyPreset): SkirmishPolicyFactory {
+function scoreBcFeatures(model: SkirmishBcModel, features: Map<number, number>): number {
+    let total = 0;
+    for (const [index, value] of features) {
+        total += (model.weights[index] ?? 0) * value;
+    }
+    return total;
+}
+
+function buildLiveBcSample(context: SkirmishPolicyContext): SkirmishDatasetSample {
+    const firstEntry = context.result.legalActionEntries.find(entry => entry.fixedActionIndex !== null);
+    return {
+        kind: 'skirmish_dataset_sample',
+        version: 1,
+        source: { stepIndex: context.stepNumber - 1 },
+        scenario: context.scenario,
+        seed: context.episodeSeed,
+        maxPlies: 0,
+        maxSteps: 0,
+        initialObservationHash: '',
+        fixedActionSpaceSize: context.result.fixedActionSpaceDescriptor.size,
+        step: context.stepNumber,
+        turn: context.result.observation.turn,
+        playerId: context.playerId,
+        policy: 'bc',
+        legalActionCount: context.result.legalActions.length,
+        fixedLegalActionCount: context.result.fixedLegalActionIndexes.length,
+        fixedActionSpaceDescriptor: context.result.fixedActionSpaceDescriptor,
+        fixedLegalActionIndexes: context.result.fixedLegalActionIndexes,
+        legalActionCodes: context.result.legalActionCodes,
+        observation: context.result.observation,
+        label: {
+            fixedActionIndex: firstEntry?.fixedActionIndex ?? -1,
+            actionCode: firstEntry?.code ?? 'end_turn',
+            action: firstEntry?.action ?? { type: 'end_turn' }
+        },
+        outcome: {
+            reward: 0,
+            done: false,
+            winnerAfter: null,
+            illegal: false
+        }
+    };
+}
+
+export function createBcRankerPolicy(model: SkirmishBcModel): SkirmishPolicy {
+    return {
+        name: 'bc',
+        selectFixedActionIndex(context) {
+            const sample = buildLiveBcSample(context);
+            const fixedEntries = context.result.legalActionEntries.filter(entry => entry.fixedActionIndex !== null);
+            const nonSurrenderEntries = fixedEntries.filter(entry => entry.action.type !== 'surrender');
+            const candidates = nonSurrenderEntries.length > 0 ? nonSurrenderEntries : fixedEntries;
+            let bestIndex = candidates[0]?.fixedActionIndex ?? context.result.fixedLegalActionIndexes[0] ?? -1;
+            let bestScore = -Infinity;
+
+            for (const entry of candidates) {
+                const features = buildCandidateFeatures(sample, entry.code, model.featureDim, model.featureExtractor);
+                if (!features) continue;
+                const currentScore = scoreBcFeatures(model, features);
+                if (currentScore > bestScore) {
+                    bestScore = currentScore;
+                    bestIndex = entry.fixedActionIndex ?? bestIndex;
+                }
+            }
+
+            return bestIndex;
+        }
+    };
+}
+
+function shouldUseHeuristicTacticalAction(action: Action): boolean {
+    return action.type !== 'recruit_to_castle'
+        && action.type !== 'recruit_and_deploy'
+        && action.type !== 'wait'
+        && action.type !== 'end_turn'
+        && action.type !== 'surrender';
+}
+
+function encodeContextFixedActionIndex(context: SkirmishPolicyContext, action: Action): number | null {
+    return encodeFixedActionIndex(action, context.result.state, {
+        width: context.result.fixedActionSpaceDescriptor.width,
+        height: context.result.fixedActionSpaceDescriptor.height,
+        unitClasses: context.result.fixedActionSpaceDescriptor.unitClasses
+    });
+}
+
+export function createBcHybridPolicy(model: SkirmishBcModel, seed: number): SkirmishPolicy {
+    const bcPolicy = createBcRankerPolicy(model);
+    const heuristic = new HeuristicAI(createSeededRng(seed));
+
+    return {
+        name: 'bc-hybrid',
+        selectFixedActionIndex(context) {
+            const engine = new GameEngine(context.result.state);
+            const heuristicAction = heuristic.getAction(engine, context.playerId);
+            const heuristicFixedIndex = encodeContextFixedActionIndex(context, heuristicAction);
+            if (
+                heuristicFixedIndex !== null
+                && context.result.fixedLegalActionIndexes.includes(heuristicFixedIndex)
+                && shouldUseHeuristicTacticalAction(heuristicAction)
+            ) {
+                return heuristicFixedIndex;
+            }
+            return bcPolicy.selectFixedActionIndex(context);
+        }
+    };
+}
+
+interface BlendCandidate {
+    fixedActionIndex: number;
+    actionCode: string;
+    action: Action;
+    heuristicScore: number;
+    bcScore: number;
+    heuristicRank: number;
+    bcRank: number;
+}
+
+function assignDescendingRanks<T>(
+    items: T[],
+    getScore: (item: T) => number,
+    setRank: (item: T, rank: number) => void
+) {
+    const ranked = [...items].sort((left, right) => getScore(right) - getScore(left));
+    for (const [index, item] of ranked.entries()) {
+        setRank(item, index);
+    }
+}
+
+function shouldUseBlendLatePressureTuning(scenarioId: string): boolean {
+    return scenarioId.length > 0;
+}
+
+function isDirectPressureAction(action: Action, includeLatePressureActions = false): boolean {
+    return action.type === 'attack'
+        || action.type === 'capture'
+        || (includeLatePressureActions && isLatePressureAction(action));
+}
+
+function isLatePressureAction(action: Action): boolean {
+    return action.type === 'destroy_town'
+        || action.type === 'summon';
+}
+
+function isLateDirectPressureAction(action: Action): boolean {
+    return isDirectPressureAction(action, true);
+}
+
+function blendActionRankBias(candidate: BlendCandidate, hasDirectPressureAction: boolean): number {
+    switch (candidate.action.type) {
+        case 'attack':
+            return -3.5;
+        case 'capture':
+            return -3;
+        case 'heal':
+        case 'support':
+        case 'repair':
+        case 'destroy_town':
+        case 'summon':
+            return -1;
+        case 'move':
+        case 'post_attack_move':
+            return hasDirectPressureAction ? 3.5 : 0.75;
+        case 'recruit_to_castle':
+        case 'recruit_and_deploy':
+            return hasDirectPressureAction ? 2 : 0.5;
+        case 'wait':
+            return hasDirectPressureAction ? 6 : 3;
+        case 'end_turn':
+            return hasDirectPressureAction ? 8 : 4;
+        case 'surrender':
+            return 1000;
+    }
+}
+
+function getBlendHeuristicWeight(turn: number): number {
+    if (turn >= 130) return 0.94;
+    if (turn >= 100) return 0.90;
+    if (turn >= 80) return 0.87;
+    return 0.84;
+}
+
+function getLateGameScale(turn: number): number {
+    if (turn >= 130) return 1.5;
+    if (turn >= 100) return 1;
+    if (turn >= 80) return 0.5;
+    return 0;
+}
+
+function blendLateGameRankBias(candidate: BlendCandidate, turn: number, hasDirectPressureAction: boolean): number {
+    const scale = getLateGameScale(turn);
+    if (scale === 0) return 0;
+
+    switch (candidate.action.type) {
+        case 'attack':
+            return -3 * scale;
+        case 'capture':
+            return -4 * scale;
+        case 'destroy_town':
+            return -2.5 * scale;
+        case 'summon':
+            return -0.75 * scale;
+        case 'move':
+        case 'post_attack_move':
+            return hasDirectPressureAction ? 2.5 * scale : 0.5 * scale;
+        case 'heal':
+        case 'support':
+        case 'repair':
+            return 4 * scale;
+        case 'recruit_to_castle':
+        case 'recruit_and_deploy':
+            return 2 * scale;
+        case 'wait':
+            return 7 * scale;
+        case 'end_turn':
+            return hasDirectPressureAction ? 7 * scale : 2 * scale;
+        case 'surrender':
+            return 1000;
+    }
+}
+
+function shouldForceLateDirectPressure(candidate: BlendCandidate, turn: number): boolean {
+    if (turn < 100 || !isLateDirectPressureAction(candidate.action)) return false;
+    if (candidate.action.type === 'summon') return candidate.heuristicScore >= 2400;
+    if (candidate.action.type === 'destroy_town') return candidate.heuristicScore >= 3000;
+    return candidate.heuristicScore >= 3500;
+}
+
+function shouldEndTurnForLateLowTempo(candidate: BlendCandidate, turn: number, hasDirectPressureAction: boolean): boolean {
+    if (turn < 100 || hasDirectPressureAction) return false;
+
+    switch (candidate.action.type) {
+        case 'wait':
+        case 'heal':
+        case 'support':
+        case 'repair':
+            return true;
+        case 'move':
+        case 'post_attack_move':
+            return turn >= 130 || candidate.heuristicScore < 4200;
+        default:
+            return false;
+    }
+}
+
+export function createBcBlendPolicy(model: SkirmishBcModel, seed: number): SkirmishPolicy {
+    const heuristic = new HeuristicAI(createSeededRng(seed));
+
+    return {
+        name: 'bc-blend',
+        selectFixedActionIndex(context) {
+            const sample = buildLiveBcSample(context);
+            const engine = new GameEngine(context.result.state);
+            const fixedEntries = context.result.legalActionEntries.filter(entry => entry.fixedActionIndex !== null);
+            const nonSurrenderEntries = fixedEntries.filter(entry => entry.action.type !== 'surrender');
+            const entries = nonSurrenderEntries.length > 0 ? nonSurrenderEntries : fixedEntries;
+            const candidates: BlendCandidate[] = entries.map(entry => {
+                const features = buildCandidateFeatures(sample, entry.code, model.featureDim, model.featureExtractor);
+                return {
+                    fixedActionIndex: entry.fixedActionIndex ?? -1,
+                    actionCode: entry.code,
+                    action: entry.action,
+                    heuristicScore: heuristic.scoreCandidateAction(engine, context.playerId, entry.action),
+                    bcScore: features ? scoreBcFeatures(model, features) : -Infinity,
+                    heuristicRank: Number.MAX_SAFE_INTEGER,
+                    bcRank: Number.MAX_SAFE_INTEGER
+                };
+            }).filter(candidate => candidate.fixedActionIndex >= 0);
+
+            if (candidates.length === 0) return context.result.fixedLegalActionIndexes[0] ?? -1;
+            assignDescendingRanks(candidates, item => item.heuristicScore, (item, rank) => {
+                item.heuristicRank = rank;
+            });
+            assignDescendingRanks(candidates, item => item.bcScore, (item, rank) => {
+                item.bcRank = rank;
+            });
+
+            const heuristicBest = candidates.reduce((best, candidate) => (
+                candidate.heuristicRank < best.heuristicRank ? candidate : best
+            ), candidates[0]);
+            if (heuristicBest.heuristicScore >= 50000 && shouldUseHeuristicTacticalAction(heuristicBest.action)) {
+                return heuristicBest.fixedActionIndex;
+            }
+
+            const useLatePressureTuning = shouldUseBlendLatePressureTuning(context.scenario.id);
+            const hasDirectPressureAction = candidates.some(candidate => (
+                isDirectPressureAction(candidate.action, useLatePressureTuning)
+            ));
+            const turn = context.result.observation.turn;
+            const directPressureBest = candidates
+                .filter(candidate => useLatePressureTuning && isLateDirectPressureAction(candidate.action))
+                .reduce<BlendCandidate | null>((best, candidate) => (
+                    !best || candidate.heuristicScore > best.heuristicScore ? candidate : best
+                ), null);
+            if (directPressureBest && shouldForceLateDirectPressure(directPressureBest, turn)) {
+                return directPressureBest.fixedActionIndex;
+            }
+
+            const heuristicWeight = useLatePressureTuning ? getBlendHeuristicWeight(turn) : 0.84;
+            const bcWeight = 1 - heuristicWeight;
+            let bestCandidate = candidates[0];
+            let bestScore = Infinity;
+            for (const candidate of candidates) {
+                const combinedRank = candidate.heuristicRank * heuristicWeight
+                    + candidate.bcRank * bcWeight
+                    + blendActionRankBias(candidate, hasDirectPressureAction)
+                    + (useLatePressureTuning ? blendLateGameRankBias(candidate, turn, hasDirectPressureAction) : 0);
+                if (combinedRank < bestScore) {
+                    bestScore = combinedRank;
+                    bestCandidate = candidate;
+                }
+            }
+
+            const endTurnCandidate = candidates.find(candidate => candidate.action.type === 'end_turn');
+            if (
+                useLatePressureTuning
+                && endTurnCandidate
+                && shouldEndTurnForLateLowTempo(bestCandidate, turn, hasDirectPressureAction)
+            ) {
+                return endTurnCandidate.fixedActionIndex;
+            }
+
+            return bestCandidate.fixedActionIndex;
+        }
+    };
+}
+
+export function createPresetPolicyFactory(preset: BaselinePolicyPreset, model: SkirmishBcModel | null = null): SkirmishPolicyFactory {
     return (playerId, playerIds, episodeSeed) => {
         const sortedPlayerIds = [...playerIds].sort((left, right) => left - right);
         const policySeed = mixSeed(episodeSeed, playerId, sortedPlayerIds.indexOf(playerId) + 1);
         if (preset === 'random') return createRandomBaselinePolicy(policySeed);
         if (preset === 'heuristic') return createHeuristicBaselinePolicy(policySeed);
+        if (preset === 'bc') {
+            if (!model) throw new Error('bc preset 需要加载 BC 模型');
+            return createBcRankerPolicy(model);
+        }
+        if (preset === 'bc-hybrid') {
+            if (!model) throw new Error('bc-hybrid preset 需要加载 BC 模型');
+            return createBcHybridPolicy(model, policySeed);
+        }
+        if (preset === 'bc-blend') {
+            if (!model) throw new Error('bc-blend preset 需要加载 BC 模型');
+            return createBcBlendPolicy(model, policySeed);
+        }
+        if (preset === 'bc-vs-random') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-vs-random preset 需要加载 BC 模型');
+                return createBcRankerPolicy(model);
+            }
+            return createRandomBaselinePolicy(policySeed);
+        }
+        if (preset === 'bc-vs-heuristic') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-vs-heuristic preset 需要加载 BC 模型');
+                return createBcRankerPolicy(model);
+            }
+            return createHeuristicBaselinePolicy(policySeed);
+        }
+        if (preset === 'bc-hybrid-vs-random') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-hybrid-vs-random preset 需要加载 BC 模型');
+                return createBcHybridPolicy(model, policySeed);
+            }
+            return createRandomBaselinePolicy(policySeed);
+        }
+        if (preset === 'bc-hybrid-vs-heuristic') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-hybrid-vs-heuristic preset 需要加载 BC 模型');
+                return createBcHybridPolicy(model, policySeed);
+            }
+            return createHeuristicBaselinePolicy(policySeed);
+        }
+        if (preset === 'bc-blend-vs-random') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-blend-vs-random preset 需要加载 BC 模型');
+                return createBcBlendPolicy(model, policySeed);
+            }
+            return createRandomBaselinePolicy(policySeed);
+        }
+        if (preset === 'bc-blend-vs-heuristic') {
+            if (playerId === sortedPlayerIds[0]) {
+                if (!model) throw new Error('bc-blend-vs-heuristic preset 需要加载 BC 模型');
+                return createBcBlendPolicy(model, policySeed);
+            }
+            return createHeuristicBaselinePolicy(policySeed);
+        }
         return playerId === sortedPlayerIds[0]
             ? createHeuristicBaselinePolicy(policySeed)
             : createRandomBaselinePolicy(policySeed);
@@ -608,7 +1086,8 @@ export function runSkirmishEpisode(options: {
             info: nextResult.info,
             illegal,
             spendValue: illegal ? 0 : spendValue,
-            killValueByPlayer
+            killValueByPlayer,
+            lostValueByPlayer
         });
         result = nextResult;
 
@@ -654,6 +1133,129 @@ export function runSkirmishEpisode(options: {
             economyByPlayer: cloneEconomyByPlayer(economyByPlayer)
         }
     };
+}
+
+function sanitizeFileSegment(value: string): string {
+    const sanitized = value
+        .trim()
+        .replace(/[<>:"/\\|?*]+/g, '-')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+    return sanitized.slice(0, 80) || 'episode';
+}
+
+export function getEpisodeTempLogPath(tempDir: string, episode: SkirmishEpisodeRecord, jobId: number): string {
+    const jobSegment = String(jobId + 1).padStart(6, '0');
+    const modeSegment = sanitizeFileSegment(episode.scenario.mode);
+    const mapSegment = sanitizeFileSegment(episode.scenario.mapName);
+    return path.join(tempDir, `job-${jobSegment}-${modeSegment}-${mapSegment}-seed-${episode.seed}.jsonl`);
+}
+
+function addStepEconomy(economyByPlayer: SkirmishEconomyByPlayer, step: SkirmishEpisodeStep) {
+    if (!step.illegal && step.spendValue > 0) {
+        ensurePlayerEconomy(economyByPlayer, step.playerId).spentValue += step.spendValue;
+    }
+    for (const [playerId, value] of Object.entries(step.killValueByPlayer)) {
+        ensurePlayerEconomy(economyByPlayer, Number(playerId)).killValue += value;
+    }
+    for (const [playerId, value] of Object.entries(step.lostValueByPlayer)) {
+        ensurePlayerEconomy(economyByPlayer, Number(playerId)).lostValue += value;
+    }
+}
+
+export function formatEpisodeTempLog(
+    episode: SkirmishEpisodeRecord,
+    jobId: number,
+    turnInterval = 5
+): string {
+    const economyByPlayer = createEconomyByPlayer(episode.players.map(player => player.id));
+    const lines: unknown[] = [{
+        kind: 'skirmish_episode_header',
+        version: 1,
+        jobId,
+        turnInterval,
+        scenario: episode.scenario,
+        seed: episode.seed,
+        maxPlies: episode.maxPlies,
+        maxSteps: episode.maxSteps,
+        initialObservationHash: episode.initialObservationHash,
+        initialLegalActionCount: episode.initialLegalActionCount,
+        fixedActionSpaceSize: episode.fixedActionSpaceSize,
+        players: episode.players,
+        policyByPlayer: episode.policyByPlayer
+    }];
+
+    let windowStartTurn = 0;
+    let windowSteps: SkirmishEpisodeStep[] = [];
+    let windowEconomyDelta = createEconomyByPlayer(episode.players.map(player => player.id));
+
+    const flushWindow = () => {
+        if (windowSteps.length === 0) return;
+        const lastStep = windowSteps.at(-1)!;
+        const illegalActionCount = windowSteps.filter(step => step.illegal).length;
+
+        lines.push({
+            kind: 'skirmish_turn_window',
+            version: 1,
+            jobId,
+            scenarioId: episode.scenario.id,
+            seed: episode.seed,
+            fromTurn: windowStartTurn,
+            toTurn: windowStartTurn + turnInterval - 1,
+            stepCount: windowSteps.length,
+            firstStep: windowSteps[0].step,
+            lastStep: lastStep.step,
+            terminal: windowSteps.some(step => step.done),
+            illegalActionCount,
+            lastActionCode: lastStep.actionCode,
+            economyDeltaByPlayer: cloneEconomyByPlayer(windowEconomyDelta),
+            economyAfterWindow: cloneEconomyByPlayer(economyByPlayer),
+            steps: windowSteps
+        });
+    };
+
+    for (const step of episode.steps) {
+        const stepTurn = Math.max(1, step.turnBefore);
+        const stepWindowStartTurn = Math.floor((stepTurn - 1) / turnInterval) * turnInterval + 1;
+        if (windowSteps.length > 0 && stepWindowStartTurn !== windowStartTurn) {
+            flushWindow();
+            windowSteps = [];
+            windowEconomyDelta = createEconomyByPlayer(episode.players.map(player => player.id));
+        }
+
+        windowStartTurn = stepWindowStartTurn;
+        windowSteps.push(step);
+        addStepEconomy(economyByPlayer, step);
+        addStepEconomy(windowEconomyDelta, step);
+    }
+    flushWindow();
+
+    lines.push({
+        kind: 'skirmish_summary',
+        version: 1,
+        jobId,
+        scenario: episode.scenario,
+        seed: episode.seed,
+        summary: episode.summary
+    });
+
+    return `${lines.map(line => JSON.stringify(line)).join('\n')}\n`;
+}
+
+async function writeEpisodeTempLog(
+    tempDir: string | null,
+    episode: SkirmishEpisodeRecord,
+    jobId: number,
+    turnInterval: number
+) {
+    if (!tempDir) return;
+    await mkdir(tempDir, { recursive: true });
+    await writeFile(
+        getEpisodeTempLogPath(tempDir, episode, jobId),
+        formatEpisodeTempLog(episode, jobId, turnInterval),
+        'utf8'
+    );
 }
 
 export async function readApkSkirmishTrainingMap(
@@ -788,17 +1390,21 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
     const scenarios = selectScenarios(options);
     const jobs = buildEpisodeJobs(scenarios, options);
     const workerCount = Math.max(1, Math.min(options.workers, jobs.length || 1));
+    const tempLogDir = options.tempLogs ? options.tempDir : null;
     const progressReporter = options.progress
         ? createProgressReporter(jobs.length, workerCount, options.progressIntervalMs)
         : null;
 
     await mkdir(path.dirname(options.outFile), { recursive: true });
+    if (tempLogDir) {
+        await mkdir(tempLogDir, { recursive: true });
+    }
     if (!options.append) {
         await writeFile(options.outFile, '', 'utf8');
     }
 
     if (workerCount > 1) {
-        const { episodes } = await runSkirmishBaselineInWorkers(options, jobs, workerCount, progressReporter);
+        const { episodes } = await runSkirmishBaselineInWorkers(options, jobs, workerCount, progressReporter, tempLogDir);
         progressReporter?.finish();
         return {
             episodes,
@@ -807,16 +1413,19 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
     }
 
     const mapCache = new Map<string, ApkAemMap>();
-    const policyFactory = createPresetPolicyFactory(options.preset);
+    const model = options.modelFile ? await loadBcModel(options.modelFile) : null;
+    const policyFactory = createPresetPolicyFactory(options.preset, model);
     const episodes: SkirmishEpisodeRecord[] = [];
 
     for (const job of jobs) {
         const scenario = scenarios[job.scenarioIndex];
         const map = await getCachedMap(mapCache, options.unpackDir, scenario);
+        const maxPlies = resolveScenarioMaxPlies(options, scenario);
+        const maxSteps = resolveScenarioMaxSteps(options, maxPlies);
 
         const env = createApkSkirmishTrainingEnv(map, scenario, {
             seed: job.seed,
-            maxPlies: options.maxPlies
+            maxPlies
         });
         const episode = runSkirmishEpisode({
             env,
@@ -827,8 +1436,8 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
                 resourcePath: scenario.resourcePath
             },
             seed: job.seed,
-            maxPlies: options.maxPlies,
-            maxSteps: options.maxSteps ?? options.maxPlies * 64,
+            maxPlies,
+            maxSteps,
             policyFactory,
             workerId: 1,
             jobId: job.jobId,
@@ -838,6 +1447,7 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
 
         episodes.push(episode);
         await appendFile(options.outFile, `${JSON.stringify(episode)}\n`, 'utf8');
+        await writeEpisodeTempLog(tempLogDir, episode, job.jobId, options.tempLogTurnInterval);
         progressReporter?.completeEpisode(1);
     }
     progressReporter?.finish();
@@ -852,7 +1462,8 @@ async function runSkirmishBaselineInWorkers(
     options: SkirmishRunnerOptions,
     jobs: readonly SkirmishEpisodeJob[],
     workerCount: number,
-    progressReporter: ReturnType<typeof createProgressReporter> | null
+    progressReporter: ReturnType<typeof createProgressReporter> | null,
+    tempLogDir: string | null
 ): Promise<{ episodes: SkirmishEpisodeRecord[] }> {
     const episodes: SkirmishEpisodeRecord[] = [];
     let writeQueue = Promise.resolve();
@@ -867,6 +1478,8 @@ async function runSkirmishBaselineInWorkers(
                 options: {
                     unpackDir: options.unpackDir,
                     preset: options.preset,
+                    modelFile: options.modelFile,
+                    maxTurns: options.maxTurns,
                     maxPlies: options.maxPlies,
                     maxSteps: options.maxSteps,
                     progressIntervalSteps: options.progressIntervalSteps
@@ -890,9 +1503,15 @@ async function runSkirmishBaselineInWorkers(
                     progressReporter?.update(message.progress);
                 } else if (message.type === 'episode') {
                     episodes.push(message.episode);
-                    writeQueue = writeQueue.then(() => (
-                        appendFile(options.outFile, `${JSON.stringify(message.episode)}\n`, 'utf8')
-                    ));
+                    writeQueue = writeQueue.then(async () => {
+                        await appendFile(options.outFile, `${JSON.stringify(message.episode)}\n`, 'utf8');
+                        await writeEpisodeTempLog(
+                            tempLogDir,
+                            message.episode,
+                            message.jobId,
+                            options.tempLogTurnInterval
+                        );
+                    });
                     progressReporter?.completeEpisode(workerId);
                 } else if (message.type === 'error') {
                     reject(new Error(message.stack ?? message.message));
@@ -950,7 +1569,8 @@ export async function runSkirmishWorker(data: SkirmishWorkerData = workerData as
     const scenarios = getApkSkirmishTrainingScenarios();
     const scenarioById = new Map(scenarios.map(scenario => [scenario.id, scenario]));
     const mapCache = new Map<string, ApkAemMap>();
-    const policyFactory = createPresetPolicyFactory(data.options.preset);
+    const model = data.options.modelFile ? await loadBcModel(data.options.modelFile) : null;
+    const policyFactory = createPresetPolicyFactory(data.options.preset, model);
 
     const postError = (error: unknown) => {
         parentPort?.postMessage({
@@ -965,9 +1585,11 @@ export async function runSkirmishWorker(data: SkirmishWorkerData = workerData as
         const scenario = scenarioById.get(job.scenarioId);
         if (!scenario) throw new Error(`worker ${data.workerId} 找不到训练场景: ${job.scenarioId}`);
         const map = await getCachedMap(mapCache, data.options.unpackDir, scenario);
+        const maxPlies = resolveScenarioMaxPlies(data.options, scenario);
+        const maxSteps = resolveScenarioMaxSteps(data.options, maxPlies);
         const env = createApkSkirmishTrainingEnv(map, scenario, {
             seed: job.seed,
-            maxPlies: data.options.maxPlies
+            maxPlies
         });
         const episode = runSkirmishEpisode({
             env,
@@ -978,8 +1600,8 @@ export async function runSkirmishWorker(data: SkirmishWorkerData = workerData as
                 resourcePath: scenario.resourcePath
             },
             seed: job.seed,
-            maxPlies: data.options.maxPlies,
-            maxSteps: data.options.maxSteps ?? data.options.maxPlies * 64,
+            maxPlies,
+            maxSteps,
             policyFactory,
             workerId: data.workerId,
             jobId: job.jobId,
@@ -1136,11 +1758,18 @@ function recordWinners(
     }
 }
 
-export function formatSkirmishRunSummary(summary: SkirmishRunSummary, outFile?: string): string {
+export function formatSkirmishRunSummary(
+    summary: SkirmishRunSummary,
+    outFile?: string,
+    tempLogDir?: string | null,
+    tempLogTurnInterval?: number
+): string {
     const lines = [
         '# Skirmish baseline 训练摘要',
         '',
         outFile ? `- 输出文件：\`${outFile}\`` : null,
+        tempLogDir ? `- 单局详细日志目录：\`${tempLogDir}\`` : null,
+        tempLogDir && tempLogTurnInterval ? `- 单局日志粒度：每 ${tempLogTurnInterval} 回合一个窗口` : null,
         `- Episode：${summary.episodeCount}`,
         `- 环境终局：${summary.terminalCount}`,
         `- 其中超时裁定：${summary.timeoutCount}`,
@@ -1178,9 +1807,19 @@ async function main() {
     const { summary } = await runSkirmishBaseline(options);
 
     if (options.json) {
-        console.log(JSON.stringify({ outFile: options.outFile, summary }, null, 2));
+        console.log(JSON.stringify({
+            outFile: options.outFile,
+            tempLogDir: options.tempLogs ? options.tempDir : null,
+            tempLogTurnInterval: options.tempLogs ? options.tempLogTurnInterval : null,
+            summary
+        }, null, 2));
     } else {
-        console.log(formatSkirmishRunSummary(summary, options.outFile));
+        console.log(formatSkirmishRunSummary(
+            summary,
+            options.outFile,
+            options.tempLogs ? options.tempDir : null,
+            options.tempLogs ? options.tempLogTurnInterval : undefined
+        ));
     }
 }
 

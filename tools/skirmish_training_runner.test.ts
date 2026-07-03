@@ -1,15 +1,39 @@
 import { describe, expect, it } from 'vitest';
+import path from 'node:path';
 import { AncientEmpiresEnv } from '../src/game/env';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { createDemoState } from '../src/game/demo_map';
 import {
+    createBcBlendPolicy,
+    createBcHybridPolicy,
     createPresetPolicyFactory,
+    createBcRankerPolicy,
     createSeededRng,
+    formatEpisodeTempLog,
+    getEpisodeTempLogPath,
     parseRunnerArgs,
+    resolveScenarioMaxPlies,
+    resolveScenarioMaxSteps,
     runSkirmishEpisode,
     summarizeSkirmishEpisodes
 } from './skirmish_training_runner';
 import { parseEpisodeJsonl } from './skirmish_training_eval';
+import type { SkirmishBcModel } from './skirmish_bc_train';
+
+function createZeroBcModel(featureDim = 128): SkirmishBcModel {
+    return {
+        kind: 'skirmish_bc_ranker',
+        version: 1,
+        featureExtractor: 'hashed-action-v1',
+        featureDim,
+        weights: new Array(featureDim).fill(0),
+        epochs: 1,
+        learningRate: 0.1,
+        maxCandidates: 64,
+        trainedSamples: 1,
+        createdAt: '2026-07-02T00:00:00.000Z'
+    };
+}
 
 describe('skirmish training runner', () => {
     it('种子随机数可复现', () => {
@@ -49,6 +73,39 @@ describe('skirmish training runner', () => {
             killValue: expect.any(Number),
             lostValue: expect.any(Number)
         }));
+        expect(episode.steps[0]).toEqual(expect.objectContaining({
+            lostValueByPlayer: expect.any(Object)
+        }));
+    });
+
+    it('默认按 150 回合计算每局超时，并允许 max-plies 覆盖', () => {
+        const defaults = parseRunnerArgs([]);
+
+        expect(defaults.maxTurns).toBe(150);
+        expect(defaults.maxPlies).toBeNull();
+        expect(defaults.maxSteps).toBeNull();
+        expect(defaults.tempLogs).toBe(true);
+        expect(defaults.tempLogTurnInterval).toBe(5);
+        expect(path.basename(defaults.tempDir)).toBe('temp');
+        expect(resolveScenarioMaxPlies(defaults, { playerCount: 2 })).toBe(300);
+        expect(resolveScenarioMaxSteps(defaults, 300)).toBe(19200);
+
+        const override = parseRunnerArgs([
+            '--max-turns',
+            '150',
+            '--max-plies',
+            '20',
+            '--max-steps',
+            '8',
+            '--temp-log-turn-interval',
+            '10',
+            '--no-temp-log'
+        ]);
+
+        expect(resolveScenarioMaxPlies(override, { playerCount: 4 })).toBe(20);
+        expect(resolveScenarioMaxSteps(override, 20)).toBe(8);
+        expect(override.tempLogTurnInterval).toBe(10);
+        expect(override.tempLogs).toBe(false);
     });
 
     it('可以汇总 JSONL episode 评估指标', () => {
@@ -82,6 +139,50 @@ describe('skirmish training runner', () => {
             killValue: expect.any(Number),
             lostValue: expect.any(Number)
         }));
+    });
+
+    it('可以生成每局详细行为 JSONL 日志', () => {
+        const env = new AncientEmpiresEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 13,
+            maxPlies: 20
+        });
+        const episode = runSkirmishEpisode({
+            env,
+            scenario: {
+                id: 'TEST:temp',
+                mode: 'SD',
+                mapName: 'demo map.aem',
+                resourcePath: 'demo'
+            },
+            seed: 13,
+            maxPlies: 20,
+            maxSteps: 2,
+            policyFactory: createPresetPolicyFactory('heuristic-vs-random')
+        });
+        const logLines = formatEpisodeTempLog(episode, 12, 5)
+            .trimEnd()
+            .split('\n')
+            .map(line => JSON.parse(line) as Record<string, unknown>);
+
+        expect(logLines[0]).toEqual(expect.objectContaining({
+            kind: 'skirmish_episode_header',
+            jobId: 12,
+            turnInterval: 5,
+            seed: 13
+        }));
+        expect(logLines[1]).toEqual(expect.objectContaining({
+            kind: 'skirmish_turn_window',
+            fromTurn: 1,
+            toTurn: 5,
+            economyDeltaByPlayer: expect.any(Object),
+            economyAfterWindow: expect.any(Object),
+            steps: expect.any(Array)
+        }));
+        expect(logLines.at(-1)).toEqual(expect.objectContaining({
+            kind: 'skirmish_summary'
+        }));
+        expect(path.basename(getEpisodeTempLogPath('C:\\tmp', episode, 12))).toBe('job-000013-SD-demo-map.aem-seed-13.jsonl');
     });
 
     it('超时裁定赢家会进入胜局统计', () => {
@@ -134,5 +235,97 @@ describe('skirmish training runner', () => {
         expect(options.progressIntervalMs).toBe(2000);
         expect(options.progressIntervalSteps).toBe(50);
         expect(options.progress).toBe(false);
+    });
+
+    it('解析 BC 模型参数，并要求 bc preset 提供模型文件', () => {
+        const options = parseRunnerArgs([
+            '--preset',
+            'bc-blend-vs-random',
+            '--model',
+            'training_runs/models/skirmish-bc-f2048-e5.json',
+            '--no-progress'
+        ]);
+
+        expect(options.preset).toBe('bc-blend-vs-random');
+        expect(options.modelFile).toContain('skirmish-bc-f2048-e5.json');
+        expect(() => parseRunnerArgs(['--preset', 'bc-vs-random'])).toThrow(/--model/);
+        expect(() => parseRunnerArgs(['--preset', 'bc-hybrid-vs-random'])).toThrow(/--model/);
+        expect(() => parseRunnerArgs(['--preset', 'bc-blend-vs-random'])).toThrow(/--model/);
+    });
+
+    it('BC ranker 策略只返回合法固定动作索引', () => {
+        const env = new AncientEmpiresEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 21,
+            maxPlies: 20
+        });
+        const result = env.reset(21);
+        const policy = createBcRankerPolicy(createZeroBcModel());
+        const fixedIndex = policy.selectFixedActionIndex({
+            result,
+            playerId: result.observation.currentPlayer,
+            stepNumber: 1,
+            episodeSeed: 21,
+            scenario: {
+                id: 'TEST:bc-policy',
+                mode: 'SD',
+                mapName: 'demo',
+                resourcePath: 'demo'
+            }
+        });
+
+        expect(result.fixedLegalActionIndexes).toContain(fixedIndex);
+        const selected = result.legalActionEntries.find(entry => entry.fixedActionIndex === fixedIndex);
+        if (result.legalActionEntries.some(entry => entry.action.type !== 'surrender')) {
+            expect(selected?.action.type).not.toBe('surrender');
+        }
+    });
+
+    it('BC hybrid 策略只返回合法固定动作索引', () => {
+        const env = new AncientEmpiresEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 22,
+            maxPlies: 20
+        });
+        const result = env.reset(22);
+        const policy = createBcHybridPolicy(createZeroBcModel(), 22);
+        const fixedIndex = policy.selectFixedActionIndex({
+            result,
+            playerId: result.observation.currentPlayer,
+            stepNumber: 1,
+            episodeSeed: 22,
+            scenario: {
+                id: 'TEST:bc-hybrid-policy',
+                mode: 'SD',
+                mapName: 'demo',
+                resourcePath: 'demo'
+            }
+        });
+
+        expect(result.fixedLegalActionIndexes).toContain(fixedIndex);
+    });
+
+    it('BC blend 策略只返回合法固定动作索引', () => {
+        const env = new AncientEmpiresEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 23,
+            maxPlies: 20
+        });
+        const result = env.reset(23);
+        const policy = createBcBlendPolicy(createZeroBcModel(), 23);
+        const fixedIndex = policy.selectFixedActionIndex({
+            result,
+            playerId: result.observation.currentPlayer,
+            stepNumber: 1,
+            episodeSeed: 23,
+            scenario: {
+                id: 'TEST:bc-blend-policy',
+                mode: 'SD',
+                mapName: 'demo',
+                resourcePath: 'demo'
+            }
+        });
+
+        expect(result.fixedLegalActionIndexes).toContain(fixedIndex);
     });
 });

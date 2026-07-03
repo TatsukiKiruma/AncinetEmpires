@@ -41,6 +41,10 @@ export class HeuristicAI {
         return this.pickBest(scoredActions)?.action ?? actions[0];
     }
 
+    public scoreCandidateAction(engine: GameEngine, playerId: number, action: Action): number {
+        return this.scoreAction(engine, engine.getState(), playerId, action);
+    }
+
     private pickBest<T extends { score: number }>(items: T[]): T | null {
         let bestItem: T | null = null;
         let bestScore = -Infinity;
