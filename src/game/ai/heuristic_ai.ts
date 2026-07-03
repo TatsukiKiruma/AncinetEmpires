@@ -6,6 +6,7 @@ import { getDistance, getReachablePositions } from '../map';
 import { calculateDamage } from '../rules';
 import { areEnemyPlayers, getAllianceId, getUnitCost, isCommanderUnit } from '../rule_config';
 import { getTileDefenseBonus, getTileTerrainConfig } from '../terrain_rules';
+import { RuleTacticalEvaluator } from './tactical_evaluation';
 
 export type Rng = () => number;
 
@@ -21,28 +22,21 @@ export class HeuristicAI {
         if (actions.length === 0) return { type: 'end_turn' };
 
         const state = engine.getState();
+        const tactics = new RuleTacticalEvaluator(state, playerId);
         const scoredActions = actions.map(action => ({
             action,
-            score: this.scoreAction(engine, state, playerId, action)
+            score: this.scoreAction(engine, state, playerId, action, tactics)
         }));
         const urgentAction = this.pickBest(scoredActions.filter(item => item.score >= 50000));
         if (urgentAction) return urgentAction.action;
 
-        const realUnitActions = scoredActions.filter(({ action }) => (
-            action.type !== 'recruit_to_castle'
-            && action.type !== 'recruit_and_deploy'
-            && action.type !== 'wait'
-            && action.type !== 'end_turn'
-            && action.type !== 'surrender'
-        ));
-        const bestRealUnitAction = this.pickBest(realUnitActions);
-        if (bestRealUnitAction) return bestRealUnitAction.action;
-
-        return this.pickBest(scoredActions)?.action ?? actions[0];
+        const nonSurrenderActions = scoredActions.filter(({ action }) => action.type !== 'surrender');
+        return this.pickBest(nonSurrenderActions)?.action ?? actions[0];
     }
 
     public scoreCandidateAction(engine: GameEngine, playerId: number, action: Action): number {
-        return this.scoreAction(engine, engine.getState(), playerId, action);
+        const state = engine.getState();
+        return this.scoreAction(engine, state, playerId, action, new RuleTacticalEvaluator(state, playerId));
     }
 
     private pickBest<T extends { score: number }>(items: T[]): T | null {
@@ -57,37 +51,59 @@ export class HeuristicAI {
         return bestItem;
     }
 
-    private scoreAction(engine: GameEngine, state: GameState, playerId: number, action: Action): number {
+    private scoreAction(
+        engine: GameEngine,
+        state: GameState,
+        playerId: number,
+        action: Action,
+        tactics: RuleTacticalEvaluator
+    ): number {
+        let score: number;
         switch (action.type) {
             case 'attack':
-                return this.scoreAttack(engine, state, playerId, action);
+                score = this.scoreAttack(engine, state, playerId, action);
+                break;
             case 'capture':
-                return this.scoreCapture(state, playerId, action.unitId);
+                score = this.scoreCapture(state, playerId, action.unitId);
+                break;
             case 'repair':
-                return 4200 + this.rng() * 20;
+                score = 4200 + this.rng() * 20;
+                break;
             case 'heal':
-                return this.scoreHeal(engine, state, playerId, action);
+                score = this.scoreHeal(engine, state, playerId, action);
+                break;
             case 'support':
-                return this.scoreSupport(state, action.supporterId, action.targetId);
+                score = this.scoreSupport(state, action.supporterId, action.targetId);
+                break;
             case 'summon':
-                return 2600 + this.scorePositionPressure(state, playerId, action.spawnPos) + this.rng() * 20;
+                score = 2600 + this.scorePositionPressure(state, playerId, action.spawnPos) + this.rng() * 20;
+                break;
             case 'destroy_town':
-                return this.scoreDestroyTown(state, playerId, action.unitId);
+                score = this.scoreDestroyTown(state, playerId, action.unitId);
+                break;
             case 'post_attack_move':
-                return this.scoreMove(state, playerId, action.unitId, action.to, 180);
+                score = this.scoreMove(state, playerId, action.unitId, action.to, 180);
+                break;
             case 'move':
-                return this.scoreMove(state, playerId, action.unitId, action.to, 260);
+                score = this.scoreMove(state, playerId, action.unitId, action.to, 260);
+                break;
             case 'recruit_to_castle':
-                return this.scoreRecruit(state, playerId, action.unitClass, action.castlePos, action.castlePos);
+                score = this.scoreRecruit(state, playerId, action.unitClass, action.castlePos, action.castlePos);
+                break;
             case 'recruit_and_deploy':
-                return this.scoreRecruit(state, playerId, action.unitClass, action.castlePos, action.to);
+                score = this.scoreRecruit(state, playerId, action.unitClass, action.castlePos, action.to);
+                break;
             case 'wait':
-                return this.scoreWait(state, playerId, action.unitId);
+                score = this.scoreWait(state, playerId, action.unitId);
+                break;
             case 'end_turn':
-                return -250;
+                score = -250;
+                break;
             case 'surrender':
                 return -100000;
         }
+
+        return score + tactics.scoreAction(action);
     }
 
     private scoreAttack(
@@ -266,7 +282,7 @@ export class HeuristicAI {
         }
 
         if (shouldRestoreCommander && unitClass !== 'commander') {
-            return playerGold < commanderCost ? -6000 + this.rng() * 10 : 300 + this.rng() * 10;
+            return playerGold < commanderCost ? -45000 + this.rng() * 10 : 300 + this.rng() * 10;
         }
 
         if (shouldRestoreCommander && unitClass === 'commander') {
@@ -281,13 +297,15 @@ export class HeuristicAI {
         }
 
         const classPriority = this.getRecruitClassPriority(unitClass);
+        const recruitCostPressure = this.scoreRecruitCostPressure(state, playerId, unitClass, cost);
         const advancedRecruitBonus = this.scoreAdvancedRecruitBonus(state, playerId, unitClass);
         const counterRecruitBonus = this.scoreCounterRecruitBonus(state, playerId, unitClass);
 
         return (
             3600
             + classPriority
-            + cost * 6.8
+            + cost * 2
+            + recruitCostPressure
             + advancedRecruitBonus
             + counterRecruitBonus
             + Math.min(unitCount, 14) * 90
@@ -342,13 +360,27 @@ export class HeuristicAI {
         return priority[unitClass] ?? 0;
     }
 
+    private scoreRecruitCostPressure(state: GameState, playerId: number, unitClass: UnitClass, cost: number): number {
+        const ownUnits = state.units.filter(unit => unit.ownerId === playerId && unit.hp > 0);
+        const lowTierCount = this.countLowTierUnits(state, playerId);
+        const population = UNIT_CONFIGS[unitClass].population;
+
+        if (ownUnits.length <= 4 && lowTierCount < 3) {
+            if (cost <= 400 && population <= 2) return 1800;
+            if (cost >= 800 || population >= 4) return -2400;
+        }
+
+        if (ownUnits.length >= 8 && cost >= 800) return 1200;
+        return 0;
+    }
+
     private scoreAdvancedRecruitBonus(state: GameState, playerId: number, unitClass: UnitClass): number {
         const cost = getUnitCost(state, playerId, unitClass) ?? UNIT_CONFIGS[unitClass].cost ?? 0;
         const lowTierCount = this.countLowTierUnits(state, playerId);
         const isAdvanced = cost >= 500;
         const isCheapFiller = cost <= 300;
 
-        if (isAdvanced && lowTierCount > 0) {
+        if (isAdvanced && lowTierCount >= 4) {
             return 1400 + Math.min(lowTierCount, 6) * 180;
         }
         if (isCheapFiller && lowTierCount >= 4) {
