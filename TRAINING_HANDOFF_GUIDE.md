@@ -1,430 +1,349 @@
-# 远古帝国 AI 训练启动与新对话交接文档
+# AncientEmpires AI 训练交接指南
 
-本文档用于开启新的 Codex/开发对话，目标是让新对话可以直接开始训练准备、训练脚本设计、战役二次训练规划和后续代码实现。当前结论基于项目现状、APK 4.2.5.1 反编译资料、已实现规则门禁和最近提交。
+本文档用于下一次在 macOS 平台继续 AncientEmpires 的 SD skirmish AI 训练任务。新对话请先阅读本文件，再继续工作。
 
-## 1. 当前项目状态
+## 1. 基本约定
 
-- 项目路径：`C:\code\AncinetEmpires`
-- 当前主分支：`main`
-- 最近关键提交：
-  - `c61bcae feat(campaign): add static event hooks for training`
-  - `1efcc45 fix(apk): apply opencode skirmish mechanics`
-  - `ad5b2d1 fix(apk): align counterattack status rules`
-- 不要修改 `demo` 下的文档。
-- 根目录有多份未跟踪分析文档，主要作为规则证据和后续实现参考，不应默认提交。
-
-当前可以认为：
-
-- **skirmish/对战规则层面已经达到已知 APK 证据范围内一致。**
-- **可以开始通用对战 AI 训练准备和训练。**
-- **完整战役打榜训练还不应直接开始**，因为 AEI/AEII/AEIII 每关脚本尚未逐关转换成 `RuleConfig.campaignEvents` 配置。
-- 当前已经具备“战役式训练场景”的代码入口，可以先挑 1-2 张战役图做单图事件配置和二次训练验证。
-
-## 2. 必跑验证命令
-
-在开始训练或改训练代码前，先跑以下命令确认环境没有回退：
+- 所有沟通使用中文。
+- 新增代码注释使用中文。
+- 不要修改 `demo` 目录。
+- 不要回滚用户或前序对话留下的未提交改动。
+- 工作区可能是 dirty 状态，新对话第一步必须先看 `git status --short`。
+- Windows 原路径是 `C:/code/AncinetEmpires`；macOS 上请以实际 clone 路径为准，例如：
 
 ```bash
-npm test -- --run
-npm run build
-npm run apk:training-report -- --check
-npm run apk:skirmish-rule-report -- --check
+cd /path/to/AncinetEmpires
 ```
 
-当前通过基线：
+下面命令默认使用 macOS / zsh 风格路径。若本地 `python` 不存在，请改用 `python3`。
 
-- `npm test -- --run`：289 个测试通过。
-- `npm run build`：通过。
-- `npm run apk:training-report -- --check`：40/40 skirmish 训练场景通过。
-- `npm run apk:skirmish-rule-report -- --check`：30/30 规则检查通过。
+## 2. 当前阶段一句话
 
-可选规则报告：
+v2/global-noheurcut 仍是当前安全基线；v3 特征链路已经打通，但本轮追加的残局/高阶兵种 curated 数据没有通过回归，不应直接扩大或作为默认模型。
+
+## 3. 已完成工作
+
+已完成：
+
+- 复用现有 dataset 导出 `hashed-action-v3` 特征。
+- 训练基础 v3 模型。
+- 追加一小批残局/高阶兵种定制数据。
+- 用 `seed19000`、`seed23000`、三张热点图 9 局做回归。
+- 生成 timeout 终局聚焦报告和回归决策报告。
+- `npm run lint` 通过。
+- `npm test -- --run` 通过，20 个测试文件、340 个测试。
+
+新增/扩展的主要工具：
+
+- `tools/skirmish_bc_train.ts`
+  - 支持 `hashed-action-v3`。
+  - 支持 `--extra-train`。
+  - 支持 `--extra-train-repeat`。
+- `tools/skirmish_feature_export.ts`
+  - 支持 v3 feature 导出。
+- `tools/skirmish_distill_export.ts`
+  - 支持 v3 distill feature 导出。
+- `tools/skirmish_curated_feature_export.ts`
+  - 新增 curated 残局/高阶兵种样本导出。
+- `tools/skirmish_timeout_focus_report.ts`
+  - 新增 timeout 终局聚焦报告。
+- `tools/skirmish_eval_action_report.py`
+  - 用于动作分布和评估报告。
+
+`package.json` 已有相关脚本：
 
 ```bash
-npm run apk:map-report -- --check
-npm run apk:script-report -- --check
-npm run apk:dex-report -- --check
-npm run apk:terrain-report -- --check
-npm run apk:unit-report -- --check
-npm run apk:language-rule-report -- --check
+npm run export:skirmish:dataset
+npm run export:skirmish:features
+npm run export:skirmish:distill
+npm run export:skirmish:curated
+npm run split:skirmish:dataset
+npm run train:skirmish:bc
+npm run train:skirmish:baseline
+npm run report:skirmish:timeout
 ```
 
-## 3. 训练入口
+## 4. 当前安全基线
 
-核心训练环境是 `AncientEmpiresEnv`：
-
-```ts
-import { AncientEmpiresEnv } from './src/game/env';
-import {
-  createApkSkirmishTrainingEnv,
-  getApkSkirmishTrainingScenarios
-} from './src/game/apk_skirmish';
-```
-
-推荐优先使用官方 skirmish 训练场景：
-
-```ts
-const scenarios = getApkSkirmishTrainingScenarios();
-const env = createApkSkirmishTrainingEnv(
-  scenarios[0].mapName,
-  scenarios[0].id,
-  { maxPlies: 1000 }
-);
-
-let result = env.reset();
-while (!result.done) {
-  const legalIndexes = result.fixedLegalActionIndexes;
-  const actionIndex = legalIndexes[Math.floor(Math.random() * legalIndexes.length)];
-  result = env.stepFixedAction(actionIndex);
-}
-```
-
-训练端应优先消费 `EnvStepResult`：
-
-- `observation`：完整公开状态，当前没有战争迷雾。
-- `legalActions`：结构化合法动作。
-- `legalActionCodes`：字符串形式动作，方便日志。
-- `legalActionEntries`：动作、编码、mask、固定索引聚合。
-- `fixedActionSpaceDescriptor`：固定稀疏动作空间描述。
-- `fixedLegalActionIndexes`：当前合法固定动作索引。
-- `actionMask`：动态合法动作 mask。
-- `reward`：训练环境层稀疏奖励。
-- `done`：是否终局。
-
-奖励语义：
-
-- 非法动作：`-0.01`
-- 胜利：`+1`
-- 失败：`-1`
-- 平局：`0`
-- 超时：按金币和剩余军力价值估算胜负联盟。
-
-注意：`GameEngine` 内部有局部奖励，但 `AncientEmpiresEnv` 会覆盖为稀疏奖励；强化学习优先用 `EnvStepResult.reward`。
-
-## 4. 固定动作空间
-
-当前固定动作空间由地图尺寸和单位类型列表决定，默认覆盖所有项目单位：
-
-- `move`
-- `post_attack_move`
-- `attack`
-- `heal`
-- `support`
-- `summon`
-- `recruit_to_castle`
-- `recruit_and_deploy`
-- `capture`
-- `repair`
-- `destroy_town`
-- `wait`
-- `surrender`
-- `end_turn`
-
-推荐训练策略：
-
-- 模型输出固定动作空间 logits。
-- 用 `fixedLegalActionIndexes` 或 `getFixedActionMask()` 屏蔽非法动作。
-- 执行时使用 `env.stepFixedAction(index)`。
-- 调试和复盘时记录 `legalActionCodes` 或 `legalActionEntries[].code`。
-
-不要让模型直接输出可变参数动作，除非训练框架已经能稳定处理结构化 action。
-
-## 5. 当前可训练数据集
-
-默认训练集来自 APK 官方 skirmish 地图：
-
-- 20 张官方 skirmish 地图。
-- SD/SO 两种模式。
-- 共 40 个训练场景。
-- metadata、manifest、动作空间、招募经济、模式规则均有门禁。
-
-训练场景特点：
-
-- 适合训练通用战术底座。
-- 包含 SD 正常模式和 SO 原版模式。
-- 默认不包含未验证 approximate/unmapped 地图。
-- 当前不含完整战役脚本事件。
-
-建议第一阶段只训练这 40 个场景，先把基础战术学稳：
-
-- 行军和站位
-- 集火和反击规避
-- 城镇/城堡争夺
-- 招募和经济
-- 指挥官保护
-- 支援、治疗、召唤、突击后移动
-- 地形防御和地形回血
-
-## 6. 战役训练入口
-
-最近已新增 `RuleConfig.campaignEvents`，用于把 APK Rhino JavaScript 战役脚本静态化，不直接嵌入 JS 运行时。
-
-支持触发器：
-
-- `turn_start`：某队回合开始、指定回合、周期回合。
-- `unit_standby`：单位结束行动，支持按队伍、坐标、区域、code、兵种、指挥官筛选。
-- `unit_destroyed`：单位死亡，支持按 code、兵种、队伍、指挥官筛选。
-- `tile_occupied`：占领指定地块，支持旧归属/新归属筛选。
-
-支持效果：
-
-- `create_unit` / `reinforce`：刷兵。
-- `damage_units` / `change_unit_hp`：直接伤害或回血。
-- `change_unit_team`：改变单位阵营。
-- `destroy_units` / `remove_units`：摧毁或移除单位。
-- `move_unit`：脚本移动单位。
-- `set_tile`：改变地形或归属。
-- `restore_team` / `disable_team` / `destroy_team`：启用、禁用、摧毁队伍。
-- `set_alliance`：改变联盟。
-- `game_over`：设置胜利联盟。
-- `set_boolean` / `set_integer`：脚本变量。
-- `change_gold` / `set_current_team`：金币和当前队伍控制。
-
-事件触发状态会记录在：
-
-```ts
-state.apkScriptState.booleans["#campaignEvent:<eventId>"]
-```
-
-训练 observation 会暴露摘要：
-
-```ts
-observation.rules.campaignEvents = [
-  { id, triggerType, once, fired }
-]
-```
-
-## 7. 战役事件配置示例
-
-回合刷兵：
-
-```ts
-const rules = {
-  campaignEvents: [{
-    id: 'wave_p1_t1',
-    trigger: { type: 'turn_start', playerId: 1, turn: 1 },
-    effects: [{
-      type: 'create_unit',
-      unit: {
-        unitClass: 'skeleton',
-        teamId: 1,
-        pos: { x: 3, y: 3 },
-        level: 2,
-        code: 'wave_skeleton'
-      }
-    }]
-  }]
-};
-```
-
-区域伏兵：
-
-```ts
-const rules = {
-  disabledTeams: [1],
-  campaignEvents: [{
-    id: 'ambush_zone',
-    trigger: {
-      type: 'unit_standby',
-      selector: {
-        teamId: 0,
-        area: { minX: 1, maxX: 4, minY: 5, maxY: 7 }
-      }
-    },
-    effects: [
-      { type: 'restore_team', teamId: 1 },
-      {
-        type: 'reinforce',
-        units: [
-          { unitClass: 'skeleton', teamId: 1, pos: { x: 3, y: 3 }, code: 'ambusher_a' },
-          { unitClass: 'skeleton', teamId: 1, pos: { x: 4, y: 3 }, code: 'ambusher_b' }
-        ]
-      }
-    ]
-  }]
-};
-```
-
-击杀 boss 胜利：
-
-```ts
-const rules = {
-  campaignEvents: [{
-    id: 'boss_defeated',
-    trigger: { type: 'unit_destroyed', selector: { unitCode: 'saeth' } },
-    effects: [{ type: 'game_over', allianceId: 0 }]
-  }]
-};
-```
-
-占领目标胜利：
-
-```ts
-const rules = {
-  campaignEvents: [{
-    id: 'occupy_target',
-    trigger: { type: 'tile_occupied', pos: { x: 12, y: 4 }, ownerId: 0 },
-    effects: [{ type: 'game_over', allianceId: 0 }]
-  }]
-};
-```
-
-## 8. 推荐训练路线
-
-### 阶段 A：训练准备
-
-目标：确保训练管线能稳定跑完整 episode。
-
-任务：
-
-- 写一个最小训练 runner，循环 40 个 skirmish 场景。
-- 保存每局：
-  - 场景 ID
-  - seed
-  - 初始 observation hash
-  - 每步 action code
-  - reward
-  - done
-  - winner
-  - 终局回合/ply 数
-- 先用 RandomAI 和 HeuristicAI 做 baseline。
-- 确认固定动作 mask 无非法动作。
-
-### 阶段 B：通用 skirmish AI
-
-目标：训练稳定基础策略。
-
-建议：
-
-- 先用 self-play 或 opponent pool。
-- 先只训练 SD，再加入 SO。
-- 每 N 步保存 checkpoint。
-- 每个 checkpoint 固定 seed 评估 40 个场景。
-- 主要指标：
-  - 胜率
-  - 平均 ply
-  - 非法动作率
-  - 超时率
-  - 平均军力价值差
-  - 指挥官死亡率
-
-### 阶段 C：战役式二次训练
-
-目标：让 AI 适应伏兵、刷兵、boss、保护目标、限回合等脚本事件。
-
-建议：
-
-- 不要一开始做全部 25 个战役关卡。
-- 先挑 1-2 张代表图：
-  - AEII s8：周期 AoE/boss 战。
-  - AEIII s6：64 回合限制 + 周期刷兵 + 多 boss。
-  - AEIII s7：区域触发刷兵 + boss。
-- 把该关脚本转成 `campaignEvents`。
-- 用通用 skirmish AI 初始化，再二次训练。
-- 每张图可以保留一个特化 checkpoint。
-
-### 阶段 D：单图优化
-
-目标：针对某一关最短回合/最稳通关优化。
-
-建议：
-
-- 先固定地图、固定 seed、固定事件配置。
-- 用通用模型做 rollout。
-- 对高分轨迹做 imitation 或 replay buffer 加权。
-- 再用 RL 或搜索做局部优化。
-- 如果要追求最短回合，reward 需要从纯胜负改为：
-  - 胜利：`+1`
-  - 每 ply 小惩罚：例如 `-0.001`
-  - 关键目标进展奖励
-  - 失败：`-1`
-
-当前项目默认 reward 是稀疏胜负奖励；如果要打榜式最短回合，需要新增 reward 配置，不建议直接改默认 env 行为。
-
-## 9. 是否可以开始训练
-
-可以开始：
-
-- 通用 skirmish/对战 AI 训练。
-- 训练 runner、日志、评估脚本、checkpoint 管理。
-- RandomAI/HeuristicAI baseline。
-- 固定动作空间 PPO/DQN/MCTS 接入。
-
-暂不建议开始：
-
-- 完整战役打榜训练。
-- 直接把全部战役混入训练集。
-- 依赖排行榜数据训练。
-
-原因：
-
-- 战役事件执行系统已有，但每关还没完成事件配置。
-- 排行榜核实已明确不做，不作为当前训练依赖。
-- 战役最优解更接近单图规划/路线优化，需要先有准确事件配置。
-
-## 10. 下一步代码任务
-
-优先级建议：
-
-1. 新增训练 runner：
-   - 批量加载 40 个 skirmish 场景。
-   - 支持随机策略、启发式策略、外部模型策略。
-   - 输出 episode JSONL。
-
-2. 新增评估脚本：
-   - 固定 seed。
-   - 输出胜率、平均回合、超时率、非法动作率。
-
-3. 新增 reward 配置：
-   - 保持默认稀疏奖励不变。
-   - 增加可选 shaped reward，用于更快训练和单图优化。
-
-4. 新增战役场景配置层：
-   - 选择 AEII s8 或 AEIII s6 作为第一张战役样例。
-   - 从 `OPENCODE_APK_Campaign_Structure.md` 和 `OPENCODE_APK_Campaign_AI_Alignment.md` 提取脚本事件。
-   - 生成 `RuleConfig.campaignEvents`。
-
-5. 新增战役 smoke test：
-   - 事件触发正确。
-   - 胜负条件正确。
-   - 刷兵位置占用时行为符合当前配置预期。
-
-## 11. 新对话建议开场提示
-
-可以用下面这段开启新对话：
+当前仍建议保留的安全基线是：
 
 ```text
-请阅读 C:\code\AncinetEmpires\TRAINING_HANDOFF_GUIDE.md，并基于当前 main 分支继续推进 AI 训练准备。
-
-目标：
-1. 不修改 demo 下文档。
-2. 先实现通用 skirmish 训练 runner 和评估脚本，不做排行榜相关功能。
-3. 使用 AncientEmpiresEnv、createApkSkirmishTrainingScenarios/createApkSkirmishTrainingEnv、fixedLegalActionIndexes/stepFixedAction。
-4. 保持现有规则门禁通过：npm test -- --run、npm run build、npm run apk:training-report -- --check、npm run apk:skirmish-rule-report -- --check。
-5. 训练 runner 先支持 RandomAI 和 HeuristicAI baseline，再预留外部模型策略接口。
-6. 后续再挑 AEII s8 或 AEIII s6 做 campaignEvents 单图特化。
+bc-blend + global late-pressure + no heuristic getAction cut
 ```
 
-## 12. 关键文件索引
+核心模型：
 
-- `src/game/env.ts`：训练环境、observation、动作编码、固定动作空间。
-- `src/game/engine.ts`：核心回合制规则执行。
-- `src/game/rules.ts`：合法动作生成。
-- `src/game/types.ts`：状态、动作、规则、战役事件类型。
-- `src/game/campaign_events.ts`：静态战役事件触发与效果应用。
-- `src/game/apk_skirmish.ts`：APK skirmish 训练场景生成。
-- `src/game/apk_stage.ts`：APK Stage 同步 API 子集。
-- `src/game/apk_script_config.ts`：APK 脚本字面量规则转 RuleConfig。
-- `tools/apk_training_report.ts`：训练场景门禁。
-- `tools/apk_skirmish_rule_report.ts`：skirmish 规则门禁。
-- `OPENCODE_APK_Campaign_Structure.md`：战役结构和脚本 API 证据。
-- `OPENCODE_APK_Campaign_AI_Alignment.md`：战役训练差距和建议。
+```text
+training_runs/models/skirmish-bc-apk-distill-v2-e25-f4096-c64-e5.json
+```
 
-## 13. 当前边界
+正式 120 局表现：
 
-- 没有战争迷雾。
-- 没有 APK Rhino JS 运行时。
-- 没有完整战役 replay 数据。
-- 没有排行榜相关实现，且当前明确不做排行榜核实。
-- 完整战役复刻需要逐关把脚本转成 `campaignEvents`。
-- UI/动画表现不是训练目标，训练以规则层状态转移为准。
+| 模型 | seed19000 | seed23000 | 合计胜率 | 合计 timeout |
+| --- | ---: | ---: | ---: | ---: |
+| v2/global-noheurcut | 23/60, timeout 2 | 27/60, timeout 2 | 50/120 | 4 |
+
+热点 9 局：
+
+```text
+timeout 3/9
+```
+
+这个版本不是强度突破，但它是当前最稳的可回退基线。
+
+不要恢复这些失败路线：
+
+- 修改 `HeuristicAI.getAction`，在后期强制低收益动作 `end_turn`。
+- 只继续调 blend 权重。
+- 只把 `max-turns` 从 150 拉到 180 或 250。
+- 直接扩大本轮 curated 数据量。
+
+## 5. v3 特征状态
+
+v3 特征已经加入，目标是让模型看到更多“残局意识”和“目标导向”信息。
+
+已经编码的方向包括：
+
+- 回合区间。
+- 军力差。
+- 敌方剩余单位。
+- 是否明显优势。
+- 当前候选动作是否能攻击、占领、拆城、召唤。
+- 移动后是否更接近敌城或敌指挥官。
+- 是否低收益等待、治疗、无进展移动。
+
+关键产物：
+
+| 类型 | 路径 |
+| --- | --- |
+| v3 全量特征 | `training_runs/features/skirmish-sd-apk-distill-v3-e25-f4096-c64.jsonl` |
+| v3 train split | `training_runs/features/skirmish-sd-apk-distill-v3-e25-train-f4096-c64.jsonl` |
+| v3 val split | `training_runs/features/skirmish-sd-apk-distill-v3-e25-val-f4096-c64.jsonl` |
+| 基础 v3 模型 | `training_runs/models/skirmish-bc-apk-distill-v3-e25-f4096-c64-e5.json` |
+
+基础 v3 模型验证准确率：
+
+```text
+best val acc 58.625%
+```
+
+基础 v3 链路可保留，后续不需要从零重做导出链路，除非修改特征定义。
+
+## 6. 本轮 curated 数据实验
+
+本轮追加了一小批残局/高阶兵种定制数据：
+
+```text
+training_runs/features/skirmish-curated-v3-endgame-hightier-f4096-c64.jsonl
+```
+
+来源包括：
+
+- seed19000 / seed23000 的 timeout 热点局。
+- 既有训练集中的高阶兵种/召唤相关样本。
+
+导出规模：
+
+```text
+exportedSamples 8422
+endgameSamples 4000
+highTierSamples 4000
+summonSamples 1000
+```
+
+尝试过三种训练方式：
+
+| 模型 | 训练方式 | 结果 |
+| --- | --- | --- |
+| curated repeat=10 | 全量 + curated 重复 10 次 | 验证集约 38%，过拟合，淘汰 |
+| curated repeat=3 | 全量 + curated 重复 3 次 | 验证集仍约 38%，淘汰 |
+| curated prepend | 每轮先跑 curated，再跑全量主集 | best val acc 58.642%，进入回归 |
+
+当前回归模型：
+
+```text
+training_runs/models/skirmish-bc-apk-distill-v3-curated-prepend-e25-f4096-c64-e5.json
+```
+
+但该模型不应作为默认模型。
+
+## 7. v3 curated 回归结论
+
+正式 120 局对比：
+
+| 模型 | seed19000 | seed23000 | 合计胜率 | 合计 timeout | 非法动作 | 步数保护 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 旧 v2/global-noheurcut | 23/60, timeout 2 | 27/60, timeout 2 | 50/120 | 4 | 0 | 0 |
+| v3 curated prepend | 25/60, timeout 2 | 18/60, timeout 5 | 43/120 | 7 | 0 | 0 |
+
+热点 9 局：
+
+| 场景 | timeout |
+| --- | ---: |
+| `SD:(2) Liberty Port.aem` | 2/3 |
+| `SD:(3) classic 2.aem` | 1/3 |
+| `SD:(4) Crossroads.aem` | 0/3 |
+| 合计 | 3/9 |
+
+结论：
+
+- `seed19000` 小幅改善。
+- `seed23000` 明显回退。
+- 正式总胜率从 50/120 降到 43/120。
+- timeout 从 4 增到 7。
+- 热点 9 局 timeout 只是刚好压线，没有安全余量。
+- 暂不建议扩大当前同类 curated 数据量。
+
+决策报告：
+
+```text
+training_runs/reports/skirmish-v3-curated-regression-decision.md
+```
+
+## 8. timeout 终局发现
+
+报告：
+
+```text
+training_runs/reports/v3-curated-prepend-timeout-focus-report.md
+```
+
+关键结论：
+
+- 7/8 个 timeout 终局中，裁定优势方之外已经没有存活单位，但仍未自然结束。
+- 8/8 个 timeout 最后 25 回合没有 `capture` / `destroy_town`。
+- 8/8 个 timeout 的最后选择点已经没有 `attack` / `capture` / `destroy` / `summon`。
+- 问题不是最后一步选错，而是更早阶段没有把单位推向“清建筑/结束比赛”的目标。
+- 残留目标主要是敌方或中立建筑，尤其集中在 `Liberty Port`。
+
+重点场景继续保留：
+
+```text
+SD:(2) Liberty Port.aem
+SD:(3) classic 2.aem
+SD:(4) Crossroads.aem
+```
+
+## 9. 关于高阶兵种学习
+
+如果训练对局里双方几乎没有召唤或使用高阶兵种，模型不能可靠学会高阶兵种使用。
+
+原因很直接：
+
+- 行为克隆只能学数据里出现过的行为分布。
+- teacher-rank 也只能在候选动作和 teacher 偏好里学到相对排序。
+- 如果高阶兵种样本稀少，模型最多学到零散相关性，不会形成稳定战术。
+
+可以增加残局/高阶兵种训练集，也可以预先在地图上部署兵种后对战。这个方向是对的，但本轮 curated 数据说明：不能只是“多加样本”，还要让 oracle 更精确，否则会污染普通局面分布。
+
+## 10. 下一步该做什么
+
+下一轮不要直接扩大现有 curated 数据。建议做 v3.1，小范围修正后再回归。
+
+优先任务：
+
+1. 改 curated oracle
+   - 只在优势方、敌方剩建筑或低价值单位时强推终局目标。
+   - 明确奖励接近敌城、占领、拆城。
+   - 明确惩罚远离目标、重复等待、无收益治疗、无进展移动。
+
+2. 加终局反样本或 margin
+   - 对 `wait` / `end_turn` / 无进展移动设置更低 teacher score。
+   - 不靠重复正样本硬压模型。
+
+3. 先只修 `Liberty Port`
+   - 该图是最稳定 timeout 来源。
+   - 先做小量可解释样本。
+   - 热点 9 局 timeout 必须低于 3/9，再考虑正式 120 局。
+
+4. 再考虑高阶兵种专门数据
+   - 可以构造预部署局面或从 full observation dataset 筛选高阶单位局面。
+   - 重点看高阶单位是否参与有效攻击、推进、守城、清建筑。
+   - 不建议把高阶兵种样本和残局清建筑样本混成一个无差别大权重集合。
+
+## 11. macOS 接续建议命令
+
+先检查状态：
+
+```bash
+git status --short
+npm run lint
+npm test -- --run
+```
+
+阅读关键报告：
+
+```bash
+sed -n '1,220p' training_runs/reports/skirmish-v3-curated-regression-decision.md
+sed -n '1,220p' training_runs/reports/v3-curated-prepend-timeout-focus-report.md
+```
+
+如果需要重跑 v3 curated 回归模型的热点 9 局：
+
+```bash
+npm run train:skirmish:baseline -- --mode SD \
+  --scenario "SD:(2) Liberty Port.aem" \
+  --scenario "SD:(4) Crossroads.aem" \
+  --scenario "SD:(3) classic 2.aem" \
+  --episodes 3 \
+  --seed 25000 \
+  --preset bc-blend-vs-heuristic \
+  --model training_runs/models/skirmish-bc-apk-distill-v3-curated-prepend-e25-f4096-c64-e5.json \
+  --workers 3 \
+  --max-turns 150 \
+  --out training_runs/diagnostics/v3-curated-prepend-hotspots-vs-heuristic-turn150-e3.jsonl \
+  --no-temp-log \
+  --no-progress \
+  --json
+```
+
+如果要生成 timeout 聚焦报告：
+
+```bash
+npm run report:skirmish:timeout -- \
+  --file seed19000=training_runs/skirmish-bc-blend-v3-curated-prepend-vs-heuristic-sd-e3-seed19000.jsonl \
+  --file seed23000=training_runs/skirmish-bc-blend-v3-curated-prepend-vs-heuristic-sd-e3-seed23000.jsonl \
+  --file hotspot=training_runs/diagnostics/v3-curated-prepend-hotspots-vs-heuristic-turn150-e3.jsonl \
+  --out training_runs/reports/v3-curated-prepend-timeout-focus-report.md \
+  --tail-turns 25 \
+  --json
+```
+
+如果要重新生成动作分布报告：
+
+```bash
+python3 tools/skirmish_eval_action_report.py \
+  --file seed19000=training_runs/skirmish-bc-blend-v3-curated-prepend-vs-heuristic-sd-e3-seed19000.jsonl \
+  --file seed23000=training_runs/skirmish-bc-blend-v3-curated-prepend-vs-heuristic-sd-e3-seed23000.jsonl \
+  --out training_runs/reports/skirmish-bc-blend-v3-curated-prepend-final-report.md
+```
+
+## 12. 后续模型保留标准
+
+新模型只有满足以下条件才值得保留：
+
+- `npm run lint` 通过。
+- `npm test -- --run` 通过。
+- 正式 120 局总胜率高于 50/120，或者不低于 50/120 且 timeout 明显下降。
+- 热点 9 局 timeout 低于 3/9；至少不能高于 3/9。
+- 非法动作必须为 0。
+- runner 步数保护停止必须为 0。
+- 不能只在一个 seed 上改善，另一个 seed 明显回退。
+
+如果只降低平均步数，但胜率和 timeout 不改善，不要当作强度提升。
+
+## 13. 新对话开场提示
+
+可以直接复制给新 Codex：
+
+```text
+请阅读 /path/to/AncinetEmpires/TRAINING_HANDOFF_GUIDE.md，然后继续 AncientEmpires 的 SD skirmish AI 训练任务。
+
+当前状态：
+1. v2/global-noheurcut 仍是安全基线，模型是 training_runs/models/skirmish-bc-apk-distill-v2-e25-f4096-c64-e5.json。
+2. v3 feature 链路已经完成，基础 v3 可用。
+3. 本轮 v3 curated-prepend 模型没有通过回归：正式 120 局 43/120、timeout 7，弱于旧基线 50/120、timeout 4。
+4. 不要直接扩大当前 curated 数据量。
+5. 下一步做 v3.1：改残局 oracle、加 wait/end_turn/无进展移动反样本，先聚焦 Liberty Port。
+6. 开始前先运行 git status --short、npm run lint、npm test -- --run。
+```
