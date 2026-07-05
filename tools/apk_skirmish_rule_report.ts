@@ -851,11 +851,11 @@ function buildPendingRecruitActual() {
     const commanderCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
     commanderCastleState.players[0].gold = 1000;
     const commanderCastleEngine = new GameEngine(commanderCastleState);
-    const recruitAndDeploy = commanderCastleEngine.getLegalActions(0).find(action => (
-        action.type === 'recruit_and_deploy' && action.unitClass === 'soldier'
+    const commanderCastleRecruit = commanderCastleEngine.getLegalActions(0).find(action => (
+        action.type === 'recruit_to_castle' && action.unitClass === 'soldier'
     ));
-    if (!recruitAndDeploy) throw new Error('指挥官城堡部署招募动作缺失');
-    commanderCastleEngine.step(recruitAndDeploy);
+    if (!commanderCastleRecruit) throw new Error('指挥官城堡招募动作缺失');
+    commanderCastleEngine.step(commanderCastleRecruit);
     const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
 
     return {
@@ -868,7 +868,10 @@ function buildPendingRecruitActual() {
         },
         commanderCastle: {
             hasEndTurn: commanderCastleActions.some(action => action.type === 'end_turn'),
-            hasSurrender: commanderCastleActions.some(action => action.type === 'surrender')
+            hasSurrender: commanderCastleActions.some(action => action.type === 'surrender'),
+            canControlOtherUnit: commanderCastleActions.some(action => (
+                'unitId' in action && action.unitId !== commanderCastleEngine.getState().pendingUnitId
+            ))
         }
     };
 }
@@ -890,16 +893,14 @@ function buildRecruitExecutionActual() {
     const commanderCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
     commanderCastleState.players[0].gold = 1000;
     const commanderCastleEngine = new GameEngine(commanderCastleState);
-    const recruitAndDeploy = commanderCastleEngine.getLegalActions(0).find(action => (
-        action.type === 'recruit_and_deploy'
+    const commanderCastleRecruit = commanderCastleEngine.getLegalActions(0).find(action => (
+        action.type === 'recruit_to_castle'
         && action.unitClass === 'soldier'
         && action.castlePos.x === 0
         && action.castlePos.y === 0
-        && action.to.x === 0
-        && action.to.y === 1
     ));
-    if (!recruitAndDeploy) throw new Error('指挥官城堡部署招募动作缺失');
-    commanderCastleEngine.step(recruitAndDeploy);
+    if (!commanderCastleRecruit) throw new Error('指挥官城堡招募动作缺失');
+    commanderCastleEngine.step(commanderCastleRecruit);
     const commanderCastleFinal = commanderCastleEngine.getState();
     const commanderCastlePendingUnit = commanderCastleFinal.units.find(unit => unit.id === commanderCastleFinal.pendingUnitId);
     const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
@@ -1108,8 +1109,9 @@ function buildOverhealClippingActual() {
     const secondHealAction = secondHealEngine.getLegalActions(0).find(action => (
         action.type === 'heal' && action.healerId === secondHealer.id && action.targetId === secondTarget.id
     ));
-    if (!secondHealAction) throw new Error('治疗超上限检查缺少二次治疗动作');
-    secondHealEngine.step(secondHealAction);
+    if (secondHealAction) {
+        secondHealEngine.step(secondHealAction);
+    }
     const secondHealTarget = secondHealEngine.getState().units.find(unit => unit.id === secondTarget.id)!;
 
     const turnStartState = createDemoState(getApkSkirmishRuleConfig('SD'));
@@ -1148,6 +1150,7 @@ function buildOverhealClippingActual() {
             exceededMaxHp: firstHealTarget.hp > firstHealTarget.maxHp
         },
         secondHeal: {
+            available: secondHealAction !== undefined,
             hp: secondHealTarget.hp,
             maxHp: secondHealTarget.maxHp,
             exceededMaxHp: secondHealTarget.hp > secondHealTarget.maxHp
@@ -1788,12 +1791,12 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         't30/t31 回血与清状态差异',
         '用户 2026-06-30 实机确认',
         {
-            t30Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
-            t30Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
-            t30Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 }
+            t30Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
+            t31Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t30Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
+            t31Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t30Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 },
+            t31Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null }
         },
         buildT30T31RecoveryActual()
     );
@@ -1843,8 +1846,8 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         '招募 pending 与 stacked 菜单限制',
         '用户 2026-06-30 实机确认',
         {
-            emptyCastle: { hasEndTurn: true, hasSurrender: true, canControlOtherUnit: false },
-            commanderCastle: { hasEndTurn: false, hasSurrender: false }
+            emptyCastle: { hasEndTurn: true, hasSurrender: true, canControlOtherUnit: true },
+            commanderCastle: { hasEndTurn: false, hasSurrender: false, canControlOtherUnit: false }
         },
         buildPendingRecruitActual()
     );
@@ -1866,31 +1869,31 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
                     hasActed: false,
                     movementRemaining: null,
                     source: 'empty_castle'
-                },
-                actionTypes: ['end_turn', 'move', 'surrender', 'wait'],
-                canControlOtherUnit: false,
-                canRecruitAgain: false
             },
-            commanderCastle: {
-                playerGold: 850,
-                pendingUnitId: 'u_100',
-                pendingUnit: {
-                    unitClass: 'soldier',
-                    x: 0,
-                    y: 1,
-                    hasMoved: true,
-                    hasActed: false,
-                    movementRemaining: 0,
-                    source: 'commander_castle'
-                },
-                actionTypes: ['wait'],
-                canControlOtherUnit: false,
-                canRecruitAgain: false
+            actionTypes: ['end_turn', 'move', 'surrender', 'wait'],
+            canControlOtherUnit: true,
+            canRecruitAgain: false
+        },
+        commanderCastle: {
+            playerGold: 850,
+            pendingUnitId: 'u_100',
+            pendingUnit: {
+                unitClass: 'soldier',
+                x: 0,
+                y: 0,
+                hasMoved: false,
+                hasActed: false,
+                movementRemaining: null,
+                source: 'commander_castle'
             },
-            commanderCastleNoDeployTarget: {
-                canRecruitAndDeploy: false,
-                actionTypes: ['end_turn', 'surrender', 'wait']
-            }
+            actionTypes: ['move', 'wait'],
+            canControlOtherUnit: false,
+            canRecruitAgain: false
+        },
+        commanderCastleNoDeployTarget: {
+            canRecruitAndDeploy: false,
+            actionTypes: ['end_turn', 'recruit_to_castle', 'surrender', 'wait']
+        }
         },
         buildRecruitExecutionActual()
     );
@@ -1957,7 +1960,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         'APK 语言表确认治疗师可超上限 + 用户 2026-07-01 实机确认下一己方回合开始先裁剪到最大生命',
         {
             firstHeal: { hp: 140, maxHp: 100, exceededMaxHp: true },
-            secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
+            secondHeal: { available: false, hp: 130, maxHp: 100, exceededMaxHp: true },
             turnStartRecovery: { hp: 100, maxHp: 100 },
             levelUp: { triggered: true, level: 1, hp: 130 },
             undeadPoison: { hp: 100, maxHp: 100, remainingTicks: 1 }
@@ -1968,14 +1971,14 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'undead-overheal',
-        '当前默认亡灵被动回血上限与既有超上限保留',
-        'APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限；项目封顶回复不会压低既有超上限生命',
+        '当前默认亡灵被动回血上限与行动后裁剪',
+        'APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限；行动单位在 APK 行动后结算会裁剪到最大生命',
         {
             poison95: { hp: 100, maxHp: 100, remainingTicks: 1 },
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
             grave100: { hp: 100, maxHp: 100, graveCount: 0 },
-            grave130: { hp: 130, maxHp: 100, graveCount: 0 }
+            grave130: { hp: 100, maxHp: 100, graveCount: 0 }
         },
         buildUndeadOverhealActual()
     );

@@ -1301,7 +1301,7 @@ function buildApkLanguageRuleReportFromEntries(
             templeHpAfterTurnStart: 70,
             ruinCanBeRepaired: true,
             repairedTerrainId: 9,
-            repairedOwnerId: 0,
+            repairedOwnerId: null,
             villageCanBeDestroyed: true,
             destroyedVillageTerrainId: 8,
             destroyedVillageOwnerId: null

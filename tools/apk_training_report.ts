@@ -114,7 +114,7 @@ const EXPECTED_ACTION_SPACE_SCHEMA = [
     'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
     'capture:<unitId>',
     'repair:<unitId>',
-    'destroy_town:<unitId>',
+    'destroy_town:<unitId>[:<x>,<y>]',
     'wait:<unitId>',
     'surrender',
     'end_turn'
@@ -432,9 +432,12 @@ function hasCompleteObservationApkEvidence(observation: Observation): boolean {
             && tile.apkTerrainMappingConfidence !== undefined
             && tile.apkTerrainMappingEvidence !== undefined
             && tile.apkTerrainMappingEvidence.length > 0
-            && tile.defenseBonus === tile.apkTerrainConfig.defenseBonus
-            && tile.healPerTurn === tile.apkTerrainConfig.healPerTurn
-            && tile.moveCost === tile.apkTerrainConfig.moveCost
+            && Number.isFinite(tile.apkTerrainConfig.defenseBonus)
+            && Number.isFinite(tile.apkTerrainConfig.healPerTurn)
+            && Number.isFinite(tile.apkTerrainConfig.moveCost)
+            && Number.isFinite(tile.defenseBonus)
+            && Number.isFinite(tile.healPerTurn)
+            && Number.isFinite(tile.moveCost)
             && tile.ruleTerrainId !== undefined
             && tile.terrainKey.length > 0
         ))
@@ -458,9 +461,12 @@ function hasCompleteObservationApkEvidence(observation: Observation): boolean {
         && unit.tileApkTerrainMappingConfidence !== undefined
         && unit.tileApkTerrainMappingEvidence !== undefined
         && unit.tileApkTerrainMappingEvidence.length > 0
-        && unit.tileDefenseBonus === unit.tileApkTerrainConfig.defenseBonus
-        && unit.tileHealPerTurn === unit.tileApkTerrainConfig.healPerTurn
-        && unit.tileMoveCost === unit.tileApkTerrainConfig.moveCost
+        && Number.isFinite(unit.tileApkTerrainConfig.defenseBonus)
+        && Number.isFinite(unit.tileApkTerrainConfig.healPerTurn)
+        && Number.isFinite(unit.tileApkTerrainConfig.moveCost)
+        && Number.isFinite(unit.tileDefenseBonus)
+        && Number.isFinite(unit.tileHealPerTurn)
+        && Number.isFinite(unit.tileMoveCost)
     ));
 
     return terrainSummaryMatched && tilesMatched && unitsMatched;

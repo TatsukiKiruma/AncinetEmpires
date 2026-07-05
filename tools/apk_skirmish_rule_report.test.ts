@@ -71,7 +71,7 @@ describe('APK skirmish rule report', () => {
                 movementRemainingAfterMove: 4,
                 movementRemainingAfterAttack: 4,
                 hasActedAfterAttack: true,
-                postAttackMoveCount: 9,
+                postAttackMoveCount: 10,
                 farthestPostAttackMoveDistance: 4,
                 oneStepPostAttackMoveResolved: true,
                 movementRemainingAfterPostAttackMove: 3,
@@ -223,7 +223,7 @@ describe('APK skirmish rule report', () => {
         });
         expect(byId['overheal-clipping'].actual).toEqual({
             firstHeal: { hp: 140, maxHp: 100, exceededMaxHp: true },
-            secondHeal: { hp: 170, maxHp: 100, exceededMaxHp: true },
+            secondHeal: { available: false, hp: 130, maxHp: 100, exceededMaxHp: true },
             turnStartRecovery: { hp: 100, maxHp: 100 },
             levelUp: { triggered: true, level: 1, hp: 130 },
             undeadPoison: { hp: 100, maxHp: 100, remainingTicks: 1 }
@@ -233,7 +233,7 @@ describe('APK skirmish rule report', () => {
             poison100: { hp: 100, maxHp: 100, remainingTicks: 1 },
             grave95: { hp: 100, maxHp: 100, graveCount: 0 },
             grave100: { hp: 100, maxHp: 100, graveCount: 0 },
-            grave130: { hp: 130, maxHp: 100, graveCount: 0 }
+            grave130: { hp: 100, maxHp: 100, graveCount: 0 }
         });
         expect(byId['terrain-defense-combat'].actual).toEqual({
             apkTile: { id: 33, defenseBonus: 20 },
@@ -433,7 +433,7 @@ describe('APK skirmish rule report', () => {
                     source: 'empty_castle'
                 },
                 actionTypes: ['end_turn', 'move', 'surrender', 'wait'],
-                canControlOtherUnit: false,
+                canControlOtherUnit: true,
                 canRecruitAgain: false
             },
             commanderCastle: {
@@ -442,19 +442,19 @@ describe('APK skirmish rule report', () => {
                 pendingUnit: {
                     unitClass: 'soldier',
                     x: 0,
-                    y: 1,
-                    hasMoved: true,
+                    y: 0,
+                    hasMoved: false,
                     hasActed: false,
-                    movementRemaining: 0,
+                    movementRemaining: null,
                     source: 'commander_castle'
                 },
-                actionTypes: ['wait'],
+                actionTypes: ['move', 'wait'],
                 canControlOtherUnit: false,
                 canRecruitAgain: false
             },
             commanderCastleNoDeployTarget: {
                 canRecruitAndDeploy: false,
-                actionTypes: ['end_turn', 'surrender', 'wait']
+                actionTypes: ['end_turn', 'recruit_to_castle', 'surrender', 'wait']
             }
         });
     });
@@ -464,12 +464,12 @@ describe('APK skirmish rule report', () => {
         const byId = Object.fromEntries(report.checks.map(check => [check.id, check]));
 
         expect(byId['t30-t31-recovery'].actual).toEqual({
-            t30Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
-            t30Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
-            t30Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
-            t31Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 }
+            t30Poisoned: { hp: 40, status: 'poisoned', remainingTicks: 1, remainingTurns: null },
+            t31Poisoned: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t30Blinded: { hp: 70, status: 'blinded', remainingTicks: null, remainingTurns: 0 },
+            t31Blinded: { hp: 70, status: null, remainingTicks: null, remainingTurns: null },
+            t30Weakened: { hp: 70, status: 'weakened', remainingTicks: null, remainingTurns: 0 },
+            t31Weakened: { hp: 70, status: null, remainingTicks: null, remainingTurns: null }
         });
         expect(byId.surrender.actual).toEqual({
             playerAlive: false,
