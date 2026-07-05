@@ -1,0 +1,197 @@
+{
+  "generatedAt": "2026-07-04T19:35:56.270Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "limit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false
+  },
+  "totals": {
+    "files": 1,
+    "uniqueFiles": 1,
+    "duplicates": 0,
+    "parsed": 1,
+    "passed": 0,
+    "failed": 1,
+    "parseErrors": 0
+  },
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132339_097.bin",
+      "fileName": "game_get_20260704_132339_097.bin",
+      "sha256": "5619d6a85c7d6c93bed5b4dab762927dca38b5b64c1d599a3ddcf54c67d650f8",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 143624,
+      "decryptedBytes": 143619,
+      "gameObjectBytes": 143592,
+      "map": {
+        "width": 25,
+        "height": 25,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 625,
+        "unitCount": 6,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 700,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 3221,
+        "eventCounts": {
+          "ATTACK": 982,
+          "GAME_START": 0,
+          "HEAL": 58,
+          "MOVE": 0,
+          "NEXT_TURN": 240,
+          "NONE": 366,
+          "OCCUPY": 111,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 1332,
+          "SUMMON": 44,
+          "SUPPORT": 87,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 143592
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "executedRecordCount": 3008,
+        "expandedActionCount": 5256,
+        "firstError": "非法动作：当前玩家无法执行该动作",
+        "firstErrorRecordIndex": 3008,
+        "firstErrorRecordEvent": "OCCUPY",
+        "firstErrorRecordSource": {
+          "x": 5,
+          "y": 5
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 5,
+          "y": 2
+        },
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 0,
+        "turnBefore": 46,
+        "legalActionCount": 881,
+        "info": "非法动作：当前玩家无法执行该动作",
+        "actionCode": "move:u_267:5,2",
+        "failureDiagnostic": {
+          "actor": {
+            "id": "u_267",
+            "ownerId": 0,
+            "unitClass": "mermaid",
+            "pos": {
+              "x": 5,
+              "y": 5
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 60,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 2
+          },
+          "target": null,
+          "moveDestinationOccupant": {
+            "id": "u_374",
+            "ownerId": 4,
+            "unitClass": "soldier",
+            "pos": {
+              "x": 5,
+              "y": 2
+            },
+            "hp": 6,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 30,
+            "status": null,
+            "movementRemaining": 1,
+            "hasMoved": true,
+            "hasActed": true,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "sourceToTargetDistance": null,
+          "moveToTargetDistance": null
+        },
+        "finalTurn": 46,
+        "finalCurrentPlayer": 0,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}

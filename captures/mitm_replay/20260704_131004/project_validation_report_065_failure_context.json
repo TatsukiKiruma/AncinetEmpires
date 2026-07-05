@@ -1,0 +1,218 @@
+{
+  "generatedAt": "2026-07-04T19:35:27.979Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "limit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false
+  },
+  "totals": {
+    "files": 1,
+    "uniqueFiles": 1,
+    "duplicates": 0,
+    "parsed": 1,
+    "passed": 0,
+    "failed": 1,
+    "parseErrors": 0
+  },
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132008_065.bin",
+      "fileName": "game_get_20260704_132008_065.bin",
+      "sha256": "1269141a53135f4db64bcb35e1a8490431708306fd26a33e0a287f28a2361856",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 56392,
+      "decryptedBytes": 56386,
+      "gameObjectBytes": 56359,
+      "map": {
+        "width": 13,
+        "height": 13,
+        "players": [
+          4,
+          1,
+          0,
+          5,
+          2,
+          3
+        ],
+        "terrainCount": 169,
+        "unitCount": 10,
+        "recommendedGold": 250
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 0,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1182,
+        "eventCounts": {
+          "ATTACK": 396,
+          "GAME_START": 0,
+          "HEAL": 37,
+          "MOVE": 0,
+          "NEXT_TURN": 87,
+          "NONE": 168,
+          "OCCUPY": 22,
+          "RECRUIT": 0,
+          "REPAIR": 6,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 399,
+          "SUMMON": 26,
+          "SUPPORT": 40,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 56359
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "executedRecordCount": 37,
+        "expandedActionCount": 55,
+        "firstError": "非法动作：当前玩家无法执行该动作",
+        "firstErrorRecordIndex": 37,
+        "firstErrorRecordEvent": "ATTACK",
+        "firstErrorRecordSource": {
+          "x": 10,
+          "y": 7
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 9,
+          "y": 8
+        },
+        "firstErrorRecordTarget": {
+          "x": 9,
+          "y": 5
+        },
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 1,
+        "turnBefore": 2,
+        "legalActionCount": 44,
+        "info": "非法动作：当前玩家无法执行该动作",
+        "actionCode": "attack:u_11:apk_remote_u1",
+        "failureDiagnostic": {
+          "actor": {
+            "id": "u_11",
+            "ownerId": 1,
+            "unitClass": "soldier",
+            "pos": {
+              "x": 9,
+              "y": 8
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 0,
+            "hasMoved": true,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "target": {
+            "id": "apk_remote_u1",
+            "ownerId": 4,
+            "unitClass": "ghost",
+            "pos": {
+              "x": 9,
+              "y": 5
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 0,
+            "hasMoved": true,
+            "hasActed": true,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "moveDestinationOccupant": {
+            "id": "u_11",
+            "ownerId": 1,
+            "unitClass": "soldier",
+            "pos": {
+              "x": 9,
+              "y": 8
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 0,
+            "hasMoved": true,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "sourceToTargetDistance": 3,
+          "moveToTargetDistance": 3
+        },
+        "finalTurn": 2,
+        "finalCurrentPlayer": 1,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}

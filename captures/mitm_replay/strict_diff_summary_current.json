@@ -1,0 +1,43 @@
+{
+  "reports": [
+    "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\strict_unique_061_080_with_class_summary.json",
+    "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\strict_unique_081_100_with_class_summary.json"
+  ],
+  "classifications": [
+    {
+      "code": "strict_move_reachability_gap",
+      "label": "strict 移动可达性缺口",
+      "count": 2,
+      "examples": [
+        {
+          "reportPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\strict_unique_061_080_with_class_summary.json",
+          "fileName": "game_get_20260704_132008_065.bin",
+          "recordIndex": 55,
+          "eventType": "STANDBY",
+          "actionCode": "move:u_13:4,6"
+        },
+        {
+          "reportPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\strict_unique_061_080_with_class_summary.json",
+          "fileName": "game_get_20260704_132050_078.bin",
+          "recordIndex": 51,
+          "eventType": "ATTACK",
+          "actionCode": "move:u_11:10,5"
+        }
+      ]
+    },
+    {
+      "code": "strict_move_destination_occupied",
+      "label": "strict 目的格被项目状态占用",
+      "count": 1,
+      "examples": [
+        {
+          "reportPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\strict_unique_081_100_with_class_summary.json",
+          "fileName": "game_get_20260704_132339_097.bin",
+          "recordIndex": 3008,
+          "eventType": "OCCUPY",
+          "actionCode": "move:u_267:5,2"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2533 @@
+{
+  "generatedAt": "2026-07-05T02:59:37.414Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "offset": 40,
+    "limit": 20,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false,
+    "forceExecuteReplayActions": true
+  },
+  "totals": {
+    "files": 20,
+    "uniqueFiles": 20,
+    "duplicates": 0,
+    "parsed": 20,
+    "passed": 20,
+    "failed": 0,
+    "parseErrors": 0
+  },
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131454_041.bin",
+      "fileName": "game_get_20260704_131454_041.bin",
+      "sha256": "a0b823ff792100b6c5a257cd473398eec68bc0634c720f8c7db4767ae2cdb9f8",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 34400,
+      "decryptedBytes": 34392,
+      "gameObjectBytes": 34365,
+      "map": {
+        "width": 13,
+        "height": 19,
+        "players": [
+          0,
+          1,
+          2
+        ],
+        "terrainCount": 247,
+        "unitCount": 3,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 30,
+        "levelCap": 3,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 660,
+        "eventCounts": {
+          "ATTACK": 344,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 83,
+          "NONE": 79,
+          "OCCUPY": 16,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 118,
+          "SUMMON": 20,
+          "SUPPORT": 0,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 34365
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 660,
+        "expandedActionCount": 1024,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 29,
+        "finalCurrentPlayer": 1,
+        "finalWinner": 2
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131501_042.bin",
+      "fileName": "game_get_20260704_131501_042.bin",
+      "sha256": "85f9f7d03e9d3651c9740b7b22f3f63f2870d9d7fbee714adb78cc357f3583a0",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 79680,
+      "decryptedBytes": 79673,
+      "gameObjectBytes": 79646,
+      "map": {
+        "width": 21,
+        "height": 25,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 525,
+        "unitCount": 6,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 700,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1708,
+        "eventCounts": {
+          "ATTACK": 659,
+          "GAME_START": 0,
+          "HEAL": 32,
+          "MOVE": 0,
+          "NEXT_TURN": 125,
+          "NONE": 187,
+          "OCCUPY": 65,
+          "RECRUIT": 0,
+          "REPAIR": 1,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 560,
+          "SUMMON": 36,
+          "SUPPORT": 42,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 79646
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1708,
+        "expandedActionCount": 2950,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 25,
+        "finalCurrentPlayer": 0,
+        "finalWinner": 1
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131505_043.bin",
+      "fileName": "game_get_20260704_131505_043.bin",
+      "sha256": "07173e5fe07924be14987ef50cd67c8aac7996392a79519e7d406d96250eb642",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 141560,
+      "decryptedBytes": 141553,
+      "gameObjectBytes": 141526,
+      "map": {
+        "width": 21,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 441,
+        "unitCount": 6,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 500,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 3187,
+        "eventCounts": {
+          "ATTACK": 856,
+          "GAME_START": 0,
+          "HEAL": 74,
+          "MOVE": 0,
+          "NEXT_TURN": 168,
+          "NONE": 282,
+          "OCCUPY": 34,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 1660,
+          "SUMMON": 13,
+          "SUPPORT": 98,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 141526
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 3187,
+        "expandedActionCount": 5145,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 29,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 2
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131516_044.bin",
+      "fileName": "game_get_20260704_131516_044.bin",
+      "sha256": "6c0f7adb95931e5ba5ef625fd8c1f0e91fb0d82ac7845e849a4a3bc2610d3e89",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 283040,
+      "decryptedBytes": 283032,
+      "gameObjectBytes": 283005,
+      "map": {
+        "width": 21,
+        "height": 25,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 525,
+        "unitCount": 157,
+        "recommendedGold": 2000
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 2000,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 6476,
+        "eventCounts": {
+          "ATTACK": 1662,
+          "GAME_START": 0,
+          "HEAL": 450,
+          "MOVE": 0,
+          "NEXT_TURN": 179,
+          "NONE": 492,
+          "OCCUPY": 128,
+          "RECRUIT": 0,
+          "REPAIR": 10,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 3308,
+          "SUMMON": 96,
+          "SUPPORT": 150,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 283005
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 6476,
+        "expandedActionCount": 11047,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 31,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 1
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131520_045.bin",
+      "fileName": "game_get_20260704_131520_045.bin",
+      "sha256": "2e80d20bb8c915bd2ef8eb4d98b1e7b7d38b49857b41c9fd9e796427fe70c169",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 26800,
+      "decryptedBytes": 26797,
+      "gameObjectBytes": 26770,
+      "map": {
+        "width": 21,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 441,
+        "unitCount": 10,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 455,
+        "eventCounts": {
+          "ATTACK": 44,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 43,
+          "NONE": 70,
+          "OCCUPY": 34,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 239,
+          "SUMMON": 1,
+          "SUPPORT": 24,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 26770
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 455,
+        "expandedActionCount": 764,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 8,
+        "finalCurrentPlayer": 1,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131527_046.bin",
+      "fileName": "game_get_20260704_131527_046.bin",
+      "sha256": "fdd930816f175bac6da1bc95e7ebf5deba19f3e64152c2725944dff42fd8bef5",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 113656,
+      "decryptedBytes": 113655,
+      "gameObjectBytes": 113628,
+      "map": {
+        "width": 21,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 441,
+        "unitCount": 8,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 2524,
+        "eventCounts": {
+          "ATTACK": 730,
+          "GAME_START": 0,
+          "HEAL": 49,
+          "MOVE": 0,
+          "NEXT_TURN": 144,
+          "NONE": 237,
+          "OCCUPY": 38,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 1236,
+          "SUMMON": 9,
+          "SUPPORT": 81,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 113628
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 2524,
+        "expandedActionCount": 3989,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 25,
+        "finalCurrentPlayer": 0,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131533_047.bin",
+      "fileName": "game_get_20260704_131533_047.bin",
+      "sha256": "8d6fb6d24278b5f1ecc55fbd5c88ba838d29dca835b1608d5748423c68c123f6",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 42384,
+      "decryptedBytes": 42377,
+      "gameObjectBytes": 42350,
+      "map": {
+        "width": 13,
+        "height": 19,
+        "players": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "terrainCount": 247,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 849,
+        "eventCounts": {
+          "ATTACK": 307,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 134,
+          "NONE": 99,
+          "OCCUPY": 14,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 294,
+          "SUMMON": 0,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 42350
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 849,
+        "expandedActionCount": 1256,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 49,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 3
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131544_048.bin",
+      "fileName": "game_get_20260704_131544_048.bin",
+      "sha256": "6a48ded5ed13b5b4366b1399b2346d9d5eeccea609f48de4199fd52366f3c8e9",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 87928,
+      "decryptedBytes": 87925,
+      "gameObjectBytes": 87898,
+      "map": {
+        "width": 15,
+        "height": 15,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 225,
+        "unitCount": 6,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 90,
+        "levelCap": 8,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1928,
+        "eventCounts": {
+          "ATTACK": 685,
+          "GAME_START": 0,
+          "HEAL": 29,
+          "MOVE": 0,
+          "NEXT_TURN": 158,
+          "NONE": 204,
+          "OCCUPY": 25,
+          "RECRUIT": 0,
+          "REPAIR": 8,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 793,
+          "SUMMON": 11,
+          "SUPPORT": 15,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 87898
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1928,
+        "expandedActionCount": 3078,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 28,
+        "finalCurrentPlayer": 1,
+        "finalWinner": 1
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131546_049.bin",
+      "fileName": "game_get_20260704_131546_049.bin",
+      "sha256": "2cf4fc701197769efbdf0bc135ccaa8357d9449922200810e5562e288c9953dd",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 17520,
+      "decryptedBytes": 17513,
+      "gameObjectBytes": 17486,
+      "map": {
+        "width": 25,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 525,
+        "unitCount": 6,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 700,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 228,
+        "eventCounts": {
+          "ATTACK": 17,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 23,
+          "NONE": 45,
+          "OCCUPY": 29,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 108,
+          "SUMMON": 1,
+          "SUPPORT": 3,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 17486
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 228,
+        "expandedActionCount": 383,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 5,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 4
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131550_050.bin",
+      "fileName": "game_get_20260704_131550_050.bin",
+      "sha256": "ce00f36184c219c2f82dddc06cf7b606c34883785c6499a122dc398770b03ecf",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 69328,
+      "decryptedBytes": 69323,
+      "gameObjectBytes": 69296,
+      "map": {
+        "width": 11,
+        "height": 19,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "terrainCount": 209,
+        "unitCount": 5,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1493,
+        "eventCounts": {
+          "ATTACK": 382,
+          "GAME_START": 0,
+          "HEAL": 25,
+          "MOVE": 0,
+          "NEXT_TURN": 145,
+          "NONE": 106,
+          "OCCUPY": 12,
+          "RECRUIT": 0,
+          "REPAIR": 4,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 811,
+          "SUMMON": 7,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 69296
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1493,
+        "expandedActionCount": 2297,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 40,
+        "finalCurrentPlayer": 3,
+        "finalWinner": 4
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131553_051.bin",
+      "fileName": "game_get_20260704_131553_051.bin",
+      "sha256": "ae7f357c5f3672c4037aa0c5940dc871473cadf4db273505d6062a31a9df83bc",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 39360,
+      "decryptedBytes": 39353,
+      "gameObjectBytes": 39326,
+      "map": {
+        "width": 21,
+        "height": 25,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 525,
+        "unitCount": 6,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 700,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 748,
+        "eventCounts": {
+          "ATTACK": 216,
+          "GAME_START": 0,
+          "HEAL": 11,
+          "MOVE": 0,
+          "NEXT_TURN": 66,
+          "NONE": 97,
+          "OCCUPY": 33,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 291,
+          "SUMMON": 10,
+          "SUPPORT": 22,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 39326
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 748,
+        "expandedActionCount": 1265,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 12,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 4
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131557_052.bin",
+      "fileName": "game_get_20260704_131557_052.bin",
+      "sha256": "3098127ae0b0276d66a4d39299990e2a3a2505aab32105e271330ce9d59742a7",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 43304,
+      "decryptedBytes": 43297,
+      "gameObjectBytes": 43270,
+      "map": {
+        "width": 17,
+        "height": 12,
+        "players": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "terrainCount": 204,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 875,
+        "eventCounts": {
+          "ATTACK": 297,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 86,
+          "NONE": 85,
+          "OCCUPY": 12,
+          "RECRUIT": 0,
+          "REPAIR": 2,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 389,
+          "SUMMON": 3,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 43270
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 875,
+        "expandedActionCount": 1478,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 31,
+        "finalCurrentPlayer": 3,
+        "finalWinner": 4
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131611_053.bin",
+      "fileName": "game_get_20260704_131611_053.bin",
+      "sha256": "ff19829e224309967f17723707ee41da961fc610066c79ca264960018aaa877f",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 168336,
+      "decryptedBytes": 168329,
+      "gameObjectBytes": 168302,
+      "map": {
+        "width": 25,
+        "height": 17,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 425,
+        "unitCount": 10,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 600,
+        "defaultUnitLimit": 80,
+        "levelCap": 8,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 3826,
+        "eventCounts": {
+          "ATTACK": 1441,
+          "GAME_START": 0,
+          "HEAL": 45,
+          "MOVE": 0,
+          "NEXT_TURN": 191,
+          "NONE": 399,
+          "OCCUPY": 115,
+          "RECRUIT": 0,
+          "REPAIR": 30,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 1487,
+          "SUMMON": 46,
+          "SUPPORT": 72,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 168302
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 3826,
+        "expandedActionCount": 6540,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 36,
+        "finalCurrentPlayer": 0,
+        "finalWinner": 1
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131614_054.bin",
+      "fileName": "game_get_20260704_131614_054.bin",
+      "sha256": "fee0fbc4bb4c11e379e9e72d77283f4ab719748c4ae78cfa9da6fe7847e88559",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 57360,
+      "decryptedBytes": 57355,
+      "gameObjectBytes": 57328,
+      "map": {
+        "width": 15,
+        "height": 12,
+        "players": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "terrainCount": 180,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1212,
+        "eventCounts": {
+          "ATTACK": 336,
+          "GAME_START": 0,
+          "HEAL": 35,
+          "MOVE": 0,
+          "NEXT_TURN": 144,
+          "NONE": 105,
+          "OCCUPY": 20,
+          "RECRUIT": 0,
+          "REPAIR": 3,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 534,
+          "SUMMON": 4,
+          "SUPPORT": 30,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 57328
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1212,
+        "expandedActionCount": 1854,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 56,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 2
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131619_055.bin",
+      "fileName": "game_get_20260704_131619_055.bin",
+      "sha256": "d31cedae1332d3fe109e98ab8b55d01ae24a6a865cfa382793396ef5d7551e7a",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 43256,
+      "decryptedBytes": 43255,
+      "gameObjectBytes": 43228,
+      "map": {
+        "width": 17,
+        "height": 12,
+        "players": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "terrainCount": 204,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 874,
+        "eventCounts": {
+          "ATTACK": 238,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 87,
+          "NONE": 86,
+          "OCCUPY": 15,
+          "RECRUIT": 0,
+          "REPAIR": 2,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 444,
+          "SUMMON": 1,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 43228
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 874,
+        "expandedActionCount": 1448,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 31,
+        "finalCurrentPlayer": 3,
+        "finalWinner": 4
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131621_056.bin",
+      "fileName": "game_get_20260704_131621_056.bin",
+      "sha256": "3f59fff3dd1dbf644b2309e98b8c57bb1088500ff92e102a06fd1858e9d6ae92",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 20704,
+      "decryptedBytes": 20698,
+      "gameObjectBytes": 20671,
+      "map": {
+        "width": 21,
+        "height": 13,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 273,
+        "unitCount": 6,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 326,
+        "eventCounts": {
+          "ATTACK": 62,
+          "GAME_START": 0,
+          "HEAL": 1,
+          "MOVE": 0,
+          "NEXT_TURN": 33,
+          "NONE": 60,
+          "OCCUPY": 31,
+          "RECRUIT": 0,
+          "REPAIR": 4,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 133,
+          "SUMMON": 0,
+          "SUPPORT": 0,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 20671
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 326,
+        "expandedActionCount": 519,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 7,
+        "finalCurrentPlayer": 0,
+        "finalWinner": 6
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131627_057.bin",
+      "fileName": "game_get_20260704_131627_057.bin",
+      "sha256": "c3fa6b30880d065cf36034b19079bdd846e67a9b92c5d6b6d4037d3f36da0961",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 56120,
+      "decryptedBytes": 56115,
+      "gameObjectBytes": 56088,
+      "map": {
+        "width": 21,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 441,
+        "unitCount": 8,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1154,
+        "eventCounts": {
+          "ATTACK": 245,
+          "GAME_START": 0,
+          "HEAL": 17,
+          "MOVE": 0,
+          "NEXT_TURN": 79,
+          "NONE": 136,
+          "OCCUPY": 36,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 594,
+          "SUMMON": 4,
+          "SUPPORT": 43,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 56088
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1154,
+        "expandedActionCount": 1901,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 14,
+        "finalCurrentPlayer": 1,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131630_058.bin",
+      "fileName": "game_get_20260704_131630_058.bin",
+      "sha256": "33c0730721ebf6df2e233d6b764c482bf84780005e13d33937ae921dfc06037f",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 48976,
+      "decryptedBytes": 48975,
+      "gameObjectBytes": 48948,
+      "map": {
+        "width": 21,
+        "height": 21,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "terrainCount": 441,
+        "unitCount": 8,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 984,
+        "eventCounts": {
+          "ATTACK": 192,
+          "GAME_START": 0,
+          "HEAL": 28,
+          "MOVE": 0,
+          "NEXT_TURN": 72,
+          "NONE": 118,
+          "OCCUPY": 34,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 498,
+          "SUMMON": 7,
+          "SUPPORT": 35,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 48948
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 984,
+        "expandedActionCount": 1675,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 13,
+        "finalCurrentPlayer": 0,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131634_059.bin",
+      "fileName": "game_get_20260704_131634_059.bin",
+      "sha256": "81ca1179d3a4e5a995773c8e989f1f2f4e026c40453c2e4cc006bdf2d33026cc",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 72816,
+      "decryptedBytes": 72811,
+      "gameObjectBytes": 72784,
+      "map": {
+        "width": 15,
+        "height": 12,
+        "players": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "terrainCount": 180,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1580,
+        "eventCounts": {
+          "ATTACK": 431,
+          "GAME_START": 0,
+          "HEAL": 40,
+          "MOVE": 0,
+          "NEXT_TURN": 141,
+          "NONE": 131,
+          "OCCUPY": 18,
+          "RECRUIT": 0,
+          "REPAIR": 3,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 763,
+          "SUMMON": 12,
+          "SUPPORT": 40,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 72784
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 1580,
+        "expandedActionCount": 2399,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 49,
+        "finalCurrentPlayer": 2,
+        "finalWinner": 2
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131641_060.bin",
+      "fileName": "game_get_20260704_131641_060.bin",
+      "sha256": "b33c5c2450555d841e27fa7e0e65a7a560d636484f6d1b3f35a1323f0ae5f3d3",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 37800,
+      "decryptedBytes": 37795,
+      "gameObjectBytes": 37768,
+      "map": {
+        "width": 17,
+        "height": 12,
+        "players": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "terrainCount": 204,
+        "unitCount": 4,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          2,
+          3,
+          4
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 744,
+        "eventCounts": {
+          "ATTACK": 231,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 83,
+          "NONE": 82,
+          "OCCUPY": 13,
+          "RECRUIT": 0,
+          "REPAIR": 2,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 330,
+          "SUMMON": 2,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 37768
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "executedRecordCount": 744,
+        "expandedActionCount": 1249,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "finalTurn": 30,
+        "finalCurrentPlayer": 3,
+        "finalWinner": 4
+      },
+      "error": null
+    }
+  ]
+}

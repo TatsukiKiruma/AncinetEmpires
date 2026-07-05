@@ -1,0 +1,162 @@
+{
+  "generatedAt": "2026-07-04T19:49:53.082Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 172,
+    "limit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": false,
+    "strictTerrain": false,
+    "forceExecuteReplayActions": true
+  },
+  "totals": {
+    "files": 1,
+    "uniqueFiles": 1,
+    "duplicates": 0,
+    "parsed": 1,
+    "passed": 0,
+    "failed": 1,
+    "parseErrors": 0
+  },
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132050_078.bin",
+      "fileName": "game_get_20260704_132050_078.bin",
+      "sha256": "72d58b04ba9f2e5d885e36a57d0dfaa608618916fa9d2cb38e2ece15d9312d4d",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 17280,
+      "decryptedBytes": 17275,
+      "gameObjectBytes": 17248,
+      "map": {
+        "width": 13,
+        "height": 13,
+        "players": [
+          4,
+          1,
+          0,
+          5,
+          2,
+          3
+        ],
+        "terrainCount": 169,
+        "unitCount": 10,
+        "recommendedGold": 250
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 250,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 4,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 11,
+        "eventCounts": {
+          "ATTACK": 2,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 1,
+          "NONE": 2,
+          "OCCUPY": 0,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 4,
+          "SUMMON": 0,
+          "SUPPORT": 0,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 17248
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": -1,
+        "replaySplitIndex": -1,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "executedRecordCount": 0,
+        "expandedActionCount": 0,
+        "firstError": "找不到来源单位: (8, 0)",
+        "firstErrorRecordIndex": 0,
+        "firstErrorRecordEvent": "STANDBY",
+        "firstErrorRecordSource": {
+          "x": 8,
+          "y": 0
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 8,
+          "y": 2
+        },
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 4,
+        "turnBefore": 1,
+        "legalActionCount": 58,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": {
+          "actor": null,
+          "target": null,
+          "moveDestinationOccupant": null,
+          "sourceToTargetDistance": null,
+          "moveToTargetDistance": null
+        },
+        "finalTurn": 1,
+        "finalCurrentPlayer": 4,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}

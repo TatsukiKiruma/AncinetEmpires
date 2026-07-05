@@ -1,0 +1,129 @@
+{
+  "generatedAt": "2026-07-04T13:23:23.081Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "limit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false
+  },
+  "totals": {
+    "files": 1,
+    "uniqueFiles": 1,
+    "duplicates": 0,
+    "parsed": 1,
+    "passed": 0,
+    "failed": 1,
+    "parseErrors": 0
+  },
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131343_030.bin",
+      "fileName": "game_get_20260704_131343_030.bin",
+      "sha256": "47d22296f31a9e9354cb28a2f4c5750f6661af1d999c827f8f8b27268e1ad8ba",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 64872,
+      "decryptedBytes": 64871,
+      "gameObjectBytes": 64844,
+      "map": {
+        "width": 11,
+        "height": 19,
+        "players": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "terrainCount": 209,
+        "unitCount": 5,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1387,
+        "eventCounts": {
+          "ATTACK": 386,
+          "GAME_START": 0,
+          "HEAL": 27,
+          "MOVE": 0,
+          "NEXT_TURN": 142,
+          "NONE": 108,
+          "OCCUPY": 13,
+          "RECRUIT": 0,
+          "REPAIR": 4,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 699,
+          "SUMMON": 7,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "validation": {
+        "success": false,
+        "executedRecordCount": 1148,
+        "expandedActionCount": 1776,
+        "firstError": "当前局面没有合法招募动作: commander @ (9, 3)",
+        "firstErrorRecordIndex": 1148,
+        "firstErrorRecordEvent": "NONE",
+        "firstErrorRecordSource": {
+          "x": 9,
+          "y": 3
+        },
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": 9,
+        "currentPlayerBefore": 2,
+        "turnBefore": 29,
+        "legalActionCount": 11,
+        "info": null,
+        "actionCode": null,
+        "finalTurn": 29,
+        "finalCurrentPlayer": 2,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}
