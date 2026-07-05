@@ -20,6 +20,7 @@ export interface Grave {
     id: string;
     pos: Position;
     remainingTurns: number;
+    ownerId?: number; // APK 墓碑覆盖层低 12 位记录所属队伍；只在该队 TURN_START 时递减
 }
 
 export interface Unit {
@@ -206,6 +207,13 @@ export interface RuleConfig {
     incomeCommanderBase?: number;    // 指挥官存活基础收入
     incomeCommanderGrowth?: number;  // 指挥官每级收入成长
     levelCap?: LevelCap;             // 等级上限
+    destroyerAttackBonus?: number;   // APK C0611d.f1272a：破坏者攻击可摧毁地形单位加攻
+    flyingWaterAttackBonus?: number; // APK C0611d.f1273b：飞行单位攻击水上非飞行单位加攻
+    deathReaperAttackBonus?: number; // APK C0611d.f1274c：死神攻击负面状态单位加攻
+    inspiredAttackBonus?: number;    // APK C0611d.f1275d：鼓舞攻击加成，远程时减半
+    sharpshooterAttackBonus?: number; // APK C0611d.f1276e：神射手攻击飞行单位加攻
+    terrainChildCombatBonus?: number; // APK C0611d.f1277f：地形之子攻防加成
+    weakenedDefensePenalty?: number; // APK C0611d.f1266E：虚弱防御惩罚，远程时减半
     unitLimit?: number;              // 全局单位数量上限，队伍配置可覆盖
     populationLimit?: number;        // 全局人口上限，队伍配置可覆盖
     recruitableUnits?: UnitClass[];  // 全局允许招募单位列表，队伍配置可覆盖
@@ -215,6 +223,7 @@ export interface RuleConfig {
     allowSurrender?: boolean;       // 是否允许玩家主动投降；APK skirmish 菜单存在投降入口
     allowPendingRecruitEndTurn?: boolean; // APK skirmish：空城堡招募 pending 时仍允许结束回合
     allowPendingRecruitSurrender?: boolean; // APK skirmish：空城堡招募 pending 时仍允许投降
+    commanderCastleRecruitUsesPending?: boolean; // APK 多人：指挥官站城堡招募时先生成堆叠 pending 单位，再由下一条动作移出
     defeatOnNoUnitsAndNoCastles?: boolean; // APK skirmish：同时无单位且无城堡时淘汰
     defeatOnNoUnits?: boolean;        // 无存活单位时淘汰
     defeatOnCommanderDeath?: boolean; // 无存活指挥官时淘汰
@@ -258,7 +267,7 @@ export type Action =
     | { type: 'heal'; healerId: string; targetId: string }
     | { type: 'summon'; summonerId: string; graveId: string; spawnPos: Position }
     | { type: 'support'; supporterId: string; targetId: string }
-    | { type: 'destroy_town'; unitId: string }
+    | { type: 'destroy_town'; unitId: string; target?: Position }
     | { type: 'post_attack_move'; unitId: string; to: Position }
     | { type: 'surrender' }
     | { type: 'end_turn' };

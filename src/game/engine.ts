@@ -3,8 +3,8 @@ import { getLegalActions, calculateDamage, inRange } from './rules';
 import { UNIT_CONFIGS } from './constants';
 import { hasAbility, isWaterTerrain, isForestTerrain, isMountainTerrain, isUndead, getEffectiveStats, addExp, clearNegativeStatus } from './abilities';
 import { getMoveCostTo, getDistance } from './map';
-import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit, isFriendlyOrNeutralOwner } from './rule_config';
-import { getTileHealPerTurn, getTileTerrainKey, setTileOwnerForRules, setTileTerrainForRules, tileClearsNegativeStatusAtTurnStart } from './terrain_rules';
+import { areAlliedPlayers, areEnemyPlayers, canRecruitUnitClass, getAllianceId, getCommanderUnit, getRuleConfig, getTileIncome, getTurnPlayerIds, getUnitCost, isActivePlayer, isCommanderUnit } from './rule_config';
+import { destroyTileForRules, getTileHealPerTurn, getTileTerrainKey, isTileDestroyableForRules, setTileOwnerAfterRepairForRules, setTileOwnerForRules, setTileTerrainForRules, tileClearsNegativeStatusAtTurnStart, tileHealingRequiresFriendlyOwner } from './terrain_rules';
 import { applyCampaignEvents } from './campaign_events';
 
 function isSamePos(p1?: Position, p2?: Position): boolean {
@@ -70,12 +70,16 @@ function areActionsEqual(a1: Action, a2: Action): boolean {
             const m2 = a2 as { type: 'summon'; summonerId: string; graveId: string; spawnPos: Position };
             return m1.summonerId === m2.summonerId && m1.graveId === m2.graveId && isSamePos(m1.spawnPos, m2.spawnPos);
         }
+        case 'destroy_town': {
+            const m1 = a1 as { type: 'destroy_town'; unitId: string; target?: Position };
+            const m2 = a2 as { type: 'destroy_town'; unitId: string; target?: Position };
+            return m1.unitId === m2.unitId && isSamePos(m1.target, m2.target);
+        }
         case 'capture':
         case 'repair':
-        case 'destroy_town':
         case 'wait': {
-            const m1 = a1 as { type: 'capture' | 'repair' | 'destroy_town' | 'wait'; unitId: string };
-            const m2 = a2 as { type: 'capture' | 'repair' | 'destroy_town' | 'wait'; unitId: string };
+            const m1 = a1 as { type: 'capture' | 'repair' | 'wait'; unitId: string };
+            const m2 = a2 as { type: 'capture' | 'repair' | 'wait'; unitId: string };
             return m1.unitId === m2.unitId;
         }
         case 'recruit_to_castle': {
@@ -98,18 +102,32 @@ function areActionsEqual(a1: Action, a2: Action): boolean {
 
 export interface GameEngineOptions {
     unsafeBypassValidationForTests?: boolean;
+    disableAutoAdvanceWhenNoMeaningfulAction?: boolean;
+    applyInitialTurnStart?: boolean;
 }
 
 export class GameEngine {
     private state: GameState;
     private unsafeBypassValidationForTests: boolean = false;
+    private disableAutoAdvanceWhenNoMeaningfulAction: boolean = false;
 
     constructor(initialState: GameState, options?: GameEngineOptions) {
         this.state = JSON.parse(JSON.stringify(initialState)); // deep copy
         if (options?.unsafeBypassValidationForTests) {
             this.unsafeBypassValidationForTests = true;
         }
+        if (options?.disableAutoAdvanceWhenNoMeaningfulAction) {
+            this.disableAutoAdvanceWhenNoMeaningfulAction = true;
+        }
         this.ensureCurrentPlayerCanAct();
+        if (options?.applyInitialTurnStart && isActivePlayer(this.state, this.state.currentPlayer)) {
+            this.startTurnForPlayer(this.state.currentPlayer);
+            const deadUnits = this.removeDeadUnits();
+            for (const deadUnit of deadUnits) {
+                applyCampaignEvents(this.state, { type: 'unit_destroyed', unit: deadUnit });
+            }
+            this.checkWinConditions();
+        }
     }
 
     public getState(): GameState {
@@ -118,7 +136,10 @@ export class GameEngine {
     }
 
     public clone(): GameEngine {
-        return new GameEngine(this.state, { unsafeBypassValidationForTests: this.unsafeBypassValidationForTests });
+        return new GameEngine(this.state, {
+            unsafeBypassValidationForTests: this.unsafeBypassValidationForTests,
+            disableAutoAdvanceWhenNoMeaningfulAction: this.disableAutoAdvanceWhenNoMeaningfulAction
+        });
     }
 
     public getLegalActions(playerId: number): Action[] {
@@ -185,6 +206,10 @@ export class GameEngine {
         unit.hp = Math.min(maxHp, unit.hp + amount);
     }
 
+    private refreshMovementForCurrentStatus(unit: Unit) {
+        unit.movementRemaining = getEffectiveStats(unit).move;
+    }
+
     private decayStatusAtTurnStart(unit: Unit) {
         if (!unit.status) return;
 
@@ -205,7 +230,7 @@ export class GameEngine {
         return !isCommanderUnit(this.state, unit) && !isUndead(unit);
     }
 
-    private createGraveAt(pos: Position) {
+    private createGraveAt(pos: Position, ownerId: number) {
         this.state.graves = this.state.graves || [];
         if (this.state.graves.some(g => g.pos.x === pos.x && g.pos.y === pos.y)) return;
 
@@ -213,7 +238,8 @@ export class GameEngine {
         this.state.graves.push({
             id: `g_${ngId}`,
             pos: { ...pos },
-            remainingTurns: 2
+            remainingTurns: 1,
+            ownerId
         });
         this.state.nextGraveId = ngId + 1;
     }
@@ -221,9 +247,25 @@ export class GameEngine {
     private createGravesForDeadUnits(deadUnits: Unit[]) {
         for (const unit of deadUnits) {
             if (this.shouldCreateGraveForDeadUnit(unit)) {
-                this.createGraveAt(unit.pos);
+                this.createGraveAt(unit.pos, this.state.currentPlayer);
             }
         }
+    }
+
+    private tickGravesForPlayer(playerId: number) {
+        if (!this.state.graves) return;
+
+        this.state.graves = this.state.graves
+            .map(grave => {
+                const ownerId = grave.ownerId ?? playerId;
+                if (ownerId !== playerId) return grave;
+                return {
+                    ...grave,
+                    ownerId,
+                    remainingTurns: grave.remainingTurns - 1
+                };
+            })
+            .filter(grave => grave.remainingTurns >= 0);
     }
 
     private removeDeadUnits(): Unit[] {
@@ -237,6 +279,9 @@ export class GameEngine {
     private startTurnForPlayer(playerId: number) {
         const ruleConfig = getRuleConfig(this.state);
         const nextPlayer = this.state.players.find(p => p.id === playerId);
+
+        // APK C0595l.m4447c -> C0607b.m4222c：只递减当前队伍拥有的墓碑覆盖层。
+        this.tickGravesForPlayer(playerId);
 
         // APK skirmish 实测：敌军站在己方城堡上时，城堡拥有者回合开始会对该敌军造成 50 伤害。
         for (let y = 0; y < this.state.map.height; y++) {
@@ -303,7 +348,11 @@ export class GameEngine {
                 let hpDelta = 0;
 
                 const terrainHealPerTurn = getTileHealPerTurn(tile);
-                if (isFriendlyOrNeutralOwner(this.state, playerId, tile.ownerId) && terrainHealPerTurn > 0) {
+                const canReceiveTerrainHeal = terrainHealPerTurn > 0 && (
+                    !tileHealingRequiresFriendlyOwner(tile)
+                    || (tile.ownerId !== null && areAlliedPlayers(this.state, playerId, tile.ownerId))
+                );
+                if (canReceiveTerrainHeal) {
                     hpDelta += terrainHealPerTurn;
                 }
 
@@ -338,20 +387,29 @@ export class GameEngine {
         applyCampaignEvents(this.state, { type: 'turn_start', playerId, turn: this.state.turn });
     }
 
-    private consumeGraveAtUnitPosition(unit: Unit) {
+    private consumeGraveAtUnitPosition(unit: Unit, options: { applyHpDelta?: boolean } = {}) {
         if (!this.state.graves) return;
 
         const graveIdx = this.state.graves.findIndex(g => g.pos.x === unit.pos.x && g.pos.y === unit.pos.y);
         if (graveIdx === -1) return;
 
+        const applyHpDelta = options.applyHpDelta ?? true;
+        let hpDelta = 0;
         if (isUndead(unit)) {
-            this.applyCappedRecovery(unit, getEffectiveStats(unit).maxHp, 10);
+            hpDelta = 10;
+            if (applyHpDelta) {
+                this.applyCappedRecovery(unit, getEffectiveStats(unit).maxHp, hpDelta);
+            }
         } else if (!hasAbility(unit, 'summoner')) {
             // APK 文案确认召唤师摧毁墓碑不会损失生命值。
-            unit.hp -= 10;
+            hpDelta = -10;
+            if (applyHpDelta) {
+                unit.hp += hpDelta;
+            }
         }
 
         this.state.graves.splice(graveIdx, 1);
+        return hpDelta;
     }
 
     private applyCombatStatusEffects(source: Unit, target: Unit) {
@@ -372,8 +430,16 @@ export class GameEngine {
         }
     }
 
-    private triggerAuras(unit: Unit) {
-        if (unit.hp <= 0) return;
+    private triggerAuras(unit: Unit, options: { deferActingUnitCleansingHpDelta?: boolean } = {}) {
+        if (unit.hp <= 0) {
+            return {
+                deferredActingUnitHpDelta: 0,
+                killedUnits: [] as Unit[]
+            };
+        }
+
+        let deferredActingUnitHpDelta = 0;
+        const killedUnits: Unit[] = [];
         
         // 1. 净化光环 (cleansing_aura)
         if (hasAbility(unit, 'cleansing_aura')) {
@@ -381,13 +447,35 @@ export class GameEngine {
             const healVal = 10 + level * 5; // 精灵升级后净化光环回血+5
             
             this.state.units.forEach(u => {
-                if (u.id !== unit.id && areAlliedPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
+                if (u.hp <= 0 || getDistance(unit.pos, u.pos) > 2) return;
+
+                const isEnemy = areEnemyPlayers(this.state, unit.ownerId, u.ownerId);
+                const stats = getEffectiveStats(u);
+
+                if (!isEnemy && isNegativeStatus(u.status)) {
+                    clearNegativeStatus(u);
+                    if (!u.hasActed) {
+                        this.refreshMovementForCurrentStatus(u);
+                    }
+                }
+
+                if (u.hp <= stats.maxHp) {
                     if (isUndead(u)) {
-                        u.hp = Math.max(0, u.hp - healVal);
-                    } else {
-                        const maxHp = getEffectiveStats(u).maxHp;
-                        this.applyCappedRecovery(u, maxHp, healVal);
-                        clearNegativeStatus(u);
+                        if (options.deferActingUnitCleansingHpDelta && u.id === unit.id) {
+                            deferredActingUnitHpDelta -= healVal;
+                        } else {
+                            const hpBefore = u.hp;
+                            u.hp = Math.max(0, u.hp - healVal);
+                            if (hpBefore > 0 && u.hp <= 0) {
+                                killedUnits.push({ ...u, pos: { ...u.pos } });
+                            }
+                        }
+                    } else if (!isEnemy) {
+                        if (options.deferActingUnitCleansingHpDelta && u.id === unit.id) {
+                            deferredActingUnitHpDelta += healVal;
+                        } else {
+                            this.applyCappedRecovery(u, stats.maxHp, healVal);
+                        }
                     }
                 }
             });
@@ -396,9 +484,10 @@ export class GameEngine {
         // 2. 攻击光环 (attack_aura)
         if (hasAbility(unit, 'attack_aura')) {
             this.state.units.forEach(u => {
-                if (u.id !== unit.id && areAlliedPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
-                    if (!u.status) {
-                        u.status = { type: 'inspired', remainingTurns: 1 };
+                if (u.hp > 0 && areAlliedPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
+                    if (!u.status || u.status.type === 'inspired') {
+                        // APK 规则参数 f1269H=0：鼓舞在当前行动序列有效，下次该单位回合开始即清除。
+                        u.status = { type: 'inspired', remainingTurns: 0 };
                     }
                 }
             });
@@ -407,13 +496,16 @@ export class GameEngine {
         // 3. 虚弱光环 (weakness_aura)
         if (hasAbility(unit, 'weakness_aura')) {
             this.state.units.forEach(u => {
-                if (areEnemyPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
-                    if (!hasAbility(u, 'weakness_aura') && !u.status) {
+                if (u.hp > 0 && areEnemyPlayers(this.state, unit.ownerId, u.ownerId) && getDistance(unit.pos, u.pos) <= 2) {
+                    if (!hasAbility(u, 'weakness_aura') && (!u.status || u.status.type === 'weakened')) {
                         u.status = { type: 'weakened', remainingTurns: 1 };
+                        this.refreshMovementForCurrentStatus(u);
                     }
                 }
             });
         }
+
+        return { deferredActingUnitHpDelta, killedUnits };
     }
 
     public step(action: Action): StepResult {
@@ -524,13 +616,14 @@ export class GameEngine {
                     }
                     
                     attacker.hasMoved = true;
+                    const waitsForPostAttackMove = hasAbility(attacker, 'assault_troop') && (attacker.movementRemaining ?? 0) > 0 && !attacker.hasPostAttackMoved;
                     // 如果是具有 assault_troop 特性的突击部队，在还有移动力且没在攻击后移动过时，暂不动 Acted，由 post_attack_move 去触发.
-                    if (hasAbility(attacker, 'assault_troop') && (attacker.movementRemaining ?? 0) > 0 && !attacker.hasPostAttackMoved) {
+                    if (waitsForPostAttackMove) {
                         attacker.hasActed = true; // 依然是 Action 结束，只要合法动作里可以找出它
                     } else {
                         attacker.hasActed = true;
                     }
-                    standbyUnitId = attacker.id;
+                    standbyUnitId = waitsForPostAttackMove ? null : attacker.id;
                 }
                 break;
             }
@@ -581,8 +674,9 @@ export class GameEngine {
                         pos: { ...action.spawnPos },
                         hp: 100,
                         maxHp: 100,
-                        hasMoved: true,
-                        hasActed: true,
+                        // APK m4369a -> m4282j -> m4379A：召唤物创建后处于未移动、未行动状态。
+                        hasMoved: false,
+                        hasActed: false,
                         level,
                         exp: 0
                     });
@@ -623,11 +717,11 @@ export class GameEngine {
             case 'destroy_town': {
                 const destroyer = this.state.units.find(u => u.id === action.unitId);
                 if (destroyer) {
-                    const tile = this.state.map.tiles[destroyer.pos.y][destroyer.pos.x];
-                    if (getTileTerrainKey(tile) === 'town') {
-                        setTileTerrainForRules(tile, 8); // 损坏城镇
-                        setTileOwnerForRules(tile, null); // 无主中立
-                        info = `Unit ${destroyer.id} destroyed town at ${destroyer.pos.x},${destroyer.pos.y}`;
+                    const target = action.target ?? destroyer.pos;
+                    const tile = this.state.map.tiles[target.y]?.[target.x];
+                    if (tile && isTileDestroyableForRules(tile)) {
+                        destroyTileForRules(tile);
+                        info = `Unit ${destroyer.id} destroyed town at ${target.x},${target.y}`;
                         
                         // 经验
                         addExp(destroyer, 30, ruleConfig.levelCap);
@@ -665,7 +759,7 @@ export class GameEngine {
                     const tile = this.state.map.tiles[unit.pos.y][unit.pos.x];
                     if (getTileTerrainKey(tile) === 'damaged_town') {
                         setTileTerrainForRules(tile, 9);
-                        setTileOwnerForRules(tile, unit.ownerId);
+                        setTileOwnerAfterRepairForRules(tile);
                         info = `Unit ${unit.id} repaired town at ${unit.pos.x},${unit.pos.y}`;
                         reward += 5;
                     }
@@ -680,7 +774,6 @@ export class GameEngine {
                 if (unit) {
                     unit.hasMoved = true;
                     unit.hasActed = true;
-                    this.triggerAuras(unit);
                     standbyUnitId = unit.id;
                     info = `Unit ${unit.id} waited.`;
                 }
@@ -689,6 +782,16 @@ export class GameEngine {
             case 'recruit_to_castle': {
                 const player = this.state.players.find(p => p.id === this.state.currentPlayer);
                 if (player && canRecruitUnitClass(this.state, this.state.currentPlayer, action.unitClass)) {
+                    const castleOccupant = this.state.units.find(unit => (
+                        unit.pos.x === action.castlePos.x
+                        && unit.pos.y === action.castlePos.y
+                        && unit.hp > 0
+                    ));
+                    const pendingSource = castleOccupant
+                        && castleOccupant.ownerId === this.state.currentPlayer
+                        && isCommanderUnit(this.state, castleOccupant, this.state.currentPlayer)
+                        ? 'commander_castle'
+                        : 'empty_castle';
                     const cost = getUnitCost(this.state, this.state.currentPlayer, action.unitClass) ?? 0;
                     player.gold -= cost;
                     const nextId = this.state.nextUnitId ?? 100;
@@ -705,7 +808,7 @@ export class GameEngine {
                         hasActed: false,
                         level: action.unitClass === 'commander' ? (player.commanderReserveLevel ?? 0) : 0,
                         exp: action.unitClass === 'commander' ? (player.commanderReserveExp ?? 0) : 0,
-                        apkPendingRecruitSource: 'empty_castle'
+                        apkPendingRecruitSource: pendingSource
                     });
                     this.state.pendingUnitId = newUnitId;
                     info = `招募单位进入待行动状态 at ${action.castlePos.x},${action.castlePos.y}`;
@@ -761,17 +864,20 @@ export class GameEngine {
                     delete this.state.pendingUnitId;
                     info = `Player ${prevCurrentPlayer} surrendered. Units removed and buildings neutralized.`;
                 }
+
+                const nextTurn = this.getNextTurnPlayer(prevCurrentPlayer);
+                if (nextTurn.playerId !== null) {
+                    this.state.currentPlayer = nextTurn.playerId;
+                    if (nextTurn.wrapped) {
+                        this.state.turn += 1;
+                    }
+                    this.startTurnForPlayer(nextTurn.playerId);
+                    info += ` Turn passed to P${nextTurn.playerId}.`;
+                }
                 break;
             }
             case 'end_turn': {
                 const prevPlayerId = this.state.currentPlayer;
-                // 墓碑减少时常
-                if (this.state.graves) {
-                    this.state.graves = this.state.graves.map(g => ({
-                        ...g,
-                        remainingTurns: g.remainingTurns - 1
-                    })).filter(g => g.remainingTurns > 0);
-                }
 
                 const nextTurn = this.getNextTurnPlayer(prevPlayerId);
                 if (nextTurn.playerId === null) {
@@ -795,8 +901,24 @@ export class GameEngine {
         if (standbyUnitId) {
             const standbyUnit = this.state.units.find(unit => unit.id === standbyUnitId && unit.hp > 0);
             if (standbyUnit?.hasActed) {
-                this.consumeGraveAtUnitPosition(standbyUnit);
+                // APK C0595l.m4442d 会把行动单位自身的净化回血与墓碑效果汇总后统一夹取；
+                // 即使汇总 delta 为 0，也会经 C0600q.m4307f 把行动单位 HP 夹到最大生命。
+                const auraResult = this.triggerAuras(standbyUnit, {
+                    deferActingUnitCleansingHpDelta: true
+                });
+                const graveHpDelta = this.consumeGraveAtUnitPosition(standbyUnit, {
+                    applyHpDelta: false
+                }) ?? 0;
+                this.applyTurnStartHpDelta(
+                    standbyUnit,
+                    getEffectiveStats(standbyUnit).maxHp,
+                    auraResult.deferredActingUnitHpDelta + graveHpDelta
+                );
                 if (standbyUnit.hp > 0) {
+                    if (auraResult.killedUnits.length > 0) {
+                        // APK C0595l.m4442d：后处理光环造成击杀时，行动单位仍存活则获得击杀经验。
+                        addExp(standbyUnit, KILL_EXP * auraResult.killedUnits.length, ruleConfig.levelCap);
+                    }
                     applyCampaignEvents(this.state, { type: 'unit_standby', unit: { ...standbyUnit, pos: { ...standbyUnit.pos } } });
                 }
             }
@@ -825,7 +947,9 @@ export class GameEngine {
         if (!this.isTerminal()) {
             // APK SD/SO 控制脚本在当前队伍被摧毁且未终局时会 AsyncNextTurn。
             this.ensureCurrentPlayerCanAct();
-            this.ensureCurrentPlayerHasMeaningfulAction();
+            if (!this.disableAutoAdvanceWhenNoMeaningfulAction) {
+                this.ensureCurrentPlayerHasMeaningfulAction();
+            }
         }
 
         return {

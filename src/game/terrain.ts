@@ -6,6 +6,9 @@ export interface Tile {
     apkTerrainId?: number;  // 当前 APK tile ID；导入自 .aem，摧毁/修理等规则会同步更新
     apkTerrainRaw?: number; // 当前 APK 4 字节地形记录，保留 tile ID 与归属码组合
     apkOwnerCode?: number;  // 当前 APK 归属码，0..7 为队伍，0xfe/0xff 为中立
+    apkTerrainKind?: number; // APK C0619b.f1369b，地形类别，用于地形之子移动/攻防规则
+    apkTerrainIsLand?: boolean; // APK C0619b.f1368a，是否陆地
+    apkMoveCost?: number; // APK C0619b.f1373f，基础移动消耗
 }
 
 export const TERRAIN_CONFIG: Record<TerrainId, { key: string; name: string; defenseBonus: number; moveCost: number; healPerTurn: number; incomePerTurn: number; tags: string[] }> = {

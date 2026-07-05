@@ -1573,7 +1573,7 @@ describe('GameEngine Rules', () => {
         }];
 
         expect(getTileMoveCost(state.map.tiles[0][1])).toBe(16777215);
-        expect(getTileHealPerTurn(state.map.tiles[0][1])).toBe(3);
+        expect(getTileHealPerTurn(state.map.tiles[0][1])).toBe(0);
         expect(getReachablePositions(state, 'u_apk_move')).toEqual([{ x: 0, y: 0 }]);
 
         const apkHighDefenseTile = { terrainId: 6 as const, ownerId: null, apkTerrainId: 33 };
@@ -1624,7 +1624,7 @@ describe('GameEngine Rules', () => {
             apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'skirmish_map_context'],
             moveCost: 16777215,
             defenseBonus: 0,
-            healPerTurn: 3
+            healPerTurn: 0
         }));
         const apkApproximateTileObservation = observation.tiles.find(tile => tile.x === 2 && tile.y === 0)!;
         expect(apkApproximateTileObservation).toEqual(expect.objectContaining({
@@ -1696,6 +1696,15 @@ describe('GameEngine Rules', () => {
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf' }, apkWaterTileAsRoad)).toBe(2);
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf_archer' }, apkForestTileAsRoad)).toBe(1);
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'golem' }, apkMountainTileAsRoad)).toBe(1);
+        const apkBridgeTile = {
+            terrainId: 17 as const,
+            ownerId: null,
+            apkTerrainId: 72,
+            apkTerrainIsLand: true,
+            apkTerrainKind: 0,
+            apkMoveCost: 1
+        };
+        expect(isWaterTerrain(apkBridgeTile)).toBe(false);
 
         const apkAbilityState = createDemoState();
         apkAbilityState.map.width = 2;
@@ -1710,11 +1719,14 @@ describe('GameEngine Rules', () => {
         apkAbilityState.units[1].unitClass = 'water_elemental';
         apkAbilityState.units[1].pos = { x: 0, y: 0 };
         expect(getDefenseBonus(apkAbilityState, apkAbilityState.units[0], apkAbilityState.units[1])).toBe(10);
+        apkAbilityState.map.tiles[0][0] = apkBridgeTile;
+        expect(getDefenseBonus(apkAbilityState, apkAbilityState.units[0], apkAbilityState.units[1])).toBe(0);
 
         apkAbilityState.units[0].unitClass = 'dragon';
         apkAbilityState.units[0].pos = { x: 1, y: 0 };
         apkAbilityState.units[1].unitClass = 'soldier';
         apkAbilityState.units[1].pos = { x: 0, y: 0 };
+        apkAbilityState.map.tiles[0][0] = apkWaterTileAsRoad;
         const flyingAttackWaterDamage = calculateDamage(apkAbilityState, 'apk_water_child', 'apk_target');
         apkAbilityState.map.tiles[0][0] = { terrainId: 6, ownerId: null };
         const flyingAttackRoadDamage = calculateDamage(apkAbilityState, 'apk_water_child', 'apk_target');
@@ -1820,6 +1832,31 @@ describe('GameEngine Rules', () => {
         }));
         expect(getTileTerrainKey(destroyedTile)).toBe('damaged_town');
 
+        const apkRangedDestroyState = createDemoState();
+        apkRangedDestroyState.map.tiles[0][3] = {
+            terrainId: 6,
+            ownerId: 1,
+            apkTerrainId: 36,
+            apkTerrainRaw: (36 << 12) | 1,
+            apkOwnerCode: 1
+        };
+        apkRangedDestroyState.units[0].unitClass = 'catapult';
+        apkRangedDestroyState.units[0].pos = { x: 0, y: 0 };
+        const apkRangedDestroyEngine = new GameEngine(apkRangedDestroyState);
+        expect(apkRangedDestroyEngine.getLegalActions(0)).toContainEqual({
+            type: 'destroy_town',
+            unitId: 'u1',
+            target: { x: 3, y: 0 }
+        });
+        apkRangedDestroyEngine.step({ type: 'destroy_town', unitId: 'u1', target: { x: 3, y: 0 } });
+        expect(apkRangedDestroyEngine.getState().map.tiles[0][3]).toEqual(expect.objectContaining({
+            terrainId: 8,
+            ownerId: null,
+            apkTerrainId: 27,
+            apkTerrainRaw: (27 << 12) | 0xff,
+            apkOwnerCode: 0xff
+        }));
+
         const apkRepairState = createDemoState();
         apkRepairState.map.tiles[0][0] = {
             terrainId: 6,
@@ -1835,10 +1872,10 @@ describe('GameEngine Rules', () => {
         const repairedTile = apkRepairEngine.getState().map.tiles[0][0];
         expect(repairedTile).toEqual(expect.objectContaining({
             terrainId: 9,
-            ownerId: 0,
+            ownerId: null,
             apkTerrainId: 36,
-            apkTerrainRaw: 36 << 12,
-            apkOwnerCode: 0
+            apkTerrainRaw: (36 << 12) | 0xfe,
+            apkOwnerCode: 0xfe
         }));
         expect(getTileTerrainKey(repairedTile)).toBe('town');
 
@@ -2000,15 +2037,17 @@ describe('GameEngine Rules', () => {
             expect(newUnits[0].hasActed).toBe(false);
             expect(newState.pendingUnitId).toBe(newUnits[0].id);
 
-            // 具有 pendingUnitId，只能该单位动
+            // 空城堡 pending 不锁其他单位，但仍然禁止继续招募。
             const subActions = engine.getLegalActions(0);
             const canMove = subActions.some(a => a.type === 'move' && a.unitId === newUnits[0].id);
             expect(canMove).toBe(true);
+            const commanderCanAct = subActions.some(a => 'unitId' in a && a.unitId === state.units[0].id);
+            expect(commanderCanAct).toBe(true);
+            const recruitAgain = subActions.filter(a => a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy');
+            expect(recruitAgain.length).toBe(0);
             expect(subActions.some(a => a.type === 'end_turn')).toBe(false);
 
-            // 执行移动，然后依然 pending (因为移动没有 hasActed)？
-            // 移动以后 pending 还会在吗？
-            // 引擎里面 step(move) 并未改变 hasActed, 而且因为 action 不是 end_turn, pendingUnit 依然有，所以依然锁住! 这是正确的，符合要求。
+            // 执行移动后，新兵还没待机/行动完成，所以 pending 仍保留。
             const moveAct = subActions.find(a => a.type === 'move')!;
             engine.step(moveAct);
             expect(engine.getState().pendingUnitId).toBe(newUnits[0].id);
@@ -2017,7 +2056,7 @@ describe('GameEngine Rules', () => {
 
     it('修理者可修理损坏城镇', () => {
         const state = createDemoState();
-        state.map.tiles[0][0].terrainId = 8; // Commander is standing on damaged_town (8)
+        state.map.tiles[0][0].terrainId = 8; // 指挥官站在损坏城镇上。
         state.map.tiles[0][0].ownerId = null;
         
         const engine = new GameEngine(state);
@@ -2029,7 +2068,14 @@ describe('GameEngine Rules', () => {
         const tile = engine.getState().map.tiles[0][0];
         
         expect(tile.terrainId).toBe(9); // 变为城镇
-        expect(tile.ownerId).toBe(0); // 属于修理者
+        expect(tile.ownerId).toBeNull(); // APK 修理只恢复地形，不接管归属
+
+        const ownedState = createDemoState();
+        ownedState.map.tiles[0][0].terrainId = 8;
+        ownedState.map.tiles[0][0].ownerId = 1;
+        const ownedEngine = new GameEngine(ownedState);
+        ownedEngine.step(ownedEngine.getLegalActions(0).find(action => action.type === 'repair')!);
+        expect(ownedEngine.getState().map.tiles[0][0].ownerId).toBeNull();
     });
 
     it('APK 21 个单位配置和 ID 映射存在', () => {
@@ -2080,6 +2126,42 @@ describe('GameEngine Rules', () => {
         // Expected damage: (50 - (-10) - 0) * (100/100) = 60
         const dmg = calculateDamage(state, 'u1', 'u2');
         expect(dmg).toBe(60);
+    });
+
+    it('伤害公式: 过量治疗倍率按 APK 整数乘除取整', () => {
+        const state = createDemoState();
+        state.units[0].unitClass = 'druid';
+        state.units[0].hp = 140;
+        state.units[1].unitClass = 'slime';
+
+        state.units[0].pos = { x: 1, y: 1 };
+        state.units[1].pos = { x: 1, y: 2 };
+        state.map.tiles[2][1].terrainId = 1; // snow, 5 defense
+
+        // APK C0600q.m4339b: raw=40-(-10)-5=45, damage=(45*140)/100=63。
+        const dmg = calculateDamage(state, 'u1', 'u2');
+        expect(dmg).toBe(63);
+    });
+
+    it('伤害公式: APK嵌入战斗常量会覆盖默认加成', () => {
+        const sharpState = createDemoState({ sharpshooterAttackBonus: 30 });
+        sharpState.units[0].unitClass = 'archer';
+        sharpState.units[0].pos = { x: 1, y: 1 };
+        sharpState.units[1].unitClass = 'dragon';
+        sharpState.units[1].pos = { x: 1, y: 3 };
+
+        // (45 + 30 - 25) / 2，龙的远程防御仍按 APK 最终倍率减半。
+        expect(calculateDamage(sharpState, 'u1', 'u2')).toBe(25);
+
+        const childState = createDemoState({ terrainChildCombatBonus: 20 });
+        childState.units[0].unitClass = 'water_elemental';
+        childState.units[0].pos = { x: 1, y: 1 };
+        childState.units[1].unitClass = 'soldier';
+        childState.units[1].pos = { x: 1, y: 2 };
+        childState.map.tiles[1][1].terrainId = 2; // 水元素站在水地形，触发水之子攻击加成。
+        childState.map.tiles[2][1].terrainId = 6;
+
+        expect(calculateDamage(childState, 'u1', 'u2')).toBe(75);
     });
 
     it('伤害公式: 地形防御会减少伤害', () => {
@@ -2613,7 +2695,7 @@ describe('GameEngine Rules', () => {
             expect(resPaladin.hasBeenHealedThisTurn).toBe(true);
         });
 
-        it('5.1b 治疗师可以继续治疗已经超过最大血量的友军', () => {
+        it('5.1b 治疗师不能继续治疗已经超过最大血量的普通友军', () => {
             const state = createDemoState();
             const paladin = state.units.find(u => u.ownerId === 0)!;
             paladin.unitClass = 'paladin';
@@ -2631,14 +2713,7 @@ describe('GameEngine Rules', () => {
                 && action.healerId === paladin.id
                 && action.targetId === friend.id
             );
-            expect(healAction).toBeDefined();
-
-            const engine = new GameEngine(state);
-            engine.step(healAction!);
-
-            const resFriend = engine.getState().units.find(u => u.id === friend.id)!;
-            expect(resFriend.hp).toBe(170);
-            expect(resFriend.hasBeenHealedThisTurn).toBe(true);
+            expect(healAction).toBeUndefined();
         });
 
         it('5.1c 治疗超上限后直接结束当前回合不会立刻裁剪', () => {
@@ -2677,6 +2752,47 @@ describe('GameEngine Rules', () => {
             expect(resUnit.hp).toBe(100);
         });
 
+        it('5.1d.1 APK可占领中立地形不会提供回合开始回血', () => {
+            const state = createDemoState();
+            state.currentPlayer = 1;
+            const unit = state.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            unit.hp = 80;
+            unit.maxHp = 100;
+            unit.pos = { x: 0, y: 0 };
+            state.map.tiles[0][0] = { terrainId: 9, ownerId: null };
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'end_turn' });
+
+            expect(engine.getState().units.find(u => u.id === unit.id)?.hp).toBe(80);
+        });
+
+        it('5.1d.2 友方可占领地形与非可占领治疗地形仍提供回血', () => {
+            const friendlyTownState = createDemoState();
+            friendlyTownState.currentPlayer = 1;
+            const townUnit = friendlyTownState.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            townUnit.hp = 80;
+            townUnit.maxHp = 100;
+            townUnit.pos = { x: 0, y: 0 };
+            friendlyTownState.map.tiles[0][0] = { terrainId: 9, ownerId: 0 };
+
+            const friendlyTownEngine = new GameEngine(friendlyTownState);
+            friendlyTownEngine.step({ type: 'end_turn' });
+            expect(friendlyTownEngine.getState().units.find(u => u.id === townUnit.id)?.hp).toBe(100);
+
+            const campState = createDemoState();
+            campState.currentPlayer = 1;
+            const campUnit = campState.units.find(u => u.ownerId === 0 && u.unitClass === 'commander')!;
+            campUnit.hp = 80;
+            campUnit.maxHp = 100;
+            campUnit.pos = { x: 0, y: 0 };
+            campState.map.tiles[0][0] = { terrainId: 11, ownerId: null };
+
+            const campEngine = new GameEngine(campState);
+            campEngine.step({ type: 'end_turn' });
+            expect(campEngine.getState().units.find(u => u.id === campUnit.id)?.hp).toBe(100);
+        });
+
         it('5.1e 亡灵中毒回血不会突破最大生命', () => {
             const state = createDemoState();
             state.currentPlayer = 1;
@@ -2694,7 +2810,7 @@ describe('GameEngine Rules', () => {
             expect(resGhost.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
         });
 
-        it('5.1f 封顶回复不会压低既有超上限生命', () => {
+        it('5.1f 非行动单位的封顶回复不会压低既有超上限生命', () => {
             const auraState = createDemoState();
             const elf = auraState.units.find(u => u.ownerId === 0)!;
             elf.unitClass = 'elf';
@@ -2709,7 +2825,23 @@ describe('GameEngine Rules', () => {
             const auraEngine = new GameEngine(auraState);
             auraEngine.step({ type: 'wait', unitId: elf.id });
             expect(auraEngine.getState().units.find(u => u.id === ally.id)?.hp).toBe(130);
+        });
 
+        it('5.1g APK行动后结算会把行动单位超上限生命裁剪到最大值', () => {
+            const state = createDemoState();
+            const unit = state.units.find(u => u.ownerId === 0)!;
+            unit.unitClass = 'soldier';
+            unit.pos = { x: 0, y: 0 };
+            unit.hp = 140;
+            unit.maxHp = 100;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: unit.id });
+
+            expect(engine.getState().units.find(u => u.id === unit.id)?.hp).toBe(100);
+        });
+
+        it('5.1h APK行动后墓碑效果与超上限裁剪统一结算', () => {
             const graveState = createDemoState();
             graveState.currentPlayer = 0;
             graveState.graves = [{ id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }];
@@ -2728,7 +2860,7 @@ describe('GameEngine Rules', () => {
 
             graveEngine.step({ type: 'wait', unitId: ghost.id });
             const finalGraveState = graveEngine.getState();
-            expect(finalGraveState.units.find(u => u.id === ghost.id)?.hp).toBe(130);
+            expect(finalGraveState.units.find(u => u.id === ghost.id)?.hp).toBe(100);
             expect(finalGraveState.graves).toHaveLength(0);
         });
 
@@ -2753,7 +2885,7 @@ describe('GameEngine Rules', () => {
             expect(resGhost.hp).toBe(20); // 80 - 60 = 20，亡灵受到 1.5 倍治疗伤害
         });
 
-        it('5.2b 亡灵受到治疗伤害后也会消耗本回合被治疗次数', () => {
+        it('5.2b 亡灵受到治疗伤害后同回合仍可再次成为治疗目标', () => {
             const state = createDemoState();
             const firstPaladin = state.units.find(u => u.ownerId === 0)!;
             firstPaladin.unitClass = 'paladin';
@@ -2788,7 +2920,7 @@ describe('GameEngine Rules', () => {
                 action.type === 'heal'
                 && action.healerId === 'u_second_paladin'
                 && action.targetId === skeletonFriend.id
-            )).toBe(false);
+            )).toBe(true);
         });
 
         it('5.2c 治疗师可以治疗敌方骷髅但不能治疗普通敌军', () => {
@@ -3006,6 +3138,28 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             const resSoldier = finalState.units.find(u => u.id === soldier.id)!;
             expect(resSoldier.hp).toBe(70); // 行动结束：80 - 10 = 70
+            expect(finalState.graves?.length).toBe(0);
+        });
+
+        it('5.5b APK行动后结算：满血精灵净化自疗与墓碑扣血汇总夹取', () => {
+            const state = createDemoState();
+            state.currentPlayer = 0;
+            state.graves = [
+                { id: 'grave1', pos: { x: 0, y: 1 }, remainingTurns: 2 }
+            ];
+            const elf = state.units.find(u => u.ownerId === 0)!;
+            elf.unitClass = 'elf';
+            elf.pos = { x: 0, y: 0 };
+            elf.hp = 100;
+            elf.level = 0;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'move', unitId: elf.id, to: { x: 0, y: 1 } });
+            engine.step({ type: 'wait', unitId: elf.id });
+
+            const finalState = engine.getState();
+            const resElf = finalState.units.find(u => u.id === elf.id)!;
+            expect(resElf.hp).toBe(100);
             expect(finalState.graves?.length).toBe(0);
         });
 
@@ -3371,6 +3525,10 @@ describe('GameEngine Rules', () => {
 
             const inspiredFriend = engine.getState().units.find(u => u.id === friend.id)!;
             expect(inspiredFriend.status?.type).toBe('inspired');
+            expect(inspiredFriend.status?.remainingTurns).toBe(0);
+            const inspiredDruid = engine.getState().units.find(u => u.id === druid.id)!;
+            expect(inspiredDruid.status?.type).toBe('inspired');
+            expect(inspiredDruid.status?.remainingTurns).toBe(0);
 
             const blockedState = createDemoState();
             const blockedDruid = blockedState.units.find(u => u.ownerId === 0)!;
@@ -3387,7 +3545,7 @@ describe('GameEngine Rules', () => {
             expect(resFriend.status?.type).toBe('poisoned');
         });
 
-        it('5.11b 光环只在待机时触发，攻击后不会触发', () => {
+        it('5.11b 攻击后也会触发后处理光环', () => {
             const state = createDemoState();
             const druid = state.units.find(u => u.id === 'u1')!;
             const friend = state.units.find(u => u.id === 'u3')!;
@@ -3404,7 +3562,8 @@ describe('GameEngine Rules', () => {
             engine.step({ type: 'attack', attackerId: druid.id, targetId: enemy.id });
 
             const resultFriend = engine.getState().units.find(u => u.id === friend.id)!;
-            expect(resultFriend.status).toBeUndefined();
+            expect(resultFriend.status?.type).toBe('inspired');
+            expect(resultFriend.status?.remainingTurns).toBe(0);
         });
 
         it('5.12 鼓舞近战攻击 +10，远程攻击加成减半', () => {
@@ -3481,25 +3640,35 @@ describe('GameEngine Rules', () => {
             const elf = state.units.find(u => u.ownerId === 0)!;
             elf.unitClass = 'elf'; // cleansing_aura
             elf.pos = { x: 1, y: 1 };
+            elf.hp = 80;
+            elf.maxHp = 100;
+            elf.status = { type: 'poisoned', remainingTicks: 2 };
 
             const friend = state.units.find(u => u.ownerId === 0 && u.id !== elf.id)!;
             friend.unitClass = 'soldier';
             friend.pos = { x: 1, y: 2 }; // 相距 1 格
             friend.hp = 80;
             friend.maxHp = 100;
-            friend.status = { type: 'poisoned', remainingTicks: 2 };
+            friend.status = { type: 'weakened', remainingTurns: 1 };
+            friend.hasMoved = true;
+            friend.hasActed = false;
+            friend.movementRemaining = 1;
 
             // 待机
             const engine = new GameEngine(state);
             engine.step({ type: 'wait', unitId: elf.id });
 
             const finalState = engine.getState();
+            const resElf = finalState.units.find(u => u.id === elf.id)!;
+            expect(resElf.hp).toBe(90);
+            expect(resElf.status).toBeUndefined();
             const resFriend = finalState.units.find(u => u.id === friend.id)!;
             expect(resFriend.hp).toBe(90); // 80 + 10 = 90
-            expect(resFriend.status).toBeUndefined(); // Poisoned 状态被净化清除
+            expect(resFriend.status).toBeUndefined(); // 虚弱状态被净化清除
+            expect(resFriend.movementRemaining).toBe(getEffectiveStats(resFriend).move);
         });
 
-        it('5.14 净化光环对骷髅/幽灵造成 10 伤害', () => {
+        it('5.14 净化光环对任意阵营的骷髅/幽灵造成 10 伤害', () => {
             const state = createDemoState();
             const elf = state.units.find(u => u.ownerId === 0)!;
             elf.unitClass = 'elf';
@@ -3510,12 +3679,42 @@ describe('GameEngine Rules', () => {
             ghost.pos = { x: 1, y: 2 };
             ghost.hp = 80;
 
+            const enemyGhost = state.units.find(u => u.ownerId === 1)!;
+            enemyGhost.unitClass = 'ghost';
+            enemyGhost.pos = { x: 2, y: 1 };
+            enemyGhost.hp = 80;
+
             const engine = new GameEngine(state);
             engine.step({ type: 'wait', unitId: elf.id });
 
             const finalState = engine.getState();
             const resGhost = finalState.units.find(u => u.id === ghost.id)!;
             expect(resGhost.hp).toBe(70); // 80 - 10 = 70 (变成伤害)
+            const resEnemyGhost = finalState.units.find(u => u.id === enemyGhost.id)!;
+            expect(resEnemyGhost.hp).toBe(70);
+        });
+
+        it('5.14b APK净化光环击杀会给行动单位击杀经验', () => {
+            const state = createDemoState();
+            const elf = state.units.find(u => u.ownerId === 0)!;
+            elf.unitClass = 'elf';
+            elf.pos = { x: 1, y: 1 };
+            elf.level = 2;
+            elf.exp = 540;
+
+            const ghost = state.units.find(u => u.ownerId === 1)!;
+            ghost.unitClass = 'ghost';
+            ghost.pos = { x: 1, y: 2 };
+            ghost.hp = 20;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: elf.id });
+
+            const finalState = engine.getState();
+            expect(finalState.units.some(u => u.id === ghost.id)).toBe(false);
+            const resElf = finalState.units.find(u => u.id === elf.id)!;
+            expect(resElf.exp).toBe(600);
+            expect(resElf.level).toBe(3);
         });
 
         it('5.15 虚弱光环不覆盖已有状态', () => {
@@ -3535,6 +3734,25 @@ describe('GameEngine Rules', () => {
             const finalState = engine.getState();
             const resEnemy = finalState.units.find(u => u.id === enemy.id)!;
             expect(resEnemy.status?.type).toBe('blinded'); // 不应该变更状态为 weakened
+        });
+
+        it('5.15b 虚弱光环命中后立即刷新目标移动力', () => {
+            const state = createDemoState();
+            const golem = state.units.find(u => u.ownerId === 0)!;
+            golem.unitClass = 'golem';
+            golem.pos = { x: 1, y: 1 };
+
+            const enemy = state.units.find(u => u.ownerId === 1)!;
+            enemy.unitClass = 'wolf';
+            enemy.pos = { x: 1, y: 2 };
+            enemy.movementRemaining = 6;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'wait', unitId: golem.id });
+
+            const resEnemy = engine.getState().units.find(u => u.id === enemy.id)!;
+            expect(resEnemy.status?.type).toBe('weakened');
+            expect(resEnemy.movementRemaining).toBe(1);
         });
 
         it('5.16 突击部队攻击后可以使用攻击前剩余移动力移动', () => {
@@ -3736,6 +3954,74 @@ describe('GameEngine Rules', () => {
             expect(finalAttacker.hp).toBe(100);
             expect(finalAttacker.exp).toBe(60);
             expect(finalState.units.some(u => u.id === defender.id)).toBe(false);
+        });
+
+        it('6.4.1b 反击伤害按受击后的剩余 HP 缩放', () => {
+            const state = createDemoState();
+            state.map.width = 3;
+            state.map.height = 3;
+            state.map.tiles = Array.from({ length: 3 }, () => (
+                Array.from({ length: 3 }, () => ({ terrainId: 6 as const, ownerId: null }))
+            ));
+
+            const attacker: Unit = {
+                id: 'berserker_attacker',
+                ownerId: 0,
+                unitClass: 'berserker',
+                pos: { x: 1, y: 1 },
+                hp: 10,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 1,
+                exp: 100
+            };
+            const defender: Unit = {
+                id: 'wolf_archer_defender',
+                ownerId: 1,
+                unitClass: 'wolf_archer',
+                pos: { x: 1, y: 2 },
+                hp: 65,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 40,
+                status: { type: 'poisoned', remainingTicks: 2 }
+            };
+            const enemyAnchor: Unit = {
+                id: 'enemy_anchor',
+                ownerId: 1,
+                unitClass: 'soldier',
+                pos: { x: 0, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            const friendlyAnchor: Unit = {
+                id: 'friendly_anchor',
+                ownerId: 0,
+                unitClass: 'soldier',
+                pos: { x: 2, y: 0 },
+                hp: 100,
+                maxHp: 100,
+                hasMoved: false,
+                hasActed: false,
+                level: 0,
+                exp: 0
+            };
+            state.units = [attacker, defender, enemyAnchor, friendlyAnchor];
+            state.currentPlayer = 0;
+
+            const engine = new GameEngine(state);
+            engine.step({ type: 'attack', attackerId: attacker.id, targetId: defender.id });
+
+            const finalState = engine.getState();
+            expect(finalState.units.find(unit => unit.id === attacker.id)?.hp).toBe(9);
+            expect(finalState.units.find(unit => unit.id === defender.id)?.hp).toBe(5);
         });
 
         it('6.4.2 突击单位被反击击杀后不会保留攻击后移动动作', () => {
@@ -4290,16 +4576,20 @@ describe('GameEngine Rules', () => {
             expect(emptyCastleActions.some(action => action.type === 'surrender')).toBe(true);
             expect(emptyCastleActions.some(action => (
                 ('unitId' in action && action.unitId !== emptyCastleEngine.getState().pendingUnitId)
-            ))).toBe(false);
+            ))).toBe(true);
 
             const commanderCastleState = createDemoState(getApkSkirmishRuleConfig('SD'));
             commanderCastleState.players[0].gold = 1000;
             const commanderCastleEngine = new GameEngine(commanderCastleState);
-            const recruitAndDeploy = commanderCastleEngine.getLegalActions(0).find(action => (
-                action.type === 'recruit_and_deploy' && action.unitClass === 'soldier'
+            const commanderCastleRecruit = commanderCastleEngine.getLegalActions(0).find(action => (
+                action.type === 'recruit_to_castle' && action.unitClass === 'soldier'
             ))!;
 
-            commanderCastleEngine.step(recruitAndDeploy);
+            commanderCastleEngine.step(commanderCastleRecruit);
+            const pendingUnit = commanderCastleEngine.getState().units.find(unit => (
+                unit.id === commanderCastleEngine.getState().pendingUnitId
+            ))!;
+            expect(pendingUnit.apkPendingRecruitSource).toBe('commander_castle');
             const commanderCastleActions = commanderCastleEngine.getLegalActions(0);
             expect(commanderCastleActions.some(action => action.type === 'end_turn')).toBe(false);
             expect(commanderCastleActions.some(action => action.type === 'surrender')).toBe(false);
@@ -4717,6 +5007,30 @@ describe('GameEngine Rules', () => {
             expect(actions.some(a => a.type === 'attack' && a.attackerId === unit.id && a.targetId === ally.id)).toBe(false);
         });
 
+        it('联盟配置不阻止接管同盟方建筑，但不能重复占领己方建筑', () => {
+            const state = createDemoState({
+                alliances: { 0: 7, 1: 7 }
+            });
+            const unit = state.units.find(u => u.id === 'u3')!;
+            unit.pos = { x: 3, y: 3 };
+            state.map.tiles[3][3] = { terrainId: 9, ownerId: 1 };
+
+            const alliedCapture = getLegalActions(state, 0).find(action => action.type === 'capture' && action.unitId === unit.id);
+            expect(alliedCapture).toBeDefined();
+
+            const engine = new GameEngine(state);
+            engine.step(alliedCapture!);
+            expect(engine.getState().map.tiles[3][3].ownerId).toBe(0);
+
+            const ownState = createDemoState({
+                alliances: { 0: 7, 1: 7 }
+            });
+            const ownUnit = ownState.units.find(u => u.id === 'u3')!;
+            ownUnit.pos = { x: 3, y: 3 };
+            ownState.map.tiles[3][3] = { terrainId: 9, ownerId: 0 };
+            expect(getLegalActions(ownState, 0).some(action => action.type === 'capture' && action.unitId === ownUnit.id)).toBe(false);
+        });
+
         it('联盟单位会按友军接受治疗和攻击光环', () => {
             const state = createDemoState({
                 alliances: { 0: 3, 1: 3 }
@@ -5077,8 +5391,19 @@ describe('GameEngine Rules', () => {
             expect(syncOverrideMov(kindState, 'carrier', 1, 1)).toBe(true);
             expect(getReachablePositions(kindState, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(true);
 
+            const kindPriorityState = createOverrideState();
+            kindPriorityState.map.tiles[0] = kindPriorityState.map.tiles[0].map(tile => ({
+                ...tile,
+                apkTerrainId: 16,
+                apkTerrainKind: 2,
+                apkMoveCost: 2
+            }));
+            kindPriorityState.units[0].apkMoveOverrides = { 2: 1, 16: 3 };
+            expect(getMoveCostForUnit(kindPriorityState, kindPriorityState.units[0], kindPriorityState.map.tiles[0][1])).toBe(1);
+
             expect(syncOverrideMov(state, 'missing', 2, 1)).toBe(false);
             expect(syncOverrideMov(state, 'carrier', -1, 1)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', 7, 1)).toBe(false);
             expect(syncOverrideMov(state, 'carrier', APK_TERRAIN_COUNT, 1)).toBe(false);
             expect(syncOverrideMov(state, 'carrier', 2, 0)).toBe(false);
         });
@@ -5562,9 +5887,11 @@ describe('GameEngine Rules', () => {
             }));
             expect(recruitResult.legalActions.some(action => action.type === 'end_turn')).toBe(false);
             expect(recruitResult.legalActions.some(action => action.type === 'surrender')).toBe(false);
-            expect(recruitResult.legalActions.every(action => (
-                action.type === 'wait'
-                || ('unitId' in action && action.unitId === pendingUnit.id)
+            expect(recruitResult.legalActions.some(action => (
+                'unitId' in action && action.unitId === pendingUnit.id
+            ))).toBe(true);
+            expect(recruitResult.legalActions.some(action => (
+                'unitId' in action && action.unitId !== pendingUnit.id
             ))).toBe(true);
 
             const waitAction = recruitResult.legalActions.find(action => action.type === 'wait' && action.unitId === pendingUnit.id)!;
@@ -5620,7 +5947,7 @@ describe('GameEngine Rules', () => {
                 'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
                 'capture:<unitId>',
                 'repair:<unitId>',
-                'destroy_town:<unitId>',
+                'destroy_town:<unitId>[:<x>,<y>]',
                 'wait:<unitId>',
                 'surrender',
                 'end_turn'
@@ -5646,6 +5973,7 @@ describe('GameEngine Rules', () => {
                 { type: 'capture', unitId: 'u1' },
                 { type: 'repair', unitId: 'u1' },
                 { type: 'destroy_town', unitId: 'u1' },
+                { type: 'destroy_town', unitId: 'u1', target: { x: 2, y: 3 } },
                 { type: 'wait', unitId: 'u1' },
                 { type: 'surrender' },
                 { type: 'end_turn' }
@@ -5681,7 +6009,7 @@ describe('GameEngine Rules', () => {
                 height: 4,
                 unitClasses: ['soldier', 'archer']
             });
-            expect(descriptor.size).toBe(2146);
+            expect(descriptor.size).toBe(2386);
             expect(descriptor.blocks.map(block => block.type)).toEqual([
                 'move',
                 'post_attack_move',
@@ -5875,7 +6203,7 @@ describe('GameEngine Rules', () => {
              expect(s!.hp).toBe(40);
         });
 
-        it('APK 地形语义 - 仅 kind=5 在回合开始清除负面状态', () => {
+        it('APK 地形语义 - 已实测神庙 tile 在回合开始清除负面状态', () => {
              const state = createDemoState();
              state.currentPlayer = 1;
              state.map.width = 6;
@@ -5927,14 +6255,14 @@ describe('GameEngine Rules', () => {
              engine.step({ type: 'end_turn' });
 
              const unitsById = Object.fromEntries(engine.getState().units.map(unit => [unit.id, unit]));
-             expect(unitsById.u_temple_31.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
-             expect(unitsById.u_temple_31.hp).toBe(40);
-             expect(unitsById.u_temple_80.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
-             expect(unitsById.u_temple_80.hp).toBe(40);
-             expect(unitsById.u_water_temple_83.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
-             expect(unitsById.u_water_temple_83.hp).toBe(40);
-             expect(unitsById.u_camp_30.status).toBeUndefined();
-             expect(unitsById.u_camp_30.hp).toBe(70);
+             expect(unitsById.u_temple_31.status).toBeUndefined();
+             expect(unitsById.u_temple_31.hp).toBe(70);
+             expect(unitsById.u_temple_80.status).toBeUndefined();
+             expect(unitsById.u_temple_80.hp).toBe(70);
+             expect(unitsById.u_water_temple_83.status).toBeUndefined();
+             expect(unitsById.u_water_temple_83.hp).toBe(70);
+             expect(unitsById.u_camp_30.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
+             expect(unitsById.u_camp_30.hp).toBe(40);
              expect(unitsById.u_water_obstacle_81.status).toEqual({ type: 'poisoned', remainingTicks: 1 });
              expect(unitsById.u_water_obstacle_81.hp).toBe(40);
         });

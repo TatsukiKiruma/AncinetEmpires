@@ -3,6 +3,7 @@ import { TERRAIN_CONFIG, UNIT_CONFIGS } from './constants';
 import { Tile, TerrainId } from './terrain';
 import { getApkTerrainConfig } from './apk_terrain';
 import { getTileMoveCost, tileHasTerrainTag } from './terrain_rules';
+import { getRuleConfig } from './rule_config';
 
 /**
  * 检查单位是否拥有特定能力
@@ -35,11 +36,33 @@ function terrainHasTag(terrain: TerrainRef, tag: string): boolean {
     if (typeof terrain === 'number') {
         return TERRAIN_CONFIG[terrain]?.tags.includes(tag) ?? false;
     }
+
+    if (terrain.apkTerrainId !== undefined) {
+        const apkConfig = getApkTerrainConfig(terrain.apkTerrainId);
+        const apkIsLand = terrain.apkTerrainIsLand ?? (
+            apkConfig ? apkConfig.flagA !== 0 : undefined
+        );
+        const apkKind = terrain.apkTerrainKind ?? apkConfig?.kind;
+
+        if (tag === 'water' && apkIsLand !== undefined) {
+            return !apkIsLand;
+        }
+        if (tag === 'land' && apkIsLand !== undefined) {
+            return apkIsLand;
+        }
+        if (tag === 'forest' && apkKind === 2) {
+            return true;
+        }
+        if (tag === 'mountain' && apkKind === 1) {
+            return true;
+        }
+    }
+
     return tileHasTerrainTag(terrain, tag);
 }
 
 /**
- * 水地形：含 water 标签；APK 文案明确桥也算水面地形。
+ * 水地形：无 APK 元数据时使用项目标签；有 APK 元数据时按 isLand 语义判断规则水域。
  */
 export function isWaterTerrain(terrain: TerrainRef): boolean {
     return terrainHasTag(terrain, 'water');
@@ -71,19 +94,20 @@ export function isLandTerrain(terrain: TerrainRef): boolean {
  */
 export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): number {
     const terrainId = tile.terrainId;
-
-    const scriptedMoveCostByApkId = tile.apkTerrainId === undefined
-        ? undefined
-        : unit.apkMoveOverrides?.[tile.apkTerrainId];
-    if (scriptedMoveCostByApkId !== undefined) {
-        return scriptedMoveCostByApkId;
-    }
+    const baseMoveCost = tile.apkMoveCost ?? getTileMoveCost(tile);
 
     const scriptedMoveCostByApkKind = tile.apkTerrainId === undefined
         ? undefined
         : unit.apkMoveOverrides?.[getApkTerrainConfig(tile.apkTerrainId)?.kind ?? -1];
     if (scriptedMoveCostByApkKind !== undefined) {
         return scriptedMoveCostByApkKind;
+    }
+
+    const scriptedMoveCostByApkId = tile.apkTerrainId === undefined
+        ? undefined
+        : unit.apkMoveOverrides?.[tile.apkTerrainId];
+    if (scriptedMoveCostByApkId !== undefined) {
+        return scriptedMoveCostByApkId;
     }
 
     const scriptedMoveCostByProjectId = unit.apkMoveOverrides?.[terrainId];
@@ -96,32 +120,38 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
         return 1;
     }
     
+    const apkIsWater = tile.apkTerrainIsLand === false;
+    const apkKind = tile.apkTerrainKind;
+    
     // 水之子在水地形移动消耗 1
-    if (hasAbility(unit, 'water_child') && isWaterTerrain(tile)) {
+    if (hasAbility(unit, 'water_child') && (apkIsWater || isWaterTerrain(tile))) {
         return 1;
     }
     
     // 森林之子在森林移动消耗 1
-    if (hasAbility(unit, 'forest_child') && isForestTerrain(tile)) {
+    if (hasAbility(unit, 'forest_child') && (apkKind === 2 || isForestTerrain(tile))) {
         return 1;
     }
     
     // 山之子在山脉/丘陵移动消耗 1
-    if (hasAbility(unit, 'mountain_child') && isMountainTerrain(tile)) {
+    if (hasAbility(unit, 'mountain_child') && (apkKind === 1 || isMountainTerrain(tile))) {
         return 1;
     }
     
-    // 大地之子
+    // 大地之子。APK C0600q.m4357a：陆地为 1；非陆地为基础移动消耗 + 1。
     if (hasAbility(unit, 'earth_child')) {
-        if (isWaterTerrain(tile)) {
-            return 2; // 水面和桥等水地形移动消耗 2
+        if (tile.apkTerrainIsLand === true || (tile.apkTerrainIsLand === undefined && isLandTerrain(tile))) {
+            return 1;
         }
-        if (isLandTerrain(tile)) {
-            return 1; // 陆地移动消耗 1
+        if (tile.apkTerrainIsLand === false) {
+            return baseMoveCost >= 0x0fffffff ? baseMoveCost : baseMoveCost + 1;
+        }
+        if (isWaterTerrain(tile)) {
+            return 2; // 无 APK 元数据时保留旧兜底。
         }
     }
     
-    return getTileMoveCost(tile);
+    return baseMoveCost;
 }
 
 /**
@@ -129,16 +159,17 @@ export function getMoveCostForUnit(state: GameState, unit: Unit, tile: Tile): nu
  */
 export function getAttackBonus(state: GameState, attacker: Unit, defender: Unit): number {
     let bonus = 0;
+    const ruleConfig = getRuleConfig(state);
     const atkTile = state.map.tiles[attacker.pos.y][attacker.pos.x];
     
     if (hasAbility(attacker, 'water_child') && isWaterTerrain(atkTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     if (hasAbility(attacker, 'forest_child') && isForestTerrain(atkTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     if (hasAbility(attacker, 'mountain_child') && isMountainTerrain(atkTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     
     return bonus;
@@ -149,16 +180,17 @@ export function getAttackBonus(state: GameState, attacker: Unit, defender: Unit)
  */
 export function getDefenseBonus(state: GameState, attacker: Unit, defender: Unit): number {
     let bonus = 0;
+    const ruleConfig = getRuleConfig(state);
     const defTile = state.map.tiles[defender.pos.y][defender.pos.x];
     
     if (hasAbility(defender, 'water_child') && isWaterTerrain(defTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     if (hasAbility(defender, 'forest_child') && isForestTerrain(defTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     if (hasAbility(defender, 'mountain_child') && isMountainTerrain(defTile)) {
-        bonus += 10;
+        bonus += ruleConfig.terrainChildCombatBonus;
     }
     
     return bonus;

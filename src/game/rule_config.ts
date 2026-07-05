@@ -10,6 +10,13 @@ export const DEFAULT_RULE_CONFIG = {
     incomeCommanderBase: 50,
     incomeCommanderGrowth: 25,
     levelCap: 3,
+    destroyerAttackBonus: 10,
+    flyingWaterAttackBonus: 10,
+    deathReaperAttackBonus: 20,
+    inspiredAttackBonus: 10,
+    sharpshooterAttackBonus: 10,
+    terrainChildCombatBonus: 10,
+    weakenedDefensePenalty: 10,
     unitLimit: undefined,
     populationLimit: undefined,
     recruitableUnits: undefined,
@@ -19,6 +26,7 @@ export const DEFAULT_RULE_CONFIG = {
     allowSurrender: false,
     allowPendingRecruitEndTurn: false,
     allowPendingRecruitSurrender: false,
+    commanderCastleRecruitUsesPending: false,
     defeatOnNoUnitsAndNoCastles: true,
     defeatOnNoUnits: false,
     defeatOnCommanderDeath: false,
@@ -91,6 +99,13 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
     if (overrides.incomeCommanderBase !== undefined) merged.incomeCommanderBase = overrides.incomeCommanderBase;
     if (overrides.incomeCommanderGrowth !== undefined) merged.incomeCommanderGrowth = overrides.incomeCommanderGrowth;
     if (overrides.levelCap !== undefined) merged.levelCap = overrides.levelCap;
+    if (overrides.destroyerAttackBonus !== undefined) merged.destroyerAttackBonus = overrides.destroyerAttackBonus;
+    if (overrides.flyingWaterAttackBonus !== undefined) merged.flyingWaterAttackBonus = overrides.flyingWaterAttackBonus;
+    if (overrides.deathReaperAttackBonus !== undefined) merged.deathReaperAttackBonus = overrides.deathReaperAttackBonus;
+    if (overrides.inspiredAttackBonus !== undefined) merged.inspiredAttackBonus = overrides.inspiredAttackBonus;
+    if (overrides.sharpshooterAttackBonus !== undefined) merged.sharpshooterAttackBonus = overrides.sharpshooterAttackBonus;
+    if (overrides.terrainChildCombatBonus !== undefined) merged.terrainChildCombatBonus = overrides.terrainChildCombatBonus;
+    if (overrides.weakenedDefensePenalty !== undefined) merged.weakenedDefensePenalty = overrides.weakenedDefensePenalty;
     if (overrides.unitLimit !== undefined) merged.unitLimit = overrides.unitLimit;
     if (overrides.populationLimit !== undefined) merged.populationLimit = overrides.populationLimit;
     if (overrides.recruitableUnits !== undefined) merged.recruitableUnits = [...overrides.recruitableUnits];
@@ -99,6 +114,7 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
     if (overrides.allowSurrender !== undefined) merged.allowSurrender = overrides.allowSurrender;
     if (overrides.allowPendingRecruitEndTurn !== undefined) merged.allowPendingRecruitEndTurn = overrides.allowPendingRecruitEndTurn;
     if (overrides.allowPendingRecruitSurrender !== undefined) merged.allowPendingRecruitSurrender = overrides.allowPendingRecruitSurrender;
+    if (overrides.commanderCastleRecruitUsesPending !== undefined) merged.commanderCastleRecruitUsesPending = overrides.commanderCastleRecruitUsesPending;
     if (overrides.defeatOnNoUnitsAndNoCastles !== undefined) merged.defeatOnNoUnitsAndNoCastles = overrides.defeatOnNoUnitsAndNoCastles;
     if (overrides.defeatOnNoUnits !== undefined) merged.defeatOnNoUnits = overrides.defeatOnNoUnits;
     if (overrides.defeatOnCommanderDeath !== undefined) merged.defeatOnCommanderDeath = overrides.defeatOnCommanderDeath;
@@ -214,13 +230,15 @@ export function applyInitialRuleConfig(state: GameState): GameState {
 export function getUnitCost(state: GameState, playerId: number, unitClass: UnitClass): number | null {
     const rules = getRuleConfig(state);
     const priceOverride = rules.prices[unitClass];
-    if (priceOverride !== undefined) return priceOverride;
 
     if (unitClass === 'commander') {
-        if (rules.commanderRecruitBaseCost === null) return null;
+        if (priceOverride === null || (priceOverride === undefined && rules.commanderRecruitBaseCost === null)) return null;
+        const baseCost = priceOverride ?? rules.commanderRecruitBaseCost;
         const deathCount = state.players.find(p => p.id === playerId)?.commanderDeathCount ?? 0;
-        return rules.commanderRecruitBaseCost + deathCount * rules.commanderRecruitCostGrowth;
+        return baseCost + deathCount * rules.commanderRecruitCostGrowth;
     }
+
+    if (priceOverride !== undefined) return priceOverride;
 
     return UNIT_CONFIGS[unitClass].cost;
 }

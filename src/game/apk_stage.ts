@@ -1,6 +1,5 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
-import { APK_TERRAIN_COUNT } from './apk_terrain';
 import { getDistance as getMapDistance } from './map';
 import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
 import { getTileTerrainKey } from './terrain_rules';
@@ -88,7 +87,7 @@ function normalizeStatus(statusId: number, rounds: number): UnitStatus | null {
 }
 
 function isValidTileType(tileType: number): boolean {
-    return Number.isInteger(tileType) && tileType >= 0 && tileType < APK_TERRAIN_COUNT;
+    return Number.isInteger(tileType) && tileType >= 0 && tileType <= 6;
 }
 
 function isValidMoveCost(mov: number): boolean {

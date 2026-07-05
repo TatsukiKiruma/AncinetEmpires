@@ -193,6 +193,7 @@ export interface Observation {
     x: number;
     y: number;
     remainingTurns: number;
+    ownerId: number | null;
   }>;
 }
 
@@ -486,7 +487,7 @@ export function getFixedActionSpaceDescriptor(options: FixedActionSpaceOptions):
     appendFixedActionBlock(blocks, 'recruit_and_deploy', unitClassCount * tileCount * tileCount, ['unitClass', 'castleTile', 'deployTile']);
     appendFixedActionBlock(blocks, 'capture', tileCount, ['unitTile']);
     appendFixedActionBlock(blocks, 'repair', tileCount, ['unitTile']);
-    appendFixedActionBlock(blocks, 'destroy_town', tileCount, ['unitTile']);
+    appendFixedActionBlock(blocks, 'destroy_town', tileCount * tileCount, ['unitTile', 'targetTile']);
     appendFixedActionBlock(blocks, 'wait', tileCount, ['unitTile']);
     if (resolved.includeSurrender) {
         appendFixedActionBlock(blocks, 'surrender', 1, []);
@@ -586,10 +587,17 @@ export function encodeFixedActionIndex(
         }
         case 'capture':
         case 'repair':
-        case 'destroy_town':
         case 'wait': {
             const sourceIndex = unitTileIndex(action.unitId);
             return sourceIndex === null ? null : block.offset + sourceIndex;
+        }
+        case 'destroy_town': {
+            const sourceIndex = unitTileIndex(action.unitId);
+            const unit = state.units.find(u => u.id === action.unitId);
+            const targetIndex = tileIndex(action.target ?? unit?.pos);
+            return sourceIndex === null || targetIndex === null
+                ? null
+                : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
         }
         case 'surrender':
         case 'end_turn':
@@ -968,7 +976,8 @@ export class AncientEmpiresEnv {
               id: g.id,
               x: g.pos.x,
               y: g.pos.y,
-              remainingTurns: g.remainingTurns
+              remainingTurns: g.remainingTurns,
+              ownerId: g.ownerId ?? null
           })) : []
       };
   }
@@ -1023,7 +1032,7 @@ export const ACTION_SPACE_SCHEMA = [
     'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
     'capture:<unitId>',
     'repair:<unitId>',
-    'destroy_town:<unitId>',
+    'destroy_town:<unitId>[:<x>,<y>]',
     'wait:<unitId>',
     'surrender',
     'end_turn'
@@ -1041,7 +1050,9 @@ export function encodeAction(action: Action): string {
         case 'recruit_and_deploy': return `recruit_and_deploy:${action.unitClass}:${action.castlePos.x},${action.castlePos.y}:${action.to.x},${action.to.y}`;
         case 'capture': return `capture:${action.unitId}`;
         case 'repair': return `repair:${action.unitId}`;
-        case 'destroy_town': return `destroy_town:${action.unitId}`;
+        case 'destroy_town': return action.target
+            ? `destroy_town:${action.unitId}:${action.target.x},${action.target.y}`
+            : `destroy_town:${action.unitId}`;
         case 'wait': return `wait:${action.unitId}`;
         case 'surrender': return `surrender`;
         case 'end_turn': return `end_turn`;
@@ -1079,7 +1090,11 @@ export function decodeAction(code: string): Action | null {
         }
         case 'capture': return { type: 'capture', unitId: parts[1] };
         case 'repair': return { type: 'repair', unitId: parts[1] };
-        case 'destroy_town': return { type: 'destroy_town', unitId: parts[1] };
+        case 'destroy_town': {
+            if (!parts[2]) return { type: 'destroy_town', unitId: parts[1] };
+            const [x, y] = parts[2].split(',').map(Number);
+            return { type: 'destroy_town', unitId: parts[1], target: { x, y } };
+        }
         case 'wait': return { type: 'wait', unitId: parts[1] };
         case 'surrender': return { type: 'surrender' };
         case 'end_turn': return { type: 'end_turn' };

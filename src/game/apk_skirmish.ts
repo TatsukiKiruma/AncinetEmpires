@@ -152,6 +152,7 @@ export function getApkSkirmishRuleConfig(
         allowSurrender: true,
         allowPendingRecruitEndTurn: true,
         allowPendingRecruitSurrender: true,
+        commanderCastleRecruitUsesPending: true,
         defeatOnNoUnitsAndNoCastles: true,
         defeatOnNoUnits: false,
         commanderRecruitBaseCost: 400,

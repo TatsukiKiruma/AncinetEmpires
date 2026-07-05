@@ -168,7 +168,7 @@ describe('HeuristicAI', () => {
 
         const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
 
-        expect(action).toMatchObject({ type: 'recruit_and_deploy', castlePos: { x: 0, y: 0 } });
+        expect(action).toMatchObject({ type: 'recruit_to_castle', castlePos: { x: 0, y: 0 } });
         expectRecruitUnitClass(action, highTierRecruitClasses);
     });
 
@@ -184,9 +184,9 @@ describe('HeuristicAI', () => {
 
         const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
 
-        expect(action).toMatchObject({ type: 'recruit_and_deploy', castlePos: { x: 0, y: 0 } });
+        expect(action).toMatchObject({ type: 'recruit_to_castle', castlePos: { x: 0, y: 0 } });
         expectRecruitUnitClass(action, earlyRoleRecruitClasses);
-        if (action.type === 'recruit_and_deploy') {
+        if (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy') {
             expect(action.unitClass).not.toBe('dragon');
         }
     });
@@ -349,7 +349,7 @@ describe('HeuristicAI', () => {
 
         const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
 
-        expect(action).toMatchObject({ type: 'recruit_and_deploy', castlePos: { x: 0, y: 0 } });
+        expect(action).toMatchObject({ type: 'recruit_to_castle', castlePos: { x: 0, y: 0 } });
         expectRecruitUnitClass(action, waterMapRecruitClasses);
     });
 
@@ -427,7 +427,7 @@ describe('HeuristicAI', () => {
 
         const action = new HeuristicAI(() => 0).getAction(new GameEngine(state), 0);
 
-        expect(action).toEqual({ type: 'destroy_town', unitId: 'cat' });
+        expect(action).toEqual({ type: 'destroy_town', unitId: 'cat', target: { x: 1, y: 3 } });
     });
 
     it('己方本回合可占城镇时投石车不摧毁该城镇', () => {
