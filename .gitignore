@@ -3,6 +3,12 @@ build/
 dist/
 coverage/
 training_runs/
+.venv-mitm/
+__pycache__/
+*.pyc
+*.mitm
+*.pcap
+*.pid
 .DS_Store
 *.log
 .env*
@@ -13,3 +19,4 @@ demo/
 _docx_render/
 README.local-before-origin-main.md
 *.xlsx
+captures/mitm_replay/aeii_mitmdump_last_dir.txt
