@@ -1,4 +1,4 @@
-import { appendFile, mkdir, writeFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { clearScreenDown, moveCursor } from 'node:readline';
 import { fileURLToPath } from 'node:url';
@@ -102,6 +102,14 @@ interface PlanRunnerSummary {
         jobs: number;
         smokeFailed: number;
     }>;
+}
+
+interface EpisodeRunWriter {
+    episodeFiles: string[];
+    pendingJobs: SdTrainingJobSpec[];
+    skippedJobs: number;
+    episodes: SkirmishEpisodeRecord[];
+    writeEpisode(job: SdTrainingJobSpec, episode: SkirmishEpisodeRecord): Promise<void>;
 }
 
 const DEFAULT_PLAN_FILE = path.resolve(process.cwd(), 'training_configs', 'sd_training_plan_20260705.json');
@@ -489,33 +497,75 @@ async function runTrainingJob(
     });
 }
 
-async function writeEpisodesByPlan(
+function getEpisodeFileForPlan(config: SdTrainingPlanConfig, options: SdTrainingPlanRunnerOptions, planId: string): string {
+    const outDir = options.outDir ?? path.resolve(config.paths.episodeDir);
+    return path.join(outDir, `${planId}-episodes.jsonl`);
+}
+
+function getJobEpisodeKey(job: SdTrainingJobSpec): string {
+    return `${job.scenarioId}|${job.seed}`;
+}
+
+function getEpisodeKey(episode: SkirmishEpisodeRecord): string {
+    return `${episode.scenario.id}|${episode.seed}`;
+}
+
+async function readExistingEpisodeKeys(filePath: string): Promise<Set<string>> {
+    try {
+        const content = await readFile(filePath, 'utf8');
+        const keys = new Set<string>();
+        const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
+        for (let index = 0; index < lines.length; index += 1) {
+            try {
+                const episode = JSON.parse(lines[index]) as SkirmishEpisodeRecord;
+                if (episode.kind === 'skirmish_episode') keys.add(getEpisodeKey(episode));
+            } catch (error) {
+                throw new Error(`读取已有 episode 失败: ${filePath}:${index + 1} ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+        return keys;
+    } catch (error) {
+        if (error instanceof Error && 'code' in error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+            return new Set<string>();
+        }
+        throw error;
+    }
+}
+
+async function createEpisodeRunWriter(
     config: SdTrainingPlanConfig,
     options: SdTrainingPlanRunnerOptions,
-    jobs: readonly SdTrainingJobSpec[],
-    episodesByIndex: readonly SkirmishEpisodeRecord[]
-): Promise<{ episodeFiles: string[]; episodes: SkirmishEpisodeRecord[] }> {
+    jobs: readonly SdTrainingJobSpec[]
+): Promise<EpisodeRunWriter> {
     const outDir = options.outDir ?? path.resolve(config.paths.episodeDir);
     const episodeFilesByPlan = new Map<string, string>();
-    const initializedEpisodeFiles = new Set<string>();
+    const existingKeysByPlan = new Map<string, Set<string>>();
+    const pendingJobs: SdTrainingJobSpec[] = [];
     const episodes: SkirmishEpisodeRecord[] = [];
-
     await mkdir(outDir, { recursive: true });
-    for (let index = 0; index < jobs.length; index += 1) {
-        const job = jobs[index];
-        const episode = episodesByIndex[index];
-        if (!episode) throw new Error(`job ${index} 未生成 episode: ${job.planId}/${job.mapName}`);
-        const episodeFile = episodeFilesByPlan.get(job.planId) ?? path.join(outDir, `${job.planId}-episodes.jsonl`);
+
+    for (const job of jobs) {
+        const episodeFile = episodeFilesByPlan.get(job.planId) ?? getEpisodeFileForPlan(config, options, job.planId);
         episodeFilesByPlan.set(job.planId, episodeFile);
-        if (!initializedEpisodeFiles.has(episodeFile)) {
-            await writeFile(episodeFile, '', 'utf8');
-            initializedEpisodeFiles.add(episodeFile);
+        let existingKeys = existingKeysByPlan.get(job.planId);
+        if (!existingKeys) {
+            existingKeys = await readExistingEpisodeKeys(episodeFile);
+            existingKeysByPlan.set(job.planId, existingKeys);
         }
-        await appendFile(episodeFile, `${JSON.stringify(episode)}\n`, 'utf8');
-        episodes.push(episode);
+        if (!existingKeys.has(getJobEpisodeKey(job))) pendingJobs.push(job);
     }
 
-    return { episodeFiles: [...episodeFilesByPlan.values()], episodes };
+    return {
+        episodeFiles: [...episodeFilesByPlan.values()],
+        pendingJobs,
+        skippedJobs: jobs.length - pendingJobs.length,
+        episodes,
+        async writeEpisode(job: SdTrainingJobSpec, episode: SkirmishEpisodeRecord) {
+            const episodeFile = getEpisodeFileForPlan(config, options, job.planId);
+            await appendFile(episodeFile, `${JSON.stringify(episode)}\n`, 'utf8');
+            episodes.push(episode);
+        }
+    };
 }
 
 function createSdTrainingWorker(payload: SdTrainingWorkerData): Worker {
@@ -549,12 +599,16 @@ function createSdTrainingWorker(payload: SdTrainingWorkerData): Worker {
 async function runJobsInWorkers(
     config: SdTrainingPlanConfig,
     options: SdTrainingPlanRunnerOptions,
-    jobs: readonly SdTrainingJobSpec[],
+    writer: EpisodeRunWriter,
     workerCount: number,
     progressReporter: ReturnType<typeof createSdProgressReporter> | null
 ): Promise<{ episodeFiles: string[]; episodes: SkirmishEpisodeRecord[] }> {
-    const episodesByIndex: SkirmishEpisodeRecord[] = [];
+    const jobs = writer.pendingJobs;
     let nextJobIndex = 0;
+    if (jobs.length === 0) {
+        progressReporter?.finish();
+        return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
+    }
 
     await Promise.all(Array.from({ length: workerCount }, (_, index) => (
         new Promise<void>((resolve, reject) => {
@@ -592,9 +646,12 @@ async function runJobsInWorkers(
                 } else if (message.type === 'progress') {
                     progressReporter?.update(message.progress);
                 } else if (message.type === 'episode') {
-                    episodesByIndex[message.index] = message.episode;
-                    progressReporter?.completeEpisode(message.workerId);
-                    assignNextJob();
+                    writer.writeEpisode(jobs[message.index], message.episode)
+                        .then(() => {
+                            progressReporter?.completeEpisode(message.workerId);
+                            assignNextJob();
+                        })
+                        .catch(reject);
                 } else if (message.type === 'error') {
                     reject(new Error(message.stack ?? message.message));
                 }
@@ -612,7 +669,7 @@ async function runJobsInWorkers(
     )));
 
     progressReporter?.finish();
-    return writeEpisodesByPlan(config, options, jobs, episodesByIndex);
+    return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
 }
 
 async function runJobs(
@@ -621,24 +678,28 @@ async function runJobs(
     jobs: readonly SdTrainingJobSpec[],
     model: SkirmishBcModel | null
 ): Promise<{ episodeFiles: string[]; episodes: SkirmishEpisodeRecord[] }> {
-    const workerCount = Math.max(1, Math.min(options.workers, jobs.length || 1));
+    const writer = await createEpisodeRunWriter(config, options, jobs);
+    if (writer.skippedJobs > 0) {
+        console.error(`检测到已有 episode，跳过 ${writer.skippedJobs}/${jobs.length} 个已完成 job。`);
+    }
+    const pendingJobs = writer.pendingJobs;
+    const workerCount = Math.max(1, Math.min(options.workers, pendingJobs.length || 1));
     const progressReporter = options.run && options.progress
-        ? createSdProgressReporter(jobs.length, workerCount)
+        ? createSdProgressReporter(pendingJobs.length, workerCount)
         : null;
     if (workerCount > 1) {
-        return runJobsInWorkers(config, options, jobs, workerCount, progressReporter);
+        return runJobsInWorkers(config, options, writer, workerCount, progressReporter);
     }
 
     const mapCache = new Map<string, ApkAemMap>();
     const preset = resolveTrainingPreset(options.preset ?? config.defaults.preset);
     const policyFactory = createPresetPolicyFactory(preset, model);
-    const episodesByIndex: SkirmishEpisodeRecord[] = [];
 
-    for (let index = 0; index < jobs.length; index += 1) {
-        episodesByIndex[index] = await runTrainingJob(
+    for (let index = 0; index < pendingJobs.length; index += 1) {
+        const episode = await runTrainingJob(
             config,
             options,
-            jobs[index],
+            pendingJobs[index],
             mapCache,
             policyFactory,
             1,
@@ -646,10 +707,11 @@ async function runJobs(
             progress => progressReporter?.update(progress),
             options.progressTurnInterval
         );
+        await writer.writeEpisode(pendingJobs[index], episode);
         progressReporter?.completeEpisode(1);
     }
     progressReporter?.finish();
-    return writeEpisodesByPlan(config, options, jobs, episodesByIndex);
+    return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
 }
 
 export async function runSdTrainingPlanWorker(data: SdTrainingWorkerData = workerData as SdTrainingWorkerData) {
