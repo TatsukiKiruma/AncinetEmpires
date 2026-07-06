@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
 import { AncientEmpiresEnv, calculateArmyValue, encodeAction, encodeFixedActionIndex, type EnvStepResult } from '../src/game/env';
 import { GameEngine } from '../src/game/engine';
+import { ApkLikeAI } from '../src/game/ai/apk_like_ai';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { RandomAI } from '../src/game/ai/random_ai';
 import { parseApkAemMap, type ApkAemMap } from '../src/game/apk_map';
@@ -28,6 +29,11 @@ export type BaselinePolicyPreset =
     | 'random'
     | 'heuristic'
     | 'heuristic-vs-random'
+    | 'apk-like'
+    | 'apk-like-vs-random'
+    | 'apk-like-vs-heuristic'
+    | 'heuristic-vs-apk-like'
+    | 'heuristic-apk-like-balanced'
     | 'bc'
     | 'bc-vs-random'
     | 'bc-vs-heuristic'
@@ -84,12 +90,14 @@ export interface SkirmishEpisodeStep {
     winnerAfter: number | null;
     info: string;
     illegal: boolean;
+    incomeValueByPlayer: Record<number, number>;
     spendValue: number;
     killValueByPlayer: Record<number, number>;
     lostValueByPlayer: Record<number, number>;
 }
 
 export interface SkirmishPlayerEconomy {
+    incomeValue: number;
     spentValue: number;
     killValue: number;
     lostValue: number;
@@ -183,6 +191,7 @@ export interface SkirmishEpisodeProgress {
     seed: number;
     step: number;
     maxSteps: number;
+    maxTurns: number;
     turn: number;
     currentPlayer: number;
     done: boolean;
@@ -243,8 +252,9 @@ function printHelp() {
   --max-plies <n>         环境最大 ply 数；指定后覆盖 --max-turns
   --max-steps <n>         runner 最大动作步数，默认 每局 maxPlies * 64
   --seed <n>              起始 seed，默认 1
-  --preset <name>         random、heuristic、heuristic-vs-random、bc、bc-vs-random、bc-vs-heuristic、
-                          bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、
+  --preset <name>         random、heuristic、heuristic-vs-random、apk-like、apk-like-vs-random、apk-like-vs-heuristic、heuristic-vs-apk-like、
+                          heuristic-apk-like-balanced、
+                          bc、bc-vs-random、bc-vs-heuristic、bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、
                           bc-blend、bc-blend-vs-random、bc-blend-vs-heuristic，默认 heuristic-vs-random
   --model <file>          BC 模型 JSON；使用 bc、bc-hybrid 或 bc-blend 相关 preset 时必填
   --workers <n>           并行 worker 数，默认 1；例如 --workers 5
@@ -390,6 +400,11 @@ function parsePreset(value: string | undefined): BaselinePolicyPreset {
         value === 'random'
         || value === 'heuristic'
         || value === 'heuristic-vs-random'
+        || value === 'apk-like'
+        || value === 'apk-like-vs-random'
+        || value === 'apk-like-vs-heuristic'
+        || value === 'heuristic-vs-apk-like'
+        || value === 'heuristic-apk-like-balanced'
         || value === 'bc'
         || value === 'bc-vs-random'
         || value === 'bc-vs-heuristic'
@@ -403,8 +418,11 @@ function parsePreset(value: string | undefined): BaselinePolicyPreset {
         return value;
     }
     throw new Error(
-        '--preset 只能是 random、heuristic、heuristic-vs-random、bc、bc-vs-random、bc-vs-heuristic、'
-        + 'bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、bc-blend、bc-blend-vs-random '
+        '--preset 只能是 random、heuristic、heuristic-vs-random、apk-like、apk-like-vs-random、apk-like-vs-heuristic、heuristic-vs-apk-like、'
+        + 'heuristic-apk-like-balanced、'
+        + 'bc、bc-vs-random、bc-vs-heuristic、'
+        + 'bc-hybrid、bc-hybrid-vs-random、bc-hybrid-vs-heuristic、'
+        + 'bc-blend、bc-blend-vs-random '
         + '或 bc-blend-vs-heuristic'
     );
 }
@@ -464,6 +482,7 @@ function createEconomyByPlayer(playerIds: readonly number[]): SkirmishEconomyByP
         playerIds.map(playerId => [
             playerId,
             {
+                incomeValue: 0,
                 spentValue: 0,
                 killValue: 0,
                 lostValue: 0
@@ -474,6 +493,7 @@ function createEconomyByPlayer(playerIds: readonly number[]): SkirmishEconomyByP
 
 function ensurePlayerEconomy(economyByPlayer: SkirmishEconomyByPlayer, playerId: number): SkirmishPlayerEconomy {
     economyByPlayer[playerId] ??= {
+        incomeValue: 0,
         spentValue: 0,
         killValue: 0,
         lostValue: 0
@@ -580,6 +600,11 @@ export function createRandomBaselinePolicy(seed: number): SkirmishPolicy {
 export function createHeuristicBaselinePolicy(seed: number): SkirmishPolicy {
     const ai = new HeuristicAI(createSeededRng(seed));
     return createActionBackedPolicy('heuristic', (engine, playerId) => ai.getAction(engine, playerId));
+}
+
+export function createApkLikeBaselinePolicy(seed: number): SkirmishPolicy {
+    const ai = new ApkLikeAI(createSeededRng(seed));
+    return createActionBackedPolicy('apk-like', (engine, playerId) => ai.getAction(engine, playerId));
 }
 
 function scoreBcFeatures(model: SkirmishBcModel, features: Map<number, number>): number {
@@ -915,6 +940,32 @@ export function createPresetPolicyFactory(preset: BaselinePolicyPreset, model: S
         const policySeed = mixSeed(episodeSeed, playerId, sortedPlayerIds.indexOf(playerId) + 1);
         if (preset === 'random') return createRandomBaselinePolicy(policySeed);
         if (preset === 'heuristic') return createHeuristicBaselinePolicy(policySeed);
+        if (preset === 'apk-like') return createApkLikeBaselinePolicy(policySeed);
+        if (preset === 'apk-like-vs-random') {
+            if (playerId === sortedPlayerIds[0]) {
+                return createApkLikeBaselinePolicy(policySeed);
+            }
+            return createRandomBaselinePolicy(policySeed);
+        }
+        if (preset === 'apk-like-vs-heuristic') {
+            if (playerId === sortedPlayerIds[0]) {
+                return createApkLikeBaselinePolicy(policySeed);
+            }
+            return createHeuristicBaselinePolicy(policySeed);
+        }
+        if (preset === 'heuristic-vs-apk-like') {
+            if (playerId === sortedPlayerIds[0]) {
+                return createHeuristicBaselinePolicy(policySeed);
+            }
+            return createApkLikeBaselinePolicy(policySeed);
+        }
+        if (preset === 'heuristic-apk-like-balanced') {
+            const playerIndex = sortedPlayerIds.indexOf(playerId);
+            const heuristicOffset = Math.abs(episodeSeed) % 2;
+            return (playerIndex + heuristicOffset) % 2 === 0
+                ? createHeuristicBaselinePolicy(policySeed)
+                : createApkLikeBaselinePolicy(policySeed);
+        }
         if (preset === 'bc') {
             if (!model) throw new Error('bc preset 需要加载 BC 模型');
             return createBcRankerPolicy(model);
@@ -985,6 +1036,7 @@ export function runSkirmishEpisode(options: {
     workerId?: number;
     jobId?: number;
     progressIntervalSteps?: number;
+    progressIntervalTurns?: number;
     onProgress?: (progress: SkirmishEpisodeProgress) => void;
 }): SkirmishEpisodeRecord {
     const {
@@ -997,6 +1049,7 @@ export function runSkirmishEpisode(options: {
         workerId = 1,
         jobId = 0,
         progressIntervalSteps = 25,
+        progressIntervalTurns,
         onProgress
     } = options;
     let result = env.reset(seed);
@@ -1004,6 +1057,7 @@ export function runSkirmishEpisode(options: {
     const initialLegalActionCount = result.legalActions.length;
     const fixedActionSpaceSize = result.fixedActionSpaceDescriptor.size;
     const playerIds = result.observation.players.map(player => player.id);
+    const maxTurns = Math.ceil(maxPlies / Math.max(1, playerIds.length));
     const policiesByPlayer = new Map<number, SkirmishPolicy>(
         playerIds.map(playerId => [playerId, policyFactory(playerId, playerIds, seed)])
     );
@@ -1018,7 +1072,9 @@ export function runSkirmishEpisode(options: {
     const steps: SkirmishEpisodeStep[] = [];
     let illegalActionCount = 0;
     const economyByPlayer = createEconomyByPlayer(playerIds);
+    let lastProgressTurn = result.state.turn;
     const reportProgress = (step: number, done: boolean, lastActionCode: string | null) => {
+        lastProgressTurn = result.state.turn;
         onProgress?.({
             workerId,
             jobId,
@@ -1026,6 +1082,7 @@ export function runSkirmishEpisode(options: {
             seed,
             step,
             maxSteps,
+            maxTurns,
             turn: result.state.turn,
             currentPlayer: result.state.currentPlayer,
             done,
@@ -1053,14 +1110,25 @@ export function runSkirmishEpisode(options: {
         const legalActionCount = result.legalActions.length;
         const fixedLegalActionCount = result.fixedLegalActionIndexes.length;
         const beforeState = result.state;
+        const beforeGoldByPlayer = new Map(beforeState.players.map(player => [player.id, player.gold]));
         const spendValue = getSpendValue(beforeState, playerId, selectedAction);
         const nextResult = env.stepFixedAction(fixedActionIndex);
         const illegal = !legalFixedAction || nextResult.info.includes('非法');
+        const incomeValueByPlayer: Record<number, number> = {};
         const { killValueByPlayer, lostValueByPlayer } = illegal
             ? { killValueByPlayer: {}, lostValueByPlayer: {} }
             : getKillValueByPlayer(beforeState, nextResult.state, playerId, selectedAction);
 
         if (illegal) illegalActionCount += 1;
+        for (const player of nextResult.state.players) {
+            const beforeGold = beforeGoldByPlayer.get(player.id) ?? player.gold;
+            const spendAdjustment = !illegal && player.id === playerId ? spendValue : 0;
+            const incomeValue = Math.max(0, player.gold - beforeGold + spendAdjustment);
+            if (incomeValue > 0) {
+                incomeValueByPlayer[player.id] = incomeValue;
+                ensurePlayerEconomy(economyByPlayer, player.id).incomeValue += incomeValue;
+            }
+        }
         if (!illegal && spendValue > 0) {
             ensurePlayerEconomy(economyByPlayer, playerId).spentValue += spendValue;
         }
@@ -1085,13 +1153,20 @@ export function runSkirmishEpisode(options: {
             winnerAfter: nextResult.state.winner,
             info: nextResult.info,
             illegal,
+            incomeValueByPlayer,
             spendValue: illegal ? 0 : spendValue,
             killValueByPlayer,
             lostValueByPlayer
         });
         result = nextResult;
 
-        if (stepNumber % progressIntervalSteps === 0 || result.done) {
+        const shouldReportByTurn = progressIntervalTurns !== undefined
+            && result.state.turn > 0
+            && result.state.turn !== lastProgressTurn
+            && result.state.turn % progressIntervalTurns === 0;
+        const shouldReportByStep = progressIntervalTurns === undefined
+            && stepNumber % progressIntervalSteps === 0;
+        if (shouldReportByTurn || shouldReportByStep || result.done) {
             reportProgress(stepNumber, result.done, selectedEntry?.code ?? null);
         }
     }
@@ -1153,6 +1228,9 @@ export function getEpisodeTempLogPath(tempDir: string, episode: SkirmishEpisodeR
 }
 
 function addStepEconomy(economyByPlayer: SkirmishEconomyByPlayer, step: SkirmishEpisodeStep) {
+    for (const [playerId, value] of Object.entries(step.incomeValueByPlayer ?? {})) {
+        ensurePlayerEconomy(economyByPlayer, Number(playerId)).incomeValue += value;
+    }
     if (!step.illegal && step.spendValue > 0) {
         ensurePlayerEconomy(economyByPlayer, step.playerId).spentValue += step.spendValue;
     }
@@ -1331,7 +1409,7 @@ function formatEconomy(economyByPlayer: SkirmishEconomyByPlayer): string {
     return Object.entries(economyByPlayer)
         .sort(([left], [right]) => Number(left) - Number(right))
         .map(([playerId, economy]) => (
-            `P${playerId} 花费 ${economy.spentValue} 击杀 ${economy.killValue} 损失 ${economy.lostValue}`
+            `P${playerId} 收入 ${economy.incomeValue ?? 0} 招募 ${economy.spentValue} 击杀 ${economy.killValue} 损失 ${economy.lostValue}`
         ))
         .join('；');
 }
@@ -1695,6 +1773,7 @@ export function summarizeSkirmishEpisodes(episodes: readonly SkirmishEpisodeReco
         summary.illegalActionCount += episode.summary.illegalActionCount;
         for (const [playerId, economy] of Object.entries(episode.summary.economyByPlayer ?? {})) {
             const aggregate = ensurePlayerEconomy(summary.economyByPlayer, Number(playerId));
+            aggregate.incomeValue += economy.incomeValue ?? 0;
             aggregate.spentValue += economy.spentValue;
             aggregate.killValue += economy.killValue;
             aggregate.lostValue += economy.lostValue;

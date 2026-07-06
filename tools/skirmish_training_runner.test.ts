@@ -253,6 +253,21 @@ describe('skirmish training runner', () => {
         expect(() => parseRunnerArgs(['--preset', 'bc-blend-vs-random'])).toThrow(/--model/);
     });
 
+    it('平衡 heuristic/apk-like preset 会按 seed 换边', () => {
+        const options = parseRunnerArgs([
+            '--preset',
+            'heuristic-apk-like-balanced',
+            '--no-progress'
+        ]);
+        const factory = createPresetPolicyFactory('heuristic-apk-like-balanced');
+
+        expect(options.preset).toBe('heuristic-apk-like-balanced');
+        expect([0, 1, 2, 3].map(playerId => factory(playerId, [0, 1, 2, 3], 2).name))
+            .toEqual(['heuristic', 'apk-like', 'heuristic', 'apk-like']);
+        expect([0, 1, 2, 3].map(playerId => factory(playerId, [0, 1, 2, 3], 3).name))
+            .toEqual(['apk-like', 'heuristic', 'apk-like', 'heuristic']);
+    });
+
     it('BC ranker 策略只返回合法固定动作索引', () => {
         const env = new AncientEmpiresEnv({
             initialState: createDemoState(getApkSkirmishRuleConfig('SD')),

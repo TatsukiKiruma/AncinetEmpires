@@ -39,6 +39,19 @@ export class HeuristicAI {
         return this.scoreAction(engine, state, playerId, action, new RuleTacticalEvaluator(state, playerId));
     }
 
+    public scoreCandidateActions(
+        engine: GameEngine,
+        playerId: number,
+        actions: readonly Action[]
+    ): Array<{ action: Action; score: number }> {
+        const state = engine.getState();
+        const tactics = new RuleTacticalEvaluator(state, playerId);
+        return actions.map(action => ({
+            action,
+            score: this.scoreAction(engine, state, playerId, action, tactics)
+        }));
+    }
+
     private pickBest<T extends { score: number }>(items: T[]): T | null {
         let bestItem: T | null = null;
         let bestScore = -Infinity;
