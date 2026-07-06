@@ -1,0 +1,245 @@
+{
+  "version": 1,
+  "name": "sd-training-plan-20260705",
+  "mode": "SD",
+  "description": "SD 遭遇战 AI 第一版训练方案。只使用 SD，不混 SO，不包含战役最短回合目标，不使用 random 作为训练 AI。",
+  "mapNames": [
+    "(4) Crossroads.aem",
+    "(3) Frozen fields.aem",
+    "(2) Icy Paths.aem",
+    "(2) Liberty Port.aem",
+    "(2) Mourningstar.aem",
+    "(2) Peak Island.aem",
+    "(4) Shadowlands.aem",
+    "(4) Solitude.aem",
+    "(2) The Crossing.aem",
+    "(4) The Crucible.aem",
+    "(4) Waterways.aem",
+    "(4) Winterstorm.aem",
+    "(4) classic 1.aem",
+    "(3) classic 2.aem",
+    "(2) Duel.aem",
+    "(2) Crossed swords.aem",
+    "(4) Critical mass.aem",
+    "(3) Midway.aem",
+    "(2) Swamplands.aem",
+    "(3) Glu.aem"
+  ],
+  "defaults": {
+    "seedBase": 2026070501,
+    "maxTurns": 200,
+    "preset": "heuristic-apk-like-balanced",
+    "setup": {
+      "initialGold": 300,
+      "unitLimit": 30,
+      "levelCap": 3
+    }
+  },
+  "feature": {
+    "featureDim": 4096,
+    "maxCandidates": 64,
+    "featureExtractor": "hashed-action-v2"
+  },
+  "paths": {
+    "jobManifest": "training_runs/sd_training_plan_20260705/jobs.jsonl",
+    "prepareReport": "training_runs/sd_training_plan_20260705/prepare_report.md",
+    "episodeDir": "training_runs/episodes/sd_training_plan_20260705",
+    "datasetDir": "training_runs/datasets/sd_training_plan_20260705",
+    "featureDir": "training_runs/features/sd_training_plan_20260705",
+    "modelDir": "training_runs/models"
+  },
+  "replayCleaning": {
+    "rootDir": "captures",
+    "outDir": "training_runs/replay_cleaning/sd_20260705",
+    "mode": "SD",
+    "blacklistOrdinals": [65, 78, 97],
+    "blacklistFileNames": [
+      "game_get_20260704_132008_065.bin",
+      "game_get_20260704_132050_078.bin",
+      "game_get_20260704_132339_097.bin"
+    ]
+  },
+  "plans": [
+    {
+      "id": "sd-normal",
+      "label": "正常对局",
+      "kind": "normal",
+      "episodesPerMap": 20,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-low-gold",
+      "label": "低金币正常局",
+      "kind": "parameter_variant",
+      "episodesPerMap": 5,
+      "setup": { "initialGold": 0, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-high-gold",
+      "label": "高金币正常局",
+      "kind": "parameter_variant",
+      "episodesPerMap": 5,
+      "setup": { "initialGold": 1000, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-low-unit-limit",
+      "label": "低人口局",
+      "kind": "parameter_variant",
+      "episodesPerMap": 5,
+      "setup": { "initialGold": 300, "unitLimit": 20, "levelCap": 3 }
+    },
+    {
+      "id": "sd-high-unit-limit",
+      "label": "高人口局",
+      "kind": "parameter_variant",
+      "episodesPerMap": 5,
+      "setup": { "initialGold": 300, "unitLimit": 50, "levelCap": 3 }
+    },
+    {
+      "id": "sd-3p-normal-extra",
+      "label": "三阵营正常局补充",
+      "kind": "normal",
+      "episodesPerMap": 40,
+      "mapPlayerCounts": [3],
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-3p-high-gold-extra",
+      "label": "三阵营高金币补充",
+      "kind": "parameter_variant",
+      "episodesPerMap": 15,
+      "mapPlayerCounts": [3],
+      "setup": { "initialGold": 1000, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-3p-low-unit-extra",
+      "label": "三阵营低人口补充",
+      "kind": "parameter_variant",
+      "episodesPerMap": 15,
+      "mapPlayerCounts": [3],
+      "setup": { "initialGold": 300, "unitLimit": 20, "levelCap": 3 }
+    },
+    {
+      "id": "sd-4p-normal-extra",
+      "label": "四阵营正常局补充",
+      "kind": "normal",
+      "episodesPerMap": 10,
+      "mapPlayerCounts": [4],
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-4p-high-gold-extra",
+      "label": "四阵营高金币补充",
+      "kind": "parameter_variant",
+      "episodesPerMap": 5,
+      "mapPlayerCounts": [4],
+      "setup": { "initialGold": 1000, "unitLimit": 30, "levelCap": 3 }
+    },
+    {
+      "id": "sd-small-advantage-endgame",
+      "label": "小优势残局",
+      "kind": "advantage_endgame",
+      "episodesPerMap": 7,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "small_advantage" }
+    },
+    {
+      "id": "sd-medium-advantage-endgame",
+      "label": "中优势残局",
+      "kind": "advantage_endgame",
+      "episodesPerMap": 7,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "medium_advantage" }
+    },
+    {
+      "id": "sd-large-advantage-endgame",
+      "label": "大优势残局",
+      "kind": "advantage_endgame",
+      "episodesPerMap": 6,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "large_advantage" }
+    },
+    {
+      "id": "sd-small-disadvantage-endgame",
+      "label": "小劣势残局",
+      "kind": "advantage_endgame",
+      "episodesPerMap": 5,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "small_disadvantage" }
+    },
+    {
+      "id": "sd-medium-disadvantage-endgame",
+      "label": "中劣势残局",
+      "kind": "advantage_endgame",
+      "episodesPerMap": 4,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "medium_disadvantage" }
+    },
+    {
+      "id": "sd-equal-preset-units",
+      "label": "势力相等预设兵种局",
+      "kind": "preset_units",
+      "episodesPerMap": 11,
+      "setup": { "initialGold": 600, "unitLimit": 50, "levelCap": 3 },
+      "derivation": {
+        "focusUnitClasses": [
+          "witch",
+          "paladin",
+          "elf",
+          "berserker",
+          "wolf",
+          "golem",
+          "ice_elemental",
+          "druid",
+          "catapult",
+          "wolf_archer",
+          "dragon"
+        ]
+      }
+    },
+    {
+      "id": "sd-high-tier-specialist",
+      "label": "高阶兵种专项局",
+      "kind": "high_tier",
+      "episodesPerMap": 9,
+      "setup": { "initialGold": 1000, "unitLimit": 50, "levelCap": 3 },
+      "derivation": {
+        "focusUnitClasses": [
+          "dragon",
+          "catapult",
+          "wolf_archer",
+          "druid",
+          "elf",
+          "golem",
+          "witch",
+          "paladin",
+          "ice_elemental"
+        ]
+      }
+    },
+    {
+      "id": "sd-skill-specialist",
+      "label": "技能专项局",
+      "kind": "skill",
+      "episodesPerMap": 8,
+      "setup": { "initialGold": 600, "unitLimit": 50, "levelCap": 3 },
+      "derivation": {
+        "skillFocus": [
+          "heal",
+          "summon",
+          "support",
+          "aura",
+          "assault"
+        ]
+      }
+    },
+    {
+      "id": "sd-building-finish",
+      "label": "建筑终结专项局",
+      "kind": "building_finish",
+      "episodesPerMap": 8,
+      "setup": { "initialGold": 300, "unitLimit": 30, "levelCap": 3 },
+      "derivation": { "profile": "building_finish" }
+    }
+  ]
+}

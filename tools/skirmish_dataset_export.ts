@@ -16,6 +16,13 @@ import {
 } from '../src/game/apk_skirmish';
 import type { Action } from '../src/game/types';
 import type { ApkAemMap } from '../src/game/apk_map';
+import {
+    createSdTrainingGameState,
+    getSdTrainingPlanEntry,
+    loadSdTrainingPlanConfig,
+    parseSdPlanScenarioId,
+    type SdTrainingPlanConfig
+} from './sd_training_state_generator';
 import { parseEpisodeJsonl } from './skirmish_training_eval';
 import {
     readApkSkirmishTrainingMap,
@@ -30,6 +37,7 @@ export interface SkirmishDatasetExportOptions {
     inputFiles: string[];
     outFile: string;
     unpackDir: string;
+    sdTrainingPlanFile?: string | null;
     excludeTimeout: boolean;
     excludeStoppedByMaxSteps: boolean;
     excludeIllegal: boolean;
@@ -133,6 +141,7 @@ function printHelp() {
   --input <file>            skirmish baseline episode JSONL，可重复
   --out <file>              dataset JSONL 输出文件，默认 training_runs/datasets/skirmish-dataset-时间戳.jsonl
   --unpack <dir>            APK 解包目录，默认 APK/_analysis/unpack
+  --sd-training-plan <file>  SD 训练计划 JSON；用于复现 SDPLAN 派生局面 episode
   --scenario <id>           只导出指定场景，可重复
   --exclude-scenario <id>   排除指定场景，可重复
   --exclude-timeout         跳过超时裁定 episode，默认开启
@@ -170,6 +179,7 @@ export function parseDatasetExportArgs(argv: readonly string[]): SkirmishDataset
         inputFiles: [],
         outFile: defaultOutFile(),
         unpackDir: DEFAULT_UNPACK_DIR,
+        sdTrainingPlanFile: null,
         excludeTimeout: true,
         excludeStoppedByMaxSteps: true,
         excludeIllegal: true,
@@ -198,6 +208,10 @@ export function parseDatasetExportArgs(argv: readonly string[]): SkirmishDataset
             const value = argv[++i];
             if (!value) throw new Error('--unpack 缺少目录参数');
             options.unpackDir = path.resolve(value);
+        } else if (arg === '--sd-training-plan') {
+            const value = argv[++i];
+            if (!value) throw new Error('--sd-training-plan 缺少文件参数');
+            options.sdTrainingPlanFile = path.resolve(value);
         } else if (arg === '--scenario') {
             const value = argv[++i];
             if (!value) throw new Error('--scenario 缺少场景 ID');
@@ -395,14 +409,26 @@ async function readEpisodes(inputFiles: readonly string[]): Promise<LoadedEpisod
     return groups.flat();
 }
 
-function createDefaultEnvFactory(unpackDir: string): SkirmishDatasetEnvFactory {
+async function createDefaultEnvFactory(
+    unpackDir: string,
+    sdTrainingPlanFile: string | null
+): Promise<SkirmishDatasetEnvFactory> {
     const scenarioById = new Map<string, ApkSkirmishTrainingScenario>(
         getApkSkirmishTrainingScenarios().map(scenario => [scenario.id, scenario])
     );
     const mapCache = new Map<string, ApkAemMap>();
+    const sdTrainingPlan = sdTrainingPlanFile ? await loadSdTrainingPlanConfig(sdTrainingPlanFile) : null;
 
     return {
         async createEnv(episode) {
+            const derivedScenario = parseSdPlanScenarioId(episode.scenario.id);
+            if (derivedScenario) {
+                if (!sdTrainingPlan) {
+                    throw new Error(`episode ${episode.scenario.id} 是 SD 派生局面，请提供 --sd-training-plan`);
+                }
+                return createSdPlanEpisodeEnv(episode, unpackDir, scenarioById, mapCache, sdTrainingPlan, derivedScenario);
+            }
+
             const scenario = scenarioById.get(episode.scenario.id);
             if (!scenario) {
                 throw new Error(`未知 APK skirmish 训练场景，无法重放: ${episode.scenario.id}`);
@@ -418,6 +444,30 @@ function createDefaultEnvFactory(unpackDir: string): SkirmishDatasetEnvFactory {
     };
 }
 
+async function createSdPlanEpisodeEnv(
+    episode: SkirmishEpisodeRecord,
+    unpackDir: string,
+    scenarioById: Map<string, ApkSkirmishTrainingScenario>,
+    mapCache: Map<string, ApkAemMap>,
+    sdTrainingPlan: SdTrainingPlanConfig,
+    derivedScenario: { planId: string; mapName: string }
+): Promise<AncientEmpiresEnv> {
+    const plan = getSdTrainingPlanEntry(sdTrainingPlan, derivedScenario.planId);
+    const scenarioId = `SD:${derivedScenario.mapName}`;
+    const scenario = scenarioById.get(scenarioId);
+    if (!scenario) {
+        throw new Error(`未知 SD 训练地图场景，无法重放派生局面: ${scenarioId}`);
+    }
+    const cachedMap = mapCache.get(scenario.resourcePath);
+    const map = cachedMap ?? await readApkSkirmishTrainingMap(unpackDir, scenario);
+    mapCache.set(scenario.resourcePath, map);
+    return new AncientEmpiresEnv({
+        initialState: createSdTrainingGameState(map, scenario, sdTrainingPlan, plan, episode.seed),
+        seed: episode.seed,
+        maxPlies: episode.maxPlies
+    });
+}
+
 function ensureScenarioSummary(
     byScenario: Record<string, SkirmishDatasetScenarioSummary>,
     scenarioId: string
@@ -429,7 +479,7 @@ function ensureScenarioSummary(
 export async function exportSkirmishDataset(options: SkirmishDatasetExportOptions): Promise<SkirmishDatasetExportSummary> {
     const loadedEpisodes = await readEpisodes(options.inputFiles);
     const skippedByReason: Record<string, number> = {};
-    const envFactory = options.envFactory ?? createDefaultEnvFactory(options.unpackDir);
+    const envFactory = options.envFactory ?? await createDefaultEnvFactory(options.unpackDir, options.sdTrainingPlanFile ?? null);
     const byScenario: Record<string, SkirmishDatasetScenarioSummary> = {};
     let exportedEpisodes = 0;
     let skippedEpisodes = 0;
