@@ -94,6 +94,14 @@ describe('episode feature export', () => {
             includeScenarioIds: [],
             excludeScenarioIds: [],
             limitEpisodes: null,
+            relabel: {
+                mode: 'none',
+                policies: ['random'],
+                minScoreMargin: 25,
+                rolloutDepth: 2,
+                rolloutCandidates: 4,
+                rolloutWeight: 0.05
+            },
             json: false,
             envFactory: {
                 createEnv(targetEpisode) {

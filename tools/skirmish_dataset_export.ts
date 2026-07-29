@@ -6,7 +6,6 @@ import {
     AncientEmpiresEnv,
     type EnvStepResult,
     type FixedActionSpaceDescriptor,
-    type FixedActionSpaceOptions,
     type Observation
 } from '../src/game/env';
 import {
@@ -257,17 +256,6 @@ function hashJson(value: unknown): string {
     return createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
-function fixedOptionsFromDescriptor(descriptor: FixedActionSpaceDescriptor): FixedActionSpaceOptions {
-    const blockTypes = new Set(descriptor.blocks.map(block => block.type));
-    return {
-        width: descriptor.width,
-        height: descriptor.height,
-        unitClasses: descriptor.unitClasses,
-        includeSurrender: blockTypes.has('surrender'),
-        includeEndTurn: blockTypes.has('end_turn')
-    };
-}
-
 function assertReplayState(
     episode: SkirmishEpisodeRecord,
     step: SkirmishEpisodeStep,
@@ -382,7 +370,7 @@ export function* replayEpisodeDatasetItems(
         };
         yield { sample, result };
 
-        const nextResult = env.stepFixedAction(step.fixedActionIndex, fixedOptionsFromDescriptor(result.fixedActionSpaceDescriptor));
+        const nextResult = env.stepAction(selectedEntry.action);
         assertNextResult(episode, step, nextResult);
         result = nextResult;
     }

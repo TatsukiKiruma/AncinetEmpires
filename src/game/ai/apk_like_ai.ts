@@ -31,8 +31,12 @@ export class ApkLikeAI {
         this.heuristic = new HeuristicAI(() => this.rng());
     }
 
-    public getAction(engine: GameEngine, playerId: number): Action {
-        const actions = engine.getLegalActions(playerId);
+    public getAction(
+        engine: GameEngine,
+        playerId: number,
+        preparedActions?: readonly Action[]
+    ): Action {
+        const actions = preparedActions ?? engine.getLegalActions(playerId);
         if (actions.length === 0) return { type: 'end_turn' };
 
         const state = engine.getState();
@@ -42,7 +46,7 @@ export class ApkLikeAI {
         return this.pickBestAction(engine, playerId, candidateActions);
     }
 
-    private selectCandidateActions(state: GameState, actions: Action[], playerId: number): Action[] {
+    private selectCandidateActions(state: GameState, actions: readonly Action[], playerId: number): Action[] {
         const pendingUnitId = state.pendingUnitId;
         if (pendingUnitId) {
             const pendingUnit = state.units.find(unit => unit.id === pendingUnitId && unit.ownerId === playerId);
@@ -75,7 +79,7 @@ export class ApkLikeAI {
         return [];
     }
 
-    private filterActionsByUnit(actions: Action[], unitId: string): Action[] {
+    private filterActionsByUnit(actions: readonly Action[], unitId: string): Action[] {
         const matched: Action[] = [];
         for (const action of actions) {
             if (this.getActionUnitId(action) === unitId) {
@@ -150,7 +154,7 @@ export class ApkLikeAI {
     private pickBestAction(
         engine: GameEngine,
         playerId: number,
-        actions: Action[]
+        actions: readonly Action[]
     ): Action {
         const nonEndTurnActions = actions.filter(action => action.type !== 'surrender');
         const candidateActions = nonEndTurnActions.length > 0 ? nonEndTurnActions : actions;

@@ -78,6 +78,46 @@ describe('skirmish training runner', () => {
         }));
     });
 
+    it('训练热路径按需构造 observation，并直接执行已选合法动作', () => {
+        class PreparedActionEnv extends AncientEmpiresEnv {
+            public fixedActionCalls = 0;
+
+            public override stepFixedAction(...args: Parameters<AncientEmpiresEnv['stepFixedAction']>) {
+                this.fixedActionCalls += 1;
+                return super.stepFixedAction(...args);
+            }
+        }
+
+        const env = new PreparedActionEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 17,
+            maxPlies: 20
+        });
+        const resetResult = env.reset(17);
+        const observationDescriptor = Object.getOwnPropertyDescriptor(resetResult, 'observation');
+        const initialTurn = resetResult.state.turn;
+        env.stepAction(resetResult.legalActions[0]);
+
+        expect(observationDescriptor?.get).toEqual(expect.any(Function));
+        expect(resetResult.observation.turn).toBe(initialTurn);
+
+        runSkirmishEpisode({
+            env,
+            scenario: {
+                id: 'TEST:prepared-action',
+                mode: 'SD',
+                mapName: 'demo',
+                resourcePath: 'demo'
+            },
+            seed: 17,
+            maxPlies: 20,
+            maxSteps: 3,
+            policyFactory: createPresetPolicyFactory('heuristic-vs-random')
+        });
+
+        expect(env.fixedActionCalls).toBe(0);
+    });
+
     it('默认按 150 回合计算每局超时，并允许 max-plies 覆盖', () => {
         const defaults = parseRunnerArgs([]);
 

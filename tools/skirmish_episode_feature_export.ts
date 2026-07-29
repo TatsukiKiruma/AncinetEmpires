@@ -4,8 +4,6 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
-import { HeuristicAI } from '../src/game/ai/heuristic_ai';
-import { GameEngine } from '../src/game/engine';
 import type { EnvStepResult } from '../src/game/env';
 import {
     buildCandidateFeatures,
@@ -21,6 +19,11 @@ import {
     type SkirmishDatasetSample
 } from './skirmish_dataset_export';
 import { selectStratifiedHardNegativeCandidates } from './skirmish_candidate_sampling';
+import {
+    chooseHeuristicTrainingLabel,
+    type HeuristicRelabelMode,
+    type HeuristicRelabelOptions
+} from './skirmish_heuristic_relabel';
 import type { SkirmishEpisodeRecord } from './skirmish_training_runner';
 import {
     selectEpisodeStepIndexes,
@@ -48,6 +51,7 @@ export interface SkirmishEpisodeFeatureExportOptions {
     includeScenarioIds: string[];
     excludeScenarioIds: string[];
     limitEpisodes: number | null;
+    relabel: HeuristicRelabelOptions;
     json: boolean;
     envFactory?: SkirmishDatasetEnvFactory;
 }
@@ -60,6 +64,7 @@ export interface SkirmishEpisodeFeatureExportSummary {
     skippedEpisodes: number;
     replayedSteps: number;
     exportedSamples: number;
+    relabeledSamples: number;
     skippedIllegalSamples: number;
     droppedByTruncation: number;
     droppedByEpisodeQuota: number;
@@ -116,6 +121,12 @@ function printHelp() {
   --exclude-scenario <id>        排除场景，可重复
   --limit-episodes <n>           最多重放 episode 数
   --include-illegal              允许非法动作样本
+  --relabel-mode <mode>          none/heuristic/fast-rollout，默认 fast-rollout
+  --relabel-policy <name>        需要重标注的源策略，可重复；默认 random
+  --relabel-min-margin <n>       替换标签所需最小分差，默认 25
+  --rollout-depth <n>            快速 rollout 深度，默认 2
+  --rollout-candidates <n>       rollout 的高分候选数，默认 4
+  --rollout-weight <n>           rollout 局面价值权重，默认 0.05
   --json                         摘要输出 JSON
   --help                         显示帮助
 `);
@@ -147,6 +158,18 @@ function parseRatio(value: string | undefined, label: string): number {
         throw new Error(`${label} 必须在 0 到 1 之间`);
     }
     return parsed;
+}
+
+function parseFiniteNumber(value: string | undefined, label: string): number {
+    if (!value) throw new Error(`${label} 缺少数值参数`);
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) throw new Error(`${label} 必须是有限数值`);
+    return parsed;
+}
+
+function parseRelabelMode(value: string | undefined): HeuristicRelabelMode {
+    if (value === 'none' || value === 'heuristic' || value === 'fast-rollout') return value;
+    throw new Error('--relabel-mode 只能是 none、heuristic 或 fast-rollout');
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
@@ -190,6 +213,14 @@ export function parseEpisodeFeatureExportArgs(
         includeScenarioIds: [],
         excludeScenarioIds: [],
         limitEpisodes: null,
+        relabel: {
+            mode: 'fast-rollout',
+            policies: ['random'],
+            minScoreMargin: 25,
+            rolloutDepth: 2,
+            rolloutCandidates: 4,
+            rolloutWeight: 0.05
+        },
         json: false
     };
 
@@ -262,6 +293,22 @@ export function parseEpisodeFeatureExportArgs(
             options.limitEpisodes = parsePositiveInteger(argv[++index], arg);
         } else if (arg === '--include-illegal') {
             options.excludeIllegal = false;
+        } else if (arg === '--relabel-mode') {
+            options.relabel.mode = parseRelabelMode(argv[++index]);
+        } else if (arg === '--no-relabel') {
+            options.relabel.mode = 'none';
+        } else if (arg === '--relabel-policy') {
+            const value = argv[++index];
+            if (!value) throw new Error('--relabel-policy 缺少策略名');
+            options.relabel.policies = [...new Set([...options.relabel.policies, value])];
+        } else if (arg === '--relabel-min-margin') {
+            options.relabel.minScoreMargin = parseFiniteNumber(argv[++index], arg);
+        } else if (arg === '--rollout-depth') {
+            options.relabel.rolloutDepth = parsePositiveInteger(argv[++index], arg);
+        } else if (arg === '--rollout-candidates') {
+            options.relabel.rolloutCandidates = parsePositiveInteger(argv[++index], arg);
+        } else if (arg === '--rollout-weight') {
+            options.relabel.rolloutWeight = parseFiniteNumber(argv[++index], arg);
         } else if (arg === '--json') {
             options.json = true;
         } else {
@@ -300,21 +347,22 @@ function buildFeatureSample(
     sample: SkirmishDatasetSample,
     result: EnvStepResult,
     options: SkirmishEpisodeFeatureExportOptions
-): SkirmishFeatureSample | null {
-    const engine = new GameEngine(result.state);
-    const teacher = new HeuristicAI(() => 0);
-    const scored = teacher.scoreCandidateActions(
-        engine,
-        sample.playerId,
-        result.legalActionEntries.map(entry => entry.action)
+): { sample: SkirmishFeatureSample; relabeled: boolean } | null {
+    const relabelDecision = chooseHeuristicTrainingLabel(
+        result,
+        sample.label.actionCode,
+        sample.policy,
+        options.relabel
     );
-    const scoredCodes = result.legalActionEntries.map((entry, index) => ({
-        actionCode: entry.code,
-        teacherScore: scored[index]?.score ?? Number.NEGATIVE_INFINITY
+    if (!relabelDecision || relabelDecision.entry.fixedActionIndex === null) return null;
+    const effectiveLabel = relabelDecision.entry;
+    const scoredCodes = relabelDecision.candidates.map(candidate => ({
+        actionCode: candidate.entry.code,
+        teacherScore: candidate.teacherScore
     }));
     const selected = selectStratifiedHardNegativeCandidates(
         scoredCodes,
-        sample.label.actionCode,
+        effectiveLabel.code,
         {
             maxCandidates: options.maxCandidates,
             hardNegativeRatio: options.hardNegativeRatio,
@@ -339,25 +387,36 @@ function buildFeatureSample(
             teacherRank: candidate.teacherRank
         });
     }
-    if (!candidates.some(candidate => candidate.actionCode === sample.label.actionCode)) return null;
+    if (!candidates.some(candidate => candidate.actionCode === effectiveLabel.code)) return null;
 
     return {
-        kind: 'skirmish_feature_sample',
-        version: 1,
-        featureExtractor: options.featureExtractor,
-        featureDim: options.featureDim,
-        source: sample.source,
-        scenario: sample.scenario,
-        seed: sample.seed,
-        step: sample.step,
-        turn: sample.turn,
-        playerId: sample.playerId,
-        policy: sample.policy,
-        label: {
-            fixedActionIndex: sample.label.fixedActionIndex,
-            actionCode: sample.label.actionCode
-        },
-        candidates
+        relabeled: relabelDecision.relabeled,
+        sample: {
+            kind: 'skirmish_feature_sample',
+            version: 1,
+            featureExtractor: options.featureExtractor,
+            featureDim: options.featureDim,
+            source: sample.source,
+            scenario: sample.scenario,
+            seed: sample.seed,
+            step: sample.step,
+            turn: sample.turn,
+            playerId: sample.playerId,
+            policy: sample.policy,
+            label: {
+                fixedActionIndex: effectiveLabel.fixedActionIndex,
+                actionCode: effectiveLabel.code,
+                ...(relabelDecision.relabeled ? {
+                    originalActionCode: relabelDecision.originalEntry.code,
+                    relabel: {
+                        method: relabelDecision.method as 'heuristic' | 'fast-rollout',
+                        scoreMargin: relabelDecision.scoreMargin,
+                        rolloutDepth: options.relabel.rolloutDepth
+                    }
+                } : {})
+            },
+            candidates
+        }
     };
 }
 
@@ -377,6 +436,7 @@ export async function exportEpisodeFeatures(
         skippedEpisodes: 0,
         replayedSteps: 0,
         exportedSamples: 0,
+        relabeledSamples: 0,
         skippedIllegalSamples: 0,
         droppedByTruncation: 0,
         droppedByEpisodeQuota: 0,
@@ -455,19 +515,21 @@ export async function exportEpisodeFeatures(
                         continue;
                     }
 
-                    const featureSample = buildFeatureSample(
+                    const builtFeature = buildFeatureSample(
                         episode,
                         sample,
                         result,
                         options
                     );
-                    if (!featureSample) {
+                    if (!builtFeature) {
                         throw new Error(
                             `${episode.scenario.id} seed=${episode.seed} step=${sample.step} 无法保留标签候选`
                         );
                     }
+                    const featureSample = builtFeature.sample;
                     await writeLine(output, `${JSON.stringify(featureSample)}\n`);
                     summary.exportedSamples += 1;
+                    summary.relabeledSamples += builtFeature.relabeled ? 1 : 0;
                     scenarioSummary.samples += 1;
                     scenarioSummary.candidates += featureSample.candidates.length;
                     totalCandidates += featureSample.candidates.length;
@@ -502,6 +564,7 @@ export function formatEpisodeFeatureExportSummary(
         `- 输入 episode：${summary.inputEpisodes}`,
         `- 重放 episode：${summary.replayedEpisodes}`,
         `- 导出样本：${summary.exportedSamples}`,
+        `- heuristic/rollout 重标注：${summary.relabeledSamples}`,
         `- timeout/截断剔除 step：${summary.droppedByTruncation}`,
         `- 局内配额剔除 step：${summary.droppedByEpisodeQuota}`,
         `- 全局配额剔除样本：${summary.droppedByGlobalQuota}`,

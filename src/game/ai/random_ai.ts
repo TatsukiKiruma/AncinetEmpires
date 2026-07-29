@@ -10,8 +10,12 @@ export class RandomAI {
         this.rng = rng ?? Math.random;
     }
 
-    public getAction(engine: GameEngine, playerId: number): Action {
-        const actions = engine.getLegalActions(playerId);
+    public getAction(
+        engine: GameEngine,
+        playerId: number,
+        preparedActions?: readonly Action[]
+    ): Action {
+        const actions = preparedActions ?? engine.getLegalActions(playerId);
         
         // 确保不会出错
         if (actions.length === 0) {

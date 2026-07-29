@@ -17,8 +17,12 @@ export class HeuristicAI {
         this.rng = rng ?? Math.random;
     }
 
-    public getAction(engine: GameEngine, playerId: number): Action {
-        const actions = engine.getLegalActions(playerId);
+    public getAction(
+        engine: GameEngine,
+        playerId: number,
+        preparedActions?: readonly Action[]
+    ): Action {
+        const actions = preparedActions ?? engine.getLegalActions(playerId);
         if (actions.length === 0) return { type: 'end_turn' };
 
         const state = engine.getState();

@@ -36,6 +36,12 @@ export interface SkirmishFeatureSample {
     label: {
         fixedActionIndex: number;
         actionCode: string;
+        originalActionCode?: string;
+        relabel?: {
+            method: 'heuristic' | 'fast-rollout';
+            scoreMargin: number;
+            rolloutDepth: number;
+        };
     };
     candidates: SkirmishFeatureCandidate[];
 }

@@ -793,6 +793,10 @@ export class AncientEmpiresEnv {
 
   public getObservation(playerId?: number): Observation {
       const state = this.engine.getState();
+      return this.buildObservation(state);
+  }
+
+  private buildObservation(state: GameState): Observation {
       const rules = getRuleConfig(state);
       const terrainMappingSummary = buildTerrainMappingSummary(state);
       return {
@@ -994,17 +998,20 @@ export class AncientEmpiresEnv {
 
   private buildStepResult(reward: number, done: boolean, info: string): EnvStepResult {
       const state = this.getState();
-      const legalActions = this.getLegalActions();
-      const fixedActionSpaceDescriptor = this.getFixedActionSpaceDescriptor();
+      const legalActions = this.engine.getLegalActions(state.currentPlayer);
+      const fixedActionSpaceDescriptor = getFixedActionSpaceDescriptor({
+          width: state.map.width,
+          height: state.map.height
+      });
       const legalActionEntries = legalActions.map(action => ({
           action,
           code: encodeAction(action),
           actionMask: true,
           fixedActionIndex: encodeFixedActionIndex(action, state, fixedActionSpaceDescriptor)
       }));
-      return {
+      let observation: Observation | null = null;
+      const result = {
           state,
-          observation: this.getObservation(),
           reward,
           done,
           info,
@@ -1017,7 +1024,16 @@ export class AncientEmpiresEnv {
               .map(entry => entry.fixedActionIndex)
               .filter((index): index is number => index !== null)
               .sort((left, right) => left - right)
-      };
+      } as EnvStepResult;
+      Object.defineProperty(result, 'observation', {
+          enumerable: true,
+          configurable: false,
+          get: () => {
+              observation ??= this.buildObservation(state);
+              return observation;
+          }
+      });
+      return result;
   }
 }
 

@@ -615,12 +615,19 @@ export function evaluateAdjudicatedWinnerAlliance(state: GameState): number {
     return tied ? -1 : winnerAlliance;
 }
 
-function createActionBackedPolicy(name: string, selectAction: (engine: GameEngine, playerId: number) => Action): SkirmishPolicy {
+function createActionBackedPolicy(
+    name: string,
+    selectAction: (
+        engine: GameEngine,
+        playerId: number,
+        preparedActions: readonly Action[]
+    ) => Action
+): SkirmishPolicy {
     return {
         name,
         selectFixedActionIndex(context) {
             const engine = new GameEngine(context.result.state);
-            const action = selectAction(engine, context.playerId);
+            const action = selectAction(engine, context.playerId, context.result.legalActions);
             const fixedIndex = encodeFixedActionIndex(action, context.result.state, {
                 width: context.result.fixedActionSpaceDescriptor.width,
                 height: context.result.fixedActionSpaceDescriptor.height,
@@ -633,17 +640,23 @@ function createActionBackedPolicy(name: string, selectAction: (engine: GameEngin
 
 export function createRandomBaselinePolicy(seed: number): SkirmishPolicy {
     const ai = new RandomAI(createSeededRng(seed));
-    return createActionBackedPolicy('random', (engine, playerId) => ai.getAction(engine, playerId));
+    return createActionBackedPolicy('random', (engine, playerId, actions) => (
+        ai.getAction(engine, playerId, actions)
+    ));
 }
 
 export function createHeuristicBaselinePolicy(seed: number): SkirmishPolicy {
     const ai = new HeuristicAI(createSeededRng(seed));
-    return createActionBackedPolicy('heuristic', (engine, playerId) => ai.getAction(engine, playerId));
+    return createActionBackedPolicy('heuristic', (engine, playerId, actions) => (
+        ai.getAction(engine, playerId, actions)
+    ));
 }
 
 export function createApkLikeBaselinePolicy(seed: number): SkirmishPolicy {
     const ai = new ApkLikeAI(createSeededRng(seed));
-    return createActionBackedPolicy('apk-like', (engine, playerId) => ai.getAction(engine, playerId));
+    return createActionBackedPolicy('apk-like', (engine, playerId, actions) => (
+        ai.getAction(engine, playerId, actions)
+    ));
 }
 
 function scoreBcFeatures(model: SkirmishBcModel, features: Map<number, number>): number {
@@ -740,7 +753,11 @@ export function createBcHybridPolicy(model: SkirmishBcModel, seed: number): Skir
         name: 'bc-hybrid',
         selectFixedActionIndex(context) {
             const engine = new GameEngine(context.result.state);
-            const heuristicAction = heuristic.getAction(engine, context.playerId);
+            const heuristicAction = heuristic.getAction(
+                engine,
+                context.playerId,
+                context.result.legalActions
+            );
             const heuristicFixedIndex = encodeContextFixedActionIndex(context, heuristicAction);
             if (
                 heuristicFixedIndex !== null
@@ -902,13 +919,18 @@ export function createBcBlendPolicy(model: SkirmishBcModel, seed: number): Skirm
             const fixedEntries = context.result.legalActionEntries.filter(entry => entry.fixedActionIndex !== null);
             const nonSurrenderEntries = fixedEntries.filter(entry => entry.action.type !== 'surrender');
             const entries = nonSurrenderEntries.length > 0 ? nonSurrenderEntries : fixedEntries;
-            const candidates: BlendCandidate[] = entries.map(entry => {
+            const heuristicScores = heuristic.scoreCandidateActions(
+                engine,
+                context.playerId,
+                entries.map(entry => entry.action)
+            );
+            const candidates: BlendCandidate[] = entries.map((entry, entryIndex) => {
                 const features = buildCandidateFeatures(sample, entry.code, model.featureDim, model.featureExtractor);
                 return {
                     fixedActionIndex: entry.fixedActionIndex ?? -1,
                     actionCode: entry.code,
                     action: entry.action,
-                    heuristicScore: heuristic.scoreCandidateAction(engine, context.playerId, entry.action),
+                    heuristicScore: heuristicScores[entryIndex]?.score ?? -Infinity,
                     bcScore: features ? scoreBcFeatures(model, features) : -Infinity,
                     heuristicRank: Number.MAX_SAFE_INTEGER,
                     bcRank: Number.MAX_SAFE_INTEGER
@@ -1099,7 +1121,7 @@ export function runSkirmishEpisode(options: {
     const initialObservationHash = hashJson(result.observation);
     const initialLegalActionCount = result.legalActions.length;
     const fixedActionSpaceSize = result.fixedActionSpaceDescriptor.size;
-    const playerIds = result.observation.players.map(player => player.id);
+    const playerIds = result.state.players.map(player => player.id);
     const maxTurns = Math.ceil(maxPlies / Math.max(1, playerIds.length));
     const policiesByPlayer = new Map<number, SkirmishPolicy>(
         playerIds.map(playerId => [playerId, policyFactory(playerId, playerIds, seed)])
@@ -1107,9 +1129,9 @@ export function runSkirmishEpisode(options: {
     const policyByPlayer = Object.fromEntries(
         playerIds.map(playerId => [playerId, policiesByPlayer.get(playerId)!.name])
     ) as Record<number, string>;
-    const players = result.observation.players.map(player => ({
+    const players = result.state.players.map(player => ({
         id: player.id,
-        allianceId: player.allianceId,
+        allianceId: getAllianceId(result.state, player.id),
         policy: policyByPlayer[player.id]
     }));
     const steps: SkirmishEpisodeStep[] = [];
@@ -1142,7 +1164,7 @@ export function runSkirmishEpisode(options: {
     reportProgress(0, false, null);
 
     for (let stepNumber = 1; !result.done && stepNumber <= maxSteps; stepNumber += 1) {
-        const playerId = result.observation.currentPlayer;
+        const playerId = result.state.currentPlayer;
         const policy = policiesByPlayer.get(playerId) ?? createRandomBaselinePolicy(mixSeed(seed, playerId));
         const fixedActionIndex = policy.selectFixedActionIndex({
             result,
@@ -1154,13 +1176,15 @@ export function runSkirmishEpisode(options: {
         const legalFixedAction = result.fixedLegalActionIndexes.includes(fixedActionIndex);
         const selectedEntry = result.legalActionEntries.find(entry => entry.fixedActionIndex === fixedActionIndex);
         const selectedAction = selectedEntry?.action ?? null;
-        const turnBefore = result.observation.turn;
+        const turnBefore = result.state.turn;
         const legalActionCount = result.legalActions.length;
         const fixedLegalActionCount = result.fixedLegalActionIndexes.length;
         const beforeState = result.state;
         const beforeGoldByPlayer = new Map(beforeState.players.map(player => [player.id, player.gold]));
         const spendValue = getSpendValue(beforeState, playerId, selectedAction);
-        const nextResult = env.stepFixedAction(fixedActionIndex);
+        const nextResult = selectedAction
+            ? env.stepAction(selectedAction)
+            : env.stepFixedAction(fixedActionIndex);
         const illegal = !legalFixedAction || nextResult.info.includes('非法');
         const incomeValueByPlayer: Record<number, number> = {};
         const { killValueByPlayer, lostValueByPlayer } = illegal
