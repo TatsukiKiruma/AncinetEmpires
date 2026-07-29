@@ -26,6 +26,7 @@
     "export:skirmish:dataset": "node --openssl-legacy-provider --import tsx tools/skirmish_dataset_export.ts",
     "split:skirmish:dataset": "node --openssl-legacy-provider --import tsx tools/skirmish_dataset_split.ts",
     "export:skirmish:features": "node --openssl-legacy-provider --import tsx tools/skirmish_feature_export.ts",
+    "export:skirmish:episode-features": "node --openssl-legacy-provider --import tsx tools/skirmish_episode_feature_export.ts",
     "export:skirmish:distill": "node --openssl-legacy-provider --import tsx tools/skirmish_distill_export.ts",
     "export:skirmish:curated": "node --openssl-legacy-provider --import tsx tools/skirmish_curated_feature_export.ts",
     "train:skirmish:bc": "node --openssl-legacy-provider --import tsx tools/skirmish_bc_train.ts",

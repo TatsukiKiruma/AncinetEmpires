@@ -97,6 +97,11 @@ export interface ReplayDatasetOptions {
     episodeIndex?: number;
 }
 
+export interface ReplayedDatasetItem {
+    sample: SkirmishDatasetSample;
+    result: EnvStepResult;
+}
+
 export interface SkirmishDatasetScenarioSummary {
     episodes: number;
     samples: number;
@@ -308,11 +313,11 @@ function assertNextResult(
     }
 }
 
-export function replayEpisodeToDatasetSamples(
+export function* replayEpisodeDatasetItems(
     episode: SkirmishEpisodeRecord,
     env: AncientEmpiresEnv,
     options: ReplayDatasetOptions = {}
-): SkirmishDatasetSample[] {
+): Generator<ReplayedDatasetItem> {
     const observationMode = options.observationMode ?? 'full';
     let result = env.reset(episode.seed);
     const initialObservationHash = hashJson(result.observation);
@@ -327,7 +332,6 @@ export function replayEpisodeToDatasetSamples(
         throw new Error(`${episode.scenario.id} seed=${episode.seed} 固定动作空间大小不一致`);
     }
 
-    const samples: SkirmishDatasetSample[] = [];
     for (let index = 0; index < episode.steps.length; index += 1) {
         const step = episode.steps[index];
         assertReplayState(episode, step, result, index);
@@ -340,7 +344,7 @@ export function replayEpisodeToDatasetSamples(
             throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步动作编码错位：日志 ${step.actionCode}，重放 ${selectedEntry.code}`);
         }
 
-        samples.push({
+        const sample: SkirmishDatasetSample = {
             kind: 'skirmish_dataset_sample',
             version: 1,
             source: {
@@ -375,14 +379,21 @@ export function replayEpisodeToDatasetSamples(
                 winnerAfter: step.winnerAfter,
                 illegal: step.illegal
             }
-        });
+        };
+        yield { sample, result };
 
         const nextResult = env.stepFixedAction(step.fixedActionIndex, fixedOptionsFromDescriptor(result.fixedActionSpaceDescriptor));
         assertNextResult(episode, step, nextResult);
         result = nextResult;
     }
+}
 
-    return samples;
+export function replayEpisodeToDatasetSamples(
+    episode: SkirmishEpisodeRecord,
+    env: AncientEmpiresEnv,
+    options: ReplayDatasetOptions = {}
+): SkirmishDatasetSample[] {
+    return [...replayEpisodeDatasetItems(episode, env, options)].map(item => item.sample);
 }
 
 function incrementCounter(counters: Record<string, number>, key: string) {
@@ -409,7 +420,7 @@ async function readEpisodes(inputFiles: readonly string[]): Promise<LoadedEpisod
     return groups.flat();
 }
 
-async function createDefaultEnvFactory(
+export async function createDefaultEnvFactory(
     unpackDir: string,
     sdTrainingPlanFile: string | null
 ): Promise<SkirmishDatasetEnvFactory> {
