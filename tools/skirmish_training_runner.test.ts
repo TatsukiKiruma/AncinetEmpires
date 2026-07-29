@@ -220,6 +220,43 @@ describe('skirmish training runner', () => {
         expect(summary.winsByPolicy.heuristic).toBe(1);
     });
 
+    it('连续多回合没有物质或目标进展时可以提前停止', () => {
+        const env = new AncientEmpiresEnv({
+            initialState: createDemoState(getApkSkirmishRuleConfig('SD')),
+            seed: 19,
+            maxPlies: 100
+        });
+        const episode = runSkirmishEpisode({
+            env,
+            scenario: {
+                id: 'TEST:stagnation',
+                mode: 'SD',
+                mapName: 'demo',
+                resourcePath: 'demo'
+            },
+            seed: 19,
+            maxPlies: 100,
+            maxSteps: 100,
+            stagnationPatienceTurns: 2,
+            stagnationMinTurns: 2,
+            policyFactory: () => ({
+                name: 'idle',
+                selectFixedActionIndex: ({ result }) => (
+                    result.legalActionEntries.find(entry => entry.code === 'end_turn')
+                    ?? result.legalActionEntries.find(entry => entry.code.startsWith('wait:'))
+                    ?? result.legalActionEntries[0]
+                ).fixedActionIndex
+            })
+        });
+
+        expect(episode.summary.terminal).toBe(false);
+        expect(episode.summary.stoppedByMaxSteps).toBe(false);
+        expect(episode.summary.stoppedByStagnation).toBe(true);
+        expect(episode.summary.truncationReason).toBe('stagnation');
+        expect(episode.summary.stagnationTurns).toBeGreaterThanOrEqual(2);
+        expect(episode.summary.stepCount).toBeLessThan(100);
+    });
+
     it('解析 worker 和进度参数', () => {
         const options = parseRunnerArgs([
             '--workers',

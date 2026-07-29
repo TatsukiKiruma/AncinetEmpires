@@ -109,7 +109,10 @@ export interface SkirmishEpisodeSummary {
     stepCount: number;
     terminal: boolean;
     stoppedByMaxSteps: boolean;
+    stoppedByStagnation?: boolean;
+    stagnationTurns?: number;
     timeout: boolean;
+    truncationReason?: 'timeout' | 'max_steps' | 'stagnation' | null;
     illegalActionCount: number;
     totalReward: number;
     winnerAlliance: number | null;
@@ -141,6 +144,7 @@ export interface SkirmishRunSummary {
     terminalCount: number;
     timeoutCount: number;
     stoppedByMaxStepsCount: number;
+    stoppedByStagnationCount: number;
     drawCount: number;
     naturalWinCount: number;
     adjudicatedWinCount: number;
@@ -154,6 +158,7 @@ export interface SkirmishRunSummary {
         terminalCount: number;
         timeoutCount: number;
         stoppedByMaxStepsCount: number;
+        stoppedByStagnationCount: number;
         illegalActionCount: number;
         averageSteps: number;
         winsByPolicy: Record<string, number>;
@@ -466,6 +471,40 @@ function mixSeed(seed: number, ...parts: number[]): number {
 
 function hashJson(value: unknown): string {
     return createHash('sha256').update(JSON.stringify(value)).digest('hex');
+}
+
+/**
+ * 只记录会改变对局物质、生命值或目标归属的状态，刻意忽略单位位置、金币和回合内标志。
+ * 这样反复移动、等待和纯收入增长不会掩盖真正的停滞。
+ */
+export function buildSkirmishProgressSignature(state: GameState): string {
+    return hashJson({
+        units: [...state.units]
+            .sort((left, right) => left.id.localeCompare(right.id))
+            .map(unit => ({
+                id: unit.id,
+                ownerId: unit.ownerId,
+                unitClass: unit.unitClass,
+                hp: unit.hp,
+                maxHp: unit.maxHp,
+                level: unit.level ?? 0,
+                exp: unit.exp ?? 0,
+                status: unit.status ?? null
+            })),
+        players: [...state.players]
+            .sort((left, right) => left.id - right.id)
+            .map(player => ({
+                id: player.id,
+                isAlive: player.isAlive,
+                commanderDeathCount: player.commanderDeathCount
+            })),
+        objectives: state.map.tiles.flatMap((row, y) => row.map((tile, x) => ({
+            x,
+            y,
+            terrainId: tile.terrainId,
+            ownerId: tile.ownerId
+        })))
+    });
 }
 
 function cloneEconomyByPlayer(economyByPlayer: SkirmishEconomyByPlayer): SkirmishEconomyByPlayer {
@@ -1038,6 +1077,8 @@ export function runSkirmishEpisode(options: {
     progressIntervalSteps?: number;
     progressIntervalTurns?: number;
     onProgress?: (progress: SkirmishEpisodeProgress) => void;
+    stagnationPatienceTurns?: number;
+    stagnationMinTurns?: number;
 }): SkirmishEpisodeRecord {
     const {
         env,
@@ -1050,7 +1091,9 @@ export function runSkirmishEpisode(options: {
         jobId = 0,
         progressIntervalSteps = 25,
         progressIntervalTurns,
-        onProgress
+        onProgress,
+        stagnationPatienceTurns = 0,
+        stagnationMinTurns = 0
     } = options;
     let result = env.reset(seed);
     const initialObservationHash = hashJson(result.observation);
@@ -1073,6 +1116,11 @@ export function runSkirmishEpisode(options: {
     let illegalActionCount = 0;
     const economyByPlayer = createEconomyByPlayer(playerIds);
     let lastProgressTurn = result.state.turn;
+    const initialTurn = result.state.turn;
+    let lastStagnationCheckedTurn = initialTurn;
+    let lastProgressSignature = buildSkirmishProgressSignature(result.state);
+    let stagnationTurns = 0;
+    let stoppedByStagnation = false;
     const reportProgress = (step: number, done: boolean, lastActionCode: string | null) => {
         lastProgressTurn = result.state.turn;
         onProgress?.({
@@ -1160,6 +1208,32 @@ export function runSkirmishEpisode(options: {
         });
         result = nextResult;
 
+        if (
+            !result.done
+            && stagnationPatienceTurns > 0
+            && result.state.turn !== lastStagnationCheckedTurn
+        ) {
+            const elapsedTurns = Math.max(0, result.state.turn - initialTurn);
+            const checkedTurnDelta = Math.max(1, result.state.turn - lastStagnationCheckedTurn);
+            const progressSignature = buildSkirmishProgressSignature(result.state);
+            if (progressSignature === lastProgressSignature) {
+                stagnationTurns += checkedTurnDelta;
+            } else {
+                stagnationTurns = 0;
+                lastProgressSignature = progressSignature;
+            }
+            lastStagnationCheckedTurn = result.state.turn;
+
+            if (
+                elapsedTurns >= Math.max(0, stagnationMinTurns)
+                && stagnationTurns >= Math.max(1, stagnationPatienceTurns)
+            ) {
+                stoppedByStagnation = true;
+                reportProgress(stepNumber, false, selectedEntry?.code ?? null);
+                break;
+            }
+        }
+
         const shouldReportByTurn = progressIntervalTurns !== undefined
             && result.state.turn > 0
             && result.state.turn !== lastProgressTurn
@@ -1171,9 +1245,16 @@ export function runSkirmishEpisode(options: {
         }
     }
 
-    const stoppedByMaxSteps = !result.done;
+    const stoppedByMaxSteps = !result.done && !stoppedByStagnation;
     const lastInfo = steps.at(-1)?.info ?? '';
     const timeout = result.done && result.state.winner === null && lastInfo.includes('Max plies reached');
+    const truncationReason = timeout
+        ? 'timeout' as const
+        : stoppedByStagnation
+            ? 'stagnation' as const
+            : stoppedByMaxSteps
+                ? 'max_steps' as const
+                : null;
     const totalReward = steps.reduce((sum, step) => sum + step.reward, 0);
     const finalArmyValueByAlliance = getArmyValueByAlliance(result.state);
     const adjudicatedWinnerAlliance = result.state.winner ?? (timeout
@@ -1197,7 +1278,10 @@ export function runSkirmishEpisode(options: {
             stepCount: steps.length,
             terminal: result.done,
             stoppedByMaxSteps,
+            stoppedByStagnation,
+            stagnationTurns,
             timeout,
+            truncationReason,
             illegalActionCount,
             totalReward,
             winnerAlliance: result.state.winner,
@@ -1746,6 +1830,7 @@ export function summarizeSkirmishEpisodes(episodes: readonly SkirmishEpisodeReco
         terminalCount: 0,
         timeoutCount: 0,
         stoppedByMaxStepsCount: 0,
+        stoppedByStagnationCount: 0,
         drawCount: 0,
         naturalWinCount: 0,
         adjudicatedWinCount: 0,
@@ -1764,6 +1849,7 @@ export function summarizeSkirmishEpisodes(episodes: readonly SkirmishEpisodeReco
         summary.terminalCount += episode.summary.terminal ? 1 : 0;
         summary.timeoutCount += episode.summary.timeout ? 1 : 0;
         summary.stoppedByMaxStepsCount += episode.summary.stoppedByMaxSteps ? 1 : 0;
+        summary.stoppedByStagnationCount += episode.summary.stoppedByStagnation ? 1 : 0;
         summary.naturalWinCount += episode.summary.winnerAlliance !== null && episode.summary.winnerAlliance !== -1 ? 1 : 0;
         summary.adjudicatedWinCount += (
             adjudicatedWinnerAlliance !== null
@@ -1784,6 +1870,7 @@ export function summarizeSkirmishEpisodes(episodes: readonly SkirmishEpisodeReco
             terminalCount: 0,
             timeoutCount: 0,
             stoppedByMaxStepsCount: 0,
+            stoppedByStagnationCount: 0,
             illegalActionCount: 0,
             averageSteps: 0,
             winsByPolicy: {}
@@ -1792,6 +1879,7 @@ export function summarizeSkirmishEpisodes(episodes: readonly SkirmishEpisodeReco
         scenarioSummary.terminalCount += episode.summary.terminal ? 1 : 0;
         scenarioSummary.timeoutCount += episode.summary.timeout ? 1 : 0;
         scenarioSummary.stoppedByMaxStepsCount += episode.summary.stoppedByMaxSteps ? 1 : 0;
+        scenarioSummary.stoppedByStagnationCount += episode.summary.stoppedByStagnation ? 1 : 0;
         scenarioSummary.illegalActionCount += episode.summary.illegalActionCount;
         scenarioSummary.averageSteps += episode.summary.stepCount;
 
@@ -1853,6 +1941,7 @@ export function formatSkirmishRunSummary(
         `- 环境终局：${summary.terminalCount}`,
         `- 其中超时裁定：${summary.timeoutCount}`,
         `- runner 步数保护停止：${summary.stoppedByMaxStepsCount}`,
+        `- 停滞早停：${summary.stoppedByStagnationCount}`,
         `- 真实胜局：${summary.naturalWinCount}`,
         `- 可统计胜局（含超时裁定）：${summary.adjudicatedWinCount}`,
         `- 平局：${summary.drawCount}`,
