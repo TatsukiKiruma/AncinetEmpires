@@ -268,11 +268,11 @@ function assertReplayState(
     if (step.illegal) {
         throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步是非法动作，不能导出为监督标签`);
     }
-    if (result.observation.currentPlayer !== step.playerId) {
-        throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步玩家错位：日志 P${step.playerId}，重放 P${result.observation.currentPlayer}`);
+    if (result.state.currentPlayer !== step.playerId) {
+        throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步玩家错位：日志 P${step.playerId}，重放 P${result.state.currentPlayer}`);
     }
-    if (result.observation.turn !== step.turnBefore) {
-        throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步回合错位：日志 ${step.turnBefore}，重放 ${result.observation.turn}`);
+    if (result.state.turn !== step.turnBefore) {
+        throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步回合错位：日志 ${step.turnBefore}，重放 ${result.state.turn}`);
     }
     if (result.legalActions.length !== step.legalActionCount) {
         throw new Error(`${episode.scenario.id} seed=${episode.seed} 第 ${step.step} 步合法动作数错位：日志 ${step.legalActionCount}，重放 ${result.legalActions.length}`);

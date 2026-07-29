@@ -618,7 +618,7 @@ export async function exportEpisodeFeatures(
                 summary.replayedEpisodes += 1;
 
                 for (const { sample, result } of replayEpisodeDatasetItems(episode, env, {
-                    observationMode: 'full',
+                    observationMode: 'none',
                     inputFile,
                     episodeIndex: currentEpisodeIndex
                 })) {
@@ -639,7 +639,10 @@ export async function exportEpisodeFeatures(
 
                     const builtFeature = buildFeatureSample(
                         episode,
-                        sample,
+                        {
+                            ...sample,
+                            observation: result.observation
+                        },
                         result,
                         options
                     );
