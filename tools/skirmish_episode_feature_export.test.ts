@@ -6,6 +6,7 @@ import { AncientEmpiresEnv } from '../src/game/env';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { createDemoState } from '../src/game/demo_map';
 import type { SkirmishFeatureSample } from './skirmish_bc_train';
+import { assignDatasetSplit } from './skirmish_dataset_artifacts';
 import {
     exportEpisodeFeatures,
     parseEpisodeFeatureExportArgs
@@ -65,6 +66,10 @@ describe('episode feature export', () => {
         expect(options.timeoutTailTurns).toBe(10);
         expect(options.maxSamplesPerEpisode).toBe(20);
         expect(options.quota.maxByActionType).toEqual({ move: 100 });
+        expect(options.artifact).toEqual(expect.objectContaining({
+            datasetVersion: 'skirmish-feature-v2',
+            validationRatio: 0.1
+        }));
     });
 
     it('不落 full dataset，直接从 episode 流式写 compact feature', async () => {
@@ -127,5 +132,93 @@ describe('episode feature export', () => {
             typeof candidate.teacherScore === 'number'
             && typeof candidate.teacherRank === 'number'
         ))).toBe(true);
+    });
+
+    it('按 episode 稳定切分 train/validation，滚动分片并写不可变 manifest', async () => {
+        const ratio = 0.5;
+        const splitSeed = 73;
+        let trainSeed = 1;
+        while (
+            assignDatasetSplit(`TEST:episode-feature\0${trainSeed}`, ratio, splitSeed)
+            !== 'train'
+        ) trainSeed += 1;
+        let validationSeed = trainSeed + 1;
+        while (
+            assignDatasetSplit(`TEST:episode-feature\0${validationSeed}`, ratio, splitSeed)
+            !== 'validation'
+        ) validationSeed += 1;
+
+        const episodes = [createEpisode(trainSeed, 3), createEpisode(validationSeed, 3)];
+        const tempDir = await mkdtemp(path.join(os.tmpdir(), 'episode-feature-artifact-'));
+        const inputFile = path.join(tempDir, 'episodes.jsonl');
+        const artifactRoot = path.join(tempDir, 'artifacts');
+        await writeFile(
+            inputFile,
+            `${episodes.map(episode => JSON.stringify(episode)).join('\n')}\n`,
+            'utf8'
+        );
+        const options = {
+            inputFiles: [inputFile],
+            outFile: path.join(tempDir, 'unused.jsonl'),
+            unpackDir: 'unused',
+            sdTrainingPlanFile: null,
+            featureDim: 1024,
+            featureExtractor: 'hashed-action-v3' as const,
+            maxCandidates: 4,
+            hardNegativeRatio: 0.5,
+            timeoutPrefixTurns: 80,
+            timeoutTailTurns: 20,
+            retainTimeoutPrefix: true,
+            retainMaxStepPrefix: true,
+            retainStagnationPrefix: true,
+            maxSamplesPerEpisode: 1,
+            quota: {},
+            excludeIllegal: true,
+            includeScenarioIds: [],
+            excludeScenarioIds: [],
+            limitEpisodes: null,
+            relabel: {
+                mode: 'none' as const,
+                policies: ['random'],
+                minScoreMargin: 25,
+                rolloutDepth: 2,
+                rolloutCandidates: 4,
+                rolloutWeight: 0.05
+            },
+            artifact: {
+                rootDir: artifactRoot,
+                datasetVersion: 'test-feature-v2',
+                shardSamples: 1,
+                validationRatio: ratio,
+                splitSeed
+            },
+            json: false,
+            envFactory: {
+                createEnv(targetEpisode: SkirmishEpisodeRecord) {
+                    return createDemoEnv(targetEpisode.seed, targetEpisode.maxPlies);
+                }
+            }
+        };
+        const summary = await exportEpisodeFeatures(options);
+        const manifest = JSON.parse(
+            await readFile(summary.manifestFile!, 'utf8')
+        ) as Record<string, unknown>;
+
+        expect(summary.datasetId).toHaveLength(64);
+        expect(summary.shards).toHaveLength(2);
+        expect(new Set(summary.shards?.map(shard => shard.split))).toEqual(
+            new Set(['train', 'validation'])
+        );
+        expect(manifest).toEqual(expect.objectContaining({
+            kind: 'skirmish_feature_dataset_manifest',
+            datasetVersion: 'test-feature-v2',
+            datasetId: summary.datasetId,
+            sources: [expect.objectContaining({
+                sha256: expect.stringMatching(/^[0-9a-f]{64}$/)
+            })]
+        }));
+        await expect(exportEpisodeFeatures(options)).rejects.toMatchObject({
+            code: 'EEXIST'
+        });
     });
 });

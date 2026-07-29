@@ -10,6 +10,13 @@ import {
 } from './skirmish_bc_train';
 import { convertDatasetSampleToFeatureSample } from './skirmish_feature_export';
 import type { SkirmishDatasetSample } from './skirmish_dataset_export';
+import {
+    assignDatasetSplit,
+    createImmutableArtifactDirectory,
+    FeatureShardWriter,
+    writeImmutableManifest,
+    type ImmutableDatasetManifest
+} from './skirmish_dataset_artifacts';
 
 function makeRankingSample(step: number): SkirmishDatasetSample {
     return {
@@ -201,6 +208,86 @@ describe('skirmish bc train', () => {
 
         expect(summary.epochs.at(-1)?.val?.samples).toBe(6);
         expect(summary.epochs.at(-1)?.val?.accuracy).toBe(1);
+    });
+
+    it('可以从 manifest 自动读取全部训练与验证分片', async () => {
+        const tempDir = await mkdtemp(path.join(os.tmpdir(), 'skirmish-bc-manifest-'));
+        const artifactDir = await createImmutableArtifactDirectory(
+            tempDir,
+            'test-v2',
+            'd'.repeat(64)
+        );
+        const splitSeed = 11;
+        let trainKey = 'episode-1';
+        while (assignDatasetSplit(trainKey, 0.5, splitSeed) !== 'train') {
+            trainKey += 'x';
+        }
+        let validationKey = 'episode-2';
+        while (assignDatasetSplit(validationKey, 0.5, splitSeed) !== 'validation') {
+            validationKey += 'x';
+        }
+        const writer = new FeatureShardWriter({
+            artifactDir,
+            shardSamples: 1,
+            validationRatio: 0.5,
+            splitSeed
+        });
+        const trainSample = convertDatasetSampleToFeatureSample(makeRankingSample(1), {
+            featureDim: 256,
+            featureExtractor: 'hashed-action-v2',
+            maxCandidates: null
+        })!;
+        const validationSample = {
+            ...convertDatasetSampleToFeatureSample(makeRankingSample(2), {
+                featureDim: 256,
+                featureExtractor: 'hashed-action-v2',
+                maxCandidates: null
+            })!,
+            seed: 101
+        };
+        await writer.write(trainSample, trainKey);
+        await writer.write(validationSample, validationKey);
+        const shards = await writer.close();
+        const manifest: ImmutableDatasetManifest = {
+            kind: 'skirmish_feature_dataset_manifest',
+            schemaVersion: 1,
+            datasetVersion: 'test-v2',
+            datasetId: 'd'.repeat(64),
+            createdAt: '2026-07-30T00:00:00.000Z',
+            generator: { tool: 'test', version: 1, gitCommit: null, options: {} },
+            sources: [],
+            split: { strategy: 'episode-hash-v1', validationRatio: 0.5, seed: splitSeed },
+            shards,
+            summary: {}
+        };
+        const manifestFile = await writeImmutableManifest(artifactDir, manifest);
+        const outFile = path.join(tempDir, 'model.json');
+
+        const summary = await trainSkirmishBcModel({
+            trainFile: '',
+            datasetManifest: manifestFile,
+            extraTrainFiles: [],
+            extraTrainRepeat: 1,
+            valFile: null,
+            outFile,
+            epochs: 1,
+            learningRate: 0.1,
+            teacherWeight: 0.25,
+            featureDim: 256,
+            featureExtractor: 'hashed-action-v2',
+            objective: 'label',
+            maxCandidates: null,
+            limitTrainSamples: null,
+            limitValSamples: null,
+            json: false
+        });
+        const model = await loadBcModel(outFile);
+
+        expect(summary.trainFiles).toHaveLength(1);
+        expect(summary.validationFiles).toHaveLength(1);
+        expect(summary.epochs[0].train.samples).toBe(1);
+        expect(summary.epochs[0].val?.samples).toBe(1);
+        expect(model.datasetId).toBe(manifest.datasetId);
     });
 
     it('可以按 heuristic teacher-rank 目标训练', async () => {

@@ -20,6 +20,16 @@ import {
 } from './skirmish_dataset_export';
 import { selectStratifiedHardNegativeCandidates } from './skirmish_candidate_sampling';
 import {
+    buildDatasetId,
+    createImmutableArtifactDirectory,
+    FeatureShardWriter,
+    hashDatasetSource,
+    resolveGitCommit,
+    writeImmutableManifest,
+    type FeatureShardMetadata,
+    type ImmutableDatasetManifest
+} from './skirmish_dataset_artifacts';
+import {
     chooseHeuristicTrainingLabel,
     type HeuristicRelabelMode,
     type HeuristicRelabelOptions
@@ -52,6 +62,13 @@ export interface SkirmishEpisodeFeatureExportOptions {
     excludeScenarioIds: string[];
     limitEpisodes: number | null;
     relabel: HeuristicRelabelOptions;
+    artifact?: {
+        rootDir: string;
+        datasetVersion: string;
+        shardSamples: number;
+        validationRatio: number;
+        splitSeed: number;
+    } | null;
     json: boolean;
     envFactory?: SkirmishDatasetEnvFactory;
 }
@@ -77,6 +94,10 @@ export interface SkirmishEpisodeFeatureExportSummary {
         candidates: number;
     }>;
     quota: ReturnType<StreamingSampleQuota['snapshot']>;
+    datasetId?: string;
+    artifactDir?: string;
+    manifestFile?: string;
+    shards?: FeatureShardMetadata[];
 }
 
 const DEFAULT_FEATURE_DIR = path.resolve(process.cwd(), 'training_runs', 'features');
@@ -99,6 +120,12 @@ function printHelp() {
 选项:
   --input <file>                 episode JSONL，可重复
   --out <file>                   feature JSONL 输出
+  --artifact-root <dir>          内容寻址分片根目录；CLI 默认 training_runs/feature_datasets
+  --dataset-version <name>       数据集版本名，默认 skirmish-feature-v2
+  --shard-samples <n>            每分片样本数，默认 50000
+  --validation-ratio <0..1>      episode 级验证集比例，默认 0.1
+  --split-seed <n>               train/validation 稳定切分种子
+  --single-file                  使用 --out 单文件兼容模式
   --unpack <dir>                 APK 解包目录
   --sd-training-plan <file>      SD 派生局面计划
   --feature-dim <n>              哈希特征维度，默认 16384
@@ -221,6 +248,13 @@ export function parseEpisodeFeatureExportArgs(
             rolloutCandidates: 4,
             rolloutWeight: 0.05
         },
+        artifact: {
+            rootDir: path.resolve(process.cwd(), 'training_runs', 'feature_datasets'),
+            datasetVersion: 'skirmish-feature-v2',
+            shardSamples: 50_000,
+            validationRatio: 0.1,
+            splitSeed: 20260730
+        },
         json: false
     };
 
@@ -237,6 +271,33 @@ export function parseEpisodeFeatureExportArgs(
             const value = argv[++index];
             if (!value) throw new Error('--out 缺少文件参数');
             options.outFile = path.resolve(value);
+        } else if (arg === '--artifact-root') {
+            const value = argv[++index];
+            if (!value) throw new Error('--artifact-root 缺少目录参数');
+            options.artifact ??= {
+                rootDir: path.resolve(value),
+                datasetVersion: 'skirmish-feature-v2',
+                shardSamples: 50_000,
+                validationRatio: 0.1,
+                splitSeed: 20260730
+            };
+            options.artifact.rootDir = path.resolve(value);
+        } else if (arg === '--dataset-version') {
+            const value = argv[++index];
+            if (!value) throw new Error('--dataset-version 缺少版本名');
+            if (!options.artifact) throw new Error('--dataset-version 不能与 --single-file 同时使用');
+            options.artifact.datasetVersion = value;
+        } else if (arg === '--shard-samples') {
+            if (!options.artifact) throw new Error('--shard-samples 不能与 --single-file 同时使用');
+            options.artifact.shardSamples = parsePositiveInteger(argv[++index], arg);
+        } else if (arg === '--validation-ratio') {
+            if (!options.artifact) throw new Error('--validation-ratio 不能与 --single-file 同时使用');
+            options.artifact.validationRatio = parseRatio(argv[++index], arg);
+        } else if (arg === '--split-seed') {
+            if (!options.artifact) throw new Error('--split-seed 不能与 --single-file 同时使用');
+            options.artifact.splitSeed = parseInteger(argv[++index], arg);
+        } else if (arg === '--single-file') {
+            options.artifact = null;
         } else if (arg === '--unpack') {
             const value = argv[++index];
             if (!value) throw new Error('--unpack 缺少目录参数');
@@ -420,17 +481,76 @@ function buildFeatureSample(
     };
 }
 
+function buildArtifactGeneratorOptions(
+    options: SkirmishEpisodeFeatureExportOptions
+): Record<string, unknown> {
+    return {
+        featureDim: options.featureDim,
+        featureExtractor: options.featureExtractor,
+        maxCandidates: options.maxCandidates,
+        hardNegativeRatio: options.hardNegativeRatio,
+        timeoutPrefixTurns: options.timeoutPrefixTurns,
+        timeoutTailTurns: options.timeoutTailTurns,
+        retainTimeoutPrefix: options.retainTimeoutPrefix,
+        retainMaxStepPrefix: options.retainMaxStepPrefix,
+        retainStagnationPrefix: options.retainStagnationPrefix,
+        maxSamplesPerEpisode: options.maxSamplesPerEpisode,
+        quota: options.quota,
+        excludeIllegal: options.excludeIllegal,
+        includeScenarioIds: options.includeScenarioIds,
+        excludeScenarioIds: options.excludeScenarioIds,
+        limitEpisodes: options.limitEpisodes,
+        relabel: options.relabel,
+        shardSamples: options.artifact?.shardSamples,
+        validationRatio: options.artifact?.validationRatio,
+        splitSeed: options.artifact?.splitSeed,
+        customEnvFactory: options.envFactory !== undefined
+    };
+}
+
 export async function exportEpisodeFeatures(
     options: SkirmishEpisodeFeatureExportOptions
 ): Promise<SkirmishEpisodeFeatureExportSummary> {
-    await mkdir(path.dirname(options.outFile), { recursive: true });
-    const output = createWriteStream(options.outFile, { encoding: 'utf8' });
+    const generatorOptions = buildArtifactGeneratorOptions(options);
+    const sourceFiles = [
+        ...options.inputFiles,
+        ...(options.sdTrainingPlanFile ? [options.sdTrainingPlanFile] : [])
+    ];
+    const sources = options.artifact
+        ? await Promise.all(sourceFiles.map(hashDatasetSource))
+        : [];
+    const datasetId = options.artifact
+        ? buildDatasetId({
+            datasetVersion: options.artifact.datasetVersion,
+            generatorOptions,
+            sources
+        })
+        : undefined;
+    const artifactDir = options.artifact && datasetId
+        ? await createImmutableArtifactDirectory(
+            options.artifact.rootDir,
+            options.artifact.datasetVersion,
+            datasetId
+        )
+        : undefined;
+    const shardWriter = options.artifact && artifactDir
+        ? new FeatureShardWriter({
+            artifactDir,
+            shardSamples: options.artifact.shardSamples,
+            validationRatio: options.artifact.validationRatio,
+            splitSeed: options.artifact.splitSeed
+        })
+        : null;
+    if (!shardWriter) await mkdir(path.dirname(options.outFile), { recursive: true });
+    const output = shardWriter
+        ? null
+        : createWriteStream(options.outFile, { encoding: 'utf8' });
     const envFactory = options.envFactory
         ?? await createDefaultEnvFactory(options.unpackDir, options.sdTrainingPlanFile ?? null);
     const quota = new StreamingSampleQuota(options.quota);
     const summary: SkirmishEpisodeFeatureExportSummary = {
         inputFiles: options.inputFiles,
-        outFile: options.outFile,
+        outFile: artifactDir ?? options.outFile,
         inputEpisodes: 0,
         replayedEpisodes: 0,
         skippedEpisodes: 0,
@@ -444,7 +564,9 @@ export async function exportEpisodeFeatures(
         averageCandidates: 0,
         averageFeaturesPerCandidate: 0,
         byScenario: {},
-        quota: quota.snapshot()
+        quota: quota.snapshot(),
+        datasetId,
+        artifactDir
     };
     let totalCandidates = 0;
     let totalFeatureEntries = 0;
@@ -527,7 +649,14 @@ export async function exportEpisodeFeatures(
                         );
                     }
                     const featureSample = builtFeature.sample;
-                    await writeLine(output, `${JSON.stringify(featureSample)}\n`);
+                    if (shardWriter) {
+                        await shardWriter.write(
+                            featureSample,
+                            `${episode.scenario.id}\0${episode.seed}`
+                        );
+                    } else if (output) {
+                        await writeLine(output, `${JSON.stringify(featureSample)}\n`);
+                    }
                     summary.exportedSamples += 1;
                     summary.relabeledSamples += builtFeature.relabeled ? 1 : 0;
                     scenarioSummary.samples += 1;
@@ -541,8 +670,13 @@ export async function exportEpisodeFeatures(
             }
         }
     } finally {
-        output.end();
-        await once(output, 'finish');
+        if (output) {
+            output.end();
+            await once(output, 'finish');
+        }
+        if (shardWriter) {
+            summary.shards = await shardWriter.close();
+        }
     }
 
     summary.averageCandidates = summary.exportedSamples > 0
@@ -552,6 +686,42 @@ export async function exportEpisodeFeatures(
         ? totalFeatureEntries / totalCandidates
         : 0;
     summary.quota = quota.snapshot();
+    if (options.artifact && artifactDir && datasetId && summary.shards) {
+        const manifest: ImmutableDatasetManifest = {
+            kind: 'skirmish_feature_dataset_manifest',
+            schemaVersion: 1,
+            datasetVersion: options.artifact.datasetVersion,
+            datasetId,
+            createdAt: new Date().toISOString(),
+            generator: {
+                tool: 'tools/skirmish_episode_feature_export.ts',
+                version: 2,
+                gitCommit: await resolveGitCommit(),
+                options: generatorOptions
+            },
+            sources,
+            split: {
+                strategy: 'episode-hash-v1',
+                validationRatio: options.artifact.validationRatio,
+                seed: options.artifact.splitSeed
+            },
+            shards: summary.shards,
+            summary: {
+                inputEpisodes: summary.inputEpisodes,
+                replayedEpisodes: summary.replayedEpisodes,
+                exportedSamples: summary.exportedSamples,
+                relabeledSamples: summary.relabeledSamples,
+                droppedByTruncation: summary.droppedByTruncation,
+                droppedByEpisodeQuota: summary.droppedByEpisodeQuota,
+                droppedByGlobalQuota: summary.droppedByGlobalQuota,
+                averageCandidates: summary.averageCandidates,
+                averageFeaturesPerCandidate: summary.averageFeaturesPerCandidate,
+                byScenario: summary.byScenario,
+                quota: summary.quota
+            }
+        };
+        summary.manifestFile = await writeImmutableManifest(artifactDir, manifest);
+    }
     return summary;
 }
 
@@ -570,8 +740,11 @@ export function formatEpisodeFeatureExportSummary(
         `- 全局配额剔除样本：${summary.droppedByGlobalQuota}`,
         `- 平均候选数：${summary.averageCandidates.toFixed(2)}`,
         `- 每候选平均特征数：${summary.averageFeaturesPerCandidate.toFixed(2)}`,
+        summary.datasetId ? `- 数据集 ID：\`${summary.datasetId}\`` : null,
+        summary.manifestFile ? `- 不可变 manifest：\`${summary.manifestFile}\`` : null,
+        summary.shards ? `- 分片：${summary.shards.length}` : null,
         `- 输出文件：\`${summary.outFile}\``
-    ].join('\n') + '\n';
+    ].filter((line): line is string => line !== null).join('\n') + '\n';
 }
 
 async function main() {

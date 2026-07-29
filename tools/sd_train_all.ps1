@@ -3,6 +3,10 @@ param(
   [int]$Workers = 5,
   [int]$ProgressTurnInterval = 5,
   [string[]]$Plans = @(),
+  [int]$MaxSamplesPerEpisode = 800,
+  [int]$ShardSamples = 50000,
+  [double]$ValidationRatio = 0.1,
+  [string[]]$RelabelPolicies = @("apk-like"),
   [switch]$PrepareOnly,
   [switch]$SkipModelTraining
 )
@@ -17,14 +21,14 @@ if (-not (Get-Command $NpmCommand -ErrorAction SilentlyContinue)) {
 }
 
 if ($Preset -like "*random*") {
-  throw "SD formal training does not allow random preset: $Preset"
+  throw "SD 正式训练不允许 random preset：$Preset"
 }
 
 $RunName = "sd_training_plan_20260705_$Preset"
 $EpisodeDir = "training_runs\episodes\$RunName"
-$DatasetDir = "training_runs\datasets\$RunName"
-$FeatureDir = "training_runs\features\$RunName"
-$ModelOut = "training_runs\models\sd-bc-f4096-c64-$RunName.json"
+$ArtifactRoot = "training_runs\feature_datasets\$RunName"
+$JobManifestRoot = "training_runs\job_manifests\$RunName"
+$ModelOut = "training_runs\models\sd-bc-f4096-c64-v3-$RunName.json"
 
 $DefaultPlans = @(
   "sd-normal",
@@ -62,24 +66,33 @@ function Invoke-CheckedCommand {
   Write-Host ">>> $Label"
   & $NpmCommand @ArgList
   if ($LASTEXITCODE -ne 0) {
-    throw "$Label failed with exit code $LASTEXITCODE"
+    throw "$Label 失败，退出码：$LASTEXITCODE"
   }
 }
 
-Invoke-CheckedCommand "Prepare SD training plan" @("run", "sd:training-plan", "--", "--json")
+$ManifestArgs = @(
+  "run", "sd:training-manifest", "--",
+  "--plan", "training_configs\sd_training_plan_20260705.json",
+  "--out-root", $JobManifestRoot,
+  "--json"
+)
+foreach ($Plan in $Plans) {
+  $ManifestArgs += @("--plan-id", $Plan)
+}
+Invoke-CheckedCommand "生成不可变 SD job manifest" $ManifestArgs
 
 if ($PrepareOnly) {
   Write-Host ""
-  Write-Host "Training plan is ready."
+  Write-Host "训练计划和不可变 job manifest 已准备完成。"
   exit 0
 }
 
+$EpisodeFiles = @()
 foreach ($Plan in $Plans) {
   $Episode = "$EpisodeDir\$Plan-episodes.jsonl"
-  $Dataset = "$DatasetDir\$Plan-dataset.jsonl"
-  $Feature = "$FeatureDir\$Plan-f4096-c64.jsonl"
+  $EpisodeFiles += $Episode
 
-  Invoke-CheckedCommand "Generate episode: $Plan" @(
+  Invoke-CheckedCommand "生成 episode：$Plan" @(
       "run", "sd:training-plan", "--",
       "--plan-id", $Plan,
       "--run",
@@ -89,53 +102,75 @@ foreach ($Plan in $Plans) {
       "--progress-turn-interval", "$ProgressTurnInterval",
       "--json"
   )
-
-  Invoke-CheckedCommand "Export dataset: $Plan" @(
-      "run", "export:skirmish:dataset", "--",
-      "--input", $Episode,
-      "--out", $Dataset,
-      "--sd-training-plan", "training_configs\sd_training_plan_20260705.json",
-      "--json"
-  )
-
-  Invoke-CheckedCommand "Export feature: $Plan" @(
-      "run", "export:skirmish:features", "--",
-      "--input", $Dataset,
-      "--out", $Feature,
-      "--feature-dim", "4096",
-      "--feature-extractor", "hashed-action-v2",
-      "--max-candidates", "64",
-      "--json"
-  )
 }
+
+$ExistingManifests = @{}
+if (Test-Path $ArtifactRoot) {
+  Get-ChildItem -LiteralPath $ArtifactRoot -Recurse -Filter "manifest.json" | ForEach-Object {
+    $ExistingManifests[$_.FullName] = $true
+  }
+}
+
+$ExportArgs = @(
+  "run", "export:skirmish:episode-features", "--",
+  "--artifact-root", $ArtifactRoot,
+  "--dataset-version", "$RunName-v3",
+  "--sd-training-plan", "training_configs\sd_training_plan_20260705.json",
+  "--feature-dim", "4096",
+  "--feature-extractor", "hashed-action-v3",
+  "--max-candidates", "64",
+  "--hard-negative-ratio", "0.5",
+  "--timeout-prefix-turns", "80",
+  "--timeout-tail-turns", "20",
+  "--max-samples-per-episode", "$MaxSamplesPerEpisode",
+  "--action-type-limit", "move=400000",
+  "--action-type-limit", "wait=200000",
+  "--shard-samples", "$ShardSamples",
+  "--validation-ratio", "$ValidationRatio",
+  "--split-seed", "20260730",
+  "--json"
+)
+foreach ($Episode in $EpisodeFiles) {
+  $ExportArgs += @("--input", $Episode)
+}
+foreach ($Policy in $RelabelPolicies) {
+  if ($Policy) {
+    $ExportArgs += @("--relabel-policy", $Policy)
+  }
+}
+Invoke-CheckedCommand "流式导出分片 feature 数据集" $ExportArgs
+
+$NewManifests = @(Get-ChildItem -LiteralPath $ArtifactRoot -Recurse -Filter "manifest.json" | Where-Object {
+  -not $ExistingManifests.ContainsKey($_.FullName)
+})
+if ($NewManifests.Count -ne 1) {
+  throw "期望生成 1 个新数据集 manifest，实际为 $($NewManifests.Count)。"
+}
+$DatasetManifest = $NewManifests[0].FullName
+
+Invoke-CheckedCommand "验证 feature 数据集" @(
+  "run", "validate:skirmish:features", "--",
+  "--manifest", $DatasetManifest
+)
 
 if ($SkipModelTraining) {
   Write-Host ""
-  Write-Host "Skipped BC model training. Feature dir: $FeatureDir"
+  Write-Host "已跳过 BC 模型训练。数据集 manifest：$DatasetManifest"
   exit 0
 }
 
 $TrainArgs = @(
   "run", "train:skirmish:bc", "--",
-  "--train", "$FeatureDir\sd-normal-f4096-c64.jsonl"
-)
-
-foreach ($Plan in $Plans) {
-  if ($Plan -eq "sd-normal") {
-    continue
-  }
-  $TrainArgs += @("--extra-train", "$FeatureDir\$Plan-f4096-c64.jsonl")
-}
-
-$TrainArgs += @(
+  "--dataset-manifest", $DatasetManifest,
   "--feature-dim", "4096",
-  "--feature-extractor", "hashed-action-v2",
+  "--feature-extractor", "hashed-action-v3",
   "--max-candidates", "64",
   "--out", $ModelOut,
   "--json"
 )
 
-Invoke-CheckedCommand "Train BC model" $TrainArgs
+Invoke-CheckedCommand "训练 BC 模型" $TrainArgs
 
 Write-Host ""
-Write-Host "Training complete. Model: $ModelOut"
+Write-Host "训练完成。模型：$ModelOut"
+Write-Host "数据集 manifest：$DatasetManifest"

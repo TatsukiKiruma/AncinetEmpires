@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 import { decodeAction, type Observation } from '../src/game/env';
 import type { Action, Position } from '../src/game/types';
 import type { SkirmishDatasetSample } from './skirmish_dataset_export';
+import type { ImmutableDatasetManifest } from './skirmish_dataset_artifacts';
+import { validateFeatureDatasetManifest } from './skirmish_dataset_validate';
 
 export type SparseFeatures = Map<number, number>;
 type UnitSnapshot = Observation['units'][number];
@@ -57,6 +59,7 @@ interface TrainingCandidate {
 
 export interface SkirmishBcTrainOptions {
     trainFile: string;
+    datasetManifest?: string | null;
     extraTrainFiles: string[];
     extraTrainRepeat: number;
     valFile: string | null;
@@ -86,6 +89,7 @@ export interface SkirmishBcModel {
     trainedSamples: number;
     createdAt: string;
     objective?: SkirmishBcObjective;
+    datasetId?: string;
 }
 
 export interface SkirmishBcMetrics {
@@ -104,6 +108,9 @@ export interface SkirmishBcEpochSummary {
 
 export interface SkirmishBcTrainSummary {
     trainFile: string;
+    datasetManifest?: string | null;
+    trainFiles?: string[];
+    validationFiles?: string[];
     extraTrainFiles: string[];
     extraTrainRepeat: number;
     valFile: string | null;
@@ -126,10 +133,11 @@ function defaultOutFile(): string {
 }
 
 function printHelp() {
-    console.log(`用法: npm run train:skirmish:bc -- --train <file> [选项]
+    console.log(`用法: npm run train:skirmish:bc -- (--train <file> | --dataset-manifest <file>) [选项]
 
 选项:
   --train <file>             训练集 JSONL
+  --dataset-manifest <file>  内容寻址分片数据集 manifest；自动加载 train/validation
   --extra-train <file>       追加训练集 JSONL，可重复；用于小批 curated 数据
   --extra-train-repeat <n>   每个 epoch 重复追加训练集次数，默认 1
   --val <file>               验证集 JSONL
@@ -178,6 +186,7 @@ function parseNonNegativeNumber(value: string | undefined, label: string): numbe
 export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOptions {
     const options: SkirmishBcTrainOptions = {
         trainFile: '',
+        datasetManifest: null,
         extraTrainFiles: [],
         extraTrainRepeat: 1,
         valFile: null,
@@ -203,6 +212,10 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
             const value = argv[++i];
             if (!value) throw new Error('--train 缺少文件参数');
             options.trainFile = path.resolve(value);
+        } else if (arg === '--dataset-manifest') {
+            const value = argv[++i];
+            if (!value) throw new Error('--dataset-manifest 缺少文件参数');
+            options.datasetManifest = path.resolve(value);
         } else if (arg === '--extra-train') {
             const value = argv[++i];
             if (!value) throw new Error('--extra-train 缺少文件参数');
@@ -242,7 +255,12 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
         }
     }
 
-    if (!options.trainFile) throw new Error('请用 --train 指定训练集 JSONL');
+    if (!options.trainFile && !options.datasetManifest) {
+        throw new Error('请用 --train 指定训练集 JSONL，或用 --dataset-manifest 指定分片数据集');
+    }
+    if (options.trainFile && options.datasetManifest) {
+        throw new Error('--train 与 --dataset-manifest 不能同时使用');
+    }
     return options;
 }
 
@@ -1216,19 +1234,108 @@ function mergeMetrics(left: SkirmishBcMetrics, right: SkirmishBcMetrics): Skirmi
     };
 }
 
+interface ResolvedTrainingInput {
+    primaryTrainFiles: string[];
+    extraTrainFiles: string[];
+    validationFiles: string[];
+    datasetManifest: string | null;
+    datasetId: string | null;
+}
+
+async function resolveTrainingInput(
+    options: SkirmishBcTrainOptions
+): Promise<ResolvedTrainingInput> {
+    if (!options.datasetManifest) {
+        return {
+            primaryTrainFiles: [options.trainFile],
+            extraTrainFiles: options.extraTrainFiles,
+            validationFiles: options.valFile ? [options.valFile] : [],
+            datasetManifest: null,
+            datasetId: null
+        };
+    }
+
+    const validation = await validateFeatureDatasetManifest(options.datasetManifest);
+    if (!validation.valid) {
+        throw new Error(`数据集 manifest 验证失败：${validation.errors.join('；')}`);
+    }
+    const manifest = JSON.parse(
+        await readFile(options.datasetManifest, 'utf8')
+    ) as ImmutableDatasetManifest;
+    const artifactDir = path.dirname(options.datasetManifest);
+    const resolveShards = (split: 'train' | 'validation') => manifest.shards
+        .filter(shard => shard.split === split)
+        .sort((left, right) => left.index - right.index)
+        .map(shard => path.resolve(artifactDir, shard.path));
+    const primaryTrainFiles = resolveShards('train');
+    if (primaryTrainFiles.length === 0) {
+        throw new Error('数据集 manifest 没有 train 分片');
+    }
+    return {
+        primaryTrainFiles,
+        extraTrainFiles: [],
+        validationFiles: resolveShards('validation'),
+        datasetManifest: options.datasetManifest,
+        datasetId: manifest.datasetId
+    };
+}
+
+async function trainEpochOnFiles(
+    files: readonly string[],
+    weights: number[],
+    options: SkirmishBcTrainOptions,
+    limit: number | null
+): Promise<SkirmishBcMetrics> {
+    let metrics = emptyMetrics();
+    let remaining = limit;
+    for (const file of files) {
+        if (remaining !== null && remaining <= 0) break;
+        const fileMetrics = await trainEpochOnFile(file, weights, options, remaining);
+        metrics = mergeMetrics(metrics, fileMetrics);
+        if (remaining !== null) {
+            remaining -= fileMetrics.samples + fileMetrics.skipped;
+        }
+    }
+    return metrics;
+}
+
 async function trainEpoch(
     weights: number[],
-    options: SkirmishBcTrainOptions
+    options: SkirmishBcTrainOptions,
+    input: ResolvedTrainingInput
 ): Promise<SkirmishBcMetrics> {
-    let metrics = await trainEpochOnFile(options.trainFile, weights, options, options.limitTrainSamples);
+    let metrics = await trainEpochOnFiles(
+        input.primaryTrainFiles,
+        weights,
+        options,
+        options.limitTrainSamples
+    );
 
     for (let repeat = 0; repeat < options.extraTrainRepeat; repeat += 1) {
-        for (const extraFile of options.extraTrainFiles) {
+        for (const extraFile of input.extraTrainFiles) {
             const extraMetrics = await trainEpochOnFile(extraFile, weights, options, null);
             metrics = mergeMetrics(metrics, extraMetrics);
         }
     }
 
+    return metrics;
+}
+
+async function evaluateBcModelFiles(
+    files: readonly string[],
+    model: SkirmishBcModel,
+    limit: number | null
+): Promise<SkirmishBcMetrics> {
+    let metrics = emptyMetrics();
+    let remaining = limit;
+    for (const file of files) {
+        if (remaining !== null && remaining <= 0) break;
+        const fileMetrics = await evaluateBcModel(file, model, remaining);
+        metrics = mergeMetrics(metrics, fileMetrics);
+        if (remaining !== null) {
+            remaining -= fileMetrics.samples + fileMetrics.skipped;
+        }
+    }
     return metrics;
 }
 
@@ -1265,12 +1372,13 @@ export async function evaluateBcModel(
 }
 
 export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Promise<SkirmishBcTrainSummary> {
+    const input = await resolveTrainingInput(options);
     const weights = new Array(options.featureDim).fill(0);
     const epochs: SkirmishBcEpochSummary[] = [];
     let trainedSamples = 0;
 
     for (let epoch = 1; epoch <= options.epochs; epoch += 1) {
-        const train = await trainEpoch(weights, options);
+        const train = await trainEpoch(weights, options, input);
         trainedSamples += train.samples;
         const modelSnapshot: SkirmishBcModel = {
             kind: 'skirmish_bc_ranker',
@@ -1284,10 +1392,11 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
             maxCandidates: options.maxCandidates,
             trainedSamples,
             createdAt: new Date().toISOString(),
-            objective: options.objective
+            objective: options.objective,
+            ...(input.datasetId ? { datasetId: input.datasetId } : {})
         };
-        const val = options.valFile
-            ? await evaluateBcModel(options.valFile, modelSnapshot, options.limitValSamples)
+        const val = input.validationFiles.length > 0
+            ? await evaluateBcModelFiles(input.validationFiles, modelSnapshot, options.limitValSamples)
             : null;
         epochs.push({ epoch, train, val });
     }
@@ -1304,7 +1413,8 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
         maxCandidates: options.maxCandidates,
         trainedSamples,
         createdAt: new Date().toISOString(),
-        objective: options.objective
+        objective: options.objective,
+        ...(input.datasetId ? { datasetId: input.datasetId } : {})
     };
 
     await mkdir(path.dirname(options.outFile), { recursive: true });
@@ -1313,10 +1423,13 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
     const { weights: _weights, ...modelMetadata } = model;
 
     return {
-        trainFile: options.trainFile,
-        extraTrainFiles: options.extraTrainFiles,
+        trainFile: input.primaryTrainFiles[0],
+        datasetManifest: input.datasetManifest,
+        trainFiles: input.primaryTrainFiles,
+        validationFiles: input.validationFiles,
+        extraTrainFiles: input.extraTrainFiles,
         extraTrainRepeat: options.extraTrainRepeat,
-        valFile: options.valFile,
+        valFile: input.validationFiles[0] ?? null,
         outFile: options.outFile,
         epochs,
         model: {
@@ -1338,7 +1451,11 @@ export function formatSkirmishBcTrainSummary(summary: SkirmishBcTrainSummary): s
     const lines = [
         '# Skirmish BC 训练摘要',
         '',
+        summary.datasetManifest ? `- 数据集 manifest：\`${summary.datasetManifest}\`` : null,
         `- 训练集：\`${summary.trainFile}\``,
+        summary.trainFiles && summary.trainFiles.length > 1
+            ? `- 训练分片：${summary.trainFiles.length}`
+            : null,
         `- 追加训练集：${summary.extraTrainFiles.length > 0 ? summary.extraTrainFiles.map(file => `\`${file}\``).join(', ') : '无'}`,
         `- 追加训练集重复：${summary.extraTrainRepeat}`,
         `- 验证集：${summary.valFile ? `\`${summary.valFile}\`` : '无'}`,
@@ -1351,7 +1468,7 @@ export function formatSkirmishBcTrainSummary(summary: SkirmishBcTrainSummary): s
         '',
         '| Epoch | 训练样本 | 训练命中率 | 验证样本 | 验证命中率 | 平均候选动作 |',
         '| ---: | ---: | ---: | ---: | ---: | ---: |'
-    ];
+    ].filter((line): line is string => line !== null);
 
     for (const epoch of summary.epochs) {
         lines.push(

@@ -1114,8 +1114,8 @@ export function runSkirmishEpisode(options: {
         progressIntervalSteps = 25,
         progressIntervalTurns,
         onProgress,
-        stagnationPatienceTurns = 0,
-        stagnationMinTurns = 0
+        stagnationPatienceTurns = 24,
+        stagnationMinTurns = 40
     } = options;
     let result = env.reset(seed);
     const initialObservationHash = hashJson(result.observation);
