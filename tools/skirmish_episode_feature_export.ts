@@ -26,6 +26,7 @@ import {
     hashDatasetSource,
     resolveGitCommit,
     writeImmutableManifest,
+    type DatasetSourceMetadata,
     type FeatureShardMetadata,
     type ImmutableDatasetManifest
 } from './skirmish_dataset_artifacts';
@@ -60,6 +61,7 @@ export interface SkirmishEpisodeFeatureExportOptions {
     excludeIllegal: boolean;
     includeScenarioIds: string[];
     excludeScenarioIds: string[];
+    startEpisode?: number;
     limitEpisodes: number | null;
     relabel: HeuristicRelabelOptions;
     artifact?: {
@@ -69,6 +71,7 @@ export interface SkirmishEpisodeFeatureExportOptions {
         validationRatio: number;
         splitSeed: number;
     } | null;
+    sourceMetadata?: DatasetSourceMetadata[];
     json: boolean;
     envFactory?: SkirmishDatasetEnvFactory;
 }
@@ -147,6 +150,7 @@ function printHelp() {
   --scenario <id>                只导出指定场景，可重复
   --exclude-scenario <id>        排除场景，可重复
   --limit-episodes <n>           最多重放 episode 数
+  --start-episode <n>            跳过输入开头的 n 个 episode，用于断点批处理
   --include-illegal              允许非法动作样本
   --relabel-mode <mode>          none/heuristic/fast-rollout，默认 fast-rollout
   --relabel-policy <name>        需要重标注的源策略，可重复；默认 random
@@ -239,6 +243,7 @@ export function parseEpisodeFeatureExportArgs(
         excludeIllegal: true,
         includeScenarioIds: [],
         excludeScenarioIds: [],
+        startEpisode: 0,
         limitEpisodes: null,
         relabel: {
             mode: 'fast-rollout',
@@ -352,6 +357,8 @@ export function parseEpisodeFeatureExportArgs(
             options.excludeScenarioIds.push(value);
         } else if (arg === '--limit-episodes') {
             options.limitEpisodes = parsePositiveInteger(argv[++index], arg);
+        } else if (arg === '--start-episode') {
+            options.startEpisode = parseNonNegativeInteger(argv[++index], arg);
         } else if (arg === '--include-illegal') {
             options.excludeIllegal = false;
         } else if (arg === '--relabel-mode') {
@@ -499,6 +506,7 @@ function buildArtifactGeneratorOptions(
         excludeIllegal: options.excludeIllegal,
         includeScenarioIds: options.includeScenarioIds,
         excludeScenarioIds: options.excludeScenarioIds,
+        startEpisode: options.startEpisode ?? 0,
         limitEpisodes: options.limitEpisodes,
         relabel: options.relabel,
         shardSamples: options.artifact?.shardSamples,
@@ -517,7 +525,7 @@ export async function exportEpisodeFeatures(
         ...(options.sdTrainingPlanFile ? [options.sdTrainingPlanFile] : [])
     ];
     const sources = options.artifact
-        ? await Promise.all(sourceFiles.map(hashDatasetSource))
+        ? options.sourceMetadata ?? await Promise.all(sourceFiles.map(hashDatasetSource))
         : [];
     const datasetId = options.artifact
         ? buildDatasetId({
@@ -583,6 +591,7 @@ export async function exportEpisodeFeatures(
                 if (!trimmed) continue;
                 const currentEpisodeIndex = episodeIndex++;
                 summary.inputEpisodes += 1;
+                if (currentEpisodeIndex < (options.startEpisode ?? 0)) continue;
                 const episode = JSON.parse(trimmed) as SkirmishEpisodeRecord;
                 if (episode.kind !== 'skirmish_episode' || !shouldIncludeScenario(episode, options)) {
                     summary.skippedEpisodes += 1;
@@ -592,8 +601,7 @@ export async function exportEpisodeFeatures(
                     options.limitEpisodes !== null
                     && summary.replayedEpisodes >= options.limitEpisodes
                 ) {
-                    summary.skippedEpisodes += 1;
-                    continue;
+                    break;
                 }
 
                 const selection = selectEpisodeStepIndexes(episode, {
