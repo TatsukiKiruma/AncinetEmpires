@@ -24,8 +24,39 @@
 - 特征：`hashed-action-v3`，4096 维，最多 64 个候选
 - 重标注：`fast-rollout`，包含 heuristic 评分与快速 rollout
 - 验证集比例：10%，按 `scenario + seed` 稳定切分
+- 并行度：1 个 worker，可通过 `-Workers` 调整
 
 按此前实测吞吐，完整 fast-rollout 迁移仍可能需要约 70 小时。时间会随 CPU、磁盘和 episode 长度变化。
+
+## 多 Worker 并行
+
+每个 worker 是独立 Node 子进程，同时领取不同 checkpoint。主进程统一维护状态、断点和最终 manifest，因此不要手动并行启动多个相同迁移命令。
+
+使用 2 worker 继续正式迁移：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\migrate_old_training_data.ps1 -Workers 2
+```
+
+使用 4 worker：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\migrate_old_training_data.ps1 -Workers 4
+```
+
+`Workers` 只改变执行并行度，不改变样本、数据集 ID 或 checkpoint 路径。可以先用 2 worker，停止后改用 4 worker 续跑；已经完成的 checkpoint 仍会被复用。
+
+为了公平比较 2/4 worker 的速度和资源占用，应顺序运行以下两条命令。它们使用不同输出目录，但都处理前 4 个 checkpoint，即相同的 40 个 episode：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\migrate_old_training_data.ps1 -Workers 2 -StopAfterBatches 4 -OutRoot "training_runs\feature_migrations\benchmark_workers_2"
+```
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\migrate_old_training_data.ps1 -Workers 4 -StopAfterBatches 4 -OutRoot "training_runs\feature_migrations\benchmark_workers_4"
+```
+
+不要同时运行这两个性能测试，否则 CPU 和磁盘会互相争用，结果没有可比性。测试会额外生成两份数据，确认结果后再决定是否保留。
 
 ## 停止与继续
 
@@ -47,7 +78,7 @@
 - 当前批次只有 `.partial` 等半成品：移动到运行目录的 `interrupted` 子目录，再重跑该批次。
 - checkpoint 校验失败：停止并报错，不会静默使用损坏数据。
 
-因此，强制停止最多损失当前未完成 checkpoint 的计算。默认每批 10 个 episode；如果希望缩小重算粒度，可以从第一次运行起使用：
+因此，强制停止最多会重算每个活动 worker 当前未完成的 checkpoint；已经完成的 checkpoint 不受影响。默认每批 10 个 episode；如果希望缩小重算粒度，可以从第一次运行起使用：
 
 ```powershell
 .\tools\migrate_old_training_data.ps1 -BatchEpisodes 5
@@ -71,6 +102,7 @@
 - `complete`：最终 manifest 已生成并通过验证。
 
 状态文件位于内容寻址的迁移目录内，文件名为 `migration-status.json`。进度只在 checkpoint 完成后增加，当前批次运行期间样本数不会实时跳动。
+新版状态还会显示 worker 数量，以及每个 worker 当前处理的批次。
 
 ## 参数一致性
 
@@ -84,6 +116,8 @@
 - 重标注模式及 rollout 参数。
 
 这能避免把不同规则生成的数据误合并。续跑时请复制原命令，不要临时更改参数。
+
+`Workers` 和 `StopAfterBatches` 是运行控制参数，不参与数据集 ID；调整这两个参数不会新建数据版本。
 
 如果只需要更快的 heuristic 重标注，可以从头创建另一个迁移：
 
