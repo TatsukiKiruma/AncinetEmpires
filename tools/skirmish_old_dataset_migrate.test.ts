@@ -51,7 +51,8 @@ function createEpisode(seed: number): SkirmishEpisodeRecord {
 function createOptions(
     sourceDir: string,
     outRoot: string,
-    stopAfterBatches: number | null
+    stopAfterBatches: number | null,
+    workers = 1
 ): OldDatasetMigrationOptions {
     return {
         sourceDir,
@@ -76,6 +77,7 @@ function createOptions(
         rolloutDepth: 2,
         rolloutCandidates: 4,
         rolloutWeight: 0.05,
+        workers,
         stopAfterBatches,
         json: false,
         envFactory: {
@@ -94,6 +96,8 @@ describe('old dataset migration', () => {
             '--max-samples-per-episode',
             '80',
             '--fast-rollout',
+            '--workers',
+            '4',
             '--stop-after-batches',
             '2'
         ]);
@@ -101,7 +105,10 @@ describe('old dataset migration', () => {
         expect(options.batchEpisodes).toBe(12);
         expect(options.maxSamplesPerEpisode).toBe(80);
         expect(options.relabelMode).toBe('fast-rollout');
+        expect(options.workers).toBe(4);
         expect(options.stopAfterBatches).toBe(2);
+        expect(() => parseOldDatasetMigrationArgs(['--workers', '65']))
+            .toThrow('--workers 不能大于 64');
     });
 
     it('暂停后跳过已校验 checkpoint，并完成最终 manifest', async () => {
@@ -112,7 +119,7 @@ describe('old dataset migration', () => {
         const inputFile = path.join(sourceDir, 'old.jsonl');
         await writeFile(
             inputFile,
-            `${[createEpisode(101), createEpisode(102)]
+            `${[createEpisode(101), createEpisode(102), createEpisode(103), createEpisode(104)]
                 .map(episode => JSON.stringify(episode))
                 .join('\n')}\n`,
             'utf8'
@@ -121,7 +128,7 @@ describe('old dataset migration', () => {
         const first = await migrateOldDataset(createOptions(sourceDir, outRoot, 1));
         expect(first.paused).toBe(true);
         expect(first.completedBatches).toBe(1);
-        expect(first.totalBatches).toBe(2);
+        expect(first.totalBatches).toBe(4);
         expect(first.finalManifest).toBeNull();
 
         const firstStatus = JSON.parse(await readFile(first.statusFile, 'utf8')) as {
@@ -143,9 +150,9 @@ describe('old dataset migration', () => {
             'utf8'
         );
 
-        const resumed = await migrateOldDataset(createOptions(sourceDir, outRoot, null));
+        const resumed = await migrateOldDataset(createOptions(sourceDir, outRoot, null, 4));
         expect(resumed.paused).toBe(false);
-        expect(resumed.completedBatches).toBe(2);
+        expect(resumed.completedBatches).toBe(4);
         expect(resumed.finalManifest).toBeTruthy();
         expect((await stat(firstCheckpoint)).mtimeMs).toBe(firstCheckpointStat.mtimeMs);
         const interruptedEntries = await readdir(path.join(first.runDir, 'interrupted'));
@@ -153,7 +160,7 @@ describe('old dataset migration', () => {
 
         const validation = await validateFeatureDatasetManifest(resumed.finalManifest!);
         expect(validation.valid).toBe(true);
-        expect(validation.samples).toBe(4);
+        expect(validation.samples).toBe(8);
 
         const finalManifest = JSON.parse(
             await readFile(resumed.finalManifest!, 'utf8')
@@ -161,13 +168,56 @@ describe('old dataset migration', () => {
             summary: { batches: number; replayedEpisodes: number; exportedSamples: number };
         };
         expect(finalManifest.summary).toEqual(expect.objectContaining({
-            batches: 2,
-            replayedEpisodes: 2,
-            exportedSamples: 4
+            batches: 4,
+            replayedEpisodes: 4,
+            exportedSamples: 8
         }));
 
-        const repeated = await migrateOldDataset(createOptions(sourceDir, outRoot, null));
+        const completedStatus = JSON.parse(await readFile(resumed.statusFile, 'utf8')) as {
+            workers: number;
+            activeBatches: unknown[];
+        };
+        expect(completedStatus.workers).toBe(4);
+        expect(completedStatus.activeBatches).toEqual([]);
+
+        const repeated = await migrateOldDataset(createOptions(sourceDir, outRoot, null, 2));
         expect(repeated.finalManifest).toBe(resumed.finalManifest);
-        expect(repeated.completedBatches).toBe(2);
+        expect(repeated.completedBatches).toBe(4);
+    });
+
+    it('拒绝两个主进程同时写入同一迁移目录', async () => {
+        const tempDir = await mkdtemp(path.join(os.tmpdir(), 'old-dataset-lock-'));
+        const sourceDir = path.join(tempDir, 'episodes');
+        const outRoot = path.join(tempDir, 'output');
+        await mkdir(sourceDir, { recursive: true });
+        await writeFile(
+            path.join(sourceDir, 'old.jsonl'),
+            `${JSON.stringify(createEpisode(201))}\n`,
+            'utf8'
+        );
+
+        const createSlowOptions = () => {
+            const options = createOptions(sourceDir, outRoot, 1);
+            options.envFactory = {
+                async createEnv(episode) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return createDemoEnv(episode.seed, episode.maxPlies);
+                }
+            };
+            return options;
+        };
+        const results = await Promise.allSettled([
+            migrateOldDataset(createSlowOptions()),
+            migrateOldDataset(createSlowOptions())
+        ]);
+
+        expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1);
+        const rejected = results.find(result => result.status === 'rejected');
+        expect(rejected).toEqual(expect.objectContaining({
+            status: 'rejected',
+            reason: expect.objectContaining({
+                message: expect.stringContaining('已有迁移进程正在运行')
+            })
+        }));
     });
 });

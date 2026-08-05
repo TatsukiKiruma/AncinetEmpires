@@ -5,6 +5,8 @@ param(
     [int]$BatchEpisodes = 10,
     [int]$MaxSamplesPerEpisode = 300,
     [int]$ShardSamples = 5000,
+    [ValidateRange(1, 64)]
+    [int]$Workers = 1,
     [ValidateSet("none", "heuristic", "fast-rollout")]
     [string]$RelabelMode = "fast-rollout",
     [int]$StopAfterBatches = 0,
@@ -31,7 +33,18 @@ function Show-MigrationStatus {
         return
     }
 
-    $statusFile = Get-ChildItem -LiteralPath $resolvedRoot -Filter "migration-status.json" -File -Recurse |
+    $statusFiles = @()
+    $directStatus = Join-Path $resolvedRoot "migration-status.json"
+    if (Test-Path -LiteralPath $directStatus -PathType Leaf) {
+        $statusFiles += Get-Item -LiteralPath $directStatus
+    }
+    foreach ($runDirectory in (Get-ChildItem -LiteralPath $resolvedRoot -Directory)) {
+        $candidateStatus = Join-Path $runDirectory.FullName "migration-status.json"
+        if (Test-Path -LiteralPath $candidateStatus -PathType Leaf) {
+            $statusFiles += Get-Item -LiteralPath $candidateStatus
+        }
+    }
+    $statusFile = $statusFiles |
         Sort-Object -Property LastWriteTimeUtc -Descending |
         Select-Object -First 1
     if ($null -eq $statusFile) {
@@ -43,6 +56,15 @@ function Show-MigrationStatus {
         ConvertFrom-Json
     Write-Host "迁移状态：$($migrationStatus.state)"
     Write-Host "批次进度：$($migrationStatus.completedBatches)/$($migrationStatus.totalBatches)"
+    if ($null -ne $migrationStatus.workers) {
+        Write-Host "Worker 数：$($migrationStatus.workers)"
+    }
+    if ($migrationStatus.activeBatches -and $migrationStatus.activeBatches.Count -gt 0) {
+        Write-Host "活动批次："
+        foreach ($activeBatch in $migrationStatus.activeBatches) {
+            Write-Host "  W$($activeBatch.workerId)：$($activeBatch.batchId)"
+        }
+    }
     if ($migrationStatus.currentBatch) {
         Write-Host "当前批次：$($migrationStatus.currentBatch)"
     }
@@ -83,6 +105,7 @@ $migrationArgs = @(
     "--batch-episodes", [string]$BatchEpisodes,
     "--max-samples-per-episode", [string]$MaxSamplesPerEpisode,
     "--shard-samples", [string]$ShardSamples,
+    "--workers", [string]$Workers,
     "--relabel-mode", $RelabelMode
 )
 if ($FastRollout) {
@@ -97,9 +120,11 @@ if ($StopAfterBatches -gt 0) {
 
 Write-Host "开始旧数据迁移。可随时按 Ctrl+C 停止；之后使用完全相同的参数重新运行即可续接。"
 Write-Host "每个 checkpoint 包含 $BatchEpisodes 个 episode。完成的 checkpoint 会先校验，再自动跳过。"
+Write-Host "并行 Worker：$Workers。每个 Worker 同时处理一个独立 checkpoint。"
 
 Push-Location $projectRoot
 $migrationExitCode = 1
+$migrationStartedAt = Get-Date
 try {
     & npm.cmd run migrate:skirmish:old-data -- @migrationArgs
     $migrationExitCode = $LASTEXITCODE
@@ -107,6 +132,8 @@ try {
 finally {
     Pop-Location
 }
+$migrationElapsed = (Get-Date) - $migrationStartedAt
+Write-Host "本次运行耗时：$($migrationElapsed.ToString())"
 
 if ($migrationExitCode -ne 0) {
     Write-Error "迁移进程退出，代码：$migrationExitCode。修复问题后以相同参数重跑即可从完整 checkpoint 继续。"

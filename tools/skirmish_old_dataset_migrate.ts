@@ -1,10 +1,12 @@
 import { createReadStream } from 'node:fs';
 import {
     mkdir,
+    open,
     readFile,
     readdir,
     rename,
     stat,
+    unlink,
     writeFile
 } from 'node:fs/promises';
 import path from 'node:path';
@@ -27,6 +29,10 @@ import {
     type SkirmishEpisodeFeatureExportOptions
 } from './skirmish_episode_feature_export';
 import type { HeuristicRelabelMode } from './skirmish_heuristic_relabel';
+import {
+    startOldDatasetWorkerTask,
+    type OldDatasetWorkerHandle
+} from './skirmish_old_dataset_worker_pool';
 
 export interface OldDatasetMigrationOptions {
     sourceDir: string;
@@ -51,6 +57,7 @@ export interface OldDatasetMigrationOptions {
     rolloutDepth: number;
     rolloutCandidates: number;
     rolloutWeight: number;
+    workers: number;
     stopAfterBatches: number | null;
     json: boolean;
     envFactory?: SkirmishDatasetEnvFactory;
@@ -73,6 +80,11 @@ export interface OldDatasetMigrationStatus {
     totalBatches: number;
     completedBatches: number;
     currentBatch: string | null;
+    workers?: number;
+    activeBatches?: Array<{
+        workerId: number;
+        batchId: string;
+    }>;
     updatedAt: string;
     finalManifest: string | null;
     message?: string;
@@ -120,6 +132,7 @@ function printHelp() {
   --batch-episodes <n>           每个 checkpoint 的 episode 数，默认 10
   --max-samples-per-episode <n>  每局样本上限，默认 300
   --shard-samples <n>            每个分片样本上限，默认 5000
+  --workers <n>                  并行 checkpoint worker 数，默认 1
   --validation-ratio <0..1>      验证集比例，默认 0.1
   --feature-dim <n>              特征维度，默认 4096
   --feature-extractor <name>     hashed-action-v1/v2/v3，默认 v3
@@ -192,6 +205,7 @@ export function parseOldDatasetMigrationArgs(argv: readonly string[]): OldDatase
         rolloutDepth: 2,
         rolloutCandidates: 4,
         rolloutWeight: 0.05,
+        workers: 1,
         stopAfterBatches: null,
         json: false
     };
@@ -228,6 +242,8 @@ export function parseOldDatasetMigrationArgs(argv: readonly string[]): OldDatase
             options.maxSamplesPerEpisode = parseInteger(argv[++index], arg);
         } else if (arg === '--shard-samples') {
             options.shardSamples = parseInteger(argv[++index], arg);
+        } else if (arg === '--workers') {
+            options.workers = parseInteger(argv[++index], arg);
         } else if (arg === '--validation-ratio') {
             options.validationRatio = parseRatio(argv[++index], arg);
         } else if (arg === '--split-seed') {
@@ -274,6 +290,7 @@ export function parseOldDatasetMigrationArgs(argv: readonly string[]): OldDatase
             throw new Error(`未知参数: ${arg}`);
         }
     }
+    if (options.workers > 64) throw new Error('--workers 不能大于 64');
     return options;
 }
 
@@ -352,6 +369,63 @@ async function writeStatus(statusFile: string, status: OldDatasetMigrationStatus
     const temporaryFile = `${statusFile}.tmp`;
     await writeFile(temporaryFile, `${JSON.stringify(status, null, 2)}\n`, 'utf8');
     await rename(temporaryFile, statusFile);
+}
+
+interface MigrationLockRecord {
+    pid: number;
+    token: string;
+    startedAt: string;
+}
+
+function isProcessAlive(pid: number): boolean {
+    if (!Number.isInteger(pid) || pid <= 0) return false;
+    try {
+        process.kill(pid, 0);
+        return true;
+    } catch (error) {
+        return (error as NodeJS.ErrnoException).code !== 'ESRCH';
+    }
+}
+
+async function acquireMigrationLock(runDir: string): Promise<() => Promise<void>> {
+    const lockFile = path.join(runDir, 'migration.lock');
+    const record: MigrationLockRecord = {
+        pid: process.pid,
+        token: `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        startedAt: new Date().toISOString()
+    };
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+            const handle = await open(lockFile, 'wx');
+            await handle.writeFile(`${JSON.stringify(record, null, 2)}\n`, 'utf8');
+            await handle.close();
+            return async () => {
+                try {
+                    const current = JSON.parse(await readFile(lockFile, 'utf8')) as MigrationLockRecord;
+                    if (current.token === record.token) await unlink(lockFile);
+                } catch (error) {
+                    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+                }
+            };
+        } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+            let existing: MigrationLockRecord | null = null;
+            try {
+                existing = JSON.parse(await readFile(lockFile, 'utf8')) as MigrationLockRecord;
+            } catch {
+                // 无法解析的锁按中断残留处理，并保留副本。
+            }
+            if (existing && isProcessAlive(existing.pid)) {
+                throw new Error(
+                    `已有迁移进程正在运行：pid=${existing.pid}，启动于 ${existing.startedAt}。请勿同时运行两个迁移命令。`
+                );
+            }
+            const staleLock = `${lockFile}.stale-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+            await rename(lockFile, staleLock);
+        }
+    }
+    throw new Error(`无法取得迁移锁：${lockFile}`);
 }
 
 async function findManifestBelow(directory: string): Promise<string | null> {
@@ -455,6 +529,34 @@ function createBatchExportOptions(
     };
 }
 
+async function executeBatchExport(
+    options: OldDatasetMigrationOptions,
+    batch: MigrationBatch,
+    batchRoot: string,
+    sourceMetadata: DatasetSourceMetadata[],
+    workerId: number,
+    activeWorkerHandles: Set<OldDatasetWorkerHandle>
+): Promise<string> {
+    const exportOptions = createBatchExportOptions(options, batch, batchRoot, sourceMetadata);
+    if (options.envFactory) {
+        const summary = await exportEpisodeFeatures(exportOptions);
+        if (!summary.manifestFile) throw new Error(`checkpoint ${batch.id} 未生成 manifest`);
+        return summary.manifestFile;
+    }
+
+    const handle = startOldDatasetWorkerTask({
+        workerId,
+        batchId: batch.id,
+        exportOptions
+    });
+    activeWorkerHandles.add(handle);
+    try {
+        return await handle.result;
+    } finally {
+        activeWorkerHandles.delete(handle);
+    }
+}
+
 async function combineBatchManifests(
     runDir: string,
     migrationId: string,
@@ -520,6 +622,9 @@ async function combineBatchManifests(
 export async function migrateOldDataset(
     options: OldDatasetMigrationOptions
 ): Promise<OldDatasetMigrationResult> {
+    if (!Number.isInteger(options.workers) || options.workers < 1 || options.workers > 64) {
+        throw new Error('workers 必须是 1 到 64 之间的整数');
+    }
     const inputFiles = await listEpisodeFiles(options.sourceDir);
     if (inputFiles.length === 0) throw new Error(`没有找到旧 episode JSONL：${options.sourceDir}`);
 
@@ -568,80 +673,157 @@ export async function migrateOldDataset(
     const batches = await buildBatches(inputSources, options.batchEpisodes);
     const checkpointsDir = path.join(runDir, 'checkpoints');
     const interruptedDir = path.join(runDir, 'interrupted');
-    const batchManifestFiles: string[] = [];
-    let newlyCompleted = 0;
+    const batchManifestById = new Map<string, string>();
+    const pendingBatches: MigrationBatch[] = [];
+    const activeBatches = new Map<number, string>();
+    const activeWorkerHandles = new Set<OldDatasetWorkerHandle>();
     let completedBatches = 0;
+    let statusWriteQueue = Promise.resolve();
 
-    const update = async (
+    const update = (
         state: OldDatasetMigrationStatus['state'],
-        currentBatch: string | null,
         message?: string,
         manifest: string | null = null
-    ) => writeStatus(statusFile, {
-        kind: 'skirmish_old_dataset_migration_status',
-        version: 1,
-        migrationId,
-        state,
-        runDir,
-        totalBatches: batches.length,
-        completedBatches,
-        currentBatch,
-        updatedAt: new Date().toISOString(),
-        finalManifest: manifest,
-        ...(message ? { message } : {})
-    });
+    ) => {
+        const active = [...activeBatches.entries()]
+            .sort(([left], [right]) => left - right)
+            .map(([workerId, batchId]) => ({ workerId, batchId }));
+        const snapshot: OldDatasetMigrationStatus = {
+            kind: 'skirmish_old_dataset_migration_status',
+            version: 1,
+            migrationId,
+            state,
+            runDir,
+            totalBatches: batches.length,
+            completedBatches,
+            currentBatch: active[0]?.batchId ?? null,
+            workers: options.workers,
+            activeBatches: active,
+            updatedAt: new Date().toISOString(),
+            finalManifest: manifest,
+            ...(message ? { message } : {})
+        };
+        const write = statusWriteQueue.then(() => writeStatus(statusFile, snapshot));
+        statusWriteQueue = write.catch(() => undefined);
+        return write;
+    };
+
+    let stopScheduling = false;
+    let interrupted = false;
+    let firstBatchError: unknown = null;
+    let nextPendingIndex = 0;
+    let startedNewBatches = 0;
+    const handleInterrupt = () => {
+        if (interrupted) return;
+        interrupted = true;
+        stopScheduling = true;
+        console.error('\n[迁移] 收到停止信号，正在终止活动 worker；完整 checkpoint 会保留。');
+        for (const handle of activeWorkerHandles) handle.terminate();
+    };
+    const releaseMigrationLock = await acquireMigrationLock(runDir);
+    process.once('SIGINT', handleInterrupt);
+    process.once('SIGTERM', handleInterrupt);
 
     try {
-        await update('running', null);
+        await update('running');
         for (const batch of batches) {
             const batchRoot = path.join(checkpointsDir, safeSegment(batch.id));
-            let batchManifest = await findManifestBelow(batchRoot);
+            const batchManifest = await findManifestBelow(batchRoot);
             if (batchManifest) {
                 const validation = await validateFeatureDatasetManifest(batchManifest);
                 if (!validation.valid) {
                     throw new Error(`checkpoint 校验失败 ${batch.id}：${validation.errors.join('；')}`);
                 }
+                batchManifestById.set(batch.id, batchManifest);
+                completedBatches += 1;
             } else {
-                await archiveIncompleteBatch(batchRoot, interruptedDir, batch.id);
-                await update('running', batch.id);
-                await mkdir(batchRoot, { recursive: true });
-                const sourceMetadata = [
-                    batch.source,
-                    ...(planSource ? [planSource] : [])
-                ];
-                const summary = await exportEpisodeFeatures(
-                    createBatchExportOptions(options, batch, batchRoot, sourceMetadata)
-                );
-                if (!summary.manifestFile) throw new Error(`checkpoint ${batch.id} 未生成 manifest`);
-                batchManifest = summary.manifestFile;
-                const validation = await validateFeatureDatasetManifest(batchManifest);
-                if (!validation.valid) {
-                    throw new Error(`checkpoint 新生成后校验失败 ${batch.id}：${validation.errors.join('；')}`);
-                }
-                newlyCompleted += 1;
-            }
-
-            batchManifestFiles.push(batchManifest);
-            completedBatches += 1;
-            await update('running', null);
-            console.log(`[迁移] ${completedBatches}/${batches.length} ${batch.id}`);
-
-            if (
-                options.stopAfterBatches !== null
-                && newlyCompleted >= options.stopAfterBatches
-                && completedBatches < batches.length
-            ) {
-                await update('paused', null, '达到 --stop-after-batches，重新执行相同命令可继续');
-                return {
-                    runDir,
-                    statusFile,
-                    finalManifest: null,
-                    completedBatches,
-                    totalBatches: batches.length,
-                    paused: true
-                };
+                pendingBatches.push(batch);
             }
         }
+        await update('running');
+        if (completedBatches > 0) {
+            console.log(`[迁移] 已校验并跳过 ${completedBatches} 个完整 checkpoint`);
+        }
+
+        const workerLoop = async (workerId: number) => {
+            while (!stopScheduling) {
+                if (
+                    options.stopAfterBatches !== null
+                    && startedNewBatches >= options.stopAfterBatches
+                ) return;
+                const batch = pendingBatches[nextPendingIndex++];
+                if (!batch) return;
+                startedNewBatches += 1;
+                activeBatches.set(workerId, batch.id);
+                await update('running');
+
+                try {
+                    const batchRoot = path.join(checkpointsDir, safeSegment(batch.id));
+                    await archiveIncompleteBatch(batchRoot, interruptedDir, batch.id);
+                    await mkdir(batchRoot, { recursive: true });
+                    const sourceMetadata = [
+                        batch.source,
+                        ...(planSource ? [planSource] : [])
+                    ];
+                    const batchManifest = await executeBatchExport(
+                        options,
+                        batch,
+                        batchRoot,
+                        sourceMetadata,
+                        workerId,
+                        activeWorkerHandles
+                    );
+                    const validation = await validateFeatureDatasetManifest(batchManifest);
+                    if (!validation.valid) {
+                        throw new Error(`checkpoint 新生成后校验失败 ${batch.id}：${validation.errors.join('；')}`);
+                    }
+                    batchManifestById.set(batch.id, batchManifest);
+                    completedBatches += 1;
+                    console.log(`[迁移 W${workerId}] ${completedBatches}/${batches.length} ${batch.id}`);
+                } catch (error) {
+                    if (!interrupted && firstBatchError === null) firstBatchError = error;
+                    stopScheduling = true;
+                } finally {
+                    activeBatches.delete(workerId);
+                    await update(interrupted ? 'paused' : 'running');
+                }
+            }
+        };
+
+        await Promise.all(
+            Array.from({ length: options.workers }, (_, index) => workerLoop(index + 1))
+        );
+
+        if (interrupted) {
+            await update('paused', '收到停止信号，重新执行相同命令可继续');
+            return {
+                runDir,
+                statusFile,
+                finalManifest: null,
+                completedBatches,
+                totalBatches: batches.length,
+                paused: true
+            };
+        }
+        if (firstBatchError !== null) throw firstBatchError;
+
+        if (nextPendingIndex < pendingBatches.length) {
+            await update('paused', '达到 --stop-after-batches，重新执行相同命令可继续');
+            return {
+                runDir,
+                statusFile,
+                finalManifest: null,
+                completedBatches,
+                totalBatches: batches.length,
+                paused: true
+            };
+        }
+
+        const batchManifestFiles = batches.map(batch => {
+            const manifestFile = batchManifestById.get(batch.id);
+            if (!manifestFile) throw new Error(`checkpoint ${batch.id} 缺少 manifest`);
+            return manifestFile;
+        });
 
         const manifestFile = await combineBatchManifests(
             runDir,
@@ -654,7 +836,7 @@ export async function migrateOldDataset(
         if (!validation.valid) {
             throw new Error(`最终数据集校验失败：${validation.errors.join('；')}`);
         }
-        await update('complete', null, undefined, manifestFile);
+        await update('complete', undefined, manifestFile);
         return {
             runDir,
             statusFile,
@@ -664,8 +846,25 @@ export async function migrateOldDataset(
             paused: false
         };
     } catch (error) {
-        await update('failed', null, error instanceof Error ? error.message : String(error));
+        for (const handle of activeWorkerHandles) handle.terminate();
+        if (interrupted) {
+            await update('paused', '收到停止信号，重新执行相同命令可继续');
+            return {
+                runDir,
+                statusFile,
+                finalManifest: null,
+                completedBatches,
+                totalBatches: batches.length,
+                paused: true
+            };
+        }
+        await update('failed', error instanceof Error ? error.message : String(error));
         throw error;
+    } finally {
+        process.removeListener('SIGINT', handleInterrupt);
+        process.removeListener('SIGTERM', handleInterrupt);
+        for (const handle of activeWorkerHandles) handle.terminate();
+        await releaseMigrationLock();
     }
 }
 
@@ -676,6 +875,7 @@ async function main() {
         ? JSON.stringify({ result }, null, 2)
         : [
             `迁移状态：${result.paused ? '已暂停，可续跑' : '已完成'}`,
+            `Worker：${options.workers}`,
             `进度：${result.completedBatches}/${result.totalBatches}`,
             `状态文件：${result.statusFile}`,
             result.finalManifest ? `最终 manifest：${result.finalManifest}` : null
