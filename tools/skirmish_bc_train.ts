@@ -12,13 +12,14 @@ import { validateFeatureDatasetManifest } from './skirmish_dataset_validate';
 import { TrainingProgress } from './skirmish_training_progress';
 import { AveragedWeights } from './skirmish_averaged_weights';
 import { navigationFeatureTokens } from './skirmish_navigation_features';
+import { getActionSemantics } from './skirmish_action_semantics';
 
 export type SparseFeatures = Map<number, number>;
 type UnitSnapshot = Observation['units'][number];
 type TileSnapshot = Observation['tiles'][number];
 
 export type SparseFeatureEntries = Array<[number, number]>;
-export type SkirmishFeatureExtractor = 'hashed-action-v1' | 'hashed-action-v2' | 'hashed-action-v3' | 'hashed-action-v4';
+export type SkirmishFeatureExtractor = 'hashed-action-v1' | 'hashed-action-v2' | 'hashed-action-v3' | 'hashed-action-v4' | 'hashed-action-v5';
 
 export interface SkirmishFeatureCandidate {
     actionCode: string;
@@ -161,7 +162,7 @@ function printHelp() {
   --initial-model <file>     从兼容模型继续训练；记录来源哈希，重新累计平均权重
   --learning-rate <n>        学习率，默认 0.1
   --feature-dim <n>          哈希特征维度，默认 16384
-  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4
+  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4、hashed-action-v5
   --objective <name>         训练目标，默认 label；可选 label、teacher-rank、mixed
   --teacher-weight <n>       mixed 目标中 teacher-rank 更新权重，默认 0.25
   --max-candidates <n>       每步最多比较多少个合法动作，默认全量
@@ -297,8 +298,8 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') return value;
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4' || value === 'hashed-action-v5') return value;
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4 或 hashed-action-v5');
 }
 
 function parseObjective(value: string | undefined): SkirmishBcObjective {
@@ -306,7 +307,7 @@ function parseObjective(value: string | undefined): SkirmishBcObjective {
     throw new Error('--objective 只能是 label、teacher-rank 或 mixed');
 }
 
-function hashFeature(name: string, featureDim: number): number {
+export function hashFeature(name: string, featureDim: number): number {
     let hash = 2166136261;
     for (let i = 0; i < name.length; i += 1) {
         hash ^= name.charCodeAt(i);
@@ -390,7 +391,11 @@ function getTargetUnitId(action: Action): string | null {
     }
 }
 
-function getTargetPosition(action: Action, units: Map<string, UnitSnapshot>): Position | null {
+function getTargetPosition(
+    action: Action,
+    units: Map<string, UnitSnapshot>,
+    semanticsAware = false
+): Position | null {
     switch (action.type) {
         case 'move':
         case 'post_attack_move':
@@ -400,9 +405,13 @@ function getTargetPosition(action: Action, units: Map<string, UnitSnapshot>): Po
             return action.castlePos;
         case 'summon':
             return action.spawnPos;
+        case 'destroy_town': {
+            if (semanticsAware && action.target) return action.target;
+            const unit = units.get(action.unitId);
+            return unit ? { x: unit.x, y: unit.y } : null;
+        }
         case 'capture':
         case 'repair':
-        case 'destroy_town':
         case 'wait': {
             const unit = units.get(action.unitId);
             return unit ? { x: unit.x, y: unit.y } : null;
@@ -982,7 +991,7 @@ export function buildCandidateFeatures(
 
     const features: SparseFeatures = new Map();
     const observation = sample.observation;
-    if (featureExtractor === 'hashed-action-v4' && !observation) throw new Error('v4 特征需要完整 observation，不能从旧哈希特征转换');
+    if ((featureExtractor === 'hashed-action-v4' || featureExtractor === 'hashed-action-v5') && !observation) throw new Error(`${featureExtractor} 特征需要完整 observation，不能从旧哈希特征转换`);
     const units = unitById(observation);
     const tiles = tileByPos(observation);
     const player = observation?.players.find(item => item.id === sample.playerId);
@@ -991,7 +1000,7 @@ export function buildCandidateFeatures(
     const actor = actorId ? units.get(actorId) : undefined;
     const targetUnitId = getTargetUnitId(action);
     const targetUnit = targetUnitId ? units.get(targetUnitId) : undefined;
-    const targetPos = getTargetPosition(action, units);
+    const targetPos = getTargetPosition(action, units, featureExtractor === 'hashed-action-v5');
     const targetTile = targetPos ? tiles.get(tileKey(targetPos)) : undefined;
 
     addFeature(features, featureDim, 'bias');
@@ -1048,7 +1057,7 @@ export function buildCandidateFeatures(
             targetTile
         });
     }
-    if (featureExtractor === 'hashed-action-v3' || featureExtractor === 'hashed-action-v4') {
+    if (featureExtractor === 'hashed-action-v3' || featureExtractor === 'hashed-action-v4' || featureExtractor === 'hashed-action-v5') {
         addV3CandidateFeatures(features, featureDim, sample, action, {
             actor,
             targetUnit,
@@ -1057,8 +1066,21 @@ export function buildCandidateFeatures(
         });
     }
 
-    if (featureExtractor === 'hashed-action-v4' && observation) {
+    if ((featureExtractor === 'hashed-action-v4' || featureExtractor === 'hashed-action-v5') && observation) {
         for (const [token, value] of navigationFeatureTokens(observation, action)) addFeature(features, featureDim, token, value);
+    }
+
+    if (featureExtractor === 'hashed-action-v5') {
+        const semantics = getActionSemantics(action, units);
+        if (semantics.actionType === 'destroy_town') {
+            addFeature(features, featureDim, `sem:destroyTownTarget:${semantics.targetExplicit ? 'explicit' : 'actor_default'}`);
+        }
+        if (semantics.sourceCastlePos) {
+            addFeature(features, featureDim, `sem:recruitSourceCastle:${semantics.sourceCastlePos.x},${semantics.sourceCastlePos.y}`);
+        }
+        if (semantics.deployPos) {
+            addFeature(features, featureDim, `sem:recruitDeploy:${semantics.deployPos.x},${semantics.deployPos.y}`);
+        }
     }
     return features;
 }
@@ -1161,7 +1183,9 @@ function getTeacherCandidate(candidates: readonly TrainingCandidate[]): Training
     let bestTeacherScore = -Infinity;
     for (const candidate of candidates) {
         if (candidate.teacherScore === null) continue;
-        if (candidate.teacherScore > bestTeacherScore) {
+        if (candidate.teacherScore > bestTeacherScore
+            || (candidate.teacherScore === bestTeacherScore && bestTeacherCandidate
+                && candidate.actionCode < bestTeacherCandidate.actionCode)) {
             bestTeacherScore = candidate.teacherScore;
             bestTeacherCandidate = candidate;
         }
@@ -1169,12 +1193,14 @@ function getTeacherCandidate(candidates: readonly TrainingCandidate[]): Training
     return bestTeacherCandidate;
 }
 
-function predictCandidate(candidates: readonly TrainingCandidate[], weights: number[]): TrainingCandidate | null {
+export function predictCandidate(candidates: readonly TrainingCandidate[], weights: number[]): TrainingCandidate | null {
     let bestCandidate: TrainingCandidate | null = null;
     let bestScore = -Infinity;
     for (const candidate of candidates) {
         const currentScore = score(weights, candidate.features);
-        if (currentScore > bestScore) {
+        // 同分按 actionCode 字典序稳定裁决，不依赖候选数组顺序
+        if (currentScore > bestScore
+            || (currentScore === bestScore && bestCandidate !== null && candidate.actionCode < bestCandidate.actionCode)) {
             bestScore = currentScore;
             bestCandidate = candidate;
         }

@@ -133,8 +133,8 @@ function parseNonNegativeInteger(value: string | undefined, label: string): numb
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') return value;
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4' || value === 'hashed-action-v5') return value;
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4 或 hashed-action-v5');
 }
 
 export function parseCuratedFeatureExportArgs(argv: readonly string[]): SkirmishCuratedFeatureExportOptions {
