@@ -26,7 +26,8 @@ export function createEndgamePolicy(model?:SkirmishBcModel, options:{useMemory?:
             // BC 的最大影响限定在 1200 分，不能压过明确的战术机会。
             const preference=model?1200*(2*ranks.get(bc[i])!/Math.max(1,ordered.length-1)-1):0;
             const value=scores[i].score+preference+(options.useMemory===false?0:memory.adjustment(result.observation,entries[i].action));
-            if(value>bestScore){best=i;bestScore=value;}
+            // 同分按固定动作索引稳定裁决，不依赖合法动作列表顺序
+            if(value>bestScore||(value===bestScore&&bestScore!==-Infinity&&entries[i].fixedActionIndex!<entries[best].fixedActionIndex!)){best=i;bestScore=value;}
         }
         memory.selected(entries[best].action);
         return entries[best].fixedActionIndex!;

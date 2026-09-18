@@ -718,9 +718,12 @@ export function createBcRankerPolicy(model: SkirmishBcModel): SkirmishPolicy {
                 const features = buildCandidateFeatures(sample, entry.code, model.featureDim, model.featureExtractor);
                 if (!features) continue;
                 const currentScore = scoreBcFeatures(model, features);
-                if (currentScore > bestScore) {
+                const entryIndex = entry.fixedActionIndex ?? bestIndex;
+                // 同分按固定动作索引稳定裁决，不依赖合法动作列表顺序
+                if (currentScore > bestScore
+                    || (currentScore === bestScore && bestScore !== -Infinity && entryIndex < bestIndex)) {
                     bestScore = currentScore;
-                    bestIndex = entry.fixedActionIndex ?? bestIndex;
+                    bestIndex = entryIndex;
                 }
             }
 

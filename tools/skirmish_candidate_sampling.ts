@@ -42,6 +42,20 @@ function clampRatio(value: number | undefined): number {
 }
 
 /**
+ * 规范候选顺序：仅由 deterministicKey 与 actionCode 决定，
+ * 与标签位置、输入数组顺序、教师分无关，避免离线命中率被首位偏置抬高。
+ */
+export function canonicalCandidateOrder<T extends { actionCode: string }>(
+    items: readonly T[],
+    deterministicKey = ''
+): T[] {
+    return [...items].sort((left, right) => (
+        stableHash(`${deterministicKey}\0${left.actionCode}`)
+        - stableHash(`${deterministicKey}\0${right.actionCode}`)
+    ));
+}
+
+/**
  * 标签动作始终保留；其余位置由高教师分 hard negative 和动作类型分层共同占用。
  */
 export function selectStratifiedHardNegativeCandidates(
@@ -67,11 +81,11 @@ export function selectStratifiedHardNegativeCandidates(
         : Math.max(1, Math.min(uniqueActions.length, Math.floor(options.maxCandidates)));
 
     if (limit >= uniqueActions.length) {
-        return uniqueActions.map(action => ({
+        return canonicalCandidateOrder(uniqueActions.map(action => ({
             ...action,
             teacherRank: rankByCode.get(action.actionCode)!,
-            selectionReason: action.actionCode === labelActionCode ? 'label' : 'all'
-        }));
+            selectionReason: action.actionCode === labelActionCode ? 'label' : 'all' as const
+        })), deterministicKey);
     }
 
     const selected = new Map<string, SampledCandidateCode>();
@@ -127,5 +141,5 @@ export function selectStratifiedHardNegativeCandidates(
         if (selected.size >= limit) break;
         add(action, 'fill');
     }
-    return [...selected.values()];
+    return canonicalCandidateOrder([...selected.values()], deterministicKey);
 }

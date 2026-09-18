@@ -23,7 +23,8 @@ describe('skirmish candidate sampling', () => {
         );
 
         expect(selected).toHaveLength(4);
-        expect(selected[0]).toEqual(expect.objectContaining({
+        // R04 修复后候选按规范序输出，标签不再固定首位；只断言标签被保留且理由正确
+        expect(selected).toContainEqual(expect.objectContaining({
             actionCode: 'wait:u1',
             selectionReason: 'label'
         }));
