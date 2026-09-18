@@ -114,7 +114,7 @@ function printHelp() {
   --out <file>              蒸馏 feature JSONL 输出文件，默认 training_runs/features/skirmish-distill-时间戳.jsonl
   --unpack <dir>            APK 解包目录，默认 APK/_analysis/unpack
   --feature-dim <n>         哈希特征维度，默认 4096
-  --feature-extractor <n>   特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3
+  --feature-extractor <n>   特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4
   --max-candidates <n>      每步最多导出多少个候选动作，默认全量；会保留原标签和 heuristic 第一名
   --scenario <id>           只导出指定场景，可重复
   --exclude-scenario <id>   排除指定场景，可重复
@@ -143,8 +143,8 @@ function parsePositiveInteger(value: string | undefined, label: string): number 
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3') return value;
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2 或 hashed-action-v3');
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') return value;
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
 }
 
 export function parseDistillExportArgs(argv: readonly string[]): SkirmishDistillExportOptions {

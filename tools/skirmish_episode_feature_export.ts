@@ -39,7 +39,8 @@ import type { SkirmishEpisodeRecord } from './skirmish_training_runner';
 import {
     selectEpisodeStepIndexes,
     StreamingSampleQuota,
-    type StreamingSampleQuotaOptions
+    type StreamingSampleQuotaOptions,
+    type StreamingSampleQuotaSnapshot
 } from './skirmish_training_sampling';
 
 export interface SkirmishEpisodeFeatureExportOptions {
@@ -62,6 +63,9 @@ export interface SkirmishEpisodeFeatureExportOptions {
     includeScenarioIds: string[];
     excludeScenarioIds: string[];
     startEpisode?: number;
+    endEpisodeExclusive?: number;
+    initialQuotaSnapshot?: StreamingSampleQuotaSnapshot;
+    generatorFingerprint?: string;
     limitEpisodes: number | null;
     relabel: HeuristicRelabelOptions;
     artifact?: {
@@ -204,10 +208,10 @@ function parseRelabelMode(value: string | undefined): HeuristicRelabelMode {
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3') {
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') {
         return value;
     }
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2 或 hashed-action-v3');
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
 }
 
 function parseActionTypeLimit(value: string | undefined): [string, number] {
@@ -512,12 +516,16 @@ function buildArtifactGeneratorOptions(
         shardSamples: options.artifact?.shardSamples,
         validationRatio: options.artifact?.validationRatio,
         splitSeed: options.artifact?.splitSeed,
-        customEnvFactory: options.envFactory !== undefined
+        customEnvFactory: options.envFactory !== undefined,
+        ...(options.generatorFingerprint ? { generatorFingerprint: options.generatorFingerprint } : {}),
+        ...(options.endEpisodeExclusive !== undefined ? { endEpisodeExclusive: options.endEpisodeExclusive } : {}),
+        ...(options.initialQuotaSnapshot ? { initialQuotaSnapshot: options.initialQuotaSnapshot } : {})
     };
 }
 
 export async function exportEpisodeFeatures(
-    options: SkirmishEpisodeFeatureExportOptions
+    options: SkirmishEpisodeFeatureExportOptions,
+    runtimeEnvFactory?: SkirmishDatasetEnvFactory
 ): Promise<SkirmishEpisodeFeatureExportSummary> {
     const generatorOptions = buildArtifactGeneratorOptions(options);
     const sourceFiles = [
@@ -554,8 +562,9 @@ export async function exportEpisodeFeatures(
         ? null
         : createWriteStream(options.outFile, { encoding: 'utf8' });
     const envFactory = options.envFactory
+        ?? runtimeEnvFactory
         ?? await createDefaultEnvFactory(options.unpackDir, options.sdTrainingPlanFile ?? null);
-    const quota = new StreamingSampleQuota(options.quota);
+    const quota = new StreamingSampleQuota(options.quota, options.initialQuotaSnapshot);
     const summary: SkirmishEpisodeFeatureExportSummary = {
         inputFiles: options.inputFiles,
         outFile: artifactDir ?? options.outFile,
@@ -590,6 +599,7 @@ export async function exportEpisodeFeatures(
                 const trimmed = line.trim();
                 if (!trimmed) continue;
                 const currentEpisodeIndex = episodeIndex++;
+                if (options.endEpisodeExclusive !== undefined && currentEpisodeIndex >= options.endEpisodeExclusive) break;
                 summary.inputEpisodes += 1;
                 if (currentEpisodeIndex < (options.startEpisode ?? 0)) continue;
                 const episode = JSON.parse(trimmed) as SkirmishEpisodeRecord;

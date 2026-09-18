@@ -65,7 +65,8 @@ async function validateShard(
     artifactDir: string,
     shard: ImmutableDatasetManifest['shards'][number],
     episodeSplits: Map<string, DatasetSplit>,
-    errors: string[]
+    errors: string[],
+    onProgress?: (samples: number) => void
 ): Promise<number> {
     const shardPath = resolveShardPath(artifactDir, shard.path);
     const input = createReadStream(shardPath);
@@ -80,6 +81,7 @@ async function validateShard(
     for await (const line of lines) {
         if (!line.trim()) continue;
         samples += 1;
+        if (samples % 256 === 0) onProgress?.(samples);
         let sample: SkirmishFeatureSample;
         try {
             sample = JSON.parse(line) as SkirmishFeatureSample;
@@ -104,7 +106,8 @@ async function validateShard(
 }
 
 export async function validateFeatureDatasetManifest(
-    manifestFile: string
+    manifestFile: string,
+    onProgress?: (samples: number) => void
 ): Promise<DatasetValidationSummary> {
     const resolvedManifest = path.resolve(manifestFile);
     const artifactDir = path.dirname(resolvedManifest);
@@ -131,8 +134,10 @@ export async function validateFeatureDatasetManifest(
                 errors.push(`${shard.path} 不是文件`);
                 continue;
             }
-            const shardSamples = await validateShard(artifactDir, shard, episodeSplits, errors);
+            const shardSamples = await validateShard(artifactDir, shard, episodeSplits, errors,
+                count => onProgress?.(samples + count));
             samples += shardSamples;
+            onProgress?.(samples);
             if (shard.split === 'train') trainSamples += shardSamples;
             else validationSamples += shardSamples;
         } catch (error) {

@@ -61,7 +61,7 @@ function printHelp() {
   --input <file>          dataset JSONL 输入文件
   --out <file>            compact feature JSONL 输出文件，默认 training_runs/features/skirmish-features-时间戳.jsonl
   --feature-dim <n>       哈希特征维度，默认 16384；训练时必须使用同一值
-  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3
+  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4
   --max-candidates <n>    每步最多导出多少个候选动作，默认全量；会强制保留标签动作
   --limit-samples <n>     最多导出多少条样本，用于 smoke test
   --json                  摘要输出 JSON
@@ -126,8 +126,8 @@ export function parseFeatureExportArgs(argv: readonly string[]): SkirmishFeature
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3') return value;
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2 或 hashed-action-v3');
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') return value;
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
 }
 
 function ensureScenario(summary: SkirmishFeatureExportSummary, scenarioId: string) {
