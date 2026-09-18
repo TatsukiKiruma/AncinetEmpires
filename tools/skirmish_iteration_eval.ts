@@ -7,7 +7,7 @@ import { loadBcModel } from './skirmish_bc_train';
 import { createEndgamePolicy } from './skirmish_endgame_policy';
 import { createBcRankerPolicy, createBcHybridPolicy, createBcBlendPolicy, createHeuristicBaselinePolicy, runSkirmishEpisode } from './skirmish_training_runner';
 
-interface Variant { model: string; policy: 'bc' | 'hybrid' | 'blend' | 'blend-progress' | 'finish' | 'tactical-only' | 'teacher-finish' | 'heuristic' }
+interface Variant { model?: string | null; policy: 'bc' | 'hybrid' | 'blend' | 'blend-progress' | 'finish' | 'tactical-only' | 'teacher-finish' | 'teacher-tactical-only' | 'heuristic' }
 interface Job extends EvaluationCase { caseId: number; referenceCaseId?: number | null; snapshotFile?: string; variant: string }
 interface Config { variants: Record<string, Variant>; jobs: Job[] }
 
@@ -21,7 +21,10 @@ async function run(job: Job, config: Config, out: string) {
     }
     const { env, state, scenario, players, subjectId } = prepared;
     const variant = config.variants[job.variant];
-    const model = await loadBcModel(variant.model);
+    // 教师基线变体不带模型权重；需要模型的变体缺权重时明确报错
+    const needsModel = variant.policy !== 'heuristic' && !variant.policy.startsWith('teacher');
+    if (needsModel && !variant.model) throw new Error(`变体 ${job.variant}（${variant.policy}）缺少模型权重`);
+    const model = variant.model ? await loadBcModel(variant.model) : undefined;
     const timings: Record<string, { calls: number; totalMs: number; maxMs: number }> = {};
     const policyDiagnostics: Record<string, unknown> = {};
     const start = performance.now();
@@ -32,9 +35,9 @@ async function run(job: Job, config: Config, out: string) {
             const seed = job.seed + id * 1009 + players.indexOf(id) * 9173;
             const name = id === subjectId ? job.variant : 'heuristic';
             const policy = id !== subjectId || variant.policy === 'heuristic' ? createHeuristicBaselinePolicy(seed)
-                : variant.policy === 'finish' || variant.policy === 'teacher-finish' || variant.policy === 'tactical-only' ? createEndgamePolicy(variant.policy === 'teacher-finish' ? undefined : model,{useMemory:variant.policy!=='tactical-only'})
-                : variant.policy === 'hybrid' ? createBcHybridPolicy(model, seed)
-                : variant.policy === 'blend' || variant.policy === 'blend-progress' ? createBcBlendPolicy(model, seed, { preserveProductiveLateMoves: variant.policy === 'blend-progress' }) : createBcRankerPolicy(model);
+                : variant.policy === 'finish' || variant.policy === 'teacher-finish' || variant.policy === 'tactical-only' || variant.policy === 'teacher-tactical-only' ? createEndgamePolicy(variant.policy.startsWith('teacher') ? undefined : model,{useMemory:variant.policy==='finish'||variant.policy==='teacher-finish'})
+                : variant.policy === 'hybrid' ? createBcHybridPolicy(model!, seed)
+                : variant.policy === 'blend' || variant.policy === 'blend-progress' ? createBcBlendPolicy(model!, seed, { preserveProductiveLateMoves: variant.policy === 'blend-progress' }) : createBcRankerPolicy(model!);
             if ('diagnostics' in policy) policyDiagnostics[name] = policy.diagnostics;
             return { name, selectFixedActionIndex(context) {
                 const started = performance.now();
@@ -64,8 +67,11 @@ async function main() {
     if (!Number.isInteger(workers) || workers < 1 || workers > 16) throw new Error('worker 数须为 1—16');
     const config: Config = JSON.parse(await readFile(arg('--config', 'training_runs/iteration_20260918/screen-config.json'), 'utf8'));
     await mkdir(out, { recursive: true });
-    await mkdir(`${out}/episodes`);
-    const models = Object.fromEntries(await Promise.all(Object.entries(config.variants).map(async ([name, v]) => [name, { ...v, sha256: createHash('sha256').update(await readFile(v.model)).digest('hex') }])));
+    await mkdir(`${out}/episodes`, { recursive: true });
+    const models = Object.fromEntries(await Promise.all(Object.entries(config.variants).map(async ([name, v]) => [name, {
+        ...v,
+        sha256: v.model ? createHash('sha256').update(await readFile(v.model)).digest('hex') : null
+    }])));
     await writeFile(`${out}/manifest.json`, JSON.stringify({ ...config, models, workers, maxPlies: 400, maxSteps: 25600 }, null, 2));
     const rows: Awaited<ReturnType<typeof run>>[] = [];
     const pool: Worker[] = [];
