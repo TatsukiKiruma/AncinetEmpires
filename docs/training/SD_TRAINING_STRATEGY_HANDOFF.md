@@ -2,6 +2,8 @@
 
 本文用于新对话直接接手 `C:\code\AncinetEmpires` 的 SD 遭遇战 AI 训练。接手者应先读本文，然后继续执行训练，不需要重新梳理历史讨论。
 
+本文保留训练策略设计；本机产物的最新完成度、统一目录和后继任务以 `docs\training\CURRENT_TRAINING_STATUS.md` 为准。
+
 ## 当前结论
 
 优先目标是训练 `SD` 遭遇战 AI，不混入战役最短回合目标。
@@ -584,7 +586,7 @@ lostValue
 把下面这段发给新对话即可：
 
 ```text
-请阅读 C:\code\AncinetEmpires\SD_TRAINING_STRATEGY_HANDOFF.md，然后继续 SD 遭遇战 AI 训练。
+请阅读 C:\code\AncinetEmpires\docs\training\SD_TRAINING_STRATEGY_HANDOFF.md 和 C:\code\AncinetEmpires\docs\training\CURRENT_TRAINING_STATUS.md，然后继续 SD 遭遇战 AI 训练。
 
 当前状态：
 1. 只做 SD 遭遇战 AI 训练，不做战役最短回合。

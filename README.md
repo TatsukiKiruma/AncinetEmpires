@@ -2,6 +2,13 @@
 
 **项目目标：** 这是一个用于 AI 训练（如 MCTS、强化学习）的完全解耦的回合制战棋游戏环境。项目已提供标准 Gym-like 环境封装 (`AncientEmpiresEnv`)，保证内部状态 100% 独立、确定性、且无界面的纯逻辑演练。
 
+## 文档入口
+
+- 文档总索引：[`docs/README.md`](docs/README.md)
+- 当前训练状态与后继任务：[`docs/training/CURRENT_TRAINING_STATUS.md`](docs/training/CURRENT_TRAINING_STATUS.md)
+- 训练交接指南：[`docs/training/TRAINING_HANDOFF_GUIDE.md`](docs/training/TRAINING_HANDOFF_GUIDE.md)
+- APK 规则对齐交接：[`docs/apk-analysis/APK_RULE_ALIGNMENT_HANDOFF.md`](docs/apk-analysis/APK_RULE_ALIGNMENT_HANDOFF.md)
+
 ## 环境接口 (AncientEmpiresEnv)
 
 核心训练接口位于 `src/game/env.ts` 中。

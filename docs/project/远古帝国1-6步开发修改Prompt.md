@@ -4,7 +4,7 @@
 
 ## 1. 使用原则
 
-- 新任务开始前先阅读根目录 `README.md`、`远古帝国AI训练项目上下文.md`、`远古帝国AI训练规则整理.md`。
+- 新任务开始前先阅读根目录 `README.md`、`docs/project/远古帝国AI训练项目上下文.md`、`docs/training/远古帝国AI训练规则整理.md`。
 - 不要修改 `demo` 下的文档，除非用户明确要求。
 - 代码修改应以 `demo/src/game` 的现有结构为准。
 - 训练环境不能依赖 React UI。

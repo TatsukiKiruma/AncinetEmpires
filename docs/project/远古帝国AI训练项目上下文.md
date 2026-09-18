@@ -190,16 +190,16 @@ interface Agent {
 优先阅读：
 
 1. `README.md`
-2. `远古帝国AI训练项目上下文.md`
-3. `远古帝国AI训练规则整理.md`
-4. `远古帝国1-6步开发修改Prompt.md`
+2. `docs/project/远古帝国AI训练项目上下文.md`
+3. `docs/training/远古帝国AI训练规则整理.md`
+4. `docs/project/远古帝国1-6步开发修改Prompt.md`
 
 若继续开发代码，应先核验测试和构建，再处理招募拆分、`pendingUnitId`、沙盒 UI 入口和相关测试。
 
 可直接使用以下起始提示：
 
 ```text
-请阅读 C:\code\AncinetEmpires\README.md、远古帝国AI训练项目上下文.md 和 远古帝国AI训练规则整理.md。
+请阅读 C:\code\AncinetEmpires\README.md、C:\code\AncinetEmpires\docs\project\远古帝国AI训练项目上下文.md 和 C:\code\AncinetEmpires\docs\training\远古帝国AI训练规则整理.md。
 不要修改 demo 下的文档。
 当前本地 demo 仍使用旧 recruit 动作，尚未实现 recruit_to_castle / recruit_and_deploy 和 pendingUnitId。
 请先跑测试和构建，再优先处理城堡招募动作拆分、pending 单位限制、手动沙盒入口和对应测试。

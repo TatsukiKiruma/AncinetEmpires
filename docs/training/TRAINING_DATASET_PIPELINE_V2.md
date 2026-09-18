@@ -36,12 +36,28 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\sd_train_all.ps1 `
 
 1. 生成内容寻址、只读复用的 job manifest。
 2. 续跑缺失 episode；已存在的 `scenario + seed` 不重复生成。
-3. 逐行读取 episode，逐步重放并直接写 compact feature。
+3. 按输入顺序预分配全局样本配额，每 10 局一个 checkpoint，由常驻 worker 并行重放并直接写 compact feature。
 4. 按 episode 哈希切分 train/validation，避免同一局跨集合泄漏。
-5. 每 50000 个样本滚动一个分片。
+5. 每个 checkpoint 内按 50000 个样本上限滚动分片，最终 manifest 按输入批次顺序引用所有分片。
 6. 写入源文件哈希、生成参数、Git commit、分片哈希和统计信息。
 7. 校验 manifest、分片哈希、样本数、标签候选和 split 泄漏。
 8. BC 训练器直接读取 manifest 中的全部训练和验证分片。
+
+### 并行、暂停与继续
+
+`-Workers` 默认同时控制对战生成和特征导出的并行度，也可用 `-FeatureWorkers` 单独指定特征导出进程数。每个进程连续处理多个批次，复用模块及地图缓存。
+
+```powershell
+.\tools\sd_train_all.ps1 -Workers 4 -FeatureWorkers 2 -SkipModelTraining
+```
+
+`-BatchEpisodes` 默认 10，首次运行时可调整。`-StopAfterFeatureBatches 1` 会在完成一个新 checkpoint 后暂停，适合小批验证；以后去掉该参数执行原命令即可继续。按 Ctrl+C 停止会保留完整 checkpoint，中断批次的半成品会在恢复时移入 `interrupted/` 后重算。完成后重跑会验证并复用最终 manifest。
+
+全局配额由主进程按原串行文件、episode、step 顺序预先计算；worker 继承各批次的配额前缀，所以调整 worker 数量、完成顺序或暂停次数不会改变入选样本、标签、候选及 train/validation 归属。分片边界与旧单体导出不同。
+
+只导出已有棋谱时使用 `npm run export:skirmish:checkpoint-features -- --input <episode.jsonl> --plan <训练计划.json> --workers 4 --out-root <输出目录>`；可重复传入 `--input`，文件顺序应与原正式脚本一致。这个通用入口复用旧迁移器，默认参数沿用旧迁移器（每局 300 条、每分片 5000 条、仅重标注 apk-like），正式脚本会显式传入每局 800 条、每分片 50000 条及原有策略参数。
+
+新版正式导出的数据集 ID 包含实际引擎、教师和特征生成源码指纹，未提交的相关代码变化也会建立新目录。旧的单体 feature 不会自动拼入 checkpoint；它们及原 episode 均保持原样。旧 `migrate_old_training_data.ps1` 的默认迁移 ID 保持兼容，已有完成批次仍可通过原命令续跑。
 
 ## 关键默认值
 
@@ -101,7 +117,8 @@ npm run train:skirmish:bc -- `
 - 数据集版本名；
 - episode 和训练计划文件的绝对路径、字节数及 SHA-256；
 - feature、候选采样、timeout、配额、重标注、分片和 split 参数。
+- 正式 checkpoint 导出的生成源码指纹；worker 数量和主动暂停参数不参与 ID。
 
-任一输入或参数变化都会产生新 ID 和新目录。已有同 ID 目录不会被覆盖；若上次运行中断并留下 `.partial` 文件，校验器会判定失败，应先保留现场确认原因，再决定是否移入归档目录。
+任一参与 ID 的输入或参数变化都会产生新 ID 和新目录。正式 checkpoint 导出会验证并复用完整批次，自动归档没有 manifest 的中断批次；普通单体 `export:skirmish:episode-features` 仍拒绝覆盖已有同 ID 目录，留下 `.partial` 文件时需要先保留现场确认原因，再决定是否归档。
 
 模型会记录训练数据集 ID。后续评估结果应同时记录模型文件哈希和数据集 manifest 路径，避免不同数据版本混用。
