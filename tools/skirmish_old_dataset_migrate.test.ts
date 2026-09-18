@@ -13,6 +13,9 @@ import { AncientEmpiresEnv } from '../src/game/env';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { createDemoState } from '../src/game/demo_map';
 import { validateFeatureDatasetManifest } from './skirmish_dataset_validate';
+import { exportEpisodeFeatures, parseEpisodeFeatureExportArgs } from './skirmish_episode_feature_export';
+import type { ImmutableDatasetManifest } from './skirmish_dataset_artifacts';
+import type { SkirmishFeatureSample } from './skirmish_bc_train';
 import {
     migrateOldDataset,
     parseOldDatasetMigrationArgs,
@@ -89,6 +92,57 @@ function createOptions(
 }
 
 describe('old dataset migration', () => {
+    async function readSamples(manifestFile: string) {
+        const manifest = JSON.parse(await readFile(manifestFile, 'utf8')) as ImmutableDatasetManifest;
+        const samples: SkirmishFeatureSample[] = [];
+        for (const shard of manifest.shards) {
+            const text = await readFile(path.resolve(path.dirname(manifestFile), shard.path), 'utf8');
+            for (const line of text.split('\n').filter(Boolean)) samples.push(JSON.parse(line));
+        }
+        return samples.sort((a, b) => (a.source.inputFile!.localeCompare(b.source.inputFile!)
+            || a.source.episodeIndex! - b.source.episodeIndex! || a.step - b.step));
+    }
+
+    it('正式并行导出保持跨文件全局配额和串行样本一致，空局不越过批次边界，变更并行度可续跑', async () => {
+        const tempDir = await mkdtemp(path.join(os.tmpdir(), 'checkpoint-quota-'));
+        const inputFiles = [path.join(tempDir, 'first.jsonl'), path.join(tempDir, 'second.jsonl')];
+        const empty = createEpisode(400);
+        empty.steps = [];
+        const episodes = [empty, createEpisode(401), createEpisode(402), createEpisode(403)];
+        await writeFile(inputFiles[0], episodes.slice(0, 2).map(episode => JSON.stringify(episode)).join('\n') + '\n');
+        await writeFile(inputFiles[1], episodes.slice(2).map(episode => JSON.stringify(episode)).join('\n') + '\n');
+        const quota = { maxSamples: 5, maxByActionType: { move: 1, wait: 1 } };
+        const options = { ...createOptions(tempDir, path.join(tempDir, 'parallel'), 1, 1), inputFiles, quota };
+        const baseline = await exportEpisodeFeatures({
+            ...parseEpisodeFeatureExportArgs(['--input', inputFiles[0]]),
+            inputFiles, envFactory: options.envFactory, sdTrainingPlanFile: null,
+            maxSamplesPerEpisode: options.maxSamplesPerEpisode, quota,
+            featureDim: options.featureDim, maxCandidates: options.maxCandidates,
+            relabel: { mode: options.relabelMode, policies: options.relabelPolicies, minScoreMargin: 25,
+                rolloutDepth: 2, rolloutCandidates: 4, rolloutWeight: 0.05 },
+            artifact: { rootDir: path.join(tempDir, 'serial'), datasetVersion: 'reference',
+                shardSamples: 10, validationRatio: 0.5, splitSeed: options.splitSeed }
+        });
+        const paused = await migrateOldDataset(options);
+        expect(paused.completedBatches).toBe(1);
+        const resumed = await migrateOldDataset({ ...options, workers: 3, stopAfterBatches: null });
+        expect(resumed.runDir).toBe(paused.runDir);
+        expect(resumed.completedBatches).toBe(4);
+        const actual = await readSamples(resumed.finalManifest!);
+        const expected = await readSamples(baseline.manifestFile!);
+        expect(actual.length).toBeGreaterThan(0);
+        expect(actual).toEqual(expected);
+        expect(new Set(actual.map(sample => `${sample.source.inputFile}:${sample.source.episodeIndex}:${sample.step}`)).size).toBe(actual.length);
+        const single = await migrateOldDataset({ ...options, outRoot: path.join(tempDir, 'single'), workers: 1, stopAfterBatches: null });
+        expect(await readSamples(single.finalManifest!)).toEqual(expected);
+        const repeated = await migrateOldDataset({ ...options, workers: 2, stopAfterBatches: null });
+        expect(repeated.finalManifest).toBe(resumed.finalManifest);
+        const manifest = JSON.parse(await readFile(resumed.finalManifest!, 'utf8')) as ImmutableDatasetManifest;
+        expect(manifest.generator.options.generatorFingerprint).toMatch(/^[0-9a-f]{64}$/);
+        const changedQuota = await migrateOldDataset({ ...options, quota: { maxSamples: 1 }, stopAfterBatches: 1 });
+        expect(changedQuota.runDir).not.toBe(resumed.runDir);
+    }, 30000);
+
     it('解析检查点与重标注选项', () => {
         const options = parseOldDatasetMigrationArgs([
             '--batch-episodes',

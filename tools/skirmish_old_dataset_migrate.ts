@@ -1,3 +1,6 @@
+import { prepareCheckpointQuotas } from './skirmish_checkpoint_quota';
+import { resolveFeatureGeneratorFingerprint } from './skirmish_generator_fingerprint';
+import type { StreamingSampleQuotaOptions, StreamingSampleQuotaSnapshot } from './skirmish_training_sampling';
 import { createReadStream } from 'node:fs';
 import {
     mkdir,
@@ -30,12 +33,16 @@ import {
 } from './skirmish_episode_feature_export';
 import type { HeuristicRelabelMode } from './skirmish_heuristic_relabel';
 import {
-    startOldDatasetWorkerTask,
+    OldDatasetWorkerPool,
     type OldDatasetWorkerHandle
 } from './skirmish_old_dataset_worker_pool';
 
 export interface OldDatasetMigrationOptions {
     sourceDir: string;
+    inputFiles?: string[];
+    quota?: StreamingSampleQuotaOptions;
+    generatorFingerprint?: string;
+    resultFile?: string;
     outRoot: string;
     planFile: string | null;
     unpackDir: string;
@@ -69,6 +76,7 @@ export interface MigrationBatch {
     source: DatasetSourceMetadata;
     startEpisode: number;
     episodeCount: number;
+    initialQuotaSnapshot?: StreamingSampleQuotaSnapshot;
 }
 
 export interface OldDatasetMigrationStatus {
@@ -126,6 +134,9 @@ function printHelp() {
 
 选项:
   --source-dir <dir>             旧 episode JSONL 目录
+  --input <file>                 正式导出文件，可重复，按给定顺序分配全局配额
+  --action-type-limit <type=n>   全部 checkpoint 共用的动作配额，可重复
+  --result-file <file>           原子写入结果路径，完成或暂停均可读取
   --out-root <dir>               迁移输出根目录
   --plan <file>                  SD 训练计划；自定义 env 测试可省略
   --dataset-version <name>       数据集版本名
@@ -170,10 +181,10 @@ function parseRatio(value: string | undefined, label: string): number {
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3') {
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') {
         return value;
     }
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2 或 hashed-action-v3');
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
 }
 
 function parseRelabelMode(value: string | undefined): HeuristicRelabelMode {
@@ -216,6 +227,20 @@ export function parseOldDatasetMigrationArgs(argv: readonly string[]): OldDatase
         if (arg === '--help') {
             printHelp();
             process.exit(0);
+        } else if (arg === '--input') {
+            const value = argv[++index];
+            if (!value) throw new Error('--input 缺少文件参数');
+            (options.inputFiles ??= []).push(path.resolve(value));
+        } else if (arg === '--result-file') {
+            const value = argv[++index];
+            if (!value) throw new Error('--result-file 缺少文件参数');
+            options.resultFile = path.resolve(value);
+        } else if (arg === '--action-type-limit') {
+            const match = /^(\w+)=(\d+)$/.exec(argv[++index] ?? '');
+            if (!match) throw new Error('--action-type-limit 必须是动作类型=非负整数');
+            const limit = parseInteger(match[2], arg, true);
+            options.quota ??= {};
+            options.quota.maxByActionType = { ...options.quota.maxByActionType, [match[1]]: limit };
         } else if (arg === '--source-dir') {
             const value = argv[++index];
             if (!value) throw new Error('--source-dir 缺少目录参数');
@@ -361,7 +386,9 @@ function buildMigrationGeneratorOptions(options: OldDatasetMigrationOptions): Re
         rolloutDepth: options.rolloutDepth,
         rolloutCandidates: options.rolloutCandidates,
         rolloutWeight: options.rolloutWeight,
-        customEnvFactory: options.envFactory !== undefined
+        customEnvFactory: options.envFactory !== undefined,
+        ...(options.inputFiles ? { pipeline: 'checkpoint-export-v1', generatorFingerprint: options.generatorFingerprint } : {}),
+        ...(options.quota ? { quota: options.quota } : {})
     };
 }
 
@@ -502,7 +529,10 @@ function createBatchExportOptions(
         retainMaxStepPrefix: true,
         retainStagnationPrefix: true,
         maxSamplesPerEpisode: options.maxSamplesPerEpisode,
-        quota: {},
+        quota: options.quota ?? {},
+        initialQuotaSnapshot: batch.initialQuotaSnapshot,
+        generatorFingerprint: options.generatorFingerprint,
+        ...(options.inputFiles ? { endEpisodeExclusive: batch.startEpisode + batch.episodeCount } : {}),
         excludeIllegal: true,
         includeScenarioIds: [],
         excludeScenarioIds: [],
@@ -535,7 +565,8 @@ async function executeBatchExport(
     batchRoot: string,
     sourceMetadata: DatasetSourceMetadata[],
     workerId: number,
-    activeWorkerHandles: Set<OldDatasetWorkerHandle>
+    activeWorkerHandles: Set<OldDatasetWorkerHandle>,
+    workerPool: OldDatasetWorkerPool
 ): Promise<string> {
     const exportOptions = createBatchExportOptions(options, batch, batchRoot, sourceMetadata);
     if (options.envFactory) {
@@ -544,7 +575,7 @@ async function executeBatchExport(
         return summary.manifestFile;
     }
 
-    const handle = startOldDatasetWorkerTask({
+    const handle = workerPool.startTask({
         workerId,
         batchId: batch.id,
         exportOptions
@@ -625,7 +656,12 @@ export async function migrateOldDataset(
     if (!Number.isInteger(options.workers) || options.workers < 1 || options.workers > 64) {
         throw new Error('workers 必须是 1 到 64 之间的整数');
     }
-    const inputFiles = await listEpisodeFiles(options.sourceDir);
+    // 显式文件列表用于正式导出，顺序决定全局配额，不能排序或由 worker 抢占。
+    if (options.inputFiles) options = { ...options, generatorFingerprint: await resolveFeatureGeneratorFingerprint() };
+    const inputFiles = options.inputFiles ?? await listEpisodeFiles(options.sourceDir);
+    if (new Set(inputFiles.map(file => path.resolve(file))).size !== inputFiles.length) {
+        throw new Error('输入文件重复');
+    }
     if (inputFiles.length === 0) throw new Error(`没有找到旧 episode JSONL：${options.sourceDir}`);
 
     const inputSources: DatasetSourceMetadata[] = [];
@@ -671,12 +707,21 @@ export async function migrateOldDataset(
     }
 
     const batches = await buildBatches(inputSources, options.batchEpisodes);
+    if (new Set(batches.map(batch => batch.id)).size !== batches.length) {
+        throw new Error('输入文件名导致 checkpoint ID 冲突，请使用不同文件名');
+    }
+    if (options.quota) await prepareCheckpointQuotas(batches, {
+        maxSamplesPerEpisode: options.maxSamplesPerEpisode,
+        timeoutPrefixTurns: options.timeoutPrefixTurns,
+        timeoutTailTurns: options.timeoutTailTurns
+    }, options.quota);
     const checkpointsDir = path.join(runDir, 'checkpoints');
     const interruptedDir = path.join(runDir, 'interrupted');
     const batchManifestById = new Map<string, string>();
     const pendingBatches: MigrationBatch[] = [];
     const activeBatches = new Map<number, string>();
     const activeWorkerHandles = new Set<OldDatasetWorkerHandle>();
+    const workerPool = new OldDatasetWorkerPool();
     let completedBatches = 0;
     let statusWriteQueue = Promise.resolve();
 
@@ -771,7 +816,8 @@ export async function migrateOldDataset(
                         batchRoot,
                         sourceMetadata,
                         workerId,
-                        activeWorkerHandles
+                        activeWorkerHandles,
+                        workerPool
                     );
                     const validation = await validateFeatureDatasetManifest(batchManifest);
                     if (!validation.valid) {
@@ -864,6 +910,7 @@ export async function migrateOldDataset(
         process.removeListener('SIGINT', handleInterrupt);
         process.removeListener('SIGTERM', handleInterrupt);
         for (const handle of activeWorkerHandles) handle.terminate();
+        await workerPool.close();
         await releaseMigrationLock();
     }
 }
@@ -871,6 +918,12 @@ export async function migrateOldDataset(
 async function main() {
     const options = parseOldDatasetMigrationArgs(process.argv.slice(2));
     const result = await migrateOldDataset(options);
+    if (options.resultFile) {
+        await mkdir(path.dirname(options.resultFile), { recursive: true });
+        const temporary = `${options.resultFile}.tmp`;
+        await writeFile(temporary, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+        await rename(temporary, options.resultFile);
+    }
     console.log(options.json
         ? JSON.stringify({ result }, null, 2)
         : [
