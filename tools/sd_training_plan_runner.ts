@@ -1,6 +1,7 @@
-import { appendFile, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
+import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { clearScreenDown, moveCursor } from 'node:readline';
+import { clearScreenDown, createInterface, moveCursor } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
 import { AncientEmpiresEnv } from '../src/game/env';
@@ -108,7 +109,7 @@ interface EpisodeRunWriter {
     episodeFiles: string[];
     pendingJobs: SdTrainingJobSpec[];
     skippedJobs: number;
-    episodes: SkirmishEpisodeRecord[];
+    readonly writtenEpisodes: number;
     writeEpisode(job: SdTrainingJobSpec, episode: SkirmishEpisodeRecord): Promise<void>;
 }
 
@@ -510,17 +511,22 @@ function getEpisodeKey(episode: SkirmishEpisodeRecord): string {
     return `${episode.scenario.id}|${episode.seed}`;
 }
 
-async function readExistingEpisodeKeys(filePath: string): Promise<Set<string>> {
+export async function readExistingEpisodeKeys(filePath: string): Promise<Set<string>> {
     try {
-        const content = await readFile(filePath, 'utf8');
         const keys = new Set<string>();
-        const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
-        for (let index = 0; index < lines.length; index += 1) {
+        const lines = createInterface({
+            input: createReadStream(filePath, { encoding: 'utf8' }),
+            crlfDelay: Infinity
+        });
+        let lineNumber = 0;
+        for await (const line of lines) {
+            lineNumber += 1;
+            if (line.trim().length === 0) continue;
             try {
-                const episode = JSON.parse(lines[index]) as SkirmishEpisodeRecord;
+                const episode = JSON.parse(line) as SkirmishEpisodeRecord;
                 if (episode.kind === 'skirmish_episode') keys.add(getEpisodeKey(episode));
             } catch (error) {
-                throw new Error(`读取已有 episode 失败: ${filePath}:${index + 1} ${error instanceof Error ? error.message : String(error)}`);
+                throw new Error(`读取已有 episode 失败: ${filePath}:${lineNumber} ${error instanceof Error ? error.message : String(error)}`);
             }
         }
         return keys;
@@ -541,7 +547,7 @@ async function createEpisodeRunWriter(
     const episodeFilesByPlan = new Map<string, string>();
     const existingKeysByPlan = new Map<string, Set<string>>();
     const pendingJobs: SdTrainingJobSpec[] = [];
-    const episodes: SkirmishEpisodeRecord[] = [];
+    let writtenEpisodes = 0;
     await mkdir(outDir, { recursive: true });
 
     for (const job of jobs) {
@@ -559,11 +565,13 @@ async function createEpisodeRunWriter(
         episodeFiles: [...episodeFilesByPlan.values()],
         pendingJobs,
         skippedJobs: jobs.length - pendingJobs.length,
-        episodes,
+        get writtenEpisodes() {
+            return writtenEpisodes;
+        },
         async writeEpisode(job: SdTrainingJobSpec, episode: SkirmishEpisodeRecord) {
             const episodeFile = getEpisodeFileForPlan(config, options, job.planId);
             await appendFile(episodeFile, `${JSON.stringify(episode)}\n`, 'utf8');
-            episodes.push(episode);
+            writtenEpisodes += 1;
         }
     };
 }
@@ -602,12 +610,12 @@ async function runJobsInWorkers(
     writer: EpisodeRunWriter,
     workerCount: number,
     progressReporter: ReturnType<typeof createSdProgressReporter> | null
-): Promise<{ episodeFiles: string[]; episodes: SkirmishEpisodeRecord[] }> {
+): Promise<{ episodeFiles: string[]; episodes: number }> {
     const jobs = writer.pendingJobs;
     let nextJobIndex = 0;
     if (jobs.length === 0) {
         progressReporter?.finish();
-        return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
+        return { episodeFiles: writer.episodeFiles, episodes: writer.writtenEpisodes };
     }
 
     await Promise.all(Array.from({ length: workerCount }, (_, index) => (
@@ -669,7 +677,7 @@ async function runJobsInWorkers(
     )));
 
     progressReporter?.finish();
-    return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
+    return { episodeFiles: writer.episodeFiles, episodes: writer.writtenEpisodes };
 }
 
 async function runJobs(
@@ -677,7 +685,7 @@ async function runJobs(
     options: SdTrainingPlanRunnerOptions,
     jobs: readonly SdTrainingJobSpec[],
     model: SkirmishBcModel | null
-): Promise<{ episodeFiles: string[]; episodes: SkirmishEpisodeRecord[] }> {
+): Promise<{ episodeFiles: string[]; episodes: number }> {
     const writer = await createEpisodeRunWriter(config, options, jobs);
     if (writer.skippedJobs > 0) {
         console.error(`检测到已有 episode，跳过 ${writer.skippedJobs}/${jobs.length} 个已完成 job。`);
@@ -711,7 +719,7 @@ async function runJobs(
         progressReporter?.completeEpisode(1);
     }
     progressReporter?.finish();
-    return { episodeFiles: writer.episodeFiles, episodes: writer.episodes };
+    return { episodeFiles: writer.episodeFiles, episodes: writer.writtenEpisodes };
 }
 
 export async function runSdTrainingPlanWorker(data: SdTrainingWorkerData = workerData as SdTrainingWorkerData) {
@@ -792,7 +800,7 @@ export async function runSdTrainingPlanRunner(options: SdTrainingPlanRunnerOptio
     const model = options.modelFile ? await loadBcModel(options.modelFile) : null;
     const runResult = options.run
         ? await runJobs(config, options, jobs, model)
-        : { episodeFiles: [], episodes: [] };
+        : { episodeFiles: [], episodes: 0 };
     const byPlan: PlanRunnerSummary['byPlan'] = {};
     for (const plan of config.plans) {
         const planJobs = jobs.filter(job => job.planId === plan.id);
@@ -817,7 +825,7 @@ export async function runSdTrainingPlanRunner(options: SdTrainingPlanRunnerOptio
             enabled: options.run,
             workers: options.run ? Math.max(1, Math.min(options.workers, jobs.length || 1)) : 0,
             episodeFiles: runResult.episodeFiles,
-            episodes: runResult.episodes.length
+            episodes: runResult.episodes
         },
         byPlan
     };

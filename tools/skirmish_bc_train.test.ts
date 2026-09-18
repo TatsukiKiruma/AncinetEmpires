@@ -2,6 +2,7 @@ import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { TrainingProgress } from './skirmish_training_progress';
 import {
     buildCandidateFeatures,
     loadBcModel,
@@ -65,6 +66,46 @@ function makeRankingSample(step: number): SkirmishDatasetSample {
 }
 
 describe('skirmish bc train', () => {
+    it('v4 禁止从缺少完整局面的旧样本伪造路径特征', () => {
+        const sample=makeRankingSample(1);
+        expect(()=>buildCandidateFeatures(sample,'end_turn',4096,'hashed-action-v4')).toThrow('完整 observation');
+        expect(buildCandidateFeatures(sample,'end_turn',4096,'hashed-action-v3')).not.toBeNull();
+    });
+    it('续训保留初始模型来源，并拒绝跨特征版本或无效权重', async () => {
+        const dir = await mkdtemp(path.join(os.tmpdir(), 'bc-resume-'));
+        const input = path.join(dir, 'train.jsonl');
+        const initial = path.join(dir, 'initial.json');
+        const output = path.join(dir, 'resumed.json');
+        await writeFile(input, JSON.stringify(makeRankingSample(1)) + '\n');
+        const args = ['--train', input, '--out', initial, '--epochs', '1', '--feature-dim', '4096', '--feature-extractor', 'hashed-action-v3'];
+        await trainSkirmishBcModel(parseBcTrainArgs(args));
+        const base = await loadBcModel(initial);
+        const options = { ...parseBcTrainArgs(args), outFile: output, initialModel: initial };
+        await trainSkirmishBcModel(options);
+        const resumed = await loadBcModel(output);
+        expect(resumed.weights).toEqual(base.weights);
+        expect(resumed.initialModelSha256).toMatch(/^[0-9a-f]{64}$/);
+        await expect(trainSkirmishBcModel({...options, featureExtractor:'hashed-action-v4'})).rejects.toThrow('不兼容');
+        await writeFile(initial, JSON.stringify({...base, weights:[null]}));
+        await expect(trainSkirmishBcModel(options)).rejects.toThrow('不兼容');
+    });
+    it('逐轮保存独立模型并在验证平分时选择较早轮次', async () => {
+        const dir = await mkdtemp(path.join(os.tmpdir(), 'bc-checkpoints-'));
+        const input = path.join(dir, 'train.jsonl');
+        const output = path.join(dir, 'model.json');
+        await writeFile(input, JSON.stringify(makeRankingSample(1)) + '\n');
+        const options = parseBcTrainArgs(['--train', input, '--val', input, '--out', output,
+            '--epochs', '3', '--average-weights', '--save-epochs', '--select-best']);
+        await trainSkirmishBcModel(options);
+        const best = await loadBcModel(output);
+        const first = await loadBcModel(output + '.epoch-1.json');
+        const last = await loadBcModel(output + '.epoch-3.json');
+        expect(best.epochs).toBe(1);
+        expect(best.weights).toEqual(first.weights);
+        expect(last.epochs).toBe(3);
+        expect(last.averagedWeights).toBe(true);
+        await expect(trainSkirmishBcModel({ ...options, valFile: null })).rejects.toThrow('需要验证集');
+    });
     it('解析训练参数', () => {
         const options = parseBcTrainArgs([
             '--train',
@@ -288,6 +329,21 @@ describe('skirmish bc train', () => {
         expect(summary.epochs[0].train.samples).toBe(1);
         expect(summary.epochs[0].val?.samples).toBe(1);
         expect(model.datasetId).toBe(manifest.datasetId);
+        const output: string[] = [];
+        const progressOptions = parseBcTrainArgs([
+            '--dataset-manifest', manifestFile, '--out', path.join(tempDir, 'progress-model.json'),
+            '--epochs', '1', '--feature-dim', '256', '--feature-extractor', 'hashed-action-v2',
+            '--progress-interval-ms', '1'
+        ]);
+        const withProgress = await trainSkirmishBcModel(progressOptions, new TrainingProgress(1, line => output.push(line)));
+        expect(withProgress.epochs).toEqual(summary.epochs);
+        expect((await loadBcModel(progressOptions.outFile)).weights).toEqual(model.weights);
+        expect(output.some(line => line.includes('数据完整性校验') && line.includes('2/2 条 (100.0%)'))).toBe(true);
+        expect(output.some(line => line.includes('轮训练') && line.includes('1/1 条 (100.0%)'))).toBe(true);
+        expect(output.some(line => line.includes('轮验证') && line.includes('1/1 条 (100.0%)'))).toBe(true);
+        expect(output.at(-1)).toContain('模型已保存');
+        expect(parseBcTrainArgs(['--train', 'a.jsonl', '--no-progress']).progress).toBe(false);
+        expect(() => parseBcTrainArgs(['--train', 'a.jsonl', '--progress-interval-ms', '0'])).toThrow();
     });
 
     it('可以按 heuristic teacher-rank 目标训练', async () => {

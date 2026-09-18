@@ -1,6 +1,9 @@
 param(
   [string]$Preset = "heuristic-apk-like-balanced",
   [int]$Workers = 5,
+  [int]$FeatureWorkers = 0,
+  [int]$BatchEpisodes = 10,
+  [int]$StopAfterFeatureBatches = 0,
   [int]$ProgressTurnInterval = 5,
   [string[]]$Plans = @(),
   [int]$MaxSamplesPerEpisode = 800,
@@ -12,6 +15,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+if ($FeatureWorkers -eq 0) { $FeatureWorkers = $Workers }
+if ($FeatureWorkers -lt 1 -or $FeatureWorkers -gt 64 -or $BatchEpisodes -lt 1 -or $StopAfterFeatureBatches -lt 0) {
+  throw "FeatureWorkers 必须为 1 到 64，BatchEpisodes 必须为正数，StopAfterFeatureBatches 不能为负数。"
+}
 
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $RepoRoot
@@ -104,18 +111,17 @@ foreach ($Plan in $Plans) {
   )
 }
 
-$ExistingManifests = @{}
-if (Test-Path $ArtifactRoot) {
-  Get-ChildItem -LiteralPath $ArtifactRoot -Recurse -Filter "manifest.json" | ForEach-Object {
-    $ExistingManifests[$_.FullName] = $true
-  }
-}
+# 每次调用独立记录结果；完成后再次运行也可准确定位原 manifest。
+$ExportResultFile = Join-Path $ArtifactRoot ("export-result-" + [guid]::NewGuid().ToString("N") + ".json")
 
 $ExportArgs = @(
-  "run", "export:skirmish:episode-features", "--",
-  "--artifact-root", $ArtifactRoot,
+  "run", "export:skirmish:checkpoint-features", "--",
+  "--out-root", $ArtifactRoot,
+  "--result-file", $ExportResultFile,
+  "--workers", "$FeatureWorkers",
+  "--batch-episodes", "$BatchEpisodes",
   "--dataset-version", "$RunName-v3",
-  "--sd-training-plan", "training_configs\sd_training_plan_20260705.json",
+  "--plan", "training_configs\sd_training_plan_20260705.json",
   "--feature-dim", "4096",
   "--feature-extractor", "hashed-action-v3",
   "--max-candidates", "64",
@@ -128,6 +134,8 @@ $ExportArgs = @(
   "--shard-samples", "$ShardSamples",
   "--validation-ratio", "$ValidationRatio",
   "--split-seed", "20260730",
+  "--relabel-mode", "fast-rollout",
+  "--relabel-policy", "random",
   "--json"
 )
 foreach ($Episode in $EpisodeFiles) {
@@ -138,15 +146,18 @@ foreach ($Policy in $RelabelPolicies) {
     $ExportArgs += @("--relabel-policy", $Policy)
   }
 }
-Invoke-CheckedCommand "流式导出分片 feature 数据集" $ExportArgs
-
-$NewManifests = @(Get-ChildItem -LiteralPath $ArtifactRoot -Recurse -Filter "manifest.json" | Where-Object {
-  -not $ExistingManifests.ContainsKey($_.FullName)
-})
-if ($NewManifests.Count -ne 1) {
-  throw "期望生成 1 个新数据集 manifest，实际为 $($NewManifests.Count)。"
+if ($StopAfterFeatureBatches -gt 0) {
+  $ExportArgs += @("--stop-after-batches", "$StopAfterFeatureBatches")
 }
-$DatasetManifest = $NewManifests[0].FullName
+Invoke-CheckedCommand "并行导出 feature checkpoint（支持断点续跑）" $ExportArgs
+
+$ExportResult = Get-Content -LiteralPath $ExportResultFile -Raw | ConvertFrom-Json
+if ($ExportResult.paused) {
+  Write-Host "特征导出已暂停。重新执行相同命令即可继续，状态文件：$($ExportResult.statusFile)"
+  exit 0
+}
+$DatasetManifest = $ExportResult.finalManifest
+if (-not $DatasetManifest) { throw "导出未返回最终 manifest。" }
 
 Invoke-CheckedCommand "验证 feature 数据集" @(
   "run", "validate:skirmish:features", "--",

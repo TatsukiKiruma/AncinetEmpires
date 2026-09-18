@@ -143,7 +143,18 @@ export class StreamingSampleQuota {
     private readonly byPolicy = new Map<string, number>();
     private readonly byActionType = new Map<string, number>();
 
-    constructor(private readonly options: StreamingSampleQuotaOptions = {}) {}
+    constructor(
+        private readonly options: StreamingSampleQuotaOptions = {},
+        private readonly initial?: StreamingSampleQuotaSnapshot
+    ) {
+        if (initial) {
+            this.accepted = initial.accepted;
+            this.rejected = initial.rejected;
+            for (const [key, value] of Object.entries(initial.byScenario)) this.byScenario.set(key, value);
+            for (const [key, value] of Object.entries(initial.byPolicy)) this.byPolicy.set(key, value);
+            for (const [key, value] of Object.entries(initial.byActionType)) this.byActionType.set(key, value);
+        }
+    }
 
     accept(key: StreamingSampleQuotaKey): boolean {
         const actionType = getActionTypeFromCode(key.actionCode);
@@ -170,12 +181,17 @@ export class StreamingSampleQuota {
     }
 
     snapshot(): StreamingSampleQuotaSnapshot {
+        // 并行批次从全局前缀继续计数，报告仅统计本批新增的样本。
+        const delta = (counts: Map<string, number>, initial: Record<string, number> = {}) => (
+            Object.fromEntries([...counts].map(([key, value]) => [key, value - (initial[key] ?? 0)])
+                .filter(([, value]) => Number(value) > 0))
+        );
         return {
-            accepted: this.accepted,
-            rejected: this.rejected,
-            byScenario: Object.fromEntries(this.byScenario),
-            byPolicy: Object.fromEntries(this.byPolicy),
-            byActionType: Object.fromEntries(this.byActionType)
+            accepted: this.accepted - (this.initial?.accepted ?? 0),
+            rejected: this.rejected - (this.initial?.rejected ?? 0),
+            byScenario: delta(this.byScenario, this.initial?.byScenario),
+            byPolicy: delta(this.byPolicy, this.initial?.byPolicy),
+            byActionType: delta(this.byActionType, this.initial?.byActionType)
         };
     }
 }

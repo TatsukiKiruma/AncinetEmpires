@@ -1,4 +1,5 @@
 import { createReadStream } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createInterface } from 'node:readline/promises';
@@ -8,13 +9,16 @@ import type { Action, Position } from '../src/game/types';
 import type { SkirmishDatasetSample } from './skirmish_dataset_export';
 import type { ImmutableDatasetManifest } from './skirmish_dataset_artifacts';
 import { validateFeatureDatasetManifest } from './skirmish_dataset_validate';
+import { TrainingProgress } from './skirmish_training_progress';
+import { AveragedWeights } from './skirmish_averaged_weights';
+import { navigationFeatureTokens } from './skirmish_navigation_features';
 
 export type SparseFeatures = Map<number, number>;
 type UnitSnapshot = Observation['units'][number];
 type TileSnapshot = Observation['tiles'][number];
 
 export type SparseFeatureEntries = Array<[number, number]>;
-export type SkirmishFeatureExtractor = 'hashed-action-v1' | 'hashed-action-v2' | 'hashed-action-v3';
+export type SkirmishFeatureExtractor = 'hashed-action-v1' | 'hashed-action-v2' | 'hashed-action-v3' | 'hashed-action-v4';
 
 export interface SkirmishFeatureCandidate {
     actionCode: string;
@@ -58,6 +62,10 @@ interface TrainingCandidate {
 }
 
 export interface SkirmishBcTrainOptions {
+    initialModel?: string;
+    averageWeights?: boolean;
+    saveEpochs?: boolean;
+    selectBest?: boolean;
     trainFile: string;
     datasetManifest?: string | null;
     extraTrainFiles: string[];
@@ -74,9 +82,13 @@ export interface SkirmishBcTrainOptions {
     limitTrainSamples: number | null;
     limitValSamples: number | null;
     json: boolean;
+    progress?: boolean;
+    progressIntervalMs?: number;
 }
 
 export interface SkirmishBcModel {
+    initialModelSha256?: string;
+    averagedWeights?: boolean;
     kind: 'skirmish_bc_ranker';
     version: 1;
     featureExtractor: SkirmishFeatureExtractor;
@@ -143,15 +155,21 @@ function printHelp() {
   --val <file>               验证集 JSONL
   --out <file>               模型输出文件，默认 training_runs/models/skirmish-bc-时间戳.json
   --epochs <n>               训练轮数，默认 3
+  --average-weights          对逐样本更新后的权重求平均
+  --save-epochs              逐轮保存模型到 <out>.epoch-<n>.json
+  --select-best              输出验证命中率最高的轮次；平分保留较早轮次
+  --initial-model <file>     从兼容模型继续训练；记录来源哈希，重新累计平均权重
   --learning-rate <n>        学习率，默认 0.1
   --feature-dim <n>          哈希特征维度，默认 16384
-  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3
+  --feature-extractor <name> 特征版本，默认 hashed-action-v2；可选 hashed-action-v1、hashed-action-v2、hashed-action-v3、hashed-action-v4
   --objective <name>         训练目标，默认 label；可选 label、teacher-rank、mixed
   --teacher-weight <n>       mixed 目标中 teacher-rank 更新权重，默认 0.25
   --max-candidates <n>       每步最多比较多少个合法动作，默认全量
   --limit-train-samples <n>  最多读取多少条训练样本，用于 smoke test
   --limit-val-samples <n>    最多读取多少条验证样本
   --json                     摘要输出 JSON
+  --no-progress              关闭实时进度；默认输出到 stderr，不影响 JSON
+  --progress-interval-ms <n>  进度刷新间隔，默认 2000 毫秒
   --help                     显示帮助
 `);
 }
@@ -230,6 +248,16 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
             const value = argv[++i];
             if (!value) throw new Error('--out 缺少文件参数');
             options.outFile = path.resolve(value);
+        } else if (arg === '--initial-model') {
+            const value = argv[++i];
+            if (!value) throw new Error('--initial-model 缺少模型文件参数');
+            options.initialModel = path.resolve(value);
+        } else if (arg === '--average-weights') {
+            options.averageWeights = true;
+        } else if (arg === '--save-epochs') {
+            options.saveEpochs = true;
+        } else if (arg === '--select-best') {
+            options.selectBest = true;
         } else if (arg === '--epochs') {
             options.epochs = parsePositiveInteger(argv[++i], '--epochs');
         } else if (arg === '--learning-rate') {
@@ -250,6 +278,10 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
             options.limitValSamples = parsePositiveInteger(argv[++i], '--limit-val-samples');
         } else if (arg === '--json') {
             options.json = true;
+        } else if (arg === '--no-progress') {
+            options.progress = false;
+        } else if (arg === '--progress-interval-ms') {
+            options.progressIntervalMs = parsePositiveInteger(argv[++i], '--progress-interval-ms');
         } else {
             throw new Error(`未知参数: ${arg}`);
         }
@@ -265,8 +297,8 @@ export function parseBcTrainArgs(argv: readonly string[]): SkirmishBcTrainOption
 }
 
 function parseFeatureExtractor(value: string | undefined): SkirmishFeatureExtractor {
-    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3') return value;
-    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2 或 hashed-action-v3');
+    if (value === 'hashed-action-v1' || value === 'hashed-action-v2' || value === 'hashed-action-v3' || value === 'hashed-action-v4') return value;
+    throw new Error('--feature-extractor 只能是 hashed-action-v1、hashed-action-v2、hashed-action-v3 或 hashed-action-v4');
 }
 
 function parseObjective(value: string | undefined): SkirmishBcObjective {
@@ -950,6 +982,7 @@ export function buildCandidateFeatures(
 
     const features: SparseFeatures = new Map();
     const observation = sample.observation;
+    if (featureExtractor === 'hashed-action-v4' && !observation) throw new Error('v4 特征需要完整 observation，不能从旧哈希特征转换');
     const units = unitById(observation);
     const tiles = tileByPos(observation);
     const player = observation?.players.find(item => item.id === sample.playerId);
@@ -1007,7 +1040,7 @@ export function buildCandidateFeatures(
         addFeature(features, featureDim, `recruit:${action.unitClass}:gold:${bucket(player?.gold ?? 0, [0, 100, 250, 500, 1000, 2000])}`);
     }
 
-    if (featureExtractor === 'hashed-action-v2' || featureExtractor === 'hashed-action-v3') {
+    if (featureExtractor !== 'hashed-action-v1') {
         addV2CandidateFeatures(features, featureDim, sample, action, {
             actor,
             targetUnit,
@@ -1015,7 +1048,7 @@ export function buildCandidateFeatures(
             targetTile
         });
     }
-    if (featureExtractor === 'hashed-action-v3') {
+    if (featureExtractor === 'hashed-action-v3' || featureExtractor === 'hashed-action-v4') {
         addV3CandidateFeatures(features, featureDim, sample, action, {
             actor,
             targetUnit,
@@ -1024,6 +1057,9 @@ export function buildCandidateFeatures(
         });
     }
 
+    if (featureExtractor === 'hashed-action-v4' && observation) {
+        for (const [token, value] of navigationFeatureTokens(observation, action)) addFeature(features, featureDim, token, value);
+    }
     return features;
 }
 
@@ -1043,8 +1079,9 @@ function score(weights: number[], features: SparseFeatures): number {
     return total;
 }
 
-function update(weights: number[], features: SparseFeatures, scale: number) {
+function update(weights: number[], features: SparseFeatures, scale: number, averaging?: AveragedWeights) {
     for (const [index, value] of features) {
+        averaging?.beforeUpdate(index, weights[index]);
         weights[index] += scale * value;
     }
 }
@@ -1148,7 +1185,8 @@ function predictCandidate(candidates: readonly TrainingCandidate[], weights: num
 async function iterateSamples(
     file: string,
     limit: number | null,
-    onSample: (sample: SkirmishBcInputSample) => void | Promise<void>
+    onSample: (sample: SkirmishBcInputSample) => void | Promise<void>,
+    progress?: TrainingProgress
 ) {
     const lines = createInterface({
         input: createReadStream(file, { encoding: 'utf8' }),
@@ -1161,6 +1199,7 @@ async function iterateSamples(
         if (!trimmed) continue;
         await onSample(JSON.parse(trimmed) as SkirmishBcInputSample);
         count += 1;
+        progress?.advance();
         if (limit !== null && count >= limit) break;
     }
 }
@@ -1179,7 +1218,9 @@ async function trainEpochOnFile(
     file: string,
     weights: number[],
     options: SkirmishBcTrainOptions,
-    limitTrainSamples: number | null
+    limitTrainSamples: number | null,
+    progress?: TrainingProgress,
+    averaging?: AveragedWeights
 ): Promise<SkirmishBcMetrics> {
     const metrics = emptyMetrics();
     let candidateTotal = 0;
@@ -1195,24 +1236,25 @@ async function trainEpochOnFile(
         }
 
         const correct = predictedCandidate.actionCode === expectedCandidate.actionCode;
+        averaging?.advance();
         metrics.samples += 1;
         candidateTotal += candidates.length;
         if (correct) {
             metrics.correct += 1;
         } else {
-            update(weights, expectedCandidate.features, options.learningRate);
-            update(weights, predictedCandidate.features, -options.learningRate);
+            update(weights, expectedCandidate.features, options.learningRate, averaging);
+            update(weights, predictedCandidate.features, -options.learningRate, averaging);
         }
 
         if (options.objective === 'mixed' && options.teacherWeight > 0) {
             const teacherCandidate = getTeacherCandidate(candidates);
             if (teacherCandidate && teacherCandidate.actionCode !== predictedCandidate.actionCode) {
                 const teacherScale = options.learningRate * options.teacherWeight;
-                update(weights, teacherCandidate.features, teacherScale);
-                update(weights, predictedCandidate.features, -teacherScale);
+                update(weights, teacherCandidate.features, teacherScale, averaging);
+                update(weights, predictedCandidate.features, -teacherScale, averaging);
             }
         }
-    });
+    }, progress);
 
     metrics.accuracy = metrics.samples > 0 ? metrics.correct / metrics.samples : 0;
     metrics.averageCandidates = metrics.samples > 0 ? candidateTotal / metrics.samples : 0;
@@ -1235,6 +1277,8 @@ function mergeMetrics(left: SkirmishBcMetrics, right: SkirmishBcMetrics): Skirmi
 }
 
 interface ResolvedTrainingInput {
+    trainSamples: number | null;
+    validationSamples: number | null;
     primaryTrainFiles: string[];
     extraTrainFiles: string[];
     validationFiles: string[];
@@ -1243,10 +1287,13 @@ interface ResolvedTrainingInput {
 }
 
 async function resolveTrainingInput(
-    options: SkirmishBcTrainOptions
+    options: SkirmishBcTrainOptions,
+    progress?: TrainingProgress
 ): Promise<ResolvedTrainingInput> {
     if (!options.datasetManifest) {
         return {
+            trainSamples: null,
+            validationSamples: null,
             primaryTrainFiles: [options.trainFile],
             extraTrainFiles: options.extraTrainFiles,
             validationFiles: options.valFile ? [options.valFile] : [],
@@ -1255,13 +1302,13 @@ async function resolveTrainingInput(
         };
     }
 
-    const validation = await validateFeatureDatasetManifest(options.datasetManifest);
+    const manifest = JSON.parse(await readFile(options.datasetManifest, 'utf8')) as ImmutableDatasetManifest;
+    progress?.start('数据完整性校验', manifest.shards.reduce((sum, shard) => sum + shard.samples, 0));
+    const validation = await validateFeatureDatasetManifest(options.datasetManifest, count => progress?.set(count));
     if (!validation.valid) {
         throw new Error(`数据集 manifest 验证失败：${validation.errors.join('；')}`);
     }
-    const manifest = JSON.parse(
-        await readFile(options.datasetManifest, 'utf8')
-    ) as ImmutableDatasetManifest;
+    progress?.finish('校验通过');
     const artifactDir = path.dirname(options.datasetManifest);
     const resolveShards = (split: 'train' | 'validation') => manifest.shards
         .filter(shard => shard.split === split)
@@ -1272,6 +1319,8 @@ async function resolveTrainingInput(
         throw new Error('数据集 manifest 没有 train 分片');
     }
     return {
+        trainSamples: Math.min(validation.trainSamples, options.limitTrainSamples ?? Infinity),
+        validationSamples: Math.min(validation.validationSamples, options.limitValSamples ?? Infinity),
         primaryTrainFiles,
         extraTrainFiles: [],
         validationFiles: resolveShards('validation'),
@@ -1284,13 +1333,15 @@ async function trainEpochOnFiles(
     files: readonly string[],
     weights: number[],
     options: SkirmishBcTrainOptions,
-    limit: number | null
+    limit: number | null,
+    progress?: TrainingProgress,
+    averaging?: AveragedWeights
 ): Promise<SkirmishBcMetrics> {
     let metrics = emptyMetrics();
     let remaining = limit;
     for (const file of files) {
         if (remaining !== null && remaining <= 0) break;
-        const fileMetrics = await trainEpochOnFile(file, weights, options, remaining);
+        const fileMetrics = await trainEpochOnFile(file, weights, options, remaining, progress, averaging);
         metrics = mergeMetrics(metrics, fileMetrics);
         if (remaining !== null) {
             remaining -= fileMetrics.samples + fileMetrics.skipped;
@@ -1302,18 +1353,22 @@ async function trainEpochOnFiles(
 async function trainEpoch(
     weights: number[],
     options: SkirmishBcTrainOptions,
-    input: ResolvedTrainingInput
+    input: ResolvedTrainingInput,
+    progress?: TrainingProgress,
+    averaging?: AveragedWeights
 ): Promise<SkirmishBcMetrics> {
     let metrics = await trainEpochOnFiles(
         input.primaryTrainFiles,
         weights,
         options,
-        options.limitTrainSamples
+        options.limitTrainSamples,
+        progress,
+        averaging
     );
 
     for (let repeat = 0; repeat < options.extraTrainRepeat; repeat += 1) {
         for (const extraFile of input.extraTrainFiles) {
-            const extraMetrics = await trainEpochOnFile(extraFile, weights, options, null);
+            const extraMetrics = await trainEpochOnFile(extraFile, weights, options, null, progress, averaging);
             metrics = mergeMetrics(metrics, extraMetrics);
         }
     }
@@ -1324,13 +1379,14 @@ async function trainEpoch(
 async function evaluateBcModelFiles(
     files: readonly string[],
     model: SkirmishBcModel,
-    limit: number | null
+    limit: number | null,
+    progress?: TrainingProgress
 ): Promise<SkirmishBcMetrics> {
     let metrics = emptyMetrics();
     let remaining = limit;
     for (const file of files) {
         if (remaining !== null && remaining <= 0) break;
-        const fileMetrics = await evaluateBcModel(file, model, remaining);
+        const fileMetrics = await evaluateBcModel(file, model, remaining, progress);
         metrics = mergeMetrics(metrics, fileMetrics);
         if (remaining !== null) {
             remaining -= fileMetrics.samples + fileMetrics.skipped;
@@ -1342,7 +1398,8 @@ async function evaluateBcModelFiles(
 export async function evaluateBcModel(
     file: string,
     model: SkirmishBcModel,
-    limit: number | null = null
+    limit: number | null = null,
+    progress?: TrainingProgress
 ): Promise<SkirmishBcMetrics> {
     const metrics = emptyMetrics();
     let candidateTotal = 0;
@@ -1364,28 +1421,48 @@ export async function evaluateBcModel(
         if (expectedCandidate && predictedCandidate.actionCode === expectedCandidate.actionCode) {
             metrics.correct += 1;
         }
-    });
+    }, progress);
 
     metrics.accuracy = metrics.samples > 0 ? metrics.correct / metrics.samples : 0;
     metrics.averageCandidates = metrics.samples > 0 ? candidateTotal / metrics.samples : 0;
     return metrics;
 }
 
-export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Promise<SkirmishBcTrainSummary> {
-    const input = await resolveTrainingInput(options);
-    const weights = new Array(options.featureDim).fill(0);
+export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions, progress?: TrainingProgress): Promise<SkirmishBcTrainSummary> {
+    const input = await resolveTrainingInput(options, progress);
+    if (options.selectBest && input.validationFiles.length === 0) throw new Error('--select-best 需要验证集');
+    await mkdir(path.dirname(options.outFile), { recursive: true });
+    let weights: number[] = new Array(options.featureDim).fill(0);
+    let initialModelSha256: string | undefined;
+    if (options.initialModel) {
+        const bytes = await readFile(options.initialModel);
+        const initial: SkirmishBcModel = JSON.parse(bytes.toString('utf8'));
+        if (initial.kind !== 'skirmish_bc_ranker' || initial.version !== 1 || initial.featureDim !== options.featureDim
+            || initial.featureExtractor !== options.featureExtractor || !Array.isArray(initial.weights) || initial.weights.length !== options.featureDim
+            || !initial.weights.every(Number.isFinite)) throw new Error('初始模型类型、特征版本、维度或权重不兼容');
+        weights = [...initial.weights];
+        initialModelSha256 = createHash('sha256').update(bytes).digest('hex');
+    }
+    const averaging = options.averageWeights ? new AveragedWeights(options.featureDim) : undefined;
+    let bestModel: SkirmishBcModel | null = null;
+    let bestAccuracy = -Infinity;
+    let lastModel: SkirmishBcModel | null = null;
     const epochs: SkirmishBcEpochSummary[] = [];
     let trainedSamples = 0;
 
     for (let epoch = 1; epoch <= options.epochs; epoch += 1) {
-        const train = await trainEpoch(weights, options, input);
+        progress?.start(`第 ${epoch}/${options.epochs} 轮训练`, input.trainSamples);
+        const train = await trainEpoch(weights, options, input, progress, averaging);
+        progress?.finish(`命中率 ${(train.accuracy * 100).toFixed(2)}%，跳过 ${train.skipped}`);
         trainedSamples += train.samples;
         const modelSnapshot: SkirmishBcModel = {
+            ...(initialModelSha256 ? { initialModelSha256 } : {}),
             kind: 'skirmish_bc_ranker',
             version: 1,
             featureExtractor: options.featureExtractor,
             featureDim: options.featureDim,
-            weights,
+            weights: averaging ? averaging.snapshot(weights) : [...weights],
+            ...(averaging ? { averagedWeights: true } : {}),
             epochs: epoch,
             learningRate: options.learningRate,
             teacherWeight: options.teacherWeight,
@@ -1395,10 +1472,19 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
             objective: options.objective,
             ...(input.datasetId ? { datasetId: input.datasetId } : {})
         };
+        if (input.validationFiles.length > 0) progress?.start(`第 ${epoch}/${options.epochs} 轮验证`, input.validationSamples);
         const val = input.validationFiles.length > 0
-            ? await evaluateBcModelFiles(input.validationFiles, modelSnapshot, options.limitValSamples)
+            ? await evaluateBcModelFiles(input.validationFiles, modelSnapshot, options.limitValSamples, progress)
             : null;
+        if (options.selectBest && (!val || val.samples === 0)) throw new Error('--select-best 需要非空验证集');
+        if (val) progress?.finish(`命中率 ${(val.accuracy * 100).toFixed(2)}%，跳过 ${val.skipped}`);
         epochs.push({ epoch, train, val });
+        lastModel = modelSnapshot;
+        if (val && val.accuracy > bestAccuracy) {
+            bestAccuracy = val.accuracy;
+            bestModel = modelSnapshot;
+        }
+        if (options.saveEpochs) await writeFile(`${options.outFile}.epoch-${epoch}.json`, `${JSON.stringify(modelSnapshot)}\n`, 'utf8');
     }
 
     const model: SkirmishBcModel = {
@@ -1417,10 +1503,11 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
         ...(input.datasetId ? { datasetId: input.datasetId } : {})
     };
 
-    await mkdir(path.dirname(options.outFile), { recursive: true });
-    await writeFile(options.outFile, `${JSON.stringify(model)}\n`, 'utf8');
+    const selectedModel = options.selectBest ? bestModel! : lastModel ?? model;
+    await writeFile(options.outFile, `${JSON.stringify(selectedModel)}\n`, 'utf8');
+    progress?.message(`训练完成，模型已保存：${options.outFile}`);
 
-    const { weights: _weights, ...modelMetadata } = model;
+    const { weights: _weights, ...modelMetadata } = selectedModel;
 
     return {
         trainFile: input.primaryTrainFiles[0],
@@ -1434,7 +1521,7 @@ export async function trainSkirmishBcModel(options: SkirmishBcTrainOptions): Pro
         epochs,
         model: {
             ...modelMetadata,
-            nonZeroWeights: weights.filter(value => value !== 0).length
+            nonZeroWeights: selectedModel.weights.filter(value => value !== 0).length
         }
     };
 }
@@ -1483,7 +1570,8 @@ export function formatSkirmishBcTrainSummary(summary: SkirmishBcTrainSummary): s
 
 async function main() {
     const options = parseBcTrainArgs(process.argv.slice(2));
-    const summary = await trainSkirmishBcModel(options);
+    const progress = options.progress === false ? undefined : new TrainingProgress(options.progressIntervalMs);
+    const summary = await trainSkirmishBcModel(options, progress);
 
     if (options.json) {
         console.log(JSON.stringify({ summary }, null, 2));

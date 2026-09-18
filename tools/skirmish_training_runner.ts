@@ -667,7 +667,7 @@ function scoreBcFeatures(model: SkirmishBcModel, features: Map<number, number>):
     return total;
 }
 
-function buildLiveBcSample(context: SkirmishPolicyContext): SkirmishDatasetSample {
+export function buildLiveBcSample(context: SkirmishPolicyContext): SkirmishDatasetSample {
     const firstEntry = context.result.legalActionEntries.find(entry => entry.fixedActionIndex !== null);
     return {
         kind: 'skirmish_dataset_sample',
@@ -891,7 +891,7 @@ function shouldForceLateDirectPressure(candidate: BlendCandidate, turn: number):
     return candidate.heuristicScore >= 3500;
 }
 
-function shouldEndTurnForLateLowTempo(candidate: BlendCandidate, turn: number, hasDirectPressureAction: boolean): boolean {
+function shouldEndTurnForLateLowTempo(candidate: BlendCandidate, turn: number, hasDirectPressureAction: boolean, preserveProductiveMoves = false): boolean {
     if (turn < 100 || hasDirectPressureAction) return false;
 
     switch (candidate.action.type) {
@@ -902,13 +902,13 @@ function shouldEndTurnForLateLowTempo(candidate: BlendCandidate, turn: number, h
             return true;
         case 'move':
         case 'post_attack_move':
-            return turn >= 130 || candidate.heuristicScore < 4200;
+            return (!preserveProductiveMoves && turn >= 130) || candidate.heuristicScore < 4200;
         default:
             return false;
     }
 }
 
-export function createBcBlendPolicy(model: SkirmishBcModel, seed: number): SkirmishPolicy {
+export function createBcBlendPolicy(model: SkirmishBcModel, seed: number, options: { preserveProductiveLateMoves?: boolean } = {}): SkirmishPolicy {
     const heuristic = new HeuristicAI(createSeededRng(seed));
 
     return {
@@ -985,7 +985,7 @@ export function createBcBlendPolicy(model: SkirmishBcModel, seed: number): Skirm
             if (
                 useLatePressureTuning
                 && endTurnCandidate
-                && shouldEndTurnForLateLowTempo(bestCandidate, turn, hasDirectPressureAction)
+                && shouldEndTurnForLateLowTempo(bestCandidate, turn, hasDirectPressureAction, options.preserveProductiveLateMoves)
             ) {
                 return endTurnCandidate.fixedActionIndex;
             }

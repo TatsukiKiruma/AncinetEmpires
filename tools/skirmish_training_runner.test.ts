@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import path from 'node:path';
 import { AncientEmpiresEnv } from '../src/game/env';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
@@ -36,6 +37,27 @@ function createZeroBcModel(featureDim = 128): SkirmishBcModel {
 }
 
 describe('skirmish training runner', () => {
+    it.each([
+        { turn: 129, score: 10000, legacy: 'move', improved: 'move' },
+        { turn: 130, score: 10000, legacy: 'end_turn', improved: 'move' },
+        { turn: 130, score: 100, legacy: 'end_turn', improved: 'end_turn' }
+    ])('后期推进保护：第$turn回合、教师分$score', ({ turn, score, legacy, improved }) => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        state.turn = turn;
+        const result = new AncientEmpiresEnv({ initialState: state, maxPlies: 400 }).reset(1);
+        const move = result.legalActionEntries.find(e => e.action.type === 'move')!;
+        const end = result.legalActionEntries.find(e => e.action.type === 'end_turn')!;
+        const entries = [move, end];
+        const mock = vi.spyOn(HeuristicAI.prototype, 'scoreCandidateActions').mockImplementation((_engine, _player, actions) => actions.map(action => ({ action, score: action.type === 'move' ? score : -100 })));
+        try {
+            const context = { result: { ...result, legalActionEntries: entries, legalActions: entries.map(e => e.action) }, playerId: result.state.currentPlayer, stepNumber: 1, episodeSeed: 1,
+                scenario: { id: 'TEST:late-progress', mapName: 'demo', mode: 'SD', resourcePath: 'demo' } };
+            const oldIndex = createBcBlendPolicy(createZeroBcModel(), 1).selectFixedActionIndex(context);
+            const newIndex = createBcBlendPolicy(createZeroBcModel(), 1, { preserveProductiveLateMoves: true }).selectFixedActionIndex(context);
+            expect(entries.find(e => e.fixedActionIndex === oldIndex)?.action.type).toBe(legacy);
+            expect(entries.find(e => e.fixedActionIndex === newIndex)?.action.type).toBe(improved);
+        } finally { mock.mockRestore(); }
+    });
     it('种子随机数可复现', () => {
         const left = createSeededRng(123);
         const right = createSeededRng(123);
