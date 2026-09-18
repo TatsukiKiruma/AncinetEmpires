@@ -312,6 +312,7 @@ function Disable-Proxy {
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings delete global global_http_proxy_host') | Write-Host
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings delete global global_http_proxy_port') | Write-Host
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings delete global global_http_proxy_exclusion_list') | Write-Host
+    Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings delete global global_proxy_pac_url') | Write-Host
 
     Show-ProxyStatus
 }
@@ -323,6 +324,7 @@ function Show-ProxyStatus {
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings get global http_proxy') | Write-Host
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings get global global_http_proxy_host') | Write-Host
     Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings get global global_http_proxy_port') | Write-Host
+    Invoke-Adb -Args @('-s', $Serial, 'shell', 'settings get global global_proxy_pac_url') | Write-Host
 }
 
 function Start-Capture {
