@@ -594,7 +594,7 @@ function createLookaheadRecruitDeployResolver(
     };
 }
 
-function createRecordExpansionOptions(
+export function createRecordExpansionOptions(
     records: readonly ApkReplayActionRecord[],
     recordIndex: number,
     baseOptions: ApkReplayExpansionOptions = {}

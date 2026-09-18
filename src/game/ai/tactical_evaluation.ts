@@ -1,7 +1,7 @@
+import { TacticalPathfinder } from './tactical_pathfinding';
 import { UNIT_CONFIGS } from '../constants';
 import {
     getEffectiveStats,
-    getMoveCostForUnit,
     hasAbility,
     isFlying,
     isForestTerrain,
@@ -99,12 +99,13 @@ export class RuleTacticalEvaluator {
     private readonly ownProfile: UnitProfile;
     private readonly enemyProfile: EnemyProfile;
     private readonly mapProfile: MapProfile;
-    private readonly pathCostCache = new Map<string, number | null>();
+    private readonly pathfinder: TacticalPathfinder;
     private readonly reachableCache = new Map<string, Position[]>();
     private readonly threatCache = new Map<string, number>();
     private readonly unitValueCache = new Map<string, number>();
 
     constructor(private readonly state: GameState, private readonly playerId: number) {
+        this.pathfinder = new TacticalPathfinder(state);
         this.ownUnits = state.units.filter(unit => unit.ownerId === playerId && unit.hp > 0);
         this.enemyUnits = state.units.filter(unit => unit.hp > 0 && areEnemyPlayers(state, playerId, unit.ownerId));
         this.ownProfile = this.buildUnitProfile(this.ownUnits);
@@ -623,50 +624,7 @@ export class RuleTacticalEvaluator {
     }
 
     private pathCost(unit: Unit, from: Position, target: Position): number | null {
-        const cacheKey = `${unit.id}:${posKey(from)}:${posKey(target)}`;
-        if (this.pathCostCache.has(cacheKey)) return this.pathCostCache.get(cacheKey) ?? null;
-        const cost = this.computePathCost(unit, from, target);
-        this.pathCostCache.set(cacheKey, cost);
-        return cost;
-    }
-
-    private computePathCost(unit: Unit, from: Position, target: Position): number | null {
-        if (samePos(from, target)) return 0;
-        const queue: Array<{ pos: Position; cost: number }> = [{ pos: from, cost: 0 }];
-        const costs = new Map<string, number>([[posKey(from), 0]]);
-        const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-
-        while (queue.length > 0) {
-            queue.sort((left, right) => left.cost - right.cost);
-            const current = queue.shift()!;
-            if (samePos(current.pos, target)) return current.cost;
-            if (current.cost > (costs.get(posKey(current.pos)) ?? Infinity)) continue;
-
-            for (const [dx, dy] of dirs) {
-                const next = { x: current.pos.x + dx, y: current.pos.y + dy };
-                if (!isWithinBounds(this.state, next)) continue;
-                if (this.isBlockedForPath(unit, next, target)) continue;
-                const tile = this.state.map.tiles[next.y][next.x];
-                const stepCost = getMoveCostForUnit(this.state, { ...unit, pos: current.pos }, tile);
-                if (!Number.isFinite(stepCost) || stepCost >= 999999) continue;
-                const nextCost = current.cost + stepCost;
-                const key = posKey(next);
-                if (nextCost < (costs.get(key) ?? Infinity)) {
-                    costs.set(key, nextCost);
-                    queue.push({ pos: next, cost: nextCost });
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private isBlockedForPath(unit: Unit, pos: Position, target: Position): boolean {
-        if (samePos(pos, target)) return false;
-        const occupying = this.state.units.find(candidate => candidate.hp > 0 && samePos(candidate.pos, pos));
-        if (!occupying) return false;
-        if (areAlliedPlayers(this.state, unit.ownerId, occupying.ownerId)) return false;
-        return !(isFlying(unit) && !isFlying(occupying));
+        return this.pathfinder.cost(unit, from, target);
     }
 
     private maxIncomingDamage(unit: Unit, pos: Position): number {
