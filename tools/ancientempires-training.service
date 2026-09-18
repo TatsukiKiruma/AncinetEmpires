@@ -1,0 +1,25 @@
+[Unit]
+Description=Ancient Empires training dataset pipeline (3 workers)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/home/ubuntu/ancientempires-training-20260909/runtime/complete.marker
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/ancientempires-training-20260909
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 tools/server_training_pipeline.py
+Nice=10
+CPUQuota=300%
+CPUWeight=10
+MemoryHigh=2200M
+MemoryMax=2700M
+MemorySwapMax=128M
+TasksMax=128
+KillMode=control-group
+TimeoutStopSec=90
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
