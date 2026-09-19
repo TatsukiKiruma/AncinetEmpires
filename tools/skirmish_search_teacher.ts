@@ -590,6 +590,8 @@ export interface SearchTeacherPolicyOptions {
     config?: Partial<SearchTeacherConfig>;
     rng?: Rng;
     modelScorer?: ModelScorer;
+    /** T11：可选网络价值叶评估器（与 searchTeacherAction.leafEvaluator 同义）。 */
+    leafEvaluator?: (state: GameState, rootAllianceId: number) => number;
     onTrace?: (decision: SearchTeacherDecision, context: SkirmishPolicyContext) => void;
 }
 
@@ -609,7 +611,8 @@ export function createSearchTeacherPolicyFactory(
                 playerId: context.playerId,
                 config: options.config,
                 rng: options.rng,
-                modelScorer: options.modelScorer
+                modelScorer: options.modelScorer,
+                leafEvaluator: options.leafEvaluator
             });
             options.onTrace?.(decision, context);
             const matched = context.result.legalActionEntries.find(
