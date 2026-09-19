@@ -110,6 +110,18 @@ describe('encodeGameAction：动作语义', () => {
         expect(vt[progressIdx]).toBeGreaterThanOrEqual(va[progressIdx]);
     });
 
+    it('不同落点的 move 必产生不同向量（策略可区分，不折叠）', () => {
+        const s = demo();
+        const actor = s.units.find(u => u.id === 'u3')!;
+        actor.pos = { x: 3, y: 3 };
+        const a1 = encodeGameAction(s, actor.ownerId, { type: 'move', unitId: actor.id, to: { x: 2, y: 3 } });
+        const a2 = encodeGameAction(s, actor.ownerId, { type: 'move', unitId: actor.id, to: { x: 3, y: 2 } });
+        const a3 = encodeGameAction(s, actor.ownerId, { type: 'move', unitId: actor.id, to: { x: 4, y: 3 } });
+        expect(Array.from(a1)).not.toEqual(Array.from(a2));
+        expect(Array.from(a1)).not.toEqual(Array.from(a3));
+        expect(Array.from(a2)).not.toEqual(Array.from(a3));
+    });
+
     it('同 ID 改名后动作编码一致（查表按引用而非字符串）', () => {
         const s = demo();
         const actor = s.units.find(u => u.id === 'u3')!;

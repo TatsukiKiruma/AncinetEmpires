@@ -15,6 +15,7 @@ import {
     predictDecision,
     saveDualHeadModel,
     loadDualHeadModelFromJson,
+    foldInputStandardization,
     type DualHeadSample,
     type DualHeadNet
 } from './skirmish_dual_head_net';
@@ -97,5 +98,21 @@ describe('skirmish_dual_head_net', () => {
         expect(q.topIndex).toBe(p.topIndex);
         expect(q.value).toBe(p.value);
         expect(p.probs.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 9);
+    });
+
+    it('输入标准化折叠：折叠后吃原始特征 ≡ 折叠前吃标准化特征（逐位）', () => {
+        const net = createDualHeadNet({ stateDim: STATE_DIM, actionDim: ACTION_DIM, hidden: 24, embed: 16, policyHidden: 16, valueHidden: 8, seed: 7 });
+        trainStep(net, syntheticDataset(6), { learningRate: 0.01, momentum: 0, valueWeight: 1 });
+        const mu = Array.from({ length: STATE_DIM }, (_, i) => Math.sin(i));
+        const sigma = Array.from({ length: STATE_DIM }, (_, i) => 0.5 + 0.3 * Math.cos(i));
+        const raw = Array.from({ length: STATE_DIM }, (_, i) => i * 0.2 - 1);
+        const cands = syntheticDataset(2)[0].candidates;
+        const std = raw.map((x, i) => (x - mu[i]) / sigma[i]);
+        const before = predictDecision(net, std, cands);
+        const folded = foldInputStandardization(loadDualHeadModelFromJson(saveDualHeadModel(net, {})), mu, sigma);
+        const after = predictDecision(folded, raw, cands);
+        expect(after.topIndex).toBe(before.topIndex);
+        expect(after.value).toBeCloseTo(before.value, 9);
+        after.logits.forEach((l, i) => expect(l).toBeCloseTo(before.logits[i], 9));
     });
 });

@@ -231,8 +231,11 @@ export function encodeGameAction(state: GameState, playerId: number, action: Act
         out[o + 2] = getDistance(actor.pos, dest) / 10;
         const reach = actor ? getEffectiveStats(actor).maxRange : 1;
         out[o + 3] = nearestEnemy(dest) <= Math.max(1, reach) ? 1 : 0;
+        // 落点绝对归一化坐标（区分不同 to，避免对称落点折叠为同一向量：策略可区分性的关键）
+        out[o + 4] = dest.x / Math.max(1, state.map.width - 1);
+        out[o + 5] = dest.y / Math.max(1, state.map.height - 1);
     }
-    o += 6; // [19..24] 几何段（含 2 个当前未占用位）
+    o += 6; // [19..24] 几何段：推进/敌距/步长/入程/落点 x/落点 y
 
     // [25..27] 招募段：兵种分数、价格/1000、剩余金币/1000
     if (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy') {

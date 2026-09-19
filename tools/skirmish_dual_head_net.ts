@@ -34,6 +34,8 @@ type Act = 'relu' | 'tanh' | 'linear';
 
 interface Dense { in: number; out: number; W: number[]; b: number[]; dW: number[]; db: number[]; }
 
+// ReLU：正恒等、负置零。不采用 leaky——标准化后的近常数列离群值经 leaky 直通会爆炸出 NaN，
+// 纯 ReLU 天然截断负侧异常输入，手写全批 SGD 更稳。
 function activate(z: number[], act: Act): number[] {
     if (act === 'relu') return z.map(v => (v > 0 ? v : 0));
     if (act === 'tanh') return z.map(Math.tanh);
@@ -261,6 +263,29 @@ function applyMomentum(net: DualHeadNet, groups: { trunk: Dense[]; policy: Dense
 }
 
 export interface Decision { logits: number[]; probs: number[]; topIndex: number; value: number; }
+
+/**
+ * 把输入标准化 (x-mu)/sigma 折叠进 trunk 第一层仿射，使网络直接吃原始特征（自包含可部署）。
+ * z_h = Σ W[h][i]·(x_i-mu_i)/sigma_i + b_h = Σ (W[h][i]/sigma_i)·x_i + (b_h − Σ W[h][i]·mu_i/sigma_i)。
+ * 折叠后 predictDecision(原始 x) 与折叠前 predictDecision(标准化 x) 逐位等价（见测试）。
+ * 仅用于部署产物；训练仍在标准化特征上进行。
+ */
+export function foldInputStandardization(net: DualHeadNet, mu: number[], sigma: number[]): DualHeadNet {
+    const { stateDim, hidden } = net.spec;
+    if (mu.length !== stateDim || sigma.length !== stateDim) throw new Error('标准化向量维度与 stateDim 不匹配');
+    for (let h = 0; h < hidden; h += 1) {
+        let shift = 0;
+        const base = h * stateDim;
+        for (let i = 0; i < stateDim; i += 1) {
+            const w = net.trunkW1[base + i];
+            net.trunkW1[base + i] = w / sigma[i];
+            shift += w * mu[i] / sigma[i];
+        }
+        net.trunkB1[h] -= shift;
+    }
+    net.vel = {};
+    return net;
+}
 
 /** 一次编码状态、评全部候选并给出价值——推理接口。 */
 export function predictDecision(net: DualHeadNet, state: number[], candidates: number[][]): Decision {
