@@ -22,10 +22,13 @@
 import { GameEngine } from '../src/game/engine';
 import { calculateArmyValue } from '../src/game/env';
 import { HeuristicAI, type Rng } from '../src/game/ai/heuristic_ai';
-import { getAllianceId, getTurnPlayerIds } from '../src/game/rule_config';
+import { areEnemyPlayers, getAllianceId, getTurnPlayerIds } from '../src/game/rule_config';
 import { PlanningNode, type PlanningBudgetSpec } from '../src/game/ai/planning';
 import { encodeAction } from '../src/game/env';
-import type { Action, GameState } from '../src/game/types';
+import { getDistance } from '../src/game/map';
+import { getEffectiveStats } from '../src/game/abilities';
+import { getTileTerrainKey } from '../src/game/terrain_rules';
+import type { Action, GameState, Position } from '../src/game/types';
 import type { SkirmishPolicy, SkirmishPolicyContext, SkirmishPolicyFactory } from './skirmish_training_runner';
 
 /** 真实终局的量级：任何局面量评估都远小于它，保证胜负永远压倒材料差。 */
@@ -49,6 +52,13 @@ export interface SearchTeacherConfig extends PlanningBudgetSpec {
     opponentPhaseActions: number;
     /** 领地归属差在局面量里的权重。 */
     territoryWeight: number;
+    /**
+     * T07-P：推演前候选动作快速粗筛上限。昂贵整批评分（RuleTacticalEvaluator/TacticalPathfinder）
+     * 的耗时随【被评分动作数】线性增长，而动作数几乎全被 move 撑大。粗筛用不含寻路/状态克隆的
+     * O(1) 便宜打分先把动作裁到该宽度，再交给昂贵评分器——推演结构/评价口径不变，仅缩小评分集合。
+     * Infinity（默认）= 关闭粗筛，行为与 T07/T08 完全一致；有限值 = 轻量化教师。
+     */
+    prefilterWidth: number;
 }
 
 export const DEFAULT_SEARCH_TEACHER_CONFIG: SearchTeacherConfig = {
@@ -61,7 +71,8 @@ export const DEFAULT_SEARCH_TEACHER_CONFIG: SearchTeacherConfig = {
     ownFollowupDepth: 1,
     opponentReplyWidth: 2,
     opponentPhaseActions: 1,
-    territoryWeight: 250
+    territoryWeight: 250,
+    prefilterWidth: Number.POSITIVE_INFINITY
 };
 
 export type CandidateSource = 'heuristic' | 'model' | 'capture' | 'tactical-necessity' | 'explore' | 'win-now';
@@ -158,6 +169,106 @@ function heuristicRank(ai: HeuristicAI, engine: GameEngine, playerId: number, ac
     for (const item of scored) map.set(encodeAction(item.action), item.score);
     return map;
 }
+
+/**
+ * T07-P 候选动作快速粗筛：用 O(1) 便宜打分（不含寻路/威胁 BFS/状态克隆）先把动作集裁小，
+ * 再交给昂贵评分器 heuristicRank。粗筛是【策略】不是规则：只在进入推演评分前减少候选，
+ * 不改变合法性、不改变评价口径、绝不改规则。关键动作（占领/攻击/招募/治疗/援助/召唤）全部保留，
+ * 只有数量占优的 move 被裁到剩余预算（按朝目标/敌人推进的曼哈顿收益排序，天然覆盖每单位最优推进）。
+ * width=Infinity 或动作数 ≤ width 时原样返回，行为与未引入粗筛时逐位一致。
+ */
+export function prefilterActions(
+    state: GameState,
+    playerId: number,
+    actions: readonly Action[],
+    width: number
+): Action[] {
+    if (!Number.isFinite(width) || actions.length <= width) return actions.slice();
+
+    const enemyPos = state.units
+        .filter(u => u.hp > 0 && areEnemyPlayers(state, playerId, u.ownerId))
+        .map(u => u.pos);
+    const objectives: Position[] = [];
+    for (let y = 0; y < state.map.height; y += 1) {
+        for (let x = 0; x < state.map.width; x += 1) {
+            const tile = state.map.tiles[y][x];
+            const key = getTileTerrainKey(tile);
+            if (key !== 'castle' && key !== 'town') continue;
+            if (tile.ownerId === null || areEnemyPlayers(state, playerId, tile.ownerId)) objectives.push({ x, y });
+        }
+    }
+    const nearest = (pos: Position, list: Position[]): number =>
+        list.length > 0 ? Math.min(...list.map(p => getDistance(pos, p))) : 99;
+    const unitById = new Map(state.units.filter(u => u.hp > 0).map(u => [u.id, u]));
+    const CRITICAL = 30000;
+
+    const scored = actions.map(action => {
+        let score: number;
+        switch (action.type) {
+            case 'capture':
+            case 'repair':
+            case 'destroy_town':
+                score = 60000; break;
+            case 'attack':
+                score = 55000; break;
+            case 'heal':
+            case 'support':
+            case 'summon':
+                score = 40000; break;
+            case 'recruit_to_castle':
+            case 'recruit_and_deploy':
+                score = 38000; break;
+            case 'move':
+            case 'post_attack_move': {
+                const unit = unitById.get(action.unitId);
+                if (!unit) { score = 0; break; }
+                const before = Math.min(nearest(unit.pos, enemyPos), nearest(unit.pos, objectives));
+                const after = Math.min(nearest(action.to, enemyPos), nearest(action.to, objectives));
+                const reach = getEffectiveStats(unit).maxRange || 1;
+                score = 10000 + (before - after) * 100 + (nearest(action.to, enemyPos) <= reach ? 500 : 0);
+                break;
+            }
+            case 'wait':
+                score = 500; break;
+            case 'end_turn':
+                score = 100; break;
+            default:
+                score = 20000;
+        }
+        return { action, score };
+    });
+
+    const keep = new Map<string, Action>();
+    // 关键动作一律保留（正确性优先，即使超过 width 也不丢弃）
+    const bucketBest = new Map<string, { action: Action; score: number }>();
+    for (const { action, score } of scored) {
+        if (score >= CRITICAL) keep.set(encodeAction(action), action);
+        const bucket = actionBucket(action);
+        const cur = bucketBest.get(bucket);
+        if (!cur || score > cur.score) bucketBest.set(bucket, { action, score });
+    }
+    // 每单位/动作桶的最优代表保留（与 buildCandidatePool 的分层探索一致：保证战术 move 不被整类裁光）；
+    // 招募桶每兵种一条、数量多，整体限流为最多 2 条高分代表，避免挤占 move 预算。
+    const recruitReps = [...bucketBest.entries()]
+        .filter(([bucket]) => bucket.startsWith('recruit'))
+        .sort((l, r) => r[1].score - l[1].score)
+        .slice(0, 2);
+    for (const [, v] of recruitReps) keep.set(encodeAction(v.action), v.action);
+    for (const [bucket, v] of bucketBest) {
+        if (bucket.startsWith('recruit')) continue;
+        keep.set(encodeAction(v.action), v.action);
+    }
+    // 剩余预算按便宜分降序填充
+    const fillers = scored
+        .filter(({ score }) => score < CRITICAL)
+        .sort((l, r) => (r.score - l.score) || (encodeAction(l.action) < encodeAction(r.action) ? -1 : 1));
+    for (const { action } of fillers) {
+        if (keep.size >= width) break;
+        keep.set(encodeAction(action), action);
+    }
+    return [...keep.values()];
+}
+
 
 function actionBucket(action: Action): string {
     if (action.type === 'move' || action.type === 'post_attack_move') return `move:${action.unitId}`;
@@ -277,16 +388,18 @@ export function searchTeacherAction(options: {
     const searchable = nonSurrender.length > 0 ? nonSurrender : allLegal;
     const rootAllianceId = root.rootAllianceId;
 
-    const heuristicScores = heuristicRank(ai, rootEngine, options.playerId, searchable);
+    // T07-P：推演前先对全合法动作做 O(1) 粗筛，再交给昂贵评分器（默认 Infinity 宽度过滤=关闭，行为不变）。
+    const prefRoot = prefilterActions(options.state, options.playerId, searchable, config.prefilterWidth);
+    const heuristicScores = heuristicRank(ai, rootEngine, options.playerId, prefRoot);
     const modelScores = config.modelTopK > 0 && options.modelScorer
         ? options.modelScorer(options.state, options.playerId, searchable)
         : null;
     const urgentCodes = new Set<string>();
-    for (const action of searchable) {
+    for (const action of prefRoot) {
         if ((heuristicScores.get(encodeAction(action)) ?? -Infinity) >= 50000) urgentCodes.add(encodeAction(action));
     }
 
-    const pool = buildCandidatePool(searchable, heuristicScores, modelScores, urgentCodes, config);
+    const pool = buildCandidatePool(prefRoot, heuristicScores, modelScores, urgentCodes, config);
     const orderedPool = [...pool.values()]
         .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1))
         .slice(0, config.beamWidth);
@@ -303,10 +416,12 @@ export function searchTeacherAction(options: {
         }
         const enemyId = afterOwn.currentPlayer;
         const enemyEngine = new GameEngine(afterOwn.getState());
-        const enemyActions = afterOwn.legalActions().filter(a => a.type !== 'surrender');
-        if (enemyActions.length === 0) {
+        const rawEnemyActions = afterOwn.legalActions().filter(a => a.type !== 'surrender');
+        if (rawEnemyActions.length === 0) {
             return { worst: leafValue(afterOwn, config.territoryWeight), replies: [], pv: [], truncated: false, terminal: false };
         }
+        // T07-P：对手回应集合同样先粗筛再评分（对手回应只需一个合理续着用于保守估值，缩小评分集不影响合法性）。
+        const enemyActions = prefilterActions(afterOwn.getState(), enemyId, rawEnemyActions, config.prefilterWidth);
         const enemyScores = heuristicRank(ai, enemyEngine, enemyId, enemyActions);
         const replies = [...enemyActions]
             .sort((a, b) => (enemyScores.get(encodeAction(b)) ?? -Infinity) - (enemyScores.get(encodeAction(a)) ?? -Infinity))
@@ -329,8 +444,9 @@ export function searchTeacherAction(options: {
             for (let k = 1; k < config.opponentPhaseActions; k += 1) {
                 if (leaf.isTerminal() || leaf.currentAllianceId !== getAllianceId(leaf.getState(), enemyId)) break;
                 const contEngine = new GameEngine(leaf.getState());
-                const contActions = leaf.legalActions().filter(a => a.type !== 'surrender');
-                if (contActions.length === 0) break;
+                const rawContActions = leaf.legalActions().filter(a => a.type !== 'surrender');
+                if (rawContActions.length === 0) break;
+                const contActions = prefilterActions(leaf.getState(), leaf.currentPlayer, rawContActions, config.prefilterWidth);
                 const contScores = heuristicRank(ai, contEngine, leaf.currentPlayer, contActions);
                 const best = contActions.reduce((acc, act) => ((contScores.get(encodeAction(act)) ?? -Infinity) > (contScores.get(encodeAction(acc)) ?? -Infinity) ? act : acc), contActions[0]);
                 const cont = leaf.apply(best);
@@ -379,8 +495,10 @@ export function searchTeacherAction(options: {
             if (node.isTerminal() || node.currentAllianceId !== rootAllianceId) break;
             if (node.budget.stopReason()) { ownTruncated = true; truncationStop = node.budget.stopReason(); break; }
             const ownEngine = new GameEngine(node.getState());
-            const ownActions = node.legalActions().filter(a => a.type !== 'surrender');
-            if (ownActions.length === 0) break;
+            const rawOwnActions = node.legalActions().filter(a => a.type !== 'surrender');
+            if (rawOwnActions.length === 0) break;
+            // T07-P：己方后续动作集合也先粗筛再评分，取粗筛集内的启发式最优作为合理续着。
+            const ownActions = prefilterActions(node.getState(), node.currentPlayer, rawOwnActions, config.prefilterWidth);
             const ownScores = heuristicRank(ai, ownEngine, node.currentPlayer, ownActions);
             const best = ownActions.reduce((acc, act) => ((ownScores.get(encodeAction(act)) ?? -Infinity) > (ownScores.get(encodeAction(acc)) ?? -Infinity) ? act : acc), ownActions[0]);
             const res = node.apply(best);
