@@ -154,12 +154,18 @@ export function evaluatePositionForRoot(state: GameState, rootAllianceId: number
     return (ownArmy - enemyArmy) + territoryWeight * (ownTerritory - enemyTerritory);
 }
 
-/** 叶节点根视角值：真实终局压倒一切，否则局面量。返回有限数值（非胜率）。 */
-function leafValue(node: PlanningNode, territoryWeight: number): number {
+/** 叶节点根视角值：真实终局压倒一切，否则局面量（或注入的网络价值评估）。返回有限数值（非胜率）。
+ * leafEvaluator 是 T11 的策略性挂钩：仅替换【未终局】叶子的局面评估来源，真实胜/负/平短路始终优先，
+ * 不改规则、不放松终局判定。缺省（undefined）时行为与 T07/T08 逐位一致。 */
+export function leafValue(node: PlanningNode, territoryWeight: number, leafEvaluator?: (state: GameState, rootAllianceId: number) => number): number {
     const verdict = node.terminalVerdict();
     if (verdict === 'win') return TERMINAL_WIN;
     if (verdict === 'loss') return TERMINAL_LOSS;
     if (verdict === 'draw') return 0;
+    if (leafEvaluator) {
+        const v = leafEvaluator(node.getState(), node.rootAllianceId);
+        return Number.isFinite(v) ? v : evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight);
+    }
     return evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight);
 }
 
@@ -370,6 +376,8 @@ export function searchTeacherAction(options: {
     config?: Partial<SearchTeacherConfig>;
     rng?: Rng;
     modelScorer?: ModelScorer;
+    /** T11：可选叶节点评估器（如价值头）；缺省用可解释局面量，真实终局短路不受其影响。 */
+    leafEvaluator?: (state: GameState, rootAllianceId: number) => number;
     now?: () => number;
 }): SearchTeacherDecision {
     const config: SearchTeacherConfig = { ...DEFAULT_SEARCH_TEACHER_CONFIG, ...options.config };
@@ -412,13 +420,13 @@ export function searchTeacherAction(options: {
     const evalOpponentReply = (afterOwn: PlanningNode): { worst: number; replies: string[]; pv: string[]; truncated: boolean; terminal: boolean } => {
         // afterOwn 现在轮到对手（或已终局）
         if (afterOwn.isTerminal()) {
-            return { worst: leafValue(afterOwn, config.territoryWeight), replies: [], pv: [], truncated: false, terminal: true };
+            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator), replies: [], pv: [], truncated: false, terminal: true };
         }
         const enemyId = afterOwn.currentPlayer;
         const enemyEngine = new GameEngine(afterOwn.getState());
         const rawEnemyActions = afterOwn.legalActions().filter(a => a.type !== 'surrender');
         if (rawEnemyActions.length === 0) {
-            return { worst: leafValue(afterOwn, config.territoryWeight), replies: [], pv: [], truncated: false, terminal: false };
+            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator), replies: [], pv: [], truncated: false, terminal: false };
         }
         // T07-P：对手回应集合同样先粗筛再评分（对手回应只需一个合理续着用于保守估值，缩小评分集不影响合法性）。
         const enemyActions = prefilterActions(afterOwn.getState(), enemyId, rawEnemyActions, config.prefilterWidth);
@@ -453,7 +461,7 @@ export function searchTeacherAction(options: {
                 if (cont.status !== 'ok') { truncated = true; if (cont.status === 'budget') truncationStop = cont.stop; break; }
                 leaf = cont.child;
             }
-            const value = leafValue(leaf, config.territoryWeight);
+            const value = leafValue(leaf, config.territoryWeight, options.leafEvaluator);
             if (value < worst) {
                 worst = value;
                 pv = [encodeAction(reply), ...(leaf.lastActionCode && leaf.lastActionCode !== encodeAction(reply) ? [leaf.lastActionCode] : [])];
@@ -461,7 +469,7 @@ export function searchTeacherAction(options: {
             if (root.budget.stopReason()) { truncated = true; truncationStop = root.budget.stopReason(); break; }
         }
         if (replyCodes.length > 0) sawOpponentPhase = true;
-        if (worst === Infinity) { worst = leafValue(afterOwn, config.territoryWeight); truncated = true; }
+        if (worst === Infinity) { worst = leafValue(afterOwn, config.territoryWeight, options.leafEvaluator); truncated = true; }
         return { worst, replies: replyCodes, pv, truncated, terminal: false };
     };
 
