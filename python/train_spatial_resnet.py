@@ -182,8 +182,19 @@ else:
             print(f"Dataset {args.dataset} does not exist. Generating pilot data...")
             os.system(f"npx tsx tools/skirmish_spatial_dataset_export.ts --episodes 10 --out {args.dataset}")
 
+        def collate_samples(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
+            spatial_t = torch.from_numpy(np.stack([s["spatial_tensor"] for s in batch], axis=0))
+            global_f = torch.from_numpy(np.stack([s["global_features"] for s in batch], axis=0))
+            return {
+                "spatial_tensor": spatial_t,
+                "global_features": global_f,
+                "candidates": [s["candidates"] for s in batch],
+                "target_idx": [s["target_idx"] for s in batch],
+                "value_target": [s["value_target"] for s in batch]
+            }
+
         dataset = SpatialDataset(args.dataset)
-        dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+        dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_samples)
 
         model = SpatialResNet().to(device)
         optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)

@@ -17,8 +17,10 @@ import {
     encodeGameStateSpatial,
     encodeCandidateActionSpatial
 } from './spatial_tensor_encoder';
+import trainedSpatialModel from './models/spatial_resnet_checkpoint.json';
 import {
     createInitializedSpatialResNet,
+    loadSpatialResNetFromJson,
     SpatialResNetPredictor,
     SpatialResNetWeights
 } from './spatial_conv_net';
@@ -27,9 +29,14 @@ let defaultSpatialPredictor: SpatialResNetPredictor | null = null;
 
 export function getDefaultSpatialPredictor(): SpatialResNetPredictor {
     if (!defaultSpatialPredictor) {
-        // 使用确定性种子初始化默认空间残差网络
-        const weights = createInitializedSpatialResNet(20260920);
-        defaultSpatialPredictor = new SpatialResNetPredictor(weights);
+        try {
+            const weights = loadSpatialResNetFromJson(JSON.stringify(trainedSpatialModel));
+            defaultSpatialPredictor = new SpatialResNetPredictor(weights);
+        } catch (err) {
+            console.warn('[Spatial AI] 加载训练模型失败，回退至初始化权重:', err);
+            const weights = createInitializedSpatialResNet(20260920);
+            defaultSpatialPredictor = new SpatialResNetPredictor(weights);
+        }
     }
     return defaultSpatialPredictor;
 }
