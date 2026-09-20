@@ -17,8 +17,9 @@ import { createNetworkModelScorer } from '../../../tools/skirmish_neural_search'
 import { searchTeacherAction } from '../../../tools/skirmish_search_teacher';
 import { encodeGameState, encodeGameActionV2 } from '../../../tools/skirmish_network_features';
 import netBData from './models/net_b_checkpoint.json';
+import { getSpatialAiActionSync } from './spatial_neural_adapter';
 
-export type SupportedAiPolicy = 'heuristic' | 'random' | 'net_b_s10' | 'net_b_1ply';
+export type SupportedAiPolicy = 'heuristic' | 'random' | 'net_b_s10' | 'net_b_1ply' | 'spatial_resnet_v1';
 
 export interface AiActionResult {
     action: Action;
@@ -114,6 +115,10 @@ export function getAiAction(
         };
         options?.onTelemetry?.(res);
         return res;
+    }
+
+    if (policy === 'spatial_resnet_v1') {
+        return getSpatialAiActionSync(engine, playerId, options);
     }
 
     if (policy === 'net_b_1ply') {

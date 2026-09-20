@@ -538,6 +538,7 @@ export default function App() {
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-red-500"
                     >
                         <option value="heuristic">Heuristic AI (原生启发式)</option>
+                        <option value="spatial_resnet_v1">Spatial ResNet v1 (空间残差卷积)</option>
                         <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
                         <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
                         <option value="random">Random AI (随机)</option>
@@ -552,8 +553,9 @@ export default function App() {
                         disabled={autoIsRunning}
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
                     >
-                        <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
                         <option value="heuristic">Heuristic AI (原生启发式)</option>
+                        <option value="spatial_resnet_v1">Spatial ResNet v1 (空间残差卷积)</option>
+                        <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
                         <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
                         <option value="random">Random AI (随机)</option>
                     </select>
