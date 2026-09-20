@@ -9,6 +9,7 @@
 
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { getSpatialAiActionSync } from '../src/game/ai/spatial_neural_adapter';
 import { Action, GameState, Unit } from '../src/game/types';
@@ -118,7 +119,7 @@ export function runMatch200Turns(
     seed: number = 7001,
     maxTurns: number = 200
 ): MatchEvaluationReport {
-    const state = createDemoState();
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     const engine = new GameEngine(state);
     const heuristicAi = new HeuristicAI();
 

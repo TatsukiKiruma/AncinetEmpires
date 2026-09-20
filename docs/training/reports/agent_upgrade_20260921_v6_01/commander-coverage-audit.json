@@ -1,0 +1,40 @@
+{
+  "scanTimestamp": "2026-09-20T20:55:54.521Z",
+  "runId": "agent_upgrade_20260921_v6_01",
+  "assetsScanned": [
+    "training_runs/agent_upgrade_20260919_01/baseline_dataset/src_head_00.jsonl",
+    "training_runs/agent_upgrade_20260919_01/baseline_dataset/src_pvp_ai_episodes.jsonl",
+    "training_runs/server_archive_20260913/dataset/checkpoints/"
+  ],
+  "episodesTotal": 2500,
+  "episodesReadable": 2500,
+  "episodesSdRecruitEnabled": 2280,
+  "episodesWithCommanderDeath": 1142,
+  "commanderDeathEvents": 1488,
+  "recoverableDeathEvents": 932,
+  "legalRehireOpportunityEvents": 764,
+  "opportunityStateCount": 3820,
+  "chosenCommanderRehireActions": 618,
+  "selectedPolicyTargetsCommanderRehire": 618,
+  "consumedCommanderTargets": 618,
+  "firstDeathBuckets": 1142,
+  "secondDeathBuckets": 284,
+  "thirdPlusDeathBuckets": 62,
+  "costBuckets": {
+    "cost400": 450,
+    "cost500": 692,
+    "cost600": 284,
+    "cost700Plus": 62
+  },
+  "blockedCastleCases": 418,
+  "savingCases": 520,
+  "pendingResolutionCases": 294,
+  "uniqueEpisodes": 2500,
+  "uniqueRoots": 450,
+  "duplicateStateRate": 0.042,
+  "quarantineByReason": {
+    "SO_MODE_DISABLED": 220,
+    "CORRUPTED_RECORD": 0,
+    "MISSING_OBSERVATION": 0
+  }
+}

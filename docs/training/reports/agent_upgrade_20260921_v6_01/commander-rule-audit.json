@@ -1,0 +1,118 @@
+{
+  "CR01": {
+    "id": "CR01",
+    "name": "SD首次真实死亡后重新招募",
+    "pass": true,
+    "deathCount": 1,
+    "price": 500,
+    "deducted": 500,
+    "newCommanderAlive": true
+  },
+  "CR02": {
+    "id": "CR02",
+    "name": "SD第二及第三次死亡",
+    "pass": true,
+    "priceAfter2Deaths": 600,
+    "priceAfter3Deaths": 700,
+    "deathCount": 3
+  },
+  "CR03": {
+    "id": "CR03",
+    "name": "差1金币",
+    "pass": true,
+    "canRecruit": false,
+    "legalActionsCount": 0
+  },
+  "CR04": {
+    "id": "CR04",
+    "name": "恰好费用",
+    "pass": true,
+    "canRecruit": true,
+    "legalActionsCount": 1
+  },
+  "CR05": {
+    "id": "CR05",
+    "name": "已有指挥官",
+    "pass": true,
+    "canRecruit": false,
+    "legalActionsCount": 0
+  },
+  "CR06": {
+    "id": "CR06",
+    "name": "pending指挥官",
+    "pass": true,
+    "isPending": true,
+    "legalRecruitsWhilePending": 0
+  },
+  "CR07": {
+    "id": "CR07",
+    "name": "普通己军占城堡",
+    "pass": true,
+    "legalBefore": 0,
+    "legalAfter": 1
+  },
+  "CR08": {
+    "id": "CR08",
+    "name": "敌军占城堡",
+    "pass": true,
+    "legalCount": 0
+  },
+  "CR09": {
+    "id": "CR09",
+    "name": "没有己方城堡",
+    "pass": true,
+    "legalCount": 0
+  },
+  "CR10": {
+    "id": "CR10",
+    "name": "单位数量上限",
+    "pass": true,
+    "canRecruit": false,
+    "legalCount": 0
+  },
+  "CR11": {
+    "id": "CR11",
+    "name": "人口已满但指挥官pop=0",
+    "pass": true,
+    "canRecruit": true,
+    "legalCount": 1
+  },
+  "CR12": {
+    "id": "CR12",
+    "name": "SO模式禁招",
+    "pass": true,
+    "price": null,
+    "canRecruit": false,
+    "legalCount": 0
+  },
+  "CR13": {
+    "id": "CR13",
+    "name": "指挥官死即判负规则",
+    "pass": true,
+    "winner": 1,
+    "player0Alive": false
+  },
+  "CR14": {
+    "id": "CR14",
+    "name": "保留等级与经验",
+    "pass": true,
+    "level": 3,
+    "exp": 80
+  },
+  "CR15": {
+    "id": "CR15",
+    "name": "P0/P1独立计数",
+    "pass": true,
+    "costP0": 600,
+    "costP1": 400
+  },
+  "CR16": {
+    "id": "CR16",
+    "name": "Clone序列化一致性",
+    "pass": true,
+    "origCost": 500,
+    "cloneCost": 500,
+    "origActionsCount": 1,
+    "cloneActionsCount": 1
+  }
+}

@@ -34,29 +34,41 @@ if TORCH_AVAILABLE:
             self,
             spatial_channels: int = 24,
             trunk_channels: int = 32,
-            global_dim: int = 16,
-            action_semantic_dim: int = 24
+            global_dim: int = 20,
+            action_semantic_dim: int = 32,
+            version: str = "spatial-resnet-v2",
+            num_blocks: int = 2
         ):
             super().__init__()
             self.spatial_channels = spatial_channels
             self.trunk_channels = trunk_channels
             self.global_dim = global_dim
             self.action_semantic_dim = action_semantic_dim
+            self.version = version
+            self.num_blocks = num_blocks
 
             # 1. Stem
             self.stem = nn.Conv2d(spatial_channels, trunk_channels, kernel_size=3, padding=1)
 
             # 2. ResBlocks
-            self.res1 = ConvBlock(trunk_channels, trunk_channels)
-            self.res2 = ConvBlock(trunk_channels, trunk_channels)
+            self.res_blocks = nn.ModuleList([
+                ConvBlock(trunk_channels, trunk_channels) for _ in range(num_blocks)
+            ])
+            self.res1 = self.res_blocks[0]
+            self.res2 = self.res_blocks[1]
+            if num_blocks >= 4:
+                self.res3 = self.res_blocks[2]
+                self.res4 = self.res_blocks[3]
 
             # 3. Value Head
             self.val_dense1 = nn.Linear(trunk_channels + global_dim, 32)
             self.val_dense2 = nn.Linear(32, 1)
 
             # 4. Policy Scorer Head
-            # Input: 3 x trunk_channels (actor, landing, target) + action_semantic_dim = 3 * 32 + 24 = 120
-            self.pol_dense1 = nn.Linear(trunk_channels * 3 + action_semantic_dim, 48)
+            # V2: 3 x trunk (96) + action_semantics (32) + globals (20) = 148
+            # V1: 3 x trunk (96) + action_semantics (24) = 120
+            pol_in_dim = trunk_channels * 3 + action_semantic_dim + (global_dim if version == "spatial-resnet-v2" else 0)
+            self.pol_dense1 = nn.Linear(pol_in_dim, 48)
             self.pol_dense2 = nn.Linear(48, 1)
 
         def forward_trunk(self, spatial_tensor: torch.Tensor) -> torch.Tensor:
@@ -65,16 +77,15 @@ if TORCH_AVAILABLE:
             Output: Z [B, 32, 20, 20]
             """
             x = F.relu(self.stem(spatial_tensor))
-            x = self.res1(x)
-            z = self.res2(x)
-            return z
+            for block in self.res_blocks:
+                x = block(x)
+            return x
 
         def forward_value(self, z: torch.Tensor, global_features: torch.Tensor) -> torch.Tensor:
             """
-            Input: Z [B, 32, 20, 20], Globals [B, 16]
+            Input: Z [B, 32, 20, 20], Globals [B, G]
             Output: V [B, 1] in [-1, 1]
             """
-            # Global Average Pooling -> [B, 32]
             gap = torch.mean(z, dim=[2, 3])
             val_in = torch.cat([gap, global_features], dim=-1)
             h = F.relu(self.val_dense1(val_in))
@@ -83,7 +94,7 @@ if TORCH_AVAILABLE:
 
         def forward_action_logits(self, action_features: torch.Tensor) -> torch.Tensor:
             """
-            Input: [B, K, 120] (K candidate actions per state)
+            Input: [B, K, pol_in_dim]
             Output: [B, K]
             """
             h = F.relu(self.pol_dense1(action_features))
@@ -99,6 +110,10 @@ def export_model_to_ts_json(model: Any, output_file: str) -> None:
         raise RuntimeError("PyTorch is required for weight export")
 
     state_dict = model.state_dict()
+    version = getattr(model, "version", "spatial-resnet-v2")
+    num_blocks = getattr(model, "num_blocks", 2)
+    val_in_dim = model.val_dense1.in_features
+    pol_in_dim = model.pol_dense1.in_features
 
     def export_conv(layer_prefix: str, in_c: int, out_c: int) -> Dict[str, Any]:
         w = state_dict[f"{layer_prefix}.weight"].detach().cpu().numpy()
@@ -123,19 +138,28 @@ def export_model_to_ts_json(model: Any, output_file: str) -> None:
         }
 
     data = {
-        "version": "spatial-resnet-v1",
-        "architectureId": "spatial_resnet_32ch_2res",
+        "version": version,
+        "numBlocks": num_blocks,
+        "architectureId": f"spatial_resnet_32ch_{num_blocks}res",
         "stem": export_conv("stem", 24, 32),
-        "res1_1": export_conv("res1.conv1", 32, 32),
-        "res1_2": export_conv("res1.conv2", 32, 32),
-        "res2_1": export_conv("res2.conv1", 32, 32),
-        "res2_2": export_conv("res2.conv2", 32, 32),
-        "valDense1": export_dense("val_dense1", 48, 32),
+        "res1_1": export_conv("res_blocks.0.conv1", 32, 32),
+        "res1_2": export_conv("res_blocks.0.conv2", 32, 32),
+        "res2_1": export_conv("res_blocks.1.conv1", 32, 32),
+        "res2_2": export_conv("res_blocks.1.conv2", 32, 32),
+        "valDense1": export_dense("val_dense1", val_in_dim, 32),
         "valDense2": export_dense("val_dense2", 32, 1),
-        "polDense1": export_dense("pol_dense1", 120, 48),
+        "polDense1": export_dense("pol_dense1", pol_in_dim, 48),
         "polDense2": export_dense("pol_dense2", 48, 1)
     }
 
+    if num_blocks >= 4:
+        data["res3_1"] = export_conv("res_blocks.2.conv1", 32, 32)
+        data["res3_2"] = export_conv("res_blocks.2.conv2", 32, 32)
+        data["res4_1"] = export_conv("res_blocks.3.conv1", 32, 32)
+        data["res4_2"] = export_conv("res_blocks.3.conv2", 32, 32)
+
+    import os
+    os.makedirs(os.path.dirname(os.path.abspath(output_file)), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-    print(f"Exported SpatialResNet model to {output_file}")
+    print(f"Exported SpatialResNet ({version}, pol_in={pol_in_dim}) to {output_file}")

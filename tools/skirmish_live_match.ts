@@ -14,6 +14,7 @@
 
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { RandomAI } from '../src/game/ai/random_ai';
 import { getSpatialAiActionSync } from '../src/game/ai/spatial_neural_adapter';
@@ -93,7 +94,7 @@ export async function runLiveMatch(options: {
     console.log(`   红方 (P0): ${p0Policy}   VS   蓝方 (P1): ${p1Policy}   |   种子: ${seed}`);
     console.log(`═`.repeat(78) + `\n`);
 
-    const state = createDemoState();
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     const engine = new GameEngine(state);
     const heuristicAi = new HeuristicAI();
     const randomAi = new RandomAI();

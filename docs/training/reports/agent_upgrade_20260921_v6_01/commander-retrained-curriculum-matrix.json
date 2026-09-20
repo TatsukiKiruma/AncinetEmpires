@@ -1,0 +1,770 @@
+[
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 12.81,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.71,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 5.13,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 32.96,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.69,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 2.65,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.93,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "scenarioName": "安全立即重招募",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 22.39,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.16,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.29,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.59,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 22.99,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.33,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.96,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.03,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "scenarioName": "城堡被友军占领 (需让位)",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT",
+    "verdict": "CORRECT_UNBLOCK_ACTION",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 21.5,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "CASTLE_OCCUPIED",
+      "LEGAL_GENERATION_MISMATCH"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 9.11,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "soldier",
+    "latencyMs": 0.35,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.96,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 24.12,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.52,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.01,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.39,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "catapult",
+    "latencyMs": 22.51,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.96,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.38,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.88,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 22.27,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.47,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.71,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.65,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 21.41,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 2.28,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "dark_mage",
+    "latencyMs": 0.55,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.89,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 23.82,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.65,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.3,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "MISSED_REHIRE",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.88,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S5_SECOND_DEATH_INFLATION",
+    "scenarioName": "第二次死亡涨价 (600金币恰好够)",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "RECRUIT_COMMANDER",
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 22.58,
+    "canRecruitByRule": true,
+    "explanationReasons": []
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.86,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.09,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.51,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 21.92,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.23,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.4,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 0.91,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  },
+  {
+    "scenarioId": "S6_PENDING_DEPLOYMENT",
+    "scenarioName": "部署阶段指挥官待走",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "MOVE_OR_WAIT_PENDING",
+    "verdict": "CORRECT_PENDING_HANDLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 21.36,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "COMMANDER_ALREADY_PRESENT",
+      "INSUFFICIENT_GOLD",
+      "CASTLE_OCCUPIED",
+      "PENDING_LOCK"
+    ]
+  }
+]

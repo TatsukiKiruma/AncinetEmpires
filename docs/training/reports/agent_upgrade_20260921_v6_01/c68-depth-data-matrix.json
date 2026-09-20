@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-09-20T21:05:30.000Z",
+  "runId": "agent_upgrade_20260921_v6_01",
+  "experiment": "C68 Depth & Data Scaling Evaluation",
+  "baselineDataset": "training_runs/agent_upgrade_20260921_v6_01/datasets/d_r30_spatial.jsonl",
+  "arms": [
+    {
+      "armId": "Arm_A",
+      "description": "D_R30 (30k states), 32ch, 2 ResBlocks (Post-fix baseline)",
+      "dataset": "D_R30 (30,000 states)",
+      "numBlocks": 2,
+      "parameterCount": 52145,
+      "epochs": 3,
+      "batchSize": 64,
+      "lr": 0.002,
+      "bestEpoch": 3,
+      "trainLoss": 0.1467,
+      "trainAccuracy": 0.9375,
+      "valLoss": 0.2155,
+      "valAccuracy": 0.9068,
+      "rehireSuccessRate": 1.0,
+      "checkpointPath": "training_runs/agent_upgrade_20260921_v6_01/checkpoints/spatial_resnet/spatial_resnet_v2_checkpoint.json",
+      "sha256": "2fd090b86cc7f11380c7416faf5ca7819fd10580fab157e469fe126c456b6b3e"
+    },
+    {
+      "armId": "Arm_C",
+      "description": "D_R30 (30k states), 32ch, 4 ResBlocks (Depth scaling gain)",
+      "dataset": "D_R30 (30,000 states)",
+      "numBlocks": 4,
+      "parameterCount": 89137,
+      "epochs": 3,
+      "batchSize": 64,
+      "lr": 0.002,
+      "bestEpoch": 1,
+      "trainLoss": 0.4524,
+      "trainAccuracy": 0.8776,
+      "valLoss": 0.2665,
+      "valAccuracy": 0.9074,
+      "rehireSuccessRate": 1.0,
+      "checkpointPath": "training_runs/agent_upgrade_20260921_v6_01/checkpoints/spatial_resnet/spatial_resnet_v2_4block_checkpoint.json",
+      "sha256": "81f1853d9e487da8e79e60a33118cf9bcfe496c141d5b3d758d4a9f3900388d7"
+    }
+  ],
+  "findings": [
+    "Both 2-block and 4-block Spatial ResNet v2 architectures exceed 90.6% validation accuracy with grouped episode partition (zero frame leakage).",
+    "Deepening from 2 to 4 ResBlocks yields a slight validation accuracy improvement (90.68% -> 90.74%), with 100% re-recruitment success rate preserved across all curriculum cohorts (S1-S6).",
+    "Per-step inference latency on CPU remains well within the 1000ms budget: 2-block ~20.05ms, 4-block ~31.2ms (over 30x safety margin)."
+  ]
+}

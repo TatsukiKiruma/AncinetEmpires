@@ -40,7 +40,22 @@ else:
                     line = line.strip()
                     if not line:
                         continue
-                    self.samples.append(json.loads(line))
+                    s = json.loads(line)
+                    cand_actions = s.get("candidateActions", [])
+                    for c in cand_actions:
+                        sem_raw = c.get("semantics", [])
+                        sem_padded = sem_raw[:32] + [0.0] * max(0, 32 - len(sem_raw))
+                        c["semantics_padded"] = np.array(sem_padded, dtype=np.float32)
+
+                    self.samples.append({
+                        "spatial_tensor": np.array(s["spatialTensor"], dtype=np.float32).reshape(24, 20, 20),
+                        "global_features": np.array(s["globalFeatures"], dtype=np.float32),
+                        "candidates": cand_actions,
+                        "target_idx": s.get("targetActionIndex", 0),
+                        "value_target": s.get("valueTarget"),
+                        "episodeId": s.get("episodeId"),
+                        "rootFamilyId": s.get("rootFamilyId"),
+                    })
 
             print(f"Loaded {len(self.samples)} spatial samples from {jsonl_path}")
 
@@ -48,33 +63,35 @@ else:
             return len(self.samples)
 
         def __getitem__(self, idx: int) -> Dict[str, Any]:
-            s = self.samples[idx]
-            spatial_tensor = np.array(s["spatialTensor"], dtype=np.float32).reshape(24, 20, 20)
-            global_features = np.array(s["globalFeatures"], dtype=np.float32)
-
-            candidates = s["candidateActions"]
-            target_idx = s["targetActionIndex"]
-            value_target = s["valueTarget"] # float or None
-
-            return {
-                "spatial_tensor": spatial_tensor,
-                "global_features": global_features,
-                "candidates": candidates,
-                "target_idx": target_idx,
-                "value_target": value_target
-            }
+            return self.samples[idx]
 
 
-    def pool_coord(z: torch.Tensor, coord: Any) -> torch.Tensor:
+    def pool_coords_batch(z: torch.Tensor, coords: List[Any]) -> torch.Tensor:
         """
-        Pools 32-dim feature vector from Z [32, 20, 20] at (coord['y'], coord['x']).
+        Vectorized pooling of [K, 32] feature vectors from z [32, 20, 20] across K coordinates.
         """
-        if coord is None or coord.get("x") is None or coord.get("y") is None:
-            return torch.zeros((32,), dtype=torch.float32, device=z.device)
-        x, y = coord["x"], coord["y"]
-        if x < 0 or x >= 20 or y < 0 or y >= 20:
-            return torch.zeros((32,), dtype=torch.float32, device=z.device)
-        return z[:, y, x]
+        K = len(coords)
+        if K == 0:
+            return torch.zeros((0, 32), dtype=torch.float32, device=z.device)
+        y = []
+        x = []
+        valid = []
+        for c in coords:
+            if c is not None and isinstance(c, dict) and "x" in c and "y" in c:
+                cx, cy = c["x"], c["y"]
+                if 0 <= cx < 20 and 0 <= cy < 20:
+                    x.append(cx)
+                    y.append(cy)
+                    valid.append(1.0)
+                    continue
+            x.append(0)
+            y.append(0)
+            valid.append(0.0)
+        y_t = torch.tensor(y, dtype=torch.long, device=z.device)
+        x_t = torch.tensor(x, dtype=torch.long, device=z.device)
+        val_t = torch.tensor(valid, dtype=torch.float32, device=z.device).unsqueeze(-1)
+        pooled = z[:, y_t, x_t].permute(1, 0)
+        return pooled * val_t
 
 
     def run_epoch(
@@ -105,11 +122,20 @@ else:
                     optimizer.zero_grad()
 
                 spatial_t = batch["spatial_tensor"].to(device)  # [B, 24, 20, 20]
-                global_f = batch["global_features"].to(device)  # [B, 16]
+                global_f = batch["global_features"].to(device)  # [B, G]
+                is_v2 = getattr(model, "version", "spatial-resnet-v2") == "spatial-resnet-v2"
+
+                # Pad or slice global features for value head
+                target_g_dim = 20 if is_v2 else 16
+                if global_f.size(-1) < target_g_dim:
+                    pad = torch.zeros((global_f.size(0), target_g_dim - global_f.size(-1)), dtype=torch.float32, device=device)
+                    global_f_val = torch.cat([global_f, pad], dim=-1)
+                else:
+                    global_f_val = global_f[:, :target_g_dim]
 
                 # Forward Trunk & Value
                 z = model.forward_trunk(spatial_t)  # [B, 32, 20, 20]
-                val_pred = model.forward_value(z, global_f).squeeze(-1)  # [B]
+                val_pred = model.forward_value(z, global_f_val).squeeze(-1)  # [B]
 
                 batch_size = spatial_t.size(0)
                 batch_pol_loss = torch.tensor(0.0, device=device)
@@ -120,18 +146,29 @@ else:
                     if len(cand_list) == 0:
                         continue
 
-                    # Build action features for this state
-                    cand_feats = []
+                    K = len(cand_list)
                     z_b = z[b]  # [32, 20, 20]
-                    for c in cand_list:
-                        v_act = pool_coord(z_b, c.get("actorCoord"))
-                        v_land = pool_coord(z_b, c.get("landingCoord"))
-                        v_tgt = pool_coord(z_b, c.get("targetCoord"))
-                        sem = torch.tensor(c.get("semantics", [0] * 24), dtype=torch.float32, device=device)
-                        f_vec = torch.cat([v_act, v_land, v_tgt, sem], dim=-1)  # 120
-                        cand_feats.append(f_vec)
+                    glob_b = global_f_val[b]  # [20 or 16]
 
-                    cand_tensor = torch.stack(cand_feats, dim=0).unsqueeze(0)  # [1, K, 120]
+                    act_coords = [c.get("actorCoord") for c in cand_list]
+                    land_coords = [c.get("landingCoord") for c in cand_list]
+                    tgt_coords = [c.get("targetCoord") for c in cand_list]
+
+                    v_act = pool_coords_batch(z_b, act_coords)
+                    v_land = pool_coords_batch(z_b, land_coords)
+                    v_tgt = pool_coords_batch(z_b, tgt_coords)
+
+                    sem_list = [c["semantics_padded"] for c in cand_list]
+                    sem_tensor = torch.from_numpy(np.stack(sem_list, axis=0)).to(device)
+
+                    if is_v2:
+                        glob_expanded = glob_b.unsqueeze(0).expand(K, -1)
+                        cand_feats = torch.cat([v_act, v_land, v_tgt, sem_tensor, glob_expanded], dim=-1)
+                    else:
+                        sem_24 = sem_tensor[:, :24]
+                        cand_feats = torch.cat([v_act, v_land, v_tgt, sem_24], dim=-1)
+
+                    cand_tensor = cand_feats.unsqueeze(0)  # [1, K, pol_dim]
                     logits = model.forward_action_logits(cand_tensor)  # [1, K]
 
                     target_tensor = torch.tensor([target_i], dtype=torch.long, device=device)
@@ -176,7 +213,13 @@ else:
 
     def collate_samples(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
         spatial_t = torch.from_numpy(np.stack([s["spatial_tensor"] for s in batch], axis=0))
-        global_f = torch.from_numpy(np.stack([s["global_features"] for s in batch], axis=0))
+        # Support variable length globals by padding to max length in batch
+        max_g = max(len(s["global_features"]) for s in batch)
+        padded_g = [
+            np.pad(s["global_features"], (0, max_g - len(s["global_features"])))
+            for s in batch
+        ]
+        global_f = torch.from_numpy(np.stack(padded_g, axis=0))
         return {
             "spatial_tensor": spatial_t,
             "global_features": global_f,
@@ -193,36 +236,74 @@ else:
         parser.add_argument("--lr", type=float, default=1e-3, help="Learning rate")
         parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
         parser.add_argument("--val-split", type=float, default=0.1, help="Validation ratio")
-        parser.add_argument("--out-model", type=str, default="training_runs/models/spatial_resnet_scaled_checkpoint.json", help="Output JSON checkpoint")
-        parser.add_argument("--deploy-to-src", action="store_true", default=True, help="Also deploy to src/game/ai/models/")
+        parser.add_argument("--out-model", type=str, default="training_runs/models/spatial_resnet_v2_checkpoint.json", help="Output JSON checkpoint")
+        parser.add_argument("--deploy-to-src", action="store_true", default=False, help="Explicitly deploy to src/game/ai/models/ (default: False)")
         parser.add_argument("--seed", type=int, default=42, help="Random seed")
+        parser.add_argument("--model-version", type=str, default="spatial-resnet-v2", choices=["spatial-resnet-v1", "spatial-resnet-v2"])
+        parser.add_argument("--num-blocks", type=int, default=2, choices=[2, 4], help="Number of ResNet trunk blocks (2 or 4)")
         args = parser.parse_args()
 
         torch.manual_seed(args.seed)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"=======================================================")
-        print(f"[Path B Training] Spatial ResNet Scaled PyTorch Engine")
+        print(f"[Path B Training] Spatial ResNet Scaled PyTorch Engine ({args.model_version}, {args.num_blocks} blocks)")
         print(f"Device: {device} (CPU Threads: {torch.get_num_threads()})")
         print(f"Dataset: {args.dataset}")
-        print(f"Batch Size: {args.batch_size} | Epochs: {args.epochs} | LR: {args.lr}")
+        print(f"Blocks: {args.num_blocks} | Batch Size: {args.batch_size} | Epochs: {args.epochs} | LR: {args.lr}")
         print(f"=======================================================\n")
 
         full_dataset = SpatialDataset(args.dataset)
         total_len = len(full_dataset)
-        val_len = int(total_len * args.val_split)
-        train_len = total_len - val_len
 
-        train_data, val_data = random_split(
-            full_dataset, 
-            [train_len, val_len],
-            generator=torch.Generator().manual_seed(args.seed)
-        )
-        print(f"Dataset Partition: Train = {train_len} samples | Validation = {val_len} samples\n")
+        # Grouped split by episodeId / rootFamilyId to prevent leakage across state frames
+        episode_groups: Dict[str, List[int]] = {}
+        for idx, sample in enumerate(full_dataset.samples):
+            ep_id = sample.get("rootFamilyId") or sample.get("episodeId") or f"ep_{idx // 60}"
+            if ep_id not in episode_groups:
+                episode_groups[ep_id] = []
+            episode_groups[ep_id].append(idx)
+
+        group_keys = sorted(list(episode_groups.keys()))
+        import random
+        rng = random.Random(args.seed)
+        rng.shuffle(group_keys)
+
+        val_target_count = max(1, int(total_len * args.val_split))
+        val_indices: List[int] = []
+        train_indices: List[int] = []
+        cur_val_count = 0
+
+        for k in group_keys:
+            idxs = episode_groups[k]
+            if cur_val_count < val_target_count:
+                val_indices.extend(idxs)
+                cur_val_count += len(idxs)
+            else:
+                train_indices.extend(idxs)
+
+        if len(train_indices) == 0:
+            train_indices = list(range(total_len))
+            val_indices = list(range(min(total_len, val_target_count)))
+
+        train_data = torch.utils.data.Subset(full_dataset, train_indices)
+        val_data = torch.utils.data.Subset(full_dataset, val_indices)
+        print(f"Grouped Partition: Train = {len(train_data)} samples | Validation = {len(val_data)} samples (Grouped by {len(group_keys)} episodes/roots)\n")
 
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, collate_fn=collate_samples)
         val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, collate_fn=collate_samples)
 
-        model = SpatialResNet().to(device)
+        global_dim = 20 if args.model_version == "spatial-resnet-v2" else 16
+        action_semantic_dim = 32 if args.model_version == "spatial-resnet-v2" else 24
+
+        model = SpatialResNet(
+            spatial_channels=24,
+            trunk_channels=32,
+            global_dim=global_dim,
+            action_semantic_dim=action_semantic_dim,
+            version=args.model_version,
+            num_blocks=args.num_blocks
+        ).to(device)
+
         optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
 
@@ -230,6 +311,7 @@ else:
         best_epoch = 0
 
         print(f"Starting scaled training for {args.epochs} epochs...\n")
+        history = []
         for epoch in range(1, args.epochs + 1):
             train_loss, train_pol, train_acc = run_epoch(
                 model, train_loader, optimizer, device, is_train=True
@@ -240,10 +322,11 @@ else:
             scheduler.step()
 
             is_best = val_acc > best_val_acc
-            if is_best:
-                best_val_acc = val_acc
-                best_epoch = epoch
-                os.makedirs(os.path.dirname(args.out_model), exist_ok=True)
+            if is_best or epoch == args.epochs:
+                if is_best:
+                    best_val_acc = val_acc
+                    best_epoch = epoch
+                os.makedirs(os.path.dirname(os.path.abspath(args.out_model)), exist_ok=True)
                 export_model_to_ts_json(model, args.out_model)
                 if args.deploy_to_src:
                     deployed_path = "src/game/ai/models/spatial_resnet_checkpoint.json"
@@ -256,10 +339,27 @@ else:
                 f"Train Loss: {train_loss:.4f} (Acc: {train_acc*100:.2f}%) | "
                 f"Val Loss: {val_loss:.4f} (Acc: {val_acc*100:.2f}%){best_mark}"
             )
+            history.append({
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "train_acc": train_acc,
+                "val_loss": val_loss,
+                "val_acc": val_acc
+            })
+
+        metrics_file = os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "train_metrics.json")
+        with open(metrics_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "model_version": args.model_version,
+                "best_val_acc": best_val_acc,
+                "best_epoch": best_epoch,
+                "history": history
+            }, f, indent=2)
 
         print(f"\n=======================================================")
         print(f"[Training Complete] Best Validation Accuracy: {best_val_acc * 100:.2f}% (Epoch {best_epoch})")
         print(f"Exported model checkpoint to: {args.out_model}")
+        print(f"Metrics saved to: {metrics_file}")
         if args.deploy_to_src:
             print(f"Successfully deployed to: src/game/ai/models/spatial_resnet_checkpoint.json")
         print(f"=======================================================\n")

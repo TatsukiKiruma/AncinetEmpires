@@ -13,6 +13,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { Action, GameState } from '../src/game/types';
 import {
@@ -60,7 +61,7 @@ export function generateSpatialEpisodeSamples(
     seed: number,
     maxSteps: number = 80
 ): { samples: SpatialDatasetSample[]; naturalWinner: number | null; isTruncated: boolean } {
-    const state = createDemoState();
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     const engine = new GameEngine(state);
     const heuristicAi = new HeuristicAI();
 

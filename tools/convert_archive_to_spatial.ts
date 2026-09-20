@@ -84,13 +84,32 @@ export async function convertArchiveToSpatial(options: ConvertOptions) {
                 tiles[t.y][t.x] = t;
             }
             const units = obs.units.map((u: any) => ({ ...u, pos: u.pos ?? { x: u.x, y: u.y } }));
+            const players = (obs.players ?? []).map((p: any) => ({
+                ...p,
+                commanderDeathCount: p.commanderDeathCount ?? 0,
+                commanderReserveLevel: p.commanderReserveLevel ?? p.reserveLevel ?? 0,
+                commanderReserveExp: p.commanderReserveExp ?? p.reserveExp ?? 0
+            }));
+            const obsRules = obs.rules ?? {};
+            const restoredPrices = {
+                ...(obsRules.prices ?? {}),
+                ...(obsRules.priceOverrides ?? {})
+            };
+            const rules = {
+                ...obsRules,
+                prices: restoredPrices,
+                commanderRecruitBaseCost: obsRules.commanderRecruitBaseCost !== undefined ? obsRules.commanderRecruitBaseCost : 400,
+                commanderRecruitCostGrowth: obsRules.commanderRecruitCostGrowth !== undefined ? obsRules.commanderRecruitCostGrowth : 100,
+                commanderCastleRecruitUsesPending: obsRules.commanderCastleRecruitUsesPending ?? false
+            };
             const state: GameState = {
                 turn: obs.turn,
                 currentPlayer: obs.currentPlayer,
+                pendingUnitId: obs.pendingUnitId,
                 map: { width: obs.mapWidth, height: obs.mapHeight, tiles },
                 units,
-                players: obs.players,
-                rules: obs.rules,
+                players,
+                rules,
                 metadata: obs.metadata,
                 winner: null
             };
@@ -102,18 +121,24 @@ export async function convertArchiveToSpatial(options: ConvertOptions) {
             let labelIndex = -1;
             const targetActionCode = label.actionCode;
 
-            // 候选动作提取 (截断至 maxCandidates，但必须保留专家动作)
+            // 候选动作提取 (截断至 maxCandidates，但严禁丢弃专家动作与指挥官重招募动作)
             let candidateCodes = legalCodes;
             if (candidateCodes.length > maxCandidates) {
-                // 确保 targetActionCode 包含在前 maxCandidates 内
-                const foundIdx = candidateCodes.indexOf(targetActionCode);
-                if (foundIdx >= maxCandidates && foundIdx !== -1) {
-                    // 调换位置放入候选
-                    candidateCodes = candidateCodes.slice(0, maxCandidates);
-                    candidateCodes[maxCandidates - 1] = targetActionCode;
-                } else {
-                    candidateCodes = candidateCodes.slice(0, maxCandidates);
+                const preserved = new Set<string>();
+                if (targetActionCode) preserved.add(targetActionCode);
+                for (const code of candidateCodes) {
+                    if (code.startsWith('recruit_to_castle:commander:') || code.startsWith('recruit_and_deploy:commander:')) {
+                        preserved.add(code);
+                    }
                 }
+                const resultList = Array.from(preserved);
+                for (const code of candidateCodes) {
+                    if (resultList.length >= maxCandidates) break;
+                    if (!preserved.has(code)) {
+                        resultList.push(code);
+                    }
+                }
+                candidateCodes = resultList;
             }
 
             const candidatesList: any[] = [];

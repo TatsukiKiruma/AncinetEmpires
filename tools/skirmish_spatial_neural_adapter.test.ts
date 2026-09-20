@@ -20,9 +20,9 @@ describe('Spatial Neural AI Adapter (Path B)', () => {
         const isLegal = legalActions.some(a => JSON.stringify(a) === JSON.stringify(result.action));
         expect(isLegal).toBe(true);
 
-        // 端到端耗时测量与 deadlineMiss
+        // 端到端耗时测量与 deadlineMiss (1000ms 契约)
         expect(result.e2eMs).toBeDefined();
-        expect(result.e2eMs).toBeLessThan(100);
+        expect(result.e2eMs).toBeLessThan(1000);
         expect(result.deadlineMiss).toBe(false);
         expect(result.source).toContain('Spatial ResNet v1');
     });

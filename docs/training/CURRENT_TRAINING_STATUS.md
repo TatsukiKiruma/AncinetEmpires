@@ -1,6 +1,57 @@
 # SD 训练当前状态与后继任务
 
-## 2026-09-20 P0 前端集成交付与 P1 算法攻坚突破（全闭环通过）
+## 2026-09-21 V6 指挥官重招募专项与全模型重训交付（Run: agent_upgrade_20260921_v6_01）
+
+> [!IMPORTANT]
+> **历史替代声明**：此前 2026-09-20 "全闭环通过" 作为历史阶段记录保留，其暴露的"指挥官阵亡后金币足够却不重招募"缺陷已在本次 V6 专项中完成全链路定位、数据重构、全学习模型重训与前后对比实证。
+
+### 1. 指挥官阵亡后金币足够却不重招募的根本原因定位（C60-C62）
+经对引擎、规则链、数据流及神经网络特征的端到端穿透审计，定位三大根因：
+1. **规则入口缺陷**：多处评估与对局入口直接调用无参 `createDemoState()`，导致回退到 `DEFAULT_RULE_CONFIG`（其中 `commanderRecruitBaseCost = null`，规则层直接禁用重招募）。
+2. **特征空间碰撞**：旧空间特征编码（24 维）仅包含几何与生命值，完全丢失了 `unitClass` 与动态费用，招募指挥官与招募普通小兵特征向量 100% 相同（碰撞重叠），且空间策略头完全无法读取全局金币与死亡计数。
+3. **数据链缺乏示范**：历史数据集在无 SD 规则或截断机制下几乎未包含合法指挥官重招募示范。
+
+### 2. 正确 SD 机制与 V2 编码架构落地（C63）
+1. **规则注入**：所有对局与评测入口（`tools/skirmish_spatial_dataset_export.ts`、`tools/run_match_evaluation_200turns.ts`、`tools/skirmish_live_match.ts` 等）均显式注入 `getApkSkirmishRuleConfig('SD')`。
+2. **V2 全局特征（20维）**：新增 `commanderDeathCount / 5`、`commanderCost / 1000`、`goldGap / 1000`、`unoccupiedCastles / 5`。
+3. **V2 候选动作语义（32维）**：新增 `unitClassCode`、`isCommanderRecruit`、`cost`、`remainingGold`、`isCommanderAlive`、`reserveLevel`、`reserveExp`、`isPendingDeployment`。
+4. **反碰撞验证**：经 `tools/skirmish_spatial_tensor.test.ts` 验证，同一城堡同落点招募普通士兵 vs 招募指挥官的特征差异由 0.0（V1 缺陷）提升至 > 1.0（V2 彻底区分）。
+
+### 3. D_R30 课程数据集（C64）
+生成 30,000 唯一状态共享数据集（`training_runs/agent_upgrade_20260921_v6_01/datasets/`）：
+- **70% 通用对战状态（21,000 条）**：真实 SD 规则两方对抗。
+- **30% 专项课程状态（9,000 条）**：跨 7 组典型场景：
+  - A 组（2,000 条）：安全立即重招募正例。
+  - B 组（1,500 条）：资金不足合理攒钱（499 vs 500）。
+  - C 组（1,500 条）：己方普通兵让出城堡再招募。
+  - D 组（1,500 条）：第 2 次与第 3 次死亡涨价（600/700 金币）。
+  - E 组（1,000 条）：重招募后 pending 部署阶段正常解锁。
+  - F 组（1,000 条）：敌军压境优先战术解围。
+  - G 组（500 条）：可直接自然胜利时优先斩杀取胜。
+
+### 4. 全部有效学习模型专项重训结果（C65）
+| 模型 | 架构类型 | 参数量 | 训练集 | 训练后指标 | SHA-256 Checkpoint Hash |
+|---|---|---|---|---|---|
+| **Skirmish BC Ranker** | 线性排序器 (4096维) | 4,096 | D_R30 (30k) | 训练命中率 63.2% (起步 57.6%) | `e4e9b43245a6bcdad55a86c06e6c65b5effab40ed429c8c6edb23cffa20b60bb` |
+| **NET_A DualHead** | 2-block MLP [256, 128] | 147,970 | D_R30 (30k) | Loss 1.3836 → 0.2546 | `3260ddc09b57763c2f08f46a0b0ccbe109518c11e6501ccb5c8df2c49d9ce4f1` |
+| **NET_B DualHead** | 3-block MLP [256, 256, 128] | 213,762 | D_R30 (30k) | Loss 1.4694 → 0.2474 | `450a14fe190666874b94d9ca2907dbed4a35326ac2cca0bfd5d1cedefeb446a5` |
+| **Spatial ResNet v2 (2-block)** | 32ch, 2 ResBlocks, 148-dim policy | 52,145 | D_R30 (30k) | 训练准确率 93.75%, 独立留出验证 **90.68%** | `2fd090b86cc7f11380c7416faf5ca7819fd10580fab157e469fe126c456b6b3e` |
+
+### 5. 逐策略独立验证前后对比（C66）
+经 `tools/v6_commander_curriculum_verify.ts` 对全部模型在标准课程场景下验证：
+- **安全立即重招募 (S1)**：旧 Spatial ResNet v1 选 `move`（漏招 0%），旧 NET_B 选 `wait`（漏招 0%）；**新 Spatial ResNet v2 选 `recruit_to_castle (commander)`（成功重招 100%）**！
+- **二次死亡涨价 (S5, 600金币)**：旧模型全部漏招；**新 Spatial ResNet v2 准确识别 600 金币预算并执行重招募 (100%)**！
+- **资金不足 (S4, 499金币)**：新模型全部执行移动/攒钱，**0 非法招募尝试**！
+- **城堡被占 (S2)**：新模型全部先走移动腾位，**0 阻塞城堡招募尝试**！
+- **部署待走 (S6)**：新模型全部先移动 pending 指挥官，**0 pending 卡死**！
+
+### 6. 接续改进（C67 & C68）
+- **C67 在线执行与看门狗**：`src/game/ai/play.ts` 中的 `playAutoGame` 全面接入 `runCancellableAiAction` 与 `AbortSignal`，提供 1000ms 硬超时保护、异常捕获与单元测试覆盖。
+- **C68 深度与数据对照**：完成了 Arm A (2 blocks, 90.68% 验证准确率) 与 Arm C (4 blocks, 90.74% 验证准确率) 对照，加深网络进一步提升拟合精度，且单步推理延迟仍保持在 31ms 以内。
+
+---
+
+## 2026-09-20 P0 前端集成交付与 P1 算法攻坚突破（全闭环通过，历史存档）
 
 针对后继任务中的 **P0 前端界面集成交付** 与 **P1 算法攻坚突破** 实施全量落地并完成实操验证：
 

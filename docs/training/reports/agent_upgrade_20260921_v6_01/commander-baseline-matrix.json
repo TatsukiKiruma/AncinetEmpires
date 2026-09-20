@@ -1,0 +1,182 @@
+[
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "heuristic",
+    "stage": "SUCCESS",
+    "reason": "RECRUIT_CHOSEN",
+    "chosenType": "recruit_to_castle",
+    "unitClass": "commander",
+    "latencyMs": 11
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "random",
+    "stage": "POLICY_REJECTED",
+    "reason": "MODEL_CHOSE_move_INSTEAD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 0
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "net_b_1ply",
+    "stage": "POLICY_REJECTED",
+    "reason": "MODEL_CHOSE_wait_INSTEAD",
+    "chosenType": "wait",
+    "unitClass": null,
+    "latencyMs": 46
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "net_b_s10",
+    "stage": "SUCCESS",
+    "reason": "RECRUIT_CHOSEN",
+    "chosenType": "recruit_to_castle",
+    "unitClass": "commander",
+    "latencyMs": 75
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "spatial_resnet_v1",
+    "stage": "POLICY_REJECTED",
+    "reason": "MODEL_CHOSE_move_INSTEAD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 41
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "policyId": "heuristic",
+    "stage": "RULE_BLOCK",
+    "reason": "CASTLE_OCCUPIED,LEGAL_GENERATION_MISMATCH",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 1
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "policyId": "random",
+    "stage": "RULE_BLOCK",
+    "reason": "CASTLE_OCCUPIED,LEGAL_GENERATION_MISMATCH",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 0
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "policyId": "net_b_1ply",
+    "stage": "RULE_BLOCK",
+    "reason": "CASTLE_OCCUPIED,LEGAL_GENERATION_MISMATCH",
+    "chosenType": "wait",
+    "unitClass": null,
+    "latencyMs": 1
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "policyId": "net_b_s10",
+    "stage": "RULE_BLOCK",
+    "reason": "CASTLE_OCCUPIED,LEGAL_GENERATION_MISMATCH",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 44
+  },
+  {
+    "scenarioId": "S2_CASTLE_BLOCKED_BY_SOLDIER",
+    "policyId": "spatial_resnet_v1",
+    "stage": "RULE_BLOCK",
+    "reason": "CASTLE_OCCUPIED,LEGAL_GENERATION_MISMATCH",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 20
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "policyId": "heuristic",
+    "stage": "RULE_BLOCK",
+    "reason": "MODE_DISABLED",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 4
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "policyId": "random",
+    "stage": "RULE_BLOCK",
+    "reason": "MODE_DISABLED",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 0
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "policyId": "net_b_1ply",
+    "stage": "RULE_BLOCK",
+    "reason": "MODE_DISABLED",
+    "chosenType": "wait",
+    "unitClass": null,
+    "latencyMs": 1
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "policyId": "net_b_s10",
+    "stage": "RULE_BLOCK",
+    "reason": "MODE_DISABLED",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 57
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "policyId": "spatial_resnet_v1",
+    "stage": "RULE_BLOCK",
+    "reason": "MODE_DISABLED",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 21
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "policyId": "heuristic",
+    "stage": "RULE_BLOCK",
+    "reason": "INSUFFICIENT_GOLD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 2
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "policyId": "random",
+    "stage": "RULE_BLOCK",
+    "reason": "INSUFFICIENT_GOLD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 0
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "policyId": "net_b_1ply",
+    "stage": "RULE_BLOCK",
+    "reason": "INSUFFICIENT_GOLD",
+    "chosenType": "wait",
+    "unitClass": null,
+    "latencyMs": 1
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "policyId": "net_b_s10",
+    "stage": "RULE_BLOCK",
+    "reason": "INSUFFICIENT_GOLD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 41
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "policyId": "spatial_resnet_v1",
+    "stage": "RULE_BLOCK",
+    "reason": "INSUFFICIENT_GOLD",
+    "chosenType": "move",
+    "unitClass": null,
+    "latencyMs": 20
+  }
+]

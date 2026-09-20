@@ -1,0 +1,37 @@
+[
+  {
+    "entrypoint": "src/game/default_state.ts -> createDefaultAppGameState",
+    "mode": "SD (ApkSkirmishMapAssets)",
+    "injectsSdRules": true,
+    "commanderCost": "400 + 100*deaths",
+    "verdict": "CORRECT_SD"
+  },
+  {
+    "entrypoint": "src/game/demo_map.ts -> createDemoState (no args)",
+    "mode": "DEFAULT_RULE_CONFIG",
+    "injectsSdRules": false,
+    "commanderCost": "null (DISABLED)",
+    "verdict": "INTENDED_NEGATIVE_CONTROL"
+  },
+  {
+    "entrypoint": "tools/skirmish_spatial_dataset_export.ts -> generateSpatialEpisodeSamples",
+    "mode": "createDemoState() (no args)",
+    "injectsSdRules": false,
+    "commanderCost": "null (DISABLED)",
+    "verdict": "DEFECT_MUST_FIX_IN_C63"
+  },
+  {
+    "entrypoint": "tools/skirmish_spatial_match_benchmark.ts -> runSpatialVsHeuristicMatch",
+    "mode": "createDemoState() (no args)",
+    "injectsSdRules": false,
+    "commanderCost": "null (DISABLED)",
+    "verdict": "DEFECT_MUST_FIX_IN_C63"
+  },
+  {
+    "entrypoint": "tools/run_match_evaluation_200turns.ts -> runMatchEvaluation200Turns",
+    "mode": "createDemoState() (no args)",
+    "injectsSdRules": false,
+    "commanderCost": "null (DISABLED)",
+    "verdict": "DEFECT_MUST_FIX_IN_C63"
+  }
+]

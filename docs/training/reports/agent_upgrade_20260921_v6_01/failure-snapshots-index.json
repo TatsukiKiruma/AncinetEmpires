@@ -1,0 +1,46 @@
+[
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "random",
+    "stateHash": "a17bd3c9d892460a",
+    "rulesHash": "4ecdf7335ef04120",
+    "chosenAction": {
+      "type": "move",
+      "unitId": "u3",
+      "to": {
+        "x": 1,
+        "y": 3
+      }
+    },
+    "funnelStage": "POLICY_REJECTED",
+    "failureReason": "MODEL_CHOSE_move_INSTEAD"
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "net_b_1ply",
+    "stateHash": "a17bd3c9d892460a",
+    "rulesHash": "4ecdf7335ef04120",
+    "chosenAction": {
+      "type": "wait",
+      "unitId": "u3"
+    },
+    "funnelStage": "POLICY_REJECTED",
+    "failureReason": "MODEL_CHOSE_wait_INSTEAD"
+  },
+  {
+    "scenarioId": "S1_SAFE_IMMEDIATE_REHIRE",
+    "policyId": "spatial_resnet_v1",
+    "stateHash": "a17bd3c9d892460a",
+    "rulesHash": "4ecdf7335ef04120",
+    "chosenAction": {
+      "type": "move",
+      "unitId": "u3",
+      "to": {
+        "x": 3,
+        "y": 1
+      }
+    },
+    "funnelStage": "POLICY_REJECTED",
+    "failureReason": "MODEL_CHOSE_move_INSTEAD"
+  }
+]

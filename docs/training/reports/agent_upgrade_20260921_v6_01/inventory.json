@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "6.0.0",
+  "runId": "agent_upgrade_20260921_v6_01",
+  "timestamp": "2026-09-20T18:28:37.906Z",
+  "git": {
+    "branch": "path-b-spatial-ai",
+    "baseCommit": "a0a9dcdd483cb951a72734805504c947176d5d79",
+    "qwenBaseline": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9"
+  },
+  "runtimeEnvironment": {
+    "nodeVersion": "v22.18.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "models": [
+    {
+      "modelId": "BC_sd_bc_v3",
+      "family": "linear_bc_ranker",
+      "relativePath": "training_runs/models/sd-bc-v3-20260918-011742.json",
+      "exists": true,
+      "sizeBytes": 39065,
+      "sha256": "37ef149b42408277093ac0adf94c4d7bb3de808f24a2f4fc4ec38b29ad7901c8"
+    },
+    {
+      "modelId": "NET_A_dual_head",
+      "family": "dual_head_mlp",
+      "relativePath": "training_runs/models/net_a_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 3066536,
+      "sha256": "9627f1d045b1b895c8f3838814ee0d8eeaf47656ebfb1e8e1c6a68ec53a6311a"
+    },
+    {
+      "modelId": "NET_B_dual_head_run",
+      "family": "dual_head_mlp",
+      "relativePath": "training_runs/models/net_b_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 4432505,
+      "sha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2"
+    },
+    {
+      "modelId": "NET_B_dual_head_src",
+      "family": "dual_head_mlp",
+      "relativePath": "src/game/ai/models/net_b_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 4432505,
+      "sha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2"
+    },
+    {
+      "modelId": "Spatial_ResNet_run_v1",
+      "family": "spatial_resnet",
+      "relativePath": "training_runs/models/spatial_resnet_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 1485743,
+      "sha256": "a9c4c66c1b5b34d60a0d0bdcb47e89d357c8d34fc1bd49ef1d8c41dec1eda43f"
+    },
+    {
+      "modelId": "Spatial_ResNet_scaled_run",
+      "family": "spatial_resnet",
+      "relativePath": "training_runs/models/spatial_resnet_scaled_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 1482555,
+      "sha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f"
+    },
+    {
+      "modelId": "Spatial_ResNet_src",
+      "family": "spatial_resnet",
+      "relativePath": "src/game/ai/models/spatial_resnet_checkpoint.json",
+      "exists": true,
+      "sizeBytes": 1482555,
+      "sha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { getSpatialAiActionSync } from '../src/game/ai/spatial_neural_adapter';
 import { classifyGameOutcome, aggregateOutcomes, GameOutcomeRecord } from './skirmish_evaluation_core';
@@ -40,7 +41,7 @@ export function runSpatialVsHeuristicMatch(
     maxSteps: number = 100
 ): SpatialMatchResult {
     const heuristicPlayerId = spatialPlayerId === 0 ? 1 : 0;
-    const state = createDemoState();
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     const engine = new GameEngine(state);
     const heuristicAi = new HeuristicAI();
 

@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-09-20T21:00:27.011Z",
+  "runId": "agent_upgrade_20260921_v6_01",
+  "trainedModels": [
+    {
+      "name": "Skirmish BC Ranker",
+      "type": "LinearRanker",
+      "architecture": "hashed-action-v4 (4096-dim)",
+      "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\bc\\bc_ranker_checkpoint.json",
+      "sha256": "e4e9b43245a6bcdad55a86c06e6c65b5effab40ed429c8c6edb23cffa20b60bb",
+      "trainedSamples": 30000,
+      "status": "RETRAINED_VERIFIED"
+    },
+    {
+      "name": "NET_A DualHeadNet",
+      "type": "DualHeadMLP",
+      "architecture": "trunk [256, 128], policy [64, 64], value [64]",
+      "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\net_a\\net_a_checkpoint.json",
+      "sha256": "3260ddc09b57763c2f08f46a0b0ccbe109518c11e6501ccb5c8df2c49d9ce4f1",
+      "trainedSamples": 30000,
+      "status": "RETRAINED_VERIFIED"
+    },
+    {
+      "name": "NET_B DualHeadNet",
+      "type": "DualHeadMLP",
+      "architecture": "trunk [256, 256, 128], policy [64, 64], value [64]",
+      "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\net_b\\net_b_checkpoint.json",
+      "sha256": "450a14fe190666874b94d9ca2907dbed4a35326ac2cca0bfd5d1cedefeb446a5",
+      "trainedSamples": 30000,
+      "status": "RETRAINED_VERIFIED"
+    },
+    {
+      "name": "Spatial ResNet v2",
+      "type": "SpatialConvResNet",
+      "architecture": "32ch, 2 ResBlocks, 148-dim policy scorer head, 52-dim value head",
+      "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\spatial_resnet\\spatial_resnet_v2_checkpoint.json",
+      "sha256": "2fd090b86cc7f11380c7416faf5ca7819fd10580fab157e469fe126c456b6b3e",
+      "trainedSamples": 30000,
+      "status": "RETRAINED_VERIFIED"
+    }
+  ]
+}

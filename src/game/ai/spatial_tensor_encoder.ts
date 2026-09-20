@@ -20,17 +20,23 @@ import { getActionSemantics } from '../../../tools/skirmish_action_semantics';
 export const SPATIAL_TENSOR_CHANNELS = 24;
 export const SPATIAL_TENSOR_MAX_H = 20;
 export const SPATIAL_TENSOR_MAX_W = 20;
-export const GLOBAL_FEATURE_DIM = 16;
-export const ACTION_SEMANTIC_DIM = 24;
+export const GLOBAL_FEATURE_DIM_V1 = 16;
+export const GLOBAL_FEATURE_DIM_V2 = 20;
+export const GLOBAL_FEATURE_DIM = GLOBAL_FEATURE_DIM_V2;
+
+export const ACTION_SEMANTIC_DIM_V1 = 24;
+export const ACTION_SEMANTIC_DIM_V2 = 32;
+export const ACTION_SEMANTIC_DIM = ACTION_SEMANTIC_DIM_V2;
 
 export interface SpatialEncodedState {
     /** 形状为 [24, 20, 20] 的扁平化 Float32Array (共 9600 个元素) */
     spatialTensor: Float32Array;
-    /** 全局经济与战局标量 (16 维) */
+    /** 全局经济与战局标量 (20 维 in v2, 16 维 in v1) */
     globalFeatures: Float32Array;
     mapWidth: number;
     mapHeight: number;
     subjectPlayerId: number;
+    version?: 'v1' | 'v2';
 }
 
 export interface SpatialActionFeatures {
@@ -79,9 +85,13 @@ export function categorizeUnitClass(cls: UnitClass): number {
 }
 
 /**
- * 将 GameState 编码为 [24, 20, 20] 空间网格张量与 16 维全局标量。
+ * 将 GameState 编码为 [24, 20, 20] 空间网格张量与全局标量 (V2: 20维, V1: 16维)。
  */
-export function encodeGameStateSpatial(state: GameState, playerId: number): SpatialEncodedState {
+export function encodeGameStateSpatial(
+    state: GameState,
+    playerId: number,
+    version: 'v1' | 'v2' = 'v2'
+): SpatialEncodedState {
     const H = SPATIAL_TENSOR_MAX_H;
     const W = SPATIAL_TENSOR_MAX_W;
     const C = SPATIAL_TENSOR_CHANNELS;
@@ -194,8 +204,9 @@ export function encodeGameStateSpatial(state: GameState, playerId: number): Spat
         }
     }
 
-    // 3. 全局标量特征 (16 维)
-    const globals = new Float32Array(GLOBAL_FEATURE_DIM);
+    // 3. 全局标量特征 (V2: 20 维, V1: 16 维)
+    const dim = version === 'v1' ? GLOBAL_FEATURE_DIM_V1 : GLOBAL_FEATURE_DIM_V2;
+    const globals = new Float32Array(dim);
     const enemies = state.players.filter(p => p.id !== playerId && areEnemyPlayers(state, playerId, p.id));
     const ownPlayer = state.players.find(p => p.id === playerId);
     const ownGold = ownPlayer?.gold ?? 0;
@@ -231,27 +242,54 @@ export function encodeGameStateSpatial(state: GameState, playerId: number): Spat
     globals[14] = mapW / 20.0;
     globals[15] = mapH / 20.0;
 
+    if (version === 'v2') {
+        const commCost = getUnitCost(state, playerId, 'commander');
+        const deathCount = ownPlayer?.commanderDeathCount ?? 0;
+        globals[16] = Math.min(1.0, deathCount / 5.0);
+        globals[17] = commCost !== null ? Math.min(1.0, commCost / 1000.0) : 0.0;
+        globals[18] = commCost !== null ? Math.min(1.0, Math.max(0, commCost - ownGold) / 1000.0) : 0.0;
+
+        let unoccupiedCastles = 0;
+        for (let y = 0; y < mapH; y += 1) {
+            for (let x = 0; x < mapW; x += 1) {
+                const tile = state.map.tiles[y]?.[x];
+                if (tile && getTileTerrainKey(tile) === 'castle') {
+                    if (tile.ownerId !== null && getAllianceId(state, tile.ownerId) === alliance) {
+                        const isOccupied = state.units.some(u => u.hp > 0 && u.pos.x === x && u.pos.y === y);
+                        if (!isOccupied) {
+                            unoccupiedCastles += 1;
+                        }
+                    }
+                }
+            }
+        }
+        globals[19] = Math.min(1.0, unoccupiedCastles / 5.0);
+    }
+
     return {
         spatialTensor: tensor,
         globalFeatures: globals,
         mapWidth: mapW,
         mapHeight: mapH,
-        subjectPlayerId: playerId
+        subjectPlayerId: playerId,
+        version
     };
 }
 
 /**
- * 提取候选动作的空间落点坐标与 24 维战术语义向量。
+ * 提取候选动作的空间落点坐标与战术语义向量 (V2: 32 维, V1: 24 维)。
  */
 export function encodeCandidateActionSpatial(
     state: GameState,
     playerId: number,
-    action: Action
+    action: Action,
+    version: 'v1' | 'v2' = 'v2'
 ): SpatialActionFeatures {
     const unitsMap = new Map(state.units.map(u => [u.id, { id: u.id, x: u.pos.x, y: u.pos.y }]));
     const sem = getActionSemantics(action, unitsMap);
 
-    const semantics = new Float32Array(ACTION_SEMANTIC_DIM);
+    const semDim = version === 'v1' ? ACTION_SEMANTIC_DIM_V1 : ACTION_SEMANTIC_DIM_V2;
+    const semantics = new Float32Array(semDim);
 
     // 0..13: ActionType One-hot
     const typeIdx = ACTION_TYPE_LIST.indexOf(action.type as any);
@@ -302,6 +340,33 @@ export function encodeCandidateActionSpatial(
     if (actorCoord && landingCoord) {
         const dist = Math.abs(actorCoord.x - landingCoord.x) + Math.abs(actorCoord.y - landingCoord.y);
         semantics[21] = Math.min(1.0, dist / 10.0);
+    }
+
+    // V2 候选动作语义扩展 (24..31 维)
+    if (version === 'v2') {
+        const ownPlayer = state.players.find(p => p.id === playerId);
+        const ownGold = ownPlayer?.gold ?? 0;
+        const isRecruit = action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy';
+        const isCommRecruit = isRecruit && action.unitClass === 'commander';
+        const cost = isRecruit ? (getUnitCost(state, playerId, action.unitClass) ?? 0) : 0;
+        const commAlive = state.units.some(u => u.hp > 0 && u.ownerId === playerId && isCommanderUnit(state, u));
+
+        // 24: 招募兵种类别 (1..7 / 7.0)
+        semantics[24] = isRecruit ? categorizeUnitClass(action.unitClass) / 7.0 : 0.0;
+        // 25: 是否为指挥官招募
+        semantics[25] = isCommRecruit ? 1.0 : 0.0;
+        // 26: 动作花费 / 1000
+        semantics[26] = Math.min(1.0, cost / 1000.0);
+        // 27: 动作后剩余金币 / 1000
+        semantics[27] = Math.max(0.0, (ownGold - cost) / 1000.0);
+        // 28: 己方指挥官当前是否存活
+        semantics[28] = commAlive ? 1.0 : 0.0;
+        // 29: 指挥官保留等级
+        semantics[29] = isCommRecruit ? (ownPlayer?.commanderReserveLevel ?? 0) / 3.0 : 0.0;
+        // 30: 指挥官保留经验
+        semantics[30] = isCommRecruit ? (ownPlayer?.commanderReserveExp ?? 0) / 100.0 : 0.0;
+        // 31: 是否处于部署阶段或 pending 处理
+        semantics[31] = (action.type === 'recruit_and_deploy' || Boolean(state.pendingUnitId)) ? 1.0 : 0.0;
     }
 
     return {

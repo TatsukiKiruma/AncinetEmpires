@@ -12,6 +12,7 @@ import {
     SpatialResNetPredictor
 } from '../src/game/ai/spatial_conv_net';
 import { createDemoState } from '../src/game/demo_map';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { GameEngine } from '../src/game/engine';
 import {
     encodeGameStateSpatial,
@@ -36,7 +37,7 @@ export function initializeAndSaveSpatialModel(outputPath: string): {
     const reloaded = loadSpatialResNetFromJson(jsonStr);
     const predictor = new SpatialResNetPredictor(reloaded);
 
-    const state = createDemoState();
+    const state = createDemoState(getApkSkirmishRuleConfig('SD'));
     const engine = new GameEngine(state);
     const legalActions = engine.getLegalActions(0);
     const encoded = encodeGameStateSpatial(state, 0);

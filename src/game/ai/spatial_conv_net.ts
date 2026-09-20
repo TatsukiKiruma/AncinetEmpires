@@ -24,7 +24,11 @@ import {
     SPATIAL_TENSOR_MAX_H,
     SPATIAL_TENSOR_MAX_W,
     GLOBAL_FEATURE_DIM,
+    GLOBAL_FEATURE_DIM_V1,
+    GLOBAL_FEATURE_DIM_V2,
     ACTION_SEMANTIC_DIM,
+    ACTION_SEMANTIC_DIM_V1,
+    ACTION_SEMANTIC_DIM_V2,
     SpatialEncodedState,
     SpatialActionFeatures
 } from './spatial_tensor_encoder';
@@ -50,7 +54,7 @@ export interface DenseLayerWeights {
 }
 
 export interface SpatialResNetWeights {
-    version: 'spatial-resnet-v1';
+    version: 'spatial-resnet-v1' | 'spatial-resnet-v2';
     architectureId: 'spatial_resnet_32ch_2res';
     stem: ConvLayerWeights;
     res1_1: ConvLayerWeights;
@@ -210,7 +214,10 @@ export function poolSpatialCoord(
 /**
  * 初始化随机网络权重 (Kaiming / He 正态分布初始化)
  */
-export function createInitializedSpatialResNet(seed: number = 42): SpatialResNetWeights {
+export function createInitializedSpatialResNet(
+    seed: number = 42,
+    version: 'spatial-resnet-v1' | 'spatial-resnet-v2' = 'spatial-resnet-v1'
+): SpatialResNetWeights {
     // 伪随机生成器 (LCG)
     let s = seed;
     const rand = () => {
@@ -236,6 +243,22 @@ export function createInitializedSpatialResNet(seed: number = 42): SpatialResNet
         return { inDim: inD, outDim: outD, weights, biases };
     };
 
+    if (version === 'spatial-resnet-v2') {
+        return {
+            version: 'spatial-resnet-v2',
+            architectureId: 'spatial_resnet_32ch_2res',
+            stem: initConv(SPATIAL_TENSOR_CHANNELS, 32),
+            res1_1: initConv(32, 32),
+            res1_2: initConv(32, 32),
+            res2_1: initConv(32, 32),
+            res2_2: initConv(32, 32),
+            valDense1: initDense(32 + GLOBAL_FEATURE_DIM_V2, 32),
+            valDense2: initDense(32, 1),
+            polDense1: initDense(32 * 3 + ACTION_SEMANTIC_DIM_V2 + GLOBAL_FEATURE_DIM_V2, 48),
+            polDense2: initDense(48, 1)
+        };
+    }
+
     return {
         version: 'spatial-resnet-v1',
         architectureId: 'spatial_resnet_32ch_2res',
@@ -244,9 +267,9 @@ export function createInitializedSpatialResNet(seed: number = 42): SpatialResNet
         res1_2: initConv(32, 32),
         res2_1: initConv(32, 32),
         res2_2: initConv(32, 32),
-        valDense1: initDense(32 + GLOBAL_FEATURE_DIM, 32),
+        valDense1: initDense(32 + GLOBAL_FEATURE_DIM_V1, 32),
         valDense2: initDense(32, 1),
-        polDense1: initDense(32 * 3 + ACTION_SEMANTIC_DIM, 48),
+        polDense1: initDense(32 * 3 + ACTION_SEMANTIC_DIM_V1, 48),
         polDense2: initDense(48, 1)
     };
 }
@@ -256,6 +279,7 @@ export function createInitializedSpatialResNet(seed: number = 42): SpatialResNet
  */
 export class SpatialResNetPredictor {
     private weights: SpatialResNetWeights;
+    private isV2: boolean;
 
     // 预分配复用张量缓冲区，彻底杜绝每次推理的 GC 内存分配
     private bufStem: Float32Array;
@@ -273,6 +297,7 @@ export class SpatialResNetPredictor {
 
     constructor(weights: SpatialResNetWeights) {
         this.weights = weights;
+        this.isV2 = weights.version === 'spatial-resnet-v2' || weights.polDense1.inDim > 120;
         const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
         this.bufStem = new Float32Array(32 * HW);
         this.bufRes1_1 = new Float32Array(32 * HW);
@@ -280,10 +305,10 @@ export class SpatialResNetPredictor {
         this.bufRes2_1 = new Float32Array(32 * HW);
         this.bufZ = new Float32Array(32 * HW);
         this.bufGap = new Float32Array(32);
-        this.bufValIn = new Float32Array(32 + GLOBAL_FEATURE_DIM);
+        this.bufValIn = new Float32Array(this.weights.valDense1.inDim);
         this.bufValH = new Float32Array(32);
         this.bufValOut = new Float32Array(1);
-        this.bufPolIn = new Float32Array(32 * 3 + ACTION_SEMANTIC_DIM);
+        this.bufPolIn = new Float32Array(this.weights.polDense1.inDim);
         this.bufPolH = new Float32Array(48);
         this.bufPolOut = new Float32Array(1);
     }
@@ -317,7 +342,8 @@ export class SpatialResNetPredictor {
         // 4. Value Head 前向
         globalAvgPool2D(this.bufGap, this.bufZ, 32, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W);
         this.bufValIn.set(this.bufGap, 0);
-        this.bufValIn.set(encodedState.globalFeatures, 32);
+        const valGlobDim = this.weights.valDense1.inDim - 32;
+        this.bufValIn.set(encodedState.globalFeatures.subarray(0, valGlobDim), 32);
         denseForward(this.bufValH, this.bufValIn, this.weights.valDense1, 'relu');
         denseForward(this.bufValOut, this.bufValH, this.weights.valDense2, 'tanh');
         const value = this.bufValOut[0];
@@ -329,8 +355,16 @@ export class SpatialResNetPredictor {
             poolSpatialCoord(this.bufPolIn, 0, this.bufZ, act.actorCoord);
             poolSpatialCoord(this.bufPolIn, 32, this.bufZ, act.landingCoord);
             poolSpatialCoord(this.bufPolIn, 64, this.bufZ, act.targetCoord);
-            // 动作语义: 24 维
-            this.bufPolIn.set(act.semantics, 96);
+
+            if (this.isV2) {
+                const semLen = Math.min(act.semantics.length, ACTION_SEMANTIC_DIM_V2);
+                this.bufPolIn.set(act.semantics.subarray(0, semLen), 96);
+                const globLen = Math.min(encodedState.globalFeatures.length, GLOBAL_FEATURE_DIM_V2);
+                this.bufPolIn.set(encodedState.globalFeatures.subarray(0, globLen), 96 + ACTION_SEMANTIC_DIM_V2);
+            } else {
+                const semLen = Math.min(act.semantics.length, ACTION_SEMANTIC_DIM_V1);
+                this.bufPolIn.set(act.semantics.subarray(0, semLen), 96);
+            }
 
             denseForward(this.bufPolH, this.bufPolIn, this.weights.polDense1, 'relu');
             denseForward(this.bufPolOut, this.bufPolH, this.weights.polDense2, 'linear');
@@ -402,7 +436,7 @@ export function exportSpatialResNetToJson(weights: SpatialResNetWeights): string
  */
 export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights {
     const raw = JSON.parse(jsonStr);
-    if (raw.version !== 'spatial-resnet-v1') {
+    if (raw.version !== 'spatial-resnet-v1' && raw.version !== 'spatial-resnet-v2') {
         throw new Error(`Incompatible spatial model version: ${raw.version}`);
     }
 
@@ -423,7 +457,7 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
     });
 
     return {
-        version: 'spatial-resnet-v1',
+        version: raw.version,
         architectureId: 'spatial_resnet_32ch_2res',
         stem: deserializeConv(raw.stem),
         res1_1: deserializeConv(raw.res1_1),

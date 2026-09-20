@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "6.0.0",
+  "runId": "agent_upgrade_20260921_v6_01",
+  "timestamp": "2026-09-20T18:28:37.907Z",
+  "policies": [
+    {
+      "policyId": "heuristic",
+      "trainingStatus": "NOT_APPLICABLE",
+      "modelId": null,
+      "sharedWith": [],
+      "evaluationArm": "fixed_baseline"
+    },
+    {
+      "policyId": "random",
+      "trainingStatus": "NOT_APPLICABLE",
+      "modelId": null,
+      "sharedWith": [],
+      "evaluationArm": "lower_bound"
+    },
+    {
+      "policyId": "s00",
+      "trainingStatus": "NOT_APPLICABLE",
+      "modelId": null,
+      "sharedWith": [],
+      "evaluationArm": "heuristic_search_baseline"
+    },
+    {
+      "policyId": "bc_sd_v3",
+      "trainingStatus": "RETRAIN_REQUIRED",
+      "modelId": "BC_sd_bc_v3",
+      "sharedWith": [
+        "bc_blend",
+        "bc_endgame"
+      ],
+      "evaluationArm": "bc_linear_ranker"
+    },
+    {
+      "policyId": "net_a_1ply",
+      "trainingStatus": "RETRAIN_REQUIRED",
+      "modelId": "NET_A_dual_head",
+      "sharedWith": [],
+      "evaluationArm": "dual_head_net_a_1ply"
+    },
+    {
+      "policyId": "net_b_1ply",
+      "trainingStatus": "RETRAIN_REQUIRED",
+      "modelId": "NET_B_dual_head_src",
+      "sharedWith": [
+        "net_b_s10"
+      ],
+      "evaluationArm": "dual_head_net_b_1ply"
+    },
+    {
+      "policyId": "net_b_s10",
+      "trainingStatus": "SHARED_WEIGHTS_TRAIN_ONCE",
+      "modelId": "NET_B_dual_head_src",
+      "sharedWith": [
+        "net_b_1ply"
+      ],
+      "evaluationArm": "dual_head_net_b_s10_search"
+    },
+    {
+      "policyId": "spatial_resnet_v1",
+      "trainingStatus": "RETRAIN_REQUIRED",
+      "modelId": "Spatial_ResNet_src",
+      "sharedWith": [
+        "spatial_resnet_scaled"
+      ],
+      "evaluationArm": "spatial_conv_resnet_1ply"
+    }
+  ]
+}

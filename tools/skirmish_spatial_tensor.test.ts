@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { createDemoState } from '../src/game/demo_map';
 import { GameEngine } from '../src/game/engine';
+import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
+import { Action } from '../src/game/types';
 import {
     encodeGameStateSpatial,
     encodeCandidateActionSpatial,
@@ -8,7 +10,11 @@ import {
     SPATIAL_TENSOR_MAX_H,
     SPATIAL_TENSOR_MAX_W,
     GLOBAL_FEATURE_DIM,
-    ACTION_SEMANTIC_DIM
+    GLOBAL_FEATURE_DIM_V1,
+    GLOBAL_FEATURE_DIM_V2,
+    ACTION_SEMANTIC_DIM,
+    ACTION_SEMANTIC_DIM_V1,
+    ACTION_SEMANTIC_DIM_V2
 } from '../src/game/ai/spatial_tensor_encoder';
 
 describe('Spatial Tensor Encoder (Path B)', () => {
@@ -100,5 +106,93 @@ describe('Spatial Tensor Encoder (Path B)', () => {
             expect(feat.targetCoord).toBeNull();
             expect(feat.semantics[13]).toBe(1.0); // end_turn type
         }
+    });
+
+    it('V1 vs V2 尺寸与向后兼容性验证', () => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        const encV1 = encodeGameStateSpatial(state, 0, 'v1');
+        const encV2 = encodeGameStateSpatial(state, 0, 'v2');
+
+        expect(encV1.globalFeatures.length).toBe(GLOBAL_FEATURE_DIM_V1);
+        expect(encV2.globalFeatures.length).toBe(GLOBAL_FEATURE_DIM_V2);
+
+        // V1 与 V2 前 16 维全局特征严格一致
+        for (let i = 0; i < 16; i++) {
+            expect(encV1.globalFeatures[i]).toBeCloseTo(encV2.globalFeatures[i], 6);
+        }
+
+        const act: Action = { type: 'recruit_to_castle', unitClass: 'soldier', castlePos: { x: 0, y: 0 } };
+        const featV1 = encodeCandidateActionSpatial(state, 0, act, 'v1');
+        const featV2 = encodeCandidateActionSpatial(state, 0, act, 'v2');
+        expect(featV1.semantics.length).toBe(ACTION_SEMANTIC_DIM_V1);
+        expect(featV2.semantics.length).toBe(ACTION_SEMANTIC_DIM_V2);
+
+        // 前 24 维语义严格一致
+        for (let i = 0; i < 24; i++) {
+            expect(featV1.semantics[i]).toBeCloseTo(featV2.semantics[i], 6);
+        }
+    });
+
+    it('V2 彻底消除同城堡招募士兵 vs 招募指挥官的候选特征碰撞 (C63 核心验证)', () => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        // 模拟 P0 指挥官阵亡且拥有 1000 金币
+        state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
+        state.players[0].gold = 1000;
+        state.players[0].commanderDeathCount = 1;
+        state.players[0].commanderReserveLevel = 2;
+        state.players[0].commanderReserveExp = 45;
+
+        const recruitSoldier: Action = { type: 'recruit_to_castle', unitClass: 'soldier', castlePos: { x: 0, y: 0 } };
+        const recruitCommander: Action = { type: 'recruit_to_castle', unitClass: 'commander', castlePos: { x: 0, y: 0 } };
+
+        // 1. 复现 V1 缺陷：特征完全碰撞！
+        const featV1_soldier = encodeCandidateActionSpatial(state, 0, recruitSoldier, 'v1');
+        const featV1_commander = encodeCandidateActionSpatial(state, 0, recruitCommander, 'v1');
+        let v1_diff = 0;
+        for (let i = 0; i < ACTION_SEMANTIC_DIM_V1; i++) {
+            v1_diff += Math.abs(featV1_soldier.semantics[i] - featV1_commander.semantics[i]);
+        }
+        // V1 下两者语义差异为 0 (100% 碰撞缺陷)
+        expect(v1_diff).toBe(0);
+
+        // 2. 验证 V2 修复：特征完全分离！
+        const featV2_soldier = encodeCandidateActionSpatial(state, 0, recruitSoldier, 'v2');
+        const featV2_commander = encodeCandidateActionSpatial(state, 0, recruitCommander, 'v2');
+        let v2_diff = 0;
+        for (let i = 0; i < ACTION_SEMANTIC_DIM_V2; i++) {
+            v2_diff += Math.abs(featV2_soldier.semantics[i] - featV2_commander.semantics[i]);
+        }
+        // V2 下两者语义具有显著差异
+        expect(v2_diff).toBeGreaterThan(1.0);
+
+        // 验证具体语义维度
+        expect(featV2_soldier.semantics[25]).toBe(0.0); // isCommanderRecruit = false
+        expect(featV2_commander.semantics[25]).toBe(1.0); // isCommanderRecruit = true
+
+        expect(featV2_soldier.semantics[26]).toBeCloseTo(150 / 1000.0); // 士兵费用 150
+        expect(featV2_commander.semantics[26]).toBeCloseTo(500 / 1000.0); // 指挥官阵亡1次费用 500
+
+        expect(featV2_soldier.semantics[27]).toBeCloseTo((1000 - 150) / 1000.0); // 剩余金币
+        expect(featV2_commander.semantics[27]).toBeCloseTo((1000 - 500) / 1000.0); // 剩余金币
+
+        expect(featV2_commander.semantics[29]).toBeCloseTo(2.0 / 3.0); // reserveLevel 2
+        expect(featV2_commander.semantics[30]).toBeCloseTo(45 / 100.0); // reserveExp 45
+    });
+
+    it('V2 全局特征准确反映指挥官阵亡计数、恢复价格与城堡占用状态', () => {
+        const state = createDemoState(getApkSkirmishRuleConfig('SD'));
+        // 初始状态：指挥官存活，deathCount = 0, SD initialGold = 300, base price = 400, gap = 100
+        const encInit = encodeGameStateSpatial(state, 0, 'v2');
+        expect(encInit.globalFeatures[16]).toBe(0.0); // deathCount = 0
+        expect(encInit.globalFeatures[17]).toBeCloseTo(400 / 1000.0); // base price 400
+        expect(encInit.globalFeatures[18]).toBeCloseTo(100 / 1000.0); // gold 300 < 400, gap = 100
+        expect(encInit.globalFeatures[19]).toBe(0.0); // castle (0,0) occupied by commander, unoccupied = 0
+
+        // 移开指挥官并使金币为 500 (gap = max(0, 400 - 500) = 0)
+        state.units[0].pos = { x: 1, y: 1 };
+        state.players[0].gold = 500;
+        const encVacant = encodeGameStateSpatial(state, 0, 'v2');
+        expect(encVacant.globalFeatures[18]).toBe(0.0); // gap = 0
+        expect(encVacant.globalFeatures[19]).toBeCloseTo(1 / 5.0); // 1 unoccupied castle!
     });
 });

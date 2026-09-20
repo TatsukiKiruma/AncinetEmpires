@@ -1,11 +1,15 @@
 import { GameEngine } from '../engine';
 import { createDefaultAppGameState } from '../default_state';
-import { getAiAction, type SupportedAiPolicy, type AiActionResult } from './neural_ai_adapter';
+import { type SupportedAiPolicy, type AiActionResult } from './neural_ai_adapter';
+import { runCancellableAiAction } from './cancellable_ai_runner';
 
 export interface AutoGameOptions {
     delayMs?: number;
     p0Policy?: SupportedAiPolicy;
     p1Policy?: SupportedAiPolicy;
+    deadlineMs?: number;
+    maxSteps?: number;
+    signal?: AbortSignal;
     onStep?: (engine: GameEngine, turnInfo: string, meta?: AiActionResult) => void;
 }
 
@@ -16,6 +20,9 @@ export async function playAutoGame(
     let delayMs = 0;
     let p0Policy: SupportedAiPolicy = 'heuristic';
     let p1Policy: SupportedAiPolicy = 'random';
+    let deadlineMs = 1000;
+    let maxSteps = 200;
+    let signal: AbortSignal | undefined;
     let onStep: ((engine: GameEngine, turnInfo: string, meta?: AiActionResult) => void) | undefined;
 
     if (typeof delayOrOptions === 'number') {
@@ -25,6 +32,9 @@ export async function playAutoGame(
         delayMs = delayOrOptions.delayMs ?? 0;
         p0Policy = delayOrOptions.p0Policy ?? 'heuristic';
         p1Policy = delayOrOptions.p1Policy ?? 'random';
+        deadlineMs = delayOrOptions.deadlineMs ?? 1000;
+        maxSteps = delayOrOptions.maxSteps ?? 200;
+        signal = delayOrOptions.signal;
         onStep = delayOrOptions.onStep ?? legacyOnStep;
     }
 
@@ -36,16 +46,28 @@ export async function playAutoGame(
 
     let logs: string[] = [];
     let stepCount = 0;
-    while (!engine.isTerminal() && stepCount < 200) {
+    while (!engine.isTerminal() && stepCount < maxSteps) {
+        if (signal?.aborted) {
+            logs.push(`Step ${stepCount}: Auto game aborted by signal.`);
+            break;
+        }
+
         const cp = engine.getState().currentPlayer;
         const policy = policies[cp] ?? 'heuristic';
-        const aiResult = getAiAction(policy, engine, cp);
+        const aiResult = await runCancellableAiAction({
+            policy,
+            engine,
+            playerId: cp,
+            deadlineMs,
+            signal
+        });
         const action = aiResult.action;
 
         const result = engine.step(action);
 
         const nodeInfo = aiResult.nodesExpanded !== undefined ? `, 节点: ${aiResult.nodesExpanded}` : '';
-        const logLine = `Step ${stepCount}: P${cp} [${aiResult.source}] 执行 ${action.type} (耗时: ${aiResult.latencyMs}ms${nodeInfo}). ${result.info}`;
+        const fallbackInfo = aiResult.fallbackUsed ? ` [Fallback: ${aiResult.fallbackReason}]` : '';
+        const logLine = `Step ${stepCount}: P${cp} [${aiResult.source}] 执行 ${action.type} (耗时: ${aiResult.latencyMs}ms${nodeInfo}${fallbackInfo}). ${result.info}`;
         logs.push(logLine);
 
         if (onStep) {
