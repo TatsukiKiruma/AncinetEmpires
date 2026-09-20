@@ -155,7 +155,7 @@ export default function App() {
 
   // --- 策略选择状态 ---
   const [p0Policy, setP0Policy] = useState<SupportedAiPolicy>('heuristic');
-  const [p1Policy, setP1Policy] = useState<SupportedAiPolicy>('net_b_s10');
+  const [p1Policy, setP1Policy] = useState<SupportedAiPolicy>('random');
   const [lastAiMeta, setLastAiMeta] = useState<AiActionResult | null>(null);
 
   // --- 自动对局控制 ---

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:37:00+08:00",
+  "gates": [
+    {
+      "gateId": "G0_Evidence_Outcome_Integrity",
+      "prerequisites": ["R00", "R01"],
+      "criteria": [
+        "门禁反例单测全部通过 (全截断、裁定混入、错误Hash、超时均被拒)",
+        "指标严格由机器记录纯函数算得，无固定 PASS 模板",
+        "自然结果与步数/预算截断严格分离"
+      ],
+      "blocks": "所有后续正式质量声明"
+    },
+    {
+      "gateId": "G1_Data_Partition_Integrity",
+      "prerequisites": ["R02", "R03"],
+      "criteria": [
+        "训练/开发/最终根家族集合交集严格为 0 (零泄漏)",
+        "状态重建与引擎合法动作及单步执行通过率 100%",
+        "坏样本分原因隔离入 quarantine.jsonl",
+        "仅规则自然终局赋予自然价值标签，未决样本严格 mask"
+      ],
+      "blocks": "依赖该数据的模型训练与价值资格认证"
+    },
+    {
+      "gateId": "G2_Online_Runtime_Boundary",
+      "prerequisites": ["R04"],
+      "criteria": [
+        "调用方单调时钟端到端 1000ms 测量，零 Math.min 裁剪",
+        "外部 AbortSignal 与硬看门狗超时回退机制通过验证",
+        "目标环境实测决策超时比例 = 0.0%，非法动作数 = 0"
+      ],
+      "blocks": "扩大在线预算与稳定前端接入资格"
+    },
+    {
+      "gateId": "G3_Teacher_Domain_Qualification",
+      "prerequisites": ["R06"],
+      "criteria": [
+        "在冻结场景下换边评测取得统计有效优势",
+        "区分分域资格 (开局 vs 残局)，未获验证域不得伪造 GLOBAL_GO"
+      ],
+      "blocks": "对应域的 DAgger 纠错数据采集"
+    },
+    {
+      "gateId": "G4_Architecture_and_Search_Quality",
+      "prerequisites": ["R07", "R08", "R09"],
+      "criteria": [
+        "严格对齐样本呈现与优化预算下的受控 A/B 对照",
+        "2x2 搜索消融全矩阵真实执行，动作发散不冒充胜率提升",
+        "允许选 A、选 B、保留并列或保留旧冠军，严禁预填推荐"
+      ],
+      "blocks": "候选进入最终留出矩阵"
+    },
+    {
+      "gateId": "G5_Final_Delivery",
+      "prerequisites": ["R10"],
+      "criteria": [
+        "冻结最终未见根家族矩阵评测通过预注册条件",
+        "游戏核心规则不变，默认 AI 不变，旧数据与模型完好",
+        "回退手册与完整模型卡交付"
+      ],
+      "blocks": "稳定版本可选升级指针更新"
+    }
+  ],
+  "philosophy": {
+    "allowHoldAsValidOutcome": true,
+    "strictlyProhibitFakeQualified": true
+  }
+}

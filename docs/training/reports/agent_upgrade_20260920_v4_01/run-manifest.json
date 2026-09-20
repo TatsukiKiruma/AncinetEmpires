@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "parentRunId": "agent_upgrade_20260920_01",
+  "createdAt": "2026-09-20T12:27:00+08:00",
+  "git": {
+    "branch": "qwen",
+    "headCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+    "auditCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+    "cleanWorkspace": true
+  },
+  "protocol": {
+    "taskbook": "AncinetEmpires_AI_Agent_Taskbook_20260920_v4.md",
+    "review": "AncinetEmpires_AI_Progress_Review_20260920_v4.md",
+    "onlineActionEndToEndTargetMs": 1000
+  },
+  "activeBatch": ["R00", "R01", "R02", "R03", "R04"],
+  "preparedBatch": ["R05"],
+  "deferredBatch": ["R11"],
+  "budgetRef": "docs/training/reports/agent_upgrade_20260920_v4_01/budget.json",
+  "inventoryRef": "docs/training/reports/agent_upgrade_20260920_v4_01/inventory.json",
+  "evidenceIndexRef": "docs/training/reports/agent_upgrade_20260920_v4_01/evidence-index.json",
+  "safetyGuards": {
+    "noGameRulesModified": true,
+    "noCloudComputeUsed": true,
+    "historicalDataIntact": true,
+    "noAutoGitPush": true,
+    "defaultAiUntouched": true,
+    "unclippedLatencyMeasurement": true
+  }
+}

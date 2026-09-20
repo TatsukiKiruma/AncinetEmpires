@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "auditDate": "2026-09-20T12:30:00+08:00",
+  "finding": {
+    "issueId": "F4-04",
+    "description": "价值训练混入裁定与未知结果，按状态而非对局分割，全局 Math.random 洗牌",
+    "correctiveActions": [
+      "只有确认的规则自然终局 (RULE_TERMINAL) 赋予 +1.0 (胜) / -1.0 (负) / 0.0 (平)",
+      "所有截断、未解决、材料裁定样本一律赋值 valueTarget = null 且 valueMask = 0.0",
+      "样本仍可按行为动作合法性保留用于 Policy 训练，避免丢弃有效行为数据",
+      "打乱严格限制在训练分区内部，使用显式 Seed 的确定性 PRNG，禁止跨根家族与开发/最终集泄漏"
+    ],
+    "status": "CORRECTED_IN_R03_PIPELINE"
+  },
+  "currentValueStatus": "VALUE_HOLD",
+  "note": "先前的 0.1538 验证 MSE 存在同局相邻状态跨集与裁定混入风险，资格撤回为 VALUE_HOLD，待 R09 独立无泄漏分区重验。"
+}

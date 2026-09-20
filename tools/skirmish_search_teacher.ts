@@ -557,7 +557,7 @@ export function searchTeacherAction(options: {
 }): SearchTeacherDecision {
     const config: SearchTeacherConfig = { ...DEFAULT_SEARCH_TEACHER_CONFIG, ...options.config };
     const rng = options.rng ?? (() => 0.5);
-    const now = options.now ?? Date.now;
+    const now = options.now ?? (() => (typeof performance !== 'undefined' ? performance.now() : Date.now()));
     const startedAt = now();
     let lastNow = startedAt;
     const getElapsed = () => {
@@ -779,7 +779,8 @@ export function searchTeacherAction(options: {
         });
     }
 
-    const elapsedMs = Math.min(deadlineMs, lastNow - startedAt);
+    // 真实耗时测量：不经 Math.min(deadlineMs, ...) 裁剪，真实超限必须如实反映
+    const elapsedMs = lastNow - startedAt;
 
     // 选择：真实胜 > 保守聚合值 > 启发式分 > 代码字典序
     let selected: SearchTeacherCandidate | undefined;

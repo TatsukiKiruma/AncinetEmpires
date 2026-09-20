@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "auditDate": "2026-09-20T04:36:19.362Z",
+  "datasetPath": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_00.jsonl",
+  "totalProbed": 62,
+  "verifiedValidSamples": 30,
+  "quarantinedSamples": 32,
+  "parityPassRate": 0.4838709677419355,
+  "sampleVerifications": [
+    {
+      "lineIndex": 4,
+      "playerId": 0,
+      "actionCode": "move:u_4:7,14",
+      "legalActionCount": 26,
+      "stepSuccess": true
+    },
+    {
+      "lineIndex": 5,
+      "playerId": 0,
+      "actionCode": "wait:u_4",
+      "legalActionCount": 3,
+      "stepSuccess": true
+    },
+    {
+      "lineIndex": 8,
+      "playerId": 1,
+      "actionCode": "move:u_5:3,4",
+      "legalActionCount": 27,
+      "stepSuccess": true
+    },
+    {
+      "lineIndex": 9,
+      "playerId": 1,
+      "actionCode": "wait:apk_u0",
+      "legalActionCount": 4,
+      "stepSuccess": true
+    },
+    {
+      "lineIndex": 10,
+      "playerId": 1,
+      "actionCode": "wait:u_5",
+      "legalActionCount": 3,
+      "stepSuccess": true
+    }
+  ],
+  "status": "SOME_QUARANTINED"
+}

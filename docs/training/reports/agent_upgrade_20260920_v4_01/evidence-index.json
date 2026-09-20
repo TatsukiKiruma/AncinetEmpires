@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "auditCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "evidenceItems": [
+    {
+      "id": "E-01",
+      "topic": "Final Holdout Evaluation (Seeds 9001-9008)",
+      "file": "docs/training/reports/agent_upgrade_20260920_01/final-eval.jsonl",
+      "claimedStatus": "100% Undefeated (4W 4D 0L) in gate-d2-report.md",
+      "actualRecord": "All 8 games reached stepCount=150 with winnerAlliance=null and adjudicatedWinnerAlliance=null",
+      "verdict": "DISPUTED",
+      "reclassification": "UNRESOLVED_MAX_STEPS_TRUNCATION",
+      "issueId": "F4-02"
+    },
+    {
+      "id": "E-02",
+      "topic": "Gate D2 / C2 Hardcoded Reports",
+      "file": "tools/skirmish_final_eval_runner.ts, tools/skirmish_ablation_runner.ts",
+      "claimedStatus": "OFFICIALLY PASSED",
+      "actualRecord": "Template markdown strings hardcoded OFFICIALLY PASSED, 0.0 loss rate, and fixed metrics regardless of run results",
+      "verdict": "DISPUTED",
+      "reclassification": "INVALIDATED_BY_TEMPLATE_INJECTION",
+      "issueId": "F4-01"
+    },
+    {
+      "id": "E-03",
+      "topic": "Holdout Scenario Independence",
+      "file": "tools/skirmish_final_eval_runner.ts (createHoldoutScenario)",
+      "claimedStatus": "Independent Holdout Evaluation Set",
+      "actualRecord": "Only seed%2 coordinate shift on 2 demo units, sharing demo map geometry and coupling candidate seat to parity",
+      "verdict": "DISPUTED",
+      "reclassification": "DEV_REGRESSION_ONLY",
+      "issueId": "F4-03"
+    },
+    {
+      "id": "E-04",
+      "topic": "Dual Head Value Target Supervision",
+      "file": "tools/test_dual_head_value_training.ts",
+      "claimedStatus": "VALUE_QUALIFIED (0.1538 MSE, 83.2% reduction)",
+      "actualRecord": "Mixed winAlliance ?? adjudicatedWinnerAlliance; fallback to 0.0 for unresolved; global unseeded Math.random() step shuffle without root family separation",
+      "verdict": "DISPUTED",
+      "reclassification": "VALUE_HOLD",
+      "issueId": "F4-04"
+    },
+    {
+      "id": "E-05",
+      "topic": "Latency Compliance (1000ms)",
+      "file": "tools/skirmish_search_teacher.ts",
+      "claimedStatus": "100% compliant with 1000ms deadline",
+      "actualRecord": "Clipped by Math.min(deadlineMs, lastNow - startedAt); frontend adapter synchronously called search and reported decision.elapsedMs without caller end-to-end overhead",
+      "verdict": "DISPUTED",
+      "reclassification": "TIMING_CLIPPING_DETECTED",
+      "issueId": "F4-06"
+    },
+    {
+      "id": "E-06",
+      "topic": "Search Teacher Qualification",
+      "file": "docs/training/reports/agent_upgrade_20260920_01/teacher-eval.jsonl",
+      "claimedStatus": "GLOBAL_GO",
+      "actualRecord": "Endgame 4 wins all with teacher as P0, other 4 at 200 steps; Normal opening had 3 losses and 5 at 200 steps",
+      "verdict": "DISPUTED",
+      "reclassification": "LOCAL_SIGNAL_ONLY(endgame)",
+      "issueId": "F4-07"
+    },
+    {
+      "id": "E-07",
+      "topic": "Net A vs Net B Depth Comparison",
+      "file": "docs/training/reports/agent_upgrade_20260920_01/architecture-comparison.json",
+      "claimedStatus": "NET_B superiority established",
+      "actualRecord": "14.2% vs 14.0% (71 vs 70 correct out of 500), policy loss worse for B (3.9884 vs 3.9046), only single seed on first 2000 lines of baseline file",
+      "verdict": "DISPUTED",
+      "reclassification": "NOT_ESTABLISHED",
+      "issueId": "F4-05"
+    }
+  ]
+}

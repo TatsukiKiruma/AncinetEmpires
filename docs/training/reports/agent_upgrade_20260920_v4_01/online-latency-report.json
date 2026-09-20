@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T04:36:45.160Z",
+  "totalProbes": 20,
+  "overallLatency": {
+    "p50Ms": 2,
+    "p95Ms": 72,
+    "p99Ms": 72,
+    "maxMs": 72,
+    "deadlineMissCount": 0,
+    "complianceRate": 1
+  },
+  "policyBreakdown": {
+    "heuristic": {
+      "meanE2eMs": 2.8
+    },
+    "random": {
+      "meanE2eMs": 0
+    },
+    "net_b_1ply": {
+      "meanE2eMs": 10
+    },
+    "net_b_s10": {
+      "count": 5,
+      "p50Ms": 45,
+      "maxMs": 72,
+      "allWithin1000Ms": true
+    }
+  },
+  "notes": "真实端到端测量，严禁裁剪；冷热缓存与不同策略分别报告。"
+}

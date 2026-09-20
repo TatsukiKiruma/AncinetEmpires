@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:37:00+08:00",
+  "domains": [
+    {
+      "domainId": "endgame_tactical",
+      "purpose": "残局斩杀与防守战术能力核验",
+      "rootFamilies": ["root_family:demo_map:endgame_advantage_v0", "root_family:demo_map:endgame_advantage_v1"],
+      "seatSwapping": true,
+      "maxSteps": 150,
+      "maxPlies": 40,
+      "seeds": [1001, 1002, 1003, 1004]
+    },
+    {
+      "domainId": "midgame_contact",
+      "purpose": "接触战兵种协同与交接能力核验",
+      "rootFamilies": ["root_family:demo_map:tactical_contact_v0", "root_family:demo_map:tactical_contact_v1"],
+      "seatSwapping": true,
+      "maxSteps": 150,
+      "maxPlies": 40,
+      "seeds": [2001, 2002, 2003, 2004]
+    },
+    {
+      "domainId": "opening_strategic",
+      "purpose": "开局经济占领、招募与阵型推进核验",
+      "rootFamilies": ["root_family:sd-normal:LibertyPort:p0_focus", "root_family:sd-normal:LibertyPort:p1_focus"],
+      "seatSwapping": true,
+      "maxSteps": 200,
+      "maxPlies": 40,
+      "seeds": [3001, 3002, 3003, 3004]
+    },
+    {
+      "domainId": "sealed_final_holdout",
+      "purpose": "未见独立地图最终留出验收 (R10 专用，前期严禁调参)",
+      "rootFamilies": [
+        "root_family:sealed_holdout:Map03_RiversCross:opening",
+        "root_family:sealed_holdout:Map04_HighlandFortress:siege",
+        "root_family:sealed_holdout:Map05_IslandsWar:naval_landing"
+      ],
+      "seatSwapping": true,
+      "maxSteps": 200,
+      "maxPlies": 40,
+      "seeds": [4001, 4002, 4003, 4004]
+    }
+  ],
+  "policies": {
+    "seatDecouplingRequired": true,
+    "immutableScenarioSeeds": true
+  }
+}

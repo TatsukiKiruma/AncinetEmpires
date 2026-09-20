@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 4,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:29:00+08:00",
+  "partitions": {
+    "train": [
+      "root_family:sd-normal:LibertyPort:p0_focus",
+      "root_family:sd-normal:LibertyPort:p1_focus",
+      "root_family:sd-normal:Duel:high_gold",
+      "root_family:sd-normal:Duel:low_gold",
+      "root_family:sd-contact:LibertyPort:bridge_skirmish",
+      "root_family:sd-contact:Duel:central_clash",
+      "root_family:sd-endgame:LibertyPort:commander_hunt",
+      "root_family:sd-endgame:Duel:attrition_late"
+    ],
+    "dev": [
+      "root_family:demo_map:tactical_contact_v0",
+      "root_family:demo_map:tactical_contact_v1",
+      "root_family:demo_map:endgame_advantage_v0",
+      "root_family:demo_map:endgame_advantage_v1"
+    ],
+    "final": [
+      "root_family:sealed_holdout:Map03_RiversCross:opening",
+      "root_family:sealed_holdout:Map03_RiversCross:contact",
+      "root_family:sealed_holdout:Map04_HighlandFortress:siege",
+      "root_family:sealed_holdout:Map04_HighlandFortress:endgame",
+      "root_family:sealed_holdout:Map05_IslandsWar:naval_landing",
+      "root_family:sealed_holdout:Map05_IslandsWar:capital_defense"
+    ]
+  },
+  "policies": {
+    "prohibitOverlap": true,
+    "augmentationInheritance": true,
+    "shuffleOnlyWithinTrain": true
+  }
+}

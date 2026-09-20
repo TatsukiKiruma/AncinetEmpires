@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 4,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:29:00+08:00",
+  "description": "真实可信输入数据集清单 v4。声明当前轮次可用于状态重建与受控验证的经过审计的真实数据源。",
+  "datasets": [
+    {
+      "datasetId": "baseline_dataset_part_00",
+      "relativePath": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_00.jsonl",
+      "byteSize": 425456190,
+      "format": "jsonl_observations_and_actions",
+      "encoding": {
+        "stateDim": 356,
+        "actionDim": 45,
+        "actionEncoder": "encodeGameActionV2",
+        "stateEncoder": "encodeGameState"
+      },
+      "rulesVersion": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+      "associatedTerminalOutcomes": "training_runs/agent_upgrade_20260919_01/baseline_dataset/src_head_00.jsonl",
+      "associatedTerminalOutcomesSha256": "2E9F9D611D4F6F4CE97AA142C5BD201406B8F05155211DEAACF0ADDBBD010872",
+      "usableFor": "controlled_ab_and_dev_regression"
+    }
+  ],
+  "samplingPolicy": {
+    "method": "root_family_stratified",
+    "rejectFirstNRowsAsFormalSplit": true,
+    "maxSamplesPerRootFamily": 50,
+    "targetSamplingBudget": 5000
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "evaluatedAt": "2026-09-20T12:37:30+08:00",
+  "gateTrustMatrix": [
+    {
+      "gateId": "G0_Evidence_Outcome_Integrity",
+      "status": "PASSED",
+      "basis": "R00 / R01 已完全落实。纯函数指标计算器与门禁判定器完成，全截断/裁定混入/超时/Hash错配/非法动作等失败型反例单测 100% 通过；5 个 runner 脚本的顶层导入副作用与固化 PASS 模板已全部清除。"
+    },
+    {
+      "gateId": "G1_Data_Partition_Integrity",
+      "status": "PASSED",
+      "basis": "R02 / R03 已完全落实。根家族分区交集泄漏审计为 0；游戏状态重建与动作单步校验通过，坏样本隔离入 quarantine.jsonl；自然价值标签仅由规则自然终局赋予，未解决截断与裁定已全量 mask；模型不可变归档与注册表建立完成。"
+    },
+    {
+      "gateId": "G2_Online_Runtime_Boundary",
+      "status": "PASSED_IN_TESTED_ENV",
+      "basis": "R04 已完全落实。搜索内部 Math.min 裁剪已彻底移除，调用方采用 performance.now() 单调时钟端到端测量；超时看门狗与 AbortSignal 取消回退机制单测通过；实测 20 次探针 P50=2ms, P95=72ms, Max=72ms, 超时率 0.0%。"
+    },
+    {
+      "gateId": "G3_Teacher_Domain_Qualification",
+      "status": "HOLD",
+      "basis": "依据任务书第 15 节预算继承规则，前序运行已消耗 3718 次教师查询（超出全局 2000 上限）；且历史逐局记录复核表明残局仅在 P0 有胜局，开局 0 胜 3 负 5 截断。本轮严格禁止开启无资格的大规模教师查询，资格标定为 LOCAL_SIGNAL_ONLY(endgame) / OPENING_HOLD。"
+    },
+    {
+      "gateId": "G4_Architecture_and_Search_Quality",
+      "status": "HOLD",
+      "basis": "NET_B 对比 NET_A 在验证集上仅多答对 1 个状态且 Loss 更差，选型优势为 NOT_ESTABLISHED；双头价值头处于 VALUE_HOLD；条件任务 R08 / R09 依据教师资质 HOLD 与剩余查询配额耗尽而暂缓推进，保留已有模型与基线。"
+    },
+    {
+      "gateId": "G5_Final_Delivery",
+      "status": "HOLD_RETAIN_CHAMPION",
+      "basis": "当前未出现满足全量门禁的新冠军；游戏规则、默认 AI (HeuristicAI)、历史模型与数据 100% 保持原样不变；合规交付本轮修复成果与下一阶段行动建议。"
+    }
+  ]
+}

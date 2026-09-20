@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-20T12:27:00+08:00",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "git": {
+    "branch": "qwen",
+    "auditCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+    "headCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+    "isDirty": false,
+    "untrackedFiles": [
+      "AncinetEmpires_AI_Agent_Taskbook_20260920_v4.md",
+      "AncinetEmpires_AI_Agent_Tasks_20260920_v4.json",
+      "AncinetEmpires_AI_Progress_Review_20260920_v4.md"
+    ]
+  },
+  "environment": {
+    "nodeVersion": "v22.18.0",
+    "npmVersion": "11.10.0",
+    "platform": "win32",
+    "packageJsonHash": "5FACECAACC866C63B5FF3E01ED57A46E7E16E8A7643BDB263FD84E6DB9E12887",
+    "packageLockJsonHash": "5B61BAFB9666773AAB798A45AF03D8E29A470016504154278ACEC9F3598ABB90",
+    "baselineTests": {
+      "testFilesPassed": 53,
+      "totalTestsPassed": 580,
+      "lintStatus": "passed"
+    }
+  },
+  "models": [
+    {
+      "modelId": "net_b_checkpoint",
+      "location": "src/game/ai/models/net_b_checkpoint.json",
+      "immutableArchive": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_b_checkpoint.json",
+      "sha256": "4839E4C79C861245BF8E50C4F1DD0FDC284A85F1E97A25A9F00C99C691A888B2",
+      "byteSize": 4432505,
+      "architecture": "NET_B",
+      "parameters": 213762,
+      "status": "VALUE_HOLD_HISTORICAL"
+    },
+    {
+      "modelId": "net_a_checkpoint",
+      "location": "training_runs/models/net_a_checkpoint.json",
+      "immutableArchive": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_a_checkpoint.json",
+      "sha256": "9627F1D045B1B895C8F3838814EE0D8EEAF47656EBFB1E8E1C6A68EC53A6311A",
+      "byteSize": 3066536,
+      "architecture": "NET_A",
+      "parameters": 147970,
+      "status": "HISTORICAL_BASELINE"
+    },
+    {
+      "modelId": "sd-bc-v3-20260918-011742",
+      "location": "training_runs/models/sd-bc-v3-20260918-011742.json",
+      "immutableArchive": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/sd-bc-v3-20260918-011742.json",
+      "sha256": "37EF149B42408277093AC0ADF94C4D7BB3DE808F24A2F4FC4EC38B29AD7901C8",
+      "byteSize": 39065,
+      "architecture": "HISTORICAL_BC_V3",
+      "parameters": 2048,
+      "status": "HISTORICAL_CHAMPION_CANDIDATE"
+    }
+  ]
+}

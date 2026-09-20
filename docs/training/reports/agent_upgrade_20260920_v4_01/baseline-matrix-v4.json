@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:37:00+08:00",
+  "baselines": [
+    {
+      "baselineId": "B0_Random",
+      "name": "RandomAI",
+      "type": "random",
+      "role": "smoke_and_degeneracy_check",
+      "status": "ACTIVE"
+    },
+    {
+      "baselineId": "B1_Heuristic_Default",
+      "name": "HeuristicAI",
+      "type": "rule_based_heuristic",
+      "role": "primary_game_default_control",
+      "status": "ACTIVE_DEFAULT"
+    },
+    {
+      "baselineId": "B2_Historical_Champion",
+      "name": "sd-bc-v3-20260918-011742",
+      "type": "behavioral_cloning_champion",
+      "checkpointPath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/sd-bc-v3-20260918-011742.json",
+      "role": "historical_strongest_baseline",
+      "status": "ACTIVE_ARCHIVED"
+    },
+    {
+      "baselineId": "B3_Pure_NET_A",
+      "name": "NET_A 1-ply",
+      "type": "neural_policy_only",
+      "checkpointPath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_a_checkpoint.json",
+      "role": "ablation_control_shallow",
+      "status": "ACTIVE_ARCHIVED"
+    },
+    {
+      "baselineId": "B4_Pure_NET_B",
+      "name": "NET_B 1-ply",
+      "type": "neural_policy_only",
+      "checkpointPath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_b_checkpoint.json",
+      "role": "ablation_control_deep",
+      "status": "ACTIVE_ARCHIVED"
+    },
+    {
+      "baselineId": "B5_S00_Search",
+      "name": "S00_BaselineSearch",
+      "type": "heuristic_tree_search",
+      "searchConfig": {
+        "nodeBudget": 150,
+        "deadlineMs": 1000,
+        "searchStopElapsedMs": 850,
+        "returnTargetElapsedMs": 950
+      },
+      "role": "search_algorithm_baseline",
+      "status": "ACTIVE"
+    },
+    {
+      "baselineId": "B6_S10_Neural_Search",
+      "name": "S10_NeuralPriorSearch",
+      "type": "neural_prior_tree_search",
+      "checkpointPath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_b_checkpoint.json",
+      "searchConfig": {
+        "nodeBudget": 150,
+        "deadlineMs": 1000,
+        "searchStopElapsedMs": 850,
+        "returnTargetElapsedMs": 950
+      },
+      "role": "candidate_for_upgrade",
+      "status": "UNDER_REVALIDATION"
+    }
+  ]
+}

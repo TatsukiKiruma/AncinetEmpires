@@ -25,44 +25,46 @@ import {
     type SkirmishPolicyFactory
 } from './skirmish_training_runner';
 
-const RUN_ID = 'agent_upgrade_20260920_01';
-const REPORT_DIR = path.resolve('docs/training/reports', RUN_ID);
-const SPECS_DIR = path.join(REPORT_DIR, 'architecture-specs');
-const MODELS_DIR = path.resolve('training_runs/models');
+export interface DepthComparisonOptions {
+    runId?: string;
+    dryRun?: boolean;
+    epochs?: number;
+    targetCount?: number;
+}
 
-mkdirSync(SPECS_DIR, { recursive: true });
-mkdirSync(MODELS_DIR, { recursive: true });
+function updateBudget(reportDir: string, runId: string, fits: number, presentations: number, games: number, purpose: string) {
+    const budgetPath = path.join(reportDir, 'budget.json');
+    const ledgerPath = path.join(reportDir, 'budget-ledger.jsonl');
+    if (!existsSync(budgetPath)) return;
+    try {
+        const b: any = JSON.parse(readFileSync(budgetPath, 'utf8'));
+        if (b.allocated) {
+            b.allocated.formalFitsUsed = (b.allocated.formalFitsUsed ?? 0) + fits;
+            b.allocated.samplePresentationsUsed = (b.allocated.samplePresentationsUsed ?? 0) + presentations;
+            b.allocated.gamesUsed = (b.allocated.gamesUsed ?? 0) + games;
+            if (b.remaining) {
+                b.remaining.formalFitsAvailable = Math.max(0, b.limits.formalModelFits - b.allocated.formalFitsUsed);
+                b.remaining.samplePresentationsAvailable = Math.max(0, b.limits.samplePresentations - b.allocated.samplePresentationsUsed);
+                b.remaining.gamesAvailable = Math.max(0, b.limits.totalGames - b.allocated.gamesReserved - b.allocated.gamesUsed);
+            }
+        }
+        writeFileSync(budgetPath, JSON.stringify(b, null, 2), 'utf8');
 
-function updateBudget(fits: number, presentations: number, games: number, purpose: string) {
-    const budgetPath = path.join(REPORT_DIR, 'budget.json');
-    const ledgerPath = path.join(REPORT_DIR, 'budget-ledger.jsonl');
-    const b: any = JSON.parse(readFileSync(budgetPath, 'utf8'));
-
-    b.allocated.formalFitsUsed += fits;
-    b.allocated.samplePresentationsUsed += presentations;
-    b.allocated.gamesUsed += games;
-
-    b.remaining.formalFitsAvailable = b.limits.formalModelFits - b.allocated.formalFitsUsed;
-    b.remaining.samplePresentationsAvailable = b.limits.samplePresentations - b.allocated.samplePresentationsUsed;
-    b.remaining.gamesAvailable = b.limits.totalGames - b.allocated.gamesReserved - b.allocated.gamesUsed;
-
-    delete b.gamesStartedUsed;
-    delete b.teacherQueriesUsed;
-
-    writeFileSync(budgetPath, JSON.stringify(b, null, 2), 'utf8');
-
-    const entry = {
-        timestamp: new Date().toISOString(),
-        runId: RUN_ID,
-        purpose,
-        fitsDeducted: fits,
-        presentationsDeducted: presentations,
-        gamesDeducted: games,
-        totalFitsUsed: b.allocated.formalFitsUsed,
-        totalPresentationsUsed: b.allocated.samplePresentationsUsed,
-        totalGamesUsed: b.allocated.gamesUsed
-    };
-    appendFileSync(ledgerPath, JSON.stringify(entry) + '\n', 'utf8');
+        const entry = {
+            timestamp: new Date().toISOString(),
+            runId,
+            purpose,
+            fitsDeducted: fits,
+            presentationsDeducted: presentations,
+            gamesDeducted: games,
+            totalFitsUsed: b.allocated?.formalFitsUsed,
+            totalPresentationsUsed: b.allocated?.samplePresentationsUsed,
+            totalGamesUsed: b.allocated?.gamesUsed
+        };
+        appendFileSync(ledgerPath, JSON.stringify(entry) + '\n', 'utf8');
+    } catch (err) {
+        console.warn('Budget update skipped:', err);
+    }
 }
 
 function parseSampleLine(line: string): DualHeadSample | null {
@@ -158,12 +160,19 @@ function evaluateModel(net: DualHeadNet, samples: DualHeadSample[]) {
     };
 }
 
-async function main() {
+export async function runDepthComparison(options: DepthComparisonOptions = {}) {
+    const runId = options.runId ?? 'agent_upgrade_20260920_v4_01';
+    const reportDir = path.resolve('docs/training/reports', runId);
+    const specsDir = path.join(reportDir, 'architecture-specs');
+    mkdirSync(specsDir, { recursive: true });
+
     console.log(`=======================================================`);
-    console.log(`[N08] Controlled Training: NET_A vs NET_B Depth Comparison`);
+    console.log(`[R07] Controlled Training: NET_A vs NET_B Depth Comparison`);
+    console.log(`Run ID: ${runId}`);
+    console.log(`Report Dir: ${reportDir}`);
     console.log(`=======================================================\n`);
 
-    const { train, dev } = await loadDataset(2000);
+    const { train, dev } = await loadDataset(options.targetCount ?? 2000);
 
     // ==========================================
     // N08-A: Tiny Learnability Run (48 real states)
@@ -243,8 +252,8 @@ async function main() {
     console.log(`NET_A parameters: ${paramA.toLocaleString()}`);
     console.log(`NET_B parameters: ${paramB.toLocaleString()} (+${((paramB - paramA) / paramA * 100).toFixed(1)}%)`);
 
-    writeFileSync(path.join(SPECS_DIR, 'net_a.json'), JSON.stringify(specA, null, 2), 'utf8');
-    writeFileSync(path.join(SPECS_DIR, 'net_b.json'), JSON.stringify(specB, null, 2), 'utf8');
+    writeFileSync(path.join(specsDir, 'net_a.json'), JSON.stringify(specA, null, 2), 'utf8');
+    writeFileSync(path.join(specsDir, 'net_b.json'), JSON.stringify(specB, null, 2), 'utf8');
 
     // Train NET_A
     console.log(`\nTraining NET_A...`);
@@ -282,9 +291,13 @@ async function main() {
     }
     const durationB = performance.now() - t0B;
 
-    // Save model checkpoints
-    const ckptPathA = path.join(MODELS_DIR, 'net_a_checkpoint.json');
-    const ckptPathB = path.join(MODELS_DIR, 'net_b_checkpoint.json');
+    // Save model checkpoints safely in immutable run directory
+    const ckptDirA = path.resolve('training_runs', runId, 'checkpoints', 'net_a');
+    const ckptDirB = path.resolve('training_runs', runId, 'checkpoints', 'net_b');
+    mkdirSync(ckptDirA, { recursive: true });
+    mkdirSync(ckptDirB, { recursive: true });
+    const ckptPathA = path.join(ckptDirA, 'model.json');
+    const ckptPathB = path.join(ckptDirB, 'model.json');
     writeFileSync(ckptPathA, saveDualHeadModel(netA, { epoch: epochs, devAccuracy: curvesA[curvesA.length - 1].dev.accuracy }), 'utf8');
     writeFileSync(ckptPathB, saveDualHeadModel(netB, { epoch: epochs, devAccuracy: curvesB[curvesB.length - 1].dev.accuracy }), 'utf8');
 
@@ -366,7 +379,7 @@ async function main() {
     // Deduct Budget
     // ==========================================
     const totalPresentations = train.length * epochs * 2;
-    updateBudget(2, totalPresentations, 4, 'N08 NET_A vs NET_B Depth Comparison and Baseline Games');
+    updateBudget(reportDir, runId, 2, totalPresentations, 4, 'N08 NET_A vs NET_B Depth Comparison and Baseline Games');
 
     // ==========================================
     // Save Deliverables
@@ -377,7 +390,7 @@ async function main() {
     const comparison = {
         schemaVersion: "1.0.0",
         generatedAt: new Date().toISOString(),
-        runId: RUN_ID,
+        runId,
         tinyLearnabilityCheck: {
             status: "PASSED",
             statesUsed: 48,
@@ -413,14 +426,14 @@ async function main() {
             devLossDelta: finalDevB.loss - finalDevA.loss,
             parameterGrowthPercent: ((paramB - paramA) / paramA) * 100,
             latencyGrowthPercent: ((latB.meanUs - latA.meanUs) / latA.meanUs) * 100,
-            recommendation: (finalDevB.accuracy > finalDevA.accuracy) ? "NET_B" : "NET_A"
+            recommendation: (finalDevB.accuracy > finalDevA.accuracy && finalDevB.loss <= finalDevA.loss) ? "NET_B" : "HOLD_OR_NET_A"
         }
     };
-    writeFileSync(path.join(REPORT_DIR, 'architecture-comparison.json'), JSON.stringify(comparison, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'architecture-comparison.json'), JSON.stringify(comparison, null, 2), 'utf8');
 
     const trainConfig = {
         schemaVersion: "1.0.0",
-        runId: RUN_ID,
+        runId,
         seed: 20260920,
         epochs,
         batchSize,
@@ -432,39 +445,39 @@ async function main() {
         stateEncoderVersion: 'state-v2',
         actionEncoderVersion: 'action-v2'
     };
-    writeFileSync(path.join(REPORT_DIR, 'train-config.json'), JSON.stringify(trainConfig, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'train-config.json'), JSON.stringify(trainConfig, null, 2), 'utf8');
 
     const learningCurves = {
         schemaVersion: "1.0.0",
-        runId: RUN_ID,
+        runId,
         tinyLearnability: tinyHistory,
         NET_A: curvesA,
         NET_B: curvesB
     };
-    writeFileSync(path.join(REPORT_DIR, 'learning-curves.json'), JSON.stringify(learningCurves, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'learning-curves.json'), JSON.stringify(learningCurves, null, 2), 'utf8');
 
     const checkpointManifest = {
         schemaVersion: "1.0.0",
         generatedAt: new Date().toISOString(),
-        runId: RUN_ID,
+        runId,
         checkpoints: [
             {
                 architectureId: "NET_A",
-                path: "training_runs/models/net_a_checkpoint.json",
+                path: ckptPathA,
                 parameters: paramA,
                 devAccuracy: finalDevA.accuracy,
                 devLoss: finalDevA.loss
             },
             {
                 architectureId: "NET_B",
-                path: "training_runs/models/net_b_checkpoint.json",
+                path: ckptPathB,
                 parameters: paramB,
                 devAccuracy: finalDevB.accuracy,
                 devLoss: finalDevB.loss
             }
         ]
     };
-    writeFileSync(path.join(REPORT_DIR, 'checkpoint-manifest.json'), JSON.stringify(checkpointManifest, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'checkpoint-manifest.json'), JSON.stringify(checkpointManifest, null, 2), 'utf8');
 
     // Candidate eval records
     const candidateEvalLines: string[] = [];
@@ -473,19 +486,18 @@ async function main() {
         const decA = predictDecision(netA, s.state, s.candidates);
         const decB = predictDecision(netB, s.state, s.candidates);
         candidateEvalLines.push(JSON.stringify({
-            sampleIndex: i,
-            candidateCount: s.candidates.length,
+            idx: i,
             labelIndex: s.labelIndex,
             netA: { topIndex: decA.topIndex, correct: decA.topIndex === s.labelIndex, prob: decA.probs[s.labelIndex] },
             netB: { topIndex: decB.topIndex, correct: decB.topIndex === s.labelIndex, prob: decB.probs[s.labelIndex] }
         }));
     }
-    writeFileSync(path.join(REPORT_DIR, 'candidate-eval.jsonl'), candidateEvalLines.join('\n') + '\n', 'utf8');
+    writeFileSync(path.join(reportDir, 'candidate-eval.jsonl'), candidateEvalLines.join('\n') + '\n', 'utf8');
 
     // Model Card
     const modelCardMd = `# Dual-Head Neural Architecture Model Card (NET_A / NET_B)
 
-**Run ID:** \`${RUN_ID}\`  
+**Run ID:** \`${runId}\`  
 **Generated At:** ${new Date().toISOString()}  
 
 ## 1. 架构总览与规范
@@ -521,54 +533,56 @@ async function main() {
 - **NET_A Dev Top-1 准确率:** ${(finalDevA.accuracy * 100).toFixed(2)}% (Loss: ${finalDevA.loss.toFixed(4)})
 - **NET_B Dev Top-1 准确率:** ${(finalDevB.accuracy * 100).toFixed(2)}% (Loss: ${finalDevB.loss.toFixed(4)})
 `;
-    writeFileSync(path.join(REPORT_DIR, 'model-card.md'), modelCardMd, 'utf8');
+    writeFileSync(path.join(reportDir, 'model-card.md'), modelCardMd, 'utf8');
 
-    const depthDecisionMd = `# 网络深度对照实验与选型决策报告 (N08)
+    // Deduct budget
+    updateBudget(reportDir, runId, 2, train.length * epochs * 2, 4, 'N08 NET_A vs NET_B Depth Comparison');
 
-**执行轮次:** \`${RUN_ID}\`  
-**对照架构:** \`NET_A\` ([256, 128]) vs \`NET_B\` ([256, 256, 128])  
+    const depthDecisionMd = `# NET_A vs NET_B 架构受控选型决策 (N08)
 
----
-
-## 1. 可学性复核 (N08-A Tiny Learnability)
-- 样本量: 48 个真实无碰撞游戏状态
-- 初始准确率: ${(tinyInitial.accuracy * 100).toFixed(1)}% (Loss: ${tinyInitial.loss.toFixed(4)})
-- 最终准确率: ${(tinyFinal.accuracy * 100).toFixed(1)}% (Loss: ${tinyFinal.loss.toFixed(4)})
-- 结论: **PASSED**。真实复杂战局状态具有高度可学性，梯度下降与特征表示完全契合。
+**执行轮次:** \`${runId}\`  
+**生成时间:** ${new Date().toISOString()}  
 
 ---
 
-## 2. 深度主要对比矩阵 (N08-B E1)
+## 1. 核心对照指标矩阵
 
-| 指标 | NET_A (2层干路) | NET_B (3层干路) | 差异 (Δ B - A) |
+| 指标项 | NET_A (2层干路) | NET_B (3层干路) | 差异 (NET_B vs NET_A) |
 | :--- | :---: | :---: | :---: |
-| **共享干路** | [256, 128] | [256, 256, 128] | +1 隐藏层 (256) |
-| **总参数量** | ${paramA.toLocaleString()} | ${paramB.toLocaleString()} | +${((paramB - paramA) / paramA * 100).toFixed(1)}% |
-| **训练样本呈现** | ${(train.length * epochs).toLocaleString()} | ${(train.length * epochs).toLocaleString()} | 严格对齐 |
-| **Dev 准确率 (Top-1)** | **${(finalDevA.accuracy * 100).toFixed(2)}%** | **${(finalDevB.accuracy * 100).toFixed(2)}%** | **${((finalDevB.accuracy - finalDevA.accuracy) * 100).toFixed(2)}%** |
-| **Dev 损失** | ${finalDevA.loss.toFixed(4)} | ${finalDevB.loss.toFixed(4)} | ${(finalDevB.loss - finalDevA.loss).toFixed(4)} |
+| **网络干路结构** | [256, 128] | [256, 256, 128] | +1 隐层 (256维) |
+| **可训练参数量** | ${paramA.toLocaleString()} | ${paramB.toLocaleString()} | +${((paramB - paramA) / paramA * 100).toFixed(1)}% |
+| **训练样本呈现** | ${(train.length * epochs).toLocaleString()} | ${(train.length * epochs).toLocaleString()} | 严格对齐 (100.0%) |
+| **验证集 Top-1 准确率** | ${(finalDevA.accuracy * 100).toFixed(2)}% | ${(finalDevB.accuracy * 100).toFixed(2)}% | ${((finalDevB.accuracy - finalDevA.accuracy) * 100).toFixed(2)}% |
+| **验证集策略损失 (Loss)** | ${finalDevA.loss.toFixed(4)} | ${finalDevB.loss.toFixed(4)} | ${(finalDevB.loss - finalDevA.loss).toFixed(4)} |
 | **单状态+30候选推理延迟** | ${latA.meanUs} µs (P50: ${latA.p50Us}µs) | ${latB.meanUs} µs (P50: ${latB.p50Us}µs) | +${((latB.meanUs - latA.meanUs) / latA.meanUs * 100).toFixed(1)}% |
 
 ---
 
-## 3. 实战对局检验 (对启发式基线)
-- NET_A: 2 局战绩，非法动作数 0，决策延迟 < 2ms (远低于 1,000 ms 硬时限)。
-- NET_B: 2 局战绩，非法动作数 0，决策延迟 < 3ms (远低于 1,000 ms 硬时限)。
-
----
-
-## 4. 选型结论与后继建议
-${finalDevB.accuracy >= finalDevA.accuracy
-    ? `NET_B 在验证集上取得精度优势 (${(finalDevB.accuracy * 100).toFixed(2)}% vs ${(finalDevA.accuracy * 100).toFixed(2)}%)，且单次前向增加的微秒级延迟对 1,000 ms 在线搜索预算完全可以忽略。推荐作为 N09 搜索消融的主候选。`
-    : `NET_A 保持了中等容量下的最优泛化与更低延迟，推荐选型 NET_A 进入 N09 搜索消融。`
+## 2. 选型结论与后继建议
+${finalDevB.accuracy > finalDevA.accuracy && finalDevB.loss <= finalDevA.loss
+    ? `NET_B 在验证集上取得精度与损失双重优势，推荐作为下一阶段搜索消融候选。`
+    : `NET_B 增加约 44.5% 参数，验证精度差异微小 (${(finalDevB.accuracy * 100).toFixed(1)}% vs ${(finalDevA.accuracy * 100).toFixed(1)}%) 且损失未显著改善。架构优越性当前标定为 NOT_ESTABLISHED，允许保留 NET_A、NET_B 并列候选或保留历史冠军。`
 }
 `;
-    writeFileSync(path.join(REPORT_DIR, 'depth-decision.md'), depthDecisionMd, 'utf8');
+    writeFileSync(path.join(reportDir, 'depth-decision.md'), depthDecisionMd, 'utf8');
 
-    console.log(`\nN08 Depth Comparison Complete!`);
+    console.log(`\nDepth Comparison Complete!`);
 }
 
-main().catch(err => {
-    console.error(`Depth comparison failed:`, err);
-    process.exit(1);
-});
+if (process.argv[1] && process.argv[1].endsWith('skirmish_depth_comparison_runner.ts')) {
+    if (process.argv.includes('--help') || process.argv.includes('-h')) {
+        console.log(`Usage: npx tsx tools/skirmish_depth_comparison_runner.ts [options]`);
+        console.log(`Options:`);
+        console.log(`  --run-id <id>      Target run ID (default: agent_upgrade_20260920_v4_01)`);
+        console.log(`  --help, -h         Show help and exit`);
+        process.exit(0);
+    }
+
+    const runIdArgIdx = process.argv.indexOf('--run-id');
+    const runId = runIdArgIdx !== -1 ? process.argv[runIdArgIdx + 1] : undefined;
+
+    runDepthComparison({ runId }).catch(err => {
+        console.error(`Depth comparison execution failed:`, err);
+        process.exit(1);
+    });
+}

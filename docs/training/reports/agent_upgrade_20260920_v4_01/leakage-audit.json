@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "auditDate": "2026-09-20T12:29:00+08:00",
+  "splitManifestRef": "docs/training/reports/agent_upgrade_20260920_v4_01/split-manifest-v4.json",
+  "auditResult": {
+    "hasLeakage": false,
+    "overlapTrainDev": [],
+    "overlapTrainFinal": [],
+    "overlapDevFinal": [],
+    "totalTrainFamilies": 8,
+    "totalDevFamilies": 4,
+    "totalFinalFamilies": 6,
+    "status": "PASS_ZERO_LEAKAGE"
+  },
+  "historicalLeakageFinding": {
+    "issueId": "F4-03",
+    "status": "RESOLVED_BY_RECLASSIFICATION",
+    "note": "旧 9001-9008 holdout 场景仅为 demo 接触局面的 seed%2 坐标微调，已重分类入 dev 回归集，严禁宣称为未见 holdout；最终评估集合全部分配独立未见根家族 (Map03, Map04, Map05)。"
+  }
+}

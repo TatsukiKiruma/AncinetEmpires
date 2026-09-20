@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "parentRunId": "agent_upgrade_20260920_01",
+  "frozenAt": "2026-09-20T12:27:00+08:00",
+  "limits": {
+    "totalGames": 512,
+    "smokeGames": 8,
+    "holdoutGamesReserved": 128,
+    "teacherQueries": 2000,
+    "trainingUniqueStates": 30000,
+    "formalModelFits": 8,
+    "samplePresentations": 1200000,
+    "maxEpochsPerFit": 12,
+    "tinyLearnabilityStates": 64,
+    "tinyLearnabilitySteps": 2000,
+    "latencyProbes": 2000,
+    "seedsPerArchitecture": 3,
+    "maxWorkers": 8,
+    "daggerRounds": 1,
+    "computeWindowSeconds": 28800
+  },
+  "cumulativeInherited": {
+    "gamesUsed": 40,
+    "gamesReserved": 128,
+    "teacherQueriesUsed": 3718,
+    "formalFitsUsed": 2,
+    "samplePresentationsUsed": 9000,
+    "latencyProbesUsed": 0
+  },
+  "allocatedThisRun": {
+    "gamesUsed": 0,
+    "gamesReserved": 128,
+    "teacherQueriesUsed": 0,
+    "formalFitsUsed": 0,
+    "samplePresentationsUsed": 0,
+    "latencyProbesUsed": 0
+  },
+  "totalAllocated": {
+    "gamesUsed": 40,
+    "gamesReserved": 128,
+    "teacherQueriesUsed": 3718,
+    "formalFitsUsed": 2,
+    "samplePresentationsUsed": 9000,
+    "latencyProbesUsed": 0
+  },
+  "remaining": {
+    "gamesAvailable": 344,
+    "teacherQueriesAvailable": 0,
+    "teacherQueriesOverBudget": 1718,
+    "formalFitsAvailable": 6,
+    "samplePresentationsAvailable": 1191000,
+    "latencyProbesAvailable": 2000
+  },
+  "statusNote": "继承历史消耗后 teacherQueries 额度已被先前运行耗尽 (3718/2000)。依任务书规定，不开启需新增教师查询的重计算任务，保留已有状态；允许不消耗教师查询的接口 smoke、离线门禁、确定性单元对战及分析任务。"
+}

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "4.0",
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:37:00+08:00",
+  "primaryHypothesis": "候选策略 S10 (或 NET_B 引导) 在成对换边评测下，相对基线 B1 (HeuristicAI) 的保守得分率下界显著高于 0.5，且在相同调用方 1000ms 预算下不发生超时违规与非法动作。",
+  "evaluationDesign": {
+    "pairingMethod": "seed_matched_seat_swapped",
+    "gamesPerPair": 2,
+    "domains": ["endgame_tactical", "midgame_contact", "opening_strategic"],
+    "maxTotalFinalHoldoutGames": 128,
+    "smokeGames": 8
+  },
+  "metricsSpecification": {
+    "naturalWinRate": "W / N (启动总局数为分母)",
+    "naturalLossRate": "L / N",
+    "naturalDrawRate": "D / N",
+    "truncationRate": "T / N (所有达到最大步数或超预算局数)",
+    "conservativeScoreBounds": "[(W + 0.5D) / N, (W + 0.5D + T) / N]",
+    "scoreRateOnResolved": "(W + 0.5D) / (W + L + D) (仅作条件参考，有T时不单独作为晋级依据)",
+    "adjudicatedWins": "独立单列，严禁计入自然胜率或价值标签"
+  },
+  "latencyAndSafetyConstraints": {
+    "endToEndHardDeadlineMs": 1000,
+    "searchStopElapsedMs": 850,
+    "returnTargetElapsedMs": 950,
+    "allowedIllegalActions": 0,
+    "allowedDeadlineMisses": 0
+  },
+  "stoppingRules": {
+    "earlyStopOnIllegalAction": true,
+    "earlyStopOnLatencyViolation": true,
+    "earlyStopOnPartitionLeakage": true
+  }
+}

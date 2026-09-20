@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "generatedAt": "2026-09-20T12:30:00+08:00",
+  "models": [
+    {
+      "modelId": "net_b_checkpoint_historical",
+      "architectureId": "NET_B",
+      "sha256": "4839E4C79C861245BF8E50C4F1DD0FDC284A85F1E97A25A9F00C99C691A888B2",
+      "parameters": 213762,
+      "trunkHidden": [256, 256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "status": "VALUE_HOLD_HISTORICAL",
+      "archivePath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_b_checkpoint.json",
+      "liveBrowserPath": "src/game/ai/models/net_b_checkpoint.json",
+      "notes": "历史 NET_B 检查点，保留于独立不可变归档中。当前默认 AI 不变更，实验通道显示为未认证。"
+    },
+    {
+      "modelId": "net_a_checkpoint_historical",
+      "architectureId": "NET_A",
+      "sha256": "9627F1D045B1B895C8F3838814EE0D8EEAF47656EBFB1E8E1C6A68EC53A6311A",
+      "parameters": 147970,
+      "trunkHidden": [256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "status": "HISTORICAL_BASELINE",
+      "archivePath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/net_a_checkpoint.json",
+      "notes": "历史 NET_A 检查点，保留于独立不可变归档中，用作等容量受控对照基线。"
+    },
+    {
+      "modelId": "sd-bc-v3-20260918-011742",
+      "architectureId": "HISTORICAL_BC_V3",
+      "sha256": "37EF149B42408277093AC0ADF94C4D7BB3DE808F24A2F4FC4EC38B29AD7901C8",
+      "parameters": 2048,
+      "status": "HISTORICAL_CHAMPION_CANDIDATE",
+      "archivePath": "training_runs/agent_upgrade_20260920_v4_01/checkpoints/historical_archive/sd-bc-v3-20260918-011742.json",
+      "notes": "2026-09-18 历史冠军模型候选 (v4+启发式收官)，保留用于同协议对照。"
+    }
+  ]
+}

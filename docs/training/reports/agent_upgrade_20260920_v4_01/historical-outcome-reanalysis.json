@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "auditCommit": "85a87a0edb64de18a8b8eced9226ffb1cd1b48e9",
+  "finalHoldoutReanalysis": {
+    "sourceFile": "docs/training/reports/agent_upgrade_20260920_01/final-eval.jsonl",
+    "previousClaim": {
+      "text": "8 局留出测试取得 100% 不败战绩 (4胜4平0负)",
+      "lossRate": 0.0,
+      "status": "OFFICIALLY PASSED"
+    },
+    "recomputedMetrics": {
+      "totalGames": 8,
+      "naturalWins": 0,
+      "naturalLosses": 0,
+      "naturalDraws": 0,
+      "truncatedCount": 8,
+      "truncationCause": "MAX_STEPS (150 steps reached in all 8 games)",
+      "naturalWinRate": 0.0,
+      "naturalLossRate": 0.0,
+      "naturalDrawRate": 0.0,
+      "truncationRate": 1.0,
+      "resolvedScoreRate": null,
+      "conservativeScoreBounds": [0.0, 1.0],
+      "adjudicatedWins": 0
+    },
+    "verdict": "DISPUTED_ALL_TRUNCATED",
+    "conclusion": "该记录无任何自然胜利，8局全部因达到 maxSteps=150 截断，无法认证自然平局或自然不败，必须撤销 QUALIFIED 结论。"
+  },
+  "teacherEvalReanalysis": {
+    "sourceFile": "docs/training/reports/agent_upgrade_20260920_01/teacher-eval.jsonl",
+    "endgameDomain": {
+      "totalGames": 8,
+      "naturalWins": 4,
+      "naturalLosses": 0,
+      "naturalDraws": 0,
+      "truncatedCount": 4,
+      "truncationCause": "MAX_STEPS (200 steps reached in 4 games)",
+      "naturalWinRate": 0.5,
+      "truncationRate": 0.5,
+      "conservativeScoreBounds": [0.5, 1.0],
+      "seatBreakdown": {
+        "p0TeacherWins": 4,
+        "p0TeacherTruncated": 0,
+        "p1TeacherWins": 0,
+        "p1TeacherTruncated": 4
+      },
+      "verdict": "LOCAL_SIGNAL_ONLY(endgame)",
+      "note": "4次胜利全部来自教师执P0；执P1时全部走到200步上限截断。存在严重的红方先手/座位偏差，不可推广至全地图双方。"
+    },
+    "normalDomain": {
+      "totalGames": 8,
+      "naturalWins": 0,
+      "naturalLosses": 3,
+      "naturalDraws": 0,
+      "truncatedCount": 5,
+      "truncationCause": "MAX_STEPS (200 steps reached in 5 games)",
+      "naturalWinRate": 0.0,
+      "naturalLossRate": 0.375,
+      "truncationRate": 0.625,
+      "conservativeScoreBounds": [0.0, 0.625],
+      "verdict": "NORMAL_TEACHER_FAILED",
+      "note": "开局域取得 0 胜 3 负 5 截断，自然胜率为 0.0%，完全不支持 GLOBAL_GO 资格声明。"
+    }
+  }
+}

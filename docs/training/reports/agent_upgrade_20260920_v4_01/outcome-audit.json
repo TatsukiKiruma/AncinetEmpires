@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_v4_01",
+  "auditDate": "2026-09-20T12:28:00+08:00",
+  "auditedFiles": [
+    {
+      "filePath": "tools/skirmish_final_eval_runner.ts",
+      "findings": [
+        "使用 winnerAlliance ?? adjudicatedWinnerAlliance 混充自然胜者",
+        "使用 effectiveWinner === null || effectiveWinner === -1 直接判定 draw=true",
+        "忽略 maxSteps=150 截断对局的真实终止原因"
+      ],
+      "status": "REPLACED_WITH_EVALUATION_CORE"
+    },
+    {
+      "filePath": "tools/skirmish_teacher_qualification_runner.ts",
+      "findings": [
+        "使用 winnerAlliance !== null ? winnerAlliance : adjudicatedWinnerAlliance 混充自然胜者",
+        "使用 effectiveWinnerAlliance === null || effectiveWinnerAlliance === -1 判定 draw=true",
+        "忽略 maxSteps=200 截断对局的真实终止原因"
+      ],
+      "status": "REPLACED_WITH_EVALUATION_CORE"
+    },
+    {
+      "filePath": "tools/skirmish_ablation_runner.ts",
+      "findings": [
+        "calcWinRate 将 draw 按 0.5 算入分子并宣称为 winRate",
+        "纯启发式与纯神经基线前沿指标手写常量 (0.2ms/50%, 0.5ms/0%)",
+        "固化写入 QUALIFIED 价值头状态"
+      ],
+      "status": "REPLACED_WITH_EVALUATION_CORE"
+    },
+    {
+      "filePath": "tools/test_dual_head_value_training.ts",
+      "findings": [
+        "使用 winnerAlliance ?? adjudicatedWinnerAlliance 混充自然终局",
+        "未找到胜者时无条件赋 0.0，且未对未解决样本进行 mask",
+        "无 seed 的 Math.random() 跨 episode 洗牌导致严重泄漏"
+      ],
+      "status": "REPLACED_WITH_EVALUATION_CORE"
+    }
+  ]
+}
