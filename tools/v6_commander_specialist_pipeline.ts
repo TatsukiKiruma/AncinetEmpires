@@ -395,22 +395,49 @@ export async function generateCurriculumDataset(): Promise<{
 // =========================================================================
 // PHASE 3: C65 Retraining All Models
 // =========================================================================
-export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatialDatasetPath: string): Promise<any> {
+export async function retrainAllModels(dualHeadSamples?: DualHeadSample[], spatialDatasetPath?: string): Promise<any> {
     console.log('\n=======================================================');
     console.log('[C65] RETRAINING ALL ACTIVE LEARNED MODELS (BC, NET_A, NET_B, Spatial ResNet v2)');
     console.log('=======================================================\n');
 
+    if (!dualHeadSamples || dualHeadSamples.length === 0) {
+        const dualHeadFile = path.join(DATASET_DIR, 'd_r30_dual_head.json');
+        console.log(`[C65] Loading existing full dataset from: ${dualHeadFile}`);
+        dualHeadSamples = JSON.parse(readFileSync(dualHeadFile, 'utf8'));
+    }
+
+    if (!spatialDatasetPath) {
+        spatialDatasetPath = path.join(DATASET_DIR, 'd_r30_spatial.jsonl');
+    }
+
+    const totalSamples = dualHeadSamples!.length;
+    console.log(`[C65] Total dataset size: ${totalSamples} samples (21,000 skirmish + 9,000 curriculum)`);
+
+    // 全局确定性打散 (Fisher-Yates Shuffle with seed 42)
+    // 确保 9,000 条指挥官专精课程样本均匀混布在全量 30,000 样本中，彻底消除顺序前缀截断与分布偏差
+    let seed = 42;
+    const rng = () => {
+        seed = (seed * 1664525 + 1013904223) % 4294967296;
+        return seed / 4294967296;
+    };
+    for (let i = totalSamples - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        const temp = dualHeadSamples![i];
+        dualHeadSamples![i] = dualHeadSamples![j];
+        dualHeadSamples![j] = temp;
+    }
+    console.log(`[C65] Globally shuffled ${totalSamples} samples across all epochs.`);
+
     const results: Record<string, any> = {};
 
-    // 1. Retrain BC Ranker
-    console.log('[C65-1] Training BC Ranker on D_R30...');
+    // 1. Retrain BC Ranker (全量 30,000 样本，无任何截断)
+    console.log('\n[C65-1] Training BC Ranker on FULL D_R30 (30,000 samples)...');
     const bcWeights = new Array(4096).fill(0);
-    // Simple fast perceptron training across D_R30 samples for BC
     const lr = 0.05;
     for (let epoch = 1; epoch <= 4; epoch++) {
         let correct = 0;
-        for (let i = 0; i < Math.min(dualHeadSamples.length, 10000); i++) {
-            const s = dualHeadSamples[i];
+        for (let i = 0; i < totalSamples; i++) {
+            const s = dualHeadSamples![i];
             const targetIdx = s.labelIndex;
             // score candidates using candidate features
             const scores = s.candidates.map(c => {
@@ -432,7 +459,6 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
             if (bestIdx === targetIdx) {
                 correct++;
             } else {
-                // update
                 const targetC = s.candidates[targetIdx];
                 const predC = s.candidates[bestIdx];
                 for (let d = 0; d < Math.min(targetC.length, 45); d++) {
@@ -443,7 +469,7 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
                 }
             }
         }
-        console.log(`  BC Ranker Epoch ${epoch}/4: Train Accuracy ${(correct / Math.min(dualHeadSamples.length, 10000) * 100).toFixed(1)}%`);
+        console.log(`  BC Ranker Epoch ${epoch}/4: Train Accuracy ${(correct / totalSamples * 100).toFixed(2)}% (${correct}/${totalSamples})`);
     }
 
     const bcOutPath = path.join(CHECKPOINT_DIR, 'bc/bc_ranker_checkpoint.json');
@@ -456,16 +482,16 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
         weights: bcWeights,
         epochs: 4,
         learningRate: lr,
-        trainedSamples: dualHeadSamples.length,
+        trainedSamples: totalSamples,
         createdAt: new Date().toISOString()
     });
     writeFileSync(bcOutPath, bcModelJson, 'utf8');
     const bcSha = getSha256(bcModelJson);
-    results['bc'] = { path: bcOutPath, sha256: bcSha, status: 'RETRAINED' };
+    results['bc'] = { path: bcOutPath, sha256: bcSha, status: 'RETRAINED', trainedSamples: totalSamples };
     console.log(`  Saved BC Model Checkpoint: ${bcOutPath} (${bcSha})`);
 
-    // 2. Retrain NET_A (2-block trunk: [256, 128])
-    console.log('\n[C65-2] Training NET_A DualHeadNet [256, 128] on D_R30...');
+    // 2. Retrain NET_A (全量 30,000 样本，无任何截断)
+    console.log('\n[C65-2] Training NET_A DualHeadNet [256, 128] on FULL D_R30 (30,000 samples)...');
     const specA: DualHeadSpec = {
         stateDim: 356,
         actionDim: 45,
@@ -476,29 +502,28 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
         architectureId: 'NET_A' as any
     };
     const netA = createDualHeadNet(specA);
-    const batchSize = 32;
-    const trainCountA = Math.min(dualHeadSamples.length, 12000);
-    for (let epoch = 1; epoch <= 4; epoch++) {
+    const batchSize = 64;
+    for (let epoch = 1; epoch <= 3; epoch++) {
         let totalLoss = 0;
         let batches = 0;
-        for (let i = 0; i < trainCountA; i += batchSize) {
-            const batch = dualHeadSamples.slice(i, i + batchSize);
+        for (let i = 0; i < totalSamples; i += batchSize) {
+            const batch = dualHeadSamples!.slice(i, i + batchSize);
             const report = trainStep(netA, batch, { learningRate: 0.005, momentum: 0.9, valueWeight: 0.5 });
             totalLoss += report.policyLoss + report.valueLoss;
             batches++;
         }
-        console.log(`  NET_A Epoch ${epoch}/4: Loss ${(totalLoss / batches).toFixed(4)}`);
+        console.log(`  NET_A Epoch ${epoch}/3: Avg Loss ${(totalLoss / batches).toFixed(4)} across ${batches} batches (${totalSamples} samples)`);
     }
     const netAOutPath = path.join(CHECKPOINT_DIR, 'net_a/net_a_checkpoint.json');
     mkdirSync(path.dirname(netAOutPath), { recursive: true });
     const netAJson = saveDualHeadModel(netA, { runId: RUN_ID, trainingDataset: 'D_R30' });
     writeFileSync(netAOutPath, netAJson, 'utf8');
     const netASha = getSha256(netAJson);
-    results['net_a'] = { path: netAOutPath, sha256: netASha, status: 'RETRAINED' };
+    results['net_a'] = { path: netAOutPath, sha256: netASha, status: 'RETRAINED', trainedSamples: totalSamples };
     console.log(`  Saved NET_A Checkpoint: ${netAOutPath} (${netASha})`);
 
-    // 3. Retrain NET_B (3-block trunk: [256, 256, 128])
-    console.log('\n[C65-3] Training NET_B DualHeadNet [256, 256, 128] on D_R30...');
+    // 3. Retrain NET_B (全量 30,000 样本，无任何截断)
+    console.log('\n[C65-3] Training NET_B DualHeadNet [256, 256, 128] on FULL D_R30 (30,000 samples)...');
     const specB: DualHeadSpec = {
         stateDim: 356,
         actionDim: 45,
@@ -509,25 +534,25 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
         architectureId: 'NET_B' as any
     };
     const netB = createDualHeadNet(specB);
-    const trainCountB = Math.min(dualHeadSamples.length, 12000);
-    for (let epoch = 1; epoch <= 4; epoch++) {
+    for (let epoch = 1; epoch <= 3; epoch++) {
         let totalLoss = 0;
         let batches = 0;
-        for (let i = 0; i < trainCountB; i += batchSize) {
-            const batch = dualHeadSamples.slice(i, i + batchSize);
+        for (let i = 0; i < totalSamples; i += batchSize) {
+            const batch = dualHeadSamples!.slice(i, i + batchSize);
             const report = trainStep(netB, batch, { learningRate: 0.005, momentum: 0.9, valueWeight: 0.5 });
             totalLoss += report.policyLoss + report.valueLoss;
             batches++;
         }
-        console.log(`  NET_B Epoch ${epoch}/4: Loss ${(totalLoss / batches).toFixed(4)}`);
+        console.log(`  NET_B Epoch ${epoch}/3: Avg Loss ${(totalLoss / batches).toFixed(4)} across ${batches} batches (${totalSamples} samples)`);
     }
     const netBOutPath = path.join(CHECKPOINT_DIR, 'net_b/net_b_checkpoint.json');
     mkdirSync(path.dirname(netBOutPath), { recursive: true });
     const netBJson = saveDualHeadModel(netB, { runId: RUN_ID, trainingDataset: 'D_R30' });
     writeFileSync(netBOutPath, netBJson, 'utf8');
     const netBSha = getSha256(netBJson);
-    results['net_b'] = { path: netBOutPath, sha256: netBSha, status: 'RETRAINED' };
+    results['net_b'] = { path: netBOutPath, sha256: netBSha, status: 'RETRAINED', trainedSamples: totalSamples };
     console.log(`  Saved NET_B Checkpoint: ${netBOutPath} (${netBSha})`);
+
 
     // 4. Retrain Spatial ResNet v2 (PyTorch)
     console.log('\n[C65-4] Training Spatial ResNet v2 in PyTorch on D_R30...');
@@ -540,8 +565,16 @@ export async function retrainAllModels(dualHeadSamples: DualHeadSample[], spatia
 
     const spatialJson = readFileSync(spatialOutPath, 'utf8');
     const spatialSha = getSha256(spatialJson);
-    results['spatial_resnet_v2'] = { path: spatialOutPath, sha256: spatialSha, status: 'RETRAINED' };
+    results['spatial_resnet_v2'] = { path: spatialOutPath, sha256: spatialSha, status: 'RETRAINED', trainedSamples: totalSamples };
     console.log(`  Saved Spatial ResNet v2 Checkpoint: ${spatialOutPath} (${spatialSha})`);
+
+    const spatial4BlockOutPath = path.join(CHECKPOINT_DIR, 'spatial_resnet/spatial_resnet_v2_4block_checkpoint.json');
+    const pyCmd4 = `python python/train_spatial_resnet.py --dataset "${spatialDatasetPath}" --epochs 3 --batch-size 64 --lr 0.002 --out-model "${spatial4BlockOutPath}" --model-version spatial-resnet-v2 --num-blocks 4`;
+    console.log(`  Executing 4-block: ${pyCmd4}`);
+    execSync(pyCmd4, { stdio: 'inherit' });
+    const spatial4Sha = getSha256(readFileSync(spatial4BlockOutPath, 'utf8'));
+    results['spatial_resnet_v2_4block'] = { path: spatial4BlockOutPath, sha256: spatial4Sha, status: 'RETRAINED', trainedSamples: totalSamples };
+    console.log(`  Saved Spatial ResNet v2 4-block Checkpoint: ${spatial4BlockOutPath} (${spatial4Sha})`);
 
     // Write coverage report
     const coverageReport = {

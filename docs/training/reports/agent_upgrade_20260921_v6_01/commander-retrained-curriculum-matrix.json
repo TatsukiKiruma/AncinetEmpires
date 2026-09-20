@@ -9,7 +9,7 @@
     "verdict": "SUCCESS_REHIRED",
     "chosenActionType": "recruit_to_castle",
     "chosenUnitClass": "commander",
-    "latencyMs": 12.81,
+    "latencyMs": 12.15,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -21,9 +21,9 @@
     "policyVersion": "BASELINE",
     "expectedResult": "RECRUIT_COMMANDER",
     "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.71,
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "soldier",
+    "latencyMs": 0.49,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -37,7 +37,7 @@
     "verdict": "MISSED_REHIRE",
     "chosenActionType": "wait",
     "chosenUnitClass": null,
-    "latencyMs": 5.13,
+    "latencyMs": 4.91,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -51,7 +51,7 @@
     "verdict": "MISSED_REHIRE",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 32.96,
+    "latencyMs": 33.18,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -62,10 +62,10 @@
     "policyName": "BC Ranker (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.69,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 0.65,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -76,10 +76,10 @@
     "policyName": "NET_A (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 2.65,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 2.23,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -90,10 +90,10 @@
     "policyName": "NET_B (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.93,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 1.13,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -107,7 +107,7 @@
     "verdict": "SUCCESS_REHIRED",
     "chosenActionType": "recruit_to_castle",
     "chosenUnitClass": "commander",
-    "latencyMs": 22.39,
+    "latencyMs": 23.12,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -121,7 +121,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 1.16,
+    "latencyMs": 1.23,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -155,7 +155,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "wait",
     "chosenUnitClass": null,
-    "latencyMs": 0.59,
+    "latencyMs": 0.69,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -172,7 +172,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 22.99,
+    "latencyMs": 25.29,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -189,7 +189,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.33,
+    "latencyMs": 0.32,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -206,7 +206,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.96,
+    "latencyMs": 0.57,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -223,7 +223,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 1.03,
+    "latencyMs": 0.57,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -240,7 +240,7 @@
     "verdict": "CORRECT_UNBLOCK_ACTION",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 21.5,
+    "latencyMs": 22.04,
     "canRecruitByRule": false,
     "explanationReasons": [
       "CASTLE_OCCUPIED",
@@ -257,7 +257,7 @@
     "verdict": "CORRECT_RULE_DISABLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 9.11,
+    "latencyMs": 10.09,
     "canRecruitByRule": false,
     "explanationReasons": [
       "MODE_DISABLED"
@@ -271,137 +271,137 @@
     "policyVersion": "BASELINE",
     "expectedResult": "CANNOT_RECRUIT",
     "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "paladin",
+    "latencyMs": 0.27,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_b_old",
+    "policyName": "NET_B (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "wait",
+    "chosenUnitClass": null,
+    "latencyMs": 0.95,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "spatial_old",
+    "policyName": "Spatial ResNet v1 (Old)",
+    "policyVersion": "OLD",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 20.5,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "bc_new",
+    "policyName": "BC Ranker (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 1.08,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_a_new",
+    "policyName": "NET_A (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "druid",
+    "latencyMs": 1.33,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "net_b_new",
+    "policyName": "NET_B (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "druid",
+    "latencyMs": 1.55,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
+    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
+    "policyId": "spatial_new",
+    "policyName": "Spatial ResNet v2 (New)",
+    "policyVersion": "NEW",
+    "expectedResult": "CANNOT_RECRUIT",
+    "verdict": "CORRECT_RULE_DISABLED",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 19.71,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "MODE_DISABLED"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "heuristic",
+    "policyName": "HeuristicAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
+    "chosenActionType": "move",
+    "chosenUnitClass": null,
+    "latencyMs": 2.39,
+    "canRecruitByRule": false,
+    "explanationReasons": [
+      "INSUFFICIENT_GOLD"
+    ]
+  },
+  {
+    "scenarioId": "S4_INSUFFICIENT_GOLD",
+    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
+    "policyId": "random",
+    "policyName": "RandomAI",
+    "policyVersion": "BASELINE",
+    "expectedResult": "SAVING_MONEY",
+    "verdict": "CORRECT_SAVING",
     "chosenActionType": "recruit_to_castle",
     "chosenUnitClass": "soldier",
-    "latencyMs": 0.35,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "net_b_old",
-    "policyName": "NET_B (Old)",
-    "policyVersion": "OLD",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "wait",
-    "chosenUnitClass": null,
-    "latencyMs": 0.96,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "spatial_old",
-    "policyName": "Spatial ResNet v1 (Old)",
-    "policyVersion": "OLD",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 24.12,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "bc_new",
-    "policyName": "BC Ranker (New)",
-    "policyVersion": "NEW",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.52,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "net_a_new",
-    "policyName": "NET_A (New)",
-    "policyVersion": "NEW",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 1.01,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "net_b_new",
-    "policyName": "NET_B (New)",
-    "policyVersion": "NEW",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 1.39,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S3_BARE_DEMO_DEFECT_ENTRYPOINT",
-    "scenarioName": "未注入SD规则的裸demo初态 (负对照)",
-    "policyId": "spatial_new",
-    "policyName": "Spatial ResNet v2 (New)",
-    "policyVersion": "NEW",
-    "expectedResult": "CANNOT_RECRUIT",
-    "verdict": "CORRECT_RULE_DISABLED",
-    "chosenActionType": "recruit_to_castle",
-    "chosenUnitClass": "catapult",
-    "latencyMs": 22.51,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "MODE_DISABLED"
-    ]
-  },
-  {
-    "scenarioId": "S4_INSUFFICIENT_GOLD",
-    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
-    "policyId": "heuristic",
-    "policyName": "HeuristicAI",
-    "policyVersion": "BASELINE",
-    "expectedResult": "SAVING_MONEY",
-    "verdict": "CORRECT_SAVING",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 1.96,
-    "canRecruitByRule": false,
-    "explanationReasons": [
-      "INSUFFICIENT_GOLD"
-    ]
-  },
-  {
-    "scenarioId": "S4_INSUFFICIENT_GOLD",
-    "scenarioName": "差1金币不足 (499金币 vs 500费用)",
-    "policyId": "random",
-    "policyName": "RandomAI",
-    "policyVersion": "BASELINE",
-    "expectedResult": "SAVING_MONEY",
-    "verdict": "CORRECT_SAVING",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.38,
+    "latencyMs": 0.26,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -417,7 +417,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "wait",
     "chosenUnitClass": null,
-    "latencyMs": 0.88,
+    "latencyMs": 0.76,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -433,7 +433,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 22.27,
+    "latencyMs": 21.74,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -449,7 +449,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.47,
+    "latencyMs": 0.54,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -465,7 +465,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.71,
+    "latencyMs": 0.69,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -481,7 +481,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.65,
+    "latencyMs": 0.66,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -497,7 +497,7 @@
     "verdict": "CORRECT_SAVING",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 21.41,
+    "latencyMs": 22.23,
     "canRecruitByRule": false,
     "explanationReasons": [
       "INSUFFICIENT_GOLD"
@@ -513,7 +513,7 @@
     "verdict": "SUCCESS_REHIRED",
     "chosenActionType": "recruit_to_castle",
     "chosenUnitClass": "commander",
-    "latencyMs": 2.28,
+    "latencyMs": 2.95,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -524,10 +524,10 @@
     "policyName": "RandomAI",
     "policyVersion": "BASELINE",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
+    "verdict": "SUCCESS_REHIRED",
     "chosenActionType": "recruit_to_castle",
-    "chosenUnitClass": "dark_mage",
-    "latencyMs": 0.55,
+    "chosenUnitClass": "commander",
+    "latencyMs": 0.36,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -541,7 +541,7 @@
     "verdict": "MISSED_REHIRE",
     "chosenActionType": "wait",
     "chosenUnitClass": null,
-    "latencyMs": 0.89,
+    "latencyMs": 1.08,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -555,7 +555,7 @@
     "verdict": "MISSED_REHIRE",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 23.82,
+    "latencyMs": 23.93,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -566,10 +566,10 @@
     "policyName": "BC Ranker (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.65,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 0.62,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -580,10 +580,10 @@
     "policyName": "NET_A (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 1.3,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 0.83,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -594,10 +594,10 @@
     "policyName": "NET_B (New)",
     "policyVersion": "NEW",
     "expectedResult": "RECRUIT_COMMANDER",
-    "verdict": "MISSED_REHIRE",
-    "chosenActionType": "move",
-    "chosenUnitClass": null,
-    "latencyMs": 0.88,
+    "verdict": "SUCCESS_REHIRED",
+    "chosenActionType": "recruit_to_castle",
+    "chosenUnitClass": "commander",
+    "latencyMs": 0.86,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -611,7 +611,7 @@
     "verdict": "SUCCESS_REHIRED",
     "chosenActionType": "recruit_to_castle",
     "chosenUnitClass": "commander",
-    "latencyMs": 22.58,
+    "latencyMs": 22.05,
     "canRecruitByRule": true,
     "explanationReasons": []
   },
@@ -625,7 +625,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 1.86,
+    "latencyMs": 1.94,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -663,7 +663,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "wait",
     "chosenUnitClass": null,
-    "latencyMs": 0.51,
+    "latencyMs": 0.52,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -682,7 +682,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 21.92,
+    "latencyMs": 21.45,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -701,7 +701,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.23,
+    "latencyMs": 0.59,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -720,7 +720,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.4,
+    "latencyMs": 0.43,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -739,7 +739,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 0.91,
+    "latencyMs": 0.7,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",
@@ -758,7 +758,7 @@
     "verdict": "CORRECT_PENDING_HANDLED",
     "chosenActionType": "move",
     "chosenUnitClass": null,
-    "latencyMs": 21.36,
+    "latencyMs": 19.42,
     "canRecruitByRule": false,
     "explanationReasons": [
       "COMMANDER_ALREADY_PRESENT",

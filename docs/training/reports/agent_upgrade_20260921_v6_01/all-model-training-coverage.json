@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-20T21:00:27.011Z",
+  "timestamp": "2026-09-20T21:50:23.648Z",
   "runId": "agent_upgrade_20260921_v6_01",
   "trainedModels": [
     {
@@ -7,7 +7,7 @@
       "type": "LinearRanker",
       "architecture": "hashed-action-v4 (4096-dim)",
       "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\bc\\bc_ranker_checkpoint.json",
-      "sha256": "e4e9b43245a6bcdad55a86c06e6c65b5effab40ed429c8c6edb23cffa20b60bb",
+      "sha256": "1a68247b191a844105691f3aee0c56016715603e2e46e37a41f236590076b98c",
       "trainedSamples": 30000,
       "status": "RETRAINED_VERIFIED"
     },
@@ -16,7 +16,7 @@
       "type": "DualHeadMLP",
       "architecture": "trunk [256, 128], policy [64, 64], value [64]",
       "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\net_a\\net_a_checkpoint.json",
-      "sha256": "3260ddc09b57763c2f08f46a0b0ccbe109518c11e6501ccb5c8df2c49d9ce4f1",
+      "sha256": "c4de7659906c8daf66854f6a37cc0aad68081492212ef83a0ae171e4ad2cd2a3",
       "trainedSamples": 30000,
       "status": "RETRAINED_VERIFIED"
     },
@@ -25,7 +25,7 @@
       "type": "DualHeadMLP",
       "architecture": "trunk [256, 256, 128], policy [64, 64], value [64]",
       "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\net_b\\net_b_checkpoint.json",
-      "sha256": "450a14fe190666874b94d9ca2907dbed4a35326ac2cca0bfd5d1cedefeb446a5",
+      "sha256": "36a572e1fbd5cd7bde952027d98b5914f6792cdf7563afac28b780a2402a47ea",
       "trainedSamples": 30000,
       "status": "RETRAINED_VERIFIED"
     },
@@ -34,7 +34,7 @@
       "type": "SpatialConvResNet",
       "architecture": "32ch, 2 ResBlocks, 148-dim policy scorer head, 52-dim value head",
       "checkpointPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\spatial_resnet\\spatial_resnet_v2_checkpoint.json",
-      "sha256": "2fd090b86cc7f11380c7416faf5ca7819fd10580fab157e469fe126c456b6b3e",
+      "sha256": "9e0fdd5643d5d7ad095898d5cc2597e846da0018bce54bc215a2e77e5c26e4f2",
       "trainedSamples": 30000,
       "status": "RETRAINED_VERIFIED"
     }
