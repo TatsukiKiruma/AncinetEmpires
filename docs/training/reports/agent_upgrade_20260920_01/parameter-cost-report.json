@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "summary": {
+    "description": "Parameter count, memory footprint, and computational cost comparison between NET_A and NET_B"
+  },
+  "architectures": {
+    "NET_A": {
+      "trunkLayers": 2,
+      "trunkHidden": [256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "totalParameters": 103938,
+      "weightMemoryBytes": 415752,
+      "stateForwardFlops": 160512,
+      "actionForwardFlopsPerCand": 30722,
+      "inferenceLatencyPerDecisionMs": 0.045
+    },
+    "NET_B": {
+      "trunkLayers": 3,
+      "trunkHidden": [256, 256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "totalParameters": 169730,
+      "weightMemoryBytes": 678920,
+      "stateForwardFlops": 292096,
+      "actionForwardFlopsPerCand": 30722,
+      "inferenceLatencyPerDecisionMs": 0.068
+    }
+  },
+  "comparison": {
+    "parameterIncrease": 65792,
+    "parameterIncreasePercentage": 63.3,
+    "stateFlopsIncreasePercentage": 82.0,
+    "policyEvaluationOverheadIncrease": 0.0,
+    "onlineBudgetImpact": "NET_B adds ~0.023ms per decision, well within the 1000ms budget limit"
+  }
+}

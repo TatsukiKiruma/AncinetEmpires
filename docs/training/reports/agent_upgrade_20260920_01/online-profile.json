@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:26:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "contract": {
+    "hardDeadlineMs": 1000,
+    "searchStopElapsedMs": 850,
+    "returnTargetElapsedMs": 950
+  },
+  "latencyDistribution": {
+    "totalSamples": 15,
+    "p50Ms": 48.0,
+    "p90Ms": 185.0,
+    "p95Ms": 245.0,
+    "p99Ms": 890.0,
+    "maxObservedMs": 900.0,
+    "meanMs": 85.3,
+    "minMs": 2.0
+  },
+  "compliance": {
+    "within850MsCount": 14,
+    "within850MsRate": 0.9333,
+    "within1000MsCount": 15,
+    "within1000MsRate": 1.0,
+    "deadlineViolations": 0,
+    "fallbackUsedCount": 0
+  }
+}

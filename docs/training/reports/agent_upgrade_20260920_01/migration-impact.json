@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "auditDate": "2026-09-20T07:19:00+08:00",
+  "bugId": "F02",
+  "description": "旧迁移逻辑对 relabeled 样本使用 candidates.findIndex 填写 fixedActionIndex，导致局部采样下标与全局动作空间索引混淆。",
+  "fix": "修复为 relabeled ? null : (Number.isInteger(idx) ? Number(idx) : null)。在没有完整 State 重建全局索引的环境下，严禁伪造行为动作的全局索引；同时在 validateDatasetSampleVNext 中强制要求 trainable 样本必须拥有非空且合法的 fixedActionIndex。",
+  "impactAnalysis": {
+    "legacyDatasetSmall": {
+      "path": "training_runs/agent_upgrade_20260919_01/dataset_vnext_small",
+      "totalSamples": 513,
+      "relabeledSamplesAffected": 185,
+      "remedy": "标记为 historical-baseline 或隔离，不得作为新版全局动作空间可训练样本。"
+    },
+    "daggerRound02": {
+      "path": "training_runs/agent_upgrade_20260919_01/dagger_round02",
+      "totalSamples": 3856,
+      "status": "由 DAggerCaptureRecord 生成，原记录中已携带采集时真实计算的 fixedActionIndex (基于 env.ts::encodeFixedActionIndex)，不受 migrateLegacyFeatureSample 的 findIndex 影响，但此前缺少 perspectiveAllianceId 拆分。已在 skirmish_dagger_vnext.ts 中修复拆分。"
+    }
+  }
+}

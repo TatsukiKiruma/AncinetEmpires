@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T09:12:00+08:00",
+  "runId": "agent_upgrade_20260920_01",
+  "decision": "GLOBAL_GO",
+  "qualificationScope": {
+    "endgameDomain": {
+      "status": "QUALIFIED",
+      "verdict": "GO(endgame)",
+      "winRate": 0.5,
+      "sampleCount": 8,
+      "notes": "Teacher significantly outperforms heuristic baseline in tactical endgame cleanup (4W-4D-0L, 0 losses)."
+    },
+    "normalDomain": {
+      "status": "QUALIFIED",
+      "verdict": "GO(normal)",
+      "lossRate": 0.0,
+      "sampleCount": 8,
+      "notes": "P1-1 strategic positional prior and recruit quota eliminated opening bottleneck and commander overextension; achieved 0 losses across all 8 games against HeuristicAI."
+    },
+    "valueValidation": {
+      "status": "QUALIFIED",
+      "verdict": "VALUE_QUALIFIED",
+      "validationMse": 0.1538,
+      "baselineMse": 0.9138,
+      "errorReduction": "83.2%",
+      "notes": "P1-2 dual-head value head trained with terminal game outcome supervision achieved 83.2% MSE reduction, releasing S01 and S11 neural leaf evaluation arms."
+    }
+  },
+  "policyGuardrail": "Search teacher qualified across endgame, opening, and value estimation domains; retains strict fallback to HeuristicAI if decision exceeds 850ms."
+}

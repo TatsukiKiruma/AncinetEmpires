@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "summary": {
+    "description": "Model save, load, and training resume parity audit",
+    "verified": true,
+    "maxLogitDiscrepancy": 0.0,
+    "maxValueDiscrepancy": 0.0,
+    "topIndexExactMatchRate": 1.0
+  },
+  "tests": [
+    {
+      "testName": "Save and reload parity",
+      "modelFormat": "skirmish_dual_head_v2",
+      "architecture": "NET_A",
+      "logitTolerance": "bitwise_identical",
+      "status": "PASSED"
+    },
+    {
+      "testName": "Standardization fold parity",
+      "description": "folded model on raw features equals unfolded model on standardized features",
+      "status": "PASSED",
+      "maxRelDiff": 1.2e-9
+    }
+  ]
+}

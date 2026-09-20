@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "generatedAt": "2026-09-20T07:18:00+08:00",
+  "git": {
+    "branch": "qwen",
+    "headCommit": "cfb07fcc97aff5c2155d3289ddb834ffd1f7522d",
+    "auditCommit": "cfb07fcc97aff5c2155d3289ddb834ffd1f7522d",
+    "headMatchesAudit": true,
+    "worktreeDirty": true,
+    "statusShort": [
+      " D AncinetEmpires_AI_Agent_Taskbook_20260919.md",
+      "?? AncinetEmpires_AI_Agent_Taskbook_20260920.md",
+      "?? AncinetEmpires_AI_Progress_Review_20260920.md",
+      "?? search-traces.jsonl"
+    ],
+    "sourceCodeDiffAgainstAudit": "NONE (all src/ and tools/ files identical to cfb07fcc97aff5c2155d3289ddb834ffd1f7522d)"
+  },
+  "documents": {
+    "taskbook": {
+      "path": "AncinetEmpires_AI_Agent_Taskbook_20260920.md",
+      "version": "2026-09-20 / v3.0 整合版",
+      "sha256": "8379A819A45BEF45D5240C537D27029FBBEB6366099F9BC9163F1FC5A1C9129C",
+      "lines": 1000,
+      "bytes": 89399
+    },
+    "progressReview": {
+      "path": "AncinetEmpires_AI_Progress_Review_20260920.md",
+      "version": "2026-09-20 / v3.0 整合版",
+      "sha256": "61F8B1C233C0207F3ED325C3835E268E1EEB1DB3E7869B5EC2FC8E8776839AF4",
+      "lines": 226,
+      "bytes": 18266
+    }
+  },
+  "environment": {
+    "os": "Windows (AMD64)",
+    "node": "v22.18.0",
+    "npm": "11.10.0",
+    "python": "3.12.10",
+    "cpu": "AMD Ryzen 7 9800X3D 8-Core Processor (16 logical cores)",
+    "ramBytes": 50576412672
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "globalLedger": {
+    "totalGamesStartedBudget": 512,
+    "holdoutGamesReserved": 128,
+    "availableExperimentalGames": 384,
+    "formalModelFitsBudget": 8,
+    "samplePresentationsBudget": 1200000,
+    "teacherQueriesBudget": 2000
+  },
+  "currentUsage": {
+    "gamesStarted": 0,
+    "formalModelFits": 0,
+    "samplePresentations": 0,
+    "teacherQueries": 0,
+    "unitTestEpisodes": "Not counted against global game budget (isolated deterministic fixtures)"
+  },
+  "remainingBudget": {
+    "availableExperimentalGames": 384,
+    "formalModelFits": 8,
+    "samplePresentations": 1200000,
+    "teacherQueries": 2000
+  }
+}

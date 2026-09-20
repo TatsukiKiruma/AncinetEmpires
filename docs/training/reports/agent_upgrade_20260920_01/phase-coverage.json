@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:26:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "module": "tools/skirmish_search_teacher.ts",
+  "findingsAddressed": ["F04"],
+  "summary": {
+    "description": "Opponent phase coverage and true hand-off verification",
+    "f04Resolved": true,
+    "totalDecisionTraces": 11,
+    "falseOpponentHandoffRate": 0.0,
+    "selectedSawOpponentPhaseExactMatch": 1.0
+  },
+  "metrics": {
+    "decisionsAnalyzed": 11,
+    "sawOpponentPhaseTrue": 6,
+    "sawOpponentPhaseFalse": 5,
+    "selectedSawOpponentPhaseTrue": 5,
+    "selectedSawOpponentPhaseFalse": 6,
+    "incompleteHandoffsDetected": 2,
+    "incompleteHandoffHandledCorrectly": true,
+    "opponentReplyWidthConfigured": 2,
+    "opponentPhaseActionsConfigured": 1
+  },
+  "handoffContract": {
+    "handToOpponentReturnTypes": [
+      "reached-opponent",
+      "incomplete",
+      "terminal",
+      "node_budget",
+      "decision_ms",
+      "guard"
+    ],
+    "evalOpponentReplyInvokedOnlyWhen": "handed.stop === 'reached-opponent' && !handed.node.isTerminal()",
+    "selectedSawOpponentPhaseDerivedFrom": "selected.sawOpponentPhase"
+  },
+  "verification": {
+    "testFile": "tools/skirmish_search_teacher_n03.test.ts",
+    "testCases": [
+      "F04反例：处于本方阶段但无 end_turn 时（如 pending 状态），不得谎报已切换至对手阶段",
+      "逐候选回应：selectedSawOpponentPhase 必须真实反映选中候选，而非搜索中其他候选"
+    ],
+    "status": "PASSED"
+  }
+}

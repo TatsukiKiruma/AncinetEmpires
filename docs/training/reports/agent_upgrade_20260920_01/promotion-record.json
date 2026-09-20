@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-19T23:48:49.753Z",
+  "runId": "agent_upgrade_20260920_01",
+  "status": "QUALIFIED_CANDIDATE_FREEZE",
+  "defaultGameAiFlipped": false,
+  "candidateModel": {
+    "architectureId": "NET_B",
+    "checkpointPath": "training_runs/models/net_b_checkpoint.json",
+    "parameters": 213762,
+    "featureDim": {
+      "state": 356,
+      "action": 45
+    }
+  },
+  "candidatePolicy": {
+    "name": "S10_NeuralPriorSearch",
+    "searchConfig": {
+      "deadlineMs": 1000,
+      "searchStopElapsedMs": 850,
+      "returnTargetElapsedMs": 950,
+      "nodeBudget": 150
+    },
+    "tacticalHoldoutWinRate": 0,
+    "lossRate": 0,
+    "illegalActionCount": 0,
+    "deadlineCompliance": {
+      "p50Ms": 99,
+      "p95Ms": 246,
+      "maxMs": 319,
+      "allWithin1000Ms": true
+    }
+  },
+  "promotionRecommendation": "Candidate S10_NeuralPriorSearch is frozen and validated as qualified upgrade candidate. Game default AI remains untouched (HeuristicAI). Can be activated via optional policy flag.",
+  "safetyGuards": {
+    "noGameRulesModified": true,
+    "noCloudComputeUsed": true,
+    "historicalDataIntact": true,
+    "strictModelLoadingVerified": true,
+    "finiteLeafChecksActive": true
+  }
+}

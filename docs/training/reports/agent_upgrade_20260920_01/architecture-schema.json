@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "architectures": {
+    "NET_A": {
+      "name": "Standard Two-Layer Trunk Baseline",
+      "trunkHidden": [256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "activation": "relu",
+      "stateDim": 184,
+      "actionDim": 45,
+      "parameterBreakdown": {
+        "trunk": {
+          "trunkW1": 47104,
+          "trunkB1": 256,
+          "trunkW2": 32768,
+          "trunkB2": 128,
+          "total": 80256
+        },
+        "policy": {
+          "policyW1": 11072,
+          "policyB1": 64,
+          "policyW2": 4096,
+          "policyB2": 64,
+          "policyW3": 64,
+          "policyB3": 1,
+          "total": 15361
+        },
+        "value": {
+          "valueW1": 8192,
+          "valueB1": 64,
+          "valueW2": 64,
+          "valueB2": 1,
+          "total": 8321
+        },
+        "grandTotal": 103938
+      }
+    },
+    "NET_B": {
+      "name": "Deep Three-Layer Trunk Candidate",
+      "trunkHidden": [256, 256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "activation": "relu",
+      "stateDim": 184,
+      "actionDim": 45,
+      "parameterBreakdown": {
+        "trunk": {
+          "trunkW1": 47104,
+          "trunkB1": 256,
+          "trunkW2": 65536,
+          "trunkB2": 256,
+          "trunkW3": 32768,
+          "trunkB3": 128,
+          "total": 146048
+        },
+        "policy": {
+          "policyW1": 11072,
+          "policyB1": 64,
+          "policyW2": 4096,
+          "policyB2": 64,
+          "policyW3": 64,
+          "policyB3": 1,
+          "total": 15361
+        },
+        "value": {
+          "valueW1": 8192,
+          "valueB1": 64,
+          "valueW2": 64,
+          "valueB2": 1,
+          "total": 8321
+        },
+        "grandTotal": 169730
+      },
+      "deltaParametersVsA": 65792
+    }
+  }
+}

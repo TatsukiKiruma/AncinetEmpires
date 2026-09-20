@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 2,
+  "runId": "agent_upgrade_20260920_01",
+  "generatedAt": "2026-09-20T07:19:00+08:00",
+  "contractVersion": "vnext-2",
+  "rulesVersion": "cfb07fcc97aff5c2155d3289ddb834ffd1f7522d",
+  "splitManifest": "split-manifest.json rev2 (DF892BCF632BD38B899E9CDF0D239076D4D7C76AD967BE843DC1AA902183D6D4)",
+  "trustedDatasets": [
+    {
+      "id": "dagger_round02_vnext",
+      "path": "training_runs/agent_upgrade_20260919_01/dagger_round02",
+      "stateReconstruction": "full-observation",
+      "partition": "train",
+      "totalSamples": 3856,
+      "trainSamples": 3254,
+      "validationSamples": 602,
+      "fixedActionIndexVerified": true,
+      "usableFor": "trainable"
+    }
+  ],
+  "quarantinedCount": 0
+}

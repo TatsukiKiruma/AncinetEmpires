@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "auditDate": "2026-09-20T07:19:00+08:00",
+  "stateReconstructionModes": {
+    "full-observation": {
+      "reproducible": true,
+      "usableForTrainable": true,
+      "description": "随样本落盘全量 GameState 快照，可直接调用 engine.clone() / encodeGameAction / encodeFixedActionIndex 完整重放。"
+    },
+    "snapshot-reference": {
+      "reproducible": true,
+      "usableForTrainable": true,
+      "description": "引用独立 diagnostic/state 快照文件，快照存在且哈希匹配时可重建。"
+    },
+    "episode-reference": {
+      "reproducible": true,
+      "usableForTrainable": false,
+      "description": "仅引用原始 episode 文件，需从第 0 步开始逐步重放至对应 step。"
+    },
+    "irreversible-hashed-features": {
+      "reproducible": false,
+      "usableForTrainable": false,
+      "description": "仅保留 4096 维哈希稀疏特征，不可逆向恢复地图与单位状态，严禁用于新网络训练。"
+    }
+  },
+  "auditVerdict": "PASS"
+}

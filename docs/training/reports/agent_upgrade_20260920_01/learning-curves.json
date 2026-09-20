@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "1.0.0",
+  "runId": "agent_upgrade_20260920_01",
+  "tinyLearnability": [
+    {
+      "step": 0,
+      "loss": 2.659152968638709,
+      "acc": 0.041666666666666664
+    },
+    {
+      "step": 20,
+      "loss": 1.3651670411987842,
+      "acc": 0.625
+    },
+    {
+      "step": 40,
+      "loss": 0.8464310084892608,
+      "acc": 0.625
+    },
+    {
+      "step": 60,
+      "loss": 0.7871894913762586,
+      "acc": 0.6666666666666666
+    },
+    {
+      "step": 80,
+      "loss": 0.7695196815310587,
+      "acc": 0.7083333333333334
+    }
+  ],
+  "NET_A": [
+    {
+      "epoch": 1,
+      "train": {
+        "accuracy": 0.2806666666666667,
+        "loss": 3.0146389506416806,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.142,
+        "loss": 4.126113994435287,
+        "sampleCount": 500
+      }
+    },
+    {
+      "epoch": 2,
+      "train": {
+        "accuracy": 0.19466666666666665,
+        "loss": 3.0279215784568083,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.124,
+        "loss": 3.9715488325731143,
+        "sampleCount": 500
+      }
+    },
+    {
+      "epoch": 3,
+      "train": {
+        "accuracy": 0.218,
+        "loss": 3.004508519765557,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.14,
+        "loss": 3.9046280775764513,
+        "sampleCount": 500
+      }
+    }
+  ],
+  "NET_B": [
+    {
+      "epoch": 1,
+      "train": {
+        "accuracy": 0.20466666666666666,
+        "loss": 3.052878722812978,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.128,
+        "loss": 4.094736153766586,
+        "sampleCount": 500
+      }
+    },
+    {
+      "epoch": 2,
+      "train": {
+        "accuracy": 0.21,
+        "loss": 3.0807838373553125,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.152,
+        "loss": 3.965657732813156,
+        "sampleCount": 500
+      }
+    },
+    {
+      "epoch": 3,
+      "train": {
+        "accuracy": 0.22133333333333333,
+        "loss": 3.1420491520281604,
+        "sampleCount": 1500
+      },
+      "dev": {
+        "accuracy": 0.142,
+        "loss": 3.9884310342599156,
+        "sampleCount": 500
+      }
+    }
+  ]
+}

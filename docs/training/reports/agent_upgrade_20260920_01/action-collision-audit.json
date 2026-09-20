@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "auditDate": "2026-09-20T07:21:00+08:00",
+  "testedCounterexamples": [
+    {
+      "case": "两城堡同兵种招募",
+      "v1Collision": true,
+      "v2Distinguishable": true,
+      "mechanism": "v2 包含 sourceCastlePos 归一化坐标与存在掩码"
+    },
+    {
+      "case": "同城堡不同部署格招募",
+      "v1Collision": true,
+      "v2Distinguishable": true,
+      "mechanism": "v2 包含 landingPos 归一化坐标与存在掩码"
+    },
+    {
+      "case": "destroy_town 破坏不同目标城镇",
+      "v1Collision": true,
+      "v2Distinguishable": true,
+      "mechanism": "v2 语义层读取 action.target 并编码进 targetPos"
+    },
+    {
+      "case": "相同属性不同位置的敌方目标攻击",
+      "v1Collision": true,
+      "v2Distinguishable": true,
+      "mechanism": "v2 将被攻击敌方单位实际所在格编码进 targetPos"
+    },
+    {
+      "case": "相同属性单位从不同起点移动到同一落点",
+      "v1Collision": true,
+      "v2Distinguishable": true,
+      "mechanism": "v2 保留行动者起始位置 actorPos 与落点 landingPos 的双重坐标"
+    }
+  ],
+  "collisionRateHarmful": 0.0,
+  "verdict": "PASS"
+}

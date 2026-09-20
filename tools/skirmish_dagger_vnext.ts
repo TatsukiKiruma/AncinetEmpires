@@ -62,19 +62,19 @@ export interface DaggerCaptureRecord {
 
 const ACTION_CODE_PREFIX = /^[a-z][a-z0-9_]*(:|$)/;
 
-function outcomeTrack(outcome: DaggerEpisodeOutcome | null): DatasetSampleVNext['outcome'] {
-    const perspective = outcome ? outcome.subjectAllianceId : null;
+function outcomeTrack(outcome: DaggerEpisodeOutcome | null, playerId: number): DatasetSampleVNext['outcome'] {
+    const alliance = outcome ? outcome.subjectAllianceId : null;
     if (!outcome || outcome.termination === 'error') {
         return {
             termination: outcome ? 'error' : 'unknown', result: 'unknown',
-            terminated: false, truncated: true, perspectivePlayerId: perspective,
+            terminated: false, truncated: true, perspectivePlayerId: playerId, perspectiveAllianceId: alliance,
             outcomeSource: 'unknown', reliability: 'unverified'
         };
     }
     if (outcome.termination !== 'natural') {
         return {
             termination: outcome.termination, result: 'unknown',
-            terminated: false, truncated: true, perspectivePlayerId: perspective,
+            terminated: false, truncated: true, perspectivePlayerId: playerId, perspectiveAllianceId: alliance,
             outcomeSource: 'unknown', reliability: 'unverified'
         };
     }
@@ -85,7 +85,7 @@ function outcomeTrack(outcome: DaggerEpisodeOutcome | null): DatasetSampleVNext[
         : winner === outcome.subjectAllianceId ? 'naturalWin' : 'naturalLoss';
     return {
         termination: 'natural', result,
-        terminated: true, truncated: false, perspectivePlayerId: perspective,
+        terminated: true, truncated: false, perspectivePlayerId: playerId, perspectiveAllianceId: alliance,
         outcomeSource: result === 'unknown' ? 'unknown' : 'recorded-episode',
         reliability: result === 'unknown' ? 'unverified' : 'verified'
     };
@@ -181,7 +181,7 @@ export function buildDaggerVNextSample(
             scoreMargin: Number.isFinite(record.teacherScoreMargin ?? Number.NaN) ? record.teacherScoreMargin! : 0,
             rolloutDepth: record.teacherRolloutDepth
         },
-        outcome: outcomeTrack(record.outcome),
+        outcome: outcomeTrack(record.outcome, record.playerId),
         legality: { checked: true, legalInFixedActionSpace: legalityErrors.length === 0, errors: legalityErrors },
         usableFor: quarantineReasons.length === 0 ? 'trainable' : 'quarantine'
     };

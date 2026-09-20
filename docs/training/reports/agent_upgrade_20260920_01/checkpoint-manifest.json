@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-19T23:45:15.402Z",
+  "runId": "agent_upgrade_20260920_01",
+  "checkpoints": [
+    {
+      "architectureId": "NET_A",
+      "path": "training_runs/models/net_a_checkpoint.json",
+      "parameters": 147970,
+      "devAccuracy": 0.14,
+      "devLoss": 3.9046280775764513
+    },
+    {
+      "architectureId": "NET_B",
+      "path": "training_runs/models/net_b_checkpoint.json",
+      "parameters": 213762,
+      "devAccuracy": 0.142,
+      "devLoss": 3.9884310342599156
+    }
+  ]
+}

@@ -43,7 +43,10 @@ export function createNetworkLeafEvaluator(net: DualHeadNet, opts: { scale?: num
         const sv = Array.from(encodeGameState(state, perspective));
         const decision = predictDecision(net, sv, []);
         const v = decision.value * scale;
-        return Number.isFinite(v) ? v : 0;
+        if (!Number.isFinite(v)) {
+            throw new Error(`NonFiniteValueOutput: Leaf evaluation produced non-finite output (${decision.value})`);
+        }
+        return v;
     };
 }
 

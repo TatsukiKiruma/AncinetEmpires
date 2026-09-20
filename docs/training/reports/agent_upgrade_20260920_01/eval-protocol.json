@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "panels": {
+    "nodeConstrainedPanel": {
+      "name": "Fixed-Node Search Benchmark",
+      "nodeBudget": 300,
+      "wallTimeCutoffMs": 3000,
+      "purpose": "Evaluate pure search algorithmic and heuristic quality independent of hardware execution speed",
+      "metrics": [
+        "naturalWinRate",
+        "meanNodesExpanded",
+        "illegalActionRate",
+        "sawOpponentPhaseRate"
+      ]
+    },
+    "onlineTimePanel": {
+      "name": "Online 1,000 ms End-to-End Benchmark",
+      "deadlineMs": 1000,
+      "searchStopElapsedMs": 850,
+      "returnTargetElapsedMs": 950,
+      "purpose": "Evaluate real-world latency, timeout rate, fallback rate, and practical game-playing performance under strict 1s constraint",
+      "metrics": [
+        "naturalWinRate",
+        "endToEndP50Ms",
+        "endToEndP95Ms",
+        "endToEndP99Ms",
+        "endToEndMaxMs",
+        "deadlineExceededCount",
+        "fallbackUsedRate",
+        "illegalActionCount"
+      ]
+    }
+  },
+  "matchupProtocol": {
+    "pairing": "mirrored_sides_alternate_first_player",
+    "scenarios": ["demo", "classic_2p", "water_choke", "castle_siege"],
+    "maxPlies": 60,
+    "statSignificance": "clustered_by_root_family_95ci"
+  }
+}

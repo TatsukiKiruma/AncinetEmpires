@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "plan": {
+    "comparisonArm1": {
+      "id": "NET_A",
+      "trunkHidden": [256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "parameters": 103938
+    },
+    "comparisonArm2": {
+      "id": "NET_B",
+      "trunkHidden": [256, 256, 128],
+      "policyHidden": [64, 64],
+      "valueHidden": [64],
+      "parameters": 169730
+    },
+    "controlledVariables": {
+      "trainingDataset": "tools/training_data/dagger_round02 (verified vnext-2)",
+      "samplePresentations": 100000,
+      "learningRate": 0.05,
+      "momentum": 0.9,
+      "valueWeight": 1.0,
+      "batchSize": 32,
+      "seeds": [42, 123]
+    },
+    "evaluationPanels": [
+      "Fixed-node (300 nodes)",
+      "Online (1,000 ms hard cutoff)"
+    ]
+  }
+}

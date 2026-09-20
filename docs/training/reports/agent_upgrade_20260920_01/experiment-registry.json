@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "plannedExperiments": [
+    {
+      "id": "EXP_01_N06_TEACHER_QUALIFICATION",
+      "stage": "N06",
+      "goal": "Verify SearchTeacher winrate vs HeuristicAI on endgame and normal domains",
+      "budget": { "games": 32, "teacherQueries": 400 }
+    },
+    {
+      "id": "EXP_02_N08_AB_TRAINING",
+      "stage": "N08",
+      "goal": "Train NET_A vs NET_B on trusted existing behavior dataset under identical budget",
+      "budget": { "fits": 2, "samplePresentations": 200000 }
+    },
+    {
+      "id": "EXP_03_N08_AB_EVALUATION",
+      "stage": "N08",
+      "goal": "Evaluate NET_A vs NET_B on fixed-node and 1000ms panels",
+      "budget": { "games": 64 }
+    },
+    {
+      "id": "EXP_04_N09_SEARCH_ABLATION",
+      "stage": "N09",
+      "goal": "2x2 Search ablation: S00 (baseline), S10 (policy prior), S01 (value leaf), S11 (both)",
+      "budget": { "games": 64 }
+    },
+    {
+      "id": "EXP_05_N10_HOLDOUT_BENCHMARK",
+      "stage": "N10",
+      "goal": "Final out-of-sample promotion benchmark on frozen holdout partition",
+      "budget": { "games": 128 }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "method": "central_finite_difference",
+  "epsilon": 1e-5,
+  "tolerance": 1e-3,
+  "netA": {
+    "architecture": "NET_A",
+    "trunkHidden": [12, 8],
+    "policyHidden": [8],
+    "valueHidden": [6],
+    "maxRelError": 0.00000342,
+    "status": "PASSED",
+    "pathsChecked": {
+      "sharedTrunk": true,
+      "policyHead": true,
+      "valueHead": true
+    }
+  },
+  "netB": {
+    "architecture": "NET_B",
+    "trunkHidden": [12, 10, 8],
+    "policyHidden": [8],
+    "valueHidden": [6],
+    "maxRelError": 0.00000418,
+    "status": "PASSED",
+    "pathsChecked": {
+      "sharedTrunk": true,
+      "policyHead": true,
+      "valueHead": true
+    }
+  },
+  "verification": {
+    "testFile": "tools/skirmish_dual_head_net_n04.test.ts",
+    "testCase": "N04 有限差分梯度校验：同时覆盖 2 层 trunk (NET_A) 与 3 层 trunk (NET_B) 的策略与价值路径",
+    "status": "PASSED"
+  }
+}

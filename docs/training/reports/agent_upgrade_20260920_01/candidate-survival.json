@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:26:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "module": "tools/skirmish_search_teacher.ts",
+  "findingsAddressed": ["F03"],
+  "summary": {
+    "description": "Candidate survival audit verifying explicit beam quotas for model, explore, and urgent actions",
+    "f03Resolved": true,
+    "modelQuotaEnforced": 2,
+    "exploreQuotaEnforced": 1
+  },
+  "sources": {
+    "win-now": {
+      "poolCount": 1,
+      "selectedCount": 1,
+      "survivalRate": 1.0,
+      "priority": "highest",
+      "shortCircuit": true
+    },
+    "capture": {
+      "poolCount": 2,
+      "selectedCount": 2,
+      "survivalRate": 1.0,
+      "priority": "urgent"
+    },
+    "tactical-necessity": {
+      "poolCount": 4,
+      "selectedCount": 4,
+      "survivalRate": 1.0,
+      "priority": "urgent"
+    },
+    "model": {
+      "poolCount": 4,
+      "selectedCount": 2,
+      "survivalRate": 0.5,
+      "quota": 2,
+      "legacySurvivalRate": 0.0,
+      "note": "Under legacy sort, model candidates with low heuristic scores had 0% survival"
+    },
+    "explore": {
+      "poolCount": 8,
+      "selectedCount": 1,
+      "survivalRate": 0.125,
+      "quota": 1
+    },
+    "heuristic": {
+      "poolCount": 16,
+      "selectedCount": 6,
+      "survivalRate": 0.375,
+      "fillPolicy": "greedy_descending_after_quotas"
+    }
+  },
+  "verification": {
+    "testFile": "tools/skirmish_search_teacher_n03.test.ts",
+    "testCase": "F03反例：低启发式分但模型高推荐的候选动作必须保留在最终展开集合（不被启发式截断抹掉）",
+    "status": "PASSED"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "status": "PRE_FROZEN",
+  "rules": {
+    "correctnessGate": {
+      "illegalActionCountAllowed": 0,
+      "staleResponseApplicationCountAllowed": 0,
+      "unhandledExceptionCountAllowed": 0,
+      "enforcement": "Hard stop: Any candidate violating correctness is immediately rejected."
+    },
+    "onlineLatencyGate": {
+      "hardUpperLimitMs": 1000,
+      "softStopThresholdMs": 850,
+      "returnTargetMs": 950,
+      "maxAllowedOver1000Ms": 0,
+      "enforcement": "Online evaluation must report zero deadline violations on registered test panels."
+    },
+    "fallbackSanityGate": {
+      "maxFallbackRate": 0.05,
+      "enforcement": "A candidate that relies excessively on fallback (>5%) is disqualified from promotion."
+    },
+    "qualityPromotionCriteria": {
+      "screeningThreshold": "+5.0 percentage points natural win rate improvement against reference baseline",
+      "formalPromotionThreshold": "Lower bound of 95% confidence interval of paired win rate delta > 0.0, OR lower bound >= -2.0 percentage points with at least 20% lower median decision latency and no tail latency degradation."
+    },
+    "evidenceThresholds": {
+      "holdCondition": "Sample size too small to resolve 95% confidence interval, or natural game terminations < 20",
+      "noGoCondition": "Inferior natural win rate or regression on tactical fixtures"
+    }
+  }
+}

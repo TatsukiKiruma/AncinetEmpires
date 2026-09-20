@@ -11,6 +11,7 @@ import {
   createAppApkSkirmishGameState,
   getAppApkSkirmishMapOptions
 } from './game/apk_skirmish_map_assets';
+import { getAiAction, type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
 
 const unitNameMap: Record<string, string> = {
   soldier: '兵',
@@ -152,16 +153,27 @@ export default function App() {
     bottomSandboxRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sandboxLogs]);
 
+  // --- 策略选择状态 ---
+  const [p0Policy, setP0Policy] = useState<SupportedAiPolicy>('heuristic');
+  const [p1Policy, setP1Policy] = useState<SupportedAiPolicy>('net_b_s10');
+  const [lastAiMeta, setLastAiMeta] = useState<AiActionResult | null>(null);
+
   // --- 自动对局控制 ---
   const handleStartAutoPlay = async () => {
     if (autoIsRunning) return;
     setAutoIsRunning(true);
-    setAutoLogs(prev => [...prev, "[INFO] 开始自动对局 (Heuristic AI vs Random AI)..."]);
+    setAutoLogs(prev => [...prev, `[INFO] 开始自动对局 (P0: ${p0Policy} vs P1: ${p1Policy})...`]);
     
-    await playAutoGame(100, (engine, turnInfo) => {
-      setAutoGameState(engine.getState());
-      if (turnInfo.trim() !== "") {
-          setAutoLogs(prev => [...prev, `[LOG] ${turnInfo}`]);
+    await playAutoGame({
+      delayMs: 80,
+      p0Policy,
+      p1Policy,
+      onStep: (engine, turnInfo, meta) => {
+        setAutoGameState(engine.getState());
+        if (meta) setLastAiMeta(meta);
+        if (turnInfo.trim() !== "") {
+            setAutoLogs(prev => [...prev, `[LOG] ${turnInfo}`]);
+        }
       }
     });
     
@@ -170,7 +182,19 @@ export default function App() {
 
   const handleResetAuto = () => {
     setAutoGameState(createDefaultAppGameState());
+    setLastAiMeta(null);
     setAutoLogs(prev => [...prev, "[INFO] 自动对局状态已重置"]);
+  };
+
+  const handleAiStepSandbox = (policy: SupportedAiPolicy) => {
+    const engine = new GameEngine(sandboxGameState);
+    const cp = sandboxGameState.currentPlayer;
+    const res = getAiAction(policy, engine, cp);
+    const stepRes = engine.step(res.action);
+    setSandboxGameState(engine.getState());
+    resetSandboxSelections();
+    const nodeInfo = res.nodesExpanded !== undefined ? ` (展开节点: ${res.nodesExpanded})` : '';
+    setSandboxLogs(prev => [...prev, `[AI 行动] P${cp} [${res.source}] 执行 ${res.action.type} 耗时: ${res.latencyMs}ms${nodeInfo} - ${stepRes.info}`]);
   };
 
   // --- 沙盒模式控制 ---
@@ -504,6 +528,43 @@ export default function App() {
         <div className="flex-1 flex overflow-hidden">
           {/* 左侧地图 */}
           <div className="flex-1 p-8 flex flex-col items-center justify-center border-r border-[#2C2C35] bg-[#09090B] overflow-y-auto">
+            <div className="mb-4 flex flex-wrap items-center justify-center gap-3 bg-[#111116] border border-[#23232D] p-3 rounded text-xs w-full max-w-xl">
+                <div className="flex items-center space-x-2">
+                    <span className="font-bold text-red-500">P0 (红方):</span>
+                    <select 
+                        value={p0Policy} 
+                        onChange={e => setP0Policy(e.target.value as SupportedAiPolicy)}
+                        disabled={autoIsRunning}
+                        className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-red-500"
+                    >
+                        <option value="heuristic">Heuristic AI (原生启发式)</option>
+                        <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
+                        <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
+                        <option value="random">Random AI (随机)</option>
+                    </select>
+                </div>
+                <div className="w-px h-4 bg-[#2A2A35]"></div>
+                <div className="flex items-center space-x-2">
+                    <span className="font-bold text-blue-400">P1 (蓝方):</span>
+                    <select 
+                        value={p1Policy} 
+                        onChange={e => setP1Policy(e.target.value as SupportedAiPolicy)}
+                        disabled={autoIsRunning}
+                        className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
+                    >
+                        <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
+                        <option value="heuristic">Heuristic AI (原生启发式)</option>
+                        <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
+                        <option value="random">Random AI (随机)</option>
+                    </select>
+                </div>
+                {lastAiMeta && (
+                    <div className="w-full text-center text-[10px] text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 py-1 rounded">
+                        最近决策: {lastAiMeta.source} (耗时: {lastAiMeta.latencyMs}ms{lastAiMeta.nodesExpanded ? `, 展开节点: ${lastAiMeta.nodesExpanded}` : ''})
+                    </div>
+                )}
+            </div>
+
             <div className="mb-6 flex space-x-4">
                 <button 
                     onClick={handleStartAutoPlay} 
@@ -760,12 +821,26 @@ export default function App() {
             </div>
 
             {/* 沙盘环境的简易操作辅助区 */}
-            <div className="mt-4 flex space-x-3">
+            <div className="mt-4 flex flex-wrap gap-2 items-center">
               <button 
                 onClick={() => executeSandboxAction({ type: 'end_turn' })}
-                className="px-6 py-2.5 bg-[#253225] border border-green-600 hover:border-green-400 text-green-400 text-xs font-bold uppercase transition-all rounded shadow"
+                className="px-5 py-2 bg-[#253225] border border-green-600 hover:border-green-400 text-green-400 text-xs font-bold uppercase transition-all rounded shadow"
               >
                 ⏩ 结束当前方回合 (End Turn)
+              </button>
+              <button 
+                onClick={() => handleAiStepSandbox('net_b_s10')}
+                className="px-4 py-2 bg-[#1b2a3a] border border-cyan-700 hover:border-cyan-400 text-cyan-300 text-xs font-bold transition-all rounded shadow"
+                title="调用 NET_B S10 进行当前玩家单步决策"
+              >
+                🤖 NET_B 走一步
+              </button>
+              <button 
+                onClick={() => handleAiStepSandbox('heuristic')}
+                className="px-4 py-2 bg-[#2a241b] border border-amber-700 hover:border-amber-400 text-amber-300 text-xs font-bold transition-all rounded shadow"
+                title="调用 原生启发式 进行当前玩家单步决策"
+              >
+                💡 启发式走一步
               </button>
               <button 
                 onClick={handleResetSandbox}

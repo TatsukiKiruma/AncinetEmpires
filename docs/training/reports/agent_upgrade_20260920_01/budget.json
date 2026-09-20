@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "frozenAt": "2026-09-20T07:18:00+08:00",
+  "limits": {
+    "totalGames": 512,
+    "smokeGames": 8,
+    "holdoutGamesReserved": 128,
+    "teacherQueries": 2000,
+    "trainingUniqueStates": 30000,
+    "formalModelFits": 8,
+    "samplePresentations": 1200000,
+    "maxEpochsPerFit": 12,
+    "tinyLearnabilityStates": 64,
+    "tinyLearnabilitySteps": 2000,
+    "latencyProbes": 2000,
+    "seedsPerArchitecture": 3,
+    "maxWorkers": 8,
+    "daggerRounds": 1,
+    "computeWindowSeconds": 28800
+  },
+  "allocated": {
+    "gamesUsed": 40,
+    "gamesReserved": 128,
+    "teacherQueriesUsed": 3718,
+    "formalFitsUsed": 2,
+    "samplePresentationsUsed": 9000,
+    "latencyProbesUsed": 0
+  },
+  "remaining": {
+    "gamesAvailable": 344,
+    "teacherQueriesAvailable": -1718,
+    "formalFitsAvailable": 6,
+    "samplePresentationsAvailable": 1191000,
+    "latencyProbesAvailable": 2000
+  }
+}

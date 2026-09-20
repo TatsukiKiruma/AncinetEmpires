@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "generatedAt": "2026-09-20T07:18:00+08:00",
+  "tasks": [
+    {
+      "id": "N00",
+      "title": "恢复证据链、核验工作区、文档版本与全局预算",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成工作区状态、HEAD、dirty diff、SHA256、硬件及产物盘点。"
+    },
+    {
+      "id": "N01",
+      "title": "修复动作索引、数据完整性与结果视角",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 F02 / F07 修复，消除固定动作索引篡改，严格多字段 sampleId 校验与结果视角分离。"
+    },
+    {
+      "id": "N02",
+      "title": "统一动作语义并消除关键编码碰撞",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 F01 修复，引入 45 维 encodeGameActionV2，规则可达 5 类动作碰撞率降至 0.0%。"
+    },
+    {
+      "id": "N03",
+      "title": "修复搜索集合、真实对手阶段和预算语义（含 N03-A 1 秒端到端）",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 F03 / F04 / N03-A 修复，候选配额保留、显式交接状态检查与 850ms/950ms/1000ms 在线预算硬时限。"
+    },
+    {
+      "id": "N04",
+      "title": "强化训练数值、模型契约与可配置深度（NET_A / NET_B）",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 F06 / N04-A 修复，严格模型加载校验、有限差分梯度检验、损失与掩码契约、NET_A/NET_B 动态深度支持及零分配推理路径。"
+    },
+    {
+      "id": "N05",
+      "title": "冻结评估协议、因子对照与性能矩阵",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成评估协议预冻结：节点面板与 1 秒在线面板、根家族分区机制、B0-B5 基线矩阵与晋级标准。"
+    },
+    {
+      "id": "N06",
+      "title": "教师分任务域资格筛选",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成残局战术域与全盘开局域 16 局资格测试。残局胜率 50.0% (4胜4平0负) 压制启发式，全盘开局 0 胜。判定 LOCAL_GO(endgame) / HOLD(normal)。单步延迟 P50=172ms, P95=479ms, Max=825ms, 全部满足 <=1000ms 硬时限。"
+    },
+    {
+      "id": "N07",
+      "title": "小规模 DAgger 纠错数据与可靠结果轨迹",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "HELD",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "受教师开局 HOLD 门禁约束，暂停全盘纠错扩量采集，执行降级保护：在旧可信行为数据上推进 N08，不向训练集注入未合格开局标签。"
+    },
+    {
+      "id": "N08",
+      "title": "受控训练：NET_A / NET_B 深度对照与基线",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 N08-A 真实 48 状态微型过拟合 (70.8% acc) 与 N08-B NET_A/NET_B 3轮对齐受控训练。NET_B 在验证集 Top-1 取得微幅优势 (14.2% vs 14.0%)，单步前向延迟 502µs vs 470µs，均完全在 1,000 ms 在线硬时限内。已产出模型检查点与对比清单。"
+    },
+    {
+      "id": "N09",
+      "title": "网络辅助搜索 2x2 消融与质量-成本验收",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 S00 (基线搜索) vs S10 (NET_B 先验搜索) 微基准与战术实战。S10 达成 100% 模型候选波束保留，并在战术对抗中取得 2 胜 0 负 (压制 S00 的 2 平)。S01/S11 因价值头 VALUE_HOLD 严格保持 DEFERRED。输出 Gate C2 报告。"
+    },
+    {
+      "id": "N10",
+      "title": "可选交付、回退机制与交接",
+      "implementationStatus": "IMPLEMENTED",
+      "testStatus": "REPRODUCED",
+      "qualityStatus": "QUALITY_ACCEPTED",
+      "notes": "完成 8 局预注册留出评估，0 败绩 (8 平 0 负)，0 非法动作，0 超时，决策延迟 P50=99ms, P95=246ms, Max=319ms。默认 AI 保持未改动，输出部署清单、回退指南与 Gate D2 最终报告。"
+    }
+  ]
+}

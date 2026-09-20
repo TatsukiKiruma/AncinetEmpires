@@ -34,7 +34,7 @@ export interface DatasetSampleVNext {
         playerId: number;
         step: number;
         turn: number;
-        fixedActionIndex: number;
+        fixedActionIndex: number | null;
     };
     teacher: {
         actionCode: string;
@@ -50,6 +50,7 @@ export interface DatasetSampleVNext {
         terminated: boolean | null;
         truncated: boolean | null;
         perspectivePlayerId: number | null;
+        perspectiveAllianceId: number | null;
         outcomeSource: 'recorded-episode' | 'continuation-episode' | 'adjudication' | 'unknown' | null;
         reliability: 'verified' | 'unverified';
     };
@@ -145,7 +146,7 @@ export function migrateLegacyFeatureSample(sample: SkirmishFeatureSample, ctx: M
             playerId: Number(sample.playerId),
             step: Number(sample.step),
             turn: Number(sample.turn),
-            fixedActionIndex: relabeled ? candidates.findIndex(candidate => candidate.actionCode === behaviorActionCode) : Number(idx)
+            fixedActionIndex: relabeled ? null : (Number.isInteger(idx) ? Number(idx) : null)
         },
         teacher,
         outcome: {
@@ -154,6 +155,7 @@ export function migrateLegacyFeatureSample(sample: SkirmishFeatureSample, ctx: M
             terminated: null,
             truncated: null,
             perspectivePlayerId: Number(sample.playerId),
+            perspectiveAllianceId: null,
             // 旧特征样本没有终局字段：只登记来源形态，不伪造结果
             outcomeSource: isSnapshot ? 'continuation-episode' : 'unknown',
             reliability: 'unverified'
@@ -172,6 +174,27 @@ export function validateDatasetSampleVNext(value: unknown): string[] {
     if (typeof s.sampleId !== 'string' || !/^[0-9a-f]{64}$/.test(s.sampleId)) errors.push('sampleId 必须是 64 位十六进制 sha256');
     else if (typeof s.sampleIdSeed !== 'object' || s.sampleIdSeed === null) errors.push('缺少 sampleIdSeed，无法防篡改校验');
     else if (sha256Text(stableJson(s.sampleIdSeed)) !== s.sampleId) errors.push('sampleId 与 sampleIdSeed 重算不一致（篡改）');
+    if (s.sampleIdSeed) {
+        if (s.provenance && s.sampleIdSeed.rootFamilyKey !== s.provenance.rootFamilyKey) {
+            errors.push('sampleIdSeed.rootFamilyKey 与 provenance.rootFamilyKey 字段不一致');
+        }
+        if (s.provenance && s.sampleIdSeed.sourceFile !== s.provenance.sourceFile) {
+            errors.push('sampleIdSeed.sourceFile 与 provenance.sourceFile 字段不一致');
+        }
+        if (s.behavior && s.sampleIdSeed.behaviorActionCode !== s.behavior.actionCode) {
+            errors.push('sampleIdSeed.behaviorActionCode 与 behavior.actionCode 字段不一致');
+        }
+        if (s.behavior && s.sampleIdSeed.playerId !== s.behavior.playerId) {
+            errors.push('sampleIdSeed.playerId 与 behavior.playerId 字段不一致');
+        }
+        if (s.behavior && s.sampleIdSeed.step !== s.behavior.step) {
+            errors.push('sampleIdSeed.step 与 behavior.step 字段不一致');
+        }
+        const expectedTeacher = s.teacher ? s.teacher.actionCode : null;
+        if (s.sampleIdSeed.teacherActionCode !== expectedTeacher) {
+            errors.push('sampleIdSeed.teacherActionCode 与 teacher.actionCode 字段不一致');
+        }
+    }
     if (!s.provenance || typeof s.provenance !== 'object') errors.push('缺少 provenance');
     else {
         if (typeof s.provenance.rootFamilyKey !== 'string' || !s.provenance.rootFamilyKey) errors.push('provenance.rootFamilyKey 必须是非空字符串');
@@ -197,11 +220,23 @@ export function validateDatasetSampleVNext(value: unknown): string[] {
                 ? 'outcomeSource 不得为 teacher-counterfactual：未执行动作没有终局证据'
                 : `outcomeSource 非法枚举：${String(src)}`);
         }
-        if (s.outcome.reliability === 'verified' && s.outcome.result === 'unknown') errors.push('verified 可靠性必须搭配已核验结果');
+        if (s.outcome.reliability === 'verified' && s.outcome.result === 'unknown') errors.push('verified 可靠性必须搭配已核验结果（result 不能为 unknown）');
+        if (s.outcome.termination !== 'natural' && (s.outcome.result === 'naturalWin' || s.outcome.result === 'naturalLoss')) {
+            errors.push(`非自然终局（${s.outcome.termination}）不能标记自然胜负（${s.outcome.result}）`);
+        }
+        if (s.outcome.reliability === 'verified' && (s.outcome.outcomeSource === 'unknown' || s.outcome.outcomeSource === null)) {
+            errors.push('verified 终局结果必须具备明确的 outcomeSource');
+        }
     } else errors.push('缺少 outcome（可用 unknown 枚举，不得缺省）');
     if (!s.legality || s.legality.checked !== true) errors.push('legality.checked 必须为 true');
     if (s.legality && s.legality.errors.length > 0 && s.usableFor !== 'quarantine') errors.push('合法性检查失败的样本 usableFor 必须为 quarantine');
     if (!['trainable', 'historical-baseline', 'diagnostic', 'quarantine'].includes(s.usableFor)) errors.push(`usableFor 非法：${String(s.usableFor)}`);
+    if (s.usableFor === 'trainable' && s.provenance?.partition !== 'train') {
+        errors.push(`只有 train 分区样本才允许标记 usableFor=trainable（实际 partition=${String(s.provenance?.partition)}）`);
+    }
+    if (s.usableFor === 'trainable' && s.behavior?.fixedActionIndex === null) {
+        errors.push('trainable 样本必须拥有非空且合法的 behavior.fixedActionIndex');
+    }
     if (s.provenance?.stateReconstruction === 'irreversible-hashed-features' && s.usableFor === 'trainable') {
         errors.push('仅含不可逆哈希特征的样本不得标记 trainable，须降级 historical-baseline');
     }

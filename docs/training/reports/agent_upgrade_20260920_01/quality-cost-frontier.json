@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T01:10:27.949Z",
+  "runId": "agent_upgrade_20260920_01",
+  "arms": [
+    {
+      "arm": "Pure_Heuristic_Baseline",
+      "costPerDecisionMs": 0.2,
+      "nodesPerAction": 0,
+      "illegalRate": 0,
+      "tacticalWinRate": 0.5,
+      "frontierStatus": "EFFICIENT_FAST_CONTROL"
+    },
+    {
+      "arm": "Pure_Neural_1Ply (NET_B)",
+      "costPerDecisionMs": 0.5,
+      "nodesPerAction": 0,
+      "illegalRate": 0,
+      "tacticalWinRate": 0,
+      "frontierStatus": "SUBOPTIMAL_WITHOUT_SEARCH"
+    },
+    {
+      "arm": "S00_BaselineSearch",
+      "costPerDecisionMs": 84.25,
+      "nodesPerAction": 40,
+      "illegalRate": 0,
+      "tacticalWinRate": 0.5,
+      "frontierStatus": "SEARCH_CONTROL"
+    },
+    {
+      "arm": "S10_NeuralPriorSearch (NET_B)",
+      "costPerDecisionMs": 81.41666666666667,
+      "nodesPerAction": 40,
+      "illegalRate": 0,
+      "tacticalWinRate": 0.75,
+      "frontierStatus": "EFFICIENT_TACTICAL_PRIOR"
+    },
+    {
+      "arm": "S01_NeuralValueSearch (NET_B)",
+      "costPerDecisionMs": 81.08333333333333,
+      "nodesPerAction": 40,
+      "illegalRate": 0,
+      "tacticalWinRate": 0.5,
+      "frontierStatus": "EFFICIENT_TACTICAL_VALUE"
+    },
+    {
+      "arm": "S11_FullNeuralSearch (NET_B)",
+      "costPerDecisionMs": 82.33333333333333,
+      "nodesPerAction": 40,
+      "illegalRate": 0,
+      "tacticalWinRate": 0.5,
+      "frontierStatus": "FULL_NEURAL_TACTICAL_SEARCH"
+    }
+  ]
+}

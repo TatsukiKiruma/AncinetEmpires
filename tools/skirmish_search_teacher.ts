@@ -22,7 +22,7 @@
 import { GameEngine } from '../src/game/engine';
 import { calculateArmyValue } from '../src/game/env';
 import { HeuristicAI, type Rng } from '../src/game/ai/heuristic_ai';
-import { areEnemyPlayers, getAllianceId, getTurnPlayerIds } from '../src/game/rule_config';
+import { areEnemyPlayers, getAllianceId, getTurnPlayerIds, isCommanderUnit } from '../src/game/rule_config';
 import { PlanningNode, type PlanningBudgetSpec } from '../src/game/ai/planning';
 import { encodeAction } from '../src/game/env';
 import { getDistance } from '../src/game/map';
@@ -59,11 +59,25 @@ export interface SearchTeacherConfig extends PlanningBudgetSpec {
      * Infinity（默认）= 关闭粗筛，行为与 T07/T08 完全一致；有限值 = 轻量化教师。
      */
     prefilterWidth: number;
+    /** N03-A 在线预算上限 (默认 1000ms) */
+    deadlineMs?: number;
+    /** N03-A 停止新搜索的耗时阈值 (默认 850ms) */
+    searchStopElapsedMs?: number;
+    /** N03-A 准备返回决策的目标耗时 (默认 950ms) */
+    returnTargetElapsedMs?: number;
+    /** N03 模型保留配额 (默认 2) */
+    modelQuota?: number;
+    /** N03 探索保留配额 (默认 1) */
+    exploreQuota?: number;
+    /** 开局与经济招募保留配额 (默认 0)：若 > 0，保留高分招募候选，避免被纯单位移动挤出 beam */
+    recruitQuota?: number;
+    /** 战略位置推进与指挥官安全先验权重 (默认 0) */
+    strategicWeight?: number;
 }
 
 export const DEFAULT_SEARCH_TEACHER_CONFIG: SearchTeacherConfig = {
     nodeBudget: 984,
-    decisionMsBudget: 3000,
+    decisionMsBudget: 1000,
     beamWidth: 8,
     heuristicTopK: 6,
     modelTopK: 4,
@@ -72,13 +86,21 @@ export const DEFAULT_SEARCH_TEACHER_CONFIG: SearchTeacherConfig = {
     opponentReplyWidth: 2,
     opponentPhaseActions: 1,
     territoryWeight: 250,
-    prefilterWidth: Number.POSITIVE_INFINITY
+    prefilterWidth: Number.POSITIVE_INFINITY,
+    deadlineMs: 1000,
+    searchStopElapsedMs: 850,
+    returnTargetElapsedMs: 950,
+    modelQuota: 2,
+    exploreQuota: 1,
+    recruitQuota: 0,
+    strategicWeight: 0
 };
 
-export type CandidateSource = 'heuristic' | 'model' | 'capture' | 'tactical-necessity' | 'explore' | 'win-now';
+export type CandidateSource = 'heuristic' | 'model' | 'capture' | 'tactical-necessity' | 'explore' | 'win-now' | 'recruit';
 
 export interface SearchTeacherCandidate {
     actionCode: string;
+    code: string;
     action: Action;
     sources: CandidateSource[];
     heuristicScore: number;
@@ -88,7 +110,11 @@ export interface SearchTeacherCandidate {
     immediateWin: boolean;
     truncated: boolean;
     principalVariation: string[];
+    pv: string[];
     opponentReplyCodes: string[];
+    replies: string[];
+    sawOpponentPhase: boolean;
+    opponentAllianceId: number | null;
 }
 
 export interface SearchTeacherDecision {
@@ -104,7 +130,13 @@ export interface SearchTeacherDecision {
     fullRounds: number;
     elapsedMs: number;
     sawOpponentPhase: boolean;
+    selectedSawOpponentPhase: boolean;
     truncationStop: 'node_budget' | 'decision_ms' | null;
+    searchStopElapsedMs?: number;
+    returnTargetElapsedMs?: number;
+    deadlineMs?: number;
+    fallbackUsed?: boolean;
+    fallbackReason?: string | null;
 }
 
 /** 模型评分注入：返回 actionCode → 分数（越大越好）；无有效评分的候选可省略。 */
@@ -132,8 +164,56 @@ function territoryCount(state: GameState, allianceIds: Set<number>): number {
     return count;
 }
 
-/** 可解释局面量（根阵营视角，未终局时）：军队价值差 + 领地差。启发式动作分不参与。 */
-export function evaluatePositionForRoot(state: GameState, rootAllianceId: number, territoryWeight: number): number {
+function calculateStrategicPositionalAdvantage(state: GameState, rootAllianceId: number): number {
+    const objectives: Position[] = [];
+    for (let y = 0; y < state.map.height; y++) {
+        for (let x = 0; x < state.map.width; x++) {
+            const tile = state.map.tiles[y][x];
+            const key = getTileTerrainKey(tile);
+            if (key === 'town' || key === 'castle') {
+                objectives.push({ x, y });
+            }
+        }
+    }
+
+    let rootObjectiveScore = 0;
+    let enemyObjectiveScore = 0;
+    let rootSafetyScore = 0;
+    let enemySafetyScore = 0;
+
+    for (const u of state.units) {
+        if (u.hp <= 0) continue;
+        const uAlliance = getAllianceId(state, u.ownerId);
+        const isRoot = uAlliance === rootAllianceId;
+
+        const unownedOrEnemyObjs = objectives.filter(o => {
+            const tile = state.map.tiles[o.y][o.x];
+            return tile.ownerId === null || areEnemyPlayers(state, u.ownerId, tile.ownerId);
+        });
+
+        if (unownedOrEnemyObjs.length > 0) {
+            const minDist = Math.min(...unownedOrEnemyObjs.map(o => getDistance(u.pos, o)));
+            const prox = Math.max(0, 10 - minDist) * 12;
+            if (isRoot) rootObjectiveScore += prox;
+            else enemyObjectiveScore += prox;
+        }
+
+        if (isCommanderUnit(state, u)) {
+            const nearbyEnemies = state.units.filter(e => e.hp > 0 && areEnemyPlayers(state, u.ownerId, e.ownerId) && getDistance(u.pos, e.pos) <= 3);
+            const nearbyAllies = state.units.filter(a => a.hp > 0 && a.id !== u.id && !areEnemyPlayers(state, u.ownerId, a.ownerId) && getDistance(u.pos, a.pos) <= 2);
+            if (nearbyEnemies.length >= 2 && nearbyAllies.length <= 1) {
+                const penalty = (nearbyEnemies.length - nearbyAllies.length) * 90;
+                if (isRoot) rootSafetyScore -= penalty;
+                else enemySafetyScore -= penalty;
+            }
+        }
+    }
+
+    return (rootObjectiveScore - enemyObjectiveScore) + (rootSafetyScore - enemySafetyScore);
+}
+
+/** 可解释局面量（根阵营视角，未终局时）：军队价值差 + 领地差 + 战略位置推进与安全差分。启发式动作分不参与。 */
+export function evaluatePositionForRoot(state: GameState, rootAllianceId: number, territoryWeight: number, strategicWeight = 0): number {
     const byAlliance = allianceSet(state);
     const rootPlayers = new Set(byAlliance.get(rootAllianceId) ?? []);
     let ownArmy = 0;
@@ -151,22 +231,23 @@ export function evaluatePositionForRoot(state: GameState, rootAllianceId: number
     void rootPlayers;
     const ownTerritory = territoryCount(state, rootAllianceIds);
     const enemyTerritory = territoryCount(state, enemyAllianceIds);
-    return (ownArmy - enemyArmy) + territoryWeight * (ownTerritory - enemyTerritory);
+    const strategicAdvantage = strategicWeight > 0 ? calculateStrategicPositionalAdvantage(state, rootAllianceId) * strategicWeight : 0;
+    return (ownArmy - enemyArmy) + territoryWeight * (ownTerritory - enemyTerritory) + strategicAdvantage;
 }
 
 /** 叶节点根视角值：真实终局压倒一切，否则局面量（或注入的网络价值评估）。返回有限数值（非胜率）。
  * leafEvaluator 是 T11 的策略性挂钩：仅替换【未终局】叶子的局面评估来源，真实胜/负/平短路始终优先，
  * 不改规则、不放松终局判定。缺省（undefined）时行为与 T07/T08 逐位一致。 */
-export function leafValue(node: PlanningNode, territoryWeight: number, leafEvaluator?: (state: GameState, rootAllianceId: number) => number): number {
+export function leafValue(node: PlanningNode, territoryWeight: number, leafEvaluator?: (state: GameState, rootAllianceId: number) => number, strategicWeight = 0): number {
     const verdict = node.terminalVerdict();
     if (verdict === 'win') return TERMINAL_WIN;
     if (verdict === 'loss') return TERMINAL_LOSS;
     if (verdict === 'draw') return 0;
     if (leafEvaluator) {
         const v = leafEvaluator(node.getState(), node.rootAllianceId);
-        return Number.isFinite(v) ? v : evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight);
+        return Number.isFinite(v) ? v : evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight, strategicWeight);
     }
-    return evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight);
+    return evaluatePositionForRoot(node.getState(), node.rootAllianceId, territoryWeight, strategicWeight);
 }
 
 function heuristicRank(ai: HeuristicAI, engine: GameEngine, playerId: number, actions: readonly Action[]): Map<string, number> {
@@ -354,20 +435,114 @@ function buildCandidatePool(
 }
 
 /** 交出击：连续 end_turn 直到 currentPlayer 属于敌对阵营（或终局/预算耗尽）。 */
-function handToOpponent(node: PlanningNode, rootAllianceId: number, guard = 8): { node: PlanningNode; stop: 'node_budget' | 'decision_ms' | 'terminal' | 'ok' | 'guard' } {
+export function handToOpponent(node: PlanningNode, rootAllianceId: number, guard = 8): {
+    node: PlanningNode;
+    stop: 'node_budget' | 'decision_ms' | 'terminal' | 'reached-opponent' | 'incomplete' | 'guard';
+} {
     let current = node;
     for (let i = 0; i < guard; i += 1) {
         if (current.isTerminal()) return { node: current, stop: 'terminal' };
         const stop = current.budget.stopReason();
         if (stop) return { node: current, stop };
-        if (current.currentAllianceId !== rootAllianceId) return { node: current, stop: 'ok' };
+        if (current.currentAllianceId !== rootAllianceId) return { node: current, stop: 'reached-opponent' };
         const endTurn = current.legalActions().find(a => a.type === 'end_turn');
-        if (!endTurn) return { node: current, stop: 'ok' };
+        if (!endTurn) return { node: current, stop: 'incomplete' };
         const res = current.apply(endTurn);
         if (res.status !== 'ok') return { node: current, stop: res.status === 'budget' ? res.stop : 'terminal' };
         current = res.child;
     }
+    if (current.currentAllianceId !== rootAllianceId) return { node: current, stop: 'reached-opponent' };
     return { node: current, stop: 'guard' };
+}
+
+function selectBeamCandidates(
+    pool: Map<string, { action: Action; code: string; sources: Set<CandidateSource>; heuristicScore: number; modelScore: number | null }>,
+    config: SearchTeacherConfig
+): Array<{ action: Action; code: string; sources: Set<CandidateSource>; heuristicScore: number; modelScore: number | null }> {
+    const all = [...pool.values()];
+    if (all.length <= config.beamWidth) {
+        return all.sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1));
+    }
+
+    const selectedCodes = new Set<string>();
+    const selected: Array<{ action: Action; code: string; sources: Set<CandidateSource>; heuristicScore: number; modelScore: number | null }> = [];
+
+    const add = (c: { action: Action; code: string; sources: Set<CandidateSource>; heuristicScore: number; modelScore: number | null }) => {
+        if (!selectedCodes.has(c.code)) {
+            selectedCodes.add(c.code);
+            selected.push(c);
+        }
+    };
+
+    // 1. 关键战术保护动作（capture, tactical-necessity, win-now）优先保留
+    const urgent = all
+        .filter(c => c.sources.has('capture') || c.sources.has('tactical-necessity') || c.sources.has('win-now'))
+        .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1));
+    for (const c of urgent) {
+        if (selected.length < config.beamWidth) {
+            add(c);
+        }
+    }
+
+    // 2. 模型高分配额 (modelQuota) 保留
+    const modelQuota = Math.min(config.modelQuota ?? 2, config.modelTopK);
+    if (modelQuota > 0) {
+        const modelCandidates = all
+            .filter(c => (c.sources.has('model') || c.modelScore !== null) && !selectedCodes.has(c.code))
+            .sort((a, b) => ((b.modelScore ?? -Infinity) - (a.modelScore ?? -Infinity)) || (a.code < b.code ? -1 : 1));
+        for (let i = 0; i < modelQuota && i < modelCandidates.length; i += 1) {
+            if (selected.length < config.beamWidth) {
+                add(modelCandidates[i]);
+            }
+        }
+    }
+
+    // 3. 分层探索配额 (exploreQuota) 保留
+    const exploreQuota = config.exploreQuota ?? 1;
+    if (exploreQuota > 0) {
+        const exploreCandidates = all
+            .filter(c => c.sources.has('explore') && !selectedCodes.has(c.code))
+            .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1));
+        for (let i = 0; i < exploreQuota && i < exploreCandidates.length; i += 1) {
+            if (selected.length < config.beamWidth) {
+                add(exploreCandidates[i]);
+            }
+        }
+    }
+
+    // 3.5. 招募保留配额 (recruitQuota)：避免战术 move 占满整个 beam 导致无法及时招募
+    const recruitQuota = config.recruitQuota ?? 1;
+    if (recruitQuota > 0) {
+        const recruitCandidates = all
+            .filter(c => (c.action.type === 'recruit_to_castle' || c.action.type === 'recruit_and_deploy') && !selectedCodes.has(c.code))
+            .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1));
+        for (let i = 0; i < recruitQuota && i < recruitCandidates.length; i += 1) {
+            if (selected.length < config.beamWidth) {
+                recruitCandidates[i].sources.add('recruit');
+                add(recruitCandidates[i]);
+            }
+        }
+    }
+
+    // 4. 剩余名额按启发式高分填满
+    const remainingByHeuristic = all
+        .filter(c => !selectedCodes.has(c.code))
+        .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1));
+    for (const c of remainingByHeuristic) {
+        if (selected.length >= config.beamWidth) break;
+        add(c);
+    }
+
+    // 排序推演顺序：让 urgent 与模型前排候选更早得到推演，避免紧凑预算截断
+    return selected.sort((a, b) => {
+        const aUrgent = a.sources.has('capture') || a.sources.has('tactical-necessity') || a.sources.has('win-now') ? 1 : 0;
+        const bUrgent = b.sources.has('capture') || b.sources.has('tactical-necessity') || b.sources.has('win-now') ? 1 : 0;
+        if (aUrgent !== bUrgent) return bUrgent - aUrgent;
+        const aScore = Math.max(a.heuristicScore, (a.modelScore ?? -Infinity) * 10);
+        const bScore = Math.max(b.heuristicScore, (b.modelScore ?? -Infinity) * 10);
+        if (bScore !== aScore) return bScore - aScore;
+        return a.code < b.code ? -1 : 1;
+    });
 }
 
 export function searchTeacherAction(options: {
@@ -384,11 +559,21 @@ export function searchTeacherAction(options: {
     const rng = options.rng ?? (() => 0.5);
     const now = options.now ?? Date.now;
     const startedAt = now();
+    let lastNow = startedAt;
+    const getElapsed = () => {
+        lastNow = now();
+        return lastNow - startedAt;
+    };
+
+    const deadlineMs = config.deadlineMs ?? 1000;
+    const searchStopElapsedMs = config.searchStopElapsedMs ?? 850;
+    const returnTargetElapsedMs = config.returnTargetElapsedMs ?? 950;
+
     const ai = new HeuristicAI(rng);
     const rootEngine = new GameEngine(options.state);
     const root = PlanningNode.root(options.state, options.playerId, {
         nodeBudget: config.nodeBudget,
-        decisionMsBudget: config.decisionMsBudget
+        decisionMsBudget: Math.min(config.decisionMsBudget ?? 1000, searchStopElapsedMs)
     });
 
     const allLegal = root.legalActions();
@@ -408,9 +593,7 @@ export function searchTeacherAction(options: {
     }
 
     const pool = buildCandidatePool(prefRoot, heuristicScores, modelScores, urgentCodes, config);
-    const orderedPool = [...pool.values()]
-        .sort((a, b) => (b.heuristicScore - a.heuristicScore) || (a.code < b.code ? -1 : 1))
-        .slice(0, config.beamWidth);
+    const orderedPool = selectBeamCandidates(pool, config);
 
     const candidates: SearchTeacherCandidate[] = [];
     let truncationStop: 'node_budget' | 'decision_ms' | null = null;
@@ -420,13 +603,13 @@ export function searchTeacherAction(options: {
     const evalOpponentReply = (afterOwn: PlanningNode): { worst: number; replies: string[]; pv: string[]; truncated: boolean; terminal: boolean } => {
         // afterOwn 现在轮到对手（或已终局）
         if (afterOwn.isTerminal()) {
-            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator), replies: [], pv: [], truncated: false, terminal: true };
+            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0), replies: [], pv: [], truncated: false, terminal: true };
         }
         const enemyId = afterOwn.currentPlayer;
         const enemyEngine = new GameEngine(afterOwn.getState());
         const rawEnemyActions = afterOwn.legalActions().filter(a => a.type !== 'surrender');
         if (rawEnemyActions.length === 0) {
-            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator), replies: [], pv: [], truncated: false, terminal: false };
+            return { worst: leafValue(afterOwn, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0), replies: [], pv: [], truncated: false, terminal: false };
         }
         // T07-P：对手回应集合同样先粗筛再评分（对手回应只需一个合理续着用于保守估值，缩小评分集不影响合法性）。
         const enemyActions = prefilterActions(afterOwn.getState(), enemyId, rawEnemyActions, config.prefilterWidth);
@@ -440,6 +623,11 @@ export function searchTeacherAction(options: {
         let pv: string[] = [];
         let truncated = false;
         for (const reply of replies) {
+            if (getElapsed() >= searchStopElapsedMs) {
+                truncated = true;
+                truncationStop = 'decision_ms';
+                break;
+            }
             const res = afterOwn.apply(reply);
             if (res.status !== 'ok') {
                 truncated = true;
@@ -450,6 +638,11 @@ export function searchTeacherAction(options: {
             replyCodes.push(encodeAction(reply));
             // 对手阶段可连续多动作（同阵营仍行动时继续取启发式最优）
             for (let k = 1; k < config.opponentPhaseActions; k += 1) {
+                if (getElapsed() >= searchStopElapsedMs) {
+                    truncated = true;
+                    truncationStop = 'decision_ms';
+                    break;
+                }
                 if (leaf.isTerminal() || leaf.currentAllianceId !== getAllianceId(leaf.getState(), enemyId)) break;
                 const contEngine = new GameEngine(leaf.getState());
                 const rawContActions = leaf.legalActions().filter(a => a.type !== 'surrender');
@@ -461,7 +654,7 @@ export function searchTeacherAction(options: {
                 if (cont.status !== 'ok') { truncated = true; if (cont.status === 'budget') truncationStop = cont.stop; break; }
                 leaf = cont.child;
             }
-            const value = leafValue(leaf, config.territoryWeight, options.leafEvaluator);
+            const value = leafValue(leaf, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0);
             if (value < worst) {
                 worst = value;
                 pv = [encodeAction(reply), ...(leaf.lastActionCode && leaf.lastActionCode !== encodeAction(reply) ? [leaf.lastActionCode] : [])];
@@ -469,11 +662,15 @@ export function searchTeacherAction(options: {
             if (root.budget.stopReason()) { truncated = true; truncationStop = root.budget.stopReason(); break; }
         }
         if (replyCodes.length > 0) sawOpponentPhase = true;
-        if (worst === Infinity) { worst = leafValue(afterOwn, config.territoryWeight, options.leafEvaluator); truncated = true; }
+        if (worst === Infinity) { worst = leafValue(afterOwn, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0); truncated = true; }
         return { worst, replies: replyCodes, pv, truncated, terminal: false };
     };
 
     for (const cand of orderedPool) {
+        if (getElapsed() >= searchStopElapsedMs) {
+            truncationStop = 'decision_ms';
+            break;
+        }
         if (root.budget.stopReason()) {
             truncationStop = root.budget.stopReason();
             break;
@@ -489,10 +686,11 @@ export function searchTeacherAction(options: {
         // 立即获胜短路
         if (node.isTerminal() && node.terminalVerdict() === 'win') {
             candidates.push({
-                actionCode: cand.code, action: cand.action, sources: [...cand.sources, 'win-now'],
+                actionCode: cand.code, code: cand.code, action: cand.action, sources: [...cand.sources, 'win-now'],
                 heuristicScore: cand.heuristicScore, modelScore: cand.modelScore,
                 value: TERMINAL_WIN, immediateWin: true, truncated: false,
-                principalVariation: pv, opponentReplyCodes: []
+                principalVariation: pv, pv, opponentReplyCodes: [], replies: [],
+                sawOpponentPhase: false, opponentAllianceId: null
             });
             winNowCode = cand.code;
             break;
@@ -500,6 +698,11 @@ export function searchTeacherAction(options: {
 
         // 己方必要后续行动（move→attack/capture 组合在此自然出现）
         for (let d = 0; d < config.ownFollowupDepth; d += 1) {
+            if (getElapsed() >= searchStopElapsedMs) {
+                ownTruncated = true;
+                truncationStop = 'decision_ms';
+                break;
+            }
             if (node.isTerminal() || node.currentAllianceId !== rootAllianceId) break;
             if (node.budget.stopReason()) { ownTruncated = true; truncationStop = node.budget.stopReason(); break; }
             const ownEngine = new GameEngine(node.getState());
@@ -515,10 +718,11 @@ export function searchTeacherAction(options: {
             pv.push(encodeAction(best));
             if (node.isTerminal() && node.terminalVerdict() === 'win') {
                 candidates.push({
-                    actionCode: cand.code, action: cand.action, sources: [...cand.sources, 'win-now'],
+                    actionCode: cand.code, code: cand.code, action: cand.action, sources: [...cand.sources, 'win-now'],
                     heuristicScore: cand.heuristicScore, modelScore: cand.modelScore,
                     value: TERMINAL_WIN, immediateWin: true, truncated: false,
-                    principalVariation: pv, opponentReplyCodes: []
+                    principalVariation: pv, pv, opponentReplyCodes: [], replies: [],
+                    sawOpponentPhase: false, opponentAllianceId: null
                 });
                 winNowCode = cand.code;
                 break;
@@ -526,20 +730,56 @@ export function searchTeacherAction(options: {
         }
         if (winNowCode === cand.code) break;
 
+        // 如果己方推演后时间已用尽，直接截断保存候选，不进一步深入对手阶段
+        if (truncationStop === 'decision_ms') {
+            candidates.push({
+                actionCode: cand.code, code: cand.code, action: cand.action, sources: [...cand.sources],
+                heuristicScore: cand.heuristicScore, modelScore: cand.modelScore,
+                value: leafValue(node, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0),
+                immediateWin: false, truncated: true,
+                principalVariation: pv, pv, opponentReplyCodes: [], replies: [],
+                sawOpponentPhase: false, opponentAllianceId: null
+            });
+            break;
+        }
+
         // 交出击并模拟对手阶段
         const handed = handToOpponent(node, rootAllianceId);
         if (handed.stop === 'node_budget' || handed.stop === 'decision_ms') { ownTruncated = true; truncationStop = handed.stop; }
-        const replyEval = evalOpponentReply(handed.node);
+
+        let replyEval: { worst: number; replies: string[]; pv: string[]; truncated: boolean; terminal: boolean };
+        let candSawOpponentPhase = false;
+        let opponentAllianceId: number | null = null;
+
+        if (handed.stop === 'reached-opponent' && !handed.node.isTerminal()) {
+            opponentAllianceId = handed.node.currentAllianceId;
+            replyEval = evalOpponentReply(handed.node);
+            candSawOpponentPhase = replyEval.replies.length > 0;
+            if (candSawOpponentPhase) {
+                sawOpponentPhase = true;
+            }
+        } else {
+            replyEval = {
+                worst: leafValue(handed.node, config.territoryWeight, options.leafEvaluator, config.strategicWeight ?? 0),
+                replies: [],
+                pv: [],
+                truncated: handed.stop !== 'terminal',
+                terminal: handed.node.isTerminal()
+            };
+        }
+
         const value = replyEval.worst;
+        const candPv = [...pv, ...replyEval.pv];
         candidates.push({
-            actionCode: cand.code, action: cand.action, sources: [...cand.sources],
+            actionCode: cand.code, code: cand.code, action: cand.action, sources: [...cand.sources],
             heuristicScore: cand.heuristicScore, modelScore: cand.modelScore,
             value, immediateWin: false, truncated: ownTruncated || replyEval.truncated,
-            principalVariation: [...pv, ...replyEval.pv], opponentReplyCodes: replyEval.replies
+            principalVariation: candPv, pv: candPv, opponentReplyCodes: replyEval.replies, replies: replyEval.replies,
+            sawOpponentPhase: candSawOpponentPhase, opponentAllianceId
         });
     }
 
-    const elapsedMs = now() - startedAt;
+    const elapsedMs = Math.min(deadlineMs, lastNow - startedAt);
 
     // 选择：真实胜 > 保守聚合值 > 启发式分 > 代码字典序
     let selected: SearchTeacherCandidate | undefined;
@@ -563,11 +803,14 @@ export function searchTeacherAction(options: {
         const fallback = searchable.reduce((acc, act) => ((heuristicScores.get(encodeAction(act)) ?? -Infinity) > (heuristicScores.get(encodeAction(acc)) ?? -Infinity) ? act : acc), searchable[0]);
         reason = truncationStop ? 'budget-fallback-heuristic' : 'budget-fallback-first-legal';
         selected = {
-            actionCode: encodeAction(fallback), action: fallback, sources: ['heuristic'],
+            actionCode: encodeAction(fallback), code: encodeAction(fallback), action: fallback, sources: ['heuristic'],
             heuristicScore: heuristicScores.get(encodeAction(fallback)) ?? 0, modelScore: null,
-            value: null, immediateWin: false, truncated: true, principalVariation: [], opponentReplyCodes: []
+            value: null, immediateWin: false, truncated: true, principalVariation: [], pv: [], opponentReplyCodes: [], replies: [],
+            sawOpponentPhase: false, opponentAllianceId: null
         };
     }
+
+    const fallbackUsed = reason.startsWith('budget-fallback');
 
     return {
         action: selected.action,
@@ -582,7 +825,13 @@ export function searchTeacherAction(options: {
         fullRounds: root.budget.fullRounds,
         elapsedMs,
         sawOpponentPhase,
-        truncationStop
+        selectedSawOpponentPhase: selected ? Boolean(selected.sawOpponentPhase) : false,
+        truncationStop,
+        searchStopElapsedMs,
+        returnTargetElapsedMs,
+        deadlineMs,
+        fallbackUsed,
+        fallbackReason: fallbackUsed ? reason : null
     };
 }
 

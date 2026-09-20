@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DualHeadModelSchemaV2",
+  "description": "Strict JSON schema for AncientEmpires DualHead neural network models",
+  "type": "object",
+  "required": [
+    "kind",
+    "schemaVersion",
+    "architectureId",
+    "stateEncoderVersion",
+    "actionEncoderVersion",
+    "spec",
+    "parameterCount",
+    "weights"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": ["skirmish_dual_head_v1", "skirmish_dual_head_v2"]
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "enum": [1, 2]
+    },
+    "architectureId": {
+      "type": "string",
+      "enum": ["NET_A", "NET_B", "CUSTOM"]
+    },
+    "stateEncoderVersion": {
+      "type": "string",
+      "enum": ["state-v1", "state-v2"]
+    },
+    "actionEncoderVersion": {
+      "type": "string",
+      "enum": ["action-v1", "action-v2"]
+    },
+    "parameterCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "spec": {
+      "type": "object",
+      "required": ["stateDim", "actionDim", "seed"],
+      "properties": {
+        "stateDim": { "type": "integer", "minimum": 1 },
+        "actionDim": { "type": "integer", "minimum": 1 },
+        "trunkHidden": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "minItems": 1
+        },
+        "policyHidden": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 1 },
+              "minItems": 1
+            }
+          ]
+        },
+        "valueHidden": {
+          "oneOf": [
+            { "type": "integer", "minimum": 1 },
+            {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 1 },
+              "minItems": 1
+            }
+          ]
+        },
+        "activation": { "type": "string", "enum": ["relu"] },
+        "seed": { "type": "integer" }
+      }
+    },
+    "weights": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "number" }
+      }
+    },
+    "isStandardizationFolded": { "type": "boolean" },
+    "meta": { "type": "object" }
+  },
+  "additionalProperties": true
+}

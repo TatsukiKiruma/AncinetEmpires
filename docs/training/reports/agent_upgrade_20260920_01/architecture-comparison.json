@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-19T23:45:15.401Z",
+  "runId": "agent_upgrade_20260920_01",
+  "tinyLearnabilityCheck": {
+    "status": "PASSED",
+    "statesUsed": 48,
+    "initialLoss": 2.659152968638709,
+    "initialAccuracy": 0.041666666666666664,
+    "finalLoss": 0.7695196815310587,
+    "finalAccuracy": 0.7083333333333334
+  },
+  "architectures": {
+    "NET_A": {
+      "trunkHidden": [
+        256,
+        128
+      ],
+      "policyHidden": [
+        64,
+        64
+      ],
+      "valueHidden": [
+        64
+      ],
+      "parameters": 147970,
+      "trainDurationMs": 18544,
+      "latencyUs": {
+        "meanUs": 470,
+        "p50Us": 450,
+        "p95Us": 535
+      },
+      "trainFinal": {
+        "accuracy": 0.218,
+        "loss": 3.004508519765557,
+        "sampleCount": 1500
+      },
+      "devFinal": {
+        "accuracy": 0.14,
+        "loss": 3.9046280775764513,
+        "sampleCount": 500
+      }
+    },
+    "NET_B": {
+      "trunkHidden": [
+        256,
+        256,
+        128
+      ],
+      "policyHidden": [
+        64,
+        64
+      ],
+      "valueHidden": [
+        64
+      ],
+      "parameters": 213762,
+      "trainDurationMs": 19305,
+      "latencyUs": {
+        "meanUs": 502,
+        "p50Us": 476,
+        "p95Us": 571
+      },
+      "trainFinal": {
+        "accuracy": 0.22133333333333333,
+        "loss": 3.1420491520281604,
+        "sampleCount": 1500
+      },
+      "devFinal": {
+        "accuracy": 0.142,
+        "loss": 3.9884310342599156,
+        "sampleCount": 500
+      }
+    }
+  },
+  "deltaAnalysis": {
+    "devAccuracyDelta": 0.001999999999999974,
+    "devLossDelta": 0.08380295668346438,
+    "parameterGrowthPercent": 44.46306683787254,
+    "latencyGrowthPercent": 6.808510638297872,
+    "recommendation": "NET_B"
+  }
+}

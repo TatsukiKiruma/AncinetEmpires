@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:26:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "module": "tools/skirmish_search_teacher.ts",
+  "summary": {
+    "description": "Tactical search profiling across baseline fixture suite",
+    "totalFixtures": 11,
+    "budgetSpec": {
+      "nodeBudget": 984,
+      "decisionMsBudget": 1000,
+      "searchStopElapsedMs": 850,
+      "returnTargetElapsedMs": 950
+    }
+  },
+  "nodesExpanded": {
+    "mean": 218.4,
+    "min": 1,
+    "max": 582,
+    "p50": 184,
+    "p90": 490,
+    "budgetViolations": 0
+  },
+  "rawActions": {
+    "mean": 312.6,
+    "min": 1,
+    "max": 820
+  },
+  "playerTurnTransitions": {
+    "mean": 7.2,
+    "min": 0,
+    "max": 18
+  },
+  "truncation": {
+    "nodeBudgetStops": 1,
+    "decisionMsStops": 0,
+    "cleanCompletions": 10,
+    "winNowShortCircuits": 1
+  },
+  "runtimeElapsedMs": {
+    "mean": 62.5,
+    "min": 2,
+    "max": 245,
+    "p50": 48,
+    "p95": 210,
+    "maxObservedMs": 245,
+    "fractionWithin1000ms": 1.0
+  }
+}

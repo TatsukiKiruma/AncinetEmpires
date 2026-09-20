@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "summary": {
+    "description": "Cross-version parity between legacy v1 models and v2 configurable architecture",
+    "backwardCompatibilityVerified": true,
+    "namedLegacyReferencePreserved": true
+  },
+  "compatibilityMatrix": {
+    "v1SpecLoadedInV2": {
+      "format": "skirmish_dual_head_v1",
+      "resolution": "resolved to trunkHidden: [256, 128], policyHidden: [64, 64], valueHidden: [64]",
+      "layerParity": "trunkW1/W2, policyW1/W2/W3, valueW1/W2 exactly match",
+      "predictionParity": "bitwise_identical"
+    },
+    "v2SpecSaved": {
+      "format": "skirmish_dual_head_v2",
+      "schemaVersion": 2,
+      "rejectsMissingWeights": true,
+      "rejectsNonFiniteWeights": true
+    }
+  }
+}

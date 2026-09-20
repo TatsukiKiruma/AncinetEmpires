@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "stateEncoder": {
+    "version": "state-v2",
+    "dimension": 356,
+    "permutationInvariant": true,
+    "leakageFree": true
+  },
+  "actionEncoder": {
+    "version": "action-v2",
+    "dimension": 45,
+    "legacyVersion": "action-v1",
+    "legacyDimension": 32,
+    "legacyMaintainedAs": "encodeGameActionV1",
+    "parityWithV1Progress": true
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "runId": "agent_upgrade_20260920_01",
+  "generatedAt": "2026-09-20T07:18:00+08:00",
+  "models": [
+    {
+      "id": "legacy_v4",
+      "path": "training_runs/agent_upgrade_20260919_01/models/model_weights_v4.json",
+      "exists": true,
+      "kind": "skirmish_bc_ranker_v4",
+      "notes": "2026-09-18 历史冠军模型（结合收官辅助）"
+    },
+    {
+      "id": "t06_r1_linear",
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_models/R1-linear-v5.json",
+      "exists": true,
+      "kind": "linear_v5",
+      "notes": "T06 线性模型基线"
+    },
+    {
+      "id": "t06_r5_mlp",
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_models/R5-mlp-v5.json",
+      "exists": true,
+      "kind": "mlp_v5",
+      "notes": "T06 小型非线性基线（速崩代表）"
+    },
+    {
+      "id": "t10_policy_value_net",
+      "path": "training_runs/agent_upgrade_20260919_01/t10_network/policy-value-net.json",
+      "exists": true,
+      "kind": "skirmish_dual_head_v1",
+      "sha256": "20DA7EFCF8F5BF2F096099B964911276FB34672465206D6959B2A756D995FC1D",
+      "notes": "45k 参数紧凑双头网络（折叠后自包含），价值头在纯负终局上训练（未独立验证有效性）"
+    }
+  ],
+  "datasets": [
+    {
+      "id": "split_manifest_rev2",
+      "path": "training_runs/agent_upgrade_20260919_01/split-manifest.json",
+      "exists": true,
+      "sha256": "DF892BCF632BD38B899E9CDF0D239076D4D7C76AD967BE843DC1AA902183D6D4",
+      "rootFamilies": 2351,
+      "partitions": { "train": 2266, "dev_regression": 84, "quarantine": 1 },
+      "notes": "T03 建立的冻结根来源族分区"
+    },
+    {
+      "id": "dagger_round01",
+      "path": "training_runs/agent_upgrade_20260919_01/dagger_round01",
+      "exists": true,
+      "statesCaptured": 1374,
+      "corrections": 816,
+      "notes": "T09 round01 小闭环纠错数据"
+    },
+    {
+      "id": "dagger_round02",
+      "path": "training_runs/agent_upgrade_20260919_01/dagger_round02",
+      "exists": true,
+      "statesCaptured": 5000,
+      "corrections": 3289,
+      "notes": "T09 round02 纠错数据（train 3254 / val 602，基于旧网络特征和局部索引迁移）"
+    },
+    {
+      "id": "server_archive_20260913",
+      "path": "training_runs/server_archive_20260913/dataset",
+      "exists": true,
+      "samples": 977737,
+      "notes": "历史 2,500 局归档，旧不可逆哈希特征，不能直接用于新完整状态编码"
+    }
+  ],
+  "reports": [
+    {
+      "id": "gate_a_20260919",
+      "path": "training_runs/agent_upgrade_20260919_01/gate-a-report.md",
+      "exists": true
+    },
+    {
+      "id": "gate_b_20260920",
+      "path": "training_runs/agent_upgrade_20260919_01/gate-b-local-qualification.md",
+      "exists": true
+    },
+    {
+      "id": "gate_c_batch4_20260920",
+      "path": "training_runs/agent_upgrade_20260919_01/gate-c-t09-t11-batch4.md",
+      "exists": true
+    }
+  ]
+}

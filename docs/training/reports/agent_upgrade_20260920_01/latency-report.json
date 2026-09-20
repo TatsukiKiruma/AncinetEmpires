@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:26:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "breakdown": {
+    "featureExtractionAndPrefilterMs": {
+      "mean": 1.2,
+      "p95": 3.1
+    },
+    "heuristicAndModelScoringMs": {
+      "mean": 8.5,
+      "p95": 19.4
+    },
+    "candidateSelectionMs": {
+      "mean": 0.4,
+      "p95": 0.9
+    },
+    "ownPlanningRolloutMs": {
+      "mean": 32.1,
+      "p95": 95.0
+    },
+    "opponentPhaseEvaluationMs": {
+      "mean": 41.5,
+      "p95": 125.0
+    },
+    "finalSelectionAndEncodingMs": {
+      "mean": 0.6,
+      "p95": 1.2
+    }
+  },
+  "overall": {
+    "totalEndToEndMeanMs": 85.3,
+    "totalEndToEndP95Ms": 245.0,
+    "budgetCeilingMs": 1000.0,
+    "marginMs": 755.0
+  }
+}

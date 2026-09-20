@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T01:10:27.948Z",
+  "runId": "agent_upgrade_20260920_01",
+  "matrix": {
+    "S00": {
+      "name": "Baseline Search (No Prior, Heuristic Leaf)",
+      "status": "EVALUATED",
+      "meanLatencyMs": 84.25,
+      "meanNodes": 40,
+      "tacticalGames": [
+        {
+          "arm": "S00_BaselineSearch",
+          "matchIdx": 0,
+          "pId": 0,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 115
+        },
+        {
+          "arm": "S00_BaselineSearch",
+          "matchIdx": 1,
+          "pId": 1,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 126
+        }
+      ]
+    },
+    "S10": {
+      "name": "Neural Prior Search (Policy Prior, Heuristic Leaf)",
+      "status": "EVALUATED",
+      "modelArchitecture": "NET_B",
+      "meanLatencyMs": 81.41666666666667,
+      "meanNodes": 40,
+      "modelCandidateSurvivalRate": 1,
+      "decisionDivergenceRate": 0,
+      "tacticalGames": [
+        {
+          "arm": "S10_NeuralPriorSearch",
+          "matchIdx": 0,
+          "pId": 0,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 117
+        },
+        {
+          "arm": "S10_NeuralPriorSearch",
+          "matchIdx": 1,
+          "pId": 1,
+          "won": true,
+          "draw": false,
+          "stepCount": 103,
+          "illegalActionCount": 0,
+          "queries": 77
+        }
+      ]
+    },
+    "S01": {
+      "name": "Neural Value Search (Heuristic Candidates, Neural Value Leaf)",
+      "status": "EVALUATED",
+      "modelArchitecture": "NET_B",
+      "meanLatencyMs": 81.08333333333333,
+      "meanNodes": 40,
+      "decisionDivergenceRate": 0.5,
+      "tacticalGames": [
+        {
+          "arm": "S01_NeuralValueSearch",
+          "matchIdx": 0,
+          "pId": 0,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 45
+        },
+        {
+          "arm": "S01_NeuralValueSearch",
+          "matchIdx": 1,
+          "pId": 1,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 91
+        }
+      ],
+      "valueValidation": {
+        "status": "QUALIFIED",
+        "finalMse": 0.1538,
+        "errorReductionVsBaseline": "83.2%"
+      }
+    },
+    "S11": {
+      "name": "Full Neural Search (Policy Prior, Neural Value Leaf)",
+      "status": "EVALUATED",
+      "modelArchitecture": "NET_B",
+      "meanLatencyMs": 82.33333333333333,
+      "meanNodes": 40,
+      "modelCandidateSurvivalRate": 1,
+      "decisionDivergenceRate": 0.5,
+      "tacticalGames": [
+        {
+          "arm": "S11_FullNeuralSearch",
+          "matchIdx": 0,
+          "pId": 0,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 49
+        },
+        {
+          "arm": "S11_FullNeuralSearch",
+          "matchIdx": 1,
+          "pId": 1,
+          "won": false,
+          "draw": true,
+          "stepCount": 150,
+          "illegalActionCount": 0,
+          "queries": 61
+        }
+      ],
+      "valueValidation": {
+        "status": "QUALIFIED",
+        "finalMse": 0.1538,
+        "errorReductionVsBaseline": "83.2%"
+      }
+    }
+  },
+  "findings": {
+    "s10PriorDivergence": "0/12 decisions diverged from pure heuristic beam ranking",
+    "s01ValueDivergence": "6/12 decisions diverged from heuristic material leaf ranking",
+    "s11FullDivergence": "6/12 decisions diverged from pure baseline search",
+    "candidateSurvival": "12/12 states retained top-scoring neural actions in beam",
+    "allWithin1000Ms": true
+  }
+}

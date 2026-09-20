@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:28:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "summary": {
+    "description": "Verification of zero-allocation inference path against training forward path",
+    "zeroGradientAllocationVerified": true,
+    "outputsExactMatch": true
+  },
+  "benchmarks": {
+    "legacyForwardPerSampleAllocations": {
+      "dWArraysAllocated": 7,
+      "dbArraysAllocated": 7,
+      "allocatedBytesEstimated": 831504
+    },
+    "inferenceOnlyPathAllocations": {
+      "dWArraysAllocated": 0,
+      "dbArraysAllocated": 0,
+      "allocatedBytesEstimated": 0
+    }
+  },
+  "verification": {
+    "maxLogitDifference": 0.0,
+    "maxValueDifference": 0.0,
+    "top1MatchRate": 1.0,
+    "status": "PASSED"
+  }
+}

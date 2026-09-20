@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "plan": {
+    "targetPlatform": "Windows local CPU (AMD Ryzen 7 9800X3D, Node v22.18.0)",
+    "timingParameters": {
+      "deadlineMs": 1000,
+      "searchStopElapsedMs": 850,
+      "returnTargetElapsedMs": 950
+    },
+    "scenarios": [
+      { "id": "demo", "weight": 0.25 },
+      { "id": "classic_2p", "weight": 0.35 },
+      { "id": "water_choke", "weight": 0.20 },
+      { "id": "castle_siege", "weight": 0.20 }
+    ],
+    "telemetryCapturedPerDecision": [
+      "decisionId",
+      "actionCode",
+      "endToEndElapsedMs",
+      "nodesExpanded",
+      "sawOpponentPhase",
+      "selectedSawOpponentPhase",
+      "fallbackUsed",
+      "fallbackReason",
+      "deadlineExceeded"
+    ]
+  }
+}

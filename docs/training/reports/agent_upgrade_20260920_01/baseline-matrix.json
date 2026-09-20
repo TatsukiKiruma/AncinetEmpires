@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-20T07:29:00.000Z",
+  "runId": "agent_upgrade_20260920_01",
+  "baselines": [
+    {
+      "id": "B0",
+      "name": "HeuristicAI Baseline",
+      "strategy": "heuristic-only",
+      "purpose": "Primary benchmark opponent and algorithmic speed reference",
+      "searchAssisted": false,
+      "neuralAssisted": false
+    },
+    {
+      "id": "B1",
+      "name": "HeuristicAI + Tactical Extensions",
+      "strategy": "heuristic + objective/retreat/castle assists",
+      "purpose": "Measure non-learning heuristic rule assist contributions",
+      "searchAssisted": false,
+      "neuralAssisted": false
+    },
+    {
+      "id": "B2",
+      "name": "Historical Pure v4 Model",
+      "strategy": "pure v4 neural policy (1-ply)",
+      "purpose": "Historical reference point before v3.0 representations",
+      "searchAssisted": false,
+      "neuralAssisted": true
+    },
+    {
+      "id": "B3",
+      "name": "Historical v4 Model + Tactical Assists",
+      "strategy": "v4 policy + joint tactical assists",
+      "purpose": "Re-verify combined performance of historical model",
+      "searchAssisted": false,
+      "neuralAssisted": true
+    },
+    {
+      "id": "B4",
+      "name": "Linear/MLP Candidate (Post-Fix)",
+      "strategy": "fixed representation + shallow MLP",
+      "purpose": "Ascertain whether lightweight non-deep model is sufficient",
+      "searchAssisted": false,
+      "neuralAssisted": true
+    },
+    {
+      "id": "B5",
+      "name": "DualHeadNet v2 Pure Policy (1-ply)",
+      "strategy": "NET_A or NET_B argmax policy directly",
+      "purpose": "Measure standalone neural policy strength and latency without search",
+      "searchAssisted": false,
+      "neuralAssisted": true
+    }
+  ]
+}
