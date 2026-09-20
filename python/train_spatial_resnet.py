@@ -237,6 +237,9 @@ else:
         parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
         parser.add_argument("--val-split", type=float, default=0.1, help="Validation ratio")
         parser.add_argument("--out-model", type=str, default="training_runs/models/spatial_resnet_v2_checkpoint.json", help="Output JSON checkpoint")
+        parser.add_argument("--out-last-model", type=str, default=None, help="Output JSON checkpoint for last epoch (defaults to out-model with _last suffix)")
+        parser.add_argument("--out-metrics", type=str, default=None, help="Output path for metrics JSON (defaults to model-specific metrics file)")
+        parser.add_argument("--value-weight", type=float, default=0.0, help="Weight for value head loss (default: 0.0 for policy-only)")
         parser.add_argument("--deploy-to-src", action="store_true", default=False, help="Explicitly deploy to src/game/ai/models/ (default: False)")
         parser.add_argument("--seed", type=int, default=42, help="Random seed")
         parser.add_argument("--model-version", type=str, default="spatial-resnet-v2", choices=["spatial-resnet-v1", "spatial-resnet-v2"])
@@ -282,8 +285,9 @@ else:
                 train_indices.extend(idxs)
 
         if len(train_indices) == 0:
-            train_indices = list(range(total_len))
-            val_indices = list(range(min(total_len, val_target_count)))
+            raise ValueError(f"Partition error: train set is empty with {total_len} samples and {val_target_count} val target.")
+        if len(val_indices) == 0:
+            raise ValueError(f"Partition error: validation set is empty with {total_len} samples.")
 
         train_data = torch.utils.data.Subset(full_dataset, train_indices)
         val_data = torch.utils.data.Subset(full_dataset, val_indices)
@@ -307,31 +311,39 @@ else:
         optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
 
-        best_val_acc = 0.0
+        best_val_acc = -1.0
         best_epoch = 0
 
-        print(f"Starting scaled training for {args.epochs} epochs...\n")
+        print(f"Starting scaled training for {args.epochs} epochs (value_weight={args.value_weight})...\n")
         history = []
         for epoch in range(1, args.epochs + 1):
             train_loss, train_pol, train_acc = run_epoch(
-                model, train_loader, optimizer, device, is_train=True
+                model, train_loader, optimizer, device, value_weight=args.value_weight, is_train=True
             )
             val_loss, val_pol, val_acc = run_epoch(
-                model, val_loader, None, device, is_train=False
+                model, val_loader, None, device, value_weight=args.value_weight, is_train=False
             )
             scheduler.step()
 
             is_best = val_acc > best_val_acc
-            if is_best or epoch == args.epochs:
-                if is_best:
-                    best_val_acc = val_acc
-                    best_epoch = epoch
+            if is_best:
+                best_val_acc = val_acc
+                best_epoch = epoch
                 os.makedirs(os.path.dirname(os.path.abspath(args.out_model)), exist_ok=True)
                 export_model_to_ts_json(model, args.out_model)
                 if args.deploy_to_src:
                     deployed_path = "src/game/ai/models/spatial_resnet_checkpoint.json"
                     os.makedirs(os.path.dirname(deployed_path), exist_ok=True)
                     shutil.copyfile(args.out_model, deployed_path)
+
+            if epoch == args.epochs:
+                last_model_path = args.out_last_model
+                if not last_model_path:
+                    base, ext = os.path.splitext(args.out_model)
+                    last_model_path = f"{base}_last{ext}"
+                os.makedirs(os.path.dirname(os.path.abspath(last_model_path)), exist_ok=True)
+                export_model_to_ts_json(model, last_model_path)
+                print(f"Exported final epoch checkpoint to: {last_model_path}")
 
             best_mark = " [*BEST]" if is_best else ""
             print(
@@ -347,21 +359,29 @@ else:
                 "val_acc": val_acc
             })
 
-        metrics_file = os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "train_metrics.json")
+        metrics_file = args.out_metrics
+        if not metrics_file:
+            base, _ = os.path.splitext(args.out_model)
+            metrics_file = f"{base}_metrics.json"
+        os.makedirs(os.path.dirname(os.path.abspath(metrics_file)), exist_ok=True)
         with open(metrics_file, "w", encoding="utf-8") as f:
             json.dump({
                 "model_version": args.model_version,
+                "num_blocks": args.num_blocks,
+                "dataset": args.dataset,
+                "value_weight": args.value_weight,
+                "seed": args.seed,
                 "best_val_acc": best_val_acc,
                 "best_epoch": best_epoch,
+                "train_samples": len(train_data),
+                "val_samples": len(val_data),
                 "history": history
             }, f, indent=2)
 
         print(f"\n=======================================================")
         print(f"[Training Complete] Best Validation Accuracy: {best_val_acc * 100:.2f}% (Epoch {best_epoch})")
-        print(f"Exported model checkpoint to: {args.out_model}")
+        print(f"Best model checkpoint: {args.out_model}")
         print(f"Metrics saved to: {metrics_file}")
-        if args.deploy_to_src:
-            print(f"Successfully deployed to: src/game/ai/models/spatial_resnet_checkpoint.json")
         print(f"=======================================================\n")
 
 

@@ -1,0 +1,71 @@
+{
+  "auditTimestamp": "2026-09-21T06:06:00.000Z",
+  "branch": "path-b-spatial-ai",
+  "reviewBaseCommit": "55177b8ea9459d1b30a83e44eb412fb2f112a4c4",
+  "currentHeadCommit": "8274cd8d9372e64fc2da9431755fa5a58d1f02df",
+  "headCommitMessage": "fix(pipeline): full 30k training with global shuffle across all models and update 40-match benchmarks",
+  "dirtyStatus": {
+    "modifiedTrackedFiles": [
+      "tools/v6_commander_specialist_pipeline.ts",
+      "python/train_spatial_resnet.py",
+      "src/game/ai/spatial_conv_net.ts"
+    ],
+    "untrackedFiles": [
+      "V7/",
+      "AncinetEmpires_AI_Training_Advice_20260921_v7.md",
+      "tools/v7_defect_exposure.test.ts"
+    ]
+  },
+  "agentsFileStatus": {
+    "agentsMdFoundInRepo": false,
+    "agentsDirFound": true,
+    "agentsDirIsEmpty": true,
+    "note": "工作区未发现独立根目录 AGENTS.md；长效规范参考历史 Agent 任务书及 V7 文档包要求"
+  },
+  "defectsConfirmedAndAudited": {
+    "F7_01_CoverageAuditFakeData": {
+      "status": "CONFIRMED_AND_FIXED",
+      "finding": "runCoverageAudit in tools/v6_commander_specialist_pipeline.ts returned hardcoded constants (2500, 2280, 1142, 618) without actual scanning.",
+      "fix": "Replaced hardcoded numbers with genuine file existence/size check; unverified stats set to null."
+    },
+    "F7_02_SingleMapShortTrajectory": {
+      "status": "CONFIRMED",
+      "finding": "D_R30 generated 21k demo steps on single map plus 14 template states for curriculum. Multi-map real data required.",
+      "plan": "V7 multi-map data generation using 8 distinct maps and both seats."
+    },
+    "F7_03_CurriculumZeroConsumption": {
+      "status": "CONFIRMED_AND_VERIFIED_FIXED_IN_8274CD8",
+      "finding": "BC sliced at 10000, NET_A/B sliced at 12000. Fixed in commit 8274cd8 by training across full dataset with global shuffle."
+    },
+    "F7_04_CurriculumIndexingAndFallback": {
+      "status": "CONFIRMED",
+      "finding": "Scenario C placed enemy commander on friendly castle; F commanded enemy commander to attack enemy threat; G commanded enemy commander to attack itself. Target not found fell back silently to legalActions[0].",
+      "evidenceTest": "tools/v7_defect_exposure.test.ts (Defect 1 & 2 passed verifying defect mechanism)."
+    },
+    "F7_05_PseudoValueSupervision": {
+      "status": "CONFIRMED_AND_FIXED",
+      "finding": "Value head was trained with 0.5 weight on arbitrary heuristic labels (+0.3/-0.3, 0.1..1.0).",
+      "fix": "Added --value-weight 0.0 default in python/train_spatial_resnet.py; policy-only training mode established."
+    },
+    "F7_06_BestOverwrittenAnd4BlockTS": {
+      "status": "CONFIRMED_AND_FIXED",
+      "finding": "Python train_spatial_resnet.py overwrote best checkpoint with last epoch model on final epoch. Shared train_metrics.json overwritten. TypeScript spatial_conv_net.ts only loaded/computed 2 blocks.",
+      "fix": "Separated out_model (best) and out_last_model; model-specific metrics path; implemented full 4-block loading and forward inference in TypeScript."
+    },
+    "F7_07_BCFeatureIdentity": {
+      "status": "CONFIRMED",
+      "finding": "V6 pipeline BC was a 4096-dim perceptron on candidate features directly, bypassing standard BC features.",
+      "remedy": "Separate candidate-perceptron from standard BC schema, isolate identities."
+    },
+    "F7_08_Metric100PercentOnZeroOpportunities": {
+      "status": "CONFIRMED_AND_FIXED",
+      "finding": "rehireSuccessRate returned 100.0% when opportunities were 0.",
+      "fix": "Returned null when rehireOpportunities === 0 in policy evaluation metrics."
+    },
+    "PipelineEntrypointUnprotected": {
+      "status": "CONFIRMED_AND_FIXED",
+      "finding": "Bare main().catch() in tools/v6_commander_specialist_pipeline.ts caused unconditional training on import.",
+      "fix": "Guarded with isDirectRun, --help, and --dry-run."
+    }
+  }
+}

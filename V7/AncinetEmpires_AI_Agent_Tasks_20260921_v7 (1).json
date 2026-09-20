@@ -1,0 +1,72 @@
+{
+  "version": "7.0",
+  "sourceCommit": "55177b8ea9459d1b30a83e44eb412fb2f112a4c4",
+  "status": "PROPOSED_NOT_EXECUTED",
+  "note": "Dependencies are minimum prerequisites. Final evaluation depends on the selected candidate; v7 Markdown is authoritative. No resource spending is authorized by this file.",
+  "tasks": [
+    {
+      "id": "R7-01",
+      "title": "失败型测试与事实冻结",
+      "dependsOn": [],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-02",
+      "title": "真实数据、合法课程和消费证明",
+      "dependsOn": [
+        "R7-01"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-03",
+      "title": "空间学生重训与跨语言一致性",
+      "dependsOn": [
+        "R7-02"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-04",
+      "title": "关键失败回放与学生状态纠错",
+      "dependsOn": [
+        "R7-03"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-05",
+      "title": "Heuristic有界搜索教师",
+      "dependsOn": [
+        "R7-01",
+        "R7-02"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-06",
+      "title": "搜索蒸馏与空间先验",
+      "dependsOn": [
+        "R7-03",
+        "R7-05"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-07",
+      "title": "有条件数据/深度扩展",
+      "dependsOn": [
+        "R7-03"
+      ],
+      "status": "NOT_STARTED"
+    },
+    {
+      "id": "R7-08",
+      "title": "统一评测与实际交接",
+      "dependsOn": [
+        "R7-01"
+      ],
+      "status": "NOT_STARTED"
+    }
+  ]
+}

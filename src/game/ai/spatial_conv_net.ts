@@ -55,12 +55,17 @@ export interface DenseLayerWeights {
 
 export interface SpatialResNetWeights {
     version: 'spatial-resnet-v1' | 'spatial-resnet-v2';
-    architectureId: 'spatial_resnet_32ch_2res';
+    architectureId: 'spatial_resnet_32ch_2res' | 'spatial_resnet_32ch_4res';
+    numBlocks?: number;
     stem: ConvLayerWeights;
     res1_1: ConvLayerWeights;
     res1_2: ConvLayerWeights;
     res2_1: ConvLayerWeights;
     res2_2: ConvLayerWeights;
+    res3_1?: ConvLayerWeights;
+    res3_2?: ConvLayerWeights;
+    res4_1?: ConvLayerWeights;
+    res4_2?: ConvLayerWeights;
     valDense1: DenseLayerWeights;
     valDense2: DenseLayerWeights;
     polDense1: DenseLayerWeights;
@@ -287,6 +292,11 @@ export class SpatialResNetPredictor {
     private bufRes1_2: Float32Array;
     private bufRes2_1: Float32Array;
     private bufZ: Float32Array;
+    private numBlocks: number;
+    private bufRes2_2: Float32Array;
+    private bufRes3_1?: Float32Array;
+    private bufRes3_2?: Float32Array;
+    private bufRes4_1?: Float32Array;
     private bufGap: Float32Array;
     private bufValIn: Float32Array;
     private bufValH: Float32Array;
@@ -298,11 +308,18 @@ export class SpatialResNetPredictor {
     constructor(weights: SpatialResNetWeights) {
         this.weights = weights;
         this.isV2 = weights.version === 'spatial-resnet-v2' || weights.polDense1.inDim > 120;
+        this.numBlocks = weights.numBlocks ?? (weights.res3_1 ? 4 : 2);
         const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
         this.bufStem = new Float32Array(32 * HW);
         this.bufRes1_1 = new Float32Array(32 * HW);
         this.bufRes1_2 = new Float32Array(32 * HW);
         this.bufRes2_1 = new Float32Array(32 * HW);
+        this.bufRes2_2 = new Float32Array(32 * HW);
+        if (this.numBlocks >= 4) {
+            this.bufRes3_1 = new Float32Array(32 * HW);
+            this.bufRes3_2 = new Float32Array(32 * HW);
+            this.bufRes4_1 = new Float32Array(32 * HW);
+        }
         this.bufZ = new Float32Array(32 * HW);
         this.bufGap = new Float32Array(32);
         this.bufValIn = new Float32Array(this.weights.valDense1.inDim);
@@ -318,9 +335,15 @@ export class SpatialResNetPredictor {
         candidateActions: SpatialActionFeatures[]
     ): SpatialInferenceResult {
         const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
+        const spatialTensor = encodedState.spatialTensor instanceof Float32Array
+            ? encodedState.spatialTensor
+            : new Float32Array(encodedState.spatialTensor);
+        const globalFeatures = encodedState.globalFeatures instanceof Float32Array
+            ? encodedState.globalFeatures
+            : new Float32Array(encodedState.globalFeatures);
 
         // 1. Stem: Conv(24 -> 32) + ReLU
-        conv2dForward(this.bufStem, encodedState.spatialTensor, this.weights.stem, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
+        conv2dForward(this.bufStem, spatialTensor, this.weights.stem, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
 
         // 2. ResBlock 1: Conv + ReLU + Conv + 残差相加 + ReLU
         conv2dForward(this.bufRes1_1, this.bufStem, this.weights.res1_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
@@ -331,19 +354,46 @@ export class SpatialResNetPredictor {
             this.bufRes1_2[i] = sum > 0 ? sum : 0;
         }
 
-        // 3. ResBlock 2: Conv + ReLU + Conv + 残差相加 + ReLU -> 输出 Z
-        conv2dForward(this.bufRes2_1, this.bufRes1_2, this.weights.res2_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
-        conv2dForward(this.bufZ, this.bufRes2_1, this.weights.res2_2, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, false);
-        for (let i = 0; i < 32 * HW; i += 1) {
-            const sum = this.bufZ[i] + this.bufRes1_2[i];
-            this.bufZ[i] = sum > 0 ? sum : 0;
+        // 3. ResBlock 2..N:
+        if (this.numBlocks >= 4 && this.weights.res3_1 && this.weights.res3_2 && this.weights.res4_1 && this.weights.res4_2) {
+            // Block 2: into bufRes2_2
+            conv2dForward(this.bufRes2_1, this.bufRes1_2, this.weights.res2_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
+            conv2dForward(this.bufRes2_2, this.bufRes2_1, this.weights.res2_2, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, false);
+            for (let i = 0; i < 32 * HW; i += 1) {
+                const sum = this.bufRes2_2[i] + this.bufRes1_2[i];
+                this.bufRes2_2[i] = sum > 0 ? sum : 0;
+            }
+
+            // Block 3: into bufRes3_2
+            conv2dForward(this.bufRes3_1!, this.bufRes2_2, this.weights.res3_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
+            conv2dForward(this.bufRes3_2!, this.bufRes3_1!, this.weights.res3_2, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, false);
+            for (let i = 0; i < 32 * HW; i += 1) {
+                const sum = this.bufRes3_2![i] + this.bufRes2_2[i];
+                this.bufRes3_2![i] = sum > 0 ? sum : 0;
+            }
+
+            // Block 4: into bufZ
+            conv2dForward(this.bufRes4_1!, this.bufRes3_2!, this.weights.res4_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
+            conv2dForward(this.bufZ, this.bufRes4_1!, this.weights.res4_2, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, false);
+            for (let i = 0; i < 32 * HW; i += 1) {
+                const sum = this.bufZ[i] + this.bufRes3_2![i];
+                this.bufZ[i] = sum > 0 ? sum : 0;
+            }
+        } else {
+            // 2-block: Block 2 directly into bufZ
+            conv2dForward(this.bufRes2_1, this.bufRes1_2, this.weights.res2_1, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
+            conv2dForward(this.bufZ, this.bufRes2_1, this.weights.res2_2, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, false);
+            for (let i = 0; i < 32 * HW; i += 1) {
+                const sum = this.bufZ[i] + this.bufRes1_2[i];
+                this.bufZ[i] = sum > 0 ? sum : 0;
+            }
         }
 
         // 4. Value Head 前向
         globalAvgPool2D(this.bufGap, this.bufZ, 32, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W);
         this.bufValIn.set(this.bufGap, 0);
         const valGlobDim = this.weights.valDense1.inDim - 32;
-        this.bufValIn.set(encodedState.globalFeatures.subarray(0, valGlobDim), 32);
+        this.bufValIn.set(globalFeatures.subarray(0, valGlobDim), 32);
         denseForward(this.bufValH, this.bufValIn, this.weights.valDense1, 'relu');
         denseForward(this.bufValOut, this.bufValH, this.weights.valDense2, 'tanh');
         const value = this.bufValOut[0];
@@ -356,14 +406,18 @@ export class SpatialResNetPredictor {
             poolSpatialCoord(this.bufPolIn, 32, this.bufZ, act.landingCoord);
             poolSpatialCoord(this.bufPolIn, 64, this.bufZ, act.targetCoord);
 
+            const semArr = act.semantics instanceof Float32Array
+                ? act.semantics
+                : new Float32Array(act.semantics);
+
             if (this.isV2) {
-                const semLen = Math.min(act.semantics.length, ACTION_SEMANTIC_DIM_V2);
-                this.bufPolIn.set(act.semantics.subarray(0, semLen), 96);
-                const globLen = Math.min(encodedState.globalFeatures.length, GLOBAL_FEATURE_DIM_V2);
-                this.bufPolIn.set(encodedState.globalFeatures.subarray(0, globLen), 96 + ACTION_SEMANTIC_DIM_V2);
+                const semLen = Math.min(semArr.length, ACTION_SEMANTIC_DIM_V2);
+                this.bufPolIn.set(semArr.subarray(0, semLen), 96);
+                const globLen = Math.min(globalFeatures.length, GLOBAL_FEATURE_DIM_V2);
+                this.bufPolIn.set(globalFeatures.subarray(0, globLen), 96 + ACTION_SEMANTIC_DIM_V2);
             } else {
-                const semLen = Math.min(act.semantics.length, ACTION_SEMANTIC_DIM_V1);
-                this.bufPolIn.set(act.semantics.subarray(0, semLen), 96);
+                const semLen = Math.min(semArr.length, ACTION_SEMANTIC_DIM_V1);
+                this.bufPolIn.set(semArr.subarray(0, semLen), 96);
             }
 
             denseForward(this.bufPolH, this.bufPolIn, this.weights.polDense1, 'relu');
@@ -415,8 +469,9 @@ export function exportSpatialResNetToJson(weights: SpatialResNetWeights): string
         biases: Array.from(l.biases)
     });
 
-    const obj = {
+    const obj: any = {
         version: weights.version,
+        numBlocks: weights.numBlocks ?? (weights.res3_1 ? 4 : 2),
         architectureId: weights.architectureId,
         stem: serializeLayer(weights.stem),
         res1_1: serializeLayer(weights.res1_1),
@@ -428,6 +483,12 @@ export function exportSpatialResNetToJson(weights: SpatialResNetWeights): string
         polDense1: serializeLayer(weights.polDense1),
         polDense2: serializeLayer(weights.polDense2)
     };
+    if (weights.res3_1 && weights.res3_2 && weights.res4_1 && weights.res4_2) {
+        obj.res3_1 = serializeLayer(weights.res3_1);
+        obj.res3_2 = serializeLayer(weights.res3_2);
+        obj.res4_1 = serializeLayer(weights.res4_1);
+        obj.res4_2 = serializeLayer(weights.res4_2);
+    }
     return JSON.stringify(obj, null, 2);
 }
 
@@ -456,9 +517,13 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
         biases: new Float32Array(l.biases)
     });
 
-    return {
+    const numBlocks = raw.numBlocks ?? (raw.res3_1 ? 4 : 2);
+    const architectureId = raw.architectureId ?? (numBlocks === 4 ? 'spatial_resnet_32ch_4res' : 'spatial_resnet_32ch_2res');
+
+    const result: SpatialResNetWeights = {
         version: raw.version,
-        architectureId: 'spatial_resnet_32ch_2res',
+        numBlocks,
+        architectureId,
         stem: deserializeConv(raw.stem),
         res1_1: deserializeConv(raw.res1_1),
         res1_2: deserializeConv(raw.res1_2),
@@ -469,4 +534,13 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
         polDense1: deserializeDense(raw.polDense1),
         polDense2: deserializeDense(raw.polDense2)
     };
+
+    if (numBlocks >= 4 && raw.res3_1 && raw.res3_2 && raw.res4_1 && raw.res4_2) {
+        result.res3_1 = deserializeConv(raw.res3_1);
+        result.res3_2 = deserializeConv(raw.res3_2);
+        result.res4_1 = deserializeConv(raw.res4_1);
+        result.res4_2 = deserializeConv(raw.res4_2);
+    }
+
+    return result;
 }
