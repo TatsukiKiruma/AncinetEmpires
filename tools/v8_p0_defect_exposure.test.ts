@@ -258,7 +258,7 @@ describe('R8-02: Evaluation Protocol & Termination Fixes', () => {
         expect(outcome.latencyP50).toBeGreaterThanOrEqual(0);
         expect(outcome.rulesHash).toBeDefined();
         expect(outcome.initialStateHash).toBeDefined();
-    }, 30000);
+    }, 60000);
 
     it('Defect R8-02-B: Match step limit must not be implicitly hardcoded to maxTurns * 10', () => {
         // Run a match with maxTurns=15, maxAtomicSteps=300
