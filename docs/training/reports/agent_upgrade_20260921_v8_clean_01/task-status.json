@@ -1,0 +1,95 @@
+{
+  "runId": "agent_upgrade_20260921_v8_clean_01",
+  "generatedAt": "2026-09-21T04:10:00.000Z",
+  "reviewBaselineCommit": "6e7b7e22d36597369e75a5f21f743bd2f5faab93",
+  "historicalV7Status": "READ_ONLY_PRESERVED",
+  "taxonomyDefinitions": {
+    "IMPLEMENTED": "Code written and integrated into codebase",
+    "TESTED": "Verified with targeted unit/integration tests",
+    "MEASURED": "Empirically evaluated with benchmark metrics recorded in persistent reports",
+    "QUALIFIED": "Passed all strict verification criteria, regression tests, and contractual invariants",
+    "BLOCKED_OR_NOT_RUN": "Execution halted or intentionally skipped due to preconditions not met"
+  },
+  "tasks": {
+    "R8-01": {
+      "id": "R8-01",
+      "title": "Wrapper Predict Contract, Value Masking & Shape Assertions",
+      "status": "QUALIFIED",
+      "priority": "P0",
+      "description": "Unified 2-parameter contract for spatial predictor across PolicyAgent, BoundedSearch, and DAgger. Fixed NET_A undefined/null valueTarget and topIndex/bestActionIndex mapping. Added strict shape, finiteness, and non-empty assertions in TS wrappers.",
+      "evidence": [
+        "tools/v8_p0_defect_exposure.test.ts (14 tests passed)",
+        "Zero silent fallbacks to legal[0]",
+        "tsc --noEmit passed with 0 errors"
+      ]
+    },
+    "R8-02": {
+      "id": "R8-02",
+      "title": "Evaluation Protocol, Termination Fixes & Telemetry",
+      "status": "QUALIFIED",
+      "priority": "P0",
+      "description": "Removed false 25-step stagnation truncation. Decoupled turns and atomic steps. Implemented independent PRNG streams for reproducibility. Enforced illegal action and illegal end_turn checks (throwing ENGINE_ERROR). Validated rehire success strictly post-engine.step. Added latency percentiles (p50/p95/max), search node telemetry, and error trajectory output.",
+      "evidence": [
+        "tools/v8_p0_defect_exposure.test.ts (Defect R8-02-A through F passed)",
+        "Zero stagnation truncations in benchmarks",
+        "Deterministic reproducibility verified"
+      ]
+    },
+    "R8-03": {
+      "id": "R8-03",
+      "title": "Clean Benchmark Re-evaluation of Existing Checkpoints",
+      "status": "MEASURED",
+      "priority": "P0",
+      "description": "Re-evaluated existing v7 checkpoints across 80 matches on 5 benchmark maps into clean runId agent_upgrade_20260921_v8_clean_01. S00 natural win rate 53.8%, S10 54.5%, SPATIAL_V2 0.0%, HEURISTIC 50.0%. Retracted premature claims of S00 dominance; HeuristicAI retained as production default baseline.",
+      "evidence": [
+        "docs/training/reports/agent_upgrade_20260921_v8_clean_01/v8_clean_benchmark.json (80 matches, 0 engine errors, 0 model load errors)",
+        "Default policy unchanged"
+      ]
+    },
+    "R8-04": {
+      "id": "R8-04",
+      "title": "Bounded Search, Response Chain & Quotas",
+      "status": "TESTED",
+      "priority": "P1",
+      "description": "Eliminated deep water bug (terrainId === 2) using getTileTerrainKey. Implemented natural turn handover with opponent move-then-attack response chain. Enforced tactical, heuristic, and neural quotas. Enforced maxDepth and maxNodes budget constraints in search rollouts.",
+      "evidence": [
+        "tools/v8_r8_04_bounded_search.test.ts (5 tests passed)",
+        "Search traces verify reachedOpponent, turnHandover, and oppAttackCovered"
+      ]
+    },
+    "R8-05": {
+      "id": "R8-05",
+      "title": "Behavioral State Hashing, Split Manifest & Curriculum Postconditions",
+      "status": "QUALIFIED",
+      "priority": "P1",
+      "description": "Implemented comprehensive getBehavioralStateHash capturing all rules-relevant fields. Decoupled map and gold sampling. Removed 90-step limit. Unified split_manifest across TS and Python. Verified curriculum E (pending recruitment resolution) and G (decisive victory terminal condition).",
+      "evidence": [
+        "tools/v8_r8_05_sampling_split_hash.test.ts (5 tests passed)",
+        "docs/training/reports/agent_upgrade_20260921_v8_clean_01/split_manifest.json (0 validation leakage)"
+      ]
+    },
+    "R8-06": {
+      "id": "R8-06",
+      "title": "Spatial ResNet v2 Scale & Sanity Experiment",
+      "status": "MEASURED",
+      "priority": "P1",
+      "description": "Overfit sanity check verified on 100 samples with finite gradients. Scaled 10k dataset generated (7,706 unique verified states) and trained Spatial ResNet v2 (32ch, 2 blocks, 4 epochs) achieving 52.9% validation accuracy and 0 NaN/null. NET_A trained on exact same split without corruption. Base model checkpoint SHA: 75c7117b286a83578a3876fe9fa479fe6e7305e054562c86bc79fc411be5ea38.",
+      "evidence": [
+        "tools/v8_r8_06_spatial_learning_sanity.test.ts (passed)",
+        "training_runs/agent_upgrade_20260921_v8_clean_01/checkpoints/spatial_resnet/spatial_resnet_v2_metrics.json"
+      ]
+    },
+    "R8-07": {
+      "id": "R8-07",
+      "title": "Two-Seat DAgger Loop & Paired Evaluation",
+      "status": "MEASURED",
+      "priority": "P1",
+      "description": "Ran 6 diagnostic matches across both seats (P0 and P1) detecting 72 failure windows via 3-way counterfactual replay. Replayed 6,886 clean training samples and 820 fixed validation samples with 0 leak. Executed warm-start fine-tuning via --init-checkpoint producing distinct checkpoint SHA: 1e8fe8be57f97c28f544c41e7953eed0ece5cf66b87c9f2bcede654d895cd493. Completed 40-match paired evaluation showing rehire success rate increase from 85.7% to 94.7%.",
+      "evidence": [
+        "tools/v8_r8_07_dagger_loop.test.ts (passed)",
+        "training_runs/agent_upgrade_20260921_v8_clean_01/checkpoints/spatial_resnet_dagger/consumed_samples_manifest.json",
+        "docs/training/reports/agent_upgrade_20260921_v8_clean_01/dagger_paired_evaluation.json"
+      ]
+    }
+  }
+}

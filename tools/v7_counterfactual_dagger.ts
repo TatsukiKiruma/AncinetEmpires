@@ -40,9 +40,18 @@ const FAILURES_DIR = path.join(RUN_DIR, 'failures');
 const DATASET_DIR = path.join(RUN_DIR, 'datasets');
 const CHECKPOINT_DIR = path.join(RUN_DIR, 'checkpoints');
 
+export interface DAggerDirectories {
+    runId?: string;
+    reportDir?: string;
+    runDir?: string;
+    failuresDir?: string;
+    datasetDir?: string;
+    checkpointDir?: string;
+}
+
 export interface FailureWindowRecord {
     failureId: string;
-    failureType: 'MISSED_REHIRE' | 'CASTLE_BLOCKED' | 'SUICIDE_ATTACK' | 'TACTICAL_DEFENSE_BLUNDER';
+    failureType: 'MISSED_REHIRE' | 'CASTLE_BLOCKED' | 'SUICIDE_ATTACK' | 'TACTICAL_DEFENSE_BLUNDER' | 'POLICY_DIVERGENCE';
     mapName: string;
     turn: number;
     step: number;
@@ -65,11 +74,8 @@ export interface DAggerSample {
     sourceFailureType: string;
 }
 
-function getStateHash(state: GameState, playerId: number): string {
-    const unitsStr = state.units.map(u => `${u.id}:${u.ownerId}:${u.unitClass}:${u.pos.x},${u.pos.y}:${u.hp}`).sort().join('|');
-    const goldStr = state.players.map(p => `${p.id}:${p.gold}`).join('|');
-    return createHash('sha256').update(`${state.mapName}:${state.turn}:${playerId}:${goldStr}:${unitsStr}`).digest('hex').substring(0, 16);
-}
+import { getBehavioralStateHash } from './v7_training_pipeline';
+const getStateHash = getBehavioralStateHash;
 
 function getCastlePos(state: GameState, playerId: number): Position | null {
     for (let y = 0; y < state.map.height; y++) {
@@ -83,7 +89,7 @@ function getCastlePos(state: GameState, playerId: number): Position | null {
     return null;
 }
 
-function predictStudentAction(
+export function predictStudentAction(
     predictor: SpatialResNetPredictor,
     engine: GameEngine,
     playerId: number
@@ -105,7 +111,7 @@ function predictStudentAction(
         };
     });
 
-    const pred = predictor.predict(encSpatial.spatialTensor, encSpatial.globalFeatures, candSpatial);
+    const pred = predictor.predict(encSpatial, candSpatial);
     let bestIdx = 0;
     let bestLogit = -Infinity;
     for (let i = 0; i < pred.actionLogits.length; i++) {
@@ -178,11 +184,24 @@ function detectFailureWindow(
         }
     }
 
+    // 5. Policy divergence: Actions differ between student and teacher (candidate for counterfactual verification)
+    if (JSON.stringify(studentAction) !== JSON.stringify(teacherAction)) {
+        return { isFailure: true, failureType: 'POLICY_DIVERGENCE' };
+    }
+
     return { isFailure: false };
 }
 
+function createPrng(seed: number): () => number {
+    let s = seed >>> 0;
+    return () => {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+    };
+}
+
 /**
- * Execute 3-way Counterfactual Replay
+ * Execute 3-way Counterfactual Replay with identical RNG boundary
  */
 function runCounterfactualReplay(
     stateAtFailure: GameState,
@@ -190,12 +209,13 @@ function runCounterfactualReplay(
     studentAction: Action,
     teacherAction: Action,
     predictor: SpatialResNetPredictor,
-    heuristicAi: HeuristicAI,
+    seed: number = 42,
     lookaheadSteps: number = 8
 ): { scoreA: number; scoreB: number; scoreC: number } {
     const oppId = 1 - playerId;
 
     // Trajectory A: Student Continued
+    const hAiA = new HeuristicAI(createPrng(seed));
     const simA = new GameEngine(JSON.parse(JSON.stringify(stateAtFailure)));
     simA.step(studentAction);
     for (let s = 0; s < lookaheadSteps && !simA.isTerminal(); s++) {
@@ -204,13 +224,14 @@ function runCounterfactualReplay(
             const pAct = predictStudentAction(predictor, simA, playerId).action;
             simA.step(pAct);
         } else {
-            const hAct = heuristicAi.getAction(simA, curPid);
+            const hAct = hAiA.getAction(simA, curPid);
             simA.step(hAct);
         }
     }
     const scoreA = evaluatePositionHeuristic(simA.getState(), playerId);
 
     // Trajectory B: Single-Step Teacher Substitute
+    const hAiB = new HeuristicAI(createPrng(seed));
     const simB = new GameEngine(JSON.parse(JSON.stringify(stateAtFailure)));
     simB.step(teacherAction);
     for (let s = 0; s < lookaheadSteps && !simB.isTerminal(); s++) {
@@ -219,18 +240,19 @@ function runCounterfactualReplay(
             const pAct = predictStudentAction(predictor, simB, playerId).action;
             simB.step(pAct);
         } else {
-            const hAct = heuristicAi.getAction(simB, curPid);
+            const hAct = hAiB.getAction(simB, curPid);
             simB.step(hAct);
         }
     }
     const scoreB = evaluatePositionHeuristic(simB.getState(), playerId);
 
     // Trajectory C: Teacher Takeover
+    const hAiC = new HeuristicAI(createPrng(seed));
     const simC = new GameEngine(JSON.parse(JSON.stringify(stateAtFailure)));
     simC.step(teacherAction);
     for (let s = 0; s < lookaheadSteps && !simC.isTerminal(); s++) {
         const curPid = simC.getState().currentPlayer;
-        const hAct = heuristicAi.getAction(simC, curPid);
+        const hAct = hAiC.getAction(simC, curPid);
         simC.step(hAct);
     }
     const scoreC = evaluatePositionHeuristic(simC.getState(), playerId);
@@ -242,6 +264,7 @@ export async function runStudentDiagnosticAndDAgger(options: {
     studentModelPath: string;
     matchCount?: number;
     maxStepsPerMatch?: number;
+    directories?: DAggerDirectories;
 }): Promise<{
     failures: FailureWindowRecord[];
     daggerDatasetPath: string;
@@ -252,8 +275,17 @@ export async function runStudentDiagnosticAndDAgger(options: {
     const predictor = new SpatialResNetPredictor(weights);
     const heuristicAi = new HeuristicAI();
 
-    mkdirSync(FAILURES_DIR, { recursive: true });
-    mkdirSync(REPORT_DIR, { recursive: true });
+    const runId = options.directories?.runId ?? RUN_ID;
+    const runDir = options.directories?.runDir ?? (options.directories?.runId ? path.resolve(`training_runs/${options.directories.runId}`) : RUN_DIR);
+    const reportDir = options.directories?.reportDir ?? (options.directories?.runId ? path.resolve(`docs/training/reports/${options.directories.runId}`) : REPORT_DIR);
+    const failuresDir = options.directories?.failuresDir ?? path.join(runDir, 'failures');
+    const datasetDir = options.directories?.datasetDir ?? path.join(runDir, 'datasets');
+    const checkpointDir = options.directories?.checkpointDir ?? path.join(runDir, 'checkpoints');
+
+    mkdirSync(failuresDir, { recursive: true });
+    mkdirSync(reportDir, { recursive: true });
+    mkdirSync(datasetDir, { recursive: true });
+    mkdirSync(checkpointDir, { recursive: true });
 
     const MATCH_COUNT = options.matchCount ?? 6;
     const MAX_STEPS = options.maxStepsPerMatch ?? 80;
@@ -268,101 +300,134 @@ export async function runStudentDiagnosticAndDAgger(options: {
 
     for (let m = 0; m < MATCH_COUNT; m++) {
         const mapName = MAPS[m % MAPS.length];
+        const studentPid = m % 2; // Support both seats (P0 and P1)
+        const oppPid = 1 - studentPid;
         const state = createAppApkSkirmishGameState(mapName, 'SD');
-        state.mapName = mapName;
+        (state as any).mapName = mapName;
         const engine = new GameEngine(state);
+        const oppHeuristic = new HeuristicAI(createPrng(1000 + m));
 
         let step = 0;
         let matchFailures = 0;
 
         while (!engine.isTerminal() && step < MAX_STEPS) {
             const curPlayer = engine.getState().currentPlayer;
-            if (curPlayer === 0) {
+            if (curPlayer === studentPid) {
                 // Student turn
-                const { action: studentAct, legalActions } = predictStudentAction(predictor, engine, 0);
-                const teacherAct = heuristicAi.getAction(engine, 0, legalActions);
+                const { action: studentAct, legalActions } = predictStudentAction(predictor, engine, studentPid);
+                const teacherAct = heuristicAi.getAction(engine, studentPid, legalActions);
 
-                const detection = detectFailureWindow(engine.getState(), 0, studentAct, teacherAct, legalActions);
+                const detection = detectFailureWindow(engine.getState(), studentPid, studentAct, teacherAct, legalActions);
                 if (detection.isFailure && detection.failureType) {
-                    const stHash = getStateHash(engine.getState(), 0);
-                    // Perform 3-way counterfactual replay
+                    const stHash = getStateHash(engine.getState(), studentPid);
+                    // Perform 3-way counterfactual replay with deterministic RNG boundary
+                    const replaySeed = 20000 + m * 1000 + step;
                     const replay = runCounterfactualReplay(
                         engine.getState(),
-                        0,
+                        studentPid,
                         studentAct,
                         teacherAct,
                         predictor,
-                        heuristicAi
+                        replaySeed
                     );
 
                     const improvementB = replay.scoreB - replay.scoreA;
                     const improvementC = replay.scoreC - replay.scoreA;
                     const confirmed = improvementB > 0 || improvementC > 0;
 
-                    const failureRecord: FailureWindowRecord = {
-                        failureId: `fail_${m}_s${step}_${detection.failureType}`,
-                        failureType: detection.failureType,
-                        mapName,
-                        turn: engine.getState().turn,
-                        step,
-                        stateHash: stHash,
-                        studentAction: studentAct,
-                        teacherAction: teacherAct,
-                        scoreA_studentContinued: replay.scoreA,
-                        scoreB_singleStepTeacher: replay.scoreB,
-                        scoreC_teacherTakeover: replay.scoreC,
-                        improvementB_vs_A: improvementB,
-                        improvementC_vs_A: improvementC,
-                        confirmedFailure: confirmed
-                    };
+                    // For policy divergence, only record when counterfactual replay confirms teacher superiority
+                    if (detection.failureType !== 'POLICY_DIVERGENCE' || confirmed) {
+                        const failureRecord: FailureWindowRecord = {
+                            failureId: `fail_m${m}_p${studentPid}_s${step}_${detection.failureType}`,
+                            failureType: detection.failureType,
+                            mapName,
+                            turn: engine.getState().turn,
+                            step,
+                            stateHash: stHash,
+                            studentAction: studentAct,
+                            teacherAction: teacherAct,
+                            scoreA_studentContinued: replay.scoreA,
+                            scoreB_singleStepTeacher: replay.scoreB,
+                            scoreC_teacherTakeover: replay.scoreC,
+                            improvementB_vs_A: improvementB,
+                            improvementC_vs_A: improvementC,
+                            confirmedFailure: confirmed
+                        };
 
-                    recordedFailures.push(failureRecord);
-                    matchFailures++;
+                        recordedFailures.push(failureRecord);
+                        matchFailures++;
 
-                    // Add to DAgger buffer
-                    daggerSamples.push({
-                        sampleId: `dagger_${failureRecord.failureId}`,
-                        state: JSON.parse(JSON.stringify(engine.getState())),
-                        playerId: 0,
-                        teacherAction: teacherAct,
-                        sourceFailureType: detection.failureType
-                    });
+                        // Add to DAgger buffer
+                        daggerSamples.push({
+                            sampleId: `dagger_${failureRecord.failureId}`,
+                            state: JSON.parse(JSON.stringify(engine.getState())),
+                            playerId: studentPid,
+                            teacherAction: teacherAct,
+                            sourceFailureType: detection.failureType
+                        });
 
-                    console.log(`  [Match ${m + 1} Step ${step}] Detected ${detection.failureType}: Impr B=${improvementB.toFixed(1)}, C=${improvementC.toFixed(1)} (Confirmed: ${confirmed})`);
+                        console.log(`  [Match ${m + 1} (Seat P${studentPid}) Step ${step}] Detected ${detection.failureType}: Impr B=${improvementB.toFixed(1)}, C=${improvementC.toFixed(1)} (Confirmed: ${confirmed})`);
+                    }
                 }
 
                 engine.step(studentAct);
             } else {
-                // Opponent Heuristic turn
-                const oppAct = heuristicAi.getAction(engine, 1);
+                // Opponent turn
+                const oppAct = oppHeuristic.getAction(engine, oppPid);
                 engine.step(oppAct);
             }
             step++;
         }
 
-        console.log(`Finished Match ${m + 1}/${MATCH_COUNT} on ${mapName} (${step} steps, ${matchFailures} failures flagged)`);
+        console.log(`Finished Match ${m + 1}/${MATCH_COUNT} on ${mapName} (Seat P${studentPid}, ${step} steps, ${matchFailures} failures flagged)`);
     }
 
-    const failureLogPath = path.join(FAILURES_DIR, 'failure_windows.json');
+    const failureLogPath = path.join(failuresDir, 'failure_windows.json');
     writeFileSync(failureLogPath, JSON.stringify(recordedFailures, null, 2), 'utf8');
     console.log(`\n[R7-04 Failure Windows] Logged ${recordedFailures.length} failure events to: ${failureLogPath}`);
 
-    // Export DAgger dataset for fine-tuning
-    const daggerDatasetPath = path.join(DATASET_DIR, 'd_v7_dagger_round1.jsonl');
+    // Export DAgger dataset with isolated root families
+    const daggerDatasetPath = path.join(datasetDir, 'd_v7_dagger_round1.jsonl');
     const daggerStream = createWriteStream(daggerDatasetPath, { flags: 'w' });
 
-    // Also include a slice of original training dataset for stability
-    const baseDatasetPath = path.join(DATASET_DIR, 'd_v7_spatial.jsonl');
-    if (existsSync(baseDatasetPath)) {
-        const baseLines = readFileSync(baseDatasetPath, 'utf8').split('\n').filter(l => l.trim().length > 0);
-        const sampleLimit = Math.min(baseLines.length, 3000);
-        for (let i = 0; i < sampleLimit; i++) {
-            daggerStream.write(baseLines[i] + '\n');
-        }
+    // Load base split manifest if exists to prevent validation leakage into new training set
+    const baseManifestPath = path.join(runDir, 'split_manifest.json');
+    let trainRootSet = new Set<string>();
+    let valRootSet = new Set<string>();
+    if (existsSync(baseManifestPath)) {
+        const baseMan = JSON.parse(readFileSync(baseManifestPath, 'utf8'));
+        trainRootSet = new Set(baseMan.trainRootFamilies ?? []);
+        valRootSet = new Set(baseMan.valRootFamilies ?? []);
     }
 
-    // Append DAgger samples
-    for (const ds of daggerSamples) {
+    // Replay training partition and retain fixed validation partition from base dataset
+    const baseDatasetPath = path.join(datasetDir, 'd_v7_spatial.jsonl');
+    let baseReplayedCount = 0;
+    let baseValCount = 0;
+    if (existsSync(baseDatasetPath)) {
+        const baseLines = readFileSync(baseDatasetPath, 'utf8').split('\n').filter(l => l.trim().length > 0);
+        for (const line of baseLines) {
+            try {
+                const parsed = JSON.parse(line);
+                if (trainRootSet.has(parsed.rootFamilyId)) {
+                    daggerStream.write(line + '\n');
+                    baseReplayedCount++;
+                } else if (valRootSet.has(parsed.rootFamilyId)) {
+                    daggerStream.write(line + '\n');
+                    baseValCount++;
+                }
+            } catch {
+                // ignore
+            }
+        }
+    }
+    console.log(`[DAgger Replay] Retained ${baseReplayedCount} clean training samples and ${baseValCount} fixed validation samples (0 val leak)`);
+
+    const needValPartition = valRootSet.size === 0 && baseValCount === 0;
+    const daggerRoots: string[] = [];
+    // Append DAgger samples with distinct root families
+    for (let i = 0; i < daggerSamples.length; i++) {
+        const ds = daggerSamples[i];
         const eng = new GameEngine(ds.state);
         const legals = eng.getLegalActions(ds.playerId).filter(a => a.type !== 'surrender');
         const targetIdx = legals.findIndex(a => JSON.stringify(a) === JSON.stringify(ds.teacherAction));
@@ -380,10 +445,27 @@ export async function runStudentDiagnosticAndDAgger(options: {
             };
         });
 
+        const isVal = needValPartition && (i % 5 === 0);
+        const rootFamilyId = needValPartition
+            ? `root_dagger_${isVal ? 'val' : 'train'}_p${ds.playerId}_${ds.sourceFailureType.toLowerCase()}_${i}`
+            : `root_dagger_p${ds.playerId}_${ds.sourceFailureType.toLowerCase()}`;
+
+        if (isVal) {
+            if (!valRootSet.has(rootFamilyId)) {
+                valRootSet.add(rootFamilyId);
+                daggerRoots.push(rootFamilyId);
+            }
+        } else {
+            if (!trainRootSet.has(rootFamilyId)) {
+                trainRootSet.add(rootFamilyId);
+                daggerRoots.push(rootFamilyId);
+            }
+        }
+
         const daggerItem = {
             sampleId: ds.sampleId,
-            episodeId: 'dagger_ep',
-            rootFamilyId: 'dagger_root',
+            episodeId: `dagger_ep_${ds.sampleId}`,
+            rootFamilyId,
             scenarioGroup: `DAGGER_${ds.sourceFailureType}`,
             turn: ds.state.turn,
             step: 0,
@@ -398,17 +480,29 @@ export async function runStudentDiagnosticAndDAgger(options: {
     }
 
     await new Promise<void>(resolve => daggerStream.end(() => resolve()));
-    console.log(`[R7-04 DAgger Dataset] Created DAgger buffer dataset at: ${daggerDatasetPath}`);
+    console.log(`[R7-04 DAgger Dataset] Created DAgger buffer dataset at: ${daggerDatasetPath} (${daggerSamples.length} new samples)`);
 
-    // Fine-tune 1 round of DAgger
-    const daggerOutDir = path.join(CHECKPOINT_DIR, 'spatial_resnet_dagger');
+    // Output updated DAgger split manifest
+    const daggerSplitManifest = {
+        runId,
+        generatedAt: new Date().toISOString(),
+        trainRootFamilies: Array.from(trainRootSet),
+        valRootFamilies: Array.from(valRootSet),
+        daggerAddedRoots: daggerRoots
+    };
+    const daggerManifestPath = path.join(runDir, 'dagger_split_manifest.json');
+    writeFileSync(daggerManifestPath, JSON.stringify(daggerSplitManifest, null, 2), 'utf8');
+
+    // Fine-tune 1 round of DAgger with warm-start
+    const daggerOutDir = path.join(checkpointDir, 'spatial_resnet_dagger');
     mkdirSync(daggerOutDir, { recursive: true });
     const fineTunedModelPath = path.join(daggerOutDir, 'spatial_resnet_dagger_best.json');
     const fineTunedLastPath = path.join(daggerOutDir, 'spatial_resnet_dagger_last.json');
     const fineTunedMetricsPath = path.join(daggerOutDir, 'spatial_resnet_dagger_metrics.json');
+    const consumedManifestPath = path.join(daggerOutDir, 'consumed_samples_manifest.json');
 
-    console.log('\n[R7-04 DAgger Training] Executing 1 round of DAgger fine-tuning (2 epochs, lr=0.001)...');
-    const pyCmd = `python python/train_spatial_resnet.py --dataset "${daggerDatasetPath}" --epochs 2 --batch-size 64 --lr 0.001 --value-weight 0.0 --out-model "${fineTunedModelPath}" --out-last-model "${fineTunedLastPath}" --out-metrics "${fineTunedMetricsPath}" --model-version spatial-resnet-v2 --num-blocks 2`;
+    console.log('\n[R7-04 DAgger Training] Executing 1 round of DAgger warm-start fine-tuning (2 epochs, lr=0.001)...');
+    const pyCmd = `python python/train_spatial_resnet.py --dataset "${daggerDatasetPath}" --split-manifest "${daggerManifestPath}" --init-checkpoint "${options.studentModelPath}" --consumed-manifest "${consumedManifestPath}" --epochs 2 --batch-size 64 --lr 0.001 --value-weight 0.0 --out-model "${fineTunedModelPath}" --out-last-model "${fineTunedLastPath}" --out-metrics "${fineTunedMetricsPath}" --model-version spatial-resnet-v2 --num-blocks 2`;
     console.log(`Executing: ${pyCmd}`);
     execSync(pyCmd, { stdio: 'inherit' });
 
@@ -422,7 +516,19 @@ export async function runStudentDiagnosticAndDAgger(options: {
 
 const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectRun) {
-    const studentModelPath = path.join(CHECKPOINT_DIR, 'spatial_resnet/spatial_resnet_v2_best.json');
+    let runId: string | undefined;
+    const runIdIdx = process.argv.indexOf('--run-id');
+    if (runIdIdx !== -1 && process.argv[runIdIdx + 1]) {
+        runId = process.argv[runIdIdx + 1];
+    }
+
+    const checkpointDir = runId ? path.resolve(`training_runs/${runId}/checkpoints`) : CHECKPOINT_DIR;
+    let studentModelPath = path.join(checkpointDir, 'spatial_resnet/spatial_resnet_v2_best.json');
+    const modelIdx = process.argv.indexOf('--student-model');
+    if (modelIdx !== -1 && process.argv[modelIdx + 1]) {
+        studentModelPath = path.resolve(process.argv[modelIdx + 1]);
+    }
+
     if (!existsSync(studentModelPath)) {
         console.error(`Error: Student model not found at ${studentModelPath}. Run pipeline first.`);
         process.exit(1);
@@ -431,7 +537,8 @@ if (isDirectRun) {
     runStudentDiagnosticAndDAgger({
         studentModelPath,
         matchCount: 4,
-        maxStepsPerMatch: 60
+        maxStepsPerMatch: 60,
+        directories: runId ? { runId } : undefined
     }).catch(err => {
         console.error('Fatal error in DAgger run:', err);
         process.exit(1);
