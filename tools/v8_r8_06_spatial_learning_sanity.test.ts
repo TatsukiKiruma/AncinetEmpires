@@ -1,13 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import os from 'node:os';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
 import { generateV7Dataset, trainV7SpatialModel, trainV7NetAControl } from './v7_training_pipeline';
 
 describe('R8-06 Spatial ResNet v2 Learning Sanity & Finite Gradients', () => {
-    const testDir = path.resolve('training_runs/test_r8_06_sanity');
-    const testReportDir = path.resolve('docs/training/reports/test_r8_06_sanity');
+    // All scratch output goes to the platform temp directory and is removed in the finally block.
+    const tempRoot = mkdtempSync(path.join(os.tmpdir(), 'v8_r8_06_sanity_'));
+    const testDir = path.join(tempRoot, 'run');
+    const testReportDir = path.join(tempRoot, 'report');
     const testDirs = {
         runDir: testDir,
         reportDir: testReportDir,
@@ -141,9 +143,9 @@ describe('R8-06 Spatial ResNet v2 Learning Sanity & Finite Gradients', () => {
         } finally {
             // Cleanup completely
             try {
-                const fs = await import('node:fs');
-                fs.rmSync(testDir, { recursive: true, force: true });
-                fs.rmSync(testReportDir, { recursive: true, force: true });
+                rmSync(testDir, { recursive: true, force: true });
+                rmSync(testReportDir, { recursive: true, force: true });
+                rmSync(tempRoot, { recursive: true, force: true });
             } catch {}
         }
     }, 180000); // Allow up to 3 mins for PyTorch CPU training

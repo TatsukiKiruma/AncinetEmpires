@@ -21,7 +21,10 @@ import { encodeGameStateSpatial, encodeCandidateActionSpatial } from '../src/gam
 
 export interface BoundedSearchBudget {
     maxNodes?: number;
+    /** Soft search budget. Once exceeded, the search stops expanding but still keeps a real evaluated candidate when possible. */
     maxMs?: number;
+    /** Absolute emergency ceiling. Only a hard breach permits returning the heuristic top action without any candidate trace. */
+    hardMaxMs?: number;
 }
 
 export interface CandidateFilteringOptions {
@@ -43,6 +46,7 @@ export interface SearchTraceItem {
     opponentSteps: number;
     oppAttackCovered: boolean;
     spatialPriorLogit?: number;
+    shallowEvaluation?: boolean;
 }
 
 export interface BoundedSearchResult {
@@ -55,6 +59,33 @@ export interface BoundedSearchResult {
     traces: SearchTraceItem[];
     wallClockExceeded?: boolean;
     deadlineFallbackCount?: number;
+    candidatesEvaluated?: number;
+    shallowEvaluations?: number;
+}
+
+/**
+ * Deterministically pick the HeuristicAI top action from precomputed candidate scores.
+ * This mirrors HeuristicAI.getAction's urgent-action then non-surrender ordering without
+ * paying for a second full scoring pass (the default AI's own behaviour is unchanged).
+ */
+export function selectHeuristicTopAction(
+    scored: ReadonlyArray<{ action: Action; score: number }>,
+    legalActions: readonly Action[]
+): Action {
+    const pickBest = (items: ReadonlyArray<{ action: Action; score: number }>): Action | null => {
+        let best: { action: Action; score: number } | null = null;
+        for (const item of items) {
+            if (!best || item.score > best.score) {
+                best = item;
+            }
+        }
+        return best ? best.action : null;
+    };
+    const urgent = pickBest(scored.filter(item => item.score >= 50000));
+    if (urgent) return urgent;
+    const nonSurrender = pickBest(scored.filter(item => item.action.type !== 'surrender'));
+    if (nonSurrender) return nonSurrender;
+    return legalActions[0] ?? { type: 'end_turn' };
 }
 
 /**
@@ -233,7 +264,8 @@ export function getFilteredCandidateActions(
     playerId: number,
     heuristicAi: HeuristicAI,
     spatialPredictor?: SpatialResNetPredictor,
-    options?: number | CandidateFilteringOptions
+    options?: number | CandidateFilteringOptions,
+    precomputedHeuristicScores?: ReadonlyArray<{ action: Action; score: number }>
 ): Action[] {
     const legal = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
     if (legal.length <= 1) return legal;
@@ -248,8 +280,12 @@ export function getFilteredCandidateActions(
     const heuristicQuota = opts.heuristicQuota ?? 4;
     const actionMap = new Map<string, Action>();
 
-    // 1. Quota: Always include the HeuristicAI's top recommendation (1 slot)
-    const heuristicTop = heuristicAi.getAction(engine, playerId, legal);
+    // One full HeuristicAI scoring pass is reused for the fallback top action, the fill quota,
+    // and the caller's own fallback selection. No second scoring pass and no duplicated state copy.
+    const scoredHeuristic = precomputedHeuristicScores
+        ? [...precomputedHeuristicScores]
+        : heuristicAi.scoreCandidateActions(engine, playerId, legal);
+    const heuristicTop = selectHeuristicTopAction(scoredHeuristic, legal);
     actionMap.set(encodeAction(heuristicTop), heuristicTop);
 
     // 2. Quota: High-priority tactical actions: commander recruit, attacks, captures, castle unblock
@@ -302,7 +338,6 @@ export function getFilteredCandidateActions(
 
     // 4. Quota: Fill remaining budget with top actions scored by HeuristicAI up to heuristicQuota
     if (actionMap.size < maxTotal && heuristicQuota > 0) {
-        const scoredHeuristic = heuristicAi.scoreCandidateActions(engine, playerId, legal);
         scoredHeuristic.sort((a, b) => b.score - a.score);
         let heuristicAdded = 0;
         for (const item of scoredHeuristic) {
@@ -319,7 +354,15 @@ export function getFilteredCandidateActions(
 }
 
 /**
- * Execute Bounded Adversarial Search (S00 or S10) with strict runtime gate
+ * Execute Bounded Adversarial Search (S00 or S10) with a strict runtime gate.
+ *
+ * Deadline semantics:
+ * - maxMs is the soft search budget. When it expires the search stops expanding.
+ * - hardMaxMs is the absolute emergency ceiling. Only a hard breach may return the
+ *   HeuristicAI top action without evaluating any candidate (deadlineFallbackCount).
+ * - Before the hard ceiling, at least one candidate is always shallow-evaluated even
+ *   when the soft budget has already expired, so the runtime gate can never regress
+ *   to 100% heuristic action replacement during normal operation.
  */
 export function runBoundedSearch(
     engine: GameEngine,
@@ -338,21 +381,26 @@ export function runBoundedSearch(
     } = {}
 ): BoundedSearchResult {
     const startMs = performance.now();
-    const maxMs = options.budget?.maxMs ?? 700; // default 700ms
+    const maxMs = options.budget?.maxMs ?? 700;
+    const hardMaxMs = options.budget?.hardMaxMs ?? maxMs;
     const maxNodes = options.budget?.maxNodes ?? 40;
     const maxDepth = options.maxDepth ?? 8;
     const heuristicAi = options.heuristicAi ?? new HeuristicAI();
 
     let deadlineFallbackCount = 0;
     let wallClockExceeded = false;
+    let candidatesEvaluated = 0;
+    let shallowEvaluations = 0;
 
-    const checkDeadline = (): boolean => {
-        if (performance.now() - startMs >= maxMs) {
+    const elapsedMs = (): number => performance.now() - startMs;
+    const checkSoftDeadline = (): boolean => {
+        if (elapsedMs() >= maxMs) {
             wallClockExceeded = true;
             return true;
         }
         return false;
     };
+    const checkHardDeadline = (): boolean => elapsedMs() >= hardMaxMs;
 
     const legalActions = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
     if (legalActions.length === 0) {
@@ -361,33 +409,55 @@ export function runBoundedSearch(
             chosenActionCode: encodeAction({ type: 'end_turn' }),
             bestScore: 0,
             totalNodes: 0,
-            elapsedMs: performance.now() - startMs,
+            elapsedMs: elapsedMs(),
             budgetReason: 'completed',
             traces: [],
             wallClockExceeded: false,
-            deadlineFallbackCount: 0
+            deadlineFallbackCount: 0,
+            candidatesEvaluated: 0,
+            shallowEvaluations: 0
         };
     }
 
-    // Heuristic top action cached for safe fallback if search times out before completing any candidate
-    const heuristicTopAction = heuristicAi.getAction(engine, playerId, legalActions);
+    // Single cached scoring pass: supplies the safe fallback action, candidate filtering,
+    // and the fill quota. This removes the previous duplicate HeuristicAI scoring + state copy.
+    const heuristicScores = heuristicAi.scoreCandidateActions(engine, playerId, legalActions);
+    const heuristicTopAction = selectHeuristicTopAction(heuristicScores, legalActions);
 
-    if (checkDeadline()) {
+    const emergencyFallback = (): BoundedSearchResult => {
         deadlineFallbackCount++;
+        wallClockExceeded = true;
         return {
             chosenAction: heuristicTopAction,
             chosenActionCode: encodeAction(heuristicTopAction),
             bestScore: 0,
             totalNodes: 0,
-            elapsedMs: performance.now() - startMs,
+            elapsedMs: elapsedMs(),
             budgetReason: 'timeout',
             traces: [],
             wallClockExceeded: true,
-            deadlineFallbackCount
+            deadlineFallbackCount,
+            candidatesEvaluated: 0,
+            shallowEvaluations: 0
         };
+    };
+
+    if (checkHardDeadline()) {
+        return emergencyFallback();
     }
 
-    const candidates = getFilteredCandidateActions(engine, playerId, heuristicAi, options.spatialPredictor, options.quotas);
+    const candidates = getFilteredCandidateActions(
+        engine,
+        playerId,
+        heuristicAi,
+        options.spatialPredictor,
+        options.quotas,
+        heuristicScores
+    );
+
+    if (checkHardDeadline()) {
+        return emergencyFallback();
+    }
 
     if (candidates.length === 0) {
         return {
@@ -395,11 +465,13 @@ export function runBoundedSearch(
             chosenActionCode: encodeAction(heuristicTopAction),
             bestScore: 0,
             totalNodes: 0,
-            elapsedMs: performance.now() - startMs,
+            elapsedMs: elapsedMs(),
             budgetReason: 'completed',
             traces: [],
             wallClockExceeded: false,
-            deadlineFallbackCount: 0
+            deadlineFallbackCount: 0,
+            candidatesEvaluated: 0,
+            shallowEvaluations: 0
         };
     }
 
@@ -410,14 +482,23 @@ export function runBoundedSearch(
     let stopReason: 'completed' | 'timeout' | 'node_limit' = 'completed';
 
     for (const cand of candidates) {
-        if (checkDeadline()) {
-            stopReason = 'timeout';
-            break;
-        }
         if (nodesExplored >= maxNodes) {
             stopReason = 'node_limit';
             break;
         }
+
+        const softExpiredBeforeCandidate = checkSoftDeadline();
+        if (softExpiredBeforeCandidate && candidatesEvaluated > 0) {
+            stopReason = 'timeout';
+            break;
+        }
+        if (softExpiredBeforeCandidate && checkHardDeadline()) {
+            stopReason = 'timeout';
+            break;
+        }
+
+        // Only shallow-evaluate this candidate when the soft budget was already exhausted.
+        const shallowOnly = softExpiredBeforeCandidate;
 
         const simEngine = engine.clone();
         simEngine.step(cand);
@@ -429,29 +510,34 @@ export function runBoundedSearch(
         let turnHandover = false;
         let opponentSteps = 0;
         let oppAttackCovered = false;
+        let usedShallowEvaluation = shallowOnly;
 
         if (simEngine.isTerminal()) {
-            if (checkDeadline()) {
-                stopReason = 'timeout';
-                break;
-            }
             leafScore = evaluatePositionHeuristic(simEngine.getState(), playerId);
+        } else if (shallowOnly || checkHardDeadline()) {
+            leafScore = evaluatePositionHeuristic(simEngine.getState(), playerId);
+            shallowEvaluations++;
+            usedShallowEvaluation = true;
         } else {
-            // 1. Friendly turn completion: roll out with HeuristicAI until natural handover, budget, maxDepth, or deadline
+            // 1. Friendly turn completion: bounded rollout with HeuristicAI.
             let friendlySteps = 0;
             let friendlyAborted = false;
             while (!simEngine.isTerminal() && simEngine.getState().currentPlayer === playerId && friendlySteps < 4 && depth < maxDepth) {
-                if (checkDeadline()) {
-                    stopReason = 'timeout';
+                if (checkHardDeadline()) {
                     friendlyAborted = true;
                     break;
                 }
                 if (nodesExplored >= maxNodes) {
                     stopReason = 'node_limit';
+                    friendlyAborted = true;
                     break;
                 }
                 const followActions = simEngine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
                 if (followActions.length === 0) break;
+                if (checkSoftDeadline()) {
+                    friendlyAborted = true;
+                    break;
+                }
                 const followAction = heuristicAi.getAction(simEngine, playerId, followActions);
                 simEngine.step(followAction);
                 nodesExplored++;
@@ -459,30 +545,34 @@ export function runBoundedSearch(
                 friendlySteps++;
             }
 
-            if (friendlyAborted) {
-                break;
-            }
-
-            // 2. Opponent response simulation: roll out opponent move-then-attack chain
-            const oppState = simEngine.getState();
-            if (!simEngine.isTerminal() && oppState.currentPlayer !== playerId && depth < maxDepth) {
+            // 2. Opponent response simulation.
+            if (!friendlyAborted && !simEngine.isTerminal() && simEngine.getState().currentPlayer !== playerId && depth < maxDepth) {
                 reachedOpponent = true;
                 turnHandover = true;
-                const oppId = oppState.currentPlayer;
+                const oppId = simEngine.getState().currentPlayer;
                 for (let s = 0; s < 5 && !simEngine.isTerminal() && simEngine.getState().currentPlayer === oppId && depth < maxDepth; s++) {
-                    if (checkDeadline()) {
-                        stopReason = 'timeout';
+                    if (checkHardDeadline()) {
+                        friendlyAborted = true;
                         break;
                     }
                     if (nodesExplored >= maxNodes) {
                         stopReason = 'node_limit';
+                        friendlyAborted = true;
                         break;
                     }
                     const oppActions = simEngine.getLegalActions(oppId).filter(a => a.type !== 'surrender');
                     if (oppActions.length === 0) break;
-                    // Prioritize tactical attack response to test exposure
                     const attackAct = oppActions.find(a => a.type === 'attack');
-                    const oppAct = attackAct ?? heuristicAi.getAction(simEngine, oppId, oppActions);
+                    let oppAct: Action;
+                    if (attackAct) {
+                        oppAct = attackAct;
+                    } else {
+                        if (checkSoftDeadline()) {
+                            friendlyAborted = true;
+                            break;
+                        }
+                        oppAct = heuristicAi.getAction(simEngine, oppId, oppActions);
+                    }
                     simEngine.step(oppAct);
                     nodesExplored++;
                     depth++;
@@ -494,11 +584,12 @@ export function runBoundedSearch(
                 }
             }
 
-            if (checkDeadline()) {
-                stopReason = 'timeout';
-                break;
+            if (checkHardDeadline()) {
+                shallowEvaluations++;
+                usedShallowEvaluation = true;
             }
-
+            // Leaf evaluation always happens for a started candidate, so a soft deadline
+            // cannot abort a candidate without recording at least one real trace.
             leafScore = evaluatePositionHeuristic(simEngine.getState(), playerId);
         }
 
@@ -514,13 +605,20 @@ export function runBoundedSearch(
                 reachedOpponent,
                 turnHandover,
                 opponentSteps,
-                oppAttackCovered
+                oppAttackCovered,
+                shallowEvaluation: usedShallowEvaluation
             });
+            candidatesEvaluated++;
 
             if (leafScore > bestScore) {
                 bestScore = leafScore;
                 bestAction = cand;
             }
+        }
+
+        if (checkSoftDeadline()) {
+            stopReason = 'timeout';
+            break;
         }
     }
 
@@ -528,7 +626,6 @@ export function runBoundedSearch(
         wallClockExceeded = true;
     }
 
-    // If deadline expired before any candidate was completely evaluated, fallback to heuristic top action
     let chosenAction: Action;
     if (bestAction !== null) {
         chosenAction = bestAction;
@@ -538,16 +635,17 @@ export function runBoundedSearch(
         deadlineFallbackCount++;
     }
 
-    const elapsedMs = performance.now() - startMs;
     return {
         chosenAction,
         chosenActionCode: encodeAction(chosenAction),
         bestScore,
         totalNodes: nodesExplored,
-        elapsedMs,
+        elapsedMs: elapsedMs(),
         budgetReason: stopReason,
         traces,
         wallClockExceeded,
-        deadlineFallbackCount
+        deadlineFallbackCount,
+        candidatesEvaluated,
+        shallowEvaluations
     };
 }

@@ -39,6 +39,7 @@ import {
 } from './skirmish_dual_head_net';
 import { encodeGameState, encodeGameActionV2 } from './skirmish_network_features';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
+import { resolveTorchPython } from './v8_python_env';
 
 const RUN_ID = 'agent_upgrade_20260921_v7_01';
 const REPORT_DIR = path.resolve(`docs/training/reports/${RUN_ID}`);
@@ -737,8 +738,11 @@ export async function trainV7SpatialModel(
     const batchSize = options?.batchSize ?? 64;
     const lr = options?.lr ?? 0.002;
     const manifestArg = splitManifestPath ? ` --split-manifest "${splitManifestPath}"` : '';
-    const pyCmd = `python python/train_spatial_resnet.py --dataset "${datasetPath}" --epochs ${epochs} --batch-size ${batchSize} --lr ${lr} --value-weight 0.0 --out-model "${bestModelPath}" --out-last-model "${lastModelPath}" --out-metrics "${metricsPath}" --consumed-manifest "${consumedManifestPath}" --model-version spatial-resnet-v2 --num-blocks 2${manifestArg}`;
-    console.log(`Executing: ${pyCmd}`);
+    // Resolve an interpreter that actually has torch: `python` on PATH is not always the one that
+    // trained the checkpoints. When it is, the resolved command is exactly `python`.
+    const { pythonCommand, torchVersion } = resolveTorchPython();
+    const pyCmd = `${pythonCommand} python/train_spatial_resnet.py --dataset "${datasetPath}" --epochs ${epochs} --batch-size ${batchSize} --lr ${lr} --value-weight 0.0 --out-model "${bestModelPath}" --out-last-model "${lastModelPath}" --out-metrics "${metricsPath}" --consumed-manifest "${consumedManifestPath}" --model-version spatial-resnet-v2 --num-blocks 2${manifestArg}`;
+    console.log(`Executing (interpreter ${pythonCommand}, torch ${torchVersion}): ${pyCmd}`);
     execSync(pyCmd, { stdio: 'inherit' });
 
     console.log(`\n[V7 Spatial Checkpoint] Saved best to: ${bestModelPath}`);

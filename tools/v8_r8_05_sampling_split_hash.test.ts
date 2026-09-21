@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import * as fs from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import * as path from 'node:path';
+import * as os from 'node:os';
 import { GameEngine } from '../src/game/engine';
 import { createDemoState } from '../src/game/demo_map';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
@@ -136,8 +138,10 @@ describe('R8-05 Behavioral State Hashing, Split Manifest & Curriculum', () => {
 
     it('R8-05-D: Real dataset generation produces verified Curriculum E, isolated split manifest, and matches current runId', async () => {
         const testRunId = `test_r8_05_integration_${Date.now()}`;
-        const tempBaseDir = path.resolve(`training_runs/${testRunId}`);
-        const tempReportDir = path.resolve(`training_runs/${testRunId}_reports`);
+        // Scratch output goes to the platform temp directory and is removed at the end of the test.
+        const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'v8_r8_05_'));
+        const tempBaseDir = path.join(tempRoot, testRunId);
+        const tempReportDir = path.join(tempRoot, `${testRunId}_reports`);
 
         try {
             const genResult = await generateV7Dataset({
@@ -193,6 +197,7 @@ describe('R8-05 Behavioral State Hashing, Split Manifest & Curriculum', () => {
             }
         } finally {
             // Clean up temporary test directories completely
+            try { fs.rmSync(tempRoot, { recursive: true, force: true }); } catch {}
             try { fs.rmSync(tempBaseDir, { recursive: true, force: true }); } catch {}
             try { fs.rmSync(tempReportDir, { recursive: true, force: true }); } catch {}
         }
@@ -219,15 +224,13 @@ describe('R8-05 Behavioral State Hashing, Split Manifest & Curriculum', () => {
             }
         ];
 
-        const path = await import('node:path');
-        const testNetADir = path.resolve('training_runs/test_r8_05_net_a');
+        const testNetADir = mkdtempSync(path.join(os.tmpdir(), 'v8_r8_05_net_a_'));
         const res = await trainV7NetAControl(mockSamples, undefined, { checkpointDir: testNetADir });
         expect(res.checkpointPath).toBeDefined();
 
-        const fs = await import('node:fs');
-        const checkpoint = JSON.parse(fs.readFileSync(res.checkpointPath, 'utf8'));
+        const checkpoint = JSON.parse(readFileSync(res.checkpointPath, 'utf8'));
         // Clean up test folder
-        try { fs.rmSync(testNetADir, { recursive: true, force: true }); } catch {}
+        try { rmSync(testNetADir, { recursive: true, force: true }); } catch {}
         // Verify every parameter array is strictly finite (no null, no NaN)
         for (const [key, val] of Object.entries(checkpoint)) {
             if (Array.isArray(val)) {

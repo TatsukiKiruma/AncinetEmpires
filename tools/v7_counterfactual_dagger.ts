@@ -16,11 +16,13 @@
  * 5. Pre vs Post DAgger evaluation comparison
  */
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync, createWriteStream } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, createWriteStream, createReadStream } from 'node:fs';
+import readline from 'node:readline';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { resolveTorchPython } from './v8_python_env';
 
 import { GameEngine } from '../src/game/engine';
 import { createAppApkSkirmishGameState } from '../src/game/apk_skirmish_map_assets';
@@ -260,16 +262,81 @@ function runCounterfactualReplay(
     return { scoreA, scoreB, scoreC };
 }
 
-export async function runStudentDiagnosticAndDAgger(options: {
+export interface DAggerRunOptions {
     studentModelPath: string;
     matchCount?: number;
     maxStepsPerMatch?: number;
     directories?: DAggerDirectories;
-}): Promise<{
+    /**
+     * Read-only base dataset whose train+val rows are replayed into the DAgger buffer.
+     * Defaults to `<datasetDir>/d_v7_spatial.jsonl`. The file is streamed, never fully buffered,
+     * so pointing it at a multi-hundred-megabyte dataset is safe.
+     */
+    baseDatasetPath?: string;
+    /** Split manifest that defines the train/val root families. Defaults to `<runDir>/split_manifest.json`. */
+    splitManifestPath?: string;
+    /** Output file name for the DAgger buffer. Defaults to d_v7_dagger_round1.jsonl. */
+    daggerDatasetFileName?: string;
+    /** Label recorded in the returned summary (e.g. "round2"). */
+    roundLabel?: string;
+    /** Warm-start fine-tuning epochs. Defaults to 2. */
+    fineTuneEpochs?: number;
+    /** Warm-start fine-tuning batch size. Defaults to 64. */
+    fineTuneBatchSize?: number;
+    /** Maps used for the diagnostic matches. Defaults to the three development maps. */
+    maps?: string[];
+    /** Base seed for the opponent HeuristicAI PRNG stream. Defaults to 1000. */
+    opponentSeedBase?: number;
+    /** Base seed for the counterfactual replay PRNG stream. Defaults to 20000. */
+    replaySeedBase?: number;
+    /** Seat offset so a later round can start from the opposite seat. Defaults to 0. */
+    seatOffset?: number;
+    /** Python interpreter for warm-start fine-tuning. Resolved automatically when omitted. */
+    pythonExecutable?: string;
+}
+
+export interface DAggerRunResult {
     failures: FailureWindowRecord[];
+    failureTypeCounts: Record<string, number>;
+    policyDivergenceOnly: boolean;
+    correctionSignalNote: string;
     daggerDatasetPath: string;
     fineTunedModelPath?: string;
-}> {
+    baseDatasetPath: string | null;
+    baseDatasetRowsRead: number;
+    baseTrainRowsRetained: number;
+    baseValRowsRetained: number;
+    daggerSampleRowsAppended: number;
+    daggerDatasetRows: number;
+    daggerAddedRootCount: number;
+    splitManifestPath: string;
+    daggerSplitManifestPath: string;
+    baseModelSha256: string;
+    daggerSha256: string | null;
+    roundLabel: string;
+    pythonCommand: string;
+    torchVersion: string;
+}
+
+function sha256OfFileContent(filePath: string): string {
+    return createHash('sha256').update(readFileSync(filePath)).digest('hex');
+}
+
+/**
+ * Resolve a Python interpreter that actually has torch + numpy available.
+ * Delegates to tools/v8_python_env.ts and is re-exported here for callers that already import
+ * this module.
+ */
+export { resolveTorchPython };
+
+/** Write to a stream honouring backpressure so large dataset copies stay bounded in memory. */
+async function writeWithBackpressure(stream: NodeJS.WritableStream, chunk: string): Promise<void> {
+    if (!stream.write(chunk)) {
+        await new Promise<void>(resolve => stream.once('drain', () => resolve()));
+    }
+}
+
+export async function runStudentDiagnosticAndDAgger(options: DAggerRunOptions): Promise<DAggerRunResult> {
     const modelJson = readFileSync(options.studentModelPath, 'utf8');
     const weights = loadSpatialResNetFromJson(modelJson);
     const predictor = new SpatialResNetPredictor(weights);
@@ -289,7 +356,10 @@ export async function runStudentDiagnosticAndDAgger(options: {
 
     const MATCH_COUNT = options.matchCount ?? 6;
     const MAX_STEPS = options.maxStepsPerMatch ?? 80;
-    const MAPS = ['(2) Duel.aem', '(2) Crossed swords.aem', '(2) Icy Paths.aem'];
+    const MAPS = options.maps ?? ['(2) Duel.aem', '(2) Crossed swords.aem', '(2) Icy Paths.aem'];
+    const opponentSeedBase = options.opponentSeedBase ?? 1000;
+    const replaySeedBase = options.replaySeedBase ?? 20000;
+    const seatOffset = options.seatOffset ?? 0;
 
     const recordedFailures: FailureWindowRecord[] = [];
     const daggerSamples: DAggerSample[] = [];
@@ -300,12 +370,12 @@ export async function runStudentDiagnosticAndDAgger(options: {
 
     for (let m = 0; m < MATCH_COUNT; m++) {
         const mapName = MAPS[m % MAPS.length];
-        const studentPid = m % 2; // Support both seats (P0 and P1)
+        const studentPid = (m + seatOffset) % 2; // Support both seats (P0 and P1)
         const oppPid = 1 - studentPid;
         const state = createAppApkSkirmishGameState(mapName, 'SD');
         (state as any).mapName = mapName;
         const engine = new GameEngine(state);
-        const oppHeuristic = new HeuristicAI(createPrng(1000 + m));
+        const oppHeuristic = new HeuristicAI(createPrng(opponentSeedBase + m));
 
         let step = 0;
         let matchFailures = 0;
@@ -321,7 +391,7 @@ export async function runStudentDiagnosticAndDAgger(options: {
                 if (detection.isFailure && detection.failureType) {
                     const stHash = getStateHash(engine.getState(), studentPid);
                     // Perform 3-way counterfactual replay with deterministic RNG boundary
-                    const replaySeed = 20000 + m * 1000 + step;
+                    const replaySeed = replaySeedBase + m * 1000 + step;
                     const replay = runCounterfactualReplay(
                         engine.getState(),
                         studentPid,
@@ -387,44 +457,57 @@ export async function runStudentDiagnosticAndDAgger(options: {
     console.log(`\n[R7-04 Failure Windows] Logged ${recordedFailures.length} failure events to: ${failureLogPath}`);
 
     // Export DAgger dataset with isolated root families
-    const daggerDatasetPath = path.join(datasetDir, 'd_v7_dagger_round1.jsonl');
+    const daggerDatasetFileName = options.daggerDatasetFileName ?? 'd_v7_dagger_round1.jsonl';
+    const daggerDatasetPath = path.join(datasetDir, daggerDatasetFileName);
     const daggerStream = createWriteStream(daggerDatasetPath, { flags: 'w' });
 
     // Load base split manifest if exists to prevent validation leakage into new training set
-    const baseManifestPath = path.join(runDir, 'split_manifest.json');
+    const splitManifestPath = options.splitManifestPath ?? path.join(runDir, 'split_manifest.json');
     let trainRootSet = new Set<string>();
     let valRootSet = new Set<string>();
-    if (existsSync(baseManifestPath)) {
-        const baseMan = JSON.parse(readFileSync(baseManifestPath, 'utf8'));
+    if (existsSync(splitManifestPath)) {
+        const baseMan = JSON.parse(readFileSync(splitManifestPath, 'utf8'));
         trainRootSet = new Set(baseMan.trainRootFamilies ?? []);
         valRootSet = new Set(baseMan.valRootFamilies ?? []);
     }
 
-    // Replay training partition and retain fixed validation partition from base dataset
-    const baseDatasetPath = path.join(datasetDir, 'd_v7_spatial.jsonl');
+    // Replay the training partition and retain the fixed validation partition from the base dataset.
+    // The base dataset is streamed line by line: it can be hundreds of megabytes.
+    const baseDatasetPath = options.baseDatasetPath ?? path.join(datasetDir, 'd_v7_spatial.jsonl');
     let baseReplayedCount = 0;
     let baseValCount = 0;
+    let baseDatasetRowsRead = 0;
+    let daggerDatasetRows = 0;
     if (existsSync(baseDatasetPath)) {
-        const baseLines = readFileSync(baseDatasetPath, 'utf8').split('\n').filter(l => l.trim().length > 0);
-        for (const line of baseLines) {
+        const baseReader = readline.createInterface({
+            input: createReadStream(baseDatasetPath, { encoding: 'utf8' }),
+            crlfDelay: Infinity
+        });
+        for await (const line of baseReader) {
+            if (!line.trim()) continue;
+            baseDatasetRowsRead++;
             try {
                 const parsed = JSON.parse(line);
                 if (trainRootSet.has(parsed.rootFamilyId)) {
-                    daggerStream.write(line + '\n');
+                    await writeWithBackpressure(daggerStream, line + '\n');
                     baseReplayedCount++;
+                    daggerDatasetRows++;
                 } else if (valRootSet.has(parsed.rootFamilyId)) {
-                    daggerStream.write(line + '\n');
+                    await writeWithBackpressure(daggerStream, line + '\n');
                     baseValCount++;
+                    daggerDatasetRows++;
                 }
             } catch {
-                // ignore
+                // ignore malformed legacy rows
             }
         }
     }
     console.log(`[DAgger Replay] Retained ${baseReplayedCount} clean training samples and ${baseValCount} fixed validation samples (0 val leak)`);
+    console.log(`[DAgger Replay] Base dataset rows read: ${baseDatasetRowsRead} from ${baseDatasetPath}`);
 
     const needValPartition = valRootSet.size === 0 && baseValCount === 0;
     const daggerRoots: string[] = [];
+    let daggerSampleRowsAppended = 0;
     // Append DAgger samples with distinct root families
     for (let i = 0; i < daggerSamples.length; i++) {
         const ds = daggerSamples[i];
@@ -476,7 +559,9 @@ export async function runStudentDiagnosticAndDAgger(options: {
             candidateActions: candSpatial,
             valueTarget: null
         };
-        daggerStream.write(JSON.stringify(daggerItem) + '\n');
+        await writeWithBackpressure(daggerStream, JSON.stringify(daggerItem) + '\n');
+        daggerDatasetRows++;
+        daggerSampleRowsAppended++;
     }
 
     await new Promise<void>(resolve => daggerStream.end(() => resolve()));
@@ -486,6 +571,9 @@ export async function runStudentDiagnosticAndDAgger(options: {
     const daggerSplitManifest = {
         runId,
         generatedAt: new Date().toISOString(),
+        roundLabel: options.roundLabel ?? 'round1',
+        studentModelPath: options.studentModelPath,
+        baseDatasetPath,
         trainRootFamilies: Array.from(trainRootSet),
         valRootFamilies: Array.from(valRootSet),
         daggerAddedRoots: daggerRoots
@@ -500,17 +588,58 @@ export async function runStudentDiagnosticAndDAgger(options: {
     const fineTunedLastPath = path.join(daggerOutDir, 'spatial_resnet_dagger_last.json');
     const fineTunedMetricsPath = path.join(daggerOutDir, 'spatial_resnet_dagger_metrics.json');
     const consumedManifestPath = path.join(daggerOutDir, 'consumed_samples_manifest.json');
+    const fineTuneEpochs = options.fineTuneEpochs ?? 2;
+    const fineTuneBatchSize = options.fineTuneBatchSize ?? 64;
+    const { pythonCommand, torchVersion } = resolveTorchPython(options.pythonExecutable);
 
-    console.log('\n[R7-04 DAgger Training] Executing 1 round of DAgger warm-start fine-tuning (2 epochs, lr=0.001)...');
-    const pyCmd = `python python/train_spatial_resnet.py --dataset "${daggerDatasetPath}" --split-manifest "${daggerManifestPath}" --init-checkpoint "${options.studentModelPath}" --consumed-manifest "${consumedManifestPath}" --epochs 2 --batch-size 64 --lr 0.001 --value-weight 0.0 --out-model "${fineTunedModelPath}" --out-last-model "${fineTunedLastPath}" --out-metrics "${fineTunedMetricsPath}" --model-version spatial-resnet-v2 --num-blocks 2`;
+    console.log(`\n[R7-04 DAgger Training] Executing 1 round of DAgger warm-start fine-tuning (${fineTuneEpochs} epochs, lr=0.001)...`);
+    console.log(`[R7-04 DAgger Training] Interpreter: ${pythonCommand} (torch ${torchVersion})`);
+    const pyCmd = `${pythonCommand} python/train_spatial_resnet.py --dataset "${daggerDatasetPath}" --split-manifest "${daggerManifestPath}" --init-checkpoint "${options.studentModelPath}" --consumed-manifest "${consumedManifestPath}" --epochs ${fineTuneEpochs} --batch-size ${fineTuneBatchSize} --lr 0.001 --value-weight 0.0 --out-model "${fineTunedModelPath}" --out-last-model "${fineTunedLastPath}" --out-metrics "${fineTunedMetricsPath}" --model-version spatial-resnet-v2 --num-blocks 2`;
     console.log(`Executing: ${pyCmd}`);
     execSync(pyCmd, { stdio: 'inherit' });
 
-    console.log(`\n✅ [R7-04 DAgger Round 1 Complete] Checkpoint: ${fineTunedModelPath}`);
+    const baseModelSha256 = sha256OfFileContent(options.studentModelPath);
+    const daggerSha256 = existsSync(fineTunedModelPath) ? sha256OfFileContent(fineTunedModelPath) : null;
+
+    const failureTypeCounts: Record<string, number> = {};
+    for (const f of recordedFailures) {
+        failureTypeCounts[f.failureType] = (failureTypeCounts[f.failureType] ?? 0) + 1;
+    }
+    const nonDivergence = recordedFailures.filter(f => f.failureType !== 'POLICY_DIVERGENCE').length;
+    const policyDivergenceOnly = recordedFailures.length > 0 && nonDivergence === 0;
+    const correctionSignalNote = policyDivergenceOnly
+        ? `All ${recordedFailures.length} failure windows are POLICY_DIVERGENCE: each was confirmed only by the 3-way counterfactual replay ` +
+          `(scoreB > scoreA or scoreC > scoreA). No structural blunder class (MISSED_REHIRE, CASTLE_BLOCKED, SUICIDE_ATTACK, ` +
+          `TACTICAL_DEFENSE_BLUNDER) was detected. A divergence-only correction set is a weaker signal than a mixed failure set: it shows the ` +
+          `student deviates from the teacher on states the teacher's one-step/rollout value favours, but it does not by itself prove the student ` +
+          `committed a tactical error. It is therefore reported as a divergence-correction set, not as verified blunder repair.`
+        : `${recordedFailures.length} failure windows: ${nonDivergence} structural blunder(s) plus ` +
+          `${recordedFailures.length - nonDivergence} POLICY_DIVERGENCE window(s).`;
+    console.log(`\n[R7-04 DAgger ${options.roundLabel ?? 'round1'} Complete] Checkpoint: ${fineTunedModelPath}`);
+    console.log(`[R7-04] Base SHA ${baseModelSha256} | DAgger SHA ${daggerSha256} | distinct: ${baseModelSha256 !== daggerSha256}`);
+    console.log(`[R7-04] Failure types: ${JSON.stringify(failureTypeCounts)}`);
+
     return {
         failures: recordedFailures,
+        failureTypeCounts,
+        policyDivergenceOnly,
+        correctionSignalNote,
         daggerDatasetPath,
-        fineTunedModelPath
+        fineTunedModelPath,
+        baseDatasetPath: existsSync(baseDatasetPath) ? baseDatasetPath : null,
+        baseDatasetRowsRead,
+        baseTrainRowsRetained: baseReplayedCount,
+        baseValRowsRetained: baseValCount,
+        daggerSampleRowsAppended,
+        daggerDatasetRows,
+        daggerAddedRootCount: daggerRoots.length,
+        splitManifestPath,
+        daggerSplitManifestPath: daggerManifestPath,
+        baseModelSha256,
+        daggerSha256,
+        roundLabel: options.roundLabel ?? 'round1',
+        pythonCommand,
+        torchVersion
     };
 }
 
@@ -534,11 +663,29 @@ if (isDirectRun) {
         process.exit(1);
     }
 
+    const readFlag = (name: string): string | undefined => {
+        const idx = process.argv.indexOf(name);
+        return idx !== -1 && process.argv[idx + 1] ? process.argv[idx + 1] : undefined;
+    };
+
+    const baseDatasetIdx = process.argv.indexOf('--base-dataset');
+    const splitManifestIdx = process.argv.indexOf('--split-manifest');
+    const datasetNameIdx = process.argv.indexOf('--dagger-dataset-name');
+
     runStudentDiagnosticAndDAgger({
         studentModelPath,
         matchCount: 4,
         maxStepsPerMatch: 60,
-        directories: runId ? { runId } : undefined
+        directories: runId ? { runId } : undefined,
+        baseDatasetPath: baseDatasetIdx !== -1 && process.argv[baseDatasetIdx + 1]
+            ? path.resolve(process.argv[baseDatasetIdx + 1])
+            : undefined,
+        splitManifestPath: splitManifestIdx !== -1 && process.argv[splitManifestIdx + 1]
+            ? path.resolve(process.argv[splitManifestIdx + 1])
+            : undefined,
+        daggerDatasetFileName: datasetNameIdx !== -1 ? process.argv[datasetNameIdx + 1] : undefined,
+        roundLabel: readFlag('--round-label'),
+        fineTuneEpochs: readFlag('--epochs') ? Number(readFlag('--epochs')) : undefined
     }).catch(err => {
         console.error('Fatal error in DAgger run:', err);
         process.exit(1);

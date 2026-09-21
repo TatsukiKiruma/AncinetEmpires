@@ -111,6 +111,8 @@ export interface MatchOutcome {
     budgetReason?: string;
     wallClockExceededCount?: number;
     deadlineFallbackCount?: number;
+    searchCandidatesEvaluated?: number;
+    searchShallowEvaluations?: number;
 }
 
 export interface PolicyAggregateReport {
@@ -143,6 +145,8 @@ export interface PolicyAggregateReport {
     wallClockExceededMatches?: number;
     totalDeadlineFallbacks?: number;
     avgSearchNodes?: number;
+    avgCandidatesEvaluated?: number;
+    avgShallowEvaluations?: number;
 }
 
 export function computeWilsonScoreInterval(successes: number, total: number, z: number = 1.96): [number, number] {
@@ -207,6 +211,8 @@ export class PolicyAgent {
         budgetReason?: string;
         wallClockExceeded?: boolean;
         deadlineFallbackCount?: number;
+        candidatesEvaluated?: number;
+        shallowEvaluations?: number;
     } {
         const t0 = performance.now();
         const state = engine.getState();
@@ -255,7 +261,7 @@ export class PolicyAgent {
             }
             case 'S00_SEARCH': {
                 const res = runBoundedSearch(engine, playerId, {
-                    budget: { maxMs: 200, maxNodes: 20 },
+                    budget: { maxMs: 200, maxNodes: 20, hardMaxMs: 900 },
                     heuristicAi: searchRng ? new HeuristicAI(searchRng) : this.heuristicAi
                 });
                 return {
@@ -264,7 +270,9 @@ export class PolicyAgent {
                     searchNodes: res.totalNodes,
                     budgetReason: res.budgetReason,
                     wallClockExceeded: res.wallClockExceeded,
-                    deadlineFallbackCount: res.deadlineFallbackCount
+                    deadlineFallbackCount: res.deadlineFallbackCount,
+                    candidatesEvaluated: res.candidatesEvaluated,
+                    shallowEvaluations: res.shallowEvaluations
                 };
             }
             case 'S10_SPATIAL_SEARCH': {
@@ -272,7 +280,7 @@ export class PolicyAgent {
                     throw new Error('MODEL_LOAD_ERROR: Spatial predictor is not loaded for S10_SPATIAL_SEARCH (cannot silently degrade to S00)');
                 }
                 const res = runBoundedSearch(engine, playerId, {
-                    budget: { maxMs: 200, maxNodes: 20 },
+                    budget: { maxMs: 200, maxNodes: 20, hardMaxMs: 900 },
                     heuristicAi: searchRng ? new HeuristicAI(searchRng) : this.heuristicAi,
                     spatialPredictor: this.spatialPredictor
                 });
@@ -282,7 +290,9 @@ export class PolicyAgent {
                     searchNodes: res.totalNodes,
                     budgetReason: res.budgetReason,
                     wallClockExceeded: res.wallClockExceeded,
-                    deadlineFallbackCount: res.deadlineFallbackCount
+                    deadlineFallbackCount: res.deadlineFallbackCount,
+                    candidatesEvaluated: res.candidatesEvaluated,
+                    shallowEvaluations: res.shallowEvaluations
                 };
             }
         }
@@ -333,6 +343,8 @@ export function runBenchmarkMatch(
     let lastBudgetReason: string | undefined;
     let wallClockExceededCount = 0;
     let deadlineFallbackCount = 0;
+    let totalCandidatesEvaluated = 0;
+    let totalShallowEvaluations = 0;
 
     const actionHistory: Array<{ step: number; player: number; action: Action; ms: number }> = [];
 
@@ -389,6 +401,12 @@ export function runBenchmarkMatch(
                 }
                 if (sel.deadlineFallbackCount) {
                     deadlineFallbackCount += sel.deadlineFallbackCount;
+                }
+                if (sel.candidatesEvaluated !== undefined) {
+                    totalCandidatesEvaluated += sel.candidatesEvaluated;
+                }
+                if (sel.shallowEvaluations !== undefined) {
+                    totalShallowEvaluations += sel.shallowEvaluations;
                 }
             } else {
                 const t0 = performance.now();
@@ -530,7 +548,9 @@ export function runBenchmarkMatch(
         searchTotalNodes: totalSearchNodes > 0 ? totalSearchNodes : undefined,
         budgetReason: lastBudgetReason,
         wallClockExceededCount,
-        deadlineFallbackCount
+        deadlineFallbackCount,
+        searchCandidatesEvaluated: totalCandidatesEvaluated,
+        searchShallowEvaluations: totalShallowEvaluations
     };
 }
 
@@ -751,6 +771,14 @@ export async function runFullV7BenchmarkSuite(options: {
         const aggMax = Number((allDecisionLatencies.length > 0 ? allDecisionLatencies[allDecisionLatencies.length - 1] : 0).toFixed(1));
         const latenciesOver1000ms = allDecisionLatencies.filter(l => l > 1000).length;
         const totalDeadlineFallbacks = pOutcomes.reduce((acc, o) => acc + (o.deadlineFallbackCount ?? 0), 0);
+        const candidatesEvaluatedList = pOutcomes.map(o => o.searchCandidatesEvaluated).filter((n): n is number => n !== undefined);
+        const avgCandidatesEvaluated = candidatesEvaluatedList.length > 0
+            ? Number((candidatesEvaluatedList.reduce((a, b) => a + b, 0) / candidatesEvaluatedList.length).toFixed(2))
+            : undefined;
+        const shallowEvaluationsList = pOutcomes.map(o => o.searchShallowEvaluations).filter((n): n is number => n !== undefined);
+        const avgShallowEvaluations = shallowEvaluationsList.length > 0
+            ? Number((shallowEvaluationsList.reduce((a, b) => a + b, 0) / shallowEvaluationsList.length).toFixed(2))
+            : undefined;
         const wallClockExceededMatches = pOutcomes.filter(o => (o.wallClockExceededCount ?? 0) > 0).length;
         const searchNodesList = pOutcomes.map(o => o.searchTotalNodes).filter((n): n is number => n !== undefined);
         const avgSearchNodes = searchNodesList.length > 0 ? Number((searchNodesList.reduce((a, b) => a + b, 0) / searchNodesList.length).toFixed(1)) : undefined;
@@ -788,7 +816,9 @@ export async function runFullV7BenchmarkSuite(options: {
             latenciesOver1000ms,
             wallClockExceededMatches,
             totalDeadlineFallbacks,
-            avgSearchNodes
+            avgSearchNodes,
+            avgCandidatesEvaluated,
+            avgShallowEvaluations
         };
     }
 
