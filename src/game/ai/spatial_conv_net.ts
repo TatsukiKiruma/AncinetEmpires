@@ -334,13 +334,66 @@ export class SpatialResNetPredictor {
         encodedState: SpatialEncodedState,
         candidateActions: SpatialActionFeatures[]
     ): SpatialInferenceResult {
-        const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
+        if (!encodedState || typeof encodedState !== 'object') {
+            throw new Error('SpatialResNetPredictor.predict: encodedState must be an object with spatialTensor and globalFeatures');
+        }
+        if (!encodedState.spatialTensor || !(encodedState.spatialTensor instanceof Float32Array || Array.isArray(encodedState.spatialTensor))) {
+            throw new Error('SpatialResNetPredictor.predict: encodedState.spatialTensor is required and must be Float32Array or array');
+        }
+        if (!encodedState.globalFeatures || !(encodedState.globalFeatures instanceof Float32Array || Array.isArray(encodedState.globalFeatures))) {
+            throw new Error('SpatialResNetPredictor.predict: encodedState.globalFeatures is required and must be Float32Array or array');
+        }
+        if (!Array.isArray(candidateActions)) {
+            throw new Error('SpatialResNetPredictor.predict: candidateActions must be an array');
+        }
+
+        const expectedSpatialLen = SPATIAL_TENSOR_CHANNELS * SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
+        if (encodedState.spatialTensor.length !== expectedSpatialLen) {
+            throw new Error(`SpatialResNetPredictor.predict: invalid spatialTensor length ${encodedState.spatialTensor.length}, expected ${expectedSpatialLen}`);
+        }
+        const minGlobalLen = this.isV2 ? GLOBAL_FEATURE_DIM_V2 : GLOBAL_FEATURE_DIM_V1;
+        if (encodedState.globalFeatures.length < minGlobalLen) {
+            throw new Error(`SpatialResNetPredictor.predict: invalid globalFeatures length ${encodedState.globalFeatures.length}, expected at least ${minGlobalLen}`);
+        }
+
         const spatialTensor = encodedState.spatialTensor instanceof Float32Array
             ? encodedState.spatialTensor
             : new Float32Array(encodedState.spatialTensor);
         const globalFeatures = encodedState.globalFeatures instanceof Float32Array
             ? encodedState.globalFeatures
             : new Float32Array(encodedState.globalFeatures);
+
+        for (let i = 0; i < spatialTensor.length; i++) {
+            if (!Number.isFinite(spatialTensor[i])) {
+                throw new Error(`SpatialResNetPredictor.predict: spatialTensor contains non-finite value at index ${i}: ${spatialTensor[i]}`);
+            }
+        }
+        for (let i = 0; i < globalFeatures.length; i++) {
+            if (!Number.isFinite(globalFeatures[i])) {
+                throw new Error(`SpatialResNetPredictor.predict: globalFeatures contains non-finite value at index ${i}: ${globalFeatures[i]}`);
+            }
+        }
+
+        const expectedSemLen = this.isV2 ? ACTION_SEMANTIC_DIM_V2 : ACTION_SEMANTIC_DIM_V1;
+        for (let c = 0; c < candidateActions.length; c++) {
+            const act = candidateActions[c];
+            if (!act || typeof act !== 'object') {
+                throw new Error(`SpatialResNetPredictor.predict: candidateAction at index ${c} must be an object`);
+            }
+            if (!act.semantics) {
+                throw new Error(`SpatialResNetPredictor.predict: candidateAction at index ${c} missing semantics`);
+            }
+            if (act.semantics.length < expectedSemLen) {
+                throw new Error(`SpatialResNetPredictor.predict: candidateAction at index ${c} semantics length ${act.semantics.length} < expected ${expectedSemLen}`);
+            }
+            for (let s = 0; s < expectedSemLen; s++) {
+                if (!Number.isFinite(act.semantics[s])) {
+                    throw new Error(`SpatialResNetPredictor.predict: candidateAction at index ${c} semantics contains non-finite value at index ${s}: ${act.semantics[s]}`);
+                }
+            }
+        }
+
+        const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
 
         // 1. Stem: Conv(24 -> 32) + ReLU
         conv2dForward(this.bufStem, spatialTensor, this.weights.stem, SPATIAL_TENSOR_MAX_H, SPATIAL_TENSOR_MAX_W, true);
@@ -449,6 +502,15 @@ export class SpatialResNetPredictor {
             }
         }
 
+        for (let i = 0; i < logits.length; i++) {
+            if (!Number.isFinite(logits[i])) {
+                throw new Error(`SpatialResNetPredictor.predict: output logit at index ${i} is non-finite: ${logits[i]}`);
+            }
+        }
+        if (!Number.isFinite(value)) {
+            throw new Error(`SpatialResNetPredictor.predict: output value is non-finite: ${value}`);
+        }
+
         return {
             value,
             actionLogits: logits,
@@ -456,6 +518,14 @@ export class SpatialResNetPredictor {
             bestActionIndex: bestIndex,
             spatialFeaturesZ: this.bufZ
         };
+    }
+}
+
+function assertWeightsFinite(arr: Float32Array, name: string): void {
+    for (let i = 0; i < arr.length; i++) {
+        if (!Number.isFinite(arr[i])) {
+            throw new Error(`SpatialResNetWeights: ${name} contains non-finite value at index ${i}: ${arr[i]}`);
+        }
     }
 }
 
@@ -501,21 +571,33 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
         throw new Error(`Incompatible spatial model version: ${raw.version}`);
     }
 
-    const deserializeConv = (l: any): ConvLayerWeights => ({
-        inChannels: l.inChannels,
-        outChannels: l.outChannels,
-        kernelSize: 3,
-        padding: 1,
-        weights: new Float32Array(l.weights),
-        biases: new Float32Array(l.biases)
-    });
+    const deserializeConv = (l: any, name: string): ConvLayerWeights => {
+        const weights = new Float32Array(l.weights);
+        const biases = new Float32Array(l.biases);
+        assertWeightsFinite(weights, `${name}.weights`);
+        assertWeightsFinite(biases, `${name}.biases`);
+        return {
+            inChannels: l.inChannels,
+            outChannels: l.outChannels,
+            kernelSize: 3,
+            padding: 1,
+            weights,
+            biases
+        };
+    };
 
-    const deserializeDense = (l: any): DenseLayerWeights => ({
-        inDim: l.inDim,
-        outDim: l.outDim,
-        weights: new Float32Array(l.weights),
-        biases: new Float32Array(l.biases)
-    });
+    const deserializeDense = (l: any, name: string): DenseLayerWeights => {
+        const weights = new Float32Array(l.weights);
+        const biases = new Float32Array(l.biases);
+        assertWeightsFinite(weights, `${name}.weights`);
+        assertWeightsFinite(biases, `${name}.biases`);
+        return {
+            inDim: l.inDim,
+            outDim: l.outDim,
+            weights,
+            biases
+        };
+    };
 
     const numBlocks = raw.numBlocks ?? (raw.res3_1 ? 4 : 2);
     const architectureId = raw.architectureId ?? (numBlocks === 4 ? 'spatial_resnet_32ch_4res' : 'spatial_resnet_32ch_2res');
@@ -524,22 +606,22 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
         version: raw.version,
         numBlocks,
         architectureId,
-        stem: deserializeConv(raw.stem),
-        res1_1: deserializeConv(raw.res1_1),
-        res1_2: deserializeConv(raw.res1_2),
-        res2_1: deserializeConv(raw.res2_1),
-        res2_2: deserializeConv(raw.res2_2),
-        valDense1: deserializeDense(raw.valDense1),
-        valDense2: deserializeDense(raw.valDense2),
-        polDense1: deserializeDense(raw.polDense1),
-        polDense2: deserializeDense(raw.polDense2)
+        stem: deserializeConv(raw.stem, 'stem'),
+        res1_1: deserializeConv(raw.res1_1, 'res1_1'),
+        res1_2: deserializeConv(raw.res1_2, 'res1_2'),
+        res2_1: deserializeConv(raw.res2_1, 'res2_1'),
+        res2_2: deserializeConv(raw.res2_2, 'res2_2'),
+        valDense1: deserializeDense(raw.valDense1, 'valDense1'),
+        valDense2: deserializeDense(raw.valDense2, 'valDense2'),
+        polDense1: deserializeDense(raw.polDense1, 'polDense1'),
+        polDense2: deserializeDense(raw.polDense2, 'polDense2')
     };
 
     if (numBlocks >= 4 && raw.res3_1 && raw.res3_2 && raw.res4_1 && raw.res4_2) {
-        result.res3_1 = deserializeConv(raw.res3_1);
-        result.res3_2 = deserializeConv(raw.res3_2);
-        result.res4_1 = deserializeConv(raw.res4_1);
-        result.res4_2 = deserializeConv(raw.res4_2);
+        result.res3_1 = deserializeConv(raw.res3_1, 'res3_1');
+        result.res3_2 = deserializeConv(raw.res3_2, 'res3_2');
+        result.res4_1 = deserializeConv(raw.res4_1, 'res4_1');
+        result.res4_2 = deserializeConv(raw.res4_2, 'res4_2');
     }
 
     return result;

@@ -46,8 +46,8 @@ export interface SpatialActionFeatures {
     landingCoord: Position | null;
     /** 动作在网格上的目标 (攻击/治疗/破坏) 坐标，范围 [0..19]，若无则置 -1 */
     targetCoord: Position | null;
-    /** 动作的战术语义特征向量 (24 维) */
-    semantics: Float32Array;
+    /** 动作的战术语义特征向量 (24 维 in v1, 32 维 in v2) */
+    semantics: Float32Array | number[];
 }
 
 export const ACTION_TYPE_LIST = [

@@ -113,6 +113,8 @@ export interface DualHeadSample {
     labelIndex: number;
     /** null = 无可靠价值目标（截断/未核验），屏蔽 value loss */
     valueTarget: number | null;
+    rootFamilyId?: string;
+    sampleId?: string;
 }
 
 type Act = 'relu' | 'tanh' | 'linear';
@@ -353,17 +355,22 @@ export function trainStep(net: DualHeadNet, batch: DualHeadSample[], opts: Train
             for (let i = 0; i < embedDim; i += 1) dE[i] += dGrad[i];
         }
 
-        // —— 反向 value head（仅当有可靠目标时）——
-        if (sample.valueTarget !== null) {
-            const dValScalar = opts.valueWeight * 2 * (predictedValue - sample.valueTarget);
-            let dGrad = [dValScalar];
-            for (let l = value.length - 1; l >= 0; l -= 1) {
-                const act = (l === value.length - 1) ? 'tanh' : 'relu';
-                dGrad = backward(value[l], dGrad, valueCaches[l].z, valueCaches[l].inp, act);
+        // —— 反向 value head（仅当有可靠目标且 valueWeight > 0 时）——
+        if (sample.valueTarget !== null && sample.valueTarget !== undefined) {
+            if (!Number.isFinite(sample.valueTarget)) {
+                throw new Error(`trainStep: sample.valueTarget must be a finite number or null/undefined, got ${sample.valueTarget}`);
             }
-            for (let i = 0; i < embedDim; i += 1) dE[i] += dGrad[i];
-            valueLossSum += (predictedValue - sample.valueTarget) ** 2;
-            valueCount += 1;
+            if ((opts.valueWeight ?? 1) > 0) {
+                const dValScalar = opts.valueWeight * 2 * (predictedValue - sample.valueTarget);
+                let dGrad = [dValScalar];
+                for (let l = value.length - 1; l >= 0; l -= 1) {
+                    const act = (l === value.length - 1) ? 'tanh' : 'relu';
+                    dGrad = backward(value[l], dGrad, valueCaches[l].z, valueCaches[l].inp, act);
+                }
+                for (let i = 0; i < embedDim; i += 1) dE[i] += dGrad[i];
+                valueLossSum += (predictedValue - sample.valueTarget) ** 2;
+                valueCount += 1;
+            }
         }
 
         // —— 反向 trunk（共享，包含 policy 与 value 对 e 的合成梯度）——
@@ -376,13 +383,22 @@ export function trainStep(net: DualHeadNet, batch: DualHeadSample[], opts: Train
     // —— 梯度更新与动量 ——
     applyMomentum(net, { trunk, policy, value }, opts, N);
 
-    return {
+    const rep: TrainReport = {
         policyLoss: policyLossSum / Math.max(1, N),
         valueLoss: valueCount ? valueLossSum / valueCount : 0,
         policyAccuracy: correct / Math.max(1, N),
         valueCount,
         totalSamples: N
     };
+
+    if (!Number.isFinite(rep.policyLoss)) {
+        throw new Error(`trainStep: non-finite policyLoss: ${rep.policyLoss}`);
+    }
+    if (!Number.isFinite(rep.valueLoss)) {
+        throw new Error(`trainStep: non-finite valueLoss: ${rep.valueLoss}`);
+    }
+
+    return rep;
 }
 
 function argmax(a: number[]): number {
@@ -440,7 +456,15 @@ function applyMomentum(
     }
 }
 
-export interface Decision { logits: number[]; probs: number[]; topIndex: number; value: number; }
+export type DualHeadModel = DualHeadNet;
+
+export interface Decision {
+    logits: number[];
+    probs: number[];
+    topIndex: number;
+    bestActionIndex: number;
+    value: number;
+}
 
 /**
  * 推理专用快速仿射变换：不分配任何 dW/db 梯度缓存数组，降低 GC 压力。
@@ -500,8 +524,29 @@ export function foldInputStandardization(net: DualHeadNet, mu: number[], sigma: 
 }
 
 /** 一次编码状态、评全部候选并给出价值——推理接口（使用纯推理快速路径）。 */
-export function predictDecision(net: DualHeadNet, state: number[], candidates: number[][]): Decision {
-    let cur = state;
+export function predictDecision(
+    net: DualHeadNet,
+    state: number[] | Float64Array | Float32Array,
+    candidates: (number[] | Float64Array | Float32Array)[]
+): Decision {
+    const curState = (state instanceof Float64Array || state instanceof Float32Array) ? Array.from(state) : state;
+    if (!Array.isArray(curState)) {
+        throw new Error('predictDecision: state must be an array or typed array');
+    }
+    if (curState.length !== net.spec.stateDim) {
+        throw new Error(`InvalidStateDimension: state dimension mismatch: expected ${net.spec.stateDim}, got ${curState.length}`);
+    }
+    for (let i = 0; i < curState.length; i++) {
+        if (!Number.isFinite(curState[i])) {
+            throw new Error(`NonFiniteState: non-finite value in state at index ${i}: ${curState[i]}`);
+        }
+    }
+
+    if (!Array.isArray(candidates)) {
+        throw new Error('InvalidCandidates: candidates must be an array');
+    }
+
+    let cur = curState;
     for (let l = 0; l < net.trunkLayers.length; l += 1) {
         const layer = net.trunkLayers[l];
         cur = forwardDenseInference(layer.W, layer.b, layer.in, layer.out, cur, 'relu');
@@ -515,24 +560,63 @@ export function predictDecision(net: DualHeadNet, state: number[], candidates: n
         vCur = forwardDenseInference(layer.W, layer.b, layer.in, layer.out, vCur, act);
     }
     const value = vCur[0];
+    if (!Number.isFinite(value)) {
+        throw new Error(`NonFiniteValue: predictDecision non-finite predicted value: ${value}`);
+    }
+
+    if (candidates.length === 0) {
+        return { logits: [], probs: [], topIndex: -1, bestActionIndex: -1, value };
+    }
 
     const logits: number[] = [];
-    for (const action of candidates) {
-        const inp = e.concat(action);
+    for (let c = 0; c < candidates.length; c++) {
+        const action = candidates[c];
+        const actArr = (action instanceof Float64Array || action instanceof Float32Array) ? Array.from(action) : action;
+        if (!Array.isArray(actArr)) {
+            throw new Error(`InvalidCandidate: candidate at index ${c} must be an array or typed array`);
+        }
+        if (actArr.length !== net.spec.actionDim) {
+            throw new Error(`InvalidCandidateDimension: candidate ${c} dimension mismatch: expected ${net.spec.actionDim}, got ${actArr.length}`);
+        }
+        for (let j = 0; j < actArr.length; j++) {
+            if (!Number.isFinite(actArr[j])) {
+                throw new Error(`NonFiniteCandidate: non-finite value in candidate ${c} at index ${j}: ${actArr[j]}`);
+            }
+        }
+
+        const inp = e.concat(actArr);
         let pCur = inp;
         for (let l = 0; l < net.policyLayers.length; l += 1) {
             const layer = net.policyLayers[l];
             const act = (l === net.policyLayers.length - 1) ? 'linear' : 'relu';
             pCur = forwardDenseInference(layer.W, layer.b, layer.in, layer.out, pCur, act);
         }
-        logits.push(pCur[0]);
+        const logit = pCur[0];
+        if (!Number.isFinite(logit)) {
+            throw new Error(`NonFiniteLogit: non-finite output logit at candidate ${c}: ${logit}`);
+        }
+        logits.push(logit);
     }
 
-    const maxLogit = logits.length ? Math.max(...logits) : 0;
+    if (logits.length !== candidates.length) {
+        throw new Error(`InvalidLogits: logits length (${logits.length}) != candidates length (${candidates.length})`);
+    }
+
+    const maxLogit = Math.max(...logits);
     const exps = logits.map(l => Math.exp(l - maxLogit));
     const sumExp = exps.reduce((a, b) => a + b, 0) || 1;
     const probs = exps.map(v => v / sumExp);
-    return { logits, probs, topIndex: argmax(logits), value };
+    for (let i = 0; i < probs.length; i++) {
+        if (!Number.isFinite(probs[i])) {
+            throw new Error(`NonFiniteProbability: non-finite probability at index ${i}: ${probs[i]}`);
+        }
+    }
+
+    const topIdx = argmax(logits);
+    if (topIdx < 0 || topIdx >= candidates.length) {
+        throw new Error(`InvalidBestActionIndex: bestActionIndex ${topIdx} out of bounds for ${candidates.length} candidates`);
+    }
+    return { logits, probs, topIndex: topIdx, bestActionIndex: topIdx, value };
 }
 
 export function saveDualHeadModel(net: DualHeadNet, meta: Record<string, unknown> = {}): string {
