@@ -11,6 +11,8 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { resolveTorchPython } from './v8_python_env';
+
 import { createDemoState } from '../src/game/demo_map';
 import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { GameEngine } from '../src/game/engine';
@@ -80,7 +82,11 @@ export function runParityCheckOnModel(
     const tsResult = tsPredictor.predict(encState, candSpatial);
 
     // 4. Python forward
-    const pyCmd = `python python/verify_parity.py "${modelPath}" "${inputPath}" "${pyOutputPath}"`;
+    // `python` on PATH is not guaranteed to be the interpreter that has torch (a bare conda base
+    // install typically is not), so resolve one that can actually `import torch` instead of
+    // assuming the PATH default. This does not change the comparison itself.
+    const { pythonCommand } = resolveTorchPython();
+    const pyCmd = `${pythonCommand} python/verify_parity.py "${modelPath}" "${inputPath}" "${pyOutputPath}"`;
     execSync(pyCmd, { stdio: 'pipe' });
     const pyResult = JSON.parse(readFileSync(pyOutputPath, 'utf8'));
 

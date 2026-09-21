@@ -22,6 +22,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 import { GameEngine } from '../src/game/engine';
@@ -50,6 +51,43 @@ export interface EvaluationDirectories {
     runDir?: string;
     trajectoryDir?: string;
     checkpointDir?: string;
+    provenance?: MatchProvenance;
+}
+
+/** Exact provenance of the code snapshot that produced a match (S8-2 per-match identity). */
+export interface MatchProvenance {
+    codeCommit: string;
+    workspaceDirty: boolean;
+    dirtyPatchHash: string | null;
+    node: string;
+    platform: string;
+}
+
+export function collectMatchProvenance(repoRoot: string = process.cwd()): MatchProvenance {
+    const git = (args: string[]): string | null => {
+        try {
+            return execFileSync('git', args, { cwd: repoRoot, stdio: ['ignore', 'pipe', 'ignore'] })
+                .toString()
+                .trim();
+        } catch {
+            return null;
+        }
+    };
+    const codeCommit = git(['rev-parse', 'HEAD']) ?? 'UNKNOWN';
+    const diff = (() => {
+        try {
+            return execFileSync('git', ['diff', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'ignore'] }).toString();
+        } catch {
+            return '';
+        }
+    })();
+    return {
+        codeCommit,
+        workspaceDirty: diff.length > 0,
+        dirtyPatchHash: diff.length > 0 ? getSha256(diff) : null,
+        node: process.version,
+        platform: process.platform
+    };
 }
 
 export const BENCHMARK_MAPS = [
@@ -75,6 +113,7 @@ export interface MatchOutcome {
     rulesHash?: string;
     initialStateHash?: string;
     seedStreamInfo?: { seed: number; candidateSeed: number; opponentSeed: number; searchSeed: number };
+    provenance?: MatchProvenance;
     candidateSeat: 0 | 1;
     opponentPolicy: 'HEURISTIC';
     terminationReason:
@@ -99,6 +138,14 @@ export interface MatchOutcome {
     rehireSuccesses: number;
     rehireRate: number | null; // strictly null when decisionOpportunityCount === 0!
     recoveryWindowSuccessRate: number | null;
+    /** Decisions spent inside each finished recovery window before the commander was back, in window order. */
+    recoveryWindowDurations?: number[];
+    /** recoveryWindowSuccessRate expressed over recovery windows rather than over decision opportunities. */
+    recoveryWindowCompletionRate: number | null;
+    /** Protocol actually used for this match, so a replay can be reproduced from the record alone. */
+    deterministicReplay?: boolean;
+    searchMaxNodes?: number;
+    searchBudgetMs?: number;
     errorDetails?: string;
     trajectoryLogPath: string;
     avgMsPerAction: number;
@@ -136,6 +183,8 @@ export interface PolicyAggregateReport {
     totalRecoveryWindows: number;
     totalRecoverySuccesses: number;
     recoveryWindowSuccessRate: number | null;
+    /** Mean decisions spent inside a completed recovery window (null when no window completed). */
+    meanRecoveryWindowDuration?: number | null;
     avgDecisionMs: number;
     latencyP50: number;
     latencyP95: number;
@@ -148,6 +197,33 @@ export interface PolicyAggregateReport {
     avgCandidatesEvaluated?: number;
     avgShallowEvaluations?: number;
 }
+
+/**
+ * Protocol knobs for a benchmark run. Every one of them is recorded per match so that a result can
+ * be replayed from its own record instead of from the runner's memory.
+ */
+export interface BenchmarkProtocol {
+    maxTurns: number;
+    maxAtomicSteps: number;
+    searchMaxNodes: number;
+    searchBudgetSoftMs: number;
+    searchBudgetHardMs: number;
+    /** When true the search ignores wall-clock deadlines, making node consumption replayable. */
+    deterministicReplay: boolean;
+}
+
+export const DEFAULT_SEARCH_MAX_NODES = 20;
+export const DEFAULT_SEARCH_SOFT_MS = 200;
+export const DEFAULT_SEARCH_HARD_MS = 900;
+
+export const DEFAULT_BENCHMARK_PROTOCOL: BenchmarkProtocol = {
+    maxTurns: 45,
+    maxAtomicSteps: 800,
+    searchMaxNodes: DEFAULT_SEARCH_MAX_NODES,
+    searchBudgetSoftMs: DEFAULT_SEARCH_SOFT_MS,
+    searchBudgetHardMs: DEFAULT_SEARCH_HARD_MS,
+    deterministicReplay: false
+};
 
 export function computeWilsonScoreInterval(successes: number, total: number, z: number = 1.96): [number, number] {
     if (total === 0) return [0, 0];
@@ -203,7 +279,8 @@ export class PolicyAgent {
     public selectAction(
         engine: GameEngine,
         playerId: number,
-        searchRng?: () => number
+        searchRng?: () => number,
+        protocol: BenchmarkProtocol = DEFAULT_BENCHMARK_PROTOCOL
     ): {
         action: Action;
         ms: number;
@@ -261,7 +338,12 @@ export class PolicyAgent {
             }
             case 'S00_SEARCH': {
                 const res = runBoundedSearch(engine, playerId, {
-                    budget: { maxMs: 200, maxNodes: 20, hardMaxMs: 900 },
+                    budget: {
+                        maxMs: protocol.searchBudgetSoftMs,
+                        maxNodes: protocol.searchMaxNodes,
+                        hardMaxMs: protocol.searchBudgetHardMs,
+                        deterministic: protocol.deterministicReplay
+                    },
                     heuristicAi: searchRng ? new HeuristicAI(searchRng) : this.heuristicAi
                 });
                 return {
@@ -280,7 +362,12 @@ export class PolicyAgent {
                     throw new Error('MODEL_LOAD_ERROR: Spatial predictor is not loaded for S10_SPATIAL_SEARCH (cannot silently degrade to S00)');
                 }
                 const res = runBoundedSearch(engine, playerId, {
-                    budget: { maxMs: 200, maxNodes: 20, hardMaxMs: 900 },
+                    budget: {
+                        maxMs: protocol.searchBudgetSoftMs,
+                        maxNodes: protocol.searchMaxNodes,
+                        hardMaxMs: protocol.searchBudgetHardMs,
+                        deterministic: protocol.deterministicReplay
+                    },
                     heuristicAi: searchRng ? new HeuristicAI(searchRng) : this.heuristicAi,
                     spatialPredictor: this.spatialPredictor
                 });
@@ -306,7 +393,8 @@ export function runBenchmarkMatch(
     seed: number,
     maxTurns: number = 50,
     maxAtomicSteps: number = 1000,
-    directories?: EvaluationDirectories
+    directories?: EvaluationDirectories,
+    protocol: BenchmarkProtocol = { ...DEFAULT_BENCHMARK_PROTOCOL, maxTurns, maxAtomicSteps }
 ): MatchOutcome {
     const matchId = `match_${candidatePolicy.type}_seat${candidateSeat}_${mapName.replace(/[^a-zA-Z0-9]/g, '_')}_s${seed}`;
     const state = createAppApkSkirmishGameState(mapName, 'SD');
@@ -327,14 +415,17 @@ export function runBenchmarkMatch(
 
     let steps = 0;
     let turn = 0;
-    let stagnationCounter = 0;
-    let lastUnitCount = state.units.length;
 
     let decisionOpportunityCount = 0;
     let inRecoveryWindow = false;
     let recoveryWindowCount = 0;
     let recoveryCompletedCount = 0;
     let rehireSuccesses = 0;
+    // Decisions spent inside the currently open recovery window, and the length of each window that
+    // actually ended with the commander back. Keeping these separate is what stops a single death
+    // that spans twenty decisions from being reported as twenty independent failures.
+    let decisionsInCurrentRecoveryWindow = 0;
+    const recoveryWindowDurations: number[] = [];
 
     let totalDecisionMs = 0;
     let candidateActionCount = 0;
@@ -376,7 +467,9 @@ export function runBenchmarkMatch(
                     if (!inRecoveryWindow) {
                         inRecoveryWindow = true;
                         recoveryWindowCount++;
+                        decisionsInCurrentRecoveryWindow = 0;
                     }
+                    decisionsInCurrentRecoveryWindow++;
                 }
             }
 
@@ -384,7 +477,7 @@ export function runBenchmarkMatch(
             let actMs = 0;
 
             if (curPlayer === candidateSeat) {
-                const sel = candidatePolicy.selectAction(engine, candidateSeat, searchRng);
+                const sel = candidatePolicy.selectAction(engine, candidateSeat, searchRng, protocol);
                 action = sel.action;
                 actMs = sel.ms;
                 totalDecisionMs += actMs;
@@ -431,23 +524,30 @@ export function runBenchmarkMatch(
             steps++;
             actionHistory.push({ step: steps, player: curPlayer, action, ms: actMs });
 
-            // Validate rehire success strictly AFTER engine.step
+            // Validate rehire success strictly AFTER engine.step: the commander must only be counted
+            // as recovered when the engine actually created it again for this seat.
             if (isRehire) {
                 const postState = engine.getState();
                 const postGold = postState.players.find(p => p.id === candidateSeat)?.gold ?? 0;
-                if (postGold < preGold) {
+                const commanderBack = postState.units.some(
+                    u => u.ownerId === candidateSeat && u.unitClass === 'commander' && u.hp > 0
+                );
+                if (postGold < preGold && commanderBack) {
                     rehireSuccesses++;
                     if (inRecoveryWindow) {
                         recoveryCompletedCount++;
+                        recoveryWindowDurations.push(decisionsInCurrentRecoveryWindow);
                         inRecoveryWindow = false;
+                        decisionsInCurrentRecoveryWindow = 0;
                     }
                 }
             }
 
-            if (!engine.getState().units.some(u => u.ownerId === candidateSeat && u.unitClass === 'commander' && u.hp > 0)) {
-                // Still in recovery window
-            } else if (inRecoveryWindow) {
+            if (engine.getState().units.some(u => u.ownerId === candidateSeat && u.unitClass === 'commander' && u.hp > 0)) {
+                // Commander alive: any open recovery window is over, but only a verified rehire above
+                // counts as a completed window (a commander that never died must not open one).
                 inRecoveryWindow = false;
+                decisionsInCurrentRecoveryWindow = 0;
             }
 
             if (curPlayer === 1) {
@@ -505,6 +605,9 @@ export function runBenchmarkMatch(
 
     const rehireRate = decisionOpportunityCount > 0 ? Number((rehireSuccesses / decisionOpportunityCount * 100).toFixed(1)) : null;
     const recoveryWindowSuccessRate = recoveryWindowCount > 0 ? Number((recoveryCompletedCount / recoveryWindowCount * 100).toFixed(1)) : null;
+    const recoveryWindowCompletionRate = recoveryWindowCount > 0
+        ? Number((recoveryCompletedCount / recoveryWindowCount * 100).toFixed(1))
+        : null;
 
     const encoderVersion = (candidatePolicy.type === 'SPATIAL_V2' || candidatePolicy.type === 'SPATIAL_DAGGER' || candidatePolicy.type === 'S10_SPATIAL_SEARCH')
         ? 'v2'
@@ -523,6 +626,7 @@ export function runBenchmarkMatch(
         rulesHash,
         initialStateHash,
         seedStreamInfo: { seed, candidateSeed, opponentSeed, searchSeed },
+        provenance: directories?.provenance,
         candidateSeat,
         opponentPolicy: 'HEURISTIC',
         terminationReason: termination,
@@ -537,6 +641,11 @@ export function runBenchmarkMatch(
         rehireSuccesses,
         rehireRate,
         recoveryWindowSuccessRate,
+        recoveryWindowDurations,
+        recoveryWindowCompletionRate,
+        deterministicReplay: protocol.deterministicReplay,
+        searchMaxNodes: protocol.searchMaxNodes,
+        searchBudgetMs: protocol.searchBudgetSoftMs,
         errorDetails,
         trajectoryLogPath: trajFile,
         avgMsPerAction: candidateActionCount > 0 ? totalDecisionMs / candidateActionCount : 0,
@@ -562,6 +671,8 @@ export async function runFullV7BenchmarkSuite(options: {
     maxAtomicSteps?: number;
     reportPath?: string;
     directories?: EvaluationDirectories;
+    /** Search/protocol knobs; defaults reproduce the historical 20-node / 200ms / 900ms protocol. */
+    protocol?: Partial<BenchmarkProtocol>;
 }): Promise<{
     outcomes: MatchOutcome[];
     aggregates: Record<PolicyType, PolicyAggregateReport>;
@@ -572,6 +683,15 @@ export async function runFullV7BenchmarkSuite(options: {
     const maxTurns = options.maxTurns ?? 50;
     const maxAtomicSteps = options.maxAtomicSteps ?? 1000;
     const policies = options.policiesToEvaluate ?? ['HEURISTIC', 'SPATIAL_V2', 'S00_SEARCH', 'S10_SPATIAL_SEARCH'];
+
+    // The protocol is fixed once, before any match runs, and is echoed into every match record.
+    const protocol: BenchmarkProtocol = {
+        ...DEFAULT_BENCHMARK_PROTOCOL,
+        maxTurns,
+        maxAtomicSteps,
+        ...(options.protocol ?? {})
+    };
+    const provenance = options.directories?.provenance ?? collectMatchProvenance();
 
     const runId = options.directories?.runId ?? RUN_ID;
     const runDir = options.directories?.runDir ?? (options.directories?.runId ? path.resolve(`training_runs/${options.directories.runId}`) : RUN_DIR);
@@ -705,6 +825,7 @@ export async function runFullV7BenchmarkSuite(options: {
                             encoderVersion: (pType === 'SPATIAL_V2' || pType === 'SPATIAL_DAGGER' || pType === 'S10_SPATIAL_SEARCH') ? 'v2' : (pType === 'NET_A' ? 'dense' : 'heuristic'),
                             fallbackCount: 0,
                             rulesSummary: 'SD (Apk Skirmish)',
+                            provenance,
                             candidateSeat: seat,
                             opponentPolicy: 'HEURISTIC',
                             terminationReason: terminationForMissing,
@@ -719,6 +840,11 @@ export async function runFullV7BenchmarkSuite(options: {
                             rehireSuccesses: 0,
                             rehireRate: null,
                             recoveryWindowSuccessRate: null,
+                            recoveryWindowDurations: [],
+                            recoveryWindowCompletionRate: null,
+                            deterministicReplay: protocol.deterministicReplay,
+                            searchMaxNodes: protocol.searchMaxNodes,
+                            searchBudgetMs: protocol.searchBudgetSoftMs,
                             errorDetails: loadErrorForPolicy,
                             trajectoryLogPath: trajFile,
                             avgMsPerAction: 0,
@@ -741,7 +867,7 @@ export async function runFullV7BenchmarkSuite(options: {
             for (const map of maps) {
                 for (const seat of [0, 1] as const) {
                     for (const seed of seeds) {
-                        const outcome = runBenchmarkMatch(map.name, agent, seat, seed, maxTurns, maxAtomicSteps, options.directories);
+                        const outcome = runBenchmarkMatch(map.name, agent, seat, seed, maxTurns, maxAtomicSteps, options.directories, protocol);
                         pOutcomes.push(outcome);
                         outcomes.push(outcome);
 
@@ -783,6 +909,13 @@ export async function runFullV7BenchmarkSuite(options: {
         const searchNodesList = pOutcomes.map(o => o.searchTotalNodes).filter((n): n is number => n !== undefined);
         const avgSearchNodes = searchNodesList.length > 0 ? Number((searchNodesList.reduce((a, b) => a + b, 0) / searchNodesList.length).toFixed(1)) : undefined;
 
+        // Recovery windows are the honest denominator for "did the commander come back": a window is
+        // one death, not the twenty ordinary decisions that may pass while it is open.
+        const allWindowDurations = pOutcomes.flatMap(o => o.recoveryWindowDurations ?? []);
+        const meanRecoveryWindowDuration = allWindowDurations.length > 0
+            ? Number((allWindowDurations.reduce((a, b) => a + b, 0) / allWindowDurations.length).toFixed(2))
+            : null;
+
         const naturalTotal = natWins + natLosses;
         const confNatural = computeWilsonScoreInterval(natWins, naturalTotal);
         const confEffective = computeWilsonScoreInterval(natWins, pOutcomes.length);
@@ -808,6 +941,7 @@ export async function runFullV7BenchmarkSuite(options: {
             totalRecoveryWindows: totalRecWindows,
             totalRecoverySuccesses: totalRecSuccesses,
             recoveryWindowSuccessRate: totalRecWindows > 0 ? Number((totalRecSuccesses / totalRecWindows * 100).toFixed(1)) : null,
+            meanRecoveryWindowDuration,
             avgDecisionMs: Number(avgMs.toFixed(1)),
             latencyP50: aggP50,
             latencyP95: aggP95,
@@ -829,6 +963,8 @@ export async function runFullV7BenchmarkSuite(options: {
         seeds,
         maxTurns,
         maxAtomicSteps,
+        protocol,
+        provenance,
         aggregates,
         totalMatches: outcomes.length,
         outcomes

@@ -25,6 +25,13 @@ export interface BoundedSearchBudget {
     maxMs?: number;
     /** Absolute emergency ceiling. Only a hard breach permits returning the heuristic top action without any candidate trace. */
     hardMaxMs?: number;
+    /**
+     * Fixed-node-budget replay mode: no wall-clock deadline of any kind is consulted, so the number
+     * of expanded candidates is a pure function of the state and `maxNodes`. Node consumption then
+     * looks exactly like a node-budget search even on a loaded machine, which is what makes a run
+     * replayable. Leave unset for the normal deadline-gated behaviour.
+     */
+    deterministic?: boolean;
 }
 
 export interface CandidateFilteringOptions {
@@ -384,6 +391,7 @@ export function runBoundedSearch(
     const maxMs = options.budget?.maxMs ?? 700;
     const hardMaxMs = options.budget?.hardMaxMs ?? maxMs;
     const maxNodes = options.budget?.maxNodes ?? 40;
+    const deterministic = options.budget?.deterministic === true;
     const maxDepth = options.maxDepth ?? 8;
     const heuristicAi = options.heuristicAi ?? new HeuristicAI();
 
@@ -394,13 +402,14 @@ export function runBoundedSearch(
 
     const elapsedMs = (): number => performance.now() - startMs;
     const checkSoftDeadline = (): boolean => {
+        if (deterministic) return false;
         if (elapsedMs() >= maxMs) {
             wallClockExceeded = true;
             return true;
         }
         return false;
     };
-    const checkHardDeadline = (): boolean => elapsedMs() >= hardMaxMs;
+    const checkHardDeadline = (): boolean => !deterministic && elapsedMs() >= hardMaxMs;
 
     const legalActions = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
     if (legalActions.length === 0) {
