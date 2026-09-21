@@ -1,0 +1,61 @@
+{
+  "runId": "agent_upgrade_20260922_v8_reeval_02",
+  "statusTaxonomy": ["IMPLEMENTED", "TESTED", "MEASURED", "QUALIFIED", "BLOCKED/NOT_RUN"],
+  "generatedFrom": "measured artifacts in this directory only; no status is copied from an earlier run",
+  "tasks": {
+    "R8-01": {
+      "title": "Unify spatial/NET_A call interface, value-null and finite checks, reject missing models",
+      "status": "TESTED",
+      "subTasks": {
+        "twoArgPredictContractAllThreeEntrances": { "status": "TESTED", "evidence": "tools/v8_contract_entrypoints.test.ts R8-01-ENTRY-A" },
+        "crossEntranceLogitAndCandidateIdentity": { "status": "TESTED", "evidence": "R8-01-ENTRY-A agrees across direct predict / PolicyAgent / S10 prior / DAgger" },
+        "candidateSetSizesIncludingAbove20": { "status": "TESTED", "evidence": "R8-01-ENTRY-C asserts a >20 fixture was actually reached" },
+        "bothSeats": { "status": "TESTED", "evidence": "R8-01-ENTRY-B" },
+        "realPendingState": { "status": "BLOCKED/NOT_RUN", "evidence": "R8-01-ENTRY-E found no reachable pending fixture in budget and returned without asserting; pending path is NOT covered" },
+        "permutationEquivariance": { "status": "TESTED", "evidence": "R8-01-ENTRY-D" },
+        "missingModelDistinctFromBrokenModel": { "status": "TESTED", "evidence": "R8-01-ENTRY-F/G/H: NOT_RUN vs MODEL_LOAD_ERROR" },
+        "netANullValueBatchNoNaN": { "status": "TESTED", "evidence": "R8-01-NETA-A/B/C/D on the real NET_A checkpoint" },
+        "typecheck": { "status": "TESTED", "evidence": "typecheck.log, exit code 0, 0 errors, no any/ts-ignore/business-file exclusion" }
+      }
+    },
+    "R8-02": {
+      "title": "Fix evaluation truncation, seed streams, recovery window accounting and trajectory error branches",
+      "status": "MEASURED",
+      "subTasks": {
+        "unitCountStagnationCutoffRemoved": { "status": "TESTED", "note": "pre-existing fix by the user, re-verified; dead members stagnationCounter/lastUnitCount remain in v7_unified_evaluation.ts and TRUNCATION_STAGNATION is still in the union type" },
+        "independentPrngStreams": { "status": "TESTED", "note": "pre-existing; per-match seedStreamInfo recorded" },
+        "recoveryWindowAccounting": { "status": "MEASURED", "evidence": "recoveryWindowDurations + recoveryWindowCompletionRate added; main-stage table in NEXT_ACTION.md section 1" },
+        "fixedNodeBudgetReplay": { "status": "MEASURED", "evidence": "deterministic_replay_equality.json: 4/4 matches identical on every gameplay and search-effort field" },
+        "perMatchIdentityTelemetry": { "status": "MEASURED", "evidence": "every outcome carries provenance {codeCommit, workspaceDirty, dirtyPatchHash, node, platform} plus checkpointSha256, encoderVersion, rulesHash, initialStateHash, seedStreamInfo, protocol" },
+        "failureAndTruncationArchiving": { "status": "MEASURED", "evidence": "failure_windows.json (111 entries) and truncation_trajectories.json (30 files)" }
+      }
+    },
+    "R8-03": {
+      "title": "Re-measure existing checkpoints without retraining; retire over-claims",
+      "status": "MEASURED",
+      "subTasks": {
+        "frozenWeightsUnchanged": { "status": "MEASURED", "evidence": "three checkpoint SHA-256 recorded in execution_manifest.json, no training invoked" },
+        "matrix": { "status": "MEASURED", "evidence": "120 matches, 5 maps x 2 seats x 2 seeds x 6 policies" },
+        "sampleSizeCaveat": { "status": "MEASURED", "evidence": "20 matches per arm; win-rate CIs reported, no overall champion claimed" },
+        "checkpointProvenanceCaveat": { "status": "BLOCKED/NOT_RUN", "note": "the evaluated spatial checkpoints come from a 100-state (95/5) smoke corpus; conclusions describe that checkpoint, not the architecture" },
+        "qualifiedCheckpointComparison": { "status": "BLOCKED/NOT_RUN", "note": "not re-run against the 6.5k-7.8k checkpoints; that is the required next step" }
+      }
+    },
+    "R8-04": { "title": "Same-turn search span, opponent response, candidate quotas, interpretable leaf values", "status": "BLOCKED/NOT_RUN", "note": "response-coverage telemetry and node-vs-wall-clock ablation not implemented" },
+    "R8-05": { "title": "Full-game sampling, complete state hash, unified split, real consumption, curriculum postconditions", "status": "BLOCKED/NOT_RUN" },
+    "R8-06": { "title": "Spatial 2-block 10k to 30k trial", "status": "BLOCKED/NOT_RUN", "note": "30k remains blocked in docs/training/reports/agent_upgrade_20260921_v8_closure_02/stage1_training_design.md" },
+    "R8-07": { "title": "One round of student-state DAgger correction with paired pre/post evaluation", "status": "TESTED", "note": "covered by the existing tools/v8_r8_07_dagger_loop.test.ts which passes; not newly implemented in this batch" }
+  },
+  "overallVerdict": {
+    "defaultProductionPolicy": "HeuristicAI",
+    "defaultProductionPolicyChanged": false,
+    "gameRulesChanged": false,
+    "weightsRetrained": false,
+    "computeRented": false,
+    "gitPushPerformed": false,
+    "headCommit": "28f0b847a0ac0147cdb8e096ac7ad9c132e85cb4",
+    "fullRegressionSuite": { "testFiles": 80, "tests": 713, "failures": 0, "status": "TESTED" },
+    "thirtyKStatus": { "status": "BLOCKED/NOT_RUN" },
+    "headline": "Engineering fixes are implemented, tested and measured; the spatial policies remain unqualified, and this batch does NOT establish that the spatial architecture is unusable because the evaluated checkpoints are smoke-scale (100 states)."
+  }
+}

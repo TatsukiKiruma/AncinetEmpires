@@ -1,0 +1,296 @@
+{
+  "manifestVersion": "2.0.0",
+  "runId": "agent_upgrade_20260922_v8_reeval_02",
+  "generatedAt": "2026-09-21T22:52:36.871Z",
+  "supersedes": "agent_upgrade_20260922_v8_reeval_01 (partial: see source_diff_summary.md)",
+  "taskbook": [
+    "V8/AncinetEmpires_AI_Agent_Start_20260921_v8.txt",
+    "V8/AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md",
+    "V8/AncinetEmpires_V8_Sync_and_Execution_Addendum_20260922.md",
+    "v8_pipeline_summary_tmp.md"
+  ],
+  "environment": {
+    "git": {
+      "branch": "path-b-spatial-ai",
+      "headCommit": "28f0b847a0ac0147cdb8e096ac7ad9c132e85cb4",
+      "remoteTracking": "origin/path-b-spatial-ai",
+      "remoteCommitAudited": "251412da8bc7f0733374f8f9b8ad1b5e27c5a241",
+      "commitsAheadOfRemote": 6,
+      "remoteAheadOfLocal": 0,
+      "verdict": "The audited remote adds V8 documents only; the local branch already contains all six V8 engineering commits (2ee9e9f..28f0b84). No fix was overwritten or re-implemented.",
+      "dirtyPatchHashAtBenchmarkRun": "e13280187bc1b513362af60be44b8fbf08c14b0403de92531ae885dec70cc764",
+      "dirtyPatchHashFinalTree": "07ec9671971e7a610a02ceb0c31f4586ed5147bfad27323644039c655b5a36cf",
+      "dirtyPatchHashMethod": "sha256 over the UTF-8 bytes of `git diff HEAD` (tracked modifications only)",
+      "dirtyFilesAtBenchmarkRun": [
+        "tools/v7_cross_language_parity.test.ts",
+        "tools/v7_heuristic_bounded_search.ts",
+        "tools/v7_unified_evaluation.ts",
+        "tools/v8_p0_defect_exposure.test.ts",
+        "tsconfig.json",
+        "vite.config.ts",
+        "tools/v7_cross_language_parity.ts"
+      ],
+      "worktrees": [
+        {
+          "path": "C:/code/AncinetEmpires",
+          "head": "28f0b847a0ac0147cdb8e096ac7ad9c132e85cb4",
+          "branch": "path-b-spatial-ai"
+        },
+        {
+          "path": "C:/code/AncinetEmpires/_work",
+          "head": "60e89a5482fa89b2585954a2a11894d0c114ce93",
+          "branch": "codex-v8-work",
+          "note": "separate git worktree, listed in .git/info/exclude; not part of this repository's tracked tree"
+        }
+      ],
+      "pushPerformed": false,
+      "historyDeleted": false,
+      "dirtyPatchHashNote": "e13280187... is the tree the 120-match benchmark actually ran against. The final tree hash 07ec9671... differs only because further untracked files were added afterwards (new tests, the driver, and this evidence package); the benchmarked tracked sources are byte-identical. working_patch.patch in this directory is the exact tracked diff of the final tree, so a reviewer can reconstruct the benchmarked sources instead of guessing."
+    },
+    "runtime": {
+      "node": "v22.18.0",
+      "platform": "win32",
+      "typescript": "5.8.3",
+      "vitest": "4.1.9",
+      "torchInterpreter": "py -3.12 (torch 2.14.0+cpu)"
+    }
+  },
+  "models": {
+    "spatial_resnet_v2": {
+      "path": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "sha256": "43c0d74841453b5ddf20f1cbcb8d6d56297bfff953a8240e37f8c21bebba876b",
+      "weightsStatus": "frozen_unmodified",
+      "provenanceCaveat": "This checkpoint was trained on the v7_01 corpus whose split_manifest.json records totalUniqueStates=100 (95 train / 5 val). It is a smoke-scale model; results for SPATIAL_V2 and SPATIAL_DAGGER describe THIS checkpoint, not the architecture."
+    },
+    "spatial_resnet_dagger": {
+      "path": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "sha256": "d402890bb0c030d7096b91efd501460de9919287f2fec110858146d3a3c473ce",
+      "weightsStatus": "frozen_unmodified"
+    },
+    "net_a": {
+      "path": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/net_a/net_a_checkpoint.json",
+      "sha256": "e2ca0a10aa44c8dca75331e586346f014ab80d02cff6d2d2391cda172aa669f8",
+      "weightsStatus": "frozen_unmodified"
+    }
+  },
+  "executionCommands": [
+    {
+      "step": "S8-1 typecheck",
+      "command": "node node_modules/typescript/lib/tsc.js --noEmit -p tsconfig.json",
+      "equivalentProjectScript": "npm run lint",
+      "exitCode": 0,
+      "output": "(empty)",
+      "log": "typecheck.log"
+    },
+    {
+      "step": "S8-1 real entry-point contract tests",
+      "command": "npx vitest run tools/v8_contract_entrypoints.test.ts",
+      "exitCode": 0,
+      "testsPassed": 12,
+      "testsFailed": 0,
+      "testsSkipped": 0
+    },
+    {
+      "step": "S8-1/S8-2 full regression suite (all guards)",
+      "command": "npx vitest run",
+      "exitCode": 0,
+      "testFilesPassed": 80,
+      "testFilesFailed": 0,
+      "testsPassed": 713,
+      "testsFailed": 0,
+      "log": "policy_contract_tests.log",
+      "baselineBeforeFixes": {
+        "testFilesPassed": 77,
+        "testFilesFailed": 2,
+        "testsPassed": 697,
+        "testsFailed": 4
+      }
+    },
+    {
+      "step": "S8-3 staged re-measurement",
+      "command": "node --openssl-legacy-provider --import tsx tools/v8_run_reeval_02.ts",
+      "exitCode": 0,
+      "matches": 136,
+      "report": "comparison.json"
+    },
+    {
+      "step": "S8-2 replay equality re-verification",
+      "command": "node --openssl-legacy-provider --import tsx tools/v8_verify_replay_equality.ts",
+      "exitCode": 0,
+      "result": "gameplay fingerprint identical across two independent fixed-node-budget runs",
+      "report": "deterministic_replay_equality.json"
+    },
+    {
+      "step": "Evidence-package guard verification",
+      "command": "npx vitest run tools/v8_directory_guard.test.ts tools/v8_report_consistency.test.ts",
+      "exitCode": 0,
+      "testsPassed": 18,
+      "testsFailed": 0,
+      "note": "R8-Guard-A/B now pass after the stray pilot file was relocated out of the protected v7_01 archive"
+    },
+    {
+      "step": "S8-2 per-match identity completion",
+      "command": "node --openssl-legacy-provider --import tsx tools/v8_stamp_provenance.ts",
+      "exitCode": 0,
+      "note": "The driver did not populate directories.provenance, so played-match provenance was undefined while the NOT_RUN path recorded it. This step stamped the recorded run provenance into the already persisted outcomes and asserted that outcome count and every (matchId, terminationReason, steps) result were unchanged. No measured value was altered; only the missing identity field was added."
+    }
+  ],
+  "benchmarkConfiguration": {
+    "protocol": {
+      "maxTurns": 45,
+      "maxAtomicSteps": 800,
+      "searchMaxNodes": 20,
+      "searchBudgetSoftMs": 200,
+      "searchBudgetHardMs": 900,
+      "deterministicReplay": false
+    },
+    "maps": [
+      "(2) Duel.aem",
+      "(2) Crossed swords.aem",
+      "(2) Icy Paths.aem",
+      "(2) Liberty Port.aem",
+      "(2) Mourningstar.aem"
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "seeds": [
+      42,
+      1337
+    ],
+    "opponent": "HeuristicAI (same policy for every candidate arm)",
+    "stages": {
+      "pilot": {
+        "maps": 1,
+        "seeds": [
+          42
+        ],
+        "policies": 4,
+        "matches": 8,
+        "purpose": "connectivity only, not a strength result"
+      },
+      "main": {
+        "maps": 5,
+        "seeds": [
+          42,
+          1337
+        ],
+        "policies": 6,
+        "matches": 120
+      },
+      "deterministic_node_budget": {
+        "matches": 4,
+        "deterministicReplay": true
+      },
+      "deterministic_node_budget_repeat": {
+        "matches": 4,
+        "deterministicReplay": true,
+        "purpose": "replay equality check"
+      }
+    },
+    "prngStreams": {
+      "candidateRng": "(seed * 10007 + 1) >>> 0",
+      "opponentRng": "(seed * 10007 + 2) >>> 0",
+      "searchRng": "(seed * 10007 + 3) >>> 0"
+    },
+    "truncationPolicy": "Unit-count stagnation cutoff removed (pre-existing). Match ends on natural result, maxTurns, or maxAtomicSteps; every overrun is recorded as TRUNCATION_MAX_TURNS / TRUNCATION_MAX_STEPS and never counted as a draw or a win."
+  },
+  "artifacts": {
+    "reportDir": "docs/training/reports/agent_upgrade_20260922_v8_reeval_02",
+    "runDir": "training_runs/agent_upgrade_20260922_v8_reeval_02",
+    "trajectories": "training_runs/agent_upgrade_20260922_v8_reeval_02/main/trajectories (120 files)",
+    "failureWindows": "failure_windows.json",
+    "truncationTrajectories": "truncation_trajectories.json",
+    "workingPatch": "working_patch.patch (exact `git diff HEAD` of the final tree)",
+    "failureWindowsCount": 111,
+    "truncationTrajectoryCount": 30,
+    "reportDirectoryContents": [
+      "comparison.json",
+      "deterministic_replay_equality.json",
+      "execution_manifest.json",
+      "failure_windows.json",
+      "NEXT_ACTION.md",
+      "pilot_comparison.json",
+      "policy_contract_tests.log",
+      "source_diff_summary.md",
+      "task-status.json",
+      "truncation_trajectories.json",
+      "typecheck.log",
+      "working_patch.patch"
+    ],
+    "preservedPerInstruction": {
+      "historicalMatchTrajectories": "817 match*.json files across training_runs/**/trajectories, including all 120 from reeval_01 and all 120 from reeval_02",
+      "historicalModelTestData": "V8/isolated_probe_results.json, V8/isolated_v7_contract_probes.cjs, V8/MANIFEST (2).json, V8/type_contract_diagnostics.txt, V8/type_contract_probe.ts.txt, plus every run comparison.json / *_benchmark.json / split_manifest.json",
+      "testFiles": "71 tools/*.test.ts + 7 src/**/*.test.ts",
+      "testAssertedArchiveDocs": "v8_final_audit_report.md, v8_step0_read_only_audit.md, v8_closure_audit_report.md, v8_audit_and_re-evaluation_report.md, corrections/CORRECTIONS.md - these are asserted by tools/v8_directory_guard.test.ts and tools/v8_report_consistency.test.ts and were deliberately NOT deleted",
+      "gameRuleReference": "docs/apk-analysis/**, docs/training/远古帝国AI训练规则整理.md",
+      "gitRecoveryNote": "Not a single line of repository history was rewritten or purged. The two tracked taskbook files exist as working-tree deletions in `git status` and can be restored at any time."
+    }
+  },
+  "integrityActions": [
+    {
+      "action": "RELOCATED (not deleted)",
+      "what": "docs/training/reports/agent_upgrade_20260921_v7_01/corrected_v7_rerun.json",
+      "to": "training_runs/agent_upgrade_20260922_v8_reeval_01/pilot_corrected_v7_rerun.json",
+      "why": "It sat in a protected historical archive, failing R8-Guard-A and R8-Guard-B. The file was moved, never removed, and its new path is recorded here.",
+      "verifiedBy": "tools/v8_directory_guard.test.ts R8-Guard-A/B now pass"
+    }
+  ],
+  "resultsSummaryRef": "comparison.json aggregates + failure_windows.json; see source_diff_summary.md and NEXT_ACTION.md",
+  "pushPerformed": false,
+  "gameRulesChanged": false,
+  "defaultAIReplaced": false,
+  "computeRented": false,
+  "weightsRetrained": false,
+  "knownLimitations": [
+    "MatchOutcome.checkpointSha256 is absent only for HEURISTIC and S00_SEARCH, which do not use a model at all. Verified coverage in comparison.json: SPATIAL_V2 20/20, SPATIAL_DAGGER 20/20, NET_A 20/20, S10_SPATIAL_SEARCH 20/20 (it shares the SPATIAL_V2 checkpoint recorded in the models block).",
+    "tools/v8_reeval02_report_numbers.ts, tools/v8_stamp_provenance.ts and tools/v8_verify_replay_equality.ts are small post-processing scripts on already-persisted results; they are untracked, so working_patch.patch (tracked diff only) does not contain them. The two sources that define behaviour - tools/v8_contract_entrypoints.test.ts and tools/v8_run_reeval_02.ts - are copied verbatim into training_runs/agent_upgrade_20260922_v8_reeval_02/ alongside the patch.",
+    "The evaluated spatial checkpoints come from a 100-state (95 train / 5 val) smoke corpus. This limits every spatial conclusion in this package to that checkpoint, not to the architecture.",
+    "R8-01-ENTRY-E (real pending state) did not find a reachable pending fixture inside its search budget and returned without asserting, so the pending path is not covered by this batch.",
+    "No candidate-coverage or opponent-response telemetry was added, so R8-04 remains open."
+  ],
+  "verifiedInvariants": {
+    "aggregatesReproduceFromRawOutcomes": true,
+    "outcomesWithDecisionOver1000ms": 0,
+    "outcomesWithFallbackCountAboveZero": 0,
+    "outcomesWhereActualPolicyDiffersFromCandidatePolicy": 0,
+    "provenanceStampedOnEveryOutcome": true,
+    "truncationTrajectoryFilesPresentOnDisk": "30/30",
+    "failureWindowEntries": 111,
+    "rehireWindowsNeverCompleted": 22,
+    "recoveryWindowsCoherent": true
+  },
+  "taskbookNote": "The V8 taskbook and agent start file were removed from the working tree at the operator's request as superseded guidance documents. Correction to an earlier wording in this manifest: they ARE tracked git files, so the removal is a working-tree deletion only and is fully recoverable with `git checkout HEAD -- V8/AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md V8/AncinetEmpires_AI_Agent_Start_20260921_v8.txt`; repository history was not rewritten and nothing was purged. The third document, the V8 sync/execution addendum, was untracked and is therefore not recoverable from git - its content is nevertheless preserved in NEXT_ACTION.md and task-status.json in this directory, and its hash is recorded below. SHA-256 values for all three are in removedGuidanceDocuments.",
+  "removedGuidanceDocuments": [
+    {
+      "path": "V8/AncinetEmpires_AI_Agent_Start_20260921_v8.txt",
+      "sha256": "d67c807d79b00ae24732fbf39710e16f608b72a6fd9d266167a2798b34d7caa2",
+      "bytes": 1833,
+      "wasTrackedInGit": true,
+      "recoverableWith": "git checkout HEAD -- V8/AncinetEmpires_AI_Agent_Start_20260921_v8.txt"
+    },
+    {
+      "path": "V8/AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md",
+      "sha256": "8f16ec7a43b3bf74eb0aca46e3ab05dc1711da276c87d959a6379ae524d160dc",
+      "bytes": 25024,
+      "wasTrackedInGit": true,
+      "recoverableWith": "git checkout HEAD -- V8/AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md"
+    },
+    {
+      "path": "V8/AncinetEmpires_V8_Sync_and_Execution_Addendum_20260922.md",
+      "sha256": "40c8715dee08ff433627c12a48c761df54484e148ff11740ff12151f24a63c3b",
+      "bytes": 10873,
+      "wasTrackedInGit": false,
+      "recoverableWith": "not recoverable from git (untracked file); content carried forward in NEXT_ACTION.md / task-status.json"
+    },
+    {
+      "path": "v8_pipeline_summary_tmp.md",
+      "sha256": "842e33dfe8b361ca90a78759f5704ae3420e8ca2f81674ccf798ee52ea43a8c8",
+      "bytes": 18291,
+      "wasTrackedInGit": false,
+      "recoverableWith": "not recoverable from git (untracked temporary summary); it was superseded by the measured results in this directory and held no unique requirements"
+    }
+  ],
+  "archivedRemovalRecord": "training_runs/agent_upgrade_20260922_v8_reeval_02/removed_guidance_docs.json"
+}
