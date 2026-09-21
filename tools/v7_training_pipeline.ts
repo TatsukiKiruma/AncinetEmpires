@@ -24,6 +24,7 @@ import { getApkSkirmishRuleConfig } from '../src/game/apk_skirmish';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { Action, GameState, Position, Unit } from '../src/game/types';
 import { getUnitCost, isCommanderUnit } from '../src/game/rule_config';
+import { getTileTerrainKey } from '../src/game/terrain_rules';
 import {
     encodeGameStateSpatial,
     encodeCandidateActionSpatial
@@ -38,6 +39,7 @@ import {
 } from './skirmish_dual_head_net';
 import { encodeGameState, encodeGameActionV2 } from './skirmish_network_features';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
+import { resolveTorchPython } from './v8_python_env';
 
 const RUN_ID = 'agent_upgrade_20260921_v7_01';
 const REPORT_DIR = path.resolve(`docs/training/reports/${RUN_ID}`);
@@ -57,11 +59,51 @@ export const V7_MAPS = [
     { name: 'DEMO_MAP', label: 'Demo Map' }
 ];
 
-function getStateHash(state: GameState, playerId: number): string {
-    const unitsStr = state.units.map(u => `${u.id}:${u.ownerId}:${u.unitClass}:${u.pos.x},${u.pos.y}:${u.hp}`).sort().join('|');
-    const goldStr = state.players.map(p => `${p.id}:${p.gold}`).join('|');
-    return createHash('sha256').update(`${state.mapName}:${state.turn}:${playerId}:${goldStr}:${unitsStr}`).digest('hex').substring(0, 16);
+export function getBehavioralStateHash(state: GameState, playerId: number): string {
+    const mapName = (state as any).mapName ?? (state.metadata as any)?.apkMapName ?? (state.metadata as any)?.mapName ?? 'unknown_map';
+    const turn = state.turn;
+    const curPlayer = state.currentPlayer;
+    const pending = state.pendingUnitId ?? 'none';
+    const winner = state.winner ?? 'none';
+
+    // 1. Players: id, gold, commanderDeathCount, isAlive, reserve properties
+    const playersStr = state.players
+        .map(p => `${p.id}:${p.gold}:${p.commanderDeathCount ?? 0}:${p.isAlive ? 1 : 0}:${(p as any).reserveLevel ?? 0}:${(p as any).reserveExp ?? 0}:${(p as any).reserveGold ?? 0}`)
+        .sort()
+        .join(';');
+
+    // 2. Units: ownerId, unitClass, pos, hp, hasMoved, hasActed, status, level, exp, support/heal
+    const unitsStr = state.units
+        .filter(u => u.hp > 0)
+        .map(u => `${u.ownerId}:${u.unitClass}:${u.pos.x},${u.pos.y}:${u.hp}:${u.hasMoved ? 1 : 0}:${u.hasActed ? 1 : 0}:${u.status ?? 'normal'}:${u.level ?? 0}:${u.exp ?? 0}:${u.hasBeenSupportedThisTurn ? 1 : 0}:${(u as any).hasBeenHealedThisTurn ? 1 : 0}`)
+        .sort()
+        .join(';');
+
+    // 3. Buildings: castles, towns, damaged towns ownership
+    const buildings: string[] = [];
+    for (let y = 0; y < state.map.height; y++) {
+        for (let x = 0; x < state.map.width; x++) {
+            const t = state.map.tiles[y][x];
+            const tKey = getTileTerrainKey(t);
+            if (tKey === 'castle' || tKey === 'town' || tKey === 'damaged_town') {
+                buildings.push(`${x},${y}:${tKey}:${t.ownerId ?? 'null'}`);
+            }
+        }
+    }
+    const bStr = buildings.sort().join(';');
+
+    // 4. Graves & Rules
+    const gravesStr = (state.graves ?? [])
+        .map(g => `${g.pos.x},${g.pos.y}:${g.remainingTurns ?? 0}`)
+        .sort()
+        .join(';');
+    const rulesStr = JSON.stringify(state.rules ?? {});
+
+    const raw = `${mapName}|t:${turn}|cp:${curPlayer}|p:${playerId}|w:${winner}|pending:${pending}|players:${playersStr}|units:${unitsStr}|buildings:${bStr}|graves:${gravesStr}|rules:${rulesStr}`;
+    return createHash('sha256').update(raw).digest('hex').substring(0, 24);
 }
+
+export const getStateHash = getBehavioralStateHash;
 
 function getSha256(content: string): string {
     return createHash('sha256').update(content).digest('hex');
@@ -80,13 +122,24 @@ export interface V7SampleRecord {
     targetActionCode: string;
 }
 
+export interface PipelineDirectories {
+    runId?: string;
+    runDir?: string;
+    reportDir?: string;
+    datasetDir?: string;
+    checkpointDir?: string;
+    consumedDir?: string;
+}
+
 export async function generateV7Dataset(options: {
     totalTarget?: number;
     generalTarget?: number;
     curriculumTarget?: number;
+    directories?: PipelineDirectories;
 } = {}): Promise<{
     spatialDatasetPath: string;
     dualHeadDatasetPath: string;
+    splitManifestPath: string;
     totalUniqueStates: number;
     trainCount: number;
     valCount: number;
@@ -95,19 +148,27 @@ export async function generateV7Dataset(options: {
     const GENERAL_TARGET = options.generalTarget ?? 21000;
     const CURRICULUM_TARGET = options.curriculumTarget ?? 9000;
 
+    const runId = options.directories?.runId ?? RUN_ID;
+    const runDir = options.directories?.runDir ?? (options.directories?.runId ? path.resolve(`training_runs/${options.directories.runId}`) : RUN_DIR);
+    const reportDir = options.directories?.reportDir ?? (options.directories?.runId ? path.resolve(`docs/training/reports/${options.directories.runId}`) : REPORT_DIR);
+    const datasetDir = options.directories?.datasetDir ?? path.join(runDir, 'datasets');
+    const checkpointDir = options.directories?.checkpointDir ?? path.join(runDir, 'checkpoints');
+    const consumedDir = options.directories?.consumedDir ?? path.join(runDir, 'consumed_samples');
+
     console.log(`\n=======================================================`);
     console.log(`[V7 Dataset Generation] Target: ${TOTAL_TARGET} states (${GENERAL_TARGET} skirmish + ${CURRICULUM_TARGET} curriculum)`);
+    console.log(`Run ID: ${runId} | Output: ${datasetDir}`);
     console.log(`Across ${V7_MAPS.length} maps, both seats, root-isolated`);
     console.log(`=======================================================\n`);
 
-    mkdirSync(DATASET_DIR, { recursive: true });
-    mkdirSync(CONSUMED_DIR, { recursive: true });
-    mkdirSync(REPORT_DIR, { recursive: true });
+    mkdirSync(datasetDir, { recursive: true });
+    mkdirSync(consumedDir, { recursive: true });
+    mkdirSync(reportDir, { recursive: true });
 
-    const spatialFile = path.join(DATASET_DIR, 'd_v7_spatial.jsonl');
-    const dualHeadFile = path.join(DATASET_DIR, 'd_v7_dual_head.json');
-    const consumedFile = path.join(CONSUMED_DIR, 'consumed_ids.jsonl');
-    const quarantineFile = path.join(DATASET_DIR, 'quarantine.jsonl');
+    const spatialFile = path.join(datasetDir, 'd_v7_spatial.jsonl');
+    const dualHeadFile = path.join(datasetDir, 'd_v7_dual_head.json');
+    const consumedFile = path.join(consumedDir, 'consumed_ids.jsonl');
+    const quarantineFile = path.join(datasetDir, 'quarantine.jsonl');
 
     const spatialStream = createWriteStream(spatialFile, { flags: 'w' });
     const consumedStream = createWriteStream(consumedFile, { flags: 'w' });
@@ -190,10 +251,12 @@ export async function generateV7Dataset(options: {
         const sVec = Array.from(encodeGameState(state, playerId));
         const cVecs = legalActions.map(a => Array.from(encodeGameActionV2(state, playerId, a)));
         dualHeadSamples.push({
+            sampleId,
+            rootFamilyId: rootId,
             state: sVec,
             candidates: cVecs,
             labelIndex: targetIdx,
-            valueTarget: undefined // policy-only
+            valueTarget: null // strictly null for policy-only, NEVER undefined
         });
 
         // 3. Consumed tracking
@@ -202,7 +265,7 @@ export async function generateV7Dataset(options: {
             sampleId,
             episodeId: epId,
             rootFamilyId: rootId,
-            mapName: state.mapName,
+            mapName: (state as any).mapName ?? 'unknown_map',
             scenarioGroup,
             turn: state.turn,
             step,
@@ -233,18 +296,20 @@ export async function generateV7Dataset(options: {
         const state: GameState = mapInfo.name === 'DEMO_MAP'
             ? createDemoState(sdRules)
             : createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        state.mapName = mapInfo.name;
+        (state as any).mapName = mapInfo.name;
 
-        // Vary initial gold across episodes to create diverse opening recruit decisions
-        const goldOffsets = [0, 50, 100, 200, 300, -50, 400, 150];
-        state.players[0].gold = Math.max(350, (state.players[0].gold ?? 500) + goldOffsets[episodeCounter % goldOffsets.length]);
+        // Decouple gold offsets and map sampling
+        const goldRand0 = ((episodeCounter * 997 + 1013) % 8);
+        const goldRand1 = ((episodeCounter * 617 + 2017) % 8);
+        const goldOffsets = [-50, 0, 50, 100, 150, 200, 300, 400];
+        state.players[0].gold = Math.max(350, (state.players[0].gold ?? 500) + goldOffsets[goldRand0]);
         if (state.players[1]) {
-            state.players[1].gold = Math.max(350, (state.players[1].gold ?? 500) + goldOffsets[(episodeCounter + 3) % goldOffsets.length]);
+            state.players[1].gold = Math.max(350, (state.players[1].gold ?? 500) + goldOffsets[goldRand1]);
         }
 
         const engine = new GameEngine(state);
         let steps = 0;
-        const MAX_STEPS = 90;
+        const MAX_STEPS = 400; // Full trajectory to natural endgame
 
         while (engine.getState().winner === null && steps < MAX_STEPS && totalGenerated < GENERAL_TARGET) {
             const curState = engine.getState();
@@ -253,7 +318,15 @@ export async function generateV7Dataset(options: {
             if (legal.length === 0) break;
 
             const expertAction = heuristicAi.getAction(engine, curPlayer);
-            addSample(curState, curPlayer, expertAction, 'GENERAL_SKIRMISH', epId, rootId, steps);
+            const turn = curState.turn;
+            const commDead = !curState.units.some(u => u.ownerId === curPlayer && u.unitClass === 'commander' && u.hp > 0);
+            let phase = 'MIDGAME';
+            if (turn <= 3) phase = 'OPENING';
+            else if (commDead) phase = 'COMMANDER_RECOVERY';
+            else if (turn <= 8) phase = 'ENGAGEMENT';
+            else if (turn > 20) phase = 'ENDGAME';
+
+            addSample(curState, curPlayer, expertAction, `SKIRMISH_${phase}`, epId, rootId, steps);
 
             // Step action: in early turns (turn <= 3), add 25% chance of picking a different legal recruit/move
             // to explore diverse game branches, while label is ALWAYS the true expertAction.
@@ -293,41 +366,45 @@ export async function generateV7Dataset(options: {
         return { x: 0, y: 0 };
     };
 
-    // Scenario A: Safe Immediate Rehire (Free castle, enough gold, commander dead)
+    // Scenario A: Safe Immediate Rehire (Free castle, enough gold, commander dead) - both seats
     let countA = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countA < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)]; // multi-map
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        const cPos = getCastlePos(state, 0);
-        state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
+        const pid = i % 2;
+        const cPos = getCastlePos(state, pid);
+        state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
         state.units = state.units.filter(u => !(u.pos.x === cPos.x && u.pos.y === cPos.y));
-        state.players[0].gold = 450 + (i % 8) * 50;
-        state.players[0].commanderDeathCount = 0;
+        state.players[pid].gold = 450 + (i % 8) * 50;
+        state.players[pid].commanderDeathCount = 0;
+        state.currentPlayer = pid;
         state.turn = 1 + (i % 5);
 
         const targetAction: Action = { type: 'recruit_to_castle', unitClass: 'commander', castlePos: cPos };
-        if (addSample(state, 0, targetAction, 'CURRICULUM_REHIRE', `ep_curr_a_${i}`, `root_curr_a_${mapInfo.label}`, 0)) {
+        if (addSample(state, pid, targetAction, 'CURRICULUM_REHIRE', `ep_curr_a_${i}`, `root_curr_a_${mapInfo.label}_p${pid}`, 0)) {
             countA++;
         }
     }
     console.log(`  -> Scenario A (Rehire): ${countA} unique verified samples`);
 
-    // Scenario B: Saving Gold (insufficient gold for commander, move friendly unit)
+    // Scenario B: Saving Gold (insufficient gold for commander, move friendly unit) - both seats
     let countB = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countB < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
-        state.players[0].gold = 50 + (i % 6) * 50; // 50..300 < 400
-        state.players[0].commanderDeathCount = 0;
+        const pid = i % 2;
+        state.currentPlayer = pid;
+        state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
+        state.players[pid].gold = 50 + (i % 6) * 50; // 50..300 < 400
+        state.players[pid].commanderDeathCount = 0;
         state.turn = 2 + (i % 6);
 
-        let friendlySoldier = state.units.find(u => u.ownerId === 0);
+        let friendlySoldier = state.units.find(u => u.ownerId === pid);
         if (!friendlySoldier) {
-            const cPos = getCastlePos(state, 0);
+            const cPos = getCastlePos(state, pid);
             friendlySoldier = {
                 id: `u_sol_${i}`,
-                ownerId: 0,
+                ownerId: pid,
                 unitClass: 'soldier',
                 pos: { x: Math.min(state.map.width - 1, cPos.x + 1), y: cPos.y },
                 hp: 100,
@@ -339,27 +416,29 @@ export async function generateV7Dataset(options: {
         }
 
         const engine = new GameEngine(state);
-        const legal = engine.getLegalActions(0).filter(a => a.type === 'move' && (a as any).unitId === friendlySoldier!.id);
+        const legal = engine.getLegalActions(pid).filter(a => a.type === 'move' && (a as any).unitId === friendlySoldier!.id);
         if (legal.length > 0) {
             const targetAction = legal[i % legal.length];
-            if (addSample(state, 0, targetAction, 'CURRICULUM_SAVING', `ep_curr_b_${i}`, `root_curr_b_${mapInfo.label}`, 0)) {
+            if (addSample(state, pid, targetAction, 'CURRICULUM_SAVING', `ep_curr_b_${i}`, `root_curr_b_${mapInfo.label}_p${pid}`, 0)) {
                 countB++;
             }
         }
     }
     console.log(`  -> Scenario B (Saving): ${countB} unique verified samples`);
 
-    // Scenario C: Unblocking Castle (Friendly unit moves OFF friendly castle)
+    // Scenario C: Unblocking Castle (Friendly unit moves OFF friendly castle) - both seats
     let countC = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countC < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        const cPos = getCastlePos(state, 0);
-        state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
+        const pid = i % 2;
+        state.currentPlayer = pid;
+        const cPos = getCastlePos(state, pid);
+        state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
         state.units = state.units.filter(u => !(u.pos.x === cPos.x && u.pos.y === cPos.y));
         const friendlySoldier: Unit = {
             id: `u_blocker_${i}`,
-            ownerId: 0,
+            ownerId: pid,
             unitClass: 'soldier',
             pos: { x: cPos.x, y: cPos.y },
             hp: 80 + (i % 20),
@@ -368,73 +447,84 @@ export async function generateV7Dataset(options: {
             hasActed: false
         };
         state.units.push(friendlySoldier);
-        state.players[0].gold = 600 + (i % 5) * 50;
-        state.players[0].commanderDeathCount = 0;
+        state.players[pid].gold = 600 + (i % 5) * 50;
+        state.players[pid].commanderDeathCount = 0;
         state.turn = 2 + (i % 5);
 
         const engine = new GameEngine(state);
-        const legalMoves = engine.getLegalActions(0).filter(a =>
+        const legalMoves = engine.getLegalActions(pid).filter(a =>
             a.type === 'move' && (a as any).unitId === friendlySoldier.id &&
             ((a as any).to.x !== cPos.x || (a as any).to.y !== cPos.y)
         );
         if (legalMoves.length > 0) {
             const targetAction = legalMoves[i % legalMoves.length];
-            if (addSample(state, 0, targetAction, 'CURRICULUM_UNBLOCK', `ep_curr_c_${i}`, `root_curr_c_${mapInfo.label}`, 0)) {
+            if (addSample(state, pid, targetAction, 'CURRICULUM_UNBLOCK', `ep_curr_c_${i}`, `root_curr_c_${mapInfo.label}_p${pid}`, 0)) {
                 countC++;
             }
         }
     }
     console.log(`  -> Scenario C (Unblocking): ${countC} unique verified samples`);
 
-    // Scenario D: Inflation (2nd / 3rd commander death price)
+    // Scenario D: Inflation (2nd / 3rd commander death price) - both seats
     let countD = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countD < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        const cPos = getCastlePos(state, 0);
-        state.units = state.units.filter(u => !(u.ownerId === 0 && u.unitClass === 'commander'));
+        const pid = i % 2;
+        state.currentPlayer = pid;
+        const cPos = getCastlePos(state, pid);
+        state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
         state.units = state.units.filter(u => !(u.pos.x === cPos.x && u.pos.y === cPos.y));
         const deaths = 1 + (i % 2); // 1 or 2
-        state.players[0].commanderDeathCount = deaths;
-        state.players[0].gold = (deaths === 1 ? 500 : 600) + (i % 4) * 50;
+        state.players[pid].commanderDeathCount = deaths;
+        state.players[pid].gold = (deaths === 1 ? 500 : 600) + (i % 4) * 50;
         state.turn = 3 + (i % 6);
 
         const targetAction: Action = { type: 'recruit_to_castle', unitClass: 'commander', castlePos: cPos };
-        if (addSample(state, 0, targetAction, 'CURRICULUM_INFLATION', `ep_curr_d_${i}`, `root_curr_d_${mapInfo.label}`, 0)) {
+        if (addSample(state, pid, targetAction, 'CURRICULUM_INFLATION', `ep_curr_d_${i}`, `root_curr_d_${mapInfo.label}_p${pid}`, 0)) {
             countD++;
         }
     }
     console.log(`  -> Scenario D (Inflation): ${countD} unique verified samples`);
 
-    // Scenario E: Pending Deployment (Move unit off castle)
+    // Scenario E: True Pending Deployment (Genuine recruit -> pendingUnitId -> deploy/clear postcondition)
     let countE = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countE < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
-        const cPos = getCastlePos(state, 0);
-        const deployUnit: Unit = {
-            id: `u_deploy_${i}`,
-            ownerId: 0,
-            unitClass: 'soldier',
-            pos: { x: cPos.x, y: cPos.y },
-            hp: 100,
-            maxHp: 100,
-            hasMoved: false,
-            hasActed: false
-        };
+        state.rules = { ...state.rules, commanderCastleRecruitUsesPending: true };
+        const pid = i % 2;
+        state.currentPlayer = pid;
+        const cPos = getCastlePos(state, pid);
+        state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
         state.units = state.units.filter(u => !(u.pos.x === cPos.x && u.pos.y === cPos.y));
-        state.units.push(deployUnit);
+        state.players[pid].gold = 800;
+        state.players[pid].commanderDeathCount = 0;
         state.turn = 2 + (i % 6);
 
         const engine = new GameEngine(state);
-        const deployMoves = engine.getLegalActions(0).filter(a =>
-            a.type === 'move' && (a as any).unitId === deployUnit.id &&
-            ((a as any).to.x !== cPos.x || (a as any).to.y !== cPos.y)
-        );
-        if (deployMoves.length > 0) {
-            const targetAction = deployMoves[i % deployMoves.length];
-            if (addSample(state, 0, targetAction, 'CURRICULUM_PENDING', `ep_curr_e_${i}`, `root_curr_e_${mapInfo.label}`, 0)) {
-                countE++;
+        const recruitActions = engine.getLegalActions(pid).filter(a => a.type === 'recruit_to_castle');
+        if (recruitActions.length > 0) {
+            // Execute real recruit to create genuine pending state
+            const recruitAction = recruitActions[i % recruitActions.length];
+            engine.step(recruitAction);
+            const pendingState = engine.getState();
+            if (pendingState.pendingUnitId) {
+                const legals = engine.getLegalActions(pid);
+                const deployCandidates = legals.filter(a => a.type === 'move' || a.type === 'wait');
+                if (deployCandidates.length > 0) {
+                    const deployAction = deployCandidates[i % deployCandidates.length];
+                    const testSim = engine.clone();
+                    testSim.step(deployAction);
+                    if (deployAction.type === 'move') {
+                        testSim.step({ type: 'wait', unitId: pendingState.pendingUnitId });
+                    }
+                    if (testSim.getState().pendingUnitId === null || testSim.getState().pendingUnitId === undefined) {
+                        if (addSample(pendingState, pid, deployAction, 'CURRICULUM_PENDING', `ep_curr_e_${i}`, `root_curr_e_${mapInfo.label}_p${pid}`, 1)) {
+                            countE++;
+                        }
+                    }
+                }
             }
         }
     }
@@ -444,8 +534,12 @@ export async function generateV7Dataset(options: {
     let countF = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countF < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const state = createDemoState(sdRules);
-        state.players[0].gold = 500;
-        const friendlySoldier = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier')!;
+        const pid = i % 2;
+        const enemyPid = 1 - pid;
+        state.currentPlayer = pid;
+        state.players[pid].gold = 500;
+        const friendlySoldier = state.units.find(u => u.ownerId === pid && u.unitClass === 'soldier')!;
+        if (!friendlySoldier) continue;
         const posX = 1 + (i % 4);
         const posY = 1 + (Math.floor(i / 4) % 4);
         friendlySoldier.pos = { x: posX, y: posY };
@@ -456,7 +550,7 @@ export async function generateV7Dataset(options: {
         state.units = state.units.filter(u => u.id !== threatId && !(u.pos.x === posX + 1 && u.pos.y === posY));
         state.units.push({
             id: threatId,
-            ownerId: 1,
+            ownerId: enemyPid,
             unitClass: 'soldier',
             pos: { x: posX + 1, y: posY },
             hp: 15 + (i % 20),
@@ -467,48 +561,69 @@ export async function generateV7Dataset(options: {
         state.turn = 2 + (i % 8);
 
         const engine = new GameEngine(state);
-        const legalAttacks = engine.getLegalActions(0).filter(a =>
+        const legalAttacks = engine.getLegalActions(pid).filter(a =>
             a.type === 'attack' && (a as any).attackerId === friendlySoldier.id && (a as any).targetId === threatId
         );
         if (legalAttacks.length > 0) {
             const targetAction = legalAttacks[0];
-            if (addSample(state, 0, targetAction, 'CURRICULUM_DEFENSE', `ep_curr_f_${i}`, 'root_curr_f', 0)) {
+            if (addSample(state, pid, targetAction, 'CURRICULUM_DEFENSE', `ep_curr_f_${i}`, `root_curr_f_p${pid}`, 0)) {
                 countF++;
             }
         }
     }
     console.log(`  -> Scenario F (Defense): ${countF} unique verified samples`);
 
-    // Scenario G: Decisive Victory (Attack enemy commander to win)
+    // Scenario G: Decisive Victory (Attack enemy commander to achieve decisive terminal win)
     let countG = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countG < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
         const state = createDemoState(sdRules);
-        const enemyComm = state.units.find(u => u.ownerId === 1 && u.unitClass === 'commander');
-        const friendlyUnit = state.units.find(u => u.ownerId === 0 && u.unitClass === 'soldier');
+        const pid = i % 2;
+        const enemyPid = 1 - pid;
+        state.currentPlayer = pid;
+        const enemyComm = state.units.find(u => u.ownerId === enemyPid && u.unitClass === 'commander');
+        const friendlyUnit = state.units.find(u => u.ownerId === pid && u.unitClass === 'soldier');
         if (enemyComm && friendlyUnit) {
             const eX = 2 + (i % 4);
             const eY = 2 + (Math.floor(i / 4) % 4);
-            enemyComm.hp = 5 + (i % 15);
+            enemyComm.hp = 1; // 1 HP guarantees lethal finish
             enemyComm.pos = { x: eX, y: eY };
             friendlyUnit.pos = { x: eX, y: eY - 1 };
             friendlyUnit.hasMoved = false;
             friendlyUnit.hasActed = false;
-            state.units = state.units.filter(u => u.id === enemyComm.id || u.id === friendlyUnit.id);
+
+            // Remove all other enemy units and enemy castle so eliminating commander triggers decisive victory
+            state.units = [friendlyUnit, enemyComm];
+            for (let y = 0; y < state.map.height; y++) {
+                for (let x = 0; x < state.map.width; x++) {
+                    if (state.map.tiles[y][x].ownerId === enemyPid) {
+                        state.map.tiles[y][x].ownerId = null;
+                    }
+                }
+            }
             state.turn = 5 + (i % 10);
 
             const engine = new GameEngine(state);
-            const legalFinishes = engine.getLegalActions(0).filter(a =>
+            const legalFinishes = engine.getLegalActions(pid).filter(a =>
                 a.type === 'attack' && (a as any).attackerId === friendlyUnit.id && (a as any).targetId === enemyComm.id
             );
             if (legalFinishes.length > 0) {
                 const targetAction = legalFinishes[0];
-                if (addSample(state, 0, targetAction, 'CURRICULUM_NATURAL_WIN', `ep_curr_g_${i}`, 'root_curr_g', 0)) {
-                    countG++;
+                // Rigorous Postcondition Verification: stepping action MUST produce true terminal victory!
+                const simTest = engine.clone();
+                simTest.step(targetAction);
+                if (simTest.getState().winner === pid && simTest.isTerminal()) {
+                    if (addSample(state, pid, targetAction, 'CURRICULUM_NATURAL_WIN', `ep_curr_g_${i}`, `root_curr_g_p${pid}`, 0)) {
+                        countG++;
+                    }
                 }
             }
         }
     }
     console.log(`  -> Scenario G (Victory): ${countG} unique verified samples`);
+
+    if (countE === 0) {
+        throw new Error(`[R8-05 Partial Failure] Curriculum E (pending) produced 0 samples! Cannot proceed with qualified dataset.`);
+    }
 
     await new Promise<void>(resolve => spatialStream.end(() => resolve()));
     await new Promise<void>(resolve => consumedStream.end(() => resolve()));
@@ -545,7 +660,7 @@ export async function generateV7Dataset(options: {
     }
 
     const manifest = {
-        runId: RUN_ID,
+        runId: runId,
         generatedAt: new Date().toISOString(),
         totalUniqueStates: totalGenerated,
         duplicateStatesFiltered: duplicateCount,
@@ -561,8 +676,8 @@ export async function generateV7Dataset(options: {
             G_victory: countG
         },
         rootFamiliesTotal: rootFamilies.length,
-        trainRootFamilies: trainRoots.size,
-        valRootFamilies: valRoots.size,
+        trainRootFamilies: Array.from(trainRoots),
+        valRootFamilies: Array.from(valRoots),
         trainSampleCount: trainCount,
         valSampleCount: valCount,
         files: {
@@ -573,57 +688,102 @@ export async function generateV7Dataset(options: {
         }
     };
 
-    const manifestPath = path.join(REPORT_DIR, 'data-and-training-coverage.json');
-    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+    const manifestPath = path.join(reportDir, 'data-and-training-coverage.json');
+    const splitManifestPathRun = path.join(runDir, 'split_manifest.json');
+    const splitManifestPathDoc = path.join(reportDir, 'split_manifest.json');
+    const manifestJson = JSON.stringify(manifest, null, 2);
+    writeFileSync(manifestPath, manifestJson, 'utf8');
+    writeFileSync(splitManifestPathRun, manifestJson, 'utf8');
+    writeFileSync(splitManifestPathDoc, manifestJson, 'utf8');
+
     console.log(`\n[V7 Dataset Manifest] Saved to: ${manifestPath}`);
+    console.log(`[V7 Unified Split Manifest] Saved to: ${splitManifestPathRun}`);
     console.log(`Total unique states: ${totalGenerated} (Train: ${trainCount}, Val: ${valCount}, Duplicates filtered: ${duplicateCount})`);
 
     return {
         spatialDatasetPath: spatialFile,
         dualHeadDatasetPath: dualHeadFile,
+        splitManifestPath: splitManifestPathRun,
         totalUniqueStates: totalGenerated,
         trainCount,
         valCount
     };
 }
 
-export async function trainV7SpatialModel(datasetPath: string, epochs: number = 4): Promise<{
+export async function trainV7SpatialModel(
+    datasetPath: string,
+    epochs: number = 4,
+    splitManifestPath?: string,
+    directories?: PipelineDirectories,
+    options?: { batchSize?: number; lr?: number }
+): Promise<{
     bestModelPath: string;
     lastModelPath: string;
     metricsPath: string;
+    consumedManifestPath: string;
 }> {
     console.log('\n=======================================================');
     console.log(`[V7 Spatial Training] Training Policy-Only Spatial ResNet v2 (32ch, 2 blocks, ${epochs} epochs)`);
     console.log('=======================================================\n');
 
-    const outDir = path.join(CHECKPOINT_DIR, 'spatial_resnet');
+    const checkpointDir = directories?.checkpointDir ?? (directories?.runId ? path.resolve(`training_runs/${directories.runId}/checkpoints`) : CHECKPOINT_DIR);
+    const outDir = path.join(checkpointDir, 'spatial_resnet');
     mkdirSync(outDir, { recursive: true });
 
     const bestModelPath = path.join(outDir, 'spatial_resnet_v2_best.json');
     const lastModelPath = path.join(outDir, 'spatial_resnet_v2_last.json');
     const metricsPath = path.join(outDir, 'spatial_resnet_v2_metrics.json');
+    const consumedManifestPath = path.join(outDir, 'consumed_samples_manifest.json');
 
-    const pyCmd = `python python/train_spatial_resnet.py --dataset "${datasetPath}" --epochs ${epochs} --batch-size 64 --lr 0.002 --value-weight 0.0 --out-model "${bestModelPath}" --out-last-model "${lastModelPath}" --out-metrics "${metricsPath}" --model-version spatial-resnet-v2 --num-blocks 2`;
-    console.log(`Executing: ${pyCmd}`);
+    const batchSize = options?.batchSize ?? 64;
+    const lr = options?.lr ?? 0.002;
+    const manifestArg = splitManifestPath ? ` --split-manifest "${splitManifestPath}"` : '';
+    // Resolve an interpreter that actually has torch: `python` on PATH is not always the one that
+    // trained the checkpoints. When it is, the resolved command is exactly `python`.
+    const { pythonCommand, torchVersion } = resolveTorchPython();
+    const pyCmd = `${pythonCommand} python/train_spatial_resnet.py --dataset "${datasetPath}" --epochs ${epochs} --batch-size ${batchSize} --lr ${lr} --value-weight 0.0 --out-model "${bestModelPath}" --out-last-model "${lastModelPath}" --out-metrics "${metricsPath}" --consumed-manifest "${consumedManifestPath}" --model-version spatial-resnet-v2 --num-blocks 2${manifestArg}`;
+    console.log(`Executing (interpreter ${pythonCommand}, torch ${torchVersion}): ${pyCmd}`);
     execSync(pyCmd, { stdio: 'inherit' });
 
     console.log(`\n[V7 Spatial Checkpoint] Saved best to: ${bestModelPath}`);
     console.log(`[V7 Spatial Checkpoint] Saved last to: ${lastModelPath}`);
-    return { bestModelPath, lastModelPath, metricsPath };
+    return { bestModelPath, lastModelPath, metricsPath, consumedManifestPath };
 }
 
-export async function trainV7NetAControl(dualHeadSamples: DualHeadSample[]): Promise<{
+export async function trainV7NetAControl(
+    dualHeadSamples: DualHeadSample[],
+    splitManifestPath?: string,
+    directories?: PipelineDirectories
+): Promise<{
     checkpointPath: string;
     metricsPath: string;
 }> {
     console.log('\n=======================================================');
-    console.log('[V7 NET_A Control] Training Low-Cost NET_A DualHead [256, 128] (Policy-Only)');
+    console.log('[V7 NET_A Control] Training Low-Cost NET_A DualHead [256, 128] (Policy-Only, Isolated Split)');
     console.log('=======================================================\n');
 
-    const outDir = path.join(CHECKPOINT_DIR, 'net_a');
+    const checkpointDir = directories?.checkpointDir ?? (directories?.runId ? path.resolve(`training_runs/${directories.runId}/checkpoints`) : CHECKPOINT_DIR);
+    const outDir = path.join(checkpointDir, 'net_a');
     mkdirSync(outDir, { recursive: true });
     const checkpointPath = path.join(outDir, 'net_a_checkpoint.json');
     const metricsPath = path.join(outDir, 'net_a_metrics.json');
+
+    // Filter by unified split manifest if available
+    let trainSamples = dualHeadSamples;
+    let valSamples: DualHeadSample[] = [];
+
+    if (splitManifestPath && existsSync(splitManifestPath)) {
+        const manifest = JSON.parse(readFileSync(splitManifestPath, 'utf8'));
+        const trainRoots = new Set<string>(manifest.trainRootFamilies ?? []);
+        const valRoots = new Set<string>(manifest.valRootFamilies ?? []);
+        trainSamples = dualHeadSamples.filter(s => s.rootFamilyId && trainRoots.has(s.rootFamilyId));
+        valSamples = dualHeadSamples.filter(s => s.rootFamilyId && valRoots.has(s.rootFamilyId));
+        console.log(`[NET_A Unified Split] Train samples: ${trainSamples.length} | Val samples: ${valSamples.length}`);
+    }
+
+    if (trainSamples.length === 0) {
+        trainSamples = dualHeadSamples;
+    }
 
     const specA: DualHeadSpec = {
         stateDim: 356,
@@ -637,28 +797,59 @@ export async function trainV7NetAControl(dualHeadSamples: DualHeadSample[]): Pro
     const netA = createDualHeadNet(specA);
     const batchSize = 64;
     const epochs = 3;
-    const totalSamples = dualHeadSamples.length;
     const history: any[] = [];
 
     for (let epoch = 1; epoch <= epochs; epoch++) {
         let totalPolicyLoss = 0;
         let batches = 0;
-        for (let i = 0; i < totalSamples; i += batchSize) {
-            const batch = dualHeadSamples.slice(i, i + batchSize);
+        for (let i = 0; i < trainSamples.length; i += batchSize) {
+            const batch = trainSamples.slice(i, i + batchSize);
             const report = trainStep(netA, batch, { learningRate: 0.005, momentum: 0.9, valueWeight: 0.0 });
             totalPolicyLoss += report.policyLoss;
             batches++;
         }
-        const avgLoss = totalPolicyLoss / batches;
-        console.log(`  NET_A Epoch ${epoch}/${epochs}: Avg Policy Loss ${avgLoss.toFixed(4)} (${batches} batches)`);
-        history.push({ epoch, policyLoss: avgLoss });
+        const avgTrainLoss = totalPolicyLoss / Math.max(1, batches);
+
+        // Validation loss on isolated val split
+        let valLoss = 0;
+        if (valSamples.length > 0) {
+            let valLossSum = 0;
+            let valBatches = 0;
+            for (let i = 0; i < valSamples.length; i += batchSize) {
+                const batch = valSamples.slice(i, i + batchSize);
+                // Compute policy cross-entropy loss without parameter updates
+                for (const s of batch) {
+                    const pred = predictDecision(netA, s.state, s.candidates);
+                    const pLoss = -Math.log(Math.max(1e-7, pred.probs[s.labelIndex]));
+                    valLossSum += pLoss;
+                }
+                valBatches += batch.length;
+            }
+            valLoss = valLossSum / Math.max(1, valBatches);
+        }
+
+        console.log(`  NET_A Epoch ${epoch}/${epochs}: Train Loss ${avgTrainLoss.toFixed(4)} | Val Loss ${valLoss.toFixed(4)}`);
+        history.push({ epoch, trainLoss: avgTrainLoss, valLoss });
     }
 
-    const netAJson = saveDualHeadModel(netA, { runId: RUN_ID, trainingDataset: 'D_V7' });
-    writeFileSync(checkpointPath, netAJson, 'utf8');
-    writeFileSync(metricsPath, JSON.stringify({ runId: RUN_ID, epochs, history }, null, 2), 'utf8');
+    const currentRunId = directories?.runId ?? RUN_ID;
+    const netAJson = saveDualHeadModel(netA, { runId: currentRunId, trainingDataset: 'D_V7' });
+    // Strong finite verification on all exported weights
+    const parsed = JSON.parse(netAJson);
+    for (const [key, val] of Object.entries(parsed)) {
+        if (Array.isArray(val)) {
+            for (let i = 0; i < val.length; i++) {
+                if (typeof val[i] === 'number' && !Number.isFinite(val[i])) {
+                    throw new Error(`Non-finite value in NET_A exported checkpoint: ${key}[${i}] = ${val[i]}`);
+                }
+            }
+        }
+    }
 
-    console.log(`[V7 NET_A Checkpoint] Saved to: ${checkpointPath}`);
+    writeFileSync(checkpointPath, netAJson, 'utf8');
+    writeFileSync(metricsPath, JSON.stringify({ runId: currentRunId, epochs, history }, null, 2), 'utf8');
+
+    console.log(`[V7 NET_A Checkpoint] Saved to: ${checkpointPath} (finite verified)`);
     return { checkpointPath, metricsPath };
 }
 
@@ -678,6 +869,12 @@ if (isDirectRun) {
     let curriculumTarget = 9000;
     let epochs = 4;
 
+    let runId: string | undefined;
+    const runIdIdx = process.argv.indexOf('--run-id');
+    if (runIdIdx !== -1 && process.argv[runIdIdx + 1]) {
+        runId = process.argv[runIdIdx + 1];
+    }
+
     const limitIdx = process.argv.indexOf('--limit');
     if (limitIdx !== -1 && process.argv[limitIdx + 1]) {
         totalTarget = parseInt(process.argv[limitIdx + 1], 10);
@@ -695,15 +892,18 @@ if (isDirectRun) {
         epochs = parseInt(process.argv[epochsIdx + 1], 10);
     }
 
+    const dirs = runId ? { runId } : undefined;
+
     (async () => {
-        const { spatialDatasetPath, dualHeadDatasetPath } = await generateV7Dataset({
+        const { spatialDatasetPath, dualHeadDatasetPath, splitManifestPath } = await generateV7Dataset({
             totalTarget,
             generalTarget,
-            curriculumTarget
+            curriculumTarget,
+            directories: dirs
         });
-        await trainV7SpatialModel(spatialDatasetPath, epochs);
+        await trainV7SpatialModel(spatialDatasetPath, epochs, splitManifestPath, dirs);
         const dualHeadSamples = JSON.parse(readFileSync(dualHeadDatasetPath, 'utf8'));
-        await trainV7NetAControl(dualHeadSamples);
+        await trainV7NetAControl(dualHeadSamples, splitManifestPath, dirs);
         console.log('\n✅ V7 DATA GENERATION AND MODEL TRAINING COMPLETED!');
     })().catch(err => {
         console.error('Fatal error in V7 pipeline:', err);

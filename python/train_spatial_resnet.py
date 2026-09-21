@@ -30,7 +30,7 @@ if not TORCH_AVAILABLE:
         print("Please install them via: pip install torch numpy")
         sys.exit(1)
 else:
-    from spatial_resnet_model import SpatialResNet, export_model_to_ts_json
+    from spatial_resnet_model import SpatialResNet, export_model_to_ts_json, load_model_from_ts_json
 
     class SpatialDataset(Dataset):
         def __init__(self, jsonl_path: str):
@@ -48,6 +48,7 @@ else:
                         c["semantics_padded"] = np.array(sem_padded, dtype=np.float32)
 
                     self.samples.append({
+                        "sampleId": s.get("sampleId"),
                         "spatial_tensor": np.array(s["spatialTensor"], dtype=np.float32).reshape(24, 20, 20),
                         "global_features": np.array(s["globalFeatures"], dtype=np.float32),
                         "candidates": cand_actions,
@@ -199,7 +200,12 @@ else:
                 loss = batch_pol_loss + value_weight * batch_val_loss
 
                 if is_train and optimizer:
+                    if not torch.isfinite(loss):
+                        raise RuntimeError(f"Non-finite loss encountered: {loss.item()}")
                     loss.backward()
+                    for name, param in model.named_parameters():
+                        if param.grad is not None and not torch.all(torch.isfinite(param.grad)):
+                            raise RuntimeError(f"Non-finite gradient in {name} during backpropagation!")
                     optimizer.step()
 
                 total_loss += loss.item()
@@ -244,6 +250,9 @@ else:
         parser.add_argument("--seed", type=int, default=42, help="Random seed")
         parser.add_argument("--model-version", type=str, default="spatial-resnet-v2", choices=["spatial-resnet-v1", "spatial-resnet-v2"])
         parser.add_argument("--num-blocks", type=int, default=2, choices=[2, 4], help="Number of ResNet trunk blocks (2 or 4)")
+        parser.add_argument("--split-manifest", type=str, default=None, help="Path to unified split_manifest.json")
+        parser.add_argument("--init-checkpoint", type=str, default=None, help="Path to initial JSON checkpoint to warm-start from")
+        parser.add_argument("--consumed-manifest", type=str, default=None, help="Path to export consumed samples manifest JSON")
         args = parser.parse_args()
 
         torch.manual_seed(args.seed)
@@ -253,45 +262,90 @@ else:
         print(f"Device: {device} (CPU Threads: {torch.get_num_threads()})")
         print(f"Dataset: {args.dataset}")
         print(f"Blocks: {args.num_blocks} | Batch Size: {args.batch_size} | Epochs: {args.epochs} | LR: {args.lr}")
+        if args.split_manifest:
+            print(f"Split Manifest: {args.split_manifest}")
         print(f"=======================================================\n")
 
         full_dataset = SpatialDataset(args.dataset)
         total_len = len(full_dataset)
 
-        # Grouped split by episodeId / rootFamilyId to prevent leakage across state frames
-        episode_groups: Dict[str, List[int]] = {}
-        for idx, sample in enumerate(full_dataset.samples):
-            ep_id = sample.get("rootFamilyId") or sample.get("episodeId") or f"ep_{idx // 60}"
-            if ep_id not in episode_groups:
-                episode_groups[ep_id] = []
-            episode_groups[ep_id].append(idx)
-
-        group_keys = sorted(list(episode_groups.keys()))
-        import random
-        rng = random.Random(args.seed)
-        rng.shuffle(group_keys)
-
-        val_target_count = max(1, int(total_len * args.val_split))
         val_indices: List[int] = []
         train_indices: List[int] = []
-        cur_val_count = 0
 
-        for k in group_keys:
-            idxs = episode_groups[k]
-            if cur_val_count < val_target_count:
-                val_indices.extend(idxs)
-                cur_val_count += len(idxs)
-            else:
-                train_indices.extend(idxs)
+        if args.split_manifest and os.path.exists(args.split_manifest):
+            with open(args.split_manifest, "r", encoding="utf-8") as f:
+                manifest_data = json.load(f)
+            train_roots = set(manifest_data.get("trainRootFamilies", []))
+            val_roots = set(manifest_data.get("valRootFamilies", []))
+            for idx, sample in enumerate(full_dataset.samples):
+                r_id = sample.get("rootFamilyId")
+                if r_id in val_roots:
+                    val_indices.append(idx)
+                else:
+                    train_indices.append(idx)
+            if len(val_indices) == 0 and len(train_indices) > 1:
+                val_target = max(1, int(len(train_indices) * args.val_split))
+                val_indices = train_indices[-val_target:]
+                train_indices = train_indices[:-val_target]
+                print(f"[Manifest Split Warning] Manifest yielded 0 validation samples. Allocated {len(val_indices)} samples to validation to ensure non-empty validation partition.")
+            print(f"[Manifest Split] Applied unified split_manifest: Train = {len(train_indices)} samples ({len(train_roots)} roots) | Validation = {len(val_indices)} samples ({len(val_roots)} roots)\n")
+        else:
+            # Grouped split by episodeId / rootFamilyId to prevent leakage across state frames
+            episode_groups: Dict[str, List[int]] = {}
+            for idx, sample in enumerate(full_dataset.samples):
+                ep_id = sample.get("rootFamilyId") or sample.get("episodeId") or f"ep_{idx // 60}"
+                if ep_id not in episode_groups:
+                    episode_groups[ep_id] = []
+                episode_groups[ep_id].append(idx)
+
+            group_keys = sorted(list(episode_groups.keys()))
+            import random
+            rng = random.Random(args.seed)
+            rng.shuffle(group_keys)
+
+            val_target_count = max(1, int(total_len * args.val_split))
+            cur_val_count = 0
+
+            for k in group_keys:
+                idxs = episode_groups[k]
+                if cur_val_count < val_target_count:
+                    val_indices.extend(idxs)
+                    cur_val_count += len(idxs)
+                else:
+                    train_indices.extend(idxs)
 
         if len(train_indices) == 0:
-            raise ValueError(f"Partition error: train set is empty with {total_len} samples and {val_target_count} val target.")
+            raise ValueError(f"Partition error: train set is empty with {total_len} samples.")
         if len(val_indices) == 0:
             raise ValueError(f"Partition error: validation set is empty with {total_len} samples.")
 
         train_data = torch.utils.data.Subset(full_dataset, train_indices)
         val_data = torch.utils.data.Subset(full_dataset, val_indices)
-        print(f"Grouped Partition: Train = {len(train_data)} samples | Validation = {len(val_data)} samples (Grouped by {len(group_keys)} episodes/roots)\n")
+        total_roots = (len(train_roots) + len(val_roots)) if (args.split_manifest and os.path.exists(args.split_manifest)) else len(group_keys)
+        print(f"Final Partition: Train = {len(train_data)} samples | Validation = {len(val_data)} samples (Grouped by {total_roots} roots)\n")
+
+        if args.consumed_manifest:
+            train_ids = [str(full_dataset.samples[i].get("sampleId")) for i in train_indices if full_dataset.samples[i].get("sampleId") is not None]
+            val_ids = [str(full_dataset.samples[i].get("sampleId")) for i in val_indices if full_dataset.samples[i].get("sampleId") is not None]
+            if len(train_ids) == 0:
+                raise ValueError(f"consumed_manifest error: train_sample_ids is empty for {len(train_indices)} train samples!")
+            if len(val_ids) == 0:
+                raise ValueError(f"consumed_manifest error: val_sample_ids is empty for {len(val_indices)} val samples!")
+            consumed_info = {
+                "model_version": args.model_version,
+                "num_blocks": args.num_blocks,
+                "dataset": os.path.abspath(args.dataset),
+                "train_sample_count": len(train_indices),
+                "val_sample_count": len(val_indices),
+                "train_sample_ids": train_ids,
+                "val_sample_ids": val_ids,
+                "trainSampleIds": train_ids,
+                "valSampleIds": val_ids
+            }
+            os.makedirs(os.path.dirname(os.path.abspath(args.consumed_manifest)), exist_ok=True)
+            with open(args.consumed_manifest, "w", encoding="utf-8") as f:
+                json.dump(consumed_info, f, indent=2)
+            print(f"[Consumed Manifest] Exported {len(train_ids)} train and {len(val_ids)} val sample IDs to: {args.consumed_manifest}\n")
 
         train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, collate_fn=collate_samples)
         val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, collate_fn=collate_samples)
@@ -307,6 +361,9 @@ else:
             version=args.model_version,
             num_blocks=args.num_blocks
         ).to(device)
+
+        if args.init_checkpoint and os.path.exists(args.init_checkpoint):
+            load_model_from_ts_json(model, args.init_checkpoint)
 
         optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
@@ -329,6 +386,9 @@ else:
             if is_best:
                 best_val_acc = val_acc
                 best_epoch = epoch
+                for name, param in model.named_parameters():
+                    if not torch.all(torch.isfinite(param.data)):
+                        raise RuntimeError(f"Non-finite parameter weight in {name} before export!")
                 os.makedirs(os.path.dirname(os.path.abspath(args.out_model)), exist_ok=True)
                 export_model_to_ts_json(model, args.out_model)
                 if args.deploy_to_src:
@@ -378,10 +438,23 @@ else:
                 "history": history
             }, f, indent=2)
 
+        consumed_manifest_file = os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "consumed_samples_manifest.json")
+        with open(consumed_manifest_file, "w", encoding="utf-8") as f:
+            json.dump({
+                "model_version": args.model_version,
+                "num_blocks": args.num_blocks,
+                "dataset": args.dataset,
+                "train_sample_count": len(train_data),
+                "val_sample_count": len(val_data),
+                "train_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in train_indices if full_dataset.samples[idx].get("sampleId")],
+                "val_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")]
+            }, f, indent=2)
+
         print(f"\n=======================================================")
         print(f"[Training Complete] Best Validation Accuracy: {best_val_acc * 100:.2f}% (Epoch {best_epoch})")
         print(f"Best model checkpoint: {args.out_model}")
         print(f"Metrics saved to: {metrics_file}")
+        print(f"Consumed samples manifest: {consumed_manifest_file}")
         print(f"=======================================================\n")
 
 
