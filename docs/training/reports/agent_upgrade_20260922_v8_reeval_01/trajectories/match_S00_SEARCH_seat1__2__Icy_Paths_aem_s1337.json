@@ -1,0 +1,9106 @@
+{
+  "matchId": "match_S00_SEARCH_seat1__2__Icy_Paths_aem_s1337",
+  "candidatePolicy": "S00_SEARCH",
+  "terminationReason": "TRUNCATION_MAX_STEPS",
+  "turns": 25,
+  "steps": 800,
+  "actionHistory": [
+    {
+      "step": 1,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "ms": 7.879299999913201
+    },
+    {
+      "step": 2,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 1.511699999915436
+    },
+    {
+      "step": 3,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 9,
+          "y": 13
+        }
+      },
+      "ms": 5.3696999999228865
+    },
+    {
+      "step": 4,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "ms": 0.17420000000856817
+    },
+    {
+      "step": 5,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_2"
+      },
+      "ms": 0.1340000000782311
+    },
+    {
+      "step": 6,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      "ms": 61.452100000111386
+    },
+    {
+      "step": 7,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "paladin",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 84.61349999997765
+    },
+    {
+      "step": 8,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      "ms": 41.265299999853596
+    },
+    {
+      "step": 9,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_3"
+      },
+      "ms": 100.96209999988787
+    },
+    {
+      "step": 10,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 129.94730000011623
+    },
+    {
+      "step": 11,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 6,
+          "y": 13
+        }
+      },
+      "ms": 18.78070000000298
+    },
+    {
+      "step": 12,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_2"
+      },
+      "ms": 8.986700000008568
+    },
+    {
+      "step": 13,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 12,
+          "y": 8
+        }
+      },
+      "ms": 7.454900000011548
+    },
+    {
+      "step": 14,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 2.1912000000011176
+    },
+    {
+      "step": 15,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 13,
+          "y": 9
+        }
+      },
+      "ms": 9.826499999966472
+    },
+    {
+      "step": 16,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "ms": 0.24019999988377094
+    },
+    {
+      "step": 17,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_4"
+      },
+      "ms": 0.5460999999195337
+    },
+    {
+      "step": 18,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "soldier",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 0.7388999999966472
+    },
+    {
+      "step": 19,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "ms": 4.988300000084564
+    },
+    {
+      "step": 20,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "ms": 0.23739999998360872
+    },
+    {
+      "step": 21,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 1,
+          "y": 6
+        }
+      },
+      "ms": 113.90419999998994
+    },
+    {
+      "step": 22,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 2,
+          "y": 6
+        }
+      },
+      "ms": 61.94109999993816
+    },
+    {
+      "step": 23,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 137.5372000001371
+    },
+    {
+      "step": 24,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "apk_u1"
+      },
+      "ms": 43.6585999999661
+    },
+    {
+      "step": 25,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "ms": 46.17020000005141
+    },
+    {
+      "step": 26,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 209.9914000001736
+    },
+    {
+      "step": 27,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 26.82909999997355
+    },
+    {
+      "step": 28,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "apk_u0"
+      },
+      "ms": 22.90610000002198
+    },
+    {
+      "step": 29,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 9,
+          "y": 9
+        }
+      },
+      "ms": 23.188399999868125
+    },
+    {
+      "step": 30,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 11,
+          "y": 9
+        }
+      },
+      "ms": 14.765299999853596
+    },
+    {
+      "step": 31,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 7,
+          "y": 10
+        }
+      },
+      "ms": 7.584599999943748
+    },
+    {
+      "step": 32,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 1.8619999999646097
+    },
+    {
+      "step": 33,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 5.214799999957904
+    },
+    {
+      "step": 34,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_4"
+      },
+      "ms": 0.42729999986477196
+    },
+    {
+      "step": 35,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "ms": 0.24439999996684492
+    },
+    {
+      "step": 36,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_2"
+      },
+      "ms": 0.3767999999690801
+    },
+    {
+      "step": 37,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_7"
+      },
+      "ms": 0.3836999998893589
+    },
+    {
+      "step": 38,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 209.24860000004992
+    },
+    {
+      "step": 39,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "apk_u1"
+      },
+      "ms": 201.20810000016354
+    },
+    {
+      "step": 40,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 168.44779999996535
+    },
+    {
+      "step": 41,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_3"
+      },
+      "ms": 112.73520000022836
+    },
+    {
+      "step": 42,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      "ms": 85.80490000010468
+    },
+    {
+      "step": 43,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "slime",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 248.14569999999367
+    },
+    {
+      "step": 44,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 88.6152000001166
+    },
+    {
+      "step": 45,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "ms": 19.805099999997765
+    },
+    {
+      "step": 46,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 218.29899999988265
+    },
+    {
+      "step": 47,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "ms": 242.88409999990836
+    },
+    {
+      "step": 48,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_9"
+      },
+      "ms": 5.341999999945983
+    },
+    {
+      "step": 49,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "ms": 6.017299999948591
+    },
+    {
+      "step": 50,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 83.1761000000406
+    },
+    {
+      "step": 51,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "apk_u0"
+      },
+      "ms": 69.5272999999579
+    },
+    {
+      "step": 52,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 78.39749999996275
+    },
+    {
+      "step": 53,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "ms": 57.62930000014603
+    },
+    {
+      "step": 54,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "ms": 51.63069999986328
+    },
+    {
+      "step": 55,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 42.65919999987818
+    },
+    {
+      "step": 56,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_2"
+      },
+      "ms": 11.084599999943748
+    },
+    {
+      "step": 57,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 10.165299999993294
+    },
+    {
+      "step": 58,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "witch",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 5.375600000144914
+    },
+    {
+      "step": 59,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 7.0578000000678
+    },
+    {
+      "step": 60,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_10"
+      },
+      "ms": 0.3471999999601394
+    },
+    {
+      "step": 61,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_9"
+      },
+      "ms": 1.352100000018254
+    },
+    {
+      "step": 62,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "ms": 0.3573999998625368
+    },
+    {
+      "step": 63,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 257.05000000004657
+    },
+    {
+      "step": 64,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 225.26480000000447
+    },
+    {
+      "step": 65,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      "ms": 203.7844000000041
+    },
+    {
+      "step": 66,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_9"
+      },
+      "ms": 213.59950000001118
+    },
+    {
+      "step": 67,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 211.6655000001192
+    },
+    {
+      "step": 68,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 212.23140000016429
+    },
+    {
+      "step": 69,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 129.10470000002533
+    },
+    {
+      "step": 70,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_6",
+        "targetId": "u_4"
+      },
+      "ms": 103.85009999992326
+    },
+    {
+      "step": 71,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 66.31180000002496
+    },
+    {
+      "step": 72,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "u_2"
+      },
+      "ms": 59.22409999999218
+    },
+    {
+      "step": 73,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_11",
+        "targetId": "u_2"
+      },
+      "ms": 41.98960000020452
+    },
+    {
+      "step": 74,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "soldier",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 34.28889999981038
+    },
+    {
+      "step": 75,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "ms": 26.681099999928847
+    },
+    {
+      "step": 76,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "ms": 9.098299999954179
+    },
+    {
+      "step": 77,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_12"
+      },
+      "ms": 5.128499999875203
+    },
+    {
+      "step": 78,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 121.4456999998074
+    },
+    {
+      "step": 79,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 11,
+          "y": 3
+        }
+      },
+      "ms": 89.72660000016913
+    },
+    {
+      "step": 80,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 87.97050000005402
+    },
+    {
+      "step": 81,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 7,
+          "y": 9
+        }
+      },
+      "ms": 73.8367000001017
+    },
+    {
+      "step": 82,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 56.773300000000745
+    },
+    {
+      "step": 83,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 9,
+          "y": 4
+        }
+      },
+      "ms": 54.66869999980554
+    },
+    {
+      "step": 84,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      "ms": 45.79069999977946
+    },
+    {
+      "step": 85,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "ms": 21.594899999909103
+    },
+    {
+      "step": 86,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_2",
+        "targetId": "apk_u1"
+      },
+      "ms": 12.737399999983609
+    },
+    {
+      "step": 87,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_6"
+      },
+      "ms": 8.375
+    },
+    {
+      "step": 88,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_10",
+        "targetId": "u_6"
+      },
+      "ms": 6.009599999990314
+    },
+    {
+      "step": 89,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_3"
+      },
+      "ms": 2.1266999999061227
+    },
+    {
+      "step": 90,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "ms": 0.6496999999508262
+    },
+    {
+      "step": 91,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_13"
+      },
+      "ms": 0.5233000000007451
+    },
+    {
+      "step": 92,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "ms": 0.29590000002644956
+    },
+    {
+      "step": 93,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u1",
+        "targetId": "u_2"
+      },
+      "ms": 337.2498000001069
+    },
+    {
+      "step": 94,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 243.6455999999307
+    },
+    {
+      "step": 95,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_3"
+      },
+      "ms": 269.8293999999296
+    },
+    {
+      "step": 96,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 235.46710000000894
+    },
+    {
+      "step": 97,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 270.9222000001464
+    },
+    {
+      "step": 98,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 8,
+          "y": 2
+        }
+      },
+      "ms": 213.3943000000436
+    },
+    {
+      "step": 99,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 198.68499999982305
+    },
+    {
+      "step": 100,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 176.7621999999974
+    },
+    {
+      "step": 101,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_11",
+        "targetId": "u_10"
+      },
+      "ms": 140.51510000019334
+    },
+    {
+      "step": 102,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "ms": 105.21849999995902
+    },
+    {
+      "step": 103,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_7"
+      },
+      "ms": 55.07620000001043
+    },
+    {
+      "step": 104,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "soldier",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 47.660200000042096
+    },
+    {
+      "step": 105,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "ms": 35.12510000006296
+    },
+    {
+      "step": 106,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_12"
+      },
+      "ms": 11.978799999924377
+    },
+    {
+      "step": 107,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_15"
+      },
+      "ms": 5.3013000001665205
+    },
+    {
+      "step": 108,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 5,
+          "y": 8
+        }
+      },
+      "ms": 167.5189000000246
+    },
+    {
+      "step": 109,
+      "player": 0,
+      "action": {
+        "type": "summon",
+        "summonerId": "u_10",
+        "graveId": "g_100",
+        "spawnPos": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 159.6996999999974
+    },
+    {
+      "step": 110,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      "ms": 175.91219999990426
+    },
+    {
+      "step": 111,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 149.59239999996498
+    },
+    {
+      "step": 112,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 116.05429999995977
+    },
+    {
+      "step": 113,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 6,
+          "y": 7
+        }
+      },
+      "ms": 63.14820000017062
+    },
+    {
+      "step": 114,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 9,
+          "y": 3
+        }
+      },
+      "ms": 37.70079999999143
+    },
+    {
+      "step": 115,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 27.179800000041723
+    },
+    {
+      "step": 116,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 9,
+          "y": 4
+        }
+      },
+      "ms": 42.85269999993034
+    },
+    {
+      "step": 117,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_16",
+        "to": {
+          "x": 3,
+          "y": 7
+        }
+      },
+      "ms": 26.373799999943003
+    },
+    {
+      "step": 118,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_16",
+        "targetId": "apk_u1"
+      },
+      "ms": 17.06609999993816
+    },
+    {
+      "step": 119,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "apk_u1"
+      },
+      "ms": 14.803900000173599
+    },
+    {
+      "step": 120,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "apk_u1"
+      },
+      "ms": 10.759300000034273
+    },
+    {
+      "step": 121,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_13",
+        "targetId": "u_8"
+      },
+      "ms": 8.476800000062212
+    },
+    {
+      "step": 122,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_5",
+        "targetId": "u_3"
+      },
+      "ms": 5.438300000037998
+    },
+    {
+      "step": 123,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "ms": 2.3576999998185784
+    },
+    {
+      "step": 124,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_17"
+      },
+      "ms": 1.4832000001333654
+    },
+    {
+      "step": 125,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 9,
+          "y": 6
+        }
+      },
+      "ms": 284.5922000000719
+    },
+    {
+      "step": 126,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 221.874199999962
+    },
+    {
+      "step": 127,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_8"
+      },
+      "ms": 380.53330000001006
+    },
+    {
+      "step": 128,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 8,
+          "y": 3
+        }
+      },
+      "ms": 350.42929999995977
+    },
+    {
+      "step": 129,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 291.4945000000298
+    },
+    {
+      "step": 130,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 8,
+          "y": 2
+        }
+      },
+      "ms": 239.37089999997988
+    },
+    {
+      "step": 131,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 287.41580000007525
+    },
+    {
+      "step": 132,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 286.9627000000328
+    },
+    {
+      "step": 133,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 275.52639999985695
+    },
+    {
+      "step": 134,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_12",
+        "targetId": "apk_u0"
+      },
+      "ms": 214.39150000014342
+    },
+    {
+      "step": 135,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_11",
+        "targetId": "apk_u0"
+      },
+      "ms": 213.95739999995567
+    },
+    {
+      "step": 136,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_13"
+      },
+      "ms": 229.52960000000894
+    },
+    {
+      "step": 137,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_10"
+      },
+      "ms": 275.967299999902
+    },
+    {
+      "step": 138,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u1",
+        "targetId": "u_10"
+      },
+      "ms": 211.0138000000734
+    },
+    {
+      "step": 139,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 210.5030999998562
+    },
+    {
+      "step": 140,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "u_13"
+      },
+      "ms": 251.33110000006855
+    },
+    {
+      "step": 141,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_19",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 71.81990000000224
+    },
+    {
+      "step": 142,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_19",
+        "targetId": "u_16"
+      },
+      "ms": 22.123799999943003
+    },
+    {
+      "step": 143,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_15"
+      },
+      "ms": 7.605699999956414
+    },
+    {
+      "step": 144,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 315.67210000008345
+    },
+    {
+      "step": 145,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 9,
+          "y": 2
+        }
+      },
+      "ms": 239.75029999995604
+    },
+    {
+      "step": 146,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 195.46430000010878
+    },
+    {
+      "step": 147,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 5,
+          "y": 8
+        }
+      },
+      "ms": 119.10110000008717
+    },
+    {
+      "step": 148,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 91.6032000000123
+    },
+    {
+      "step": 149,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 9,
+          "y": 4
+        }
+      },
+      "ms": 114.00090000010096
+    },
+    {
+      "step": 150,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      "ms": 84.52980000013486
+    },
+    {
+      "step": 151,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_16",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 72.12690000003204
+    },
+    {
+      "step": 152,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      "ms": 69.45020000007935
+    },
+    {
+      "step": 153,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_5",
+        "targetId": "apk_u1"
+      },
+      "ms": 33.87829999998212
+    },
+    {
+      "step": 154,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_13",
+        "targetId": "apk_u1"
+      },
+      "ms": 27.068800000008196
+    },
+    {
+      "step": 155,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "apk_u1"
+      },
+      "ms": 19.488899999996647
+    },
+    {
+      "step": 156,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_17",
+        "targetId": "u_8"
+      },
+      "ms": 13.902000000001863
+    },
+    {
+      "step": 157,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_3"
+      },
+      "ms": 9.63079999992624
+    },
+    {
+      "step": 158,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_11"
+      },
+      "ms": 7.499499999918044
+    },
+    {
+      "step": 159,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_16",
+        "targetId": "apk_u1"
+      },
+      "ms": 3.8674000001046807
+    },
+    {
+      "step": 160,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u0",
+        "targetId": "u_15"
+      },
+      "ms": 2.052000000141561
+    },
+    {
+      "step": 161,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_3"
+      },
+      "ms": 392.6017999998294
+    },
+    {
+      "step": 162,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "ms": 362.76270000007935
+    },
+    {
+      "step": 163,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 9,
+          "y": 1
+        }
+      },
+      "ms": 309.559299999848
+    },
+    {
+      "step": 164,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_19",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 324.80629999982193
+    },
+    {
+      "step": 165,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 344.17250000010245
+    },
+    {
+      "step": 166,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 8,
+          "y": 1
+        }
+      },
+      "ms": 298.2970000000205
+    },
+    {
+      "step": 167,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_15"
+      },
+      "ms": 271.88669999991544
+    },
+    {
+      "step": 168,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      "ms": 223.9425999999512
+    },
+    {
+      "step": 169,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 8,
+          "y": 4
+        }
+      },
+      "ms": 217.33089999994263
+    },
+    {
+      "step": 170,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 201.9069999998901
+    },
+    {
+      "step": 171,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_21",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 244.45270000002347
+    },
+    {
+      "step": 172,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_12",
+        "targetId": "apk_u0"
+      },
+      "ms": 236.86149999988265
+    },
+    {
+      "step": 173,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_21",
+        "targetId": "u_13"
+      },
+      "ms": 216.52429999993183
+    },
+    {
+      "step": 174,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_13"
+      },
+      "ms": 242.6620999998413
+    },
+    {
+      "step": 175,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      "ms": 206.6272999998182
+    },
+    {
+      "step": 176,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_11",
+        "targetId": "apk_u0"
+      },
+      "ms": 203.43420000001788
+    },
+    {
+      "step": 177,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_19",
+        "targetId": "u_4"
+      },
+      "ms": 204.47729999991134
+    },
+    {
+      "step": 178,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_20"
+      },
+      "ms": 173.87669999990612
+    },
+    {
+      "step": 179,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 135.65009999996983
+    },
+    {
+      "step": 180,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_22",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "ms": 84.48149999999441
+    },
+    {
+      "step": 181,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "ms": 43.36089999997057
+    },
+    {
+      "step": 182,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_22"
+      },
+      "ms": 15.141700000036508
+    },
+    {
+      "step": 183,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 7.243400000035763
+    },
+    {
+      "step": 184,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_11"
+      },
+      "ms": 307.9517999999225
+    },
+    {
+      "step": 185,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 218.47919999994338
+    },
+    {
+      "step": 186,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "ms": 163.00439999997616
+    },
+    {
+      "step": 187,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 7,
+          "y": 1
+        }
+      },
+      "ms": 188.96580000012182
+    },
+    {
+      "step": 188,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 170.3301999999676
+    },
+    {
+      "step": 189,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 95.82949999999255
+    },
+    {
+      "step": 190,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 10,
+          "y": 4
+        }
+      },
+      "ms": 96.3367000001017
+    },
+    {
+      "step": 191,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      "ms": 84.36580000002868
+    },
+    {
+      "step": 192,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_17",
+        "targetId": "apk_u1"
+      },
+      "ms": 30.91359999985434
+    },
+    {
+      "step": 193,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_5",
+        "targetId": "apk_u1"
+      },
+      "ms": 27.171799999894574
+    },
+    {
+      "step": 194,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 3,
+          "y": 6
+        }
+      },
+      "ms": 21.47720000008121
+    },
+    {
+      "step": 195,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_19"
+      },
+      "ms": 8.460299999918789
+    },
+    {
+      "step": 196,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u0",
+        "targetId": "u_15"
+      },
+      "ms": 4.429600000148639
+    },
+    {
+      "step": 197,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_23"
+      },
+      "ms": 2.2686000000685453
+    },
+    {
+      "step": 198,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 395.42090000002645
+    },
+    {
+      "step": 199,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_22",
+        "to": {
+          "x": 6,
+          "y": 1
+        }
+      },
+      "ms": 434.70509999990463
+    },
+    {
+      "step": 200,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      "ms": 388.50659999996424
+    },
+    {
+      "step": 201,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_19"
+      },
+      "ms": 332.0795999998227
+    },
+    {
+      "step": 202,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 2
+        }
+      },
+      "ms": 325.4945000000298
+    },
+    {
+      "step": 203,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_21",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 233.64000000013039
+    },
+    {
+      "step": 204,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_24",
+        "to": {
+          "x": 5,
+          "y": 9
+        }
+      },
+      "ms": 352.66049999999814
+    },
+    {
+      "step": 205,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 276.3200999998953
+    },
+    {
+      "step": 206,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 9,
+          "y": 3
+        }
+      },
+      "ms": 227.11630000011064
+    },
+    {
+      "step": 207,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 8,
+          "y": 3
+        }
+      },
+      "ms": 264.89729999983683
+    },
+    {
+      "step": 208,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "apk_u0"
+      },
+      "ms": 259.46629999997094
+    },
+    {
+      "step": 209,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_22",
+        "targetId": "apk_u0"
+      },
+      "ms": 205.60370000009425
+    },
+    {
+      "step": 210,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 221.26969999982975
+    },
+    {
+      "step": 211,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_17"
+      },
+      "ms": 214.938700000057
+    },
+    {
+      "step": 212,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_5"
+      },
+      "ms": 159.09089999995194
+    },
+    {
+      "step": 213,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_21",
+        "targetId": "u_4"
+      },
+      "ms": 89.94359999988228
+    },
+    {
+      "step": 214,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_12"
+      },
+      "ms": 58.39740000013262
+    },
+    {
+      "step": 215,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_15"
+      },
+      "ms": 18.857800000114366
+    },
+    {
+      "step": 216,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_24"
+      },
+      "ms": 6.982700000051409
+    },
+    {
+      "step": 217,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 345.7021000001114
+    },
+    {
+      "step": 218,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 340.17339999997057
+    },
+    {
+      "step": 219,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 5,
+          "y": 8
+        }
+      },
+      "ms": 327.0531000001356
+    },
+    {
+      "step": 220,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_25",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 259.93819999997504
+    },
+    {
+      "step": 221,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 245.58310000016354
+    },
+    {
+      "step": 222,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 9,
+          "y": 7
+        }
+      },
+      "ms": 159.43760000006296
+    },
+    {
+      "step": 223,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 66.83659999980591
+    },
+    {
+      "step": 224,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 33.26940000010654
+    },
+    {
+      "step": 225,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_24"
+      },
+      "ms": 20.248699999880046
+    },
+    {
+      "step": 226,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_17",
+        "targetId": "u_24"
+      },
+      "ms": 21.82810000004247
+    },
+    {
+      "step": 227,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_18"
+      },
+      "ms": 15.26259999978356
+    },
+    {
+      "step": 228,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_18"
+      },
+      "ms": 10.97719999984838
+    },
+    {
+      "step": 229,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_14"
+      },
+      "ms": 5.287599999923259
+    },
+    {
+      "step": 230,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_25"
+      },
+      "ms": 1.3643000000156462
+    },
+    {
+      "step": 231,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "ms": 1.3222000000532717
+    },
+    {
+      "step": 232,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_21",
+        "targetId": "u_5"
+      },
+      "ms": 395.1027999999933
+    },
+    {
+      "step": 233,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 315.64650000003166
+    },
+    {
+      "step": 234,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_3"
+      },
+      "ms": 279.4287999998778
+    },
+    {
+      "step": 235,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_24",
+        "to": {
+          "x": 7,
+          "y": 12
+        }
+      },
+      "ms": 274.95879999990575
+    },
+    {
+      "step": 236,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_22",
+        "to": {
+          "x": 6,
+          "y": 5
+        }
+      },
+      "ms": 349.8548000000883
+    },
+    {
+      "step": 237,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 9,
+          "y": 6
+        }
+      },
+      "ms": 289.5662000000011
+    },
+    {
+      "step": 238,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 10,
+          "y": 7
+        }
+      },
+      "ms": 236.83159999991767
+    },
+    {
+      "step": 239,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 244.72690000012517
+    },
+    {
+      "step": 240,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_15"
+      },
+      "ms": 214.67350000003353
+    },
+    {
+      "step": 241,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 201.62510000006296
+    },
+    {
+      "step": 242,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 202.53850000002421
+    },
+    {
+      "step": 243,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 213.1765000000596
+    },
+    {
+      "step": 244,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 209.91870000003837
+    },
+    {
+      "step": 245,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_12",
+        "targetId": "u_23"
+      },
+      "ms": 207.5293000000529
+    },
+    {
+      "step": 246,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_17"
+      },
+      "ms": 205.90960000013
+    },
+    {
+      "step": 247,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_17"
+      },
+      "ms": 220.7760999999009
+    },
+    {
+      "step": 248,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 211.61580000002868
+    },
+    {
+      "step": 249,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 3,
+          "y": 10
+        }
+      },
+      "ms": 164.5222000000067
+    },
+    {
+      "step": 250,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_27"
+      },
+      "ms": 81.40409999992698
+    },
+    {
+      "step": 251,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_20"
+      },
+      "ms": 68.86389999999665
+    },
+    {
+      "step": 252,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "ms": 40.439100000075996
+    },
+    {
+      "step": 253,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_22"
+      },
+      "ms": 18.735800000140443
+    },
+    {
+      "step": 254,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_24"
+      },
+      "ms": 7.207799999974668
+    },
+    {
+      "step": 255,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_18"
+      },
+      "ms": 375.68129999982193
+    },
+    {
+      "step": 256,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_12"
+      },
+      "ms": 216.54180000000633
+    },
+    {
+      "step": 257,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_25",
+        "to": {
+          "x": 8,
+          "y": 12
+        }
+      },
+      "ms": 130.3910999998916
+    },
+    {
+      "step": 258,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      "ms": 116.03570000012405
+    },
+    {
+      "step": 259,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 60.52990000019781
+    },
+    {
+      "step": 260,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 12,
+          "y": 7
+        }
+      },
+      "ms": 73.9605000000447
+    },
+    {
+      "step": 261,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      "ms": 48.91069999989122
+    },
+    {
+      "step": 262,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_25",
+        "targetId": "u_24"
+      },
+      "ms": 12.414300000062212
+    },
+    {
+      "step": 263,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_22"
+      },
+      "ms": 11.1581999999471
+    },
+    {
+      "step": 264,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_14"
+      },
+      "ms": 5.602500000037253
+    },
+    {
+      "step": 265,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_22"
+      },
+      "ms": 6.888500000117347
+    },
+    {
+      "step": 266,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_24",
+        "to": {
+          "x": 8,
+          "y": 13
+        }
+      },
+      "ms": 350.69189999997616
+    },
+    {
+      "step": 267,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 341.77129999990575
+    },
+    {
+      "step": 268,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_15"
+      },
+      "ms": 293.4795999999624
+    },
+    {
+      "step": 269,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_22",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 324.6762999999337
+    },
+    {
+      "step": 270,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 7,
+          "y": 10
+        }
+      },
+      "ms": 288.5372999999672
+    },
+    {
+      "step": 271,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "ms": 205.78190000005998
+    },
+    {
+      "step": 272,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_26"
+      },
+      "ms": 383.0016999999061
+    },
+    {
+      "step": 273,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_21",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 304.8532999998424
+    },
+    {
+      "step": 274,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "ms": 218.82019999995828
+    },
+    {
+      "step": 275,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 282.3233000000473
+    },
+    {
+      "step": 276,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_29",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 220.68550000013784
+    },
+    {
+      "step": 277,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 9
+        }
+      },
+      "ms": 221.08049999992363
+    },
+    {
+      "step": 278,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_20"
+      },
+      "ms": 218.59309999994002
+    },
+    {
+      "step": 279,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_25"
+      },
+      "ms": 201.55239999992773
+    },
+    {
+      "step": 280,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_21",
+        "targetId": "u_20"
+      },
+      "ms": 143.435899999924
+    },
+    {
+      "step": 281,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_24"
+      },
+      "ms": 95.90500000002794
+    },
+    {
+      "step": 282,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_29",
+        "targetId": "u_7"
+      },
+      "ms": 84.03799999994226
+    },
+    {
+      "step": 283,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_22"
+      },
+      "ms": 57.27069999999367
+    },
+    {
+      "step": 284,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_27"
+      },
+      "ms": 20.7546999999322
+    },
+    {
+      "step": 285,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "ms": 10.088400000007823
+    },
+    {
+      "step": 286,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_14"
+      },
+      "ms": 371.8601000001654
+    },
+    {
+      "step": 287,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 8,
+          "y": 11
+        }
+      },
+      "ms": 232.35229999991134
+    },
+    {
+      "step": 288,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_25",
+        "to": {
+          "x": 6,
+          "y": 11
+        }
+      },
+      "ms": 184.22660000016913
+    },
+    {
+      "step": 289,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 159.62819999991916
+    },
+    {
+      "step": 290,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "ms": 87.29999999981374
+    },
+    {
+      "step": 291,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "ms": 82.43590000015683
+    },
+    {
+      "step": 292,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      "ms": 44.80819999985397
+    },
+    {
+      "step": 293,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "witch",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 18.469400000059977
+    },
+    {
+      "step": 294,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 10,
+          "y": 5
+        }
+      },
+      "ms": 25.25510000018403
+    },
+    {
+      "step": 295,
+      "player": 0,
+      "action": {
+        "type": "summon",
+        "summonerId": "u_30",
+        "graveId": "g_107",
+        "spawnPos": {
+          "x": 9,
+          "y": 6
+        }
+      },
+      "ms": 16.165400000056252
+    },
+    {
+      "step": 296,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_31",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "ms": 37.6390999997966
+    },
+    {
+      "step": 297,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_24"
+      },
+      "ms": 16.13290000008419
+    },
+    {
+      "step": 298,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_25",
+        "targetId": "u_3"
+      },
+      "ms": 11.72870000009425
+    },
+    {
+      "step": 299,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_21"
+      },
+      "ms": 6.81969999987632
+    },
+    {
+      "step": 300,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_31",
+        "targetId": "u_21"
+      },
+      "ms": 7.297899999888614
+    },
+    {
+      "step": 301,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_29"
+      },
+      "ms": 2.868900000117719
+    },
+    {
+      "step": 302,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 6,
+          "y": 13
+        }
+      },
+      "ms": 333.28370000002906
+    },
+    {
+      "step": 303,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_3"
+      },
+      "ms": 334.7299999999814
+    },
+    {
+      "step": 304,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_29",
+        "to": {
+          "x": 6,
+          "y": 10
+        }
+      },
+      "ms": 310.66769999987446
+    },
+    {
+      "step": 305,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "ms": 252.06660000002012
+    },
+    {
+      "step": 306,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_24",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 206.14020000002347
+    },
+    {
+      "step": 307,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_24"
+      },
+      "ms": 398.155700000003
+    },
+    {
+      "step": 308,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 319.40280000003986
+    },
+    {
+      "step": 309,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_21",
+        "to": {
+          "x": 7,
+          "y": 9
+        }
+      },
+      "ms": 256.3560999999754
+    },
+    {
+      "step": 310,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 310.627000000095
+    },
+    {
+      "step": 311,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 4,
+          "y": 11
+        }
+      },
+      "ms": 273.6721999999136
+    },
+    {
+      "step": 312,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 8,
+          "y": 9
+        }
+      },
+      "ms": 219.15519999992102
+    },
+    {
+      "step": 313,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "ms": 221.25009999983013
+    },
+    {
+      "step": 314,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_25"
+      },
+      "ms": 206.43559999996796
+    },
+    {
+      "step": 315,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "u_25"
+      },
+      "ms": 206.93889999995008
+    },
+    {
+      "step": 316,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_29",
+        "targetId": "u_25"
+      },
+      "ms": 205.3892999999225
+    },
+    {
+      "step": 317,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_21",
+        "targetId": "u_4"
+      },
+      "ms": 160.8194000001531
+    },
+    {
+      "step": 318,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_20"
+      },
+      "ms": 106.23570000007749
+    },
+    {
+      "step": 319,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_27",
+        "targetId": "u_28"
+      },
+      "ms": 85.69180000014603
+    },
+    {
+      "step": 320,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_15",
+        "targetId": "u_23"
+      },
+      "ms": 21.916800000006333
+    },
+    {
+      "step": 321,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 430.936299999943
+    },
+    {
+      "step": 322,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_33"
+      },
+      "ms": 487.30970000009984
+    },
+    {
+      "step": 323,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_21"
+      },
+      "ms": 440.6095000000205
+    },
+    {
+      "step": 324,
+      "player": 0,
+      "action": {
+        "type": "summon",
+        "summonerId": "u_30",
+        "graveId": "g_108",
+        "spawnPos": {
+          "x": 10,
+          "y": 7
+        }
+      },
+      "ms": 325.04839999997057
+    },
+    {
+      "step": 325,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 11,
+          "y": 11
+        }
+      },
+      "ms": 308.2025999999605
+    },
+    {
+      "step": 326,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_24"
+      },
+      "ms": 214.79349999991246
+    },
+    {
+      "step": 327,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 238.72420000005513
+    },
+    {
+      "step": 328,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 8,
+          "y": 11
+        }
+      },
+      "ms": 219.55550000001676
+    },
+    {
+      "step": 329,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_25",
+        "to": {
+          "x": 5,
+          "y": 11
+        }
+      },
+      "ms": 148.937900000019
+    },
+    {
+      "step": 330,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 8,
+          "y": 10
+        }
+      },
+      "ms": 157.20690000010654
+    },
+    {
+      "step": 331,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 78.751600000076
+    },
+    {
+      "step": 332,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 52.008900000015274
+    },
+    {
+      "step": 333,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_35",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 64.19459999981336
+    },
+    {
+      "step": 334,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_31",
+        "to": {
+          "x": 7,
+          "y": 10
+        }
+      },
+      "ms": 51.311699999962
+    },
+    {
+      "step": 335,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_8"
+      },
+      "ms": 20.045600000070408
+    },
+    {
+      "step": 336,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_8"
+      },
+      "ms": 15.316699999850243
+    },
+    {
+      "step": 337,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_32"
+      },
+      "ms": 12.617000000085682
+    },
+    {
+      "step": 338,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_34",
+        "targetId": "u_15"
+      },
+      "ms": 9.042499999981374
+    },
+    {
+      "step": 339,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_31",
+        "targetId": "u_29"
+      },
+      "ms": 5.775900000007823
+    },
+    {
+      "step": 340,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_35"
+      },
+      "ms": 1.7316999998874962
+    },
+    {
+      "step": 341,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 2.2671999998856336
+    },
+    {
+      "step": 342,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 428.97809999994934
+    },
+    {
+      "step": 343,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_25"
+      },
+      "ms": 392.90400000009686
+    },
+    {
+      "step": 344,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_27",
+        "targetId": "u_31"
+      },
+      "ms": 330.7608000000473
+    },
+    {
+      "step": 345,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_26"
+      },
+      "ms": 228.14870000001974
+    },
+    {
+      "step": 346,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_36",
+        "to": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      "ms": 391.9755000001751
+    },
+    {
+      "step": 347,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_29",
+        "to": {
+          "x": 8,
+          "y": 8
+        }
+      },
+      "ms": 232.24019999988377
+    },
+    {
+      "step": 348,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "ms": 274.8106999997981
+    },
+    {
+      "step": 349,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_29",
+        "targetId": "u_23"
+      },
+      "ms": 168.4824999999255
+    },
+    {
+      "step": 350,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 122.71450000000186
+    },
+    {
+      "step": 351,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_23"
+      },
+      "ms": 50.73420000006445
+    },
+    {
+      "step": 352,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 21.379599999869242
+    },
+    {
+      "step": 353,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_15"
+      },
+      "ms": 536.6236000000499
+    },
+    {
+      "step": 354,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 5,
+          "y": 11
+        }
+      },
+      "ms": 456.468600000022
+    },
+    {
+      "step": 355,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 391.80220000003465
+    },
+    {
+      "step": 356,
+      "player": 0,
+      "action": {
+        "type": "summon",
+        "summonerId": "u_30",
+        "graveId": "g_111",
+        "spawnPos": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 398.6611999999732
+    },
+    {
+      "step": 357,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 8,
+          "y": 10
+        }
+      },
+      "ms": 362.2243999999482
+    },
+    {
+      "step": 358,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_35",
+        "to": {
+          "x": 11,
+          "y": 2
+        }
+      },
+      "ms": 291.2546999999322
+    },
+    {
+      "step": 359,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 6,
+          "y": 10
+        }
+      },
+      "ms": 228.73650000011548
+    },
+    {
+      "step": 360,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_33",
+        "to": {
+          "x": 11,
+          "y": 11
+        }
+      },
+      "ms": 130.9124999998603
+    },
+    {
+      "step": 361,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      "ms": 107.747999999905
+    },
+    {
+      "step": 362,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_37",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 78.9592999999877
+    },
+    {
+      "step": 363,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "ms": 51.07880000001751
+    },
+    {
+      "step": 364,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_29"
+      },
+      "ms": 24.150099999969825
+    },
+    {
+      "step": 365,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_32"
+      },
+      "ms": 21.170399999944493
+    },
+    {
+      "step": 366,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_32"
+      },
+      "ms": 15.011100000003353
+    },
+    {
+      "step": 367,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_29"
+      },
+      "ms": 10.731499999994412
+    },
+    {
+      "step": 368,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_37"
+      },
+      "ms": 11.133799999952316
+    },
+    {
+      "step": 369,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_33"
+      },
+      "ms": 6.969499999890104
+    },
+    {
+      "step": 370,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_35"
+      },
+      "ms": 5.683399999979883
+    },
+    {
+      "step": 371,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_34"
+      },
+      "ms": 5.020999999949709
+    },
+    {
+      "step": 372,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 4.970800000010058
+    },
+    {
+      "step": 373,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_29",
+        "targetId": "u_7"
+      },
+      "ms": 412.2560999998823
+    },
+    {
+      "step": 374,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 8,
+          "y": 11
+        }
+      },
+      "ms": 319.3275999999605
+    },
+    {
+      "step": 375,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_26"
+      },
+      "ms": 249.8686999999918
+    },
+    {
+      "step": 376,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_36",
+        "to": {
+          "x": 9,
+          "y": 2
+        }
+      },
+      "ms": 341.79509999998845
+    },
+    {
+      "step": 377,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 362.9124999998603
+    },
+    {
+      "step": 378,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 3,
+          "y": 11
+        }
+      },
+      "ms": 213.04469999996945
+    },
+    {
+      "step": 379,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "ms": 225.06080000009388
+    },
+    {
+      "step": 380,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_23"
+      },
+      "ms": 209.910400000168
+    },
+    {
+      "step": 381,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_27",
+        "targetId": "u_20"
+      },
+      "ms": 210.61899999994785
+    },
+    {
+      "step": 382,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_32"
+      },
+      "ms": 201.96970000001602
+    },
+    {
+      "step": 383,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_23"
+      },
+      "ms": 146.49800000013784
+    },
+    {
+      "step": 384,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 140.93169999984093
+    },
+    {
+      "step": 385,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_39",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 96.78700000001118
+    },
+    {
+      "step": 386,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_39",
+        "targetId": "u_23"
+      },
+      "ms": 56.62349999998696
+    },
+    {
+      "step": 387,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_36"
+      },
+      "ms": 11.519999999785796
+    },
+    {
+      "step": 388,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 661.4825000001583
+    },
+    {
+      "step": 389,
+      "player": 0,
+      "action": {
+        "type": "summon",
+        "summonerId": "u_30",
+        "graveId": "g_112",
+        "spawnPos": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "ms": 727.4259999999776
+    },
+    {
+      "step": 390,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 643.0896000000648
+    },
+    {
+      "step": 391,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 8,
+          "y": 2
+        }
+      },
+      "ms": 644.6669999998994
+    },
+    {
+      "step": 392,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_35",
+        "to": {
+          "x": 10,
+          "y": 2
+        }
+      },
+      "ms": 568.6948000001721
+    },
+    {
+      "step": 393,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_40",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 545.3061000001617
+    },
+    {
+      "step": 394,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_40"
+      },
+      "ms": 550.6340999999084
+    },
+    {
+      "step": 395,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_33",
+        "to": {
+          "x": 9,
+          "y": 10
+        }
+      },
+      "ms": 571.1458999998868
+    },
+    {
+      "step": 396,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 9,
+          "y": 9
+        }
+      },
+      "ms": 422.0349999999162
+    },
+    {
+      "step": 397,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 289.4354000000749
+    },
+    {
+      "step": 398,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "ms": 243.49969999981113
+    },
+    {
+      "step": 399,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_41",
+        "to": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      "ms": 96.54429999995045
+    },
+    {
+      "step": 400,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_35",
+        "targetId": "u_36"
+      },
+      "ms": 62.61200000019744
+    },
+    {
+      "step": 401,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_34",
+        "targetId": "u_36"
+      },
+      "ms": 60.296099999919534
+    },
+    {
+      "step": 402,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_29"
+      },
+      "ms": 55.06070000003092
+    },
+    {
+      "step": 403,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_29"
+      },
+      "ms": 48.48889999999665
+    },
+    {
+      "step": 404,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_39"
+      },
+      "ms": 43.69229999999516
+    },
+    {
+      "step": 405,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_33",
+        "targetId": "u_27"
+      },
+      "ms": 40.036299999803305
+    },
+    {
+      "step": 406,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_37",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 39.0238000000827
+    },
+    {
+      "step": 407,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_37",
+        "targetId": "u_29"
+      },
+      "ms": 8.611200000159442
+    },
+    {
+      "step": 408,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_39"
+      },
+      "ms": 3.548200000077486
+    },
+    {
+      "step": 409,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_41"
+      },
+      "ms": 0.6892999999690801
+    },
+    {
+      "step": 410,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_36",
+        "targetId": "u_35"
+      },
+      "ms": 373.46710000000894
+    },
+    {
+      "step": 411,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_33"
+      },
+      "ms": 386.8641999999527
+    },
+    {
+      "step": 412,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 8,
+          "y": 13
+        }
+      },
+      "ms": 255.95900000003166
+    },
+    {
+      "step": 413,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 13,
+          "y": 11
+        }
+      },
+      "ms": 215.12590000010096
+    },
+    {
+      "step": 414,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_27"
+      },
+      "ms": 264.719800000079
+    },
+    {
+      "step": 415,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 8,
+          "y": 12
+        }
+      },
+      "ms": 257.9879999998957
+    },
+    {
+      "step": 416,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_26"
+      },
+      "ms": 221.3007000000216
+    },
+    {
+      "step": 417,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "ms": 232.5490999999456
+    },
+    {
+      "step": 418,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 231.27130000013858
+    },
+    {
+      "step": 419,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_39",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 218.6180999998469
+    },
+    {
+      "step": 420,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 2,
+          "y": 8
+        }
+      },
+      "ms": 202.503600000171
+    },
+    {
+      "step": 421,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_40"
+      },
+      "ms": 102.65610000002198
+    },
+    {
+      "step": 422,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_4"
+      },
+      "ms": 70.30649999994785
+    },
+    {
+      "step": 423,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_39",
+        "targetId": "u_4"
+      },
+      "ms": 30.70769999991171
+    },
+    {
+      "step": 424,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 10.022300000069663
+    },
+    {
+      "step": 425,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 9,
+          "y": 4
+        }
+      },
+      "ms": 469.7916999999434
+    },
+    {
+      "step": 426,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 7,
+          "y": 2
+        }
+      },
+      "ms": 389.9397999998182
+    },
+    {
+      "step": 427,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_40",
+        "to": {
+          "x": 9,
+          "y": 12
+        }
+      },
+      "ms": 351.9442999998573
+    },
+    {
+      "step": 428,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 3,
+          "y": 6
+        }
+      },
+      "ms": 300.04799999995157
+    },
+    {
+      "step": 429,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_37",
+        "to": {
+          "x": 9,
+          "y": 5
+        }
+      },
+      "ms": 207.0696000000462
+    },
+    {
+      "step": 430,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 181.51480000000447
+    },
+    {
+      "step": 431,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 95.37719999998808
+    },
+    {
+      "step": 432,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_43",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "ms": 122.39599999994971
+    },
+    {
+      "step": 433,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 8,
+          "y": 1
+        }
+      },
+      "ms": 88.05989999999292
+    },
+    {
+      "step": 434,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_41",
+        "to": {
+          "x": 8,
+          "y": 2
+        }
+      },
+      "ms": 60.60379999992438
+    },
+    {
+      "step": 435,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 57.75009999983013
+    },
+    {
+      "step": 436,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_36"
+      },
+      "ms": 16.48989999992773
+    },
+    {
+      "step": 437,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_36"
+      },
+      "ms": 15.205400000093505
+    },
+    {
+      "step": 438,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_41",
+        "targetId": "u_36"
+      },
+      "ms": 14.756000000052154
+    },
+    {
+      "step": 439,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_40",
+        "targetId": "u_3"
+      },
+      "ms": 14.003700000001118
+    },
+    {
+      "step": 440,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_39"
+      },
+      "ms": 10.69620000012219
+    },
+    {
+      "step": 441,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_39"
+      },
+      "ms": 7.581499999854714
+    },
+    {
+      "step": 442,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_43",
+        "targetId": "u_27"
+      },
+      "ms": 4.0424999999813735
+    },
+    {
+      "step": 443,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_34"
+      },
+      "ms": 1.1072999997995794
+    },
+    {
+      "step": 444,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_37"
+      },
+      "ms": 0.9182000001892447
+    },
+    {
+      "step": 445,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_28"
+      },
+      "ms": 1.0215999998617917
+    },
+    {
+      "step": 446,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 9,
+          "y": 11
+        }
+      },
+      "ms": 258.0130000000354
+    },
+    {
+      "step": 447,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 205.15800000005402
+    },
+    {
+      "step": 448,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 5,
+          "y": 9
+        }
+      },
+      "ms": 267.3739999998361
+    },
+    {
+      "step": 449,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 243.497999999905
+    },
+    {
+      "step": 450,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 2,
+          "y": 8
+        }
+      },
+      "ms": 228.9560000000056
+    },
+    {
+      "step": 451,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_36",
+        "to": {
+          "x": 10,
+          "y": 3
+        }
+      },
+      "ms": 261.6522000001278
+    },
+    {
+      "step": 452,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "ms": 240.9139000000432
+    },
+    {
+      "step": 453,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_32"
+      },
+      "ms": 210.80870000016876
+    },
+    {
+      "step": 454,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_40"
+      },
+      "ms": 228.42940000002272
+    },
+    {
+      "step": 455,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 11,
+          "y": 12
+        }
+      },
+      "ms": 165.61810000007972
+    },
+    {
+      "step": 456,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_43"
+      },
+      "ms": 99.78189999982715
+    },
+    {
+      "step": 457,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 67.33489999989979
+    },
+    {
+      "step": 458,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_23"
+      },
+      "ms": 56.30520000006072
+    },
+    {
+      "step": 459,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_4"
+      },
+      "ms": 38.35410000011325
+    },
+    {
+      "step": 460,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_27"
+      },
+      "ms": 18.511300000129268
+    },
+    {
+      "step": 461,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 7.672200000146404
+    },
+    {
+      "step": 462,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 312.6657000000123
+    },
+    {
+      "step": 463,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_20"
+      },
+      "ms": 270.279099999927
+    },
+    {
+      "step": 464,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 10,
+          "y": 4
+        }
+      },
+      "ms": 262.15559999994
+    },
+    {
+      "step": 465,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_36"
+      },
+      "ms": 202.98029999993742
+    },
+    {
+      "step": 466,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 160.66800000006333
+    },
+    {
+      "step": 467,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_43",
+        "to": {
+          "x": 11,
+          "y": 11
+        }
+      },
+      "ms": 150.4857000000775
+    },
+    {
+      "step": 468,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_37",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 126.11189999990165
+    },
+    {
+      "step": 469,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      "ms": 152.4890000000596
+    },
+    {
+      "step": 470,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      "ms": 149.2441000000108
+    },
+    {
+      "step": 471,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 4,
+          "y": 8
+        }
+      },
+      "ms": 110.46039999998175
+    },
+    {
+      "step": 472,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_41",
+        "to": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      "ms": 26.75760000012815
+    },
+    {
+      "step": 473,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_43",
+        "targetId": "u_38"
+      },
+      "ms": 20.195199999958277
+    },
+    {
+      "step": 474,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_42"
+      },
+      "ms": 15.174399999901652
+    },
+    {
+      "step": 475,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_42"
+      },
+      "ms": 12.194200000027195
+    },
+    {
+      "step": 476,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_37"
+      },
+      "ms": 8.097999999998137
+    },
+    {
+      "step": 477,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_30"
+      },
+      "ms": 8.19399999990128
+    },
+    {
+      "step": 478,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_41"
+      },
+      "ms": 5.128999999957159
+    },
+    {
+      "step": 479,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_34"
+      },
+      "ms": 5.187999999849126
+    },
+    {
+      "step": 480,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 6.7661999999545515
+    },
+    {
+      "step": 481,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 340.42639999999665
+    },
+    {
+      "step": 482,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_32"
+      },
+      "ms": 380.94619999988936
+    },
+    {
+      "step": 483,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 324.68619999988005
+    },
+    {
+      "step": 484,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_27"
+      },
+      "ms": 268.37449999991804
+    },
+    {
+      "step": 485,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_45",
+        "to": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "ms": 274.11249999981374
+    },
+    {
+      "step": 486,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 261.9521999999415
+    },
+    {
+      "step": 487,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 242.37979999999516
+    },
+    {
+      "step": 488,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_43"
+      },
+      "ms": 238.8849000001792
+    },
+    {
+      "step": 489,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 8,
+          "y": 8
+        }
+      },
+      "ms": 209.49680000008084
+    },
+    {
+      "step": 490,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 209.12750000017695
+    },
+    {
+      "step": 491,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 13,
+          "y": 11
+        }
+      },
+      "ms": 157.8251000000164
+    },
+    {
+      "step": 492,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_4"
+      },
+      "ms": 74.15610000002198
+    },
+    {
+      "step": 493,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_4"
+      },
+      "ms": 44.67819999996573
+    },
+    {
+      "step": 494,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_37"
+      },
+      "ms": 33.110400000121444
+    },
+    {
+      "step": 495,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_45"
+      },
+      "ms": 13.138800000073388
+    },
+    {
+      "step": 496,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_26"
+      },
+      "ms": 8.560199999948964
+    },
+    {
+      "step": 497,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_41",
+        "to": {
+          "x": 3,
+          "y": 2
+        }
+      },
+      "ms": 320.49529999983497
+    },
+    {
+      "step": 498,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_23",
+        "to": {
+          "x": 3,
+          "y": 5
+        }
+      },
+      "ms": 312.00459999986924
+    },
+    {
+      "step": 499,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 10,
+          "y": 3
+        }
+      },
+      "ms": 197.8401999999769
+    },
+    {
+      "step": 500,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 6,
+          "y": 4
+        }
+      },
+      "ms": 172.68070000014268
+    },
+    {
+      "step": 501,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 163.35540000000037
+    },
+    {
+      "step": 502,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_23",
+        "targetId": "u_45"
+      },
+      "ms": 69.9492999999784
+    },
+    {
+      "step": 503,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_41",
+        "targetId": "u_45"
+      },
+      "ms": 61.33499999996275
+    },
+    {
+      "step": 504,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_34",
+        "to": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      "ms": 52.28999999980442
+    },
+    {
+      "step": 505,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_37",
+        "to": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      "ms": 41.819200000027195
+    },
+    {
+      "step": 506,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_38"
+      },
+      "ms": 26.203600000124425
+    },
+    {
+      "step": 507,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_20"
+      },
+      "ms": 17.879799999995157
+    },
+    {
+      "step": 508,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_28"
+      },
+      "ms": 16.208300000056624
+    },
+    {
+      "step": 509,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_34"
+      },
+      "ms": 12.581799999810755
+    },
+    {
+      "step": 510,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 15.070599999977276
+    },
+    {
+      "step": 511,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_45",
+        "targetId": "u_41"
+      },
+      "ms": 350.4295000000857
+    },
+    {
+      "step": 512,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "ms": 250.50919999997132
+    },
+    {
+      "step": 513,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 10,
+          "y": 10
+        }
+      },
+      "ms": 228.92379999998957
+    },
+    {
+      "step": 514,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 5,
+          "y": 5
+        }
+      },
+      "ms": 227.22610000008717
+    },
+    {
+      "step": 515,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_34"
+      },
+      "ms": 354.5561999999918
+    },
+    {
+      "step": 516,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 10,
+          "y": 8
+        }
+      },
+      "ms": 333.1850000000559
+    },
+    {
+      "step": 517,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 6,
+          "y": 5
+        }
+      },
+      "ms": 295.0524999999907
+    },
+    {
+      "step": 518,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 208.04009999986738
+    },
+    {
+      "step": 519,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 216.88749999995343
+    },
+    {
+      "step": 520,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      "ms": 236.375
+    },
+    {
+      "step": 521,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 12,
+          "y": 9
+        }
+      },
+      "ms": 219.85759999998845
+    },
+    {
+      "step": 522,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_28"
+      },
+      "ms": 208.16110000014305
+    },
+    {
+      "step": 523,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_23"
+      },
+      "ms": 188.5112000000663
+    },
+    {
+      "step": 524,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_3"
+      },
+      "ms": 134.30529999989085
+    },
+    {
+      "step": 525,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_46",
+        "targetId": "u_23"
+      },
+      "ms": 124.32209999999031
+    },
+    {
+      "step": 526,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 145.25359999993816
+    },
+    {
+      "step": 527,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_47",
+        "to": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      "ms": 111.95429999986663
+    },
+    {
+      "step": 528,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_47",
+        "targetId": "u_23"
+      },
+      "ms": 97.65130000002682
+    },
+    {
+      "step": 529,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 94.25769999995828
+    },
+    {
+      "step": 530,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 3,
+          "y": 2
+        }
+      },
+      "ms": 41.28070000000298
+    },
+    {
+      "step": 531,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_23"
+      },
+      "ms": 24.531200000084937
+    },
+    {
+      "step": 532,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_32"
+      },
+      "ms": 15.099600000074133
+    },
+    {
+      "step": 533,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_27"
+      },
+      "ms": 8.45589999994263
+    },
+    {
+      "step": 534,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_26"
+      },
+      "ms": 4.931499999947846
+    },
+    {
+      "step": 535,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 432.80000000004657
+    },
+    {
+      "step": 536,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 6,
+          "y": 3
+        }
+      },
+      "ms": 392.7449000000488
+    },
+    {
+      "step": 537,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_49",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 323.67290000012144
+    },
+    {
+      "step": 538,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_49"
+      },
+      "ms": 277.59250000002794
+    },
+    {
+      "step": 539,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 4,
+          "y": 3
+        }
+      },
+      "ms": 298.6118000000715
+    },
+    {
+      "step": 540,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 130.52740000002086
+    },
+    {
+      "step": 541,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 23.266500000143424
+    },
+    {
+      "step": 542,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_50",
+        "to": {
+          "x": 13,
+          "y": 11
+        }
+      },
+      "ms": 70.71580000012182
+    },
+    {
+      "step": 543,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_50"
+      },
+      "ms": 23.73300000000745
+    },
+    {
+      "step": 544,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_45"
+      },
+      "ms": 20.81650000018999
+    },
+    {
+      "step": 545,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_42"
+      },
+      "ms": 12.718100000172853
+    },
+    {
+      "step": 546,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_46"
+      },
+      "ms": 9.39669999992475
+    },
+    {
+      "step": 547,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 524.4365000000689
+    },
+    {
+      "step": 548,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 464.4361000000499
+    },
+    {
+      "step": 549,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 10,
+          "y": 6
+        }
+      },
+      "ms": 363.88829999999143
+    },
+    {
+      "step": 550,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 9,
+          "y": 6
+        }
+      },
+      "ms": 317.1832000000868
+    },
+    {
+      "step": 551,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 241.24980000010692
+    },
+    {
+      "step": 552,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_3"
+      },
+      "ms": 210.67769999988377
+    },
+    {
+      "step": 553,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 11,
+          "y": 9
+        }
+      },
+      "ms": 201.9438000000082
+    },
+    {
+      "step": 554,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      "ms": 356.50700000021607
+    },
+    {
+      "step": 555,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 10,
+          "y": 7
+        }
+      },
+      "ms": 212.8591000000015
+    },
+    {
+      "step": 556,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_45",
+        "to": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      "ms": 241.07599999988452
+    },
+    {
+      "step": 557,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 4,
+          "y": 10
+        }
+      },
+      "ms": 213.14500000001863
+    },
+    {
+      "step": 558,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_47",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "ms": 239.65239999978803
+    },
+    {
+      "step": 559,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 202.03820000006817
+    },
+    {
+      "step": 560,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "ms": 209.5525999998208
+    },
+    {
+      "step": 561,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_49"
+      },
+      "ms": 204.4989999998361
+    },
+    {
+      "step": 562,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_49"
+      },
+      "ms": 209.41370000015013
+    },
+    {
+      "step": 563,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_49"
+      },
+      "ms": 191.78330000001006
+    },
+    {
+      "step": 564,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_49"
+      },
+      "ms": 159.5745000001043
+    },
+    {
+      "step": 565,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_49"
+      },
+      "ms": 138.45099999988452
+    },
+    {
+      "step": 566,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_28"
+      },
+      "ms": 115.75790000008419
+    },
+    {
+      "step": 567,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_51",
+        "targetId": "u_30"
+      },
+      "ms": 77.51439999998547
+    },
+    {
+      "step": 568,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_47",
+        "targetId": "u_20"
+      },
+      "ms": 61.74309999984689
+    },
+    {
+      "step": 569,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_46",
+        "targetId": "u_30"
+      },
+      "ms": 51.023300000000745
+    },
+    {
+      "step": 570,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_45",
+        "targetId": "u_20"
+      },
+      "ms": 23.7585999998264
+    },
+    {
+      "step": 571,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_27"
+      },
+      "ms": 6.4731999998912215
+    },
+    {
+      "step": 572,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_45"
+      },
+      "ms": 465.1509000000078
+    },
+    {
+      "step": 573,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_50",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 277.5339999999851
+    },
+    {
+      "step": 574,
+      "player": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_50"
+      },
+      "ms": 229.23750000004657
+    },
+    {
+      "step": 575,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 230.37250000005588
+    },
+    {
+      "step": 576,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "ms": 140.75310000008903
+    },
+    {
+      "step": 577,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_47"
+      },
+      "ms": 13.07839999999851
+    },
+    {
+      "step": 578,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_51"
+      },
+      "ms": 9.13109999988228
+    },
+    {
+      "step": 579,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 7.015699999872595
+    },
+    {
+      "step": 580,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 9,
+          "y": 7
+        }
+      },
+      "ms": 302.29280000017025
+    },
+    {
+      "step": 581,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_42"
+      },
+      "ms": 282.5275000000838
+    },
+    {
+      "step": 582,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 329.0618999998551
+    },
+    {
+      "step": 583,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_27"
+      },
+      "ms": 282.13950000004843
+    },
+    {
+      "step": 584,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_47",
+        "to": {
+          "x": 1,
+          "y": 3
+        }
+      },
+      "ms": 265.47019999986514
+    },
+    {
+      "step": 585,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 6,
+          "y": 5
+        }
+      },
+      "ms": 241.58190000010654
+    },
+    {
+      "step": 586,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 6,
+          "y": 4
+        }
+      },
+      "ms": 214.66539999982342
+    },
+    {
+      "step": 587,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 10,
+          "y": 3
+        }
+      },
+      "ms": 344.40280000003986
+    },
+    {
+      "step": 588,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 12,
+          "y": 12
+        }
+      },
+      "ms": 292.67339999997057
+    },
+    {
+      "step": 589,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 11,
+          "y": 11
+        }
+      },
+      "ms": 277.59129999997094
+    },
+    {
+      "step": 590,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 250.05710000009276
+    },
+    {
+      "step": 591,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      "ms": 219.28750000009313
+    },
+    {
+      "step": 592,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_50"
+      },
+      "ms": 204.6018000000622
+    },
+    {
+      "step": 593,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_50"
+      },
+      "ms": 200.6557999998331
+    },
+    {
+      "step": 594,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 215.27080000005662
+    },
+    {
+      "step": 595,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_20"
+      },
+      "ms": 201.71160000003874
+    },
+    {
+      "step": 596,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_20"
+      },
+      "ms": 203.12300000013784
+    },
+    {
+      "step": 597,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_20"
+      },
+      "ms": 211.14459999999963
+    },
+    {
+      "step": 598,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_46"
+      },
+      "ms": 195.40489999996498
+    },
+    {
+      "step": 599,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_47",
+        "targetId": "u_28"
+      },
+      "ms": 168.84440000005998
+    },
+    {
+      "step": 600,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 151.4266999999527
+    },
+    {
+      "step": 601,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      "ms": 127.01169999991544
+    },
+    {
+      "step": 602,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_52",
+        "targetId": "u_28"
+      },
+      "ms": 46.71069999993779
+    },
+    {
+      "step": 603,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_51",
+        "targetId": "u_30"
+      },
+      "ms": 19.75069999997504
+    },
+    {
+      "step": 604,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 7.204499999992549
+    },
+    {
+      "step": 605,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_47"
+      },
+      "ms": 432.2422999998089
+    },
+    {
+      "step": 606,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_50",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 206.94590000016615
+    },
+    {
+      "step": 607,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 6,
+          "y": 1
+        }
+      },
+      "ms": 191.91749999998137
+    },
+    {
+      "step": 608,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 3,
+          "y": 6
+        }
+      },
+      "ms": 86.81110000004992
+    },
+    {
+      "step": 609,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_51"
+      },
+      "ms": 25.311200000112876
+    },
+    {
+      "step": 610,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_50",
+        "targetId": "u_26"
+      },
+      "ms": 17.932499999878928
+    },
+    {
+      "step": 611,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_20"
+      },
+      "ms": 16.21530000003986
+    },
+    {
+      "step": 612,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 11.609200000064448
+    },
+    {
+      "step": 613,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_50"
+      },
+      "ms": 373.61719999997877
+    },
+    {
+      "step": 614,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 6,
+          "y": 3
+        }
+      },
+      "ms": 301.1048000000883
+    },
+    {
+      "step": 615,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      "ms": 288.79180000000633
+    },
+    {
+      "step": 616,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 11,
+          "y": 7
+        }
+      },
+      "ms": 234.85030000004917
+    },
+    {
+      "step": 617,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_27"
+      },
+      "ms": 226.77539999992587
+    },
+    {
+      "step": 618,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 257.2479000000749
+    },
+    {
+      "step": 619,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 10,
+          "y": 8
+        }
+      },
+      "ms": 360.8078999998979
+    },
+    {
+      "step": 620,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 8,
+          "y": 1
+        }
+      },
+      "ms": 343.7024000000674
+    },
+    {
+      "step": 621,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      "ms": 304.4990000000689
+    },
+    {
+      "step": 622,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 261.28570000012405
+    },
+    {
+      "step": 623,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 3,
+          "y": 4
+        }
+      },
+      "ms": 221.20900000003166
+    },
+    {
+      "step": 624,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 5,
+          "y": 3
+        }
+      },
+      "ms": 225.3582999999635
+    },
+    {
+      "step": 625,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_20"
+      },
+      "ms": 219.2058000001125
+    },
+    {
+      "step": 626,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_20"
+      },
+      "ms": 202.99619999993593
+    },
+    {
+      "step": 627,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_20"
+      },
+      "ms": 207.30279999994673
+    },
+    {
+      "step": 628,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_52",
+        "targetId": "u_28"
+      },
+      "ms": 213.2349000000395
+    },
+    {
+      "step": 629,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_51"
+      },
+      "ms": 194.9550000000745
+    },
+    {
+      "step": 630,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_42"
+      },
+      "ms": 138.09869999997318
+    },
+    {
+      "step": 631,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_46",
+        "targetId": "u_30"
+      },
+      "ms": 135.7001000000164
+    },
+    {
+      "step": 632,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "ms": 107.60149999987334
+    },
+    {
+      "step": 633,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      "ms": 57.71460000006482
+    },
+    {
+      "step": 634,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_53",
+        "targetId": "u_30"
+      },
+      "ms": 26.38230000017211
+    },
+    {
+      "step": 635,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 9.40280000003986
+    },
+    {
+      "step": 636,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 222.2748999998439
+    },
+    {
+      "step": 637,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_54",
+        "to": {
+          "x": 11,
+          "y": 11
+        }
+      },
+      "ms": 275.50470000016503
+    },
+    {
+      "step": 638,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 1,
+          "y": 3
+        }
+      },
+      "ms": 233.28340000007302
+    },
+    {
+      "step": 639,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_53"
+      },
+      "ms": 37.85290000005625
+    },
+    {
+      "step": 640,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_30",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 32.7249999998603
+    },
+    {
+      "step": 641,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_30",
+        "targetId": "u_46"
+      },
+      "ms": 4.63329999987036
+    },
+    {
+      "step": 642,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_54"
+      },
+      "ms": 3.686899999855086
+    },
+    {
+      "step": 643,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "ms": 335.6986999998335
+    },
+    {
+      "step": 644,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "ms": 345.3971000001766
+    },
+    {
+      "step": 645,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 3,
+          "y": 6
+        }
+      },
+      "ms": 263.41339999996126
+    },
+    {
+      "step": 646,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "ms": 366.3630000001285
+    },
+    {
+      "step": 647,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 290.4967000000179
+    },
+    {
+      "step": 648,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      "ms": 240.66250000009313
+    },
+    {
+      "step": 649,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 2,
+          "y": 7
+        }
+      },
+      "ms": 237.1335999998264
+    },
+    {
+      "step": 650,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 6,
+          "y": 7
+        }
+      },
+      "ms": 211.561299999943
+    },
+    {
+      "step": 651,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 8,
+          "y": 3
+        }
+      },
+      "ms": 226.94819999998435
+    },
+    {
+      "step": 652,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 5,
+          "y": 9
+        }
+      },
+      "ms": 225.90720000001602
+    },
+    {
+      "step": 653,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 217.5507000000216
+    },
+    {
+      "step": 654,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_54"
+      },
+      "ms": 207.73549999995157
+    },
+    {
+      "step": 655,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_54"
+      },
+      "ms": 208.9055000001099
+    },
+    {
+      "step": 656,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_27",
+        "targetId": "u_54"
+      },
+      "ms": 213.8175999999512
+    },
+    {
+      "step": 657,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_3"
+      },
+      "ms": 211.8867999999784
+    },
+    {
+      "step": 658,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_44",
+        "targetId": "u_30"
+      },
+      "ms": 211.13360000005923
+    },
+    {
+      "step": 659,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_46",
+        "targetId": "u_30"
+      },
+      "ms": 209.4026999999769
+    },
+    {
+      "step": 660,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_52"
+      },
+      "ms": 195.3913000000175
+    },
+    {
+      "step": 661,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_48"
+      },
+      "ms": 187.34719999996014
+    },
+    {
+      "step": 662,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_53"
+      },
+      "ms": 310.8220999999903
+    },
+    {
+      "step": 663,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_51"
+      },
+      "ms": 201.63690000004135
+    },
+    {
+      "step": 664,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_42"
+      },
+      "ms": 336.3678000001237
+    },
+    {
+      "step": 665,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 277.3796999999322
+    },
+    {
+      "step": 666,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 257.1932000000961
+    },
+    {
+      "step": 667,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 120.21080000000075
+    },
+    {
+      "step": 668,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_54",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 130.24860000004992
+    },
+    {
+      "step": 669,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_55",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 120.03320000017993
+    },
+    {
+      "step": 670,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_28",
+        "to": {
+          "x": 1,
+          "y": 7
+        }
+      },
+      "ms": 103.3867999999784
+    },
+    {
+      "step": 671,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_28",
+        "targetId": "u_53"
+      },
+      "ms": 8.139599999878556
+    },
+    {
+      "step": 672,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_55",
+        "targetId": "u_3"
+      },
+      "ms": 3.100300000049174
+    },
+    {
+      "step": 673,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 6.127799999900162
+    },
+    {
+      "step": 674,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_56",
+        "to": {
+          "x": 12,
+          "y": 6
+        }
+      },
+      "ms": 11.91260000015609
+    },
+    {
+      "step": 675,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_56",
+        "targetId": "u_3"
+      },
+      "ms": 1.8666999998968095
+    },
+    {
+      "step": 676,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_54"
+      },
+      "ms": 0.813300000037998
+    },
+    {
+      "step": 677,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_54"
+      },
+      "ms": 385.03979999991134
+    },
+    {
+      "step": 678,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "commander",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 358.42090000002645
+    },
+    {
+      "step": 679,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_57",
+        "to": {
+          "x": 6,
+          "y": 9
+        }
+      },
+      "ms": 427.2767000000458
+    },
+    {
+      "step": 680,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 13,
+          "y": 11
+        }
+      },
+      "ms": 331.2599999997765
+    },
+    {
+      "step": 681,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_27"
+      },
+      "ms": 300.720600000117
+    },
+    {
+      "step": 682,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 307.22019999986514
+    },
+    {
+      "step": 683,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 263.72210000013
+    },
+    {
+      "step": 684,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 3,
+          "y": 7
+        }
+      },
+      "ms": 231.46169999986887
+    },
+    {
+      "step": 685,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 10,
+          "y": 8
+        }
+      },
+      "ms": 341.7188000001479
+    },
+    {
+      "step": 686,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_32"
+      },
+      "ms": 331.1769000000786
+    },
+    {
+      "step": 687,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 0,
+          "y": 6
+        }
+      },
+      "ms": 295.7097000000067
+    },
+    {
+      "step": 688,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 2,
+          "y": 5
+        }
+      },
+      "ms": 206.71480000019073
+    },
+    {
+      "step": 689,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "ms": 225.69050000002608
+    },
+    {
+      "step": 690,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 9,
+          "y": 7
+        }
+      },
+      "ms": 252.05819999985397
+    },
+    {
+      "step": 691,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_38",
+        "targetId": "u_28"
+      },
+      "ms": 237.5519000000786
+    },
+    {
+      "step": 692,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_46",
+        "targetId": "u_28"
+      },
+      "ms": 213.78710000007413
+    },
+    {
+      "step": 693,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_55"
+      },
+      "ms": 217.20310000004247
+    },
+    {
+      "step": 694,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_51",
+        "targetId": "u_55"
+      },
+      "ms": 210.19640000001527
+    },
+    {
+      "step": 695,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_42",
+        "targetId": "u_28"
+      },
+      "ms": 174.6472000000067
+    },
+    {
+      "step": 696,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 2,
+          "y": 8
+        }
+      },
+      "ms": 74.04359999997541
+    },
+    {
+      "step": 697,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_52",
+        "targetId": "u_28"
+      },
+      "ms": 30.938400000100955
+    },
+    {
+      "step": 698,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_57"
+      },
+      "ms": 88.36199999996461
+    },
+    {
+      "step": 699,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "berserker",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 90.93890000018291
+    },
+    {
+      "step": 700,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_58",
+        "to": {
+          "x": 5,
+          "y": 9
+        }
+      },
+      "ms": 45.32089999993332
+    },
+    {
+      "step": 701,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_32"
+      },
+      "ms": 25.05960000003688
+    },
+    {
+      "step": 702,
+      "player": 1,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 14.0382999998983
+    },
+    {
+      "step": 703,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_56",
+        "to": {
+          "x": 10,
+          "y": 7
+        }
+      },
+      "ms": 89.03019999992102
+    },
+    {
+      "step": 704,
+      "player": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_55",
+        "to": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 30.248099999967963
+    },
+    {
+      "step": 705,
+      "player": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_56",
+        "targetId": "u_3"
+      },
+      "ms": 11.791800000006333
+    },
+    {
+      "step": 706,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_55"
+      },
+      "ms": 4.372999999905005
+    },
+    {
+      "step": 707,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 3.802200000034645
+    },
+    {
+      "step": 708,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_57",
+        "to": {
+          "x": 9,
+          "y": 12
+        }
+      },
+      "ms": 231.14120000018738
+    },
+    {
+      "step": 709,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_32"
+      },
+      "ms": 215.19310000003316
+    },
+    {
+      "step": 710,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "ms": 203.70990000013262
+    },
+    {
+      "step": 711,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_27"
+      },
+      "ms": 375.2865999999922
+    },
+    {
+      "step": 712,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      "ms": 357.6300000001211
+    },
+    {
+      "step": 713,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      "ms": 334.0952999999281
+    },
+    {
+      "step": 714,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 361.9982000000309
+    },
+    {
+      "step": 715,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_58",
+        "to": {
+          "x": 8,
+          "y": 8
+        }
+      },
+      "ms": 325.72970000002533
+    },
+    {
+      "step": 716,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      "ms": 293.98569999984466
+    },
+    {
+      "step": 717,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "ms": 269.7350999999326
+    },
+    {
+      "step": 718,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 214.5289000000339
+    },
+    {
+      "step": 719,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 12,
+          "y": 7
+        }
+      },
+      "ms": 206.86060000001453
+    },
+    {
+      "step": 720,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 12,
+          "y": 9
+        }
+      },
+      "ms": 244.99820000003092
+    },
+    {
+      "step": 721,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 210.9584999999497
+    },
+    {
+      "step": 722,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_59",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "ms": 203.55939999991097
+    },
+    {
+      "step": 723,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_32",
+        "targetId": "u_56"
+      },
+      "ms": 200.5238000000827
+    },
+    {
+      "step": 724,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_48",
+        "targetId": "u_56"
+      },
+      "ms": 202.80529999989085
+    },
+    {
+      "step": 725,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 12,
+          "y": 6
+        }
+      },
+      "ms": 116.7768999999389
+    },
+    {
+      "step": 726,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 5,
+          "y": 8
+        }
+      },
+      "ms": 48.180500000016764
+    },
+    {
+      "step": 727,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_51",
+        "targetId": "u_55"
+      },
+      "ms": 65.93009999999776
+    },
+    {
+      "step": 728,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_59"
+      },
+      "ms": 61.348500000080094
+    },
+    {
+      "step": 729,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 46.97479999996722
+    },
+    {
+      "step": 730,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_60",
+        "to": {
+          "x": 4,
+          "y": 11
+        }
+      },
+      "ms": 21.989300000015646
+    },
+    {
+      "step": 731,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_52"
+      },
+      "ms": 14.426699999952689
+    },
+    {
+      "step": 732,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_60"
+      },
+      "ms": 12.866500000003725
+    },
+    {
+      "step": 733,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_53"
+      },
+      "ms": 12.08449999988079
+    },
+    {
+      "step": 734,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_26"
+      },
+      "ms": 12.251600000075996
+    },
+    {
+      "step": 735,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_44"
+      },
+      "ms": 11.454800000181422
+    },
+    {
+      "step": 736,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 47.240400000009686
+    },
+    {
+      "step": 737,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_57"
+      },
+      "ms": 47.85250000003725
+    },
+    {
+      "step": 738,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_42"
+      },
+      "ms": 58.56870000017807
+    },
+    {
+      "step": 739,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_58"
+      },
+      "ms": 41.1480000000447
+    },
+    {
+      "step": 740,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_46"
+      },
+      "ms": 29.20230000000447
+    },
+    {
+      "step": 741,
+      "player": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 11.35579999978654
+    },
+    {
+      "step": 742,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_61"
+      },
+      "ms": 36.67910000006668
+    },
+    {
+      "step": 743,
+      "player": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "ms": 5.0019000000320375
+    },
+    {
+      "step": 744,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_57",
+        "to": {
+          "x": 13,
+          "y": 11
+        }
+      },
+      "ms": 227.77989999996498
+    },
+    {
+      "step": 745,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 12,
+          "y": 8
+        }
+      },
+      "ms": 378.06319999997504
+    },
+    {
+      "step": 746,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_32"
+      },
+      "ms": 372.7893000000622
+    },
+    {
+      "step": 747,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 11,
+          "y": 7
+        }
+      },
+      "ms": 368.1879999998491
+    },
+    {
+      "step": 748,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_59",
+        "to": {
+          "x": 8,
+          "y": 11
+        }
+      },
+      "ms": 228.36780000012368
+    },
+    {
+      "step": 749,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 13,
+          "y": 10
+        }
+      },
+      "ms": 316.19029999990016
+    },
+    {
+      "step": 750,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_26",
+        "to": {
+          "x": 12,
+          "y": 12
+        }
+      },
+      "ms": 269.0431999999564
+    },
+    {
+      "step": 751,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_60",
+        "to": {
+          "x": 6,
+          "y": 13
+        }
+      },
+      "ms": 234.30909999995492
+    },
+    {
+      "step": 752,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "ms": 220.62129999999888
+    },
+    {
+      "step": 753,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "ms": 258.5655000000261
+    },
+    {
+      "step": 754,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_58",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 256.90059999981895
+    },
+    {
+      "step": 755,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "wolf_archer",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "ms": 238.25019999989308
+    },
+    {
+      "step": 756,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_62",
+        "to": {
+          "x": 6,
+          "y": 11
+        }
+      },
+      "ms": 216.09450000012293
+    },
+    {
+      "step": 757,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 9,
+          "y": 6
+        }
+      },
+      "ms": 211.410000000149
+    },
+    {
+      "step": 758,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 13,
+          "y": 7
+        }
+      },
+      "ms": 204.28140000021085
+    },
+    {
+      "step": 759,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 6,
+          "y": 9
+        }
+      },
+      "ms": 219.48320000013337
+    },
+    {
+      "step": 760,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 10,
+          "y": 8
+        }
+      },
+      "ms": 209.65679999999702
+    },
+    {
+      "step": 761,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 14,
+          "y": 12
+        }
+      },
+      "ms": 141.42700000014156
+    },
+    {
+      "step": 762,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_48",
+        "to": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "ms": 76.75740000000224
+    },
+    {
+      "step": 763,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_61"
+      },
+      "ms": 36.36210000002757
+    },
+    {
+      "step": 764,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_27",
+        "targetId": "u_61"
+      },
+      "ms": 33.39629999990575
+    },
+    {
+      "step": 765,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_38"
+      },
+      "ms": 22.220100000035018
+    },
+    {
+      "step": 766,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_57"
+      },
+      "ms": 20.442100000102073
+    },
+    {
+      "step": 767,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_59"
+      },
+      "ms": 17.95160000002943
+    },
+    {
+      "step": 768,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_60"
+      },
+      "ms": 16.688700000056997
+    },
+    {
+      "step": 769,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_52"
+      },
+      "ms": 19.617300000041723
+    },
+    {
+      "step": 770,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_51"
+      },
+      "ms": 17.08019999996759
+    },
+    {
+      "step": 771,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_48"
+      },
+      "ms": 13.835800000000745
+    },
+    {
+      "step": 772,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_62"
+      },
+      "ms": 16.332599999848753
+    },
+    {
+      "step": 773,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_32"
+      },
+      "ms": 13.155800000065938
+    },
+    {
+      "step": 774,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_44"
+      },
+      "ms": 16.24279999989085
+    },
+    {
+      "step": 775,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_58"
+      },
+      "ms": 18.431099999928847
+    },
+    {
+      "step": 776,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_46"
+      },
+      "ms": 13.193600000115111
+    },
+    {
+      "step": 777,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_53"
+      },
+      "ms": 10.839399999938905
+    },
+    {
+      "step": 778,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_42"
+      },
+      "ms": 6.033300000010058
+    },
+    {
+      "step": 779,
+      "player": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_61"
+      },
+      "ms": 21.410600000061095
+    },
+    {
+      "step": 780,
+      "player": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_26",
+        "targetId": "u_61"
+      },
+      "ms": 235.38000000012107
+    },
+    {
+      "step": 781,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_57",
+        "to": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 343.6190000001807
+    },
+    {
+      "step": 782,
+      "player": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_57"
+      },
+      "ms": 330.3024999999907
+    },
+    {
+      "step": 783,
+      "player": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_3",
+        "targetId": "u_58"
+      },
+      "ms": 210.95520000020042
+    },
+    {
+      "step": 784,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_32",
+        "to": {
+          "x": 13,
+          "y": 6
+        }
+      },
+      "ms": 348.25210000015795
+    },
+    {
+      "step": 785,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_38",
+        "to": {
+          "x": 12,
+          "y": 4
+        }
+      },
+      "ms": 289.7025999999605
+    },
+    {
+      "step": 786,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_52",
+        "to": {
+          "x": 10,
+          "y": 4
+        }
+      },
+      "ms": 266.063700000057
+    },
+    {
+      "step": 787,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_62",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "ms": 242.20160000002943
+    },
+    {
+      "step": 788,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_58",
+        "to": {
+          "x": 13,
+          "y": 5
+        }
+      },
+      "ms": 242.45350000006147
+    },
+    {
+      "step": 789,
+      "player": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "wolf_archer",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "ms": 225.91740000015125
+    },
+    {
+      "step": 790,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_63",
+        "to": {
+          "x": 12,
+          "y": 9
+        }
+      },
+      "ms": 221.2970000000205
+    },
+    {
+      "step": 791,
+      "player": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_63"
+      },
+      "ms": 210.70039999997243
+    },
+    {
+      "step": 792,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_44",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "ms": 260.5905999999959
+    },
+    {
+      "step": 793,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_53",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "ms": 209.82280000019819
+    },
+    {
+      "step": 794,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_59",
+        "to": {
+          "x": 11,
+          "y": 10
+        }
+      },
+      "ms": 242.67259999993257
+    },
+    {
+      "step": 795,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_42",
+        "to": {
+          "x": 12,
+          "y": 5
+        }
+      },
+      "ms": 213.7461000001058
+    },
+    {
+      "step": 796,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_27",
+        "to": {
+          "x": 13,
+          "y": 10
+        }
+      },
+      "ms": 207.14780000015162
+    },
+    {
+      "step": 797,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_60",
+        "to": {
+          "x": 10,
+          "y": 13
+        }
+      },
+      "ms": 200.61840000003576
+    },
+    {
+      "step": 798,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_46",
+        "to": {
+          "x": 11,
+          "y": 8
+        }
+      },
+      "ms": 137.89409999991767
+    },
+    {
+      "step": 799,
+      "player": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_51",
+        "to": {
+          "x": 14,
+          "y": 5
+        }
+      },
+      "ms": 88.32080000010319
+    },
+    {
+      "step": 800,
+      "player": 1,
+      "action": {
+        "type": "post_attack_move",
+        "unitId": "u_63",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "ms": 60.635699999984354
+    }
+  ]
+}
