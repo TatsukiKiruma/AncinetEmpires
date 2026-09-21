@@ -1,0 +1,12 @@
+请先阅读项目根目录的 AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md。
+本轮以 path-b-spatial-ai / 6e7b7e22d36597369e75a5f21f743bd2f5faab93 为审查基点；先确认当前HEAD与本地修改，不覆盖用户变更。
+
+本轮先完成 R8-01→R8-02→R8-03：修复实际策略包装层的空间predict参数（必须是encodedState,candidates二参数），修复NET_A的undefined/null价值监督及topIndex接口，增加真实wrapper的形状/finite/模型身份断言；随后修正“25步单位数不变”提前截断、45*10隐性步数限制、无效seed和重招募分母/分子。
+
+先写能在当前实际入口失败的测试，再修代码。不要只复制正确算式写玩具断言，不得把ENGINE_ERROR也当测试通过；必须运行覆盖tools的tsc与相关集成测试。错误模型调用、权重缺失、非法shape、NaN、候选数不一致应明确报错，不得用legal[0]或另一模型静默代替。
+
+P0完成后先重评现有权重，不先重训四个模型。模型文件不存在则NOT_RUN，报告请求策略/实际策略、checkpoint SHA、seed流、规则摘要、终止原因、fallback、节点数及耗时分布。完整错误分支也保存轨迹。
+
+完成这一最小闭环后，再按R8-04—R8-07处理跨回合搜索、完整对局数据、统一split/真实消费及一轮双座位DAgger。不得直接依据v7的2胜4负14截断将S00部署或替换所有教师；默认仍为HeuristicAI。
+
+禁止改游戏规则制造胜利、删除历史证据、自动覆盖生产模型、租用付费算力、自动push。所有报告区分IMPLEMENTED、TESTED、MEASURED、QUALIFIED和BLOCKED/NOT_RUN；未执行的训练/对战不得填写完成。优先输出真实缺陷、最小修复及同协议前后结果，不以新增大量文档代替实现。

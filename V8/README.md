@@ -1,0 +1,13 @@
+# v8审查与后续任务包
+
+审查提交：6e7b7e22d36597369e75a5f21f743bd2f5faab93。
+
+主文档：AncinetEmpires_AI_Review_and_Taskbook_20260921_v8.md。
+启动指令：AncinetEmpires_AI_Agent_Start_20260921_v8.txt。
+
+isolated_v7_contract_probes.cjs及JSON结果是独立缩减复现，不是完整仓库测试或用户checkpoint测试。
+执行：`node isolated_v7_contract_probes.cjs output.json`。
+
+type_contract_probe.ts.txt是有意错误的类型示例；其保留.txt后缀以免被项目tsconfig自动编译。type_contract_diagnostics.txt是对此缩减示例的tsc输出，不是完整项目构建日志。
+
+只将主文档按需放入项目根目录。完整报告和代码证据索引见主文档末尾。
