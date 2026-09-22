@@ -52,8 +52,20 @@ export interface SearchTraceItem {
     turnHandover: boolean;
     opponentSteps: number;
     oppAttackCovered: boolean;
+    opponentChosenAction?: string;
+    opponentPrimaryRule?: string;
+    oppAttackAvailable?: boolean;
+    opponentProbeEvaluations?: number;
+    opponentResponseRule?: string;
     spatialPriorLogit?: number;
     shallowEvaluation?: boolean;
+}
+
+export interface CandidateSourceCounts {
+    heuristicTop: number;
+    tactical: number;
+    heuristicFill: number;
+    spatial: number;
 }
 
 export interface BoundedSearchResult {
@@ -68,6 +80,7 @@ export interface BoundedSearchResult {
     deadlineFallbackCount?: number;
     candidatesEvaluated?: number;
     shallowEvaluations?: number;
+    sourceCounts?: CandidateSourceCounts;
 }
 
 /**
@@ -263,19 +276,39 @@ export function evaluatePositionHeuristic(state: GameState, rootPlayerId: number
     return Math.max(-49000, Math.min(49000, rawScore));
 }
 
+export interface FilteredCandidatesResult {
+    candidates: Action[];
+    sourceCounts: CandidateSourceCounts;
+}
+
 /**
- * Filter and deduplicate candidate actions with explicit quotas (R8-04)
+ * Filter and deduplicate candidate actions with explicit quotas (R8-04 / V9-04)
+ * Quota priority order:
+ * 1. Heuristic Top 1 (guaranteed safety baseline)
+ * 2. Tactical quota (commander rehire, lethal attacks, captures)
+ * 3. Heuristic quota (top heuristic candidates to eliminate heuristic starvation)
+ * 4. Spatial predictor (fills remaining capacity up to topSpatialK, bounded by maxTotal - tacticalQuota - heuristicQuota)
  */
-export function getFilteredCandidateActions(
+export function getFilteredCandidateActionsDetailed(
     engine: GameEngine,
     playerId: number,
     heuristicAi: HeuristicAI,
     spatialPredictor?: SpatialResNetPredictor,
     options?: number | CandidateFilteringOptions,
     precomputedHeuristicScores?: ReadonlyArray<{ action: Action; score: number }>
-): Action[] {
+): FilteredCandidatesResult {
     const legal = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
-    if (legal.length <= 1) return legal;
+    const sourceCounts: CandidateSourceCounts = {
+        heuristicTop: 0,
+        tactical: 0,
+        heuristicFill: 0,
+        spatial: 0
+    };
+
+    if (legal.length <= 1) {
+        if (legal.length === 1) sourceCounts.heuristicTop = 1;
+        return { candidates: legal, sourceCounts };
+    }
 
     const opts: CandidateFilteringOptions = typeof options === 'number'
         ? { topSpatialK: options, maxTotal: 10 }
@@ -287,16 +320,15 @@ export function getFilteredCandidateActions(
     const heuristicQuota = opts.heuristicQuota ?? 4;
     const actionMap = new Map<string, Action>();
 
-    // One full HeuristicAI scoring pass is reused for the fallback top action, the fill quota,
-    // and the caller's own fallback selection. No second scoring pass and no duplicated state copy.
+    // 1. One full HeuristicAI scoring pass: supplies guaranteed top action and fill pool
     const scoredHeuristic = precomputedHeuristicScores
         ? [...precomputedHeuristicScores]
         : heuristicAi.scoreCandidateActions(engine, playerId, legal);
     const heuristicTop = selectHeuristicTopAction(scoredHeuristic, legal);
     actionMap.set(encodeAction(heuristicTop), heuristicTop);
+    sourceCounts.heuristicTop = 1;
 
     // 2. Quota: High-priority tactical actions: commander recruit, attacks, captures, castle unblock
-    let tacticalAdded = 0;
     const tacticalCandidates: Action[] = [];
     for (const a of legal) {
         if ((a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') && (a as any).unitClass === 'commander') {
@@ -308,16 +340,32 @@ export function getFilteredCandidateActions(
         }
     }
     for (const tac of tacticalCandidates) {
-        if (tacticalAdded >= tacticalQuota || actionMap.size >= maxTotal) break;
+        if (sourceCounts.tactical >= tacticalQuota || actionMap.size >= maxTotal) break;
         const code = encodeAction(tac);
         if (!actionMap.has(code)) {
             actionMap.set(code, tac);
-            tacticalAdded++;
+            sourceCounts.tactical++;
         }
     }
 
-    // 3. Quota: Spatial predictor top-K candidates
-    if (spatialPredictor && actionMap.size < maxTotal && topSpatialK > 0) {
+    // 3. Quota: Fill with top actions scored by HeuristicAI up to heuristicQuota (ANTI-STARVATION)
+    // By placing heuristic fill BEFORE spatial, spatial predictor can NEVER starve heuristic actions!
+    if (actionMap.size < maxTotal && heuristicQuota > 0) {
+        scoredHeuristic.sort((a, b) => b.score - a.score);
+        for (const item of scoredHeuristic) {
+            if (actionMap.size >= maxTotal || sourceCounts.heuristicFill >= heuristicQuota) break;
+            const code = encodeAction(item.action);
+            if (!actionMap.has(code)) {
+                actionMap.set(code, item.action);
+                sourceCounts.heuristicFill++;
+            }
+        }
+    }
+
+    // 4. Quota: Spatial predictor competes only for the remaining capacity
+    // max allowable spatial slots = min(topSpatialK, maxTotal - actionMap.size)
+    const remainingBudgetForSpatial = Math.min(topSpatialK, Math.max(0, maxTotal - actionMap.size));
+    if (spatialPredictor && remainingBudgetForSpatial > 0) {
         const state = engine.getState();
         const encSpatial = encodeGameStateSpatial(state, playerId, 'v2');
         const candSpatial = legal.map(a => {
@@ -332,32 +380,38 @@ export function getFilteredCandidateActions(
         const pred = spatialPredictor.predict(encSpatial, candSpatial);
         const scored = legal.map((a, idx) => ({ action: a, logit: pred.actionLogits[idx] }));
         scored.sort((a, b) => b.logit - a.logit);
-        let spatialAdded = 0;
-        for (let i = 0; i < scored.length && spatialAdded < topSpatialK; i++) {
+        for (let i = 0; i < scored.length && sourceCounts.spatial < remainingBudgetForSpatial; i++) {
             if (actionMap.size >= maxTotal) break;
             const code = encodeAction(scored[i].action);
             if (!actionMap.has(code)) {
                 actionMap.set(code, scored[i].action);
-                spatialAdded++;
+                sourceCounts.spatial++;
             }
         }
     }
 
-    // 4. Quota: Fill remaining budget with top actions scored by HeuristicAI up to heuristicQuota
-    if (actionMap.size < maxTotal && heuristicQuota > 0) {
-        scoredHeuristic.sort((a, b) => b.score - a.score);
-        let heuristicAdded = 0;
-        for (const item of scoredHeuristic) {
-            if (actionMap.size >= maxTotal || heuristicAdded >= heuristicQuota) break;
-            const code = encodeAction(item.action);
-            if (!actionMap.has(code)) {
-                actionMap.set(code, item.action);
-                heuristicAdded++;
-            }
-        }
-    }
+    return {
+        candidates: Array.from(actionMap.values()),
+        sourceCounts
+    };
+}
 
-    return Array.from(actionMap.values());
+export function getFilteredCandidateActions(
+    engine: GameEngine,
+    playerId: number,
+    heuristicAi: HeuristicAI,
+    spatialPredictor?: SpatialResNetPredictor,
+    options?: number | CandidateFilteringOptions,
+    precomputedHeuristicScores?: ReadonlyArray<{ action: Action; score: number }>
+): Action[] {
+    return getFilteredCandidateActionsDetailed(
+        engine,
+        playerId,
+        heuristicAi,
+        spatialPredictor,
+        options,
+        precomputedHeuristicScores
+    ).candidates;
 }
 
 /**
@@ -379,6 +433,7 @@ export function runBoundedSearch(
         heuristicAi?: HeuristicAI;
         spatialPredictor?: SpatialResNetPredictor;
         maxDepth?: number;
+        signal?: AbortSignal;
         quotas?: {
             tacticalQuota?: number;
             topSpatialK?: number;
@@ -402,6 +457,7 @@ export function runBoundedSearch(
 
     const elapsedMs = (): number => performance.now() - startMs;
     const checkSoftDeadline = (): boolean => {
+        if (options.signal?.aborted) return true;
         if (deterministic) return false;
         if (elapsedMs() >= maxMs) {
             wallClockExceeded = true;
@@ -409,7 +465,7 @@ export function runBoundedSearch(
         }
         return false;
     };
-    const checkHardDeadline = (): boolean => !deterministic && elapsedMs() >= hardMaxMs;
+    const checkHardDeadline = (): boolean => Boolean(options.signal?.aborted) || (!deterministic && elapsedMs() >= hardMaxMs);
 
     const legalActions = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
     if (legalActions.length === 0) {
@@ -455,7 +511,7 @@ export function runBoundedSearch(
         return emergencyFallback();
     }
 
-    const candidates = getFilteredCandidateActions(
+    const candResult = getFilteredCandidateActionsDetailed(
         engine,
         playerId,
         heuristicAi,
@@ -463,6 +519,7 @@ export function runBoundedSearch(
         options.quotas,
         heuristicScores
     );
+    const candidates = candResult.candidates;
 
     if (checkHardDeadline()) {
         return emergencyFallback();
@@ -519,6 +576,11 @@ export function runBoundedSearch(
         let turnHandover = false;
         let opponentSteps = 0;
         let oppAttackCovered = false;
+        let opponentProbeEvaluations = 0;
+        let opponentChosenAction: string | null = null;
+        let opponentPrimaryRule = 'none';
+        let oppAttackAvailable = false;
+        let opponentResponseRule = 'none';
         let usedShallowEvaluation = shallowOnly;
 
         if (simEngine.isTerminal()) {
@@ -558,39 +620,76 @@ export function runBoundedSearch(
             if (!friendlyAborted && !simEngine.isTerminal() && simEngine.getState().currentPlayer !== playerId && depth < maxDepth) {
                 reachedOpponent = true;
                 turnHandover = true;
-                const oppId = simEngine.getState().currentPlayer;
-                for (let s = 0; s < 5 && !simEngine.isTerminal() && simEngine.getState().currentPlayer === oppId && depth < maxDepth; s++) {
-                    if (checkHardDeadline()) {
-                        friendlyAborted = true;
-                        break;
-                    }
-                    if (nodesExplored >= maxNodes) {
-                        stopReason = 'node_limit';
-                        friendlyAborted = true;
-                        break;
-                    }
-                    const oppActions = simEngine.getLegalActions(oppId).filter(a => a.type !== 'surrender');
-                    if (oppActions.length === 0) break;
-                    const attackAct = oppActions.find(a => a.type === 'attack');
-                    let oppAct: Action;
-                    if (attackAct) {
-                        oppAct = attackAct;
-                    } else {
-                        if (checkSoftDeadline()) {
+                    const oppId = simEngine.getState().currentPlayer;
+                    for (let s = 0; s < 5 && !simEngine.isTerminal() && simEngine.getState().currentPlayer === oppId && depth < maxDepth; s++) {
+                        if (checkHardDeadline()) {
                             friendlyAborted = true;
                             break;
                         }
-                        oppAct = heuristicAi.getAction(simEngine, oppId, oppActions);
+                        if (nodesExplored >= maxNodes) {
+                            stopReason = 'node_limit';
+                            friendlyAborted = true;
+                            break;
+                        }
+                        const oppActions = simEngine.getLegalActions(oppId).filter(a => a.type !== 'surrender');
+                        if (oppActions.length === 0) break;
+                        let oppAct: Action;
+                        if (s === 0) {
+                            oppAttackAvailable = oppActions.some(a => a.type === 'attack');
+                            // V9-04: choose the MOST DANGEROUS verifiable response instead of the first
+                            // legal attack. Attacks are probed first, moves are probed too so that
+                            // move-then-attack sequences are reachable. Probes are shallow and counted
+                            // separately in opponentProbeEvaluations.
+                            const ordered = [
+                                ...oppActions.filter(a => a.type === 'attack'),
+                                ...oppActions.filter(a => a.type !== 'attack')
+                            ].slice(0, 8);
+                            let bestAct: Action = ordered[0];
+                            let bestThreat = Number.NEGATIVE_INFINITY;
+                            for (const alt of ordered) {
+                                const probe = simEngine.clone();
+                                try {
+                                    probe.step(alt);
+                                } catch {
+                                    continue;
+                                }
+                                opponentProbeEvaluations++;
+                                const rootScoreAfter = evaluatePositionHeuristic(probe.getState(), playerId);
+                                const threat = -rootScoreAfter;
+                                if (threat > bestThreat) {
+                                    bestThreat = threat;
+                                    bestAct = alt;
+                                }
+                            }
+                            oppAct = bestAct;
+                            opponentResponseRule = bestAct.type === 'attack' ? 'most_dangerous_attack_probe' : 'most_dangerous_move_probe';
+                        } else {
+                            const attackAct = oppActions.find(a => a.type === 'attack');
+                            if (attackAct) {
+                                oppAct = attackAct;
+                                opponentResponseRule = 'followup_first_attack';
+                            } else {
+                                if (checkSoftDeadline()) {
+                                    friendlyAborted = true;
+                                    break;
+                                }
+                                oppAct = heuristicAi.getAction(simEngine, oppId, oppActions);
+                                opponentResponseRule = 'followup_heuristic';
+                            }
+                        }
+                        if (s === 0) {
+                            opponentChosenAction = encodeAction(oppAct);
+                            opponentPrimaryRule = opponentResponseRule;
+                        }
+                        simEngine.step(oppAct);
+                        nodesExplored++;
+                        depth++;
+                        opponentSteps++;
+                        if (oppAct.type === 'attack') {
+                            oppAttackCovered = true;
+                            break;
+                        }
                     }
-                    simEngine.step(oppAct);
-                    nodesExplored++;
-                    depth++;
-                    opponentSteps++;
-                    if (oppAct.type === 'attack') {
-                        oppAttackCovered = true;
-                        break;
-                    }
-                }
             }
 
             if (checkHardDeadline()) {
@@ -615,6 +714,11 @@ export function runBoundedSearch(
                 turnHandover,
                 opponentSteps,
                 oppAttackCovered,
+                opponentChosenAction: opponentChosenAction ?? undefined,
+                opponentPrimaryRule,
+                oppAttackAvailable,
+                opponentProbeEvaluations,
+                opponentResponseRule,
                 shallowEvaluation: usedShallowEvaluation
             });
             candidatesEvaluated++;
@@ -655,6 +759,7 @@ export function runBoundedSearch(
         wallClockExceeded,
         deadlineFallbackCount,
         candidatesEvaluated,
-        shallowEvaluations
+        shallowEvaluations,
+        sourceCounts: candResult.sourceCounts
     };
 }

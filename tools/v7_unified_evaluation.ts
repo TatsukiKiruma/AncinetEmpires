@@ -34,6 +34,7 @@ import { getAllianceId, getUnitCost, isCommanderUnit } from '../src/game/rule_co
 import { encodeAction } from '../src/game/env';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
 import { encodeGameStateSpatial, encodeCandidateActionSpatial } from '../src/game/ai/spatial_tensor_encoder';
+import { predictSpatialAction } from '../src/game/ai/shared_spatial_policy';
 import { loadDualHeadModelFromJson, predictDecision, DualHeadNet } from './skirmish_dual_head_net';
 import { encodeGameState, encodeGameActionV2 } from './skirmish_network_features';
 import { runBoundedSearch } from './v7_heuristic_bounded_search';
@@ -319,22 +320,8 @@ export class PolicyAgent {
                 if (!this.spatialPredictor) {
                     throw new Error(`MODEL_LOAD_ERROR: Spatial predictor is not loaded for ${this.type} (cannot silently fall back to legal[0])`);
                 }
-                const encSpatial = encodeGameStateSpatial(state, playerId, 'v2');
-                const candSpatial = legal.map(a => {
-                    const feat = encodeCandidateActionSpatial(state, playerId, a, 'v2');
-                    return {
-                        actorCoord: feat.actorCoord,
-                        landingCoord: feat.landingCoord,
-                        targetCoord: feat.targetCoord,
-                        semantics: feat.semantics
-                    };
-                });
-                const pred = this.spatialPredictor.predict(encSpatial, candSpatial);
-                const bestIdx = pred.bestActionIndex;
-                if (bestIdx === undefined || bestIdx < 0 || bestIdx >= legal.length) {
-                    throw new Error(`Spatial predictor returned invalid bestActionIndex ${bestIdx} for ${legal.length} legal actions`);
-                }
-                return { action: legal[bestIdx], ms: performance.now() - t0 };
+                const predRes = predictSpatialAction(this.spatialPredictor, state, playerId, legal, 'v2');
+                return { action: predRes.action, ms: performance.now() - t0 };
             }
             case 'S00_SEARCH': {
                 const res = runBoundedSearch(engine, playerId, {

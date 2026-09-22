@@ -27,7 +27,9 @@ import {
 const RUN_ID = 'agent_upgrade_20260922_v8_reeval_02';
 const REPORT_DIR = path.resolve(`docs/training/reports/${RUN_ID}`);
 const RUN_DIR = path.resolve(`training_runs/${RUN_ID}`);
-const CHECKPOINT_DIR = path.resolve('training_runs/agent_upgrade_20260921_v7_01/checkpoints');
+// Historical note: v8_reeval_02 evaluated against the initial v7_01 checkpoint baseline.
+// Overridable via CHECKPOINT_DIR env var for reproducible re-evaluation across checkpoints.
+const CHECKPOINT_DIR = path.resolve(process.env.CHECKPOINT_DIR || 'training_runs/agent_upgrade_20260921_v7_01/checkpoints');
 
 const PILOT_POLICIES: PolicyType[] = [
     'HEURISTIC',

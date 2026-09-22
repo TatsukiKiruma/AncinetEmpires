@@ -33,6 +33,7 @@ import { getAllianceId, getUnitCost, isCommanderUnit, areEnemyPlayers } from '..
 import { encodeAction } from '../src/game/env';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
 import { encodeGameStateSpatial, encodeCandidateActionSpatial } from '../src/game/ai/spatial_tensor_encoder';
+import { predictSpatialAction } from '../src/game/ai/shared_spatial_policy';
 import { evaluatePositionHeuristic } from './v7_heuristic_bounded_search';
 
 const RUN_ID = 'agent_upgrade_20260921_v7_01';
@@ -97,33 +98,21 @@ export function predictStudentAction(
     playerId: number
 ): { action: Action; actionIdx: number; legalActions: Action[] } {
     const legalActions = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
+    return getStudentAction(engine.getState(), playerId, predictor, legalActions);
+}
+
+function getStudentAction(
+    state: GameState,
+    playerId: number,
+    predictor: SpatialResNetPredictor,
+    legalActions: Action[]
+): { action: Action; actionIdx: number; legalActions: Action[] } {
     if (legalActions.length === 0) {
-        return { action: { type: 'end_turn' }, actionIdx: 0, legalActions: [{ type: 'end_turn' }] };
+        return { action: { type: 'end_turn' }, actionIdx: -1, legalActions };
     }
 
-    const state = engine.getState();
-    const encSpatial = encodeGameStateSpatial(state, playerId, 'v2');
-    const candSpatial = legalActions.map(a => {
-        const feat = encodeCandidateActionSpatial(state, playerId, a, 'v2');
-        return {
-            actorCoord: feat.actorCoord,
-            landingCoord: feat.landingCoord,
-            targetCoord: feat.targetCoord,
-            semantics: feat.semantics
-        };
-    });
-
-    const pred = predictor.predict(encSpatial, candSpatial);
-    let bestIdx = 0;
-    let bestLogit = -Infinity;
-    for (let i = 0; i < pred.actionLogits.length; i++) {
-        if (pred.actionLogits[i] > bestLogit) {
-            bestLogit = pred.actionLogits[i];
-            bestIdx = i;
-        }
-    }
-
-    return { action: legalActions[bestIdx], actionIdx: bestIdx, legalActions };
+    const predResult = predictSpatialAction(predictor, state, playerId, legalActions, 'v2');
+    return { action: predResult.action, actionIdx: predResult.bestActionIndex, legalActions };
 }
 
 /**

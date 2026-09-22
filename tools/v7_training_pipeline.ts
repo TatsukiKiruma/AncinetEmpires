@@ -25,6 +25,7 @@ import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { Action, GameState, Position, Unit } from '../src/game/types';
 import { getUnitCost, isCommanderUnit } from '../src/game/rule_config';
 import { getTileTerrainKey } from '../src/game/terrain_rules';
+import { encodeAction } from '../src/game/env';
 import {
     encodeGameStateSpatial,
     encodeCandidateActionSpatial
@@ -59,6 +60,24 @@ export const V7_MAPS = [
     { name: 'DEMO_MAP', label: 'Demo Map' }
 ];
 
+export const GOLD_OFFSETS = [-50, 0, 50, 100, 150, 200, 300, 400] as const;
+export const SPLITMIX_CONSTANTS = {
+    MULTIPLIER_0: 37,
+    OFFSET_0: 1013,
+    MULTIPLIER_1: 53,
+    OFFSET_1: 2017
+} as const;
+
+export function splitMix32(a: number): number {
+    a |= 0;
+    a = (a + 0x9e3779b9) | 0;
+    let t = a ^ (a >>> 16);
+    t = Math.imul(t, 0x21f0aaad);
+    t = t ^ (t >>> 15);
+    t = Math.imul(t, 0x735a2d97);
+    return ((t = t ^ (t >>> 15)) >>> 0);
+}
+
 export function getBehavioralStateHash(state: GameState, playerId: number): string {
     const mapName = (state as any).mapName ?? (state.metadata as any)?.apkMapName ?? (state.metadata as any)?.mapName ?? 'unknown_map';
     const turn = state.turn;
@@ -68,7 +87,7 @@ export function getBehavioralStateHash(state: GameState, playerId: number): stri
 
     // 1. Players: id, gold, commanderDeathCount, isAlive, reserve properties
     const playersStr = state.players
-        .map(p => `${p.id}:${p.gold}:${p.commanderDeathCount ?? 0}:${p.isAlive ? 1 : 0}:${(p as any).reserveLevel ?? 0}:${(p as any).reserveExp ?? 0}:${(p as any).reserveGold ?? 0}`)
+        .map(p => `${p.id}:${p.gold}:${p.commanderDeathCount ?? 0}:${p.isAlive ? 1 : 0}:${p.commanderReserveLevel ?? (p as any).reserveLevel ?? 0}:${p.commanderReserveExp ?? (p as any).reserveExp ?? 0}:${(p as any).reserveGold ?? 0}`)
         .sort()
         .join(';');
 
@@ -180,6 +199,8 @@ export async function generateV7Dataset(options: {
     let duplicateCount = 0;
     let totalGenerated = 0;
     let quarantinedCount = 0;
+    let totalSimulationSteps = 0;
+    const trainingEpisodeRecords: any[] = [];
 
     const heuristicAi = new HeuristicAI();
     const sdRules = getApkSkirmishRuleConfig('SD');
@@ -260,7 +281,7 @@ export async function generateV7Dataset(options: {
         });
 
         // 3. Consumed tracking
-        const targetActionCode = `${targetAction.type}:${(targetAction as any).unitClass ?? ''}`;
+        const targetActionCode = encodeAction(targetAction);
         consumedStream.write(JSON.stringify({
             sampleId,
             episodeId: epId,
@@ -290,7 +311,7 @@ export async function generateV7Dataset(options: {
         episodeCounter++;
         const mapInfo = V7_MAPS[episodeCounter % V7_MAPS.length];
         const seed = 10000 + episodeCounter;
-        const rootId = `root_${mapInfo.name.replace(/[^a-zA-Z0-9]/g, '_')}_seed_${seed % 100}`;
+        const rootId = `root_${mapInfo.name.replace(/[^a-zA-Z0-9]/g, '_')}_seed_${seed}`;
         const epId = `ep_v7_${mapInfo.name.replace(/[^a-zA-Z0-9]/g, '_')}_${seed}`;
 
         const state: GameState = mapInfo.name === 'DEMO_MAP'
@@ -298,10 +319,10 @@ export async function generateV7Dataset(options: {
             : createAppApkSkirmishGameState(mapInfo.name, 'SD');
         (state as any).mapName = mapInfo.name;
 
-        // Decouple gold offsets and map sampling
-        const goldRand0 = ((episodeCounter * 997 + 1013) % 8);
-        const goldRand1 = ((episodeCounter * 617 + 2017) % 8);
-        const goldOffsets = [-50, 0, 50, 100, 150, 200, 300, 400];
+        // Decouple gold offsets and map sampling using bit-mixing PRNG
+        const goldOffsets = GOLD_OFFSETS;
+        const goldRand0 = splitMix32(seed * SPLITMIX_CONSTANTS.MULTIPLIER_0 + SPLITMIX_CONSTANTS.OFFSET_0) % goldOffsets.length;
+        const goldRand1 = splitMix32(seed * SPLITMIX_CONSTANTS.MULTIPLIER_1 + SPLITMIX_CONSTANTS.OFFSET_1) % goldOffsets.length;
         state.players[0].gold = Math.max(350, (state.players[0].gold ?? 500) + goldOffsets[goldRand0]);
         if (state.players[1]) {
             state.players[1].gold = Math.max(350, (state.players[1].gold ?? 500) + goldOffsets[goldRand1]);
@@ -309,6 +330,7 @@ export async function generateV7Dataset(options: {
 
         const engine = new GameEngine(state);
         let steps = 0;
+        let epSamples = 0;
         const MAX_STEPS = 400; // Full trajectory to natural endgame
 
         while (engine.getState().winner === null && steps < MAX_STEPS && totalGenerated < GENERAL_TARGET) {
@@ -326,7 +348,9 @@ export async function generateV7Dataset(options: {
             else if (turn <= 8) phase = 'ENGAGEMENT';
             else if (turn > 20) phase = 'ENDGAME';
 
-            addSample(curState, curPlayer, expertAction, `SKIRMISH_${phase}`, epId, rootId, steps);
+            if (addSample(curState, curPlayer, expertAction, `SKIRMISH_${phase}`, epId, rootId, steps)) {
+                epSamples++;
+            }
 
             // Step action: in early turns (turn <= 3), add 25% chance of picking a different legal recruit/move
             // to explore diverse game branches, while label is ALWAYS the true expertAction.
@@ -340,7 +364,18 @@ export async function generateV7Dataset(options: {
 
             engine.step(stepAction);
             steps++;
+            totalSimulationSteps++;
         }
+
+        trainingEpisodeRecords.push({
+            episodeId: epId,
+            scenarioGroup: 'SKIRMISH',
+            mapName: mapInfo.name,
+            seed,
+            steps,
+            samplesGenerated: epSamples,
+            winner: engine.getState().winner
+        });
 
         if (episodeCounter % 15 === 0) {
             console.log(`  -> Progress: ${totalGenerated}/${GENERAL_TARGET} general states (Ep ${episodeCounter}, Dups filtered: ${duplicateCount})`);
@@ -369,6 +404,7 @@ export async function generateV7Dataset(options: {
     // Scenario A: Safe Immediate Rehire (Free castle, enough gold, commander dead) - both seats
     let countA = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countA < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)]; // multi-map
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
         const pid = i % 2;
@@ -390,6 +426,7 @@ export async function generateV7Dataset(options: {
     // Scenario B: Saving Gold (insufficient gold for commander, move friendly unit) - both seats
     let countB = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countB < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
         const pid = i % 2;
@@ -429,10 +466,10 @@ export async function generateV7Dataset(options: {
     // Scenario C: Unblocking Castle (Friendly unit moves OFF friendly castle) - both seats
     let countC = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countC < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
         const pid = i % 2;
-        state.currentPlayer = pid;
         const cPos = getCastlePos(state, pid);
         state.units = state.units.filter(u => !(u.ownerId === pid && u.unitClass === 'commander'));
         state.units = state.units.filter(u => !(u.pos.x === cPos.x && u.pos.y === cPos.y));
@@ -468,6 +505,7 @@ export async function generateV7Dataset(options: {
     // Scenario D: Inflation (2nd / 3rd commander death price) - both seats
     let countD = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countD < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
         const pid = i % 2;
@@ -490,6 +528,7 @@ export async function generateV7Dataset(options: {
     // Scenario E: True Pending Deployment (Genuine recruit -> pendingUnitId -> deploy/clear postcondition)
     let countE = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countE < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const mapInfo = V7_MAPS[i % (V7_MAPS.length - 1)];
         const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');
         state.rules = { ...state.rules, commanderCastleRecruitUsesPending: true };
@@ -533,6 +572,7 @@ export async function generateV7Dataset(options: {
     // Scenario F: Tactical Defense Priority (Friendly soldier attacks adjacent enemy threat)
     let countF = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countF < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const state = createDemoState(sdRules);
         const pid = i % 2;
         const enemyPid = 1 - pid;
@@ -576,6 +616,7 @@ export async function generateV7Dataset(options: {
     // Scenario G: Decisive Victory (Attack enemy commander to achieve decisive terminal win)
     let countG = 0;
     for (let i = 0; i < currTargetPerGroup * 4 && countG < currTargetPerGroup && totalGenerated < TOTAL_TARGET; i++) {
+        totalSimulationSteps++;
         const state = createDemoState(sdRules);
         const pid = i % 2;
         const enemyPid = 1 - pid;
@@ -631,23 +672,71 @@ export async function generateV7Dataset(options: {
 
     writeFileSync(dualHeadFile, JSON.stringify(dualHeadSamples), 'utf8');
 
-    // Root-isolated Partitioning
+    // Stratified Root-isolated Partitioning: ensures Duel, Liberty Port, and other maps
+    // are covered in validation roots without any root family crossing train/val boundaries.
     const rootFamilies = Array.from(rootFamilyMap.keys());
     let rngSeed = 42;
     const rand = () => {
         rngSeed = (rngSeed * 1664525 + 1013904223) % 4294967296;
         return rngSeed / 4294967296;
     };
-    for (let i = rootFamilies.length - 1; i > 0; i--) {
-        const j = Math.floor(rand() * (i + 1));
-        const temp = rootFamilies[i];
-        rootFamilies[i] = rootFamilies[j];
-        rootFamilies[j] = temp;
+
+    const rootsByPrefix = new Map<string, string[]>();
+    for (const rId of rootFamilies) {
+        let cat = 'other';
+        for (const m of V7_MAPS) {
+            const mKey = m.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const mLabelUnderscore = m.label.replace(/[^a-zA-Z0-9]/g, '_');
+            if (rId.includes(mKey) || rId.includes(mLabelUnderscore) || rId.includes(m.label)) {
+                cat = m.label;
+                break;
+            }
+        }
+        if (cat === 'other') {
+            const matchCurr = rId.match(/^root_curr_([a-g])/);
+            if (matchCurr) cat = `curr_${matchCurr[1]}`;
+        }
+        if (!rootsByPrefix.has(cat)) rootsByPrefix.set(cat, []);
+        rootsByPrefix.get(cat)!.push(rId);
     }
 
-    const valRootCount = Math.max(1, Math.floor(rootFamilies.length * 0.15));
-    const valRoots = new Set(rootFamilies.slice(0, valRootCount));
-    const trainRoots = new Set(rootFamilies.slice(valRootCount));
+    const valRoots = new Set<string>();
+    const trainRoots = new Set<string>();
+
+    for (const [cat, roots] of rootsByPrefix.entries()) {
+        for (let i = roots.length - 1; i > 0; i--) {
+            const j = Math.floor(rand() * (i + 1));
+            const temp = roots[i];
+            roots[i] = roots[j];
+            roots[j] = temp;
+        }
+
+        // Duel and Liberty Port are holdout evaluation maps: ALL roots go to validation, ZERO to train
+        const isPriorityVal = cat === 'Duel' || cat === 'Liberty Port' || cat.includes('Duel') || cat.includes('Liberty');
+        let valSlice: string[];
+        let trainSlice: string[];
+
+        if (isPriorityVal) {
+            valSlice = roots;
+            trainSlice = [];
+        } else {
+            const valCountForCat = Math.max(1, Math.floor(roots.length * 0.15));
+            valSlice = roots.slice(0, valCountForCat);
+            trainSlice = roots.slice(valCountForCat);
+            if (trainSlice.length === 0 && roots.length >= 2) {
+                trainSlice.push(valSlice.pop()!);
+            }
+        }
+
+        for (const r of valSlice) valRoots.add(r);
+        for (const r of trainSlice) {
+            if (r.includes('Duel') || r.includes('Liberty')) {
+                valRoots.add(r);
+            } else {
+                trainRoots.add(r);
+            }
+        }
+    }
 
     let trainCount = 0;
     let valCount = 0;
@@ -699,6 +788,58 @@ export async function generateV7Dataset(options: {
     console.log(`\n[V7 Dataset Manifest] Saved to: ${manifestPath}`);
     console.log(`[V7 Unified Split Manifest] Saved to: ${splitManifestPathRun}`);
     console.log(`Total unique states: ${totalGenerated} (Train: ${trainCount}, Val: ${valCount}, Duplicates filtered: ${duplicateCount})`);
+
+    // Write training_episode_manifest.jsonl
+    const epManifestContent = trainingEpisodeRecords.map(r => JSON.stringify(r)).join('\n') + (trainingEpisodeRecords.length > 0 ? '\n' : '');
+    writeFileSync(path.join(runDir, 'training_episode_manifest.jsonl'), epManifestContent, 'utf8');
+    writeFileSync(path.join(reportDir, 'training_episode_manifest.jsonl'), epManifestContent, 'utf8');
+    console.log(`[V7 Episode Manifest] Saved to: ${path.join(runDir, 'training_episode_manifest.jsonl')}`);
+
+    // Write consumed_samples_manifest.json
+    const consumedManifest = {
+        runId,
+        generatedAt: new Date().toISOString(),
+        totalConsumed: totalGenerated,
+        trainSamplesCount: trainCount,
+        valSamplesCount: valCount,
+        trainSampleIds: Array.from(rootFamilyMap.entries()).filter(([rId]) => !valRoots.has(rId)).flatMap(([, sIds]) => sIds),
+        valSampleIds: Array.from(rootFamilyMap.entries()).filter(([rId]) => valRoots.has(rId)).flatMap(([, sIds]) => sIds)
+    };
+    writeFileSync(path.join(runDir, 'consumed_samples_manifest.json'), JSON.stringify(consumedManifest, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'consumed_samples_manifest.json'), JSON.stringify(consumedManifest, null, 2), 'utf8');
+    const chkConsumedDir = path.join(checkpointDir, 'spatial_resnet');
+    if (existsSync(chkConsumedDir)) {
+        writeFileSync(path.join(chkConsumedDir, 'consumed_samples_manifest.json'), JSON.stringify(consumedManifest, null, 2), 'utf8');
+    }
+
+    // Write 5-way dataset accounting table
+    const accounting = {
+        runId,
+        generatedAt: new Date().toISOString(),
+        fiveWayAccounting: {
+            totalSteps: totalSimulationSteps,
+            uniqueStates: seenStateHashes.size,
+            validAfterActionMasking: totalGenerated,
+            trainSetSize: trainCount,
+            valSetSize: valCount
+        },
+        mathematicalConsistency: {
+            trainPlusValEqualsValid: trainCount + valCount === totalGenerated,
+            validLessThanOrEqualToUnique: totalGenerated <= seenStateHashes.size,
+            uniqueLessThanOrEqualToTotal: seenStateHashes.size <= totalSimulationSteps,
+            equation: `${trainCount} (Train) + ${valCount} (Val) = ${totalGenerated} (Valid) <= ${seenStateHashes.size} (Unique) <= ${totalSimulationSteps} (Total Steps)`,
+            isSelfConsistent: (trainCount + valCount === totalGenerated) && (totalGenerated <= seenStateHashes.size) && (seenStateHashes.size <= totalSimulationSteps)
+        },
+        filteringRules: [
+            "1. Deduplication Rule: getBehavioralStateHash computes canonical SHA-256 hash across terrain, units, HP, status effects, player gold, commander deaths, and graveyard. Duplicate states are filtered.",
+            "2. Action Masking Rule: Samples must contain at least 1 legal action and target action must be present in legal actions. Invalid states are written to quarantine.jsonl.",
+            "3. Root Family Isolation: Every sample belongs to a unique rootFamilyId derived from map and seed. 100% of samples within a root family are assigned to the same partition.",
+            "4. Strict Holdout Map Rule: Duel and Liberty Port are reserved entirely for validation and holdout evaluation. Zero roots of Duel or Liberty Port are admitted into the training set."
+        ]
+    };
+    writeFileSync(path.join(runDir, 'dataset_accounting.json'), JSON.stringify(accounting, null, 2), 'utf8');
+    writeFileSync(path.join(reportDir, 'dataset_accounting.json'), JSON.stringify(accounting, null, 2), 'utf8');
+    console.log(`[V7 Dataset Accounting] Saved to: ${path.join(runDir, 'dataset_accounting.json')}`);
 
     return {
         spatialDatasetPath: spatialFile,
@@ -782,7 +923,7 @@ export async function trainV7NetAControl(
     }
 
     if (trainSamples.length === 0) {
-        trainSamples = dualHeadSamples;
+        throw new Error("[NET_A Unified Split] Partition error: train set is empty. Refusing fallback to full dataset to prevent validation leakage.");
     }
 
     const specA: DualHeadSpec = {
@@ -901,6 +1042,10 @@ if (isDirectRun) {
             curriculumTarget,
             directories: dirs
         });
+        if (process.argv.includes('--dataset-only')) {
+            console.log('\n✅ V7 DATASET GENERATION COMPLETED (--dataset-only flag specified).');
+            return;
+        }
         await trainV7SpatialModel(spatialDatasetPath, epochs, splitManifestPath, dirs);
         const dualHeadSamples = JSON.parse(readFileSync(dualHeadDatasetPath, 'utf8'));
         await trainV7NetAControl(dualHeadSamples, splitManifestPath, dirs);
