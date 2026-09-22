@@ -1,0 +1,146 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_01",
+  "auditDate": "2026-09-22T01:28:05.001Z",
+  "summary": {
+    "totalInspected": 15,
+    "available": 15,
+    "missing": 0,
+    "status": "ALL_VERIFIED"
+  },
+  "artifacts": [
+    {
+      "id": "FRONTEND_SPATIAL_V1",
+      "relativePath": "src/game/ai/models/spatial_resnet_checkpoint.json",
+      "status": "AVAILABLE",
+      "sha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+      "gitBlob": "22981ccc3bc7ad7712b4a88ca3726496c069f7d9",
+      "sizeBytes": 1482555,
+      "role": "Built-in frontend v1 spatial checkpoint"
+    },
+    {
+      "id": "FRONTEND_NET_B",
+      "relativePath": "src/game/ai/models/net_b_checkpoint.json",
+      "status": "AVAILABLE",
+      "sha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+      "gitBlob": "490d0983b12f72be2e0299b026e5938d34730e31",
+      "sizeBytes": 4432505,
+      "role": "Built-in frontend dual-head NET_B checkpoint"
+    },
+    {
+      "id": "V7_01_SMOKE_SPATIAL_V2",
+      "relativePath": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "AVAILABLE",
+      "sha256": "43c0d74841453b5ddf20f1cbcb8d6d56297bfff953a8240e37f8c21bebba876b",
+      "gitBlob": "1c4de42d28fd10114748c01d8a04919e0cb3db1a",
+      "sizeBytes": 1534722,
+      "role": "Smoke 100-state v2 checkpoint from v7_01 (used erroneously in reeval_01/02)"
+    },
+    {
+      "id": "V7_01_SMOKE_DAGGER",
+      "relativePath": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "status": "AVAILABLE",
+      "sha256": "d402890bb0c030d7096b91efd501460de9919287f2fec110858146d3a3c473ce",
+      "gitBlob": "2519e2acd00ff34152a3209759519a37e4ab97d3",
+      "sizeBytes": 1534885,
+      "role": "Smoke DAgger checkpoint from v7_01"
+    },
+    {
+      "id": "V7_01_SMOKE_NET_A",
+      "relativePath": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/net_a/net_a_checkpoint.json",
+      "status": "AVAILABLE",
+      "sha256": "e2ca0a10aa44c8dca75331e586346f014ab80d02cff6d2d2391cda172aa669f8",
+      "gitBlob": "3cee151ab696a1cc3de508ecf176a71f9e2dcc3c",
+      "sizeBytes": 3066180,
+      "role": "Smoke NET_A checkpoint from v7_01"
+    },
+    {
+      "id": "V8_FINAL_BASE_V2_LARGE",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "AVAILABLE",
+      "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "gitBlob": "1678bcecc7442dc6d6926815bf2528f1d8524a0c",
+      "sizeBytes": 1530711,
+      "role": "Qualified 7832-state large base v2 model (VERIFIED against report SHA)"
+    },
+    {
+      "id": "V8_FINAL_DAGGER_V2",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "status": "AVAILABLE",
+      "sha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+      "gitBlob": "5d20992cb0d7aae6c1c1fc5d33e8e2d0247dfa2f",
+      "sizeBytes": 1530091,
+      "role": "Qualified DAgger round 1 checkpoint (VERIFIED against report SHA)"
+    },
+    {
+      "id": "V8_FINAL_NET_A",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/net_a/net_a_checkpoint.json",
+      "status": "AVAILABLE",
+      "sha256": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+      "gitBlob": "70746e192357e8062b9c42b71c368a83705d9d74",
+      "sizeBytes": 3066303,
+      "role": "Qualified NET_A checkpoint from v8_final_01"
+    },
+    {
+      "id": "V8_FINAL_SPLIT_MANIFEST",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/split_manifest.json",
+      "status": "AVAILABLE",
+      "sha256": "ea1cbfb2c9afe2d65d2652e276e2178d4e120c4d910fbcf843197e73c698f688",
+      "gitBlob": "351e8f7bc7b8edbe6b7309e52e517c0b47bc0b47",
+      "sizeBytes": 4239,
+      "role": "Split manifest: 7832 total (6528 train / 1304 val), 93 root families"
+    },
+    {
+      "id": "V8_FINAL_CONSUMED_SPATIAL",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/consumed_samples_manifest.json",
+      "status": "AVAILABLE",
+      "sha256": "3361445889ce54feb2ad0e7488aa3d5b24429d55c3f95d6332aa794d006450fc",
+      "gitBlob": "5d0cff89c2a98a8014ebb4033683987aca8ac461",
+      "sizeBytes": 387793,
+      "role": "Consumed samples manifest for spatial base v2 (6528 train samples)"
+    },
+    {
+      "id": "V8_FINAL_CONSUMED_DAGGER",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet_dagger/consumed_samples_manifest.json",
+      "status": "AVAILABLE",
+      "sha256": "08cb6d4e0a85d7003e2fd3ddb5c09c346aa3920b86866606019087c4bb759972",
+      "gitBlob": "903ed123a45d2df37536b6684ccfa568f21d090a",
+      "sizeBytes": 390720,
+      "role": "Consumed samples manifest for DAgger v2 (6589 train samples = 6528 + 61)"
+    },
+    {
+      "id": "V8_FINAL_DATASET_JSONL",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_final_01/datasets/d_v7_spatial.jsonl",
+      "status": "AVAILABLE",
+      "sha256": "fd6b0b12b9f80697dbc2b666d79dafc84529e433bea8745f1e3a906b5dfcf5dd",
+      "sizeBytes": 269321906,
+      "role": "Full dataset jsonl for v8_final_01 (7832 samples)"
+    },
+    {
+      "id": "V8_CLOSURE_02_BASE_V2",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_closure_02/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "AVAILABLE",
+      "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "gitBlob": "1678bcecc7442dc6d6926815bf2528f1d8524a0c",
+      "sizeBytes": 1530711,
+      "role": "Identical checkpoint in v8_closure_02"
+    },
+    {
+      "id": "V8_CLOSURE_02_DAGGER_V2",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_closure_02/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "status": "AVAILABLE",
+      "sha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+      "gitBlob": "5d20992cb0d7aae6c1c1fc5d33e8e2d0247dfa2f",
+      "sizeBytes": 1530091,
+      "role": "Identical DAgger checkpoint in v8_closure_02"
+    },
+    {
+      "id": "V8_CLOSURE_02_NET_A",
+      "relativePath": "training_runs/agent_upgrade_20260921_v8_closure_02/checkpoints/net_a/net_a_checkpoint.json",
+      "status": "AVAILABLE",
+      "sha256": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+      "gitBlob": "70746e192357e8062b9c42b71c368a83705d9d74",
+      "sizeBytes": 3066303,
+      "role": "Identical NET_A checkpoint in v8_closure_02"
+    }
+  ]
+}

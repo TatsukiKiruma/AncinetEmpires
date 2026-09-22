@@ -1,0 +1,74 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_03",
+  "createdAt": "2026-09-22T18:06:59.026Z",
+  "git": {
+    "headCommit": null,
+    "branch": null,
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "trackedModifiedFiles": [],
+    "note": "trackedDiffSha256 covers tracked modifications only. New v9_*.ts tools are untracked and hashed individually below."
+  },
+  "untrackedV9ToolSources": {
+    "v9_archive_overfit_verification.ts": "a550550c4a913bd090cd2fc8f00c67744a89274c59257e0a7b230598d5bfee5e",
+    "v9_audit_sampling_and_split.ts": "fbe07852e54de51e37b93860b4ccbf511aa25226c343045130e93409396b2367",
+    "v9_benchmark_browser_runtime.ts": "3e822ea675d8223850a176d4d677555fbed04d724de96f00eb294fc0be8e4aba",
+    "v9_benchmark_search.ts": "7502de0c5d260fd81e9165bc6f6e5eb39ba77812e9876643b03c3a00a4b0296d",
+    "v9_browser_runtime.test.ts": "c93de5e4f2fb605fb1f8dbddc1c2aab61b1ef67e39d20d794ad2085b5585592c",
+    "v9_compile_training_scale_report.ts": "6e51ffb7915f8abdb19526c124e8f7786e814c394572c34fce8cfe2074fe2bd1",
+    "v9_contract_parity.test.ts": "18923be2f4b4f23be774500800baf9b69140241a317c353ccb3a2f243c660af0",
+    "v9_generate_episode_manifest.ts": "de6a24b0a88838005e8407ae036cfe52092ad6c60fbb7477da8b7d0c82239656",
+    "v9_model_registry.test.ts": "e51609256fa5a25001cbf9234cbad5fed2c8b094b9564b47b93c4534196262f4",
+    "v9_refresh_artifact_availability.ts": "5965a816dd58ace4217ffc6a40206d720ab6956dba55d8e5a4927108a80273a4",
+    "v9_run_reeval_01.ts": "6fdfb9f26398889b4d78f41dbdb23a425a6ca62058049ac998f5ecafc3290378",
+    "v9_sampling_coverage.test.ts": "b805ebc1a264e5ac3972d7cb599945f42bd19f905dd7ceb3fc5fc3f8c70ec5d6",
+    "v9_search_qualification.test.ts": "7cb56fc2d8961fd2cb68abda7ed451bb6c38bc62f74fb44329b8364de05c6ec6",
+    "v9_worker_preemption.test.ts": "df72f0c1c4ffa007b2d8825b01b4d16982fea0d79075ff83bc394564ff34e576"
+  },
+  "trainedArtifacts": {
+    "dataset_spatial": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/datasets/d_v7_spatial.jsonl",
+      "sizeBytes": 559632699,
+      "sha256": "a5e2ab5550a94dbbf967facdcd70e32b60a5f3c80783792335734a3eda2cf01b"
+    },
+    "split_manifest": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/split_manifest.json",
+      "sizeBytes": 5401,
+      "sha256": "e8b2c9bb9258542f369ef99aaa13d7946a87fad29bba01d32262bb82a113d020"
+    },
+    "dataset_accounting": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/dataset_accounting.json",
+      "sizeBytes": 1333,
+      "sha256": "8ff1272be505f7a327bc8d409a92de61a29c4bd2e6aacea423858683b5157323"
+    },
+    "d10_best": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_best.json",
+      "sizeBytes": 1526983,
+      "sha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153"
+    },
+    "d10_last": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_last.json",
+      "sizeBytes": 1525306,
+      "sha256": "cce536bd705871e0d5606725c9dc5950fadd2e937cee2545e4d72b4210f7e6f0"
+    },
+    "d10_metrics": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_metrics.json",
+      "sizeBytes": 1883,
+      "sha256": "bfefa360cd18ef59d5814c834054ac5e059ad6c41ae65b41f2bff79a4a3a7e53"
+    },
+    "d10_identity": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_identity.json",
+      "sizeBytes": 891,
+      "sha256": "a2aac02d15e7995fd67837d32bcc56b1d39283692f9b27aadfc5c296f322a0f3"
+    },
+    "net_a_checkpoint": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/net_a/net_a_checkpoint.json",
+      "sizeBytes": 3066467,
+      "sha256": "c8e4cd364e2d7388037a61c88e1d421f18e8ec9191f72eaaf4a6196485a976e1"
+    },
+    "overfit_model_best": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_03/overfit_sanity/overfit_model_best.json",
+      "sizeBytes": 1532210,
+      "sha256": "f1a175fe1a412425c2e27bb91442e21453f566a78691f99c94eff26d383727ad"
+    }
+  }
+}

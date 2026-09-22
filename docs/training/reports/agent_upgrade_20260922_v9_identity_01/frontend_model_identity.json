@@ -1,0 +1,59 @@
+{
+  "version": "v9",
+  "generatedAt": "2026-09-22T08:03:38+08:00",
+  "frontendConfiguration": {
+    "defaultPolicy": "heuristic",
+    "isProductionDefaultHeuristic": true,
+    "experimentalPolicyAdded": true,
+    "experimentalPolicies": [
+      {
+        "id": "spatial_v2_experimental",
+        "displayName": "⚡ [实验] Spatial ResNet v2 (7.8k 基础模型)",
+        "checkpointSha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+        "encoderVersion": "v2",
+        "objective": "policy-only"
+      },
+      {
+        "id": "spatial_dagger_experimental",
+        "displayName": "⚡ [实验] Spatial DAgger v2 (纠错模型)",
+        "checkpointSha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+        "encoderVersion": "v2",
+        "objective": "policy-only"
+      },
+      {
+        "id": "s10_spatial_search",
+        "displayName": "⚡ [实验] S10 Spatial Search (先验引导搜索)",
+        "checkpointSha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+        "encoderVersion": "v2",
+        "objective": "policy-only"
+      },
+      {
+        "id": "s00_search",
+        "displayName": "⚡ [实验] S00 Bounded Search (启发式搜索)",
+        "checkpointSha256": null,
+        "encoderVersion": "heuristic",
+        "objective": "bounded-search"
+      }
+    ],
+    "legacyPolicies": [
+      {
+        "id": "spatial_resnet_v1",
+        "displayName": "Spatial ResNet v1 (历史内置 24维语义)",
+        "checkpointSha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+        "encoderVersion": "v1"
+      },
+      {
+        "id": "net_b_s10",
+        "displayName": "NET_B S10 (战术搜索先验)",
+        "checkpointSha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+        "encoderVersion": "dense-45"
+      },
+      {
+        "id": "net_b_1ply",
+        "displayName": "NET_B 1-ply (纯策略网络)",
+        "checkpointSha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+        "encoderVersion": "dense-45"
+      }
+    ]
+  }
+}

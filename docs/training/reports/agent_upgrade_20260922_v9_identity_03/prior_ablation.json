@@ -1,0 +1,4887 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_03",
+  "ablationDate": "2026-09-22T15:57:25.873Z",
+  "testedStatesCount": 40,
+  "stateCoverage": {
+    "maps": [
+      "(2) Duel.aem",
+      "(2) Crossed swords.aem",
+      "(2) Liberty Port.aem",
+      "(2) Mourningstar.aem",
+      "(2) Icy Paths.aem"
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "stepOffsets": [
+      12,
+      48,
+      96,
+      160,
+      240
+    ],
+    "turnRange": [
+      1,
+      12
+    ]
+  },
+  "candidateOverlapWithTruePrior": {
+    "meanJaccardS00": 0.8187,
+    "meanJaccardDisabledZeros": 0.7664,
+    "meanJaccardShuffled": 0.7715,
+    "candidateSetDiffersFromTrueRate": {
+      "S00": 0.75,
+      "S10_DISABLED": 0.725,
+      "S10_SHUFFLED": 0.725
+    }
+  },
+  "actionAgreementWithTruePrior": {
+    "S00AgreementRate": 0.95,
+    "S10DisabledAgreementRate": 1,
+    "S10ShuffledAgreementRate": 0.95
+  },
+  "decisionImpact": {
+    "priorChangesDecisionRate": 0.05,
+    "disablePriorChangesDecisionRate": 0,
+    "shuffledPriorChangesDecisionRate": 0.05,
+    "verdict": "PRIOR_CHANGES_DECISIONS_ON_AT_LEAST_ONE_STATE"
+  },
+  "tieBreakingRule": "Disabled prior returns 0.0 logits; ties are broken strictly alphabetically by encoded action string, which is NOT equivalent to the S00 candidate ordering.",
+  "separationOfPredictorCost": "Predictor cost is measured separately via predictorMs on the fixed-node arm; fixed-node (deterministic) and wall-clock arms are reported separately.",
+  "honestLimits": "A 20-node fixed budget may be too shallow for the prior to change the argmax on many states. This file reports the measured effect and must not be cited as evidence that the prior is good.",
+  "states": [
+    {
+      "stateIndex": 1,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "stepOffset": 12,
+      "turn": 1,
+      "legalActionCount": 3,
+      "candidateSets": {
+        "S00": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 6.0154
+        },
+        "S10_TRUE": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 25.324199999999905,
+          "predictorMs": 25.41
+        },
+        "S10_DISABLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 5.481800000000021,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 5.157199999999989,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 4.935900000000061,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 25.379299999999944,
+          "deadlineMiss": false,
+          "predictorMs": 25.41
+        },
+        "S10_DISABLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 4.12620000000004,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 4.49860000000001,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 2,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 18,
+      "candidateSets": {
+        "S00": [
+          "move:u_9:6,8",
+          "move:u_9:6,9",
+          "move:u_9:5,7",
+          "move:u_9:7,8",
+          "move:u_9:6,7"
+        ],
+        "S10_TRUE": [
+          "move:u_9:6,8",
+          "move:u_9:6,9",
+          "move:u_9:5,7",
+          "move:u_9:7,8",
+          "move:u_9:6,7",
+          "move:u_9:7,9",
+          "move:u_9:7,6",
+          "move:u_9:8,6",
+          "move:u_9:7,5",
+          "move:u_9:7,7"
+        ],
+        "S10_DISABLED": [
+          "move:u_9:6,8",
+          "move:u_9:6,9",
+          "move:u_9:5,7",
+          "move:u_9:7,8",
+          "move:u_9:6,7",
+          "move:u_9:8,9",
+          "move:u_9:8,7",
+          "move:u_9:9,8",
+          "move:u_9:8,6",
+          "move:u_9:9,7"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_9:6,8",
+          "move:u_9:6,9",
+          "move:u_9:5,7",
+          "move:u_9:7,8",
+          "move:u_9:6,7",
+          "move:u_9:8,6",
+          "move:u_9:7,9",
+          "move:u_9:7,6",
+          "move:u_9:8,7",
+          "move:u_9:7,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 15,
+          "depth": 3,
+          "elapsedMs": 16.769000000000005
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "depth": 3,
+          "elapsedMs": 41.94579999999996,
+          "predictorMs": 42.03
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "depth": 3,
+          "elapsedMs": 20.203700000000026,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "depth": 3,
+          "elapsedMs": 19.415300000000116,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 15,
+          "elapsedMs": 17.05749999999989,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "elapsedMs": 40.067600000000084,
+          "deadlineMiss": false,
+          "predictorMs": 42.03
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "elapsedMs": 19.859899999999925,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_9:6,8",
+          "score": 1854.5,
+          "nodes": 20,
+          "elapsedMs": 20.67969999999991,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 3,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "stepOffset": 96,
+      "turn": 6,
+      "legalActionCount": 115,
+      "candidateSets": {
+        "S00": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:4,5",
+          "move:u_8:3,6",
+          "move:u_8:6,7",
+          "move:u_8:6,8"
+        ],
+        "S10_TRUE": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:4,5",
+          "move:u_8:3,6",
+          "move:u_8:6,7",
+          "move:u_8:6,8",
+          "attack:u_11:apk_u1"
+        ],
+        "S10_DISABLED": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:4,5",
+          "move:u_8:3,6",
+          "move:u_8:6,7",
+          "move:u_8:6,8",
+          "move:u_3:6,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:4,5",
+          "move:u_8:3,6",
+          "move:u_8:6,7",
+          "move:u_8:6,8",
+          "move:u_3:6,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1308,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 396.43460000000005
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1308,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 412.7592999999997,
+          "predictorMs": 412.86
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1308,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 380.6840000000002,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1308,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 395.52139999999963,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1208,
+          "nodes": 7,
+          "elapsedMs": 233.21290000000045,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1208,
+          "nodes": 8,
+          "elapsedMs": 210.2519999999995,
+          "deadlineMiss": true,
+          "predictorMs": 412.86
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1208,
+          "nodes": 9,
+          "elapsedMs": 205.03950000000077,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1208,
+          "nodes": 9,
+          "elapsedMs": 208.64390000000003,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 4,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "stepOffset": 160,
+      "turn": 9,
+      "legalActionCount": 28,
+      "candidateSets": {
+        "S00": [
+          "move:u_14:7,6",
+          "attack:u_5:u_16",
+          "attack:u_18:u_17",
+          "attack:u_18:u_19",
+          "move:u_14:6,4",
+          "move:u_14:6,7",
+          "move:u_14:6,5",
+          "move:u_14:5,6"
+        ],
+        "S10_TRUE": [
+          "move:u_14:7,6",
+          "attack:u_5:u_16",
+          "attack:u_18:u_17",
+          "attack:u_18:u_19",
+          "move:u_14:6,4",
+          "move:u_14:6,7",
+          "move:u_14:6,5",
+          "move:u_14:5,6",
+          "move:u_14:8,7",
+          "recruit_to_castle:water_elemental:4,4"
+        ],
+        "S10_DISABLED": [
+          "move:u_14:7,6",
+          "attack:u_5:u_16",
+          "attack:u_18:u_17",
+          "attack:u_18:u_19",
+          "move:u_14:6,4",
+          "move:u_14:6,7",
+          "move:u_14:6,5",
+          "move:u_14:5,6",
+          "wait:u_5",
+          "move:u_14:7,3"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_14:7,6",
+          "attack:u_5:u_16",
+          "attack:u_18:u_17",
+          "attack:u_18:u_19",
+          "move:u_14:6,4",
+          "move:u_14:6,7",
+          "move:u_14:6,5",
+          "move:u_14:5,6",
+          "end_turn",
+          "recruit_to_castle:archer:4,4"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.6667
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 211.68249999999898
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 212.13510000000133,
+          "predictorMs": 212.24
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 199.32040000000052,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 195.53189999999995,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "elapsedMs": 200.73519999999917,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 17,
+          "elapsedMs": 205.58559999999852,
+          "deadlineMiss": true,
+          "predictorMs": 212.24
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "elapsedMs": 200.81440000000111,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_14:7,6",
+          "score": 3488.5,
+          "nodes": 20,
+          "elapsedMs": 199.5041000000001,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 5,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "stepOffset": 240,
+      "turn": 12,
+      "legalActionCount": 101,
+      "candidateSets": {
+        "S00": [
+          "move:u_15:4,4",
+          "move:u_3:4,4",
+          "move:u_13:4,4",
+          "move:u_21:4,4",
+          "move:u_17:4,4"
+        ],
+        "S10_TRUE": [
+          "move:u_15:4,4",
+          "move:u_3:4,4",
+          "move:u_13:4,4",
+          "move:u_21:4,4",
+          "move:u_17:4,4",
+          "move:u_18:4,4",
+          "move:u_18:2,3",
+          "move:u_18:3,2",
+          "move:u_18:6,6",
+          "move:u_3:3,2"
+        ],
+        "S10_DISABLED": [
+          "move:u_15:4,4",
+          "move:u_3:4,4",
+          "move:u_13:4,4",
+          "move:u_21:4,4",
+          "move:u_18:4,4",
+          "move:u_3:5,2",
+          "move:u_3:5,1",
+          "move:u_3:6,2",
+          "move:u_3:7,3",
+          "move:u_3:5,6"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_15:4,4",
+          "move:u_3:4,4",
+          "move:u_13:4,4",
+          "move:u_21:4,4",
+          "move:u_18:4,4",
+          "move:u_18:3,7",
+          "wait:u_15",
+          "move:u_18:0,5",
+          "move:u_18:3,9",
+          "move:u_21:6,5"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.3333,
+        "S10_SHUFFLED": 0.3333
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_3:4,4",
+          "score": 12790,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 266.2943000000014
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_3:4,4",
+          "score": 12790,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 310.65369999999893,
+          "predictorMs": 310.83
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_3:4,4",
+          "score": 12786,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 244.2616999999991,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_3:4,4",
+          "score": 12786,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 247.33280000000013,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_3:4,4",
+          "score": 12790,
+          "nodes": 18,
+          "elapsedMs": 216.52020000000266,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_21:4,4",
+          "score": 12802,
+          "nodes": 17,
+          "elapsedMs": 217.10059999999794,
+          "deadlineMiss": true,
+          "predictorMs": 310.83
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_13:4,4",
+          "score": 12802,
+          "nodes": 17,
+          "elapsedMs": 215.24459999999817,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_21:4,4",
+          "score": 12802,
+          "nodes": 17,
+          "elapsedMs": 203.3563000000031,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 6,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "stepOffset": 12,
+      "turn": 1,
+      "legalActionCount": 3,
+      "candidateSets": {
+        "S00": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "capture:u_4",
+          "wait:u_4",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 4.329099999999016
+        },
+        "S10_TRUE": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 24.621799999997165,
+          "predictorMs": 24.69
+        },
+        "S10_DISABLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 4.450199999999313,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "depth": 2,
+          "elapsedMs": 4.271400000001449,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 6.085299999998824,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 25.535699999996723,
+          "deadlineMiss": false,
+          "predictorMs": 24.69
+        },
+        "S10_DISABLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 6.452499999999418,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "capture:u_4",
+          "score": 815,
+          "nodes": 6,
+          "elapsedMs": 6.902399999999034,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 7,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 4,
+      "candidateSets": {
+        "S00": [
+          "attack:u_3:u_5",
+          "wait:u_3",
+          "wait:u_9",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "attack:u_3:u_5",
+          "wait:u_3",
+          "wait:u_9",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "attack:u_3:u_5",
+          "wait:u_9",
+          "wait:u_3",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_3:u_5",
+          "wait:u_3",
+          "wait:u_9",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 12.534600000002683
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 31.232100000001083,
+          "predictorMs": 31.31
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 11.213799999997718,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 9.979699999999866,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "elapsedMs": 10.286400000000867,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "elapsedMs": 31.584500000000844,
+          "deadlineMiss": false,
+          "predictorMs": 31.31
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "elapsedMs": 10.657400000000052,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_3:u_5",
+          "score": 1382.5,
+          "nodes": 11,
+          "elapsedMs": 10.099900000001071,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 8,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "stepOffset": 96,
+      "turn": 6,
+      "legalActionCount": 115,
+      "candidateSets": {
+        "S00": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:6,8",
+          "move:u_8:6,7",
+          "move:u_11:6,3",
+          "move:u_11:8,4"
+        ],
+        "S10_TRUE": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:6,8",
+          "move:u_8:6,7",
+          "move:u_11:6,3",
+          "move:u_11:8,4",
+          "move:u_8:4,5"
+        ],
+        "S10_DISABLED": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:6,8",
+          "move:u_8:6,7",
+          "move:u_11:6,3",
+          "move:u_11:8,4",
+          "move:u_3:6,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_9:6,5",
+          "attack:u_3:apk_u1",
+          "attack:u_3:u_2",
+          "attack:u_3:u_5",
+          "attack:u_10:apk_u1",
+          "move:u_8:6,8",
+          "move:u_8:6,7",
+          "move:u_11:6,3",
+          "move:u_11:8,4",
+          "move:u_9:7,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1266,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 380.6912000000011
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1266,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 390.00610000000233,
+          "predictorMs": 390.14
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1266,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 366.77030000000013,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_3:u_2",
+          "score": 1266,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 366.7497999999978,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1166,
+          "nodes": 9,
+          "elapsedMs": 219.68800000000192,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1166,
+          "nodes": 5,
+          "elapsedMs": 205.02319999999963,
+          "deadlineMiss": true,
+          "predictorMs": 390.14
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1166,
+          "nodes": 9,
+          "elapsedMs": 201.9951000000001,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_9:6,5",
+          "score": 1166,
+          "nodes": 9,
+          "elapsedMs": 203.70939999999973,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 9,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "stepOffset": 160,
+      "turn": 9,
+      "legalActionCount": 152,
+      "candidateSets": {
+        "S00": [
+          "move:u_3:2,4",
+          "move:u_7:2,4",
+          "move:u_4:2,4",
+          "move:u_3:6,3",
+          "move:u_3:5,2"
+        ],
+        "S10_TRUE": [
+          "move:u_3:2,4",
+          "move:u_7:2,4",
+          "move:u_4:2,4",
+          "move:u_3:6,3",
+          "move:u_3:3,2",
+          "move:u_7:2,3",
+          "move:u_13:3,6",
+          "move:u_7:3,2",
+          "move:u_7:3,6",
+          "move:u_13:5,5"
+        ],
+        "S10_DISABLED": [
+          "move:u_3:2,4",
+          "move:u_7:2,4",
+          "move:u_4:2,4",
+          "move:u_3:6,3",
+          "move:u_3:2,3",
+          "wait:apk_u0",
+          "move:u_3:4,1",
+          "move:u_3:5,2",
+          "move:u_3:3,2",
+          "move:u_3:4,0"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_3:2,4",
+          "move:u_7:2,4",
+          "move:u_4:2,4",
+          "move:u_3:6,3",
+          "move:u_3:3,2",
+          "move:u_3:7,2",
+          "move:u_7:6,6",
+          "wait:u_15",
+          "move:u_13:3,8",
+          "wait:u_9"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.3636,
+        "S10_DISABLED": 0.3333,
+        "S10_SHUFFLED": 0.3333
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 442.71380000000136
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 368.4383999999991,
+          "predictorMs": 368.54
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 343.08929999999964,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 348.54799999999886,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 12,
+          "elapsedMs": 220.71900000000096,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 10,
+          "elapsedMs": 212.17789999999877,
+          "deadlineMiss": true,
+          "predictorMs": 368.54
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:2,4",
+          "score": 9847.5,
+          "nodes": 12,
+          "elapsedMs": 227.03590000000258,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_3:2,4",
+          "score": 9835.5,
+          "nodes": 9,
+          "elapsedMs": 215.67860000000292,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 10,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "stepOffset": 240,
+      "turn": 12,
+      "legalActionCount": 13,
+      "candidateSets": {
+        "S00": [
+          "wait:u_25",
+          "attack:u_25:u_5",
+          "attack:u_25:u_12",
+          "attack:u_25:u_13",
+          "attack:u_25:u_14",
+          "move:u_25:8,7",
+          "move:u_25:7,7",
+          "move:u_25:7,6",
+          "attack:u_25:u_19"
+        ],
+        "S10_TRUE": [
+          "wait:u_25",
+          "attack:u_25:u_5",
+          "attack:u_25:u_12",
+          "attack:u_25:u_13",
+          "attack:u_25:u_14",
+          "move:u_25:8,7",
+          "move:u_25:7,7",
+          "move:u_25:7,6",
+          "attack:u_25:u_19",
+          "attack:u_25:u_21"
+        ],
+        "S10_DISABLED": [
+          "wait:u_25",
+          "attack:u_25:u_5",
+          "attack:u_25:u_12",
+          "attack:u_25:u_13",
+          "attack:u_25:u_14",
+          "move:u_25:8,7",
+          "move:u_25:7,7",
+          "move:u_25:7,6",
+          "attack:u_25:u_19",
+          "move:u_25:6,7"
+        ],
+        "S10_SHUFFLED": [
+          "wait:u_25",
+          "attack:u_25:u_5",
+          "attack:u_25:u_12",
+          "attack:u_25:u_13",
+          "attack:u_25:u_14",
+          "move:u_25:8,7",
+          "move:u_25:7,7",
+          "move:u_25:7,6",
+          "attack:u_25:u_19",
+          "move:u_25:6,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "depth": 2,
+          "elapsedMs": 70.11059999999998
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "depth": 2,
+          "elapsedMs": 89.34019999999873,
+          "predictorMs": 89.44
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "depth": 2,
+          "elapsedMs": 68.42849999999453,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "depth": 2,
+          "elapsedMs": 70.46830000000045,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "elapsedMs": 88.17859999999928,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "elapsedMs": 127.77240000000165,
+          "deadlineMiss": false,
+          "predictorMs": 89.44
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "elapsedMs": 86.53800000000047,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_25:u_19",
+          "score": -9873,
+          "nodes": 20,
+          "elapsedMs": 70.49660000000586,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 11,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 0,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 107,
+      "candidateSets": {
+        "S00": [
+          "move:u_3:6,8",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_8:7,6",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8"
+        ],
+        "S10_TRUE": [
+          "move:u_8:7,6",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_3:6,8",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "move:u_3:8,9"
+        ],
+        "S10_DISABLED": [
+          "move:u_8:7,6",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_3:6,8",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "move:u_3:7,12"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_3:6,8",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_8:7,6",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "move:u_4:5,13"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1068.7286999999997
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1013.8650999999954,
+          "predictorMs": 1013.97
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 964.2073999999993,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1022.7318000000014,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_3:6,8",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 226.47060000000056,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 269.0424000000057,
+          "deadlineMiss": true,
+          "predictorMs": 1013.97
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 247.25469999999768,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_3:6,8",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 217.73969999999827,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 12,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 0,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 14,
+      "candidateSets": {
+        "S00": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2"
+        ],
+        "S10_TRUE": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:water_elemental:5,2",
+          "recruit_to_castle:mermaid:5,2"
+        ],
+        "S10_DISABLED": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:soldier:5,2",
+          "recruit_to_castle:ghost:5,2"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:ghost:5,2",
+          "recruit_to_castle:archer:5,2"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.6667
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 72.84130000000005
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 92.75460000000021,
+          "predictorMs": 92.86
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 70.0225000000064,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 73.02560000000085,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 72.6681000000026,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 95.39700000000448,
+          "deadlineMiss": false,
+          "predictorMs": 92.86
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 75.40060000000085,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 81.14929999999731,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 13,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 0,
+      "stepOffset": 160,
+      "turn": 7,
+      "legalActionCount": 86,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u0:7,7",
+          "attack:u_8:u_21",
+          "attack:u_10:u_21",
+          "attack:u_11:u_21",
+          "attack:u_16:u_21",
+          "move:u_4:4,7",
+          "move:apk_u0:5,8",
+          "move:u_4:5,8",
+          "move:u_4:5,7"
+        ],
+        "S10_TRUE": [
+          "move:apk_u0:7,7",
+          "attack:u_8:u_21",
+          "attack:u_10:u_21",
+          "attack:u_11:u_21",
+          "attack:u_16:u_21",
+          "move:u_4:4,7",
+          "move:apk_u0:5,8",
+          "move:u_4:5,8",
+          "move:u_4:5,7",
+          "move:apk_u0:4,7"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u0:7,7",
+          "attack:u_8:u_21",
+          "attack:u_10:u_21",
+          "attack:u_11:u_21",
+          "attack:u_16:u_21",
+          "move:u_4:4,7",
+          "move:apk_u0:5,8",
+          "move:u_4:5,8",
+          "move:u_4:5,7",
+          "move:apk_u0:7,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u0:7,7",
+          "attack:u_8:u_21",
+          "attack:u_10:u_21",
+          "attack:u_11:u_21",
+          "attack:u_16:u_21",
+          "move:u_4:4,7",
+          "move:apk_u0:5,8",
+          "move:u_4:5,8",
+          "move:u_4:5,7",
+          "recruit_to_castle:mermaid:5,15"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_11:u_21",
+          "score": 10346,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 320.23919999999634
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_11:u_21",
+          "score": 10346,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 338.8125,
+          "predictorMs": 338.93
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_11:u_21",
+          "score": 10346,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 393.4331999999995,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_11:u_21",
+          "score": 10346,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 322.9096999999965,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_8:u_21",
+          "score": 10222,
+          "nodes": 13,
+          "elapsedMs": 206.6374999999971,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_10:u_21",
+          "score": 10286,
+          "nodes": 12,
+          "elapsedMs": 204.5060999999987,
+          "deadlineMiss": true,
+          "predictorMs": 338.93
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_8:u_21",
+          "score": 10222,
+          "nodes": 13,
+          "elapsedMs": 203.25,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_8:u_21",
+          "score": 10222,
+          "nodes": 13,
+          "elapsedMs": 206.57400000000052,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 14,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 0,
+      "stepOffset": 240,
+      "turn": 9,
+      "legalActionCount": 21,
+      "candidateSets": {
+        "S00": [
+          "wait:u_23",
+          "wait:u_19",
+          "move:u_19:7,9",
+          "move:u_19:7,7",
+          "wait:u_25"
+        ],
+        "S10_TRUE": [
+          "wait:u_23",
+          "wait:u_19",
+          "move:u_19:7,9",
+          "move:u_19:7,7",
+          "wait:u_25",
+          "wait:u_22",
+          "wait:u_7",
+          "wait:u_27",
+          "move:u_19:7,10",
+          "wait:u_13"
+        ],
+        "S10_DISABLED": [
+          "wait:u_23",
+          "wait:u_19",
+          "move:u_19:7,7",
+          "move:u_19:7,9",
+          "wait:u_25",
+          "wait:apk_u0",
+          "wait:u_4",
+          "wait:u_7",
+          "wait:u_10",
+          "wait:u_11"
+        ],
+        "S10_SHUFFLED": [
+          "wait:u_19",
+          "wait:u_23",
+          "move:u_19:7,9",
+          "move:u_19:7,7",
+          "wait:u_25",
+          "wait:u_27",
+          "wait:u_10",
+          "wait:u_20",
+          "wait:u_28",
+          "wait:u_11"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 15.589200000002165
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 33.97699999999895,
+          "predictorMs": 34.09
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 13.651999999994587,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 15.646399999997811,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "elapsedMs": 13.201300000000629,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "elapsedMs": 34.45470000000205,
+          "deadlineMiss": false,
+          "predictorMs": 34.09
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "elapsedMs": 15.129300000000512,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_19:7,7",
+          "score": 17690,
+          "nodes": 20,
+          "elapsedMs": 13.353199999997742,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 15,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 1,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 107,
+      "candidateSets": {
+        "S00": [
+          "move:u_8:7,6",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_3:6,8",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8"
+        ],
+        "S10_TRUE": [
+          "move:u_8:7,6",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_3:6,8",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "move:u_3:8,9"
+        ],
+        "S10_DISABLED": [
+          "move:u_8:7,6",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_3:6,8",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "move:u_3:7,12"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_3:6,8",
+          "attack:u_3:u_9",
+          "attack:u_4:u_5",
+          "attack:u_4:u_6",
+          "attack:u_4:u_9",
+          "move:u_8:7,6",
+          "move:u_3:7,7",
+          "move:u_3:7,9",
+          "move:u_3:7,8",
+          "recruit_to_castle:dark_mage:5,15"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 946.682000000008
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1083.4841000000015,
+          "predictorMs": 1083.66
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1093.1497999999992,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_4:u_5",
+          "score": 1386,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1067.1010999999999,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 256.1045999999915,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 268.57450000000244,
+          "deadlineMiss": true,
+          "predictorMs": 1083.66
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 256.0081000000064,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_8:7,6",
+          "score": 1178,
+          "nodes": 3,
+          "elapsedMs": 257.1322999999975,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 16,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 1,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 14,
+      "candidateSets": {
+        "S00": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2"
+        ],
+        "S10_TRUE": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:water_elemental:5,2",
+          "recruit_to_castle:mermaid:5,2"
+        ],
+        "S10_DISABLED": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:soldier:5,2",
+          "recruit_to_castle:ghost:5,2"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_9:apk_u0",
+          "attack:u_6:u_4",
+          "attack:u_9:u_10",
+          "attack:u_9:u_14",
+          "wait:u_9",
+          "wait:u_6",
+          "end_turn",
+          "recruit_to_castle:slime:5,2",
+          "recruit_to_castle:ghost:5,2",
+          "recruit_to_castle:soldier:5,2"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.6667
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 75.31609999999637
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 124.77930000000924,
+          "predictorMs": 124.88
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 103.08000000000175,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 86.9482999999891,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 70.16969999999856,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 93.75899999999092,
+          "deadlineMiss": false,
+          "predictorMs": 124.88
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 72.95709999999963,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_10",
+          "score": -6162,
+          "nodes": 20,
+          "elapsedMs": 72.99180000000342,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 17,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 1,
+      "stepOffset": 160,
+      "turn": 7,
+      "legalActionCount": 82,
+      "candidateSets": {
+        "S00": [
+          "move:u_16:7,7",
+          "attack:u_4:u_21",
+          "attack:u_14:u_21",
+          "attack:u_15:u_21",
+          "attack:u_16:u_21",
+          "attack:u_19:u_21",
+          "move:u_4:7,7",
+          "move:u_14:7,7",
+          "move:u_13:7,7"
+        ],
+        "S10_TRUE": [
+          "move:u_16:7,7",
+          "attack:u_4:u_21",
+          "attack:u_14:u_21",
+          "attack:u_15:u_21",
+          "attack:u_16:u_21",
+          "attack:u_19:u_21",
+          "move:u_4:7,7",
+          "move:u_14:7,7",
+          "move:u_13:7,7",
+          "move:u_13:8,10"
+        ],
+        "S10_DISABLED": [
+          "move:u_16:7,7",
+          "attack:u_4:u_21",
+          "attack:u_14:u_21",
+          "attack:u_15:u_21",
+          "attack:u_16:u_21",
+          "attack:u_19:u_21",
+          "move:u_4:7,7",
+          "move:u_14:7,7",
+          "move:u_13:7,7",
+          "wait:apk_u0"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_16:7,7",
+          "attack:u_4:u_21",
+          "attack:u_14:u_21",
+          "attack:u_15:u_21",
+          "attack:u_16:u_21",
+          "attack:u_19:u_21",
+          "move:u_4:7,7",
+          "move:u_14:7,7",
+          "move:u_13:7,7",
+          "move:u_14:3,9"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13814,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 400.24920000000566
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_14:u_21",
+          "score": 13814,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 462.3547000000108,
+          "predictorMs": 462.47
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_14:u_21",
+          "score": 13814,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 418.6100000000006,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13814,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 397.7700000000041,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13814,
+          "nodes": 8,
+          "elapsedMs": 224.45239999999467,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13814,
+          "nodes": 8,
+          "elapsedMs": 228.46319999999832,
+          "deadlineMiss": true,
+          "predictorMs": 462.47
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13694,
+          "nodes": 8,
+          "elapsedMs": 202.431700000001,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_16:7,7",
+          "score": 13694,
+          "nodes": 9,
+          "elapsedMs": 215.36329999999725,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 18,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 1,
+      "stepOffset": 240,
+      "turn": 9,
+      "legalActionCount": 15,
+      "candidateSets": {
+        "S00": [
+          "wait:apk_u0",
+          "wait:u_11",
+          "wait:u_23",
+          "wait:u_7",
+          "wait:u_14"
+        ],
+        "S10_TRUE": [
+          "wait:apk_u0",
+          "wait:u_11",
+          "wait:u_19",
+          "wait:u_15",
+          "wait:u_10",
+          "wait:u_22",
+          "wait:u_20",
+          "wait:u_25",
+          "wait:u_16",
+          "wait:u_7"
+        ],
+        "S10_DISABLED": [
+          "wait:u_11",
+          "wait:apk_u0",
+          "wait:u_7",
+          "wait:u_19",
+          "wait:u_4",
+          "wait:u_10",
+          "wait:u_14",
+          "wait:u_15",
+          "wait:u_16",
+          "wait:u_20"
+        ],
+        "S10_SHUFFLED": [
+          "wait:u_11",
+          "wait:apk_u0",
+          "wait:u_23",
+          "wait:u_4",
+          "wait:u_14",
+          "wait:u_22",
+          "wait:u_27",
+          "wait:u_19",
+          "wait:u_16",
+          "wait:u_15"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.25,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "wait:apk_u0",
+          "score": 17212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 10.819699999992736
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:u_11",
+          "score": 17212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 40.14100000000326,
+          "predictorMs": 40.32
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:u_11",
+          "score": 17212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 17.006399999998393,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u0",
+          "score": 17212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 17.645699999993667,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "wait:u_11",
+          "score": 17212,
+          "nodes": 20,
+          "elapsedMs": 15.714500000001863,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:apk_u0",
+          "score": 17212,
+          "nodes": 20,
+          "elapsedMs": 45.13410000001022,
+          "deadlineMiss": false,
+          "predictorMs": 40.32
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:apk_u0",
+          "score": 17212,
+          "nodes": 20,
+          "elapsedMs": 15.69210000000021,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u0",
+          "score": 17212,
+          "nodes": 20,
+          "elapsedMs": 15.711100000000442,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 19,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 0,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 3,
+      "candidateSets": {
+        "S00": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 5.622999999992317
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 26.077600000004168,
+          "predictorMs": 26.16
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 5.625,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 5.294600000008359,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 5.585900000005495,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 26.350599999990663,
+          "deadlineMiss": false,
+          "predictorMs": 26.16
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 6.0847000000067055,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 5.828799999988405,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 20,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 0,
+      "stepOffset": 160,
+      "turn": 8,
+      "legalActionCount": 4,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 27.840100000001257
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 48.890400000003865,
+          "predictorMs": 48.97
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 27.358299999992596,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 27.521900000007008,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "elapsedMs": 25.972299999993993,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "elapsedMs": 46.948099999994156,
+          "deadlineMiss": false,
+          "predictorMs": 48.97
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "elapsedMs": 25.13179999998829,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -939,
+          "nodes": 14,
+          "elapsedMs": 28.63770000000659,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 21,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 0,
+      "stepOffset": 240,
+      "turn": 11,
+      "legalActionCount": 29,
+      "candidateSets": {
+        "S00": [
+          "move:u_11:3,9",
+          "attack:u_2:u_25",
+          "attack:u_11:u_23",
+          "attack:u_16:apk_u1",
+          "attack:u_19:apk_u1",
+          "move:u_11:4,10",
+          "recruit_to_castle:archer:1,1",
+          "recruit_to_castle:slime:1,1",
+          "move:u_11:2,10"
+        ],
+        "S10_TRUE": [
+          "move:u_11:3,9",
+          "attack:u_2:u_25",
+          "attack:u_11:u_23",
+          "attack:u_16:apk_u1",
+          "attack:u_19:apk_u1",
+          "move:u_11:4,10",
+          "recruit_to_castle:archer:1,1",
+          "recruit_to_castle:slime:1,1",
+          "move:u_11:2,10",
+          "move:u_11:3,10"
+        ],
+        "S10_DISABLED": [
+          "move:u_11:3,9",
+          "attack:u_2:u_25",
+          "attack:u_11:u_23",
+          "attack:u_16:apk_u1",
+          "attack:u_19:apk_u1",
+          "move:u_11:4,10",
+          "recruit_to_castle:archer:1,1",
+          "recruit_to_castle:slime:1,1",
+          "move:u_11:2,10",
+          "wait:u_2"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_11:3,9",
+          "attack:u_2:u_25",
+          "attack:u_11:u_23",
+          "attack:u_16:apk_u1",
+          "attack:u_19:apk_u1",
+          "move:u_11:4,10",
+          "recruit_to_castle:archer:1,1",
+          "recruit_to_castle:slime:1,1",
+          "move:u_11:2,10",
+          "move:u_11:1,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 137.95819999999367
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 160.1606000000029,
+          "predictorMs": 160.26
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 139.34670000000915,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 139.12320000000182,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "elapsedMs": 135.53590000000258,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "elapsedMs": 157.57719999999972,
+          "deadlineMiss": false,
+          "predictorMs": 160.26
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "elapsedMs": 131.92429999999877,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -1596,
+          "nodes": 20,
+          "elapsedMs": 138.53109999999288,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 22,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 1,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 3,
+      "candidateSets": {
+        "S00": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "wait:apk_u1",
+          "wait:u_12",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 5.8959000000031665
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 25.941200000001118,
+          "predictorMs": 26.06
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 6.31260000000475,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "depth": 3,
+          "elapsedMs": 7.23519999999553,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 5.920700000002398,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 26.78849999999511,
+          "deadlineMiss": false,
+          "predictorMs": 26.06
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 5.6894999999931315,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:apk_u1",
+          "score": 2923,
+          "nodes": 8,
+          "elapsedMs": 5.594899999996414,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 23,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 1,
+      "stepOffset": 160,
+      "turn": 8,
+      "legalActionCount": 4,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:mermaid:1,1",
+          "recruit_to_castle:soldier:1,1",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 29.67829999999958
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 48.98530000000028,
+          "predictorMs": 49.08
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 29.389400000000023,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "depth": 4,
+          "elapsedMs": 26.40020000000368,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "elapsedMs": 28.888299999991432,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "elapsedMs": 49.738300000011805,
+          "deadlineMiss": false,
+          "predictorMs": 49.08
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "elapsedMs": 27.846799999999348,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:1,1",
+          "score": -841,
+          "nodes": 14,
+          "elapsedMs": 26.066099999996368,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 24,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 1,
+      "stepOffset": 240,
+      "turn": 11,
+      "legalActionCount": 45,
+      "candidateSets": {
+        "S00": [
+          "move:u_22:3,4",
+          "attack:u_9:apk_u1",
+          "attack:u_9:u_23",
+          "attack:u_11:u_23",
+          "attack:u_16:u_20",
+          "move:u_22:2,6",
+          "move:u_22:2,3",
+          "move:u_22:2,4",
+          "move:u_22:1,4"
+        ],
+        "S10_TRUE": [
+          "move:u_22:3,4",
+          "attack:u_9:apk_u1",
+          "attack:u_9:u_23",
+          "attack:u_11:u_23",
+          "attack:u_16:u_20",
+          "move:u_22:2,6",
+          "move:u_22:2,3",
+          "move:u_22:2,4",
+          "move:u_22:1,4",
+          "move:u_11:6,10"
+        ],
+        "S10_DISABLED": [
+          "move:u_22:3,4",
+          "attack:u_9:apk_u1",
+          "attack:u_9:u_23",
+          "attack:u_11:u_23",
+          "attack:u_16:u_20",
+          "move:u_22:2,6",
+          "move:u_22:2,3",
+          "move:u_22:2,4",
+          "move:u_22:1,4",
+          "wait:u_9"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_22:3,4",
+          "attack:u_9:apk_u1",
+          "attack:u_9:u_23",
+          "attack:u_11:u_23",
+          "attack:u_16:u_20",
+          "move:u_22:2,6",
+          "move:u_22:2,3",
+          "move:u_22:2,4",
+          "move:u_22:1,4",
+          "move:u_11:5,8"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -235,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 294.01690000000235
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -235,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 317.5709000000061,
+          "predictorMs": 317.67
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -235,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 309.5332000000053,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_11:u_23",
+          "score": -235,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 305.10379999999714,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:apk_u1",
+          "score": -505,
+          "nodes": 9,
+          "elapsedMs": 212.0014999999985,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:apk_u1",
+          "score": -505,
+          "nodes": 9,
+          "elapsedMs": 203.2216000000044,
+          "deadlineMiss": true,
+          "predictorMs": 317.67
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_22:3,4",
+          "score": -509,
+          "nodes": 12,
+          "elapsedMs": 210.94689999999537,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_22:3,4",
+          "score": -509,
+          "nodes": 12,
+          "elapsedMs": 204.08250000000407,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 25,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 0,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 17,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "recruit_to_castle:water_elemental:8,2",
+          "recruit_to_castle:archer:8,2"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "wait:apk_u1",
+          "wait:u_3"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "recruit_to_castle:archer:8,2",
+          "recruit_to_castle:soldier:8,2"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 98.05859999998938
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 119.6140999999916,
+          "predictorMs": 119.69
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 105.55849999999919,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 97.76510000000417,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 98.46289999999863,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 120.5048999999999,
+          "deadlineMiss": false,
+          "predictorMs": 119.69
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 98.75960000000487,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 95.57160000001022,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 26,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 0,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 5,
+      "candidateSets": {
+        "S00": [
+          "attack:u_13:u_10",
+          "attack:apk_u0:u_9",
+          "wait:apk_u0",
+          "wait:u_13",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "attack:u_13:u_10",
+          "attack:apk_u0:u_9",
+          "wait:apk_u0",
+          "wait:u_13",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "attack:u_13:u_10",
+          "attack:apk_u0:u_9",
+          "wait:apk_u0",
+          "wait:u_13",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_13:u_10",
+          "attack:apk_u0:u_9",
+          "wait:apk_u0",
+          "wait:u_13",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "depth": 3,
+          "elapsedMs": 22.52400000000489
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "depth": 3,
+          "elapsedMs": 39.92859999999928,
+          "predictorMs": 40
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "depth": 3,
+          "elapsedMs": 20.00690000000759,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "depth": 3,
+          "elapsedMs": 18.807800000009593,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "elapsedMs": 18.526700000002165,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "elapsedMs": 41.45710000001418,
+          "deadlineMiss": false,
+          "predictorMs": 40
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "elapsedMs": 18.872999999992317,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_13:u_10",
+          "score": 2349,
+          "nodes": 14,
+          "elapsedMs": 20.00580000001355,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 27,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 0,
+      "stepOffset": 160,
+      "turn": 8,
+      "legalActionCount": 122,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:commander:2,8",
+          "attack:u_2:u_9",
+          "attack:u_2:u_17",
+          "attack:u_11:u_4",
+          "attack:u_11:u_9",
+          "move:u_14:7,5",
+          "move:u_2:8,6",
+          "move:u_14:7,6",
+          "move:u_2:10,4"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:commander:2,8",
+          "attack:u_2:u_9",
+          "attack:u_2:u_17",
+          "attack:u_11:u_4",
+          "attack:u_11:u_9",
+          "move:u_14:7,5",
+          "move:u_2:8,6",
+          "move:u_14:7,6",
+          "move:u_2:10,4",
+          "move:u_14:6,5"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:commander:2,8",
+          "attack:u_2:u_9",
+          "attack:u_2:u_17",
+          "attack:u_11:u_4",
+          "attack:u_11:u_9",
+          "move:u_14:7,5",
+          "move:u_2:8,6",
+          "move:u_14:7,6",
+          "move:u_2:10,4",
+          "move:u_2:10,6"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:commander:2,8",
+          "attack:u_2:u_9",
+          "attack:u_2:u_17",
+          "attack:u_11:u_4",
+          "attack:u_11:u_9",
+          "move:u_14:7,5",
+          "move:u_2:8,6",
+          "move:u_14:7,6",
+          "move:u_2:10,4",
+          "move:u_14:4,8"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_11:u_4",
+          "score": 1907.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 766.6908000000112
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_11:u_4",
+          "score": 1907.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 868.5916999999899,
+          "predictorMs": 868.68
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_11:u_4",
+          "score": 1907.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 772.0378000000055,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_11:u_4",
+          "score": 1907.5,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 749.4372999999905,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:commander:2,8",
+          "score": 1699.5,
+          "nodes": 3,
+          "elapsedMs": 241.0627000000095,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:commander:2,8",
+          "score": 1435.5,
+          "nodes": 4,
+          "elapsedMs": 234.27560000000813,
+          "deadlineMiss": true,
+          "predictorMs": 868.68
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:commander:2,8",
+          "score": 1435.5,
+          "nodes": 4,
+          "elapsedMs": 206.37240000000747,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:commander:2,8",
+          "score": 1435.5,
+          "nodes": 4,
+          "elapsedMs": 208.9045000000042,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 28,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 0,
+      "stepOffset": 240,
+      "turn": 11,
+      "legalActionCount": 96,
+      "candidateSets": {
+        "S00": [
+          "move:u_19:8,3",
+          "attack:u_11:u_12",
+          "attack:u_11:u_21",
+          "attack:u_13:u_12",
+          "move:u_19:7,4",
+          "move:u_19:7,2",
+          "move:u_19:7,3",
+          "move:u_19:9,1"
+        ],
+        "S10_TRUE": [
+          "move:u_19:8,3",
+          "attack:u_11:u_12",
+          "attack:u_11:u_21",
+          "attack:u_13:u_12",
+          "move:u_19:7,4",
+          "move:u_19:7,2",
+          "move:u_19:7,3",
+          "move:u_19:9,1",
+          "move:u_19:9,4",
+          "move:u_23:9,8"
+        ],
+        "S10_DISABLED": [
+          "move:u_19:8,3",
+          "attack:u_11:u_12",
+          "attack:u_11:u_21",
+          "attack:u_13:u_12",
+          "move:u_19:7,4",
+          "move:u_19:7,2",
+          "move:u_19:7,3",
+          "move:u_19:9,1",
+          "move:u_11:9,6",
+          "move:u_11:9,4"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_19:8,3",
+          "attack:u_11:u_12",
+          "attack:u_11:u_21",
+          "attack:u_13:u_12",
+          "move:u_19:7,4",
+          "move:u_19:7,2",
+          "move:u_19:7,3",
+          "move:u_19:9,1",
+          "move:u_23:4,8",
+          "move:u_23:4,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.6667
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_13:u_12",
+          "score": 5212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 457.3564999999944
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_13:u_12",
+          "score": 5212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 397.8561000000045,
+          "predictorMs": 397.94
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_13:u_12",
+          "score": 5212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 380.7335000000021,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_13:u_12",
+          "score": 5212,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 367.4847000000009,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_19:8,3",
+          "score": 4971,
+          "nodes": 10,
+          "elapsedMs": 206.16270000000077,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_19:8,3",
+          "score": 4971,
+          "nodes": 9,
+          "elapsedMs": 214.06419999999343,
+          "deadlineMiss": true,
+          "predictorMs": 397.94
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_19:8,3",
+          "score": 4971,
+          "nodes": 9,
+          "elapsedMs": 201.63989999999467,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_19:8,3",
+          "score": 4971,
+          "nodes": 10,
+          "elapsedMs": 205.32559999999648,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 29,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 1,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 17,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "recruit_to_castle:water_elemental:8,2",
+          "recruit_to_castle:archer:8,2"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "wait:apk_u1",
+          "wait:u_3"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ghost:8,2",
+          "attack:apk_u1:u_2",
+          "attack:u_3:apk_u0",
+          "attack:u_7:apk_u0",
+          "recruit_to_castle:slime:8,2",
+          "recruit_to_castle:witch:8,2",
+          "recruit_to_castle:dark_mage:8,2",
+          "recruit_to_castle:paladin:8,2",
+          "recruit_to_castle:mermaid:8,2",
+          "wait:u_5"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8,
+        "S10_DISABLED": 0.6667,
+        "S10_SHUFFLED": 0.6667
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 110.06010000000242
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 121.31730000000971,
+          "predictorMs": 121.39
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 93.27309999999125,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 95.17969999999332,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 96.29899999999907,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 118.07859999999346,
+          "deadlineMiss": false,
+          "predictorMs": 121.39
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 95.6927999999898,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ghost:8,2",
+          "score": 2057,
+          "nodes": 20,
+          "elapsedMs": 93.87609999999404,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 30,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 1,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 4,
+      "candidateSets": {
+        "S00": [
+          "attack:u_13:u_9",
+          "wait:u_13",
+          "wait:apk_u0",
+          "end_turn"
+        ],
+        "S10_TRUE": [
+          "attack:u_13:u_9",
+          "wait:u_13",
+          "wait:apk_u0",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "attack:u_13:u_9",
+          "wait:u_13",
+          "wait:apk_u0",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_13:u_9",
+          "wait:u_13",
+          "wait:apk_u0",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 13.794499999989057
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 37.29290000000037,
+          "predictorMs": 37.36
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 14.01380000001518,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "depth": 3,
+          "elapsedMs": 13.708799999993062,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "elapsedMs": 13.722599999979138,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "elapsedMs": 37.226199999975506,
+          "deadlineMiss": false,
+          "predictorMs": 37.36
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "elapsedMs": 15.533899999980349,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_13:u_9",
+          "score": 2497,
+          "nodes": 11,
+          "elapsedMs": 15.843800000002375,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 31,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 1,
+      "stepOffset": 160,
+      "turn": 7,
+      "legalActionCount": 6,
+      "candidateSets": {
+        "S00": [
+          "attack:u_4:u_11",
+          "wait:u_12",
+          "wait:u_5",
+          "wait:u_10",
+          "wait:u_4"
+        ],
+        "S10_TRUE": [
+          "attack:u_4:u_11",
+          "wait:u_12",
+          "wait:u_5",
+          "wait:u_10",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_DISABLED": [
+          "attack:u_4:u_11",
+          "wait:u_12",
+          "wait:u_5",
+          "wait:u_10",
+          "wait:u_4",
+          "end_turn"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_4:u_11",
+          "wait:u_12",
+          "wait:u_5",
+          "wait:u_10",
+          "wait:u_4",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.8333,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 31.359099999972386
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 52.03689999997732,
+          "predictorMs": 52.11
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 28.16349999999511,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 30.95889999999781,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "elapsedMs": 35.58429999998771,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "elapsedMs": 49.77640000000247,
+          "deadlineMiss": false,
+          "predictorMs": 52.11
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "elapsedMs": 30.90909999998985,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_4:u_11",
+          "score": 2281,
+          "nodes": 20,
+          "elapsedMs": 28.942600000009406,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 32,
+      "mapName": "(2) Mourningstar.aem",
+      "seat": 1,
+      "stepOffset": 240,
+      "turn": 10,
+      "legalActionCount": 102,
+      "candidateSets": {
+        "S00": [
+          "move:u_15:4,6",
+          "move:u_17:7,8",
+          "move:u_5:2,5",
+          "move:u_15:6,4",
+          "move:u_15:3,7"
+        ],
+        "S10_TRUE": [
+          "move:u_15:4,6",
+          "move:u_17:7,8",
+          "move:u_5:2,5",
+          "move:u_15:6,4",
+          "move:u_15:3,7",
+          "move:u_15:5,4",
+          "move:u_15:5,5",
+          "move:u_15:6,3",
+          "move:u_15:2,5",
+          "move:u_15:3,6"
+        ],
+        "S10_DISABLED": [
+          "move:u_15:4,6",
+          "move:u_17:7,8",
+          "move:u_5:2,5",
+          "move:u_15:6,4",
+          "move:u_15:3,7",
+          "move:u_5:3,5",
+          "move:u_5:3,3",
+          "move:u_5:4,4",
+          "move:u_5:2,4",
+          "move:u_5:4,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_15:4,6",
+          "move:u_17:7,8",
+          "move:u_5:2,5",
+          "move:u_15:6,4",
+          "move:u_15:3,7",
+          "move:u_15:3,5",
+          "move:u_15:6,3",
+          "wait:u_15",
+          "move:u_15:3,1",
+          "move:u_5:4,3"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.3333,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 290.2375999999931
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 378.1149999999907,
+          "predictorMs": 378.2
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 297.0194999999949,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 283.64199999999255,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 13,
+          "elapsedMs": 216.7798999999941,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 12,
+          "elapsedMs": 209.1038000000117,
+          "deadlineMiss": true,
+          "predictorMs": 378.2
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 13,
+          "elapsedMs": 220.43249999999534,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_15:4,6",
+          "score": 8532,
+          "nodes": 13,
+          "elapsedMs": 219.35679999997956,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 33,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 0,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 117,
+      "candidateSets": {
+        "S00": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4"
+        ],
+        "S10_TRUE": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "move:u_7:2,8",
+          "move:u_7:3,7",
+          "move:u_3:8,3",
+          "move:u_7:2,7",
+          "move:u_3:7,3"
+        ],
+        "S10_DISABLED": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "move:u_3:8,2",
+          "move:u_3:8,0",
+          "move:u_3:9,1",
+          "move:u_3:7,1",
+          "move:u_3:8,3"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "recruit_to_castle:dark_mage:1,10",
+          "move:u_3:5,1",
+          "move:u_4:6,4",
+          "move:u_7:2,0",
+          "move:u_4:2,3"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.3333
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 297.56969999999274
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 308.01799999998184,
+          "predictorMs": 308.21
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 270.26129999998375,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 275.1880999999994,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 13,
+          "elapsedMs": 200.43570000000182,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 12,
+          "elapsedMs": 203.70819999999367,
+          "deadlineMiss": true,
+          "predictorMs": 308.21
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 14,
+          "elapsedMs": 200.3289999999979,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 14,
+          "elapsedMs": 210.7062000000151,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 34,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 0,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 69,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "move:u_6:4,10"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "wait:apk_u0"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "move:u_9:12,10"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 635.5536000000138
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 586.3626000000222,
+          "predictorMs": 586.48
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 565.6283000000112,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 568.8996000000043,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 230.8983999999764,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 601,
+          "nodes": 4,
+          "elapsedMs": 211.89530000000377,
+          "deadlineMiss": true,
+          "predictorMs": 586.48
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 206.5732999999891,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 206.9418000000005,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 35,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 0,
+      "stepOffset": 160,
+      "turn": 7,
+      "legalActionCount": 131,
+      "candidateSets": {
+        "S00": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "attack:u_14:u_5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_14:6,9"
+        ],
+        "S10_TRUE": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "attack:u_14:u_5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_14:6,9",
+          "move:u_16:7,6"
+        ],
+        "S10_DISABLED": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "attack:u_14:u_5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_14:6,9",
+          "move:u_9:8,8"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "attack:u_14:u_5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_14:6,9",
+          "move:u_17:10,6"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2859,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1388.2029000000039
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2859,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1403.059899999993,
+          "predictorMs": 1403.18
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2859,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1323.7191999999923,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2859,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1399.1216000000131,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 2525,
+          "nodes": 2,
+          "elapsedMs": 224.1237999999721,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 2525,
+          "nodes": 2,
+          "elapsedMs": 253.58419999998296,
+          "deadlineMiss": true,
+          "predictorMs": 1403.18
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 2525,
+          "nodes": 2,
+          "elapsedMs": 226.27229999998235,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 2525,
+          "nodes": 2,
+          "elapsedMs": 228.5570000000007,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 36,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 0,
+      "stepOffset": 240,
+      "turn": 9,
+      "legalActionCount": 35,
+      "candidateSets": {
+        "S00": [
+          "move:u_27:11,3",
+          "attack:apk_u0:u_5",
+          "attack:u_12:u_13",
+          "attack:u_16:u_15",
+          "attack:u_16:u_19",
+          "move:u_27:10,5",
+          "move:u_27:11,5",
+          "move:u_27:11,4",
+          "attack:u_27:u_15"
+        ],
+        "S10_TRUE": [
+          "move:u_27:11,3",
+          "attack:apk_u0:u_5",
+          "attack:u_12:u_13",
+          "attack:u_16:u_15",
+          "attack:u_16:u_19",
+          "move:u_27:10,5",
+          "move:u_27:11,5",
+          "move:u_27:11,4",
+          "attack:u_27:u_15",
+          "move:u_27:11,6"
+        ],
+        "S10_DISABLED": [
+          "move:u_27:11,3",
+          "attack:apk_u0:u_5",
+          "attack:u_12:u_13",
+          "attack:u_16:u_15",
+          "attack:u_16:u_19",
+          "move:u_27:10,5",
+          "move:u_27:11,5",
+          "move:u_27:11,4",
+          "attack:u_27:u_15",
+          "wait:apk_u0"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_27:11,3",
+          "attack:apk_u0:u_5",
+          "attack:u_12:u_13",
+          "attack:u_16:u_15",
+          "attack:u_16:u_19",
+          "move:u_27:10,5",
+          "move:u_27:11,5",
+          "move:u_27:11,4",
+          "attack:u_27:u_15",
+          "wait:u_16"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_16:u_15",
+          "score": 672,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 343.5626999999804
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_16:u_15",
+          "score": 672,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 357.1442999999854,
+          "predictorMs": 357.28
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_16:u_15",
+          "score": 672,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 343.7024000000092,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_16:u_15",
+          "score": 672,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 343.00339999998687,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_27:11,3",
+          "score": 459,
+          "nodes": 12,
+          "elapsedMs": 226.3478999999934,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_27:11,3",
+          "score": 459,
+          "nodes": 10,
+          "elapsedMs": 205.06599999999162,
+          "deadlineMiss": true,
+          "predictorMs": 357.28
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_27:11,3",
+          "score": 459,
+          "nodes": 12,
+          "elapsedMs": 252.37729999999283,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_27:11,3",
+          "score": 459,
+          "nodes": 8,
+          "elapsedMs": 206.54269999999087,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 37,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 1,
+      "stepOffset": 48,
+      "turn": 3,
+      "legalActionCount": 117,
+      "candidateSets": {
+        "S00": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4"
+        ],
+        "S10_TRUE": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "move:u_7:2,8",
+          "move:u_7:3,7",
+          "move:u_3:8,3",
+          "move:u_7:2,7",
+          "move:u_3:7,3"
+        ],
+        "S10_DISABLED": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "move:u_3:8,2",
+          "move:u_3:8,0",
+          "move:u_3:9,1",
+          "move:u_3:7,1",
+          "move:u_3:8,3"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_7:4,6",
+          "move:u_7:5,5",
+          "move:u_7:6,4",
+          "move:u_7:3,6",
+          "move:u_7:5,4",
+          "move:u_5:3,2",
+          "move:u_7:1,1",
+          "move:u_4:5,3",
+          "end_turn",
+          "recruit_to_castle:water_elemental:1,10"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.3333
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 274.4194000000134
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 296.18720000001485,
+          "predictorMs": 296.3
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 267.5939000000071,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 270.5005999999994,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 14,
+          "elapsedMs": 209.69099999999162,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 10,
+          "elapsedMs": 201.1261999999988,
+          "deadlineMiss": true,
+          "predictorMs": 296.3
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 12,
+          "elapsedMs": 225.18499999999767,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_7:4,6",
+          "score": 892,
+          "nodes": 14,
+          "elapsedMs": 200.89070000001811,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 38,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 1,
+      "stepOffset": 96,
+      "turn": 5,
+      "legalActionCount": 69,
+      "candidateSets": {
+        "S00": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8"
+        ],
+        "S10_TRUE": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "move:u_6:4,10"
+        ],
+        "S10_DISABLED": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "wait:apk_u0"
+        ],
+        "S10_SHUFFLED": [
+          "recruit_to_castle:ice_elemental:13,4",
+          "attack:u_2:apk_u1",
+          "attack:u_2:u_5",
+          "attack:u_2:u_11",
+          "attack:u_6:apk_u1",
+          "recruit_to_castle:ice_elemental:13,13",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_6:6,8",
+          "move:u_6:5,7"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 564.2388999999966
+        },
+        "S10_TRUE": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 591.8911999999837,
+          "predictorMs": 592
+        },
+        "S10_DISABLED": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 560.3405000000203,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "recruit_to_castle:ice_elemental:13,4",
+          "score": 801,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 638.3274999999849,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 202.80569999999716,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 221.99270000000251,
+          "deadlineMiss": true,
+          "predictorMs": 592
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 921,
+          "nodes": 7,
+          "elapsedMs": 203.75789999999688,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_2:apk_u1",
+          "score": 937,
+          "nodes": 8,
+          "elapsedMs": 236.76819999999134,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 39,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 1,
+      "stepOffset": 160,
+      "turn": 7,
+      "legalActionCount": 134,
+      "candidateSets": {
+        "S00": [
+          "move:u_9:7,8",
+          "attack:u_9:u_13",
+          "attack:u_12:u_3",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "move:u_17:6,5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13"
+        ],
+        "S10_TRUE": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_3",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "move:u_9:7,8",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_16:7,6"
+        ],
+        "S10_DISABLED": [
+          "move:u_17:6,5",
+          "attack:u_9:u_13",
+          "attack:u_12:u_3",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "move:u_9:7,8",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "move:u_9:8,8"
+        ],
+        "S10_SHUFFLED": [
+          "move:u_9:7,8",
+          "attack:u_9:u_13",
+          "attack:u_12:u_3",
+          "attack:u_12:u_5",
+          "attack:u_12:u_13",
+          "move:u_17:6,5",
+          "move:u_17:7,6",
+          "recruit_to_castle:elf:13,4",
+          "recruit_to_castle:elf:13,13",
+          "recruit_to_castle:water_elemental:13,13"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.9,
+        "S10_DISABLED": 0.8182,
+        "S10_SHUFFLED": 0.8182
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2919,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1382.4695000000065
+        },
+        "S10_TRUE": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2919,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1400.3411999999953,
+          "predictorMs": 1400.53
+        },
+        "S10_DISABLED": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2919,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1422.0434999999998,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "attack:u_9:u_13",
+          "score": 2919,
+          "nodes": 20,
+          "depth": 5,
+          "elapsedMs": 1304.0252000000037,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 1747,
+          "nodes": 2,
+          "elapsedMs": 229.49499999999534,
+          "deadlineMiss": true
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:u_9:7,8",
+          "score": 1763,
+          "nodes": 1,
+          "elapsedMs": 205.30969999998342,
+          "deadlineMiss": true,
+          "predictorMs": 1400.53
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:u_9:7,8",
+          "score": 1747,
+          "nodes": 2,
+          "elapsedMs": 277.96529999998165,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:u_17:6,5",
+          "score": 1747,
+          "nodes": 2,
+          "elapsedMs": 245.91130000000703,
+          "deadlineMiss": true,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 40,
+      "mapName": "(2) Icy Paths.aem",
+      "seat": 1,
+      "stepOffset": 240,
+      "turn": 9,
+      "legalActionCount": 6,
+      "candidateSets": {
+        "S00": [
+          "attack:u_16:u_13",
+          "attack:u_16:u_22",
+          "wait:u_24",
+          "wait:apk_u0",
+          "end_turn",
+          "wait:u_16"
+        ],
+        "S10_TRUE": [
+          "attack:u_16:u_13",
+          "attack:u_16:u_22",
+          "wait:u_24",
+          "wait:apk_u0",
+          "end_turn",
+          "wait:u_16"
+        ],
+        "S10_DISABLED": [
+          "attack:u_16:u_13",
+          "attack:u_16:u_22",
+          "wait:u_24",
+          "wait:apk_u0",
+          "end_turn",
+          "wait:u_16"
+        ],
+        "S10_SHUFFLED": [
+          "attack:u_16:u_13",
+          "attack:u_16:u_22",
+          "wait:u_24",
+          "wait:apk_u0",
+          "end_turn",
+          "wait:u_16"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 1,
+        "S10_DISABLED": 1,
+        "S10_SHUFFLED": 1
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 54.09590000001481
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 85.65489999999409,
+          "predictorMs": 85.85
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 53.575600000011036,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "depth": 4,
+          "elapsedMs": 39.3239000000176,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "elapsedMs": 37.599500000011176,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "elapsedMs": 58.18539999998757,
+          "deadlineMiss": false,
+          "predictorMs": 85.85
+        },
+        "S10_DISABLED": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "elapsedMs": 39.298099999985425,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "wait:u_16",
+          "score": 2681.5,
+          "nodes": 20,
+          "elapsedMs": 37.219899999996414,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_01",
+  "auditDate": "2026-09-22T00:12:46.914Z",
+  "allDimensionsVerified": true,
+  "baseHash": "434e87b11978bfc42ac2f1ad",
+  "checks": {
+    "commanderReserveLevel": {
+      "description": "Changing commanderReserveLevel alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "commanderReserveExp": {
+      "description": "Changing commanderReserveExp alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "hasMoved": {
+      "description": "Unit movement status alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "hasActed": {
+      "description": "Unit action status alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "pendingUnitId": {
+      "description": "Active pendingUnitId alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "buildingOwnership": {
+      "description": "Castle/town ownership alters state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "unitStatus": {
+      "description": "Status effects alter state hash",
+      "pass": true,
+      "hashDiffers": true
+    },
+    "canonicalIdInvariance": {
+      "description": "Tactically identical state with renamed IDs preserves identical hash",
+      "pass": true,
+      "hashDiffers": false
+    }
+  }
+}

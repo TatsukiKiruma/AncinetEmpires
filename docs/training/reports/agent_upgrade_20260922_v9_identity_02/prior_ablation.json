@@ -1,0 +1,757 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_02",
+  "ablationDate": "2026-09-22T01:24:28.161Z",
+  "testedStatesCount": 6,
+  "candidateOverlapWithTruePrior": {
+    "meanJaccardS00": 0.5,
+    "meanJaccardDisabledZeros": 0.5019,
+    "meanJaccardShuffled": 0.4835
+  },
+  "actionAgreementWithTruePrior": {
+    "S00AgreementRate": 1,
+    "S10DisabledAgreementRate": 1,
+    "S10ShuffledAgreementRate": 1
+  },
+  "tieBreakingRule": "Disabled prior returns 0.0 logits; ties broken strictly alphabetically by encoded action string; does not match S00 candidate ordering.",
+  "separationOfPredictorCost": "Predictor cost measured separately via predictorMs: ~3-5ms forward overhead does not exhaust search budget; candidate divergence is driven by prior weights.",
+  "states": [
+    {
+      "stateIndex": 1,
+      "mapName": "(2) Duel.aem",
+      "seat": 0,
+      "turn": 1,
+      "legalActionCount": 26,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4"
+        ],
+        "S10_TRUE": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:6,5",
+          "move:apk_u1:4,5",
+          "move:apk_u1:4,7",
+          "move:apk_u1:5,6",
+          "move:apk_u1:5,5"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:4,5",
+          "move:apk_u1:4,3",
+          "move:apk_u1:5,4",
+          "move:apk_u1:3,4",
+          "move:apk_u1:5,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:5,3",
+          "recruit_to_castle:slime:4,4",
+          "move:apk_u1:5,5",
+          "recruit_to_castle:mermaid:4,4",
+          "move:apk_u1:6,5"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.5385,
+        "S10_SHUFFLED": 0.5385
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 88.4375
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 75.67520000000002,
+          "predictorMs": 75.78
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 53.32560000000001,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 48.110900000000015,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 48.09370000000001,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 67.46709999999996,
+          "deadlineMiss": false,
+          "predictorMs": 75.78
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 46.33600000000001,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 46.007499999999936,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 2,
+      "mapName": "(2) Duel.aem",
+      "seat": 1,
+      "turn": 1,
+      "legalActionCount": 26,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4"
+        ],
+        "S10_TRUE": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:6,5",
+          "move:apk_u1:4,5",
+          "move:apk_u1:4,7",
+          "move:apk_u1:5,6",
+          "move:apk_u1:5,5"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:4,5",
+          "move:apk_u1:4,3",
+          "move:apk_u1:5,4",
+          "move:apk_u1:3,4",
+          "move:apk_u1:5,5"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u1:4,6",
+          "move:apk_u1:7,5",
+          "move:apk_u1:5,7",
+          "move:apk_u1:7,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:5,3",
+          "move:apk_u1:3,6",
+          "end_turn",
+          "recruit_to_castle:dark_mage:4,4",
+          "move:apk_u1:6,5"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.5385,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 48.3451
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 68.70170000000007,
+          "predictorMs": 68.79
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 46.60940000000005,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 47.485999999999876,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 47.25109999999995,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 65.19459999999981,
+          "deadlineMiss": false,
+          "predictorMs": 68.79
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 46.24170000000004,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,7",
+          "score": 384,
+          "nodes": 20,
+          "elapsedMs": 45.10259999999994,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 3,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 0,
+      "turn": 1,
+      "legalActionCount": 27,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4"
+        ],
+        "S10_TRUE": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:3,2",
+          "move:apk_u1:5,5",
+          "move:apk_u1:7,3",
+          "move:apk_u1:2,3",
+          "move:apk_u1:5,3"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:5,3",
+          "move:apk_u1:5,1",
+          "move:apk_u1:6,2",
+          "move:apk_u1:4,2",
+          "move:apk_u1:5,4"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:4,3",
+          "move:apk_u1:5,5",
+          "move:apk_u1:3,2",
+          "move:apk_u1:6,2",
+          "end_turn"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.5385
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 48.843799999999874
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 71.71789999999987,
+          "predictorMs": 71.81
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 46.75019999999995,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 46.1739,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 48.30459999999994,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 66.55409999999983,
+          "deadlineMiss": false,
+          "predictorMs": 71.81
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 47.8578,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 48.270500000000084,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 4,
+      "mapName": "(2) Crossed swords.aem",
+      "seat": 1,
+      "turn": 1,
+      "legalActionCount": 27,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4"
+        ],
+        "S10_TRUE": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:3,2",
+          "move:apk_u1:5,5",
+          "move:apk_u1:7,3",
+          "move:apk_u1:2,3",
+          "move:apk_u1:5,3"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "move:apk_u1:5,3",
+          "move:apk_u1:5,1",
+          "move:apk_u1:6,2",
+          "move:apk_u1:4,2",
+          "move:apk_u1:5,4"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u1:6,5",
+          "move:apk_u1:3,3",
+          "move:apk_u1:5,6",
+          "move:apk_u1:4,4",
+          "move:apk_u1:6,4",
+          "wait:apk_u1",
+          "recruit_to_castle:slime:5,2",
+          "move:apk_u1:7,3",
+          "recruit_to_castle:ghost:5,2",
+          "recruit_to_castle:archer:5,2"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.4286,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 45.912000000000035
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 68.87329999999997,
+          "predictorMs": 68.96
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 47.628099999999904,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 47.76019999999994,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 46.91579999999999,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 65.31410000000005,
+          "deadlineMiss": false,
+          "predictorMs": 68.96
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 47.61900000000014,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u1:5,6",
+          "score": 151,
+          "nodes": 20,
+          "elapsedMs": 46.934299999999894,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 5,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 0,
+      "turn": 1,
+      "legalActionCount": 23,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2"
+        ],
+        "S10_TRUE": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:0,3",
+          "move:apk_u0:1,4",
+          "move:apk_u0:0,2",
+          "move:apk_u0:1,3",
+          "move:apk_u0:3,1"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:1,2",
+          "move:apk_u0:1,0",
+          "move:apk_u0:0,1",
+          "move:apk_u0:1,3",
+          "move:apk_u0:0,2"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:3,1",
+          "recruit_to_castle:ghost:1,1",
+          "recruit_to_castle:slime:1,1",
+          "move:apk_u0:0,2",
+          "move:apk_u0:1,0"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.5385,
+        "S10_SHUFFLED": 0.5385
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 45.172399999999925
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 57.2177999999999,
+          "predictorMs": 57.3
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 36.88310000000001,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 37.73669999999993,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 35.96169999999984,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 56.79350000000022,
+          "deadlineMiss": false,
+          "predictorMs": 57.3
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 36.46810000000005,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 36.73429999999962,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    },
+    {
+      "stateIndex": 6,
+      "mapName": "(2) Liberty Port.aem",
+      "seat": 1,
+      "turn": 1,
+      "legalActionCount": 23,
+      "candidateSets": {
+        "S00": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2"
+        ],
+        "S10_TRUE": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:0,3",
+          "move:apk_u0:1,4",
+          "move:apk_u0:0,2",
+          "move:apk_u0:1,3",
+          "move:apk_u0:3,1"
+        ],
+        "S10_DISABLED": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:1,2",
+          "move:apk_u0:1,0",
+          "move:apk_u0:0,1",
+          "move:apk_u0:1,3",
+          "move:apk_u0:0,2"
+        ],
+        "S10_SHUFFLED": [
+          "move:apk_u0:2,3",
+          "move:apk_u0:3,3",
+          "move:apk_u0:2,4",
+          "move:apk_u0:2,1",
+          "move:apk_u0:2,2",
+          "move:apk_u0:1,0",
+          "recruit_to_castle:slime:1,1",
+          "move:apk_u0:0,1",
+          "move:apk_u0:1,4",
+          "recruit_to_castle:archer:1,1"
+        ]
+      },
+      "jaccardWithTrue": {
+        "S00": 0.5,
+        "S10_DISABLED": 0.5385,
+        "S10_SHUFFLED": 0.4286
+      },
+      "fixedNodeBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 35.91249999999991
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 55.86650000000009,
+          "predictorMs": 55.96
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 35.435199999999895,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "depth": 8,
+          "elapsedMs": 36.68359999999984,
+          "predictorMs": 0
+        }
+      },
+      "wallClockBudget": {
+        "S00": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 36.24900000000025,
+          "deadlineMiss": false
+        },
+        "S10_TRUE": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 56.91139999999996,
+          "deadlineMiss": false,
+          "predictorMs": 55.96
+        },
+        "S10_DISABLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 35.42189999999982,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        },
+        "S10_SHUFFLED": {
+          "chosenAction": "move:apk_u0:2,4",
+          "score": 585,
+          "nodes": 20,
+          "elapsedMs": 36.347699999999804,
+          "deadlineMiss": false,
+          "predictorMs": 0
+        }
+      }
+    }
+  ]
+}

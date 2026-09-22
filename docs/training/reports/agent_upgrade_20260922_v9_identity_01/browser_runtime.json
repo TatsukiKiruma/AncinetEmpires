@@ -1,0 +1,56 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_01",
+  "benchmarkDate": "2026-09-22T00:06:02.547Z",
+  "timeoutBudgetMs": 1000,
+  "summary": "Verified end-to-end latency budget (prep, encode, infer/search, return) and watchdog/cancellation safeguards.",
+  "results": {
+    "heuristic": {
+      "sampleCount": 20,
+      "okCount": 20,
+      "deadlineMissCount": 0,
+      "timeoutCount": 0,
+      "cancelledCount": 0,
+      "staleCount": 0,
+      "minMs": 2,
+      "meanMs": 3.55,
+      "p50Ms": 3,
+      "p95Ms": 6.050000000000001,
+      "p99Ms": 6.809999999999999,
+      "maxMs": 7,
+      "budgetMs": 1000,
+      "allWithinBudget": true
+    },
+    "spatial_v2_experimental": {
+      "sampleCount": 20,
+      "okCount": 20,
+      "deadlineMissCount": 0,
+      "timeoutCount": 0,
+      "cancelledCount": 0,
+      "staleCount": 0,
+      "minMs": 20,
+      "meanMs": 20.6,
+      "p50Ms": 20.5,
+      "p95Ms": 21.1,
+      "p99Ms": 22.619999999999997,
+      "maxMs": 23,
+      "budgetMs": 1000,
+      "allWithinBudget": true
+    },
+    "s10_spatial_search": {
+      "sampleCount": 20,
+      "okCount": 20,
+      "deadlineMissCount": 0,
+      "timeoutCount": 0,
+      "cancelledCount": 0,
+      "staleCount": 0,
+      "minMs": 66,
+      "meanMs": 68,
+      "p50Ms": 67,
+      "p95Ms": 70.25,
+      "p99Ms": 74.04999999999998,
+      "maxMs": 75,
+      "budgetMs": 1000,
+      "allWithinBudget": true
+    }
+  }
+}

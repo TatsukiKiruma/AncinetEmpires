@@ -1,0 +1,151 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_01",
+  "generatedAt": "2026-09-22T00:14:58.475Z",
+  "experiments": {
+    "overfit_sanity_64": {
+      "description": "64-sample clean overfit verification (real PyTorch CPU, 20 epochs)",
+      "sampleCount": 64,
+      "finalTrainAcc": 1,
+      "finalTrainLoss": 0.0132,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 3.3167,
+          "train_acc": 0.0893,
+          "val_loss": 2.8302,
+          "val_acc": 0.375
+        },
+        {
+          "epoch": 2,
+          "train_loss": 2.7548,
+          "train_acc": 0.3929,
+          "val_loss": 2.4969,
+          "val_acc": 0.125
+        },
+        {
+          "epoch": 3,
+          "train_loss": 2.0256,
+          "train_acc": 0.4643,
+          "val_loss": 2.6984,
+          "val_acc": 0.5
+        },
+        {
+          "epoch": 4,
+          "train_loss": 1.2123,
+          "train_acc": 0.6786,
+          "val_loss": 3.1582,
+          "val_acc": 0.625
+        },
+        {
+          "epoch": 5,
+          "train_loss": 0.9293,
+          "train_acc": 0.7679,
+          "val_loss": 5.2006,
+          "val_acc": 0.375
+        },
+        {
+          "epoch": 6,
+          "train_loss": 0.4951,
+          "train_acc": 0.8214,
+          "val_loss": 6.4057,
+          "val_acc": 0.375
+        },
+        {
+          "epoch": 7,
+          "train_loss": 0.3208,
+          "train_acc": 0.9107,
+          "val_loss": 8.1141,
+          "val_acc": 0.25
+        },
+        {
+          "epoch": 8,
+          "train_loss": 0.1538,
+          "train_acc": 0.9643,
+          "val_loss": 10.7006,
+          "val_acc": 0.25
+        },
+        {
+          "epoch": 10,
+          "train_loss": 0.2031,
+          "train_acc": 0.9286,
+          "val_loss": 10.2994,
+          "val_acc": 0.25
+        },
+        {
+          "epoch": 13,
+          "train_loss": 0.0348,
+          "train_acc": 1,
+          "val_loss": 9.8028,
+          "val_acc": 0.25
+        },
+        {
+          "epoch": 20,
+          "train_loss": 0.0132,
+          "train_acc": 1,
+          "val_loss": 10.8553,
+          "val_acc": 0.375
+        }
+      ]
+    },
+    "spatial_resnet_v2_7832": {
+      "description": "Historical base v2 training on 7,832 unique verified states (32ch, 2 blocks)",
+      "sampleCount": 7832,
+      "trainSamples": 6528,
+      "valSamples": 1304,
+      "bestValAcc": 0.4448,
+      "bestEpoch": 4,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 2.7077,
+          "train_acc": 0.3231,
+          "val_loss": 2.3411,
+          "val_acc": 0.3865
+        },
+        {
+          "epoch": 2,
+          "train_loss": 2.1728,
+          "train_acc": 0.4249,
+          "val_loss": 2.052,
+          "val_acc": 0.4233
+        },
+        {
+          "epoch": 3,
+          "train_loss": 1.9295,
+          "train_acc": 0.464,
+          "val_loss": 1.9971,
+          "val_acc": 0.4248
+        },
+        {
+          "epoch": 4,
+          "train_loss": 1.7921,
+          "train_acc": 0.5006,
+          "val_loss": 1.9482,
+          "val_acc": 0.4448
+        }
+      ]
+    },
+    "spatial_resnet_dagger_round1": {
+      "description": "DAgger round 1 fine-tuning (6,589 train / 1,304 val)",
+      "sampleCount": 7893,
+      "bestValAcc": 0.4479,
+      "bestEpoch": 2,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.7908,
+          "train_acc": 0.497,
+          "val_loss": 1.9451,
+          "val_acc": 0.4402
+        },
+        {
+          "epoch": 2,
+          "train_loss": 1.6739,
+          "train_acc": 0.5233,
+          "val_loss": 1.9072,
+          "val_acc": 0.4479
+        }
+      ]
+    }
+  }
+}

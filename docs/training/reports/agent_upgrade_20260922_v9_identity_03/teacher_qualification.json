@@ -1,0 +1,57 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_03",
+  "evaluationDate": "2026-09-22T18:06:42.325Z",
+  "teacherRole": "S00_BOUNDED_SEARCH",
+  "baselineCompetitor": "HEURISTIC_AI",
+  "tacticalSanityChecks": {
+    "evaluated": 2,
+    "passed": 2,
+    "note": "Hand-made smoke checks only; passing them does NOT qualify a teacher.",
+    "scenarioBreakdown": [
+      {
+        "scenario": "Lethal Strike on Commander",
+        "chosenAction": "attack:apk_u1:apk_u0",
+        "score": 100000,
+        "pass": true
+      },
+      {
+        "scenario": "Avoid Suicidal Walk into Enemy Range",
+        "chosenAction": "recruit_to_castle:dark_mage:4,4",
+        "score": -1134,
+        "pass": true
+      }
+    ]
+  },
+  "devMatchEvidence": {
+    "status": "AVAILABLE",
+    "source": "docs/training/reports/agent_upgrade_20260922_v9_identity_01/main_comparison.json",
+    "protocol": {
+      "maps": 5,
+      "seats": 2,
+      "seeds": 2,
+      "matchesPerArm": 20,
+      "note": "development diagnostic only; not a confirmatory scale"
+    },
+    "s00": {
+      "wins": 7,
+      "losses": 7,
+      "truncations": 6,
+      "winRateAllMatches": 0.35,
+      "winRateDecidedOnlyPct": 50
+    },
+    "heuristic": {
+      "wins": 6,
+      "losses": 6,
+      "truncations": 8,
+      "winRateAllMatches": 0.3,
+      "winRateDecidedOnlyPct": 50
+    },
+    "deltaWinRateAllMatches": 0.05,
+    "significance": "NOT_ESTABLISHED",
+    "requiredForQualification": "at least 100 paired root matches with a positive paired-difference interval",
+    "caveat": "Truncations are not draws; W/(W+L) must not be used as the headline rate."
+  },
+  "teacherQualifiedForTraining": false,
+  "verdict": "NOT_QUALIFIED_INSUFFICIENT_EVIDENCE",
+  "labelPolicy": "Keep Heuristic base labels. A search teacher needs V9-04 qualification evidence first."
+}

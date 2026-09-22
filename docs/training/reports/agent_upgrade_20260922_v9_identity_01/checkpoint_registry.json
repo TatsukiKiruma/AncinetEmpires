@@ -1,0 +1,32 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_01",
+  "registryDate": "2026-09-22T00:14:58.476Z",
+  "models": {
+    "spatial_resnet_v2_best": {
+      "path": "training_runs/agent_upgrade_20260922_v9_identity_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 65428,
+      "trainedStates": 7832,
+      "role": "Primary Frozen Experimental Spatial v2"
+    },
+    "spatial_resnet_dagger_best": {
+      "path": "training_runs/agent_upgrade_20260922_v9_identity_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "sha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 65428,
+      "trainedStates": 7893,
+      "role": "DAgger Error-Corrected Control"
+    },
+    "net_a_checkpoint": {
+      "path": "training_runs/agent_upgrade_20260922_v9_identity_01/checkpoints/net_a/net_a_checkpoint.json",
+      "sha256": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+      "architecture": "DualHead [256, 128]",
+      "encoderVersion": "dense",
+      "parametersCount": 135489,
+      "role": "Low-cost DualHead Control"
+    }
+  }
+}

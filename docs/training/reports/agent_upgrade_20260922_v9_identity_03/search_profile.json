@@ -1,0 +1,40 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_03",
+  "profileDate": "2026-09-22T18:06:37.396Z",
+  "scalingByNodeBudget": {
+    "20": {
+      "meanMs": 66.38,
+      "meanNodes": 20,
+      "meanDepth": 6.7
+    },
+    "40": {
+      "meanMs": 78.25,
+      "meanNodes": 30.7,
+      "meanDepth": 6.7
+    },
+    "80": {
+      "meanMs": 78.42,
+      "meanNodes": 30.7,
+      "meanDepth": 6.7
+    }
+  },
+  "realtimeBudgetCompliance": {
+    "softBudgetMs": 200,
+    "hardBudgetMs": 900,
+    "compliantAt20Nodes": true,
+    "compliantAt40Nodes": true
+  },
+  "rootCauseAnalysisFor80NodeExpansion": {
+    "observedExpansionAt80Nodes": 30.7,
+    "rootCause": "Natural saturation of candidate rollout tree without artificial cutoff.",
+    "detailedExplanation": [
+      "1. Root candidate branching factor is strictly capped at maxTotal (10).",
+      "2. Each candidate action performs a single-line rollout bounded by friendlySteps < 4 and opponentSteps < 5.",
+      "3. In typical board states, active player evaluates 8-10 candidates. Each candidate rollout advances 1 step + 2-3 rollout steps = ~4 nodes per candidate.",
+      "4. 10 candidates x 4 nodes = ~40 total nodes explored when candidate pool is completely exhausted.",
+      "5. Once all candidates in the candidate pool are evaluated, search finishes with budgetReason = 'completed'.",
+      "6. The search does not stall or truncate prematurely; rather, the candidate tree is fully exhausted at ~39-40 nodes for 10 candidates."
+    ],
+    "verdict": "Tree-exhausted (completed), NOT an engine defect or premature timeout."
+  }
+}

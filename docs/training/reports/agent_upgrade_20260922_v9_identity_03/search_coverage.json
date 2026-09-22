@@ -1,0 +1,18 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_03",
+  "auditDate": "2026-09-22T18:06:42.195Z",
+  "totalDecisionsSampled": 60,
+  "totalCandidatesEvaluated": 247,
+  "handoverRate": 63.2,
+  "reachedOpponentRate": 63.2,
+  "oppAttackCoveredRate": 13.8,
+  "oppAttackAvailableRateOfReached": 19.2,
+  "oppAttackChosenRateOfReached": 21.8,
+  "breakdown": {
+    "candidatesReachedOpponent": 156,
+    "candidatesWithOpponentAttackAvailable": 30,
+    "candidatesWhereOpponentAttacked": 34,
+    "note": "oppAttackCoveredRate is over ALL evaluated candidates and is bounded by how often the opponent actually has a legal attack at handover. Use the of-reached rates for response quality."
+  },
+  "coverageVerdict": "ACTIVE_COVERAGE"
+}

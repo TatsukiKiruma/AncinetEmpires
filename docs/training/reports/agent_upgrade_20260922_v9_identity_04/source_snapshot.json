@@ -1,0 +1,45 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_04",
+  "createdAt": "2026-09-22T18:48:24.690Z",
+  "purpose": "V9-04 A/B: rerun the 80-match development matrix with the frozen identity_01 weights so that any change is attributable to the new opponent-response model.",
+  "git": {
+    "headCommit": null,
+    "branch": null,
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "trackedModifiedFiles": []
+  },
+  "pinnedSources": {
+    "tools/v7_heuristic_bounded_search.ts": "a6ba86c5a4878d2b17141504988afb7e61491996d8d23db4534f2bff0b8cc8b1",
+    "tools/v7_unified_evaluation.ts": "d83f40c435ae89e599d9b8082edba4fcec69d7b593560bdb5adc7f29000e92d3",
+    "tools/v9_run_reeval_01.ts": "6fdfb9f26398889b4d78f41dbdb23a425a6ca62058049ac998f5ecafc3290378",
+    "tools/v9_benchmark_search.ts": "7502de0c5d260fd81e9165bc6f6e5eb39ba77812e9876643b03c3a00a4b0296d",
+    "tools/v9_search_qualification.test.ts": "7cb56fc2d8961fd2cb68abda7ed451bb6c38bc62f74fb44329b8364de05c6ec6"
+  },
+  "frozenWeights": {
+    "spatial_resnet_v2_best": {
+      "relativePath": "training_runs/agent_upgrade_20260922_v9_identity_04/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "sizeBytes": 1530711,
+      "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92"
+    }
+  },
+  "protocol": {
+    "maps": 5,
+    "seats": 2,
+    "seeds": [
+      42,
+      1337
+    ],
+    "matchesPerArm": 20,
+    "arms": [
+      "HEURISTIC",
+      "SPATIAL_V2",
+      "S00_SEARCH",
+      "S10_SPATIAL_SEARCH"
+    ],
+    "maxTurns": 45,
+    "maxAtomicSteps": 800,
+    "searchMaxNodes": 20,
+    "searchBudgetSoftMs": 200,
+    "searchBudgetHardMs": 900
+  }
+}

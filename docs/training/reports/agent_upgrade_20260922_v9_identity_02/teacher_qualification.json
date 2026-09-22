@@ -1,0 +1,24 @@
+{
+  "runId": "agent_upgrade_20260922_v9_identity_02",
+  "evaluationDate": "2026-09-22T01:25:25.920Z",
+  "teacherRole": "S00_BOUNDED_SEARCH",
+  "baselineCompetitor": "HEURISTIC_AI",
+  "tacticalScenariosEvaluated": 2,
+  "tacticalScenariosPassed": 2,
+  "teacherQualifiedForTraining": true,
+  "scenarioBreakdown": [
+    {
+      "scenario": "Lethal Strike on Commander",
+      "chosenAction": "attack:apk_u1:apk_u0",
+      "score": 100000,
+      "pass": true
+    },
+    {
+      "scenario": "Avoid Suicidal Walk into Enemy Range",
+      "chosenAction": "move:apk_u1:3,2",
+      "score": -307,
+      "pass": true
+    }
+  ],
+  "verdict": "QUALIFIED_TEACHER"
+}
