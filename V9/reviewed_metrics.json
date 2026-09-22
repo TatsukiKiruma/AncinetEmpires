@@ -1,0 +1,127 @@
+{
+  "notice": "人工从固定提交仓库报告整理，不是本次独立复跑，不是原始comparison.json副本。",
+  "reviewCommit": "e95b65366186dc55482d5db77346936aaf255ae6",
+  "sources": [
+    "E08",
+    "E09",
+    "E10",
+    "E11"
+  ],
+  "latestReevaluation": {
+    "runId": "agent_upgrade_20260922_v8_reeval_02",
+    "checkpointSourceRunId": "agent_upgrade_20260921_v7_01",
+    "protocol": {
+      "maps": 5,
+      "seats": 2,
+      "seeds": [
+        42,
+        1337
+      ],
+      "maxTurns": 45,
+      "maxAtomicSteps": 800,
+      "searchMaxNodes": 20,
+      "searchSoftMs": 200,
+      "searchHardMs": 900,
+      "deterministicReplay": false
+    },
+    "results": [
+      {
+        "policy": "HEURISTIC",
+        "matches": 20,
+        "wins": 6,
+        "losses": 6,
+        "naturalDraws": 0,
+        "truncations": 8,
+        "winsPerAllMatches": 0.3,
+        "winsPerResolvedWinLoss": 0.5,
+        "maxDecisionMs": 649.5
+      },
+      {
+        "policy": "SPATIAL_V2",
+        "matches": 20,
+        "wins": 0,
+        "losses": 15,
+        "naturalDraws": 0,
+        "truncations": 5,
+        "winsPerAllMatches": 0.0,
+        "winsPerResolvedWinLoss": 0.0,
+        "maxDecisionMs": 38
+      },
+      {
+        "policy": "SPATIAL_DAGGER",
+        "matches": 20,
+        "wins": 0,
+        "losses": 17,
+        "naturalDraws": 0,
+        "truncations": 3,
+        "winsPerAllMatches": 0.0,
+        "winsPerResolvedWinLoss": 0.0,
+        "maxDecisionMs": 34.9
+      },
+      {
+        "policy": "NET_A",
+        "matches": 20,
+        "wins": 0,
+        "losses": 20,
+        "naturalDraws": 0,
+        "truncations": 0,
+        "winsPerAllMatches": 0.0,
+        "winsPerResolvedWinLoss": 0.0,
+        "maxDecisionMs": 5.1
+      },
+      {
+        "policy": "S00_SEARCH",
+        "matches": 20,
+        "wins": 5,
+        "losses": 7,
+        "naturalDraws": 0,
+        "truncations": 8,
+        "winsPerAllMatches": 0.25,
+        "winsPerResolvedWinLoss": 0.4166666666666667,
+        "maxDecisionMs": 416.3
+      },
+      {
+        "policy": "S10_SPATIAL_SEARCH",
+        "matches": 20,
+        "wins": 3,
+        "losses": 11,
+        "naturalDraws": 0,
+        "truncations": 6,
+        "winsPerAllMatches": 0.15,
+        "winsPerResolvedWinLoss": 0.21428571428571427,
+        "maxDecisionMs": 410.2
+      }
+    ],
+    "reportedEngineErrors": 0,
+    "reportedModelLoadErrors": 0,
+    "reportedNotRun": 0,
+    "reportedDecisionsOver1000ms": 0
+  },
+  "largerTrainingRun": {
+    "runId": "agent_upgrade_20260921_v8_final_01",
+    "totalUniqueStates": 7832,
+    "generalStates": 7000,
+    "curriculumStates": 832,
+    "train": 6528,
+    "validation": 1304,
+    "rootFamilies": 93,
+    "generalRootFamiliesCountedFromManifest": 19,
+    "duplicateStatesFiltered": 11216,
+    "curriculum": {
+      "A": 280,
+      "B": 42,
+      "C": 140,
+      "D": 84,
+      "E": 126,
+      "F": 80,
+      "G": 80
+    },
+    "baseCheckpointSha256Reported": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+    "daggerCheckpointSha256Reported": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+    "daggerNewTrainRows": 61,
+    "daggerTrainingRows": 6589,
+    "valueObjective": "policy-only; valueTarget=null; value weight=0",
+    "scale30000": "NOT_RUN_OR_BLOCKED_AS_REPORTED"
+  },
+  "provenanceCaveat": "报告中的训练/权重SHA未在本次下载原始权重重算；正式agent须先核对实际文件。"
+}

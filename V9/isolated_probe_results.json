@@ -1,0 +1,165 @@
+{
+  "reviewCommit": "e95b65366186dc55482d5db77346936aaf255ae6",
+  "generatedAt": "2026-09-21T23:57:09.517Z",
+  "node": "v22.18.0",
+  "scope": "SOURCE_DERIVED_ISOLATED_PROBES_NOT_REPOSITORY_INTEGRATION_TESTS",
+  "checkpointsLoaded": 0,
+  "gameMatchesPlayed": 0,
+  "repositoryTestSuitesExecuted": 0,
+  "allAssertionsPassed": true,
+  "probeCount": 4,
+  "results": [
+    {
+      "id": "P1_V1_RECRUIT_INPUT_COLLISION",
+      "status": "EXPOSED_BY_SOURCE_PROJECTION",
+      "sourcePaths": [
+        "src/game/ai/spatial_tensor_encoder.ts",
+        "src/game/ai/spatial_conv_net.ts"
+      ],
+      "v1IdenticalInputs": true,
+      "v2InputsDiffer": true,
+      "conclusion": "同状态同坐标的不同兵种招募，在v1策略输入上完全相同；确定性网络无法将它们打出不同分数。",
+      "limitation": "只验证输入投影；没有加载实际checkpoint或执行游戏。"
+    },
+    {
+      "id": "P2_MAP_GOLD_CONFOUNDING",
+      "status": "EXPOSED_BY_EXACT_FORMULA",
+      "sourcePaths": [
+        "tools/v7_training_pipeline.ts"
+      ],
+      "episodesChecked": 800,
+      "mapGoldPairs": [
+        {
+          "map": "Duel",
+          "offsetPairs": [
+            [
+              200,
+              0
+            ]
+          ]
+        },
+        {
+          "map": "Crossed Swords",
+          "offsetPairs": [
+            [
+              50,
+              50
+            ]
+          ]
+        },
+        {
+          "map": "Icy Paths",
+          "offsetPairs": [
+            [
+              400,
+              100
+            ]
+          ]
+        },
+        {
+          "map": "Liberty Port",
+          "offsetPairs": [
+            [
+              150,
+              150
+            ]
+          ]
+        },
+        {
+          "map": "Mourningstar",
+          "offsetPairs": [
+            [
+              0,
+              200
+            ]
+          ]
+        },
+        {
+          "map": "Peak Island",
+          "offsetPairs": [
+            [
+              300,
+              300
+            ]
+          ]
+        },
+        {
+          "map": "The Crossing",
+          "offsetPairs": [
+            [
+              100,
+              400
+            ]
+          ]
+        },
+        {
+          "map": "Demo Map",
+          "offsetPairs": [
+            [
+              -50,
+              -50
+            ]
+          ]
+        }
+      ],
+      "conclusion": "同一地图的双方金币偏移量固定，不是独立采样；增加episode数量不会消除这个绑定。",
+      "limitation": "检查偏移公式，不推断所有状态相同，也不统计真实轨迹覆盖。"
+    },
+    {
+      "id": "P3_COMMANDER_RESERVE_HASH_OMISSION",
+      "status": "EXPOSED_BY_SOURCE_PROJECTION",
+      "sourcePaths": [
+        "tools/v7_training_pipeline.ts",
+        "src/game/ai/spatial_tensor_encoder.ts"
+      ],
+      "playerA": {
+        "id": 0,
+        "gold": 700,
+        "commanderDeathCount": 1,
+        "isAlive": true,
+        "commanderReserveLevel": 0,
+        "commanderReserveExp": 0
+      },
+      "playerB": {
+        "id": 0,
+        "gold": 700,
+        "commanderDeathCount": 1,
+        "isAlive": true,
+        "commanderReserveLevel": 2,
+        "commanderReserveExp": 75
+      },
+      "identicalPlayerHashComponent": true,
+      "conclusion": "仅改变commanderReserveLevel/commanderReserveExp不会改变当前玩家哈希片段；其他状态相同时完整哈希也不变。",
+      "limitation": "实际数据中因此合并了多少状态尚未测量；应由真实模块回归测试和数据重审确认。"
+    },
+    {
+      "id": "P4_HEURISTIC_FILL_QUOTA_STARVATION",
+      "status": "EXPOSED_BY_INSERTION_ORDER",
+      "sourcePaths": [
+        "tools/v7_heuristic_bounded_search.ts"
+      ],
+      "distinctCandidateExample": [
+        "heuristic_best",
+        "tactical_0",
+        "tactical_1",
+        "tactical_2",
+        "tactical_3",
+        "spatial_0",
+        "spatial_1",
+        "spatial_2",
+        "spatial_3",
+        "spatial_4"
+      ],
+      "tacticalAdded": 4,
+      "spatialAdded": 5,
+      "heuristicFillAdded": 0,
+      "conclusion": "启发式第一名保留并不等于启发式配额全部保留；默认插入顺序允许其他启发式候选被挤掉。",
+      "limitation": "该构造证明可能性，不证明已评测155个状态中的真实发生频率，更不证明先验导致输棋。"
+    }
+  ],
+  "derivedArithmetic": {
+    "daggerNewTrainRows": 61,
+    "baseTrainRows": 6528,
+    "fractionNewRowsInDaggerTraining": 0.009257853999089391
+  }
+}
