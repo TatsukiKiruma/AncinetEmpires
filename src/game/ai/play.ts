@@ -54,15 +54,23 @@ export async function playAutoGame(
 
         const cp = engine.getState().currentPlayer;
         const policy = policies[cp] ?? 'heuristic';
+        const currentTurn = engine.getState().turn;
+        const currentVersion = `${currentTurn}_${cp}_${stepCount}`;
         const aiResult = await runCancellableAiAction({
             policy,
             engine,
             playerId: cp,
             deadlineMs,
-            signal
+            signal,
+            stateVersion: currentVersion,
+            getCurrentStateVersion: () => `${engine.getState().turn}_${engine.getState().currentPlayer}_${stepCount}`
         });
-        const action = aiResult.action;
+        if (aiResult.status === 'CANCELLED' || aiResult.status === 'STALE') {
+            logs.push(`Step ${stepCount}: AI decision was ${aiResult.status} (${aiResult.fallbackReason ?? 'aborted'}). Not applying action.`);
+            break;
+        }
 
+        const action = aiResult.action;
         const result = engine.step(action);
 
         const nodeInfo = aiResult.nodesExpanded !== undefined ? `, 节点: ${aiResult.nodesExpanded}` : '';

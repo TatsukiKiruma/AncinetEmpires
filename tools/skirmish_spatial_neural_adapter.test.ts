@@ -24,7 +24,7 @@ describe('Spatial Neural AI Adapter (Path B)', () => {
         expect(result.e2eMs).toBeDefined();
         expect(result.e2eMs).toBeLessThan(1000);
         expect(result.deadlineMiss).toBe(false);
-        expect(result.source).toContain('Spatial ResNet v1');
+        expect(result.source).toContain('Spatial ResNet');
     });
 
     it('连续对局 15 步：Spatial AI 决策稳定，无非法动作，无死循环', () => {

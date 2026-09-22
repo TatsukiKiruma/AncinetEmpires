@@ -284,7 +284,7 @@ export function createInitializedSpatialResNet(
  */
 export class SpatialResNetPredictor {
     private weights: SpatialResNetWeights;
-    private isV2: boolean;
+    public readonly isV2: boolean;
 
     // 预分配复用张量缓冲区，彻底杜绝每次推理的 GC 内存分配
     private bufStem: Float32Array;

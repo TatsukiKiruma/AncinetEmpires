@@ -11,7 +11,8 @@ import {
   createAppApkSkirmishGameState,
   getAppApkSkirmishMapOptions
 } from './game/apk_skirmish_map_assets';
-import { getAiAction, type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
+import { runCancellableAiAction } from './game/ai/cancellable_ai_runner';
+import { type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
 
 const unitNameMap: Record<string, string> = {
   soldier: '兵',
@@ -186,12 +187,40 @@ export default function App() {
     setAutoLogs(prev => [...prev, "[INFO] 自动对局状态已重置"]);
   };
 
-  const handleAiStepSandbox = (policy: SupportedAiPolicy) => {
-    const engine = new GameEngine(sandboxGameState);
-    const cp = sandboxGameState.currentPlayer;
-    const res = getAiAction(policy, engine, cp);
-    const stepRes = engine.step(res.action);
-    setSandboxGameState(engine.getState());
+  const sandboxGameStateRef = useRef<GameState>(sandboxGameState);
+  useEffect(() => {
+    sandboxGameStateRef.current = sandboxGameState;
+  }, [sandboxGameState]);
+
+  const handleAiStepSandbox = async (policy: SupportedAiPolicy) => {
+    const currentState = sandboxGameStateRef.current;
+    const engine = new GameEngine(currentState);
+    const cp = currentState.currentPlayer;
+    const requestVersion = `${currentState.turn}_${cp}`;
+
+    const res = await runCancellableAiAction({
+      policy,
+      engine,
+      playerId: cp,
+      stateVersion: requestVersion,
+      getCurrentStateVersion: () => `${sandboxGameStateRef.current.turn}_${sandboxGameStateRef.current.currentPlayer}`,
+      allowInteractiveFallback: true
+    });
+    setLastAiMeta(res);
+    if (res.status === 'CANCELLED' || res.status === 'STALE') {
+      setSandboxLogs(prev => [...prev, `[AI 提示] P${cp} 决策状态为 ${res.status} (${res.fallbackReason ?? ''})，未执行落子`]);
+      return;
+    }
+
+    // Double check that current state hasn't been changed by user reset/switch while AI thought
+    if (sandboxGameStateRef.current.turn !== currentState.turn || sandboxGameStateRef.current.currentPlayer !== cp) {
+      setSandboxLogs(prev => [...prev, `[AI 提示] 游戏状态已在决策期间发生变更，已安全丢弃过期落子`]);
+      return;
+    }
+
+    const currentEngine = new GameEngine(sandboxGameStateRef.current);
+    const stepRes = currentEngine.step(res.action);
+    setSandboxGameState(currentEngine.getState());
     resetSandboxSelections();
     const nodeInfo = res.nodesExpanded !== undefined ? ` (展开节点: ${res.nodesExpanded})` : '';
     setSandboxLogs(prev => [...prev, `[AI 行动] P${cp} [${res.source}] 执行 ${res.action.type} 耗时: ${res.latencyMs}ms${nodeInfo} - ${stepRes.info}`]);
@@ -537,8 +566,12 @@ export default function App() {
                         disabled={autoIsRunning}
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-red-500"
                     >
-                        <option value="heuristic">Heuristic AI (原生启发式)</option>
-                        <option value="spatial_resnet_v1">Spatial ResNet v1 (空间残差卷积)</option>
+                        <option value="heuristic">Heuristic AI (原生启发式 - 默认)</option>
+                        <option value="spatial_v2_experimental">⚡ [实验] Spatial ResNet v2 (7.8k 基础模型)</option>
+                        <option value="spatial_dagger_experimental">⚡ [实验] Spatial DAgger v2 (纠错模型)</option>
+                        <option value="s10_spatial_search">⚡ [实验] S10 Spatial Search (先验引导搜索)</option>
+                        <option value="s00_search">⚡ [实验] S00 Bounded Search (启发式搜索)</option>
+                        <option value="spatial_resnet_v1">Spatial ResNet v1 (历史内置 24维语义)</option>
                         <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
                         <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
                         <option value="random">Random AI (随机)</option>
@@ -553,16 +586,39 @@ export default function App() {
                         disabled={autoIsRunning}
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
                     >
-                        <option value="heuristic">Heuristic AI (原生启发式)</option>
-                        <option value="spatial_resnet_v1">Spatial ResNet v1 (空间残差卷积)</option>
+                        <option value="heuristic">Heuristic AI (原生启发式 - 默认)</option>
+                        <option value="spatial_v2_experimental">⚡ [实验] Spatial ResNet v2 (7.8k 基础模型)</option>
+                        <option value="spatial_dagger_experimental">⚡ [实验] Spatial DAgger v2 (纠错模型)</option>
+                        <option value="s10_spatial_search">⚡ [实验] S10 Spatial Search (先验引导搜索)</option>
+                        <option value="s00_search">⚡ [实验] S00 Bounded Search (启发式搜索)</option>
+                        <option value="spatial_resnet_v1">Spatial ResNet v1 (历史内置 24维语义)</option>
                         <option value="net_b_s10">NET_B S10 (战术搜索先验)</option>
                         <option value="net_b_1ply">NET_B 1-ply (纯策略网络)</option>
                         <option value="random">Random AI (随机)</option>
                     </select>
                 </div>
                 {lastAiMeta && (
-                    <div className="w-full text-center text-[10px] text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 py-1 rounded">
-                        最近决策: {lastAiMeta.source} (耗时: {lastAiMeta.latencyMs}ms{lastAiMeta.nodesExpanded ? `, 展开节点: ${lastAiMeta.nodesExpanded}` : ''})
+                    <div className="w-full text-left text-[11px] bg-[#141820] border border-[#2A374A] p-2 rounded flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-cyan-300">
+                            <span className="font-bold">决策来源: {lastAiMeta.source}</span>
+                            <span className="text-zinc-400">耗时: {lastAiMeta.latencyMs}ms{lastAiMeta.nodesExpanded ? ` | 展开: ${lastAiMeta.nodesExpanded}节点` : ''}</span>
+                        </div>
+                        <div className="text-[10px] text-zinc-400 flex flex-wrap gap-x-3 gap-y-0.5">
+                            <span>请求策略: <strong className="text-zinc-200">{lastAiMeta.requestedPolicy ?? '-'}</strong></span>
+                            <span>实际策略: <strong className={lastAiMeta.fallbackUsed ? "text-amber-400" : "text-emerald-400"}>{lastAiMeta.actualPolicy ?? '-'}</strong></span>
+                            {lastAiMeta.encoderVersion && <span>编码器: <strong className="text-zinc-200">{lastAiMeta.encoderVersion}</strong></span>}
+                            {lastAiMeta.status && <span>状态: <strong className={lastAiMeta.status === 'OK' ? "text-emerald-400" : "text-red-400"}>{lastAiMeta.status}</strong></span>}
+                        </div>
+                        {lastAiMeta.checkpointSha256 && (
+                            <div className="text-[9px] text-zinc-500 font-mono break-all" title={lastAiMeta.checkpointSha256}>
+                                Checkpoint SHA: {lastAiMeta.checkpointSha256}
+                            </div>
+                        )}
+                        {lastAiMeta.fallbackUsed && (
+                            <div className="text-[10px] text-amber-400 bg-amber-950/30 px-1 py-0.5 rounded">
+                                降级原因: {lastAiMeta.fallbackReason ?? '未知原因'}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -829,6 +885,13 @@ export default function App() {
                 className="px-5 py-2 bg-[#253225] border border-green-600 hover:border-green-400 text-green-400 text-xs font-bold uppercase transition-all rounded shadow"
               >
                 ⏩ 结束当前方回合 (End Turn)
+              </button>
+              <button 
+                onClick={() => handleAiStepSandbox('spatial_v2_experimental')}
+                className="px-4 py-2 bg-[#2D1B36] border border-fuchsia-700 hover:border-fuchsia-400 text-fuchsia-300 text-xs font-bold transition-all rounded shadow"
+                title="调用 实验性 Spatial ResNet v2 (7.8k模型) 进行当前玩家单步决策"
+              >
+                ⚡ Spatial v2 走一步
               </button>
               <button 
                 onClick={() => handleAiStepSandbox('net_b_s10')}
