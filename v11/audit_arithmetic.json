@@ -1,0 +1,132 @@
+{
+  "type": "recomputed_arithmetic_not_game_experiments",
+  "source_commit": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "inputs_from": [
+    "v10/fix_01/TASKS_1_5_RESULTS.md",
+    "v10/fix_01/dagger_controlled_report.json"
+  ],
+  "match_statistics": [
+    {
+      "experiment": "T10-01 old pure",
+      "n": 40,
+      "w": 5,
+      "l": 29,
+      "d": 0,
+      "truncated": 6,
+      "w_over_n": 0.125,
+      "natural_only_win_rate": 0.14705882352941177,
+      "truncation_rate": 0.15
+    },
+    {
+      "experiment": "T10-01 new pure",
+      "n": 40,
+      "w": 0,
+      "l": 33,
+      "d": 0,
+      "truncated": 7,
+      "w_over_n": 0.0,
+      "natural_only_win_rate": 0.0,
+      "truncation_rate": 0.175
+    },
+    {
+      "experiment": "T10-01 S00",
+      "n": 22,
+      "w": 7,
+      "l": 6,
+      "d": 0,
+      "truncated": 9,
+      "w_over_n": 0.3181818181818182,
+      "natural_only_win_rate": 0.5384615384615384,
+      "truncation_rate": 0.4090909090909091
+    },
+    {
+      "experiment": "T10-01 S10",
+      "n": 20,
+      "w": 5,
+      "l": 4,
+      "d": 0,
+      "truncated": 11,
+      "w_over_n": 0.25,
+      "natural_only_win_rate": 0.5555555555555556,
+      "truncation_rate": 0.55
+    },
+    {
+      "experiment": "T10-04 S00",
+      "n": 26,
+      "w": 4,
+      "l": 10,
+      "d": 0,
+      "truncated": 12,
+      "w_over_n": 0.15384615384615385,
+      "natural_only_win_rate": 0.2857142857142857,
+      "truncation_rate": 0.46153846153846156
+    },
+    {
+      "experiment": "T10-04 turn aware",
+      "n": 40,
+      "w": 0,
+      "l": 29,
+      "d": 0,
+      "truncated": 11,
+      "w_over_n": 0.0,
+      "natural_only_win_rate": 0.0,
+      "truncation_rate": 0.275
+    },
+    {
+      "experiment": "T10-03 A",
+      "n": 20,
+      "w": 0,
+      "l": 17,
+      "d": 0,
+      "truncated": 3,
+      "w_over_n": 0.0,
+      "natural_only_win_rate": 0.0,
+      "truncation_rate": 0.15
+    },
+    {
+      "experiment": "T10-03 B",
+      "n": 20,
+      "w": 0,
+      "l": 16,
+      "d": 0,
+      "truncated": 4,
+      "w_over_n": 0.0,
+      "natural_only_win_rate": 0.0,
+      "truncation_rate": 0.2
+    },
+    {
+      "experiment": "T10-03 C",
+      "n": 20,
+      "w": 0,
+      "l": 20,
+      "d": 0,
+      "truncated": 0,
+      "w_over_n": 0.0,
+      "natural_only_win_rate": 0.0,
+      "truncation_rate": 0.0
+    }
+  ],
+  "dagger_budget": {
+    "batch_size": 128,
+    "optimizer_update_limit": 87,
+    "max_example_exposures_one_epoch": 11136,
+    "planned_train_rows": 14991,
+    "minimum_unseen_train_rows_if_limit_used": 3855,
+    "new_rows": 3980,
+    "expected_new_rows_under_uniform_shuffle_without_replacement": 2956.5259155493295,
+    "note": "Expectation is mathematical, not measured. The pretraining manifest cannot establish actual optimized sample IDs. It is not logically impossible for all 3980 new rows to be selected, but this is not proven by the manifest."
+  },
+  "value_scale": {
+    "assumption": "default code weight 0.5, scalar V in [-1,1]",
+    "max_per_leaf_addition_magnitude": 0.5,
+    "max_pairwise_score_difference_change": 1.0,
+    "note": "Applies to default weight only; does not measure actual intervention count."
+  },
+  "not_executed": [
+    "repository test suite",
+    "model training",
+    "new matches",
+    "raw-dataset-wide audit",
+    "browser tests"
+  ]
+}

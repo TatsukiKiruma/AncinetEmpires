@@ -1,0 +1,160 @@
+{
+  "schema": "v11_candidate_coverage_1",
+  "generatedAt": "2026-09-23T09:13:21.835Z",
+  "engine": "TurnAwareSearchEngine (priorMode=off, no network)",
+  "positions": [
+    {
+      "label": "opening_duel",
+      "mapName": "(2) Duel.aem",
+      "turn": 1,
+      "currentPlayer": 0,
+      "legalActionCount": 26,
+      "rootCandidateCount": 27,
+      "distinctActionTypesCovered": [
+        "capture",
+        "end_turn",
+        "move",
+        "recruit_to_castle",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 17
+    },
+    {
+      "label": "episode_s42_step34",
+      "mapName": "(2) Duel.aem",
+      "turn": 3,
+      "currentPlayer": 0,
+      "legalActionCount": 21,
+      "rootCandidateCount": 28,
+      "distinctActionTypesCovered": [
+        "attack",
+        "end_turn",
+        "move",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 19
+    },
+    {
+      "label": "episode_s42_step69",
+      "mapName": "(2) Duel.aem",
+      "turn": 4,
+      "currentPlayer": 1,
+      "legalActionCount": 2,
+      "rootCandidateCount": 2,
+      "distinctActionTypesCovered": [
+        "end_turn",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 0
+    },
+    {
+      "label": "episode_s42_step103",
+      "mapName": "(2) Duel.aem",
+      "turn": 6,
+      "currentPlayer": 1,
+      "legalActionCount": 12,
+      "rootCandidateCount": 12,
+      "distinctActionTypesCovered": [
+        "attack",
+        "end_turn",
+        "recruit_to_castle",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 0
+    },
+    {
+      "label": "episode_s1337_step51",
+      "mapName": "(2) Duel.aem",
+      "turn": 4,
+      "currentPlayer": 0,
+      "legalActionCount": 31,
+      "rootCandidateCount": 41,
+      "distinctActionTypesCovered": [
+        "attack",
+        "capture",
+        "end_turn",
+        "move",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 25
+    },
+    {
+      "label": "episode_s1337_step103",
+      "mapName": "(2) Duel.aem",
+      "turn": 6,
+      "currentPlayer": 1,
+      "legalActionCount": 65,
+      "rootCandidateCount": 66,
+      "distinctActionTypesCovered": [
+        "attack",
+        "end_turn",
+        "move",
+        "recruit_to_castle",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 47
+    },
+    {
+      "label": "episode_s1337_step154",
+      "mapName": "(2) Duel.aem",
+      "turn": 9,
+      "currentPlayer": 1,
+      "legalActionCount": 79,
+      "rootCandidateCount": 79,
+      "distinctActionTypesCovered": [
+        "end_turn",
+        "move",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": null,
+      "totalTransitionsForGeneration": 68
+    },
+    {
+      "label": "constructed_immediate_win",
+      "mapName": "(2) Duel.aem",
+      "turn": 1,
+      "currentPlayer": 0,
+      "legalActionCount": 24,
+      "rootCandidateCount": 28,
+      "distinctActionTypesCovered": [
+        "attack",
+        "capture",
+        "end_turn",
+        "move",
+        "recruit_to_castle",
+        "wait"
+      ],
+      "missingLegalActionTypes": [],
+      "heuristicBaselinePresent": true,
+      "immediateWinPresent": true,
+      "totalTransitionsForGeneration": 14
+    }
+  ],
+  "summary": {
+    "positionsChecked": 8,
+    "positionsWithMissingTypes": 0,
+    "baselineAlwaysPresent": true,
+    "immediateWinPositions": 1,
+    "immediateWinAlwaysPresent": true
+  }
+}

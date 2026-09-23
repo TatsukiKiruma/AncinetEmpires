@@ -1,0 +1,68 @@
+{
+  "schema": "v11_self_audit_1",
+  "generatedAt": "2026-09-23T22:35:00Z",
+  "runId": "agent_upgrade_v11_b2_main",
+  "_provenance": "Written by hand during V11 batch 2 after the arm comparison exposed a defect in the V11 code itself. Supersedes nothing; it is a new finding.",
+  "headline": "The first arm comparison was confounded by a defect in the V11 planner that is the SAME class of bug as the V10 defect F06 (an unseeded HeuristicAI random stream). It was found, fixed, and verified before any strength number was reported.",
+  "defectsFound": [
+    {
+      "id": "V11-D01",
+      "severity": "P0",
+      "title": "V11 反事实比较使用了未播种的 HeuristicAI 随机流",
+      "symptom": "两个在配置上完全相同的对照臂产出了不同的对局结果：planner 0W/2L，planner_zeroed 2W/2L，engineTransitions 分别为 29867 与 21004。",
+      "rootCause": "HeuristicAI 的构造函数在未传入 rng 时回退到 Math.random（src/game/ai/heuristic_ai.ts:17），而它的动作评分在这一步加了 this.rng() * 20 的随机 tie-breaker。tools/v11/counterfactual.ts 构造基准动作与评估候选时都调用 new HeuristicAI()，因此同一决策点的评分在两次运行之间会不同 - 足以翻转基准动作，进而让整局棋分岔。",
+      "whyThisMatters": "这正是 V10 的 F06：当时 DAgger 计算了 seed 却没有传给 HeuristicAI。同一个错误在 V11 的新代码里被重犯了一次，说明光靠'书面上修好 F06'不够，必须让所有构造 HeuristicAI 的地方都显式给出固定流。",
+      "detection": "通过观察两个本应逐决策相同的对照臂出现 engineTransitions 差异而发现。ablation 的 controlCheck 正是为此设置的，它按预期报了 mismatch，从而阻止了把 100% vs 0% 这种噪声当成结论。",
+      "fix": [
+        "tools/v11/counterfactual.ts：新增 fixedRng(seed) 与 seedFromHash(stateHash, salt)；buildCandidates 的基准动作用固定流；evaluateCandidate 的续局流按 (seed ^ candidateIndex) 播种。",
+        "tools/v11/residual_policy.ts：decisionSeed 由 (state, playerId) 的状态哈希导出，既用于 stage-1 基准动作，也作为 compareOptions.continuationSeed 传入比较，使一个决策点的全部评分共享同一确定性随机流。"
+      ],
+      "verification": "同一 arm 连跑两次得到完全一致的结果（status=LOSS decisions=40 transitions=3164 steps=127 turns=8），IDENTICAL=true。修复前同样两次会分岔。",
+      "status": "FIXED",
+      "affects": [
+        "counterfactual_labels.jsonl（第一批标签在播种修复之前生成，候选评分受 Math.random 影响）",
+        "residual_ranker_curves.json（同上）",
+        "任何在修复前跑出的臂对照结果"
+      ]
+    },
+    {
+      "id": "V11-D02",
+      "severity": "P0",
+      "title": "无网络的同预算对照臂被短路，退化成 Heuristic 的副本",
+      "symptom": "planner 臂的 decisions=0、engineTransitions=0，而它本应与其他规划器臂跑同样的候选比较。",
+      "rootCause": "ablation.ts 把 planner 臂的 weights 设为 null，而 chooseAction 在 weights 为 null 时直接短路返回基准动作、不做任何比较。于是 planner 与 heuristic 在行为上完全相同，'同预算但无学习模块'这个对照实际缺失。",
+      "whyThisMatters": "任务书要求三个必要对照之一是'保留基准的规划器、不带学习模块'。短路后这个对照不再存在，学习模块的增益就无法与'单纯多算了几步'区分。",
+      "fix": [
+        "ablation.ts：planner 臂改用 zeroedRanker，使比较机制真正运行；planner 与 planner_zeroed 现在是有意重复的两个标签，用于证明相等性而不是假设相等。",
+        "controlCheck 从只比较 (status, overrides) 加强为同时比较 (status, overrides, engineTransitions, decisionsMade, steps)，这样行为不同但结局相同的臂也会被抓住。",
+        "新增 behaviourDistinct 字段：plannerRunsComparison / zeroedRunsComparison / plannerDiffersFromHeuristic，防止一个被短路的臂躲在结局平局后面。"
+      ],
+      "verification": "修复后 behaviourDistinct 显示两个规划器臂都真正运行了比较（transitions > 0）。",
+      "status": "FIXED"
+    },
+    {
+      "id": "V11-D03",
+      "severity": "P1",
+      "title": "残差规划器每决策重复评估候选集两次",
+      "symptom": "单决策耗时随预算线性增长到 17 秒以上，臂对照的运行时间按局长的平方增长。",
+      "rootCause": "chooseAction 先调用一次 compareDecision 给排序器提案打分，为确认边际又调用第二次。两次比较的是同一个候选集。",
+      "fix": "改为每决策只比较一次：排序器训练所用的反事实价值，就是决定边际所用的同一批价值。",
+      "verification": "每次决策的引擎 transition 数减半；剩余成本是引擎仿真本身（约 30ms/transition），这部分在没有更便宜参考策略的前提下不可压缩。",
+      "status": "FIXED"
+    }
+  ],
+  "whatThisMeansForTheResult": {
+    "honestPosition": "本批的臂对照结果不足以支撑任何棋力结论，原因有三层，必须同时说明：(1) 标签功效不足（40 个比较决策点仅 8 个有区分度，留出集只有 1 个）；(2) 第一轮臂对照被 V11-D01 污染；(3) 修复后重跑的对局数量仍然极少。",
+    "whatISestablished": [
+      "反事实比较管线在强制可比性上是正确的：同初态、同续局策略、同随机流、同预算、基准必在候选集内。",
+      "干预机制可用：修复后的对照臂验证通过，学习模块只在有正边际证据时覆盖基准动作。",
+      "确定性已经建立：同一 arm 重跑逐位一致，这是任何配对比较的前提。",
+      "采集的 32 局数据全部可严格复核（19452 步，1954 次 hash 校验）。"
+    ],
+    "whatIsNOTestablished": [
+      "学习模块是否带来棋力增益 - 无有效结论。",
+      "任何臂之间的胜率差异 - 无有效结论。"
+    ]
+  },
+  "processObservation": "V10 的 F06 在新代码里被重犯，说明缺陷清单本身不足以防止复发；需要的是'每个随机构造点都必须显式播种'这类可执行的强制机制，以及像 controlCheck 这样会自动报错的对照断言。本轮 controlCheck 按设计阻止了一次错误结论。"
+}

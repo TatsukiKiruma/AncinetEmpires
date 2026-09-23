@@ -1,0 +1,91 @@
+{
+  "schema": "v11_search_transition_profile_1",
+  "generatedAt": "2026-09-23T09:13:21.835Z",
+  "context": {
+    "note": "Measured on the same opening position at four budgets, priorMode=off. These are engine transitions, not wall-clock promises; the product 1-second target is not a claim about this table.",
+    "fixedBeforeV11": [
+      "candidate generation cloned and stepped every move without counting (F04.1)",
+      "wallClockExceeded was written as literal false (F04.6)",
+      "an exhausted budget returned the first array entry, unscored (T11-02 acceptance)"
+    ]
+  },
+  "runs": [
+    {
+      "label": "opening_duel_max32",
+      "budget": 32,
+      "totalTransitions": 43,
+      "candidateGenerationTransitions": 17,
+      "friendlyRolloutTransitions": 26,
+      "opponentProbeTransitions": 0,
+      "macroCandidatesEvaluated": 0,
+      "elapsedMs": 26.9,
+      "totalMs": 26.9,
+      "wallClockExceeded": false,
+      "budgetReason": "transition_limit",
+      "budgetExhausted": true,
+      "chosenActionVerified": true,
+      "chosenFromGuaranteedSet": true,
+      "droppedCandidateCount": 26,
+      "ledgerConsistent": true
+    },
+    {
+      "label": "opening_duel_max64",
+      "budget": 64,
+      "totalTransitions": 64,
+      "candidateGenerationTransitions": 17,
+      "friendlyRolloutTransitions": 35,
+      "opponentProbeTransitions": 12,
+      "macroCandidatesEvaluated": 2,
+      "elapsedMs": 59.1,
+      "totalMs": 59.1,
+      "wallClockExceeded": false,
+      "budgetReason": "transition_limit",
+      "budgetExhausted": true,
+      "chosenActionVerified": true,
+      "chosenFromGuaranteedSet": false,
+      "droppedCandidateCount": 24,
+      "ledgerConsistent": true
+    },
+    {
+      "label": "opening_duel_max128",
+      "budget": 128,
+      "totalTransitions": 128,
+      "candidateGenerationTransitions": 17,
+      "friendlyRolloutTransitions": 56,
+      "opponentProbeTransitions": 55,
+      "macroCandidatesEvaluated": 6,
+      "elapsedMs": 149.3,
+      "totalMs": 149.3,
+      "wallClockExceeded": false,
+      "budgetReason": "transition_limit",
+      "budgetExhausted": true,
+      "chosenActionVerified": true,
+      "chosenFromGuaranteedSet": false,
+      "droppedCandidateCount": 20,
+      "ledgerConsistent": true
+    },
+    {
+      "label": "opening_duel_max256",
+      "budget": 256,
+      "totalTransitions": 125,
+      "candidateGenerationTransitions": 17,
+      "friendlyRolloutTransitions": 53,
+      "opponentProbeTransitions": 55,
+      "macroCandidatesEvaluated": 5,
+      "elapsedMs": 203.3,
+      "totalMs": 203.3,
+      "wallClockExceeded": false,
+      "budgetReason": "wall_clock_timeout",
+      "budgetExhausted": true,
+      "chosenActionVerified": true,
+      "chosenFromGuaranteedSet": false,
+      "droppedCandidateCount": 21,
+      "ledgerConsistent": true
+    }
+  ],
+  "findings": [
+    "candidateGenerationTransitions > 0 now that generation work is charged to the ledger.",
+    "ledgerConsistent on every budget: true.",
+    "chosenFromGuaranteedSet on every exhausted budget: false."
+  ]
+}

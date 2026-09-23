@@ -1,0 +1,32 @@
+请执行《AncinetEmpires_V11_Review_and_Taskbook.md》。目标是获得真实可归因的棋力提升，
+而不是增加报告/测试/权重的数量。
+
+审查基线：TatsukiKiruma/AncinetEmpires，path-b-spatial-ai，
+4451947355e9683437a6fc1348cf01657eaf50e3。
+先检查当前 HEAD 和工作区；若已经更新，按实际代码核对缺陷，禁止回退覆盖用户变更。
+
+优先读取：
+1. v10/V10_TASK_COMPLETION_REPORT.md 与 v10/fix_01/TASKS_1_5_RESULTS.md
+2. tools/v10_value_learning.ts::extractEndgameValueSamples（状态错位、前缀未回滚）
+3. tools/v10fix/pipeline.ts（默认设置回放、仅 catch 异常）
+4. tools/v10_turn_aware_search.ts（宏动作遗漏、同单位后续未约束、预算未计、威胁排序用原位置）
+5. python/train_spatial_resnet.py（consumed manifest 在优化前写入、未知 root 默认进 train、末批损失漏计）
+6. tools/v10_dagger_controlled.ts（1 epoch / 87 updates、块 ID 与实际随机流）
+7. tools/v10fix/loss_ablation.ts（teacherQ 终局 1000 与行为 CE 不同源）
+
+第一批范围：T11-00/01/02/03 的最小必要修复。先用直接调用真实模块的状态/回归用例暴露缺陷，
+保留失败证据，再修复。不先跑新的 400 场比赛、不并行训练 8 个新模型、不改游戏规则、
+不自动晋级生产 AI。
+
+所有新输出使用新 runId。先核对初态、setup、rules、snapshotHash，再逐步合法回放；
+整局验证成功后事务提交样本。真实优化消费在成功 optimizer.step 后记录，
+不能用训练前分区清单自证。保留 legacy 材料但标注失效与派生影响，不覆盖旧报告数字。
+
+第一批修复通过后，直接进入 T11-04 的一次受控棋力实验，不把大而全工程审计当无限前置：
+Heuristic 基准 / 同预算规划器无网络 / 同预算规划器+学习到的候选改进。
+必需保留基准动作、确切立即胜利动作、pending 解决动作；学习模块只在有证据时覆盖。
+纯网络另列，不与混合棋力混称。
+
+每批交付：实际变更、失败到通过的断言、数据/优化真实消费、训练曲线、
+比赛 W/L/D/T/ERROR/NOT_RUN 与共同配对块、尚未完成项、下一项最有价值的实验。
+不得用"全部完成"概括未证明的棋力。

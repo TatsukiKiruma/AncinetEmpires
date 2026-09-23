@@ -1,0 +1,46 @@
+{
+  "schema": "v11_dataset_source_1",
+  "runId": "agent_upgrade_v11_b2_main",
+  "generatedAt": "2026-09-23T15:37:22.585Z",
+  "recovered": true,
+  "recoveryNote": "Regenerated from the surviving collection after the workspace was reset externally. Counts come from episodes.jsonl and the trajectory logs on disk; the original generation timestamp and elapsed time are lost.",
+  "plan": {
+    "runId": "agent_upgrade_v11_b2_main",
+    "seeds": [
+      42,
+      1337,
+      2026,
+      4242
+    ],
+    "maps": [
+      "(2) Duel.aem",
+      "(2) Crossed swords.aem",
+      "(2) Icy Paths.aem",
+      "(2) Mourningstar.aem"
+    ],
+    "policies": [
+      "HEURISTIC"
+    ]
+  },
+  "matchCount": 32,
+  "naturalTerminals": 22,
+  "truncations": 10,
+  "byMap": {
+    "(2) Duel.aem": 8,
+    "(2) Crossed swords.aem": 8,
+    "(2) Icy Paths.aem": 8,
+    "(2) Mourningstar.aem": 8
+  },
+  "bySetup": {
+    "g700_u70_c7": 24,
+    "g300_u30_c3": 8
+  },
+  "snapshotIntegrity": {
+    "trajectoriesOnDisk": 32,
+    "episodesWithSnapshot": 32,
+    "episodesWithVerifiedSnapshot": 32,
+    "failures": []
+  },
+  "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+  "note": "Every trajectory carries an initialSnapshot written by runBenchmarkMatch, so the pool is replay-provable. No neural network participated: the candidate policy is the frozen Heuristic baseline."
+}

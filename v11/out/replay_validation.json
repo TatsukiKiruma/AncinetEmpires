@@ -1,0 +1,286 @@
+{
+  "schema": "v11_replay_validation_1",
+  "runId": "agent_upgrade_v11_batch1_20260923",
+  "generatedAt": "2026-09-23T09:13:17.664Z",
+  "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+  "counts": {
+    "episodesInPool": 32,
+    "trajectoriesMissing": 0,
+    "snapshotUnproven": 0,
+    "replayValidated": 32,
+    "replayFailed": 0,
+    "naturalTerminal": 22,
+    "truncated": 10,
+    "droppedForPerformanceCap": 0
+  },
+  "failureBreakdown": {},
+  "provenanceBreakdown": {
+    "RECORDED_SNAPSHOT": 32
+  },
+  "coverage": {
+    "totalRecordedSteps": 19452,
+    "totalStepsReplayed": 19452,
+    "hashChecksPerformed": 1954,
+    "meanReplayCompletion": 1
+  },
+  "naturalTerminalValidated": 22,
+  "sampledEpisodes": [
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Duel_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 148,
+      "totalSteps": 148,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Duel_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 127,
+      "totalSteps": 127,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Duel_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 239,
+      "totalSteps": 239,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Duel_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 149,
+      "totalSteps": 149,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Duel_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 239,
+      "totalSteps": 239,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Duel_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 173,
+      "totalSteps": 173,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Duel_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 226,
+      "totalSteps": 226,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Duel_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 173,
+      "totalSteps": 173,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 706,
+      "totalSteps": 706,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 996,
+      "totalSteps": 996,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 635,
+      "totalSteps": 635,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 755,
+      "totalSteps": 755,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Crossed_swords_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 575,
+      "totalSteps": 575,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Crossed_swords_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Crossed_swords_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 772,
+      "totalSteps": 772,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Crossed_swords_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Icy_Paths_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Icy_Paths_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Icy_Paths_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Icy_Paths_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Icy_Paths_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Icy_Paths_aem_s1337",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Icy_Paths_aem_s2026",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat1__2__Icy_Paths_aem_s4242",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 1000,
+      "totalSteps": 1000,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": false
+    },
+    {
+      "episodeId": "match_HEURISTIC_seat0__2__Mourningstar_aem_s42",
+      "ok": true,
+      "provenance": "RECORDED_SNAPSHOT",
+      "stepsReplayed": 249,
+      "totalSteps": 249,
+      "failureCode": null,
+      "failureStep": null,
+      "naturalTerminal": true
+    }
+  ],
+  "notes": [
+    "Replay legality is checked per step against the engine legal set, and the engine acceptance result is inspected.",
+    "A reconstruction from map+setup is trusted only when its behavioural hash equals the hash recorded at collection time.",
+    "The V10 trajectory logs did not persist the setup selection; it is recomputed from the episode seed and still hash-verified.",
+    "Natural-terminal episodes replayed clean keep their z value label; truncated or censored episodes keep a policy label and a null value label.",
+    "Recorded-snapshot provenance: 32/32 inspected trajectories carried an initial snapshot (F07). The V10 collectors never persisted one, so that pool is quarantined as UNPROVEN instead of being replayed under guessed settings. Recordings made after the T11-01 fix do carry a provable snapshot."
+  ]
+}

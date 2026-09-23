@@ -1,0 +1,22 @@
+{
+  "schema": "v11_evidence_manifest_1",
+  "generatedAt": "2026-09-23T09:12:54.923Z",
+  "reviewCommit": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "headMatchesReviewCommit": true,
+  "files": [
+    {
+      "file": "v11/out/source_snapshot.json",
+      "sha256": "a518cb3d8fbb4d831a5f003d7e35fcdbe62e3a878eae1a4fc3cbd924c187837c"
+    },
+    {
+      "file": "v11/out/issue_ledger.json",
+      "sha256": "04beaa53d68b3157dfab63222e670a13cb546f28fea759c87030522ac8de870d"
+    },
+    {
+      "file": "v11/out/regression_cases.json",
+      "sha256": "84f6381bd1a5363f4e142803334e0680abfb135533c4d618e77fa420dfaa30a7"
+    }
+  ],
+  "frozenSourceRoot": "C:\\code\\AncinetEmpires\\v11",
+  "note": "T11-00 freeze only. Other v11/out artifacts are hashed in out_index.json."
+}

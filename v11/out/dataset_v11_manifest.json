@@ -1,0 +1,76 @@
+{
+  "schema": "v11_dataset_manifest_1",
+  "runId": "agent_upgrade_v11_batch1_20260923",
+  "generatedAt": "2026-09-23T09:13:17.664Z",
+  "encoderSchema": "spatial-v2/24x20x20+g20",
+  "rowSchema": [
+    "sampleId",
+    "rootFamilyId",
+    "episodeId",
+    "step",
+    "mapName",
+    "stage",
+    "turn",
+    "subjectPlayer",
+    "currentPlayer",
+    "stateHash",
+    "encoderSchema",
+    "actionListHash",
+    "terminationReason",
+    "policyLossMask",
+    "valueLossMask"
+  ],
+  "masks": {
+    "policyLossMask": "true when the episode replayed legally and its recorded behaviour may be imitated",
+    "valueLossMask": "true only when the episode reached a natural terminal with a known z",
+    "rule": "A real value label never implies the played action was good; a truncated episode teaches policy but not value."
+  },
+  "accounting": {
+    "episodesTotal": 32,
+    "episodesReplayValidated": 32,
+    "episodesQuarantined": 0,
+    "stepsReplayed": 19452,
+    "hashChecksPerformed": 1954,
+    "uniqueStateHashes": 17542,
+    "policyLabelledSamples": 32,
+    "valueLabelledSamples": 22,
+    "valueNullSamples": 10,
+    "naturalTerminalEpisodes": 22
+  },
+  "provenance": {
+    "recordedSnapshot": 32,
+    "reconstructedHashVerified": 0,
+    "unproven": 0
+  },
+  "partitions": {
+    "train": {
+      "rootFamilies": 12,
+      "episodes": 24,
+      "naturalTerminalEpisodes": 17
+    },
+    "val_id": {
+      "rootFamilies": 4,
+      "episodes": 8,
+      "naturalTerminalEpisodes": 5
+    },
+    "val_ood": {
+      "rootFamilies": 0,
+      "episodes": 0,
+      "naturalTerminalEpisodes": 0
+    },
+    "test": {
+      "rootFamilies": 0,
+      "episodes": 0,
+      "naturalTerminalEpisodes": 0
+    }
+  },
+  "v10PoolDisposition": {
+    "dataset": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/datasets/d_v10_value_dataset.jsonl",
+    "disposition": "QUARANTINED_INPUT_ALIGNMENT",
+    "reason": "Rows were produced by the F01-misaligned extractor: tensors described the opening board while action indices described the current legal set. The file is retained unmodified for provenance but must not be used for training or architecture selection."
+  },
+  "notes": [
+    "Pool natural-terminal episodes: 22; replay-validated natural terminal: 22.",
+    "Counts with the probe schema above are produced by extractAlignedValueSamples, not by this accounting pass."
+  ]
+}

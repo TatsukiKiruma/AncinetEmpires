@@ -1,0 +1,83 @@
+{
+  "schema": "v11_power_analysis_1",
+  "generatedAt": "2026-09-23T15:36:56.462Z",
+  "runId": "agent_upgrade_v11_batch1_20260923",
+  "inputs": {
+    "labelsFile": "C:\\code\\AncinetEmpires\\v11\\out\\counterfactual_labels.jsonl",
+    "labelQualityFile": "C:\\code\\AncinetEmpires\\v11\\out\\label_quality.json",
+    "options": {
+      "continuationBudget": 900,
+      "maxCandidates": 5,
+      "continuationSeed": 20260924
+    }
+  },
+  "yield": {
+    "decisionsCompared": 40,
+    "decisionsKept": 8,
+    "decisionsDroppedUninformative": 32,
+    "yieldRate": 0.2,
+    "episodesUsed": 5
+  },
+  "decisionShapes": {
+    "allCandidatesTerminal": 4,
+    "noCandidateTerminal": 0,
+    "mixed": 4
+  },
+  "effectSize": {
+    "distinctDeltaValues": 1,
+    "deltaValues": [
+      2
+    ],
+    "deltaMean": 2,
+    "deltaStdDev": 0,
+    "allDeltasEqual": true,
+    "note": "The value function is terminal-dominant and the payoff scale is {-1, 0, +1}. When every candidate reaches a natural terminal, a decision can only produce a handful of distinct dQ values, so the label is a win/lose flip rather than a graded preference."
+  },
+  "candidateBreadth": {
+    "meanCandidates": 4.75,
+    "decisionsWithSingleCandidate": 0
+  },
+  "sampleSize": {
+    "assumedWinRateAtBaseline": 0.5,
+    "targetAbsoluteImprovement": 0.05,
+    "discordantFraction": 1,
+    "discordantPairsNeeded": 1537,
+    "blocksNeededAtObservedDiscordance": 1537,
+    "decisionsNeededAtObservedYield": 7685,
+    "note": "Order-of-magnitude arithmetic for a paired test at 95% confidence, not a formal power calculation. It assumes the observed discordance fraction holds, which this run is far too small to establish."
+  },
+  "rootCauses": [
+    "Positions sampled from Heuristic-vs-Heuristic episodes are largely decided: most candidates lead to the same winner, so dQ collapses to 0 and the decision is dropped.",
+    "The value function is terminal-dominant with a {-1, 0, +1} payoff, so surviving labels carry no magnitude information - only a sign flip.",
+    "A bounded heuristic continuation is used on both sides, which further reduces the spread between candidates relative to a stronger reference.",
+    "Root-family holdout splits a small label set into even smaller train/holdout sets: 7 train vs 1 holdout decisions here, which cannot distinguish any two arms."
+  ],
+  "recommendations": [
+    {
+      "action": "Sample decisions from contested positions, not uniformly from an episode",
+      "why": "Yield, not budget, was the binding constraint: 32 of 40 compared decisions were dropped as uninformative. Filtering for positions where the game is still open raises yield directly.",
+      "costNote": "Requires a cheap pre-filter (e.g. material balance or heuristic score gap) before spending the expensive continuation budget."
+    },
+    {
+      "action": "Give the value function magnitude, or use a stronger reference policy",
+      "why": "With a {-1, 0, +1} payoff every surviving label has the same effect size, so any ranker can at best learn a coin flip. A graded leaf value or a deeper reference teacher creates rankable differences.",
+      "costNote": "A deeper teacher multiplies per-decision cost; a graded leaf value is cheap but must be calibrated against natural terminals first."
+    },
+    {
+      "action": "Collect labels from many more episodes before running the arm comparison again",
+      "why": "At the observed yield, a paired test at 5 percentage points needs on the order of 7685 compared decisions, and the per-decision cost was unknowns in this run.",
+      "costNote": "This is the dominant cost and should be authorised explicitly before it is spent."
+    },
+    {
+      "action": "Do not read this round's arm comparison as evidence about the method",
+      "why": "One holdout decision cannot separate a trained ranker from an untrained one; the arms are expected to tie, and a tie here is an absence of data, not evidence of no effect.",
+      "costNote": "None - this is a reporting constraint."
+    }
+  ],
+  "budgetAccounting": {
+    "teacherDecisionQueriesUsed": 8,
+    "teacherDecisionQueryCap": 10000,
+    "engineTransitionsUsed": 12471,
+    "secondsPerComparedDecision": 0
+  }
+}

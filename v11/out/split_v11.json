@@ -1,0 +1,78 @@
+{
+  "schema": "v11_split_1",
+  "generatedAt": "2026-09-23T09:13:17.664Z",
+  "runId": "agent_upgrade_v11_batch1_20260923",
+  "source": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+  "rules": {
+    "rootIsolation": true,
+    "testRootsReserved": true,
+    "reservedTestSeeds": [
+      9001,
+      9002,
+      9003,
+      9004,
+      9005,
+      9006,
+      9007,
+      9008,
+      9009,
+      9010,
+      9011,
+      9012,
+      9013,
+      9014,
+      9015,
+      9016,
+      9017,
+      9018,
+      9019,
+      9020
+    ],
+    "oodMaps": [
+      "(2) Liberty Port.aem"
+    ],
+    "partitionFunction": "sha256(rootFamilyId) % 10 => <7 train, else val_id"
+  },
+  "train": {
+    "rootFamilies": [
+      "root__2__Crossed_swords_aem_s1337",
+      "root__2__Crossed_swords_aem_s2026",
+      "root__2__Crossed_swords_aem_s42",
+      "root__2__Duel_aem_s1337",
+      "root__2__Duel_aem_s42",
+      "root__2__Duel_aem_s4242",
+      "root__2__Icy_Paths_aem_s1337",
+      "root__2__Icy_Paths_aem_s2026",
+      "root__2__Icy_Paths_aem_s4242",
+      "root__2__Mourningstar_aem_s1337",
+      "root__2__Mourningstar_aem_s42",
+      "root__2__Mourningstar_aem_s4242"
+    ],
+    "episodes": 24,
+    "naturalTerminalEpisodes": 17
+  },
+  "val_id": {
+    "rootFamilies": [
+      "root__2__Crossed_swords_aem_s4242",
+      "root__2__Duel_aem_s2026",
+      "root__2__Icy_Paths_aem_s42",
+      "root__2__Mourningstar_aem_s2026"
+    ],
+    "episodes": 8,
+    "naturalTerminalEpisodes": 5
+  },
+  "val_ood": {
+    "rootFamilies": [],
+    "episodes": 0,
+    "naturalTerminalEpisodes": 0
+  },
+  "test": {
+    "rootFamilies": [],
+    "episodes": 0,
+    "naturalTerminalEpisodes": 0
+  },
+  "notes": [
+    "Partitions are computed over replay-validated episodes only; a quarantined episode contributes to no partition.",
+    "Confirmation roots (reserved seeds) never enter the training pool."
+  ]
+}

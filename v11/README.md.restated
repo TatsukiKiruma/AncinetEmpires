@@ -1,0 +1,97 @@
+# V11 任务包（重述版）
+
+> **来源说明**：本目录最初的任务包（`AncinetEmpires_V11_Review_and_Taskbook.md`、
+> `agent_tasks_v11.json`、`AGENT_START_V11.txt`、`audit_arithmetic.json`、
+> `PACKAGE_MANIFEST.json`、`AncinetEmpires_V11_20260923.zip`）在执行过程中被外部重置删除，
+> 原始字节无法从 git 恢复（该目录从未提交）。本文件是对其内容的**重述**，依据是执行期间
+> 读取过的原文，以及已落地的产物。若日后找回原始文件，应以原件为准。
+
+## 审查基线
+
+- 仓库：TatsukiKiruma/AncinetEmpires
+- 分支：`path-b-spatial-ai`
+- 审查提交：`4451947355e9683437a6fc1348cf01657eaf50e3`
+- 起点报告：`v10/V10_TASK_COMPLETION_REPORT.md`，优先使用 `v10/fix_01/` 修正版工件
+
+## 结论与执行边界
+
+V10 有真实训练、比赛和负结果，不应被概括为"只写文档"。但价值样本状态错位、回合搜索根动作
+遗漏、训练消费口径不实等源码问题，阻止了从这些结果推断"价值学习/DAgger/回合规划本身无效"。
+
+方向调整：**保留现有引擎、共享推理接口和可追溯实验基础；暂停弱纯策略直接替代启发式，
+先建立"保留 Heuristic 基线候选的局部策略改进器"。**
+
+硬性边界：不改游戏规则、不擅自替换生产默认 AI、不付费租算力、不上传工件、不 push；
+所有训练和采集使用新 runId；旧证据只标注失效或被替代，不静默改写。
+
+## 源码问题（F01–F07）
+
+| 编号 | 优先级 | 问题 |
+|---|---|---|
+| F01 | P0 | 价值样本把开局棋盘与后续动作/结果配在一起 |
+| F01b | P0 | 回放失败的前缀样本未回滚 |
+| F02 | P0 | 回放校验只看异常，不看引擎返回的失败信息 |
+| F02b | P0 | 采集器改变了初始设置，回放却按默认设置重建初态 |
+| F03 | P0 | 回合搜索默认候选不包含所有必要单步行动 |
+| F03b | P0 | 宏动作 followup 不限定刚移动的单位 |
+| F04 | P0/P1 | 搜索预算、展开顺序与价值尺度不成立 |
+| F05 | P0 | "消费 3980 条新记录"由训练前清单冒充 |
+| F05b | P1 | max_steps 达到时先 break 再累加 loss |
+| F06 | P1 | 训练目标与架构对照不支持路线结论 |
+| F07 | P0 | V10 语料库没有保存初态，整池不可复核（执行中发现） |
+
+逐条证据锚点与影响范围见 `v11/out/issue_ledger.json`。
+
+## 任务清单
+
+### T11-00｜P0｜冻结证据并建立最小失败复现
+输出 runId、source snapshot、issue ledger；将 F01 派生数据标为
+`INVALID_INPUT_ALIGNMENT_PENDING_REBUILD`，其余逐项标注"实测负结果/统计不足/未运行"。
+首轮用直接调用真实仓库模块的回归用例暴露缺陷，验收标准是"旧实现失败、修复后通过"。
+
+产物：`source_snapshot.json`、`issue_ledger.json`、`regression_cases.json`。
+
+### T11-01｜P0｜真实回放与训练样本对齐
+唯一 replay + snapshot 采样函数；每步校验合法性与 state hash；episode 事务提交；
+冻结 train / val_id / val_ood / test 三集合；截断局保留 policy 标签、value 必须为 null。
+
+产物：`replay_validation.json`、`invalid_episodes.jsonl`、`dataset_v11_manifest.json`、`split_v11.json`。
+
+### T11-02｜P0｜保底合法动作的回合规划器
+修 F03/F04；cap 前强制保留基准首选、确切立即制胜、pending 解决动作；统一 transition 计数；
+预算不够时返回已核验基准动作而不是数组第一个动作。
+
+产物：`candidate_coverage.json`、`search_transition_profile.json`、`tactical_regression.json`。
+
+### T11-03｜P0｜真实优化消费与损失接口
+planned/optimized 清单分离；仅成功 optimizer.step 后记录样本 ID 与 exposures；
+显式 globalUpdateLimit；修复最后 batch 损失漏计；未知 root 必须失败；
+policy/value mask 分离并做梯度单测。
+
+产物：`optimizer_consumption`、梯度 mask 测试、`training_config`。
+
+### T11-04｜P1｜第一次可归因的"学习改进基准"实验
+在同一 snapshot、同一续局策略与共同随机流下比较基准动作 a0 与有限候选；
+训练小型候选增益排序模块；三个必要对照（Heuristic / 同预算规划器无网络 / 同预算规划器+学习模块）
+外加学习模块归零臂；预注册止损条件。
+
+预算：最多 4 次正式 fit，新教师决策级查询上限 10000，同时记录总 transition。
+
+产物：`counterfactual_labels.jsonl`、`label_quality.json`、`residual_ranker_curves.json`、
+`intervention_audit.json`、`strength_ablation.json`。
+
+### T11-05｜P1/P2｜正确数据上的价值或 DAgger 辅线（二选一）
+由 T11-04 结果决定是否投入；不同时默认跑完全部组合。
+
+### T11-06｜P1｜冻结确认与产品验收
+仅在候选具备棋力价值后做浏览器真实 E2E；约 1 秒是产品目标，不是硬件保证。
+
+## 执行节奏与止损
+
+第一批只做 T11-00 至 03 的最小必要修复和直接回归测试。
+第二批只完成 T11-04 的一次受控学习实验。若局部参考教师比基准更差，停止蒸馏；
+若训练集信号学不会，停止大赛查数据/梯度；若局部改善但整局变差，分析干预错误。
+
+## 本仓库的落地情况
+
+见 `v11/V11_BATCH1_REPORT.md` 与 `v11/V11_BATCH2_REPORT.md`。

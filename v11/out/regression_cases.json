@@ -1,0 +1,155 @@
+{
+  "schema": "v11_regression_cases_1",
+  "generatedAt": "2026-09-23T09:12:54.921Z",
+  "runner": "pwsh -File v11/tools/run-tests.ps1   (TypeScript)   +   py -3.12 -m unittest discover -s python/tests   (Python)",
+  "baselineObservation": "First execution of the TypeScript suite against the review commit failed 7 assertions: F01b failure-step mismatch, F02 illegal-action classification, runTacticalFixtures TypeError, three F04 ledger/timeout/fallback fields, and the truncation policy mask. The Python suite failed on the self-certifying manifest, the per-epoch update limit, the dropped last batch, and every fail-loudly guard. All assertions pass after the fixes.",
+  "cases": [
+    {
+      "id": "RC-01",
+      "issue": "F01",
+      "task": "T11-00/01",
+      "contract": "A sample turn/tensor/globals/candidate list all describe the state in which the action was taken.",
+      "observedPreFix": "Every sample carried the opening board and turn 0.",
+      "test": "tools/v11_regression_contract.test.ts > T11-01 / F01",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-02",
+      "issue": "F01b",
+      "task": "T11-00/01",
+      "contract": "An episode that fails replay publishes zero samples.",
+      "observedPreFix": "Prefix samples were pushed globally and kept after `continue`.",
+      "test": "tools/v11_regression_contract.test.ts > a mid-episode illegal action publishes zero samples",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-03",
+      "issue": "F02",
+      "task": "T11-00/01",
+      "contract": "Replay verifies per-step legality and the engine acceptance result.",
+      "observedPreFix": "Only exceptions were caught; engine.step returns a failure string.",
+      "test": "tools/v11_regression_contract.test.ts > T11-01 / F02",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-04",
+      "issue": "F02b",
+      "task": "T11-00/01",
+      "contract": "A non-default setup is replayed only when its recorded hash proves the reconstruction.",
+      "observedPreFix": "Replay always rebuilt the state with default settings.",
+      "test": "tools/v11_regression_contract.test.ts > T11-01 / F02b",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-05",
+      "issue": "F03",
+      "task": "T11-00/02",
+      "contract": "Every legal atomic action has a root candidate; baseline and immediate win always survive.",
+      "observedPreFix": "Only end_turn and recruits were single-step candidates.",
+      "test": "tools/v11_regression_contract.test.ts > T11-02 / F03",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-06",
+      "issue": "F03b",
+      "task": "T11-00/02",
+      "contract": "A chained macro only ever acts with the unit that moved.",
+      "observedPreFix": "Follow-ups came from the whole player legal set.",
+      "test": "tools/v11_regression_contract.test.ts > T11-02 / F03b",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-07",
+      "issue": "F04",
+      "task": "T11-00/02",
+      "contract": "Generation work is charged to the ledger; timeout fields are real; an exhausted budget returns a verified legal action.",
+      "observedPreFix": "Generation was untracked, wallClockExceeded was literal false, fallback was the unscored first entry.",
+      "test": "tools/v11_regression_contract.test.ts > T11-02 / F04",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-08",
+      "issue": "F04/F06",
+      "task": "T11-00/02",
+      "contract": "The repository tactical fixtures run without crashing and report no failing fixture.",
+      "observedPreFix": "runTacticalFixtures called searcher.search on an undefined parameter.",
+      "test": "tools/v11_regression_contract.test.ts > survives the repository tactical fixtures",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-09",
+      "issue": "F05",
+      "task": "T11-00/01",
+      "contract": "Truncated episodes keep a policy label and carry no value label.",
+      "observedPreFix": "The mask rule switched the policy mask off with a null value target.",
+      "test": "tools/v11_regression_contract.test.ts > truncated episodes keep policy labels",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-10",
+      "issue": "F05",
+      "task": "T11-00/03",
+      "contract": "Only a successful optimizer.step counts as consumption; the pre-training plan is labelled as a plan.",
+      "observedPreFix": "The consumed manifest was written before the DataLoader existed.",
+      "test": "python/tests/test_v11_optimizer_consumption.py",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-11",
+      "issue": "F05b",
+      "task": "T11-00/03",
+      "contract": "The last optimized batch contributes to the reported epoch loss.",
+      "observedPreFix": "`break` ran before the loss accumulation.",
+      "test": "python/tests/test_v11_optimizer_consumption.py > test_last_optimized_batch_loss_is_not_dropped",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-12",
+      "issue": "F05",
+      "task": "T11-00/03",
+      "contract": "Unknown root, empty validation partition, duplicate id with conflicting hash all fail loudly.",
+      "observedPreFix": "Unknown roots fell into train; zero-validation was patched by carving the tail.",
+      "test": "python/tests/test_v11_optimizer_consumption.py",
+      "status": "FIXED"
+    },
+    {
+      "id": "RC-13",
+      "issue": "F07",
+      "task": "T11-00/01",
+      "contract": "A recorded match persists a provable initial snapshot and replays from its trajectory alone.",
+      "observedPreFix": "Trajectory logs stored only actionHistory.",
+      "test": "tools/v11_replay_e2e.test.ts",
+      "status": "FIXED"
+    }
+  ],
+  "requiredFixtureCoverage": [
+    {
+      "requirement": "已移动单位可直接攻击并自然获胜",
+      "providedBy": "RC-05 (buildGuaranteedLethalPosition constructs and engine-verifies an immediate win)"
+    },
+    {
+      "requirement": "直接 capture/heal/summon/pending",
+      "providedBy": "RC-05 (every distinct legal action type must have a root candidate) + the pending_resolution guarantee"
+    },
+    {
+      "requirement": "多步回放后状态与初态不同",
+      "providedBy": "RC-01 (state hash equals the recomputed state at that step)"
+    },
+    {
+      "requirement": "变金币/人口/等级设置",
+      "providedBy": "RC-04 + RC-13 (five setup variants; a recorded snapshot survives a 700/70/7 round trip)"
+    },
+    {
+      "requirement": "后段非法动作整局隔离",
+      "providedBy": "RC-02 (a mid-episode illegal action publishes zero samples)"
+    },
+    {
+      "requirement": "训练 max_steps 使计划ID与优化ID不同",
+      "providedBy": "RC-10 / python/tests/test_v11_optimizer_consumption.py"
+    },
+    {
+      "requirement": "并列候选排序与基准动作不变",
+      "providedBy": "RC-05 (baseline always present) + RC-07 (verified fallback)"
+    }
+  ]
+}

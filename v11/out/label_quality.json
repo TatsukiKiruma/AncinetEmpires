@@ -1,0 +1,105 @@
+{
+  "schema": "v11_label_quality_1",
+  "generatedAt": "2026-09-23T09:50:05.049Z",
+  "runId": "agent_upgrade_v11_batch1_20260923",
+  "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+  "options": {
+    "continuationBudget": 900,
+    "maxCandidates": 5,
+    "continuationSeed": 20260924
+  },
+  "decisions": 8,
+  "decisionsCompared": 40,
+  "decisionsDroppedUninformative": 32,
+  "uninformativeExamples": [
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#73",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+      "reason": "no candidate separated from the baseline"
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s4242#56",
+      "reason": "no candidate separated from the baseline"
+    }
+  ],
+  "episodesUsed": 5,
+  "episodesSkipped": 0,
+  "skipped": [],
+  "byQuality": {
+    "VERIFIED_NATURAL": 8
+  },
+  "byRootFamily": {
+    "root__2__Duel_aem_s1337": 3,
+    "root__2__Duel_aem_s4242": 2,
+    "root__2__Duel_aem_s2026": 1,
+    "root__2__Crossed_swords_aem_s42": 1,
+    "root__2__Crossed_swords_aem_s1337": 1
+  },
+  "deltaDistribution": {
+    "positive": 8,
+    "zero": 0,
+    "negative": 0,
+    "mean": 2,
+    "median": 2,
+    "p90": 2,
+    "max": 2
+  },
+  "baselineIsVerifiedErrorCount": 0,
+  "baselineIsVerifiedErrorRate": 0,
+  "immediateWinAvailable": 0,
+  "terminalEvidenceShare": 1,
+  "candidatesPerDecision": {
+    "mean": 4.75,
+    "min": 3,
+    "max": 5
+  },
+  "accounting": {
+    "teacherDecisions": 8,
+    "engineTransitions": 12471,
+    "engineTransitionsPerDecision": 1558.9
+  },
+  "budgetCompliance": {
+    "maxFormalFits": 4,
+    "fitsUsed": 0,
+    "maxNewTeacherDecisionQueries": 10000,
+    "teacherDecisionQueries": 8,
+    "withinBudget": true,
+    "note": "The taskbook caps *decision-level* queries, not probe count. Probes inside one decision are reported separately as engineTransitions so a large probe count cannot hide inside \"1 query\". Compared decisions include the 32 dropped as uninformative."
+  },
+  "caveats": [
+    "A PROXY label means no candidate reached a natural terminal inside the continuation budget; it is an estimate.",
+    "baselineIsVerifiedErrorRate is the share of decisions where the Heuristic baseline demonstrably discards an immediate win.",
+    "These labels come from bounded heuristic continuation, not from an optimal solver, and are not \"true Q\"."
+  ]
+}

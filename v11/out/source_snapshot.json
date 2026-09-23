@@ -1,0 +1,267 @@
+{
+  "schema": "v11_source_snapshot_1",
+  "generatedAt": "2026-09-23T09:12:54.921Z",
+  "reviewCommit": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "workingTreeHead": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "branch": "train/battle-ai-20260923",
+  "headMatchesReviewCommit": true,
+  "files": [
+    {
+      "path": "src/game/engine.ts",
+      "exists": true,
+      "sha256": "3631e05b5eadbda8b92c3cf565c709791ed5c29c4513e50484dbf803fa31c76a",
+      "bytes": 45822
+    },
+    {
+      "path": "src/game/apk_skirmish.ts",
+      "exists": true,
+      "sha256": "02a345a473167d4a19d0995ca85e1d5dbaf28c8e7431a510165feccdc3e86eaa",
+      "bytes": 11277
+    },
+    {
+      "path": "src/game/apk_skirmish_map_assets.ts",
+      "exists": true,
+      "sha256": "b7578b7faac1e4b5c0ced7af15d62449e666e9f40077edfac5721b2a264acc73",
+      "bytes": 2766
+    },
+    {
+      "path": "src/game/state_snapshot.ts",
+      "exists": true,
+      "sha256": "c96a7bc9c8dbd1285cc7bc7f2878160c4bf87dc03f393479e54eddbd869b1155",
+      "bytes": 7147
+    },
+    {
+      "path": "src/game/ai/heuristic_ai.ts",
+      "exists": true,
+      "sha256": "304d6e6b67d60d4363c02e377630c16eaa36d28d2b2bcf387193e60db39eb94e",
+      "bytes": 35622
+    },
+    {
+      "path": "src/game/ai/spatial_tensor_encoder.ts",
+      "exists": true,
+      "sha256": "b09461d0fc2808c218b2ebc063b46eb5313db81019100f0776c197ca2abba3a2",
+      "bytes": 15870
+    },
+    {
+      "path": "src/game/ai/spatial_conv_net.ts",
+      "exists": true,
+      "sha256": "cdbaa9d08862a6a8e5263e0dc87e24bd76cfe8880daf628d2f7baddbabbb891f",
+      "bytes": 26111
+    },
+    {
+      "path": "tools/v7_unified_evaluation.ts",
+      "exists": true,
+      "sha256": "a3205a9d1d6e76af8383e7228241a3622ada8da9ab24d71047b33cbbb49e6041",
+      "bytes": 53841
+    },
+    {
+      "path": "tools/v7_training_pipeline.ts",
+      "exists": true,
+      "sha256": "c379a0d1536f4d288ab877fdd0b717dd8034c9ee050cc627004f0316bd484007",
+      "bytes": 48114
+    },
+    {
+      "path": "tools/v10_common.ts",
+      "exists": true,
+      "sha256": "480d04e44fce85b4803c9cf25300689a6f8558fabc55b246a422766d15675bcf",
+      "bytes": 3887
+    },
+    {
+      "path": "tools/v10_value_learning.ts",
+      "exists": true,
+      "sha256": "501d6242dc2ae608a7fe9b6998820ec45e5323412e8f16aef2eb4e11aba26554",
+      "bytes": 34714
+    },
+    {
+      "path": "tools/v10_turn_aware_search.ts",
+      "exists": true,
+      "sha256": "7784fe4f6b0b7f56ef843b1c822b25d75c86a8d44329bc962431d9008e6614fb",
+      "bytes": 36882
+    },
+    {
+      "path": "tools/v10_dagger_controlled.ts",
+      "exists": true,
+      "sha256": "b7d841d5f46502f5aa8c2c1e3d048d06036effc47841e73ef5b7fab0e318b243",
+      "bytes": 30165
+    },
+    {
+      "path": "tools/v10_representation_ablation.ts",
+      "exists": true,
+      "sha256": "35e4217e0bbb9c76a732e24ce66805113f354101e0ee3b2043a68a7c2e47a888",
+      "bytes": 8493
+    },
+    {
+      "path": "tools/v10fix/pipeline.ts",
+      "exists": true,
+      "sha256": "c04d59ffff3b3e5b11989721d7880407847c0acce2ef17af3571a98bdc2cf28f",
+      "bytes": 57681
+    },
+    {
+      "path": "tools/v10fix/collectors.ts",
+      "exists": true,
+      "sha256": "639d61d3b4c5ea1447314da47040011b3152e0219b1f6467b0bcb07d3eb16584",
+      "bytes": 22509
+    },
+    {
+      "path": "tools/v10fix/loss_ablation.ts",
+      "exists": true,
+      "sha256": "2e650f2f7ca06f54e92002928534b647121a87a694e58c81fcb56be55f30deae",
+      "bytes": 13095
+    },
+    {
+      "path": "python/train_spatial_resnet.py",
+      "exists": true,
+      "sha256": "0645e51c5b86184c8e2f954c5655b47bf0e2c6dc4077fe63f69b11ea623e6163",
+      "bytes": 37939
+    },
+    {
+      "path": "python/spatial_resnet_model.py",
+      "exists": true,
+      "sha256": "8acec5e9cbb48af04b0e056c0c51254cbfe4ba14823c17dd18c2900485be04f9",
+      "bytes": 10375
+    }
+  ],
+  "referencedArtifacts": [
+    {
+      "path": "v10/V10_TASK_COMPLETION_REPORT.md",
+      "exists": true,
+      "sha256": "bfd7aeadefd77b77ff14634b116a40d99574e58255fb1df1d57d011d7e700790",
+      "bytes": 7133
+    },
+    {
+      "path": "v10/fix_01/TASKS_1_5_RESULTS.md",
+      "exists": true,
+      "sha256": "478b317133968d7f3438ca6a4f8ea0bd6ca04a0e7e82afb54ccc634b7f161216",
+      "bytes": 3281
+    },
+    {
+      "path": "v10/fix_01/dagger_controlled_report.json",
+      "exists": true,
+      "sha256": "b8f0056651648aaf1aa98104cefe02401cbecb3fd6f8fff5249f11d49f1cba02",
+      "bytes": 4574
+    },
+    {
+      "path": "v10/fix_01/dataset_v10_manifest.json",
+      "exists": true,
+      "sha256": "ae85c253bc9390110d66865ecd07493f5bdc3378436bd64e92f44f557297f78b",
+      "bytes": 9854
+    },
+    {
+      "path": "v10/fix_01/split_v10.json",
+      "exists": true,
+      "sha256": "42b640952d03fae05ee0769729a4ed00239dcd5e7a627b0c995005c8c85211fc",
+      "bytes": 8860
+    },
+    {
+      "path": "v10/fix_01/episodes.jsonl",
+      "exists": true,
+      "sha256": "1dbf2b8a73c3c0b3e0455e19df4f8f759ac31b3d9a7e89342f45b84cfd8ed905",
+      "bytes": 273153
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/datasets/d_v10_value_dataset.jsonl",
+      "exists": true,
+      "sha256": "be0112c4ecf96a2b372897db4cb4d84e3149745eb28f3b774b91912713922071",
+      "bytes": 708329433
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/datasets/v10_value_split_manifest.json",
+      "exists": true,
+      "sha256": "fe5d1f01ef02a8c7a3f66f5600528a1a2aa8cc6dbe0b1cba948f48c9598d1e7b",
+      "bytes": 11450
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv0.json",
+      "exists": true,
+      "sha256": "f35d5ed212102ae9b7dc91307805d760144dd1fe209f536387e616af77d5892e",
+      "bytes": 1526771
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv01.json",
+      "exists": true,
+      "sha256": "882e5021cd71840eab6af6bcdff576f793bd3e9d41a8c57431240f8899fc65ad",
+      "bytes": 1526776
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv025.json",
+      "exists": true,
+      "sha256": "a9215279a8a8aa47c27b4a19a66a07eaf80100b39994058a3591eb906801f8b7",
+      "bytes": 1526833
+    },
+    {
+      "path": "v10/fix_01/value_calibration.json",
+      "exists": true,
+      "sha256": "57f9749bab62ffe23d4bab407a80d98faf7396938806e03e7d0c3b3ac9a2f67c",
+      "bytes": 14450
+    },
+    {
+      "path": "v10/fix_01/representation_ablation.json",
+      "exists": true,
+      "sha256": "81a433a093ba6d7f1b718a0506d4411bf955afbefc62a2af8626610a52e01d86",
+      "bytes": 2462
+    },
+    {
+      "path": "v10/fix_01/T10-06_search_value_comparison.json",
+      "exists": true,
+      "sha256": "5470eeeba95b276abe07861dfe36fc101ad610e4b83879cb57c17f2466d8824c",
+      "bytes": 1196
+    },
+    {
+      "path": "v10/fix_01/T10-06_prepare.json",
+      "exists": true,
+      "sha256": "8c082f1f8cef539743d939fb3455dda77d52728bf0b720baad61059faf4db934",
+      "bytes": 2444
+    }
+  ],
+  "invalidatedArtifacts": [
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/datasets/d_v10_value_dataset.jsonl",
+      "sha256": "be0112c4ecf96a2b372897db4cb4d84e3149745eb28f3b774b91912713922071",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/datasets/v10_value_split_manifest.json",
+      "sha256": "fe5d1f01ef02a8c7a3f66f5600528a1a2aa8cc6dbe0b1cba948f48c9598d1e7b",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv0.json",
+      "sha256": "f35d5ed212102ae9b7dc91307805d760144dd1fe209f536387e616af77d5892e",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv01.json",
+      "sha256": "882e5021cd71840eab6af6bcdff576f793bd3e9d41a8c57431240f8899fc65ad",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260923_v10_fix_01/value_learning_fix/checkpoints/spatial_resnet_cv025.json",
+      "sha256": "a9215279a8a8aa47c27b4a19a66a07eaf80100b39994058a3591eb906801f8b7",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "v10/fix_01/value_calibration.json",
+      "sha256": "57f9749bab62ffe23d4bab407a80d98faf7396938806e03e7d0c3b3ac9a2f67c",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "v10/fix_01/representation_ablation.json",
+      "sha256": "81a433a093ba6d7f1b718a0506d4411bf955afbefc62a2af8626610a52e01d86",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "v10/fix_01/T10-06_search_value_comparison.json",
+      "sha256": "5470eeeba95b276abe07861dfe36fc101ad610e4b83879cb57c17f2466d8824c",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    },
+    {
+      "path": "v10/fix_01/T10-06_prepare.json",
+      "sha256": "8c082f1f8cef539743d939fb3455dda77d52728bf0b720baad61059faf4db934",
+      "status": "INVALID_INPUT_ALIGNMENT_PENDING_REBUILD"
+    }
+  ],
+  "notes": [
+    "Read-only freeze: no repository file was modified to produce this snapshot.",
+    "HEAD and branch are read directly from .git (loose ref, then packed-refs); spawning git is denied here."
+  ]
+}

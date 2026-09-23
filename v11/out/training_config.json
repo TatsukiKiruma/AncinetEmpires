@@ -1,0 +1,78 @@
+{
+  "schema": "v11_training_config_1",
+  "generatedAt": "2026-09-23T19:05:00Z",
+  "_provenance": "Produced by V11 batch 1 (T11-03). Describes the interface the trainer now accepts; no training run was launched with it. Paid compute and production changes are not authorized.",
+  "trainer": "python/train_spatial_resnet.py",
+  "interpreter": {
+    "required": "torch + numpy importable",
+    "note": "The default `python` on this machine (Anaconda 3.13.5) has no torch. A torch-enabled interpreter was `py -3.12` (torch 2.14.0+cpu). Use V11_PYTHON / PYTHON to point the trainer at one.",
+    "device": "cpu (no GPU was used)"
+  },
+  "consumptionAccountability": {
+    "plannedManifest": {
+      "flag": "--planned-manifest",
+      "writtenWhen": "before the DataLoader exists",
+      "measured": false,
+      "warning": "Pre-training plan (index split). It does NOT prove which samples were optimized."
+    },
+    "optimizedManifest": {
+      "flag": "--optimized-manifest",
+      "writtenWhen": "after training, accumulated only on successful optimizer.step()",
+      "measured": true,
+      "fields": [
+        "updates", "totalExposures", "optimizedUniqueSamples", "plannedButNeverOptimized",
+        "policyMaskedExposures", "valueSupervisedExposures", "valueMaskedExposures", "perEpoch"
+      ]
+    },
+    "updateLedger": {
+      "path": "<optimized-manifest dir>/optimizer_update_ledger.jsonl",
+      "content": "one line per optimizer step: epoch, update index, batchSize, sampleIds, mask counts",
+      "property": "every aggregate in the optimized manifest can be recomputed from this ledger"
+    },
+    "legacyFlag": {
+      "flag": "--consumed-manifest",
+      "status": "retained for compatibility but now labelled `measured: false` with an explicit warning",
+      "reason": "In V10 this file was written before training and then used to certify DAgger coverage - a closed loop that could not fail."
+    }
+  },
+  "budgetControls": {
+    "perEpochLimit": { "flag": "--max-steps", "resetsEachEpoch": true },
+    "globalLimit": { "flag": "--global-update-limit", "resetsEachEpoch": false, "note": "checked against the measured update count, so it holds across epochs" },
+    "proposedCaps": {
+      "maxFormalFits": 4,
+      "maxNewTeacherDecisionQueries": 10000,
+      "mustAlsoAccountForTotalEngineTransitions": true,
+      "source": "v11/agent_tasks_v11.json initial_training_budget_proposal"
+    }
+  },
+  "supervisionMasks": {
+    "policyLossMask": {
+      "field": "policyLossMask",
+      "default": true,
+      "effect": "False multiplies that row's policy loss by zero; the row is still counted as an exposure"
+    },
+    "valueLossMask": {
+      "field": "valueLossMask",
+      "default": "valueTarget is not None",
+      "effect": "a row with a null value target never contributes value gradient"
+    },
+    "rule": "A real value label never implies the played action was good. A truncated episode teaches policy but not value."
+  },
+  "failLoudlyGuards": [
+    "unknown rootFamilyId in the split manifest -> ValueError (previously defaulted into train)",
+    "duplicate sampleId mapping to two different stateHash values -> ValueError",
+    "empty validation partition -> ValueError (previously carved from the tail of train)",
+    "sample without rootFamilyId -> ValueError",
+    "non-finite loss or gradient -> RuntimeError"
+  ],
+  "notDone": [
+    "optimizer state save/restore is NOT implemented; the V11 taskbook asks for it or for an explicit re-initialisation. Controls currently all start from a fresh optimizer.",
+    "architecture-extension zero-initialisation (GAP from zero, residual last layer zero) is NOT implemented - F06 remains partially open.",
+    "DAgger training whitelist update and ancestor-overlap check are NOT implemented."
+  ],
+  "verification": {
+    "consumptionTests": "python/tests/test_v11_optimizer_consumption.py (9 tests)",
+    "gradientMaskTests": "python/tests/test_v11_gradient_masks.py (5 tests, policy-only / value-only / joint)",
+    "lastRun": "py -3.12 -m unittest discover -s python/tests -> 14 tests OK"
+  }
+}

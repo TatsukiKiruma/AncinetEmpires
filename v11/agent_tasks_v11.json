@@ -1,0 +1,129 @@
+{
+  "schema": "v11_taskbook_1",
+  "review_commit": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "created_date": "2026-09-23",
+  "all_task_statuses_are_future_not_executed": true,
+  "first_batch": [
+    "T11-00",
+    "T11-01",
+    "T11-02",
+    "T11-03"
+  ],
+  "initial_training_budget_proposal": {
+    "max_formal_fits": 4,
+    "max_new_teacher_decision_queries": 10000,
+    "must_also_account_for_total_engine_transitions": true,
+    "note": "Proposed initial caps, not measured training requirements. Paid compute and production changes are not authorized."
+  },
+  "tasks": [
+    {
+      "id": "T11-00",
+      "priority": "P0",
+      "title": "冻结证据与最小失败复现",
+      "dependencies": [],
+      "status": "TODO",
+      "deliverables": [
+        "issue_ledger.json",
+        "source_snapshot.json",
+        "regression_cases.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-01",
+      "priority": "P0",
+      "title": "真实初态回放与样本对齐",
+      "dependencies": [
+        "T11-00"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "replay_validation.json",
+        "invalid_episodes.jsonl",
+        "dataset_v11_manifest.json",
+        "split_v11.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-02",
+      "priority": "P0",
+      "title": "完整关键动作与可比预算搜索",
+      "dependencies": [
+        "T11-00"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "candidate_coverage.json",
+        "search_transition_profile.json",
+        "tactical_regression.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-03",
+      "priority": "P0",
+      "title": "真实优化消费与监督mask",
+      "dependencies": [
+        "T11-00"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "optimizer_consumption.json",
+        "gradient_mask_tests.json",
+        "training_config.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-04",
+      "priority": "P1",
+      "title": "学习局部策略改进的主实验",
+      "dependencies": [
+        "T11-01",
+        "T11-02",
+        "T11-03"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "counterfactual_labels.jsonl",
+        "label_quality.json",
+        "residual_ranker_curves.json",
+        "intervention_audit.json",
+        "strength_ablation.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-05",
+      "priority": "P1/P2",
+      "title": "正确价值或DAgger辅线",
+      "dependencies": [
+        "T11-01",
+        "T11-03"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "auxiliary_line_decision.json",
+        "value_or_dagger_ablation.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    },
+    {
+      "id": "T11-06",
+      "priority": "P1",
+      "title": "冻结配对确认与产品验收",
+      "dependencies": [
+        "T11-04"
+      ],
+      "status": "TODO",
+      "deliverables": [
+        "acceptance_report.md",
+        "paired_confirmation.json",
+        "browser_runtime.json",
+        "release_manifest.json"
+      ],
+      "details": "AncinetEmpires_V11_Review_and_Taskbook.md 第4节"
+    }
+  ]
+}

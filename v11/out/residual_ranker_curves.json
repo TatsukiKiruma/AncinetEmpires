@@ -1,0 +1,351 @@
+{
+  "schema": "v11_residual_ranker_curves_1",
+  "generatedAt": "2026-09-23T09:50:05.078Z",
+  "holdoutStrategy": "root-family holdout: holdout roots come from the reserved val_id bucket, train roots from train. OOD roots are the held-out Liberty Port map. No decision is split across sets.",
+  "fits": [
+    {
+      "fitId": "fit1_pair_all",
+      "kind": "pair",
+      "minQuality": [
+        "VERIFIED_IMMEDIATE_WIN",
+        "VERIFIED_NATURAL",
+        "PROXY"
+      ],
+      "shuffleSeed": null,
+      "epochs": 300,
+      "learningRate": 0.5,
+      "trainDecisions": 7,
+      "holdoutDecisions": 1,
+      "trainLossTail": [
+        0.002991,
+        0.002985,
+        0.002979,
+        0.002973,
+        0.002967
+      ],
+      "evaluations": [
+        {
+          "arm": "holdout_always_baseline",
+          "decisions": 1,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 2,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 1
+        },
+        {
+          "arm": "holdout_untrained_weights",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_trained_ranker",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_oracle_upper_bound",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_trained_ranker",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_always_baseline",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        }
+      ],
+      "weightsFile": "C:\\code\\AncinetEmpires\\v11\\out\\ranker_weights\\fit1_pair_all.json"
+    },
+    {
+      "fitId": "fit2_delta_all",
+      "kind": "delta",
+      "minQuality": [
+        "VERIFIED_IMMEDIATE_WIN",
+        "VERIFIED_NATURAL",
+        "PROXY"
+      ],
+      "shuffleSeed": null,
+      "epochs": 300,
+      "learningRate": 0.5,
+      "trainDecisions": 7,
+      "holdoutDecisions": 1,
+      "trainLossTail": [
+        1.102603835040183e+204,
+        5.408634362880666e+204,
+        2.6531129986743995e+205,
+        1.3014391640232922e+206,
+        6.3839870314604304e+206
+      ],
+      "evaluations": [
+        {
+          "arm": "holdout_always_baseline",
+          "decisions": 1,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 2,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 1
+        },
+        {
+          "arm": "holdout_untrained_weights",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_trained_ranker",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_oracle_upper_bound",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_trained_ranker",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_always_baseline",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        }
+      ],
+      "weightsFile": "C:\\code\\AncinetEmpires\\v11\\out\\ranker_weights\\fit2_delta_all.json"
+    },
+    {
+      "fitId": "fit3_pair_verified_only",
+      "kind": "pair",
+      "minQuality": [
+        "VERIFIED_IMMEDIATE_WIN",
+        "VERIFIED_NATURAL"
+      ],
+      "shuffleSeed": null,
+      "epochs": 300,
+      "learningRate": 0.5,
+      "trainDecisions": 7,
+      "holdoutDecisions": 1,
+      "trainLossTail": [
+        0.002991,
+        0.002985,
+        0.002979,
+        0.002973,
+        0.002967
+      ],
+      "evaluations": [
+        {
+          "arm": "holdout_always_baseline",
+          "decisions": 1,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 2,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 1
+        },
+        {
+          "arm": "holdout_untrained_weights",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_trained_ranker",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_oracle_upper_bound",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_trained_ranker",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_always_baseline",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        }
+      ],
+      "weightsFile": "C:\\code\\AncinetEmpires\\v11\\out\\ranker_weights\\fit3_pair_verified_only.json"
+    },
+    {
+      "fitId": "fit4_pair_label_shuffled",
+      "kind": "pair",
+      "minQuality": [
+        "VERIFIED_IMMEDIATE_WIN",
+        "VERIFIED_NATURAL",
+        "PROXY"
+      ],
+      "shuffleSeed": 20260924,
+      "epochs": 300,
+      "learningRate": 0.5,
+      "trainDecisions": 7,
+      "holdoutDecisions": 1,
+      "trainLossTail": [
+        0.003373,
+        0.003366,
+        0.003359,
+        0.003352,
+        0.003345
+      ],
+      "evaluations": [
+        {
+          "arm": "holdout_always_baseline",
+          "decisions": 1,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 2,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 1
+        },
+        {
+          "arm": "holdout_untrained_weights",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_trained_ranker",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "holdout_oracle_upper_bound",
+          "decisions": 1,
+          "exactBestRate": 1,
+          "meanDeltaVsBaseline": 2,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 1,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_trained_ranker",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        },
+        {
+          "arm": "ood_always_baseline",
+          "decisions": 0,
+          "exactBestRate": 0,
+          "meanDeltaVsBaseline": 0,
+          "meanRegret": 0,
+          "harmfulRate": 0,
+          "beneficialRate": 0,
+          "keptBaselineRate": 0
+        }
+      ],
+      "weightsFile": "C:\\code\\AncinetEmpires\\v11\\out\\ranker_weights\\fit4_pair_label_shuffled.json"
+    }
+  ],
+  "bestFit": {
+    "fitId": "fit1_pair_all",
+    "reason": "highest mean dQ vs baseline on holdout (2)"
+  },
+  "caveats": [
+    "holdout_oracle_upper_bound is an oracle over the SAME candidate set; it is an upper bound, not achievable.",
+    "holdout_untrained_weights is the \"no information\" control: the identical candidate set, an unfitted model.",
+    "A PROXY-heavy label set can make a ranker look better than it is; cross-check the label quality mix."
+  ]
+}

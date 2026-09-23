@@ -1,0 +1,74 @@
+{
+  "schema": "v11_tactical_regression_1",
+  "generatedAt": "2026-09-23T09:13:21.835Z",
+  "repositoryFixtures": {
+    "fixture_1_lethal_depth_defense": {
+      "description": "Friendly 1HP commander adjacent to a strong enemy; probe must detect lethal response",
+      "chosenAction": "recruit_to_castle",
+      "transitions": 128,
+      "oppProbes": 66,
+      "opponentLegalCandidates": 85,
+      "opponentProbedCandidates": 11,
+      "lethalDetected": 9,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_2_multi_unit_handover": {
+      "description": "Friendly multi-unit turn rolls out to genuine opponent handover",
+      "transitions": 193,
+      "friendlyTransitions": 75,
+      "depthReached": 8,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_3_equal_work_transition_scan": {
+      "64": {
+        "budgetLimit": 64,
+        "transitionsUsed": 64,
+        "elapsedMs": 49.7,
+        "candidatesEvaluated": 1,
+        "budgetReason": "transition_limit"
+      },
+      "256": {
+        "budgetLimit": 256,
+        "transitionsUsed": 256,
+        "elapsedMs": 280.9,
+        "candidatesEvaluated": 14,
+        "budgetReason": "transition_limit"
+      },
+      "1024": {
+        "budgetLimit": 1024,
+        "transitionsUsed": 499,
+        "elapsedMs": 573.6,
+        "candidatesEvaluated": 30,
+        "budgetReason": "completed"
+      }
+    },
+    "fixture_4_prior_mode_instrumentation": {
+      "off": {
+        "proposed": 0,
+        "evaluated": 0,
+        "accepted": 0
+      },
+      "shuffled": {
+        "proposed": 1,
+        "evaluated": 1,
+        "accepted": 0
+      },
+      "note": "real-prior mode additionally requires a predictor instance; the pipeline runner supplies one when available."
+    }
+  },
+  "failingRepositoryFixtures": [],
+  "constructedImmediateWin": {
+    "available": true,
+    "mapName": "(2) Duel.aem",
+    "attackKept": true,
+    "searchChoseGuaranteed": true,
+    "detail": "verified lethal action {\"type\":\"attack\",\"attackerId\":\"apk_u1\",\"targetId\":\"apk_u0\"}"
+  },
+  "permutationStability": {
+    "positionsChecked": 4,
+    "unstablePositions": 0,
+    "detail": "the same state and budget must produce the same chosen action across repeated runs"
+  }
+}
