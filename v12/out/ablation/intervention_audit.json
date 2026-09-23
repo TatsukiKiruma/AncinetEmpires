@@ -1,0 +1,136 @@
+{
+  "schema": "v11_intervention_audit_1",
+  "generatedAt": "2026-09-23T17:15:12.073Z",
+  "events": 212,
+  "overrides": 3,
+  "refusals": 209,
+  "overrideShare": 0.0142,
+  "byArm": {
+    "heuristic": {
+      "events": 0,
+      "overrides": 0,
+      "overrideShare": 0,
+      "meanMargin": 0,
+      "transitions": 0
+    },
+    "planner": {
+      "events": 40,
+      "overrides": 0,
+      "overrideShare": 0,
+      "meanMargin": 0,
+      "transitions": 8915
+    },
+    "planner_zeroed": {
+      "events": 40,
+      "overrides": 0,
+      "overrideShare": 0,
+      "meanMargin": 0,
+      "transitions": 8915
+    },
+    "planner_residual": {
+      "events": 132,
+      "overrides": 3,
+      "overrideShare": 0.0227,
+      "meanMargin": 1.191837,
+      "transitions": 23290
+    }
+  },
+  "overrideActionTypePairs": {
+    "baseline->recruit_to_castle": 1,
+    "baseline->wait": 2
+  },
+  "refusalReasons": {
+    "module proposed no candidate above the baseline": 80,
+    "module proposal not confirmed (margin=-1.0576 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.5752 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.5835 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.5284 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0000 <= 0.02)": 89,
+    "module proposal not confirmed (margin=-0.8488 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.6499 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.1056 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0207 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0104 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0028 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.9933 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0218 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.9903 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.9800 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-1.9857 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0226 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0351 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0013 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0056 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0198 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0002 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0003 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0014 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0000 <= 0.02)": 8,
+    "module proposal not confirmed (margin=0.0009 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0003 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0004 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0007 <= 0.02)": 1,
+    "module proposal not confirmed (margin=0.0010 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0001 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0002 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0031 <= 0.02)": 1,
+    "module proposal not confirmed (margin=-0.0077 <= 0.02)": 1
+  },
+  "positiveMarginOverrides": 3,
+  "nonPositiveMarginOverrides": 0,
+  "examples": [
+    {
+      "arm": "planner_residual",
+      "matchId": "planner_residual__2__Duel_aem_s42_seat0",
+      "mapName": "(2) Duel.aem",
+      "seed": 42,
+      "seat": 0,
+      "turn": 1,
+      "overridden": true,
+      "reason": "confirmed improvement margin=1.1855",
+      "margin": 1.185518,
+      "baseValue": -0.998737,
+      "chosenValue": 0.186781,
+      "candidatesConsidered": 3,
+      "engineTransitions": 240,
+      "chosenActionType": "recruit_to_castle"
+    },
+    {
+      "arm": "planner_residual",
+      "matchId": "planner_residual__2__Duel_aem_s42_seat0",
+      "mapName": "(2) Duel.aem",
+      "seed": 42,
+      "seat": 0,
+      "turn": 2,
+      "overridden": true,
+      "reason": "confirmed improvement margin=1.1186",
+      "margin": 1.118648,
+      "baseValue": -0.998235,
+      "chosenValue": 0.120413,
+      "candidatesConsidered": 3,
+      "engineTransitions": 240,
+      "chosenActionType": "wait"
+    },
+    {
+      "arm": "planner_residual",
+      "matchId": "planner_residual__2__Duel_aem_s42_seat0",
+      "mapName": "(2) Duel.aem",
+      "seed": 42,
+      "seat": 0,
+      "turn": 2,
+      "overridden": true,
+      "reason": "confirmed improvement margin=1.2713",
+      "margin": 1.271345,
+      "baseValue": -0.271979,
+      "chosenValue": 0.999366,
+      "candidatesConsidered": 3,
+      "engineTransitions": 240,
+      "chosenActionType": "wait"
+    }
+  ],
+  "caveats": [
+    "An override is only taken when the confirmed margin exceeds the pre-registered threshold; the threshold is in the protocol block.",
+    "Refusals dominate whenever the module cannot confirm an improvement, which is the intended conservative behaviour.",
+    "Margins come from bounded continuations, so a positive margin is evidence of an estimate, not of a proven gain."
+  ]
+}

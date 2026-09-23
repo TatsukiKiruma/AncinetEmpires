@@ -1,0 +1,153 @@
+{
+  "schema": "v11_strength_ablation_1",
+  "generatedAt": "2026-09-23T17:15:12.071Z",
+  "runId": "agent_upgrade_v12_b1",
+  "protocol": {
+    "maps": [
+      "(2) Duel.aem"
+    ],
+    "seeds": [
+      42
+    ],
+    "seats": [
+      0
+    ],
+    "maxTurns": 60,
+    "maxAtomicSteps": 4000,
+    "maxDecisionsPerMatch": 240,
+    "plannerOptions": {
+      "searchTransitions": 48,
+      "searchMaxMs": 250,
+      "compareOptions": {
+        "continuationBudget": 80,
+        "maxCandidates": 3,
+        "continuationSeed": 20260924
+      },
+      "minDelta": 0.02,
+      "maxCandidates": 3
+    },
+    "ranker": "v11/out/ranker_weights/fit1_pair_all.json",
+    "deterministic": "every arm replays identical (map, seed, seat) blocks; the residual arm seeds its continuation PRNG from the state hash, so a given decision is reproducible"
+  },
+  "arms": {
+    "heuristic": {
+      "matches": 1,
+      "wins": 0,
+      "losses": 1,
+      "draws": 0,
+      "truncated": 0,
+      "errors": 0,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "truncationRate": 0,
+      "overrides": 0,
+      "decisions": 0,
+      "overrideShare": 0,
+      "engineTransitions": 0,
+      "transitionsPerDecision": 0
+    },
+    "planner": {
+      "matches": 1,
+      "wins": 0,
+      "losses": 1,
+      "draws": 0,
+      "truncated": 0,
+      "errors": 0,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "truncationRate": 0,
+      "overrides": 0,
+      "decisions": 40,
+      "overrideShare": 0,
+      "engineTransitions": 8915,
+      "transitionsPerDecision": 222.9
+    },
+    "planner_zeroed": {
+      "matches": 1,
+      "wins": 0,
+      "losses": 1,
+      "draws": 0,
+      "truncated": 0,
+      "errors": 0,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "truncationRate": 0,
+      "overrides": 0,
+      "decisions": 40,
+      "overrideShare": 0,
+      "engineTransitions": 8915,
+      "transitionsPerDecision": 222.9
+    },
+    "planner_residual": {
+      "matches": 1,
+      "wins": 1,
+      "losses": 0,
+      "draws": 0,
+      "truncated": 0,
+      "errors": 0,
+      "naturalWinRate": 1,
+      "winRateAllMatches": 1,
+      "truncationRate": 0,
+      "overrides": 3,
+      "decisions": 132,
+      "overrideShare": 0.0227,
+      "engineTransitions": 23290,
+      "transitionsPerDecision": 176.4
+    }
+  },
+  "behaviourDistinct": {
+    "plannerRunsComparison": true,
+    "zeroedRunsComparison": true,
+    "plannerDiffersFromHeuristic": true
+  },
+  "paired": [
+    {
+      "armA": "planner_residual",
+      "armB": "planner",
+      "blocks": 1,
+      "aOnlyWins": 1,
+      "bOnlyWins": 0,
+      "bothWin": 0,
+      "bothNotWin": 0,
+      "discordant": 1,
+      "note": "Discordant pairs are the only ones that carry information about a difference."
+    },
+    {
+      "armA": "planner_residual",
+      "armB": "heuristic",
+      "blocks": 1,
+      "aOnlyWins": 1,
+      "bOnlyWins": 0,
+      "bothWin": 0,
+      "bothNotWin": 0,
+      "discordant": 1,
+      "note": "Discordant pairs are the only ones that carry information about a difference."
+    },
+    {
+      "armA": "planner",
+      "armB": "heuristic",
+      "blocks": 1,
+      "aOnlyWins": 0,
+      "bOnlyWins": 0,
+      "bothWin": 0,
+      "bothNotWin": 1,
+      "discordant": 0,
+      "note": "Discordant pairs are the only ones that carry information about a difference."
+    }
+  ],
+  "controlCheck": {
+    "plannerMatchesZeroed": true,
+    "mismatchBlocks": 0,
+    "note": "The zeroed-ranker arm reproduces the no-ranker arm exactly, so the learning-disabled control is valid."
+  },
+  "verdict": {
+    "summary": "residual natural win rate 100.0% vs planner 0.0% and heuristic 0.0%",
+    "learningAddsValue": true,
+    "reason": "the residual arm scored above the identical-budget no-ranker arm"
+  },
+  "caveats": [
+    "Truncated matches are reported separately and are never counted as wins.",
+    "The opponent is always the frozen Heuristic baseline, so this measures improvement against that opponent only.",
+    "A difference on this many paired blocks is not a significance claim; discordant-pair counts are given so a reader can judge."
+  ]
+}

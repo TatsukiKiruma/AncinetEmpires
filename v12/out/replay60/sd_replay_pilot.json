@@ -1,0 +1,3018 @@
+{
+  "kind": "t12_05_replay_pilot",
+  "version": 1,
+  "summary": {
+    "revision": "9c6c1ab897dd",
+    "generatedAt": "2026-09-23T17:16:33.048Z",
+    "recomputedFrom": "v12/out/replay/sd_replay_pilot.json",
+    "legacyOpensslProvider": true,
+    "archiveDir": "C:\\code\\AncinetEmpires\\training_runs\\episodes\\sd_training_plan_20260705_heuristic-apk-like-balanced",
+    "sdPlanFile": "C:\\code\\AncinetEmpires\\training_configs\\sd_training_plan_20260705.json",
+    "unpackDir": "C:\\code\\AncinetEmpires\\APK\\_analysis\\unpack",
+    "samplingRule": {
+      "description": "分层抽样：按 claimed 行数比例分配（最大余数法），文件内用带种子偏移的等距 stride；处理顺序按 rank 轮转（每个文件各取第 r 个样本），因此预算截断后的样本仍跨变体成比例",
+      "seed": 20260923,
+      "target": 100,
+      "claimedTotalLines": 1395,
+      "plannedSampleCount": 100,
+      "allocation": [
+        {
+          "file": "sd-normal-episodes.jsonl",
+          "claimedLineCount": 400,
+          "sampleCount": 29,
+          "offset": 0.969625,
+          "lineIndexes": [
+            13,
+            27,
+            40,
+            54,
+            68,
+            82,
+            96,
+            109,
+            123,
+            137,
+            151,
+            165,
+            178,
+            192,
+            206,
+            220,
+            234,
+            247,
+            261,
+            275,
+            289,
+            303,
+            316,
+            330,
+            344,
+            358,
+            371,
+            385,
+            399
+          ]
+        },
+        {
+          "file": "sd-high-gold-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 7,
+          "offset": 0.838542,
+          "lineIndexes": [
+            11,
+            26,
+            40,
+            54,
+            69,
+            83,
+            97
+          ]
+        },
+        {
+          "file": "sd-low-gold-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 7,
+          "offset": 0.210832,
+          "lineIndexes": [
+            3,
+            17,
+            31,
+            45,
+            60,
+            74,
+            88
+          ]
+        },
+        {
+          "file": "sd-low-unit-limit-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 7,
+          "offset": 0.372792,
+          "lineIndexes": [
+            5,
+            19,
+            33,
+            48,
+            62,
+            76,
+            91
+          ]
+        },
+        {
+          "file": "sd-high-unit-limit-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 7,
+          "offset": 0.723257,
+          "lineIndexes": [
+            10,
+            24,
+            38,
+            53,
+            67,
+            81,
+            96
+          ]
+        },
+        {
+          "file": "sd-3p-normal-extra-episodes.jsonl",
+          "claimedLineCount": 160,
+          "sampleCount": 12,
+          "offset": 0.743305,
+          "lineIndexes": [
+            9,
+            23,
+            36,
+            49,
+            63,
+            76,
+            89,
+            103,
+            116,
+            129,
+            143,
+            156
+          ]
+        },
+        {
+          "file": "sd-3p-high-gold-extra-episodes.jsonl",
+          "claimedLineCount": 60,
+          "sampleCount": 4,
+          "offset": 0.731564,
+          "lineIndexes": [
+            10,
+            25,
+            40,
+            55
+          ]
+        },
+        {
+          "file": "sd-3p-low-unit-extra-episodes.jsonl",
+          "claimedLineCount": 60,
+          "sampleCount": 4,
+          "offset": 0.461193,
+          "lineIndexes": [
+            6,
+            21,
+            36,
+            51
+          ]
+        },
+        {
+          "file": "sd-4p-normal-extra-episodes.jsonl",
+          "claimedLineCount": 35,
+          "sampleCount": 3,
+          "offset": 0.106597,
+          "lineIndexes": [
+            1,
+            12,
+            24
+          ]
+        },
+        {
+          "file": "sd-small-advantage-endgame-episodes.jsonl",
+          "claimedLineCount": 140,
+          "sampleCount": 10,
+          "offset": 0.384238,
+          "lineIndexes": [
+            5,
+            19,
+            33,
+            47,
+            61,
+            75,
+            89,
+            103,
+            117,
+            131
+          ]
+        },
+        {
+          "file": "sd-medium-advantage-endgame-episodes.jsonl",
+          "claimedLineCount": 140,
+          "sampleCount": 10,
+          "offset": 0.258792,
+          "lineIndexes": [
+            3,
+            17,
+            31,
+            45,
+            59,
+            73,
+            87,
+            101,
+            115,
+            129
+          ]
+        }
+      ],
+      "processingOrder": "round-robin by rank, files sorted by name"
+    },
+    "measuredLineCounts": {
+      "sd-normal-episodes.jsonl": 400,
+      "sd-high-gold-episodes.jsonl": 100,
+      "sd-low-gold-episodes.jsonl": 100,
+      "sd-low-unit-limit-episodes.jsonl": 100,
+      "sd-high-unit-limit-episodes.jsonl": 100,
+      "sd-3p-normal-extra-episodes.jsonl": 160,
+      "sd-3p-high-gold-extra-episodes.jsonl": 60,
+      "sd-3p-low-unit-extra-episodes.jsonl": 60,
+      "sd-4p-normal-extra-episodes.jsonl": 35,
+      "sd-small-advantage-endgame-episodes.jsonl": 140,
+      "sd-medium-advantage-endgame-episodes.jsonl": 140
+    },
+    "measuredPhysicalLines": {
+      "sd-normal-episodes.jsonl": 400,
+      "sd-high-gold-episodes.jsonl": 100,
+      "sd-low-gold-episodes.jsonl": 100,
+      "sd-low-unit-limit-episodes.jsonl": 100,
+      "sd-high-unit-limit-episodes.jsonl": 100,
+      "sd-3p-normal-extra-episodes.jsonl": 160,
+      "sd-3p-high-gold-extra-episodes.jsonl": 60,
+      "sd-3p-low-unit-extra-episodes.jsonl": 60,
+      "sd-4p-normal-extra-episodes.jsonl": 35,
+      "sd-small-advantage-endgame-episodes.jsonl": 140,
+      "sd-medium-advantage-endgame-episodes.jsonl": 140
+    },
+    "fileBytes": {
+      "sd-normal-episodes.jsonl": 1011232836,
+      "sd-high-gold-episodes.jsonl": 275151164,
+      "sd-low-gold-episodes.jsonl": 247409042,
+      "sd-low-unit-limit-episodes.jsonl": 179191386,
+      "sd-high-unit-limit-episodes.jsonl": 289775985,
+      "sd-3p-normal-extra-episodes.jsonl": 370172013,
+      "sd-3p-high-gold-extra-episodes.jsonl": 163433492,
+      "sd-3p-low-unit-extra-episodes.jsonl": 96254233,
+      "sd-4p-normal-extra-episodes.jsonl": 117356704,
+      "sd-small-advantage-endgame-episodes.jsonl": 263745086,
+      "sd-medium-advantage-endgame-episodes.jsonl": 296658236
+    },
+    "missingFiles": [],
+    "archiveBytesTotal": 3310380177,
+    "indexMs": 807,
+    "attempted": 60,
+    "passed": 60,
+    "thrown": 0,
+    "timedOut": 0,
+    "budgetSkipped": 40,
+    "passRate": 1,
+    "passRateOfTarget": 0.6,
+    "stepsReplayed": 292213,
+    "passedSteps": 292213,
+    "wallClockMs": 1908543,
+    "budgetMs": 1800000,
+    "budgetExhausted": true,
+    "episodeTimeoutMs": 600000,
+    "sampleIsSmall": true,
+    "cost": {
+      "totalReplayMs": 1907582,
+      "indexMs": 807,
+      "perAttemptedEpisodeMs": 31793,
+      "perPassedEpisodeMs": 31793,
+      "perPassedEpisodeMsMedian": 4158,
+      "perPassedEpisodeMsMin": 212,
+      "perPassedEpisodeMsMax": 322137,
+      "perPassedEpisodeMsSpreadRatio": 1519.5,
+      "perPassedStepMs": 6.5281,
+      "perPassedStepMsMedian": 3.4,
+      "stepsPerSecondPassed": 153.19,
+      "stepsPerSecondMedian": 294.12,
+      "episodesPerHourPassed": 113.2,
+      "episodesPerHourMedian": 865.8,
+      "passedStepsMedian": 1612,
+      "passedStepsMin": 69,
+      "passedStepsMax": 29728,
+      "projectedFullArchiveMsMeanBasis": 44351282,
+      "projectedFullArchiveHoursMeanBasis": 12.32,
+      "projectedFullArchiveMsMedianBasis": 5800410,
+      "projectedFullArchiveHoursMedianBasis": 1.61,
+      "projectedFullArchiveHoursRange": [
+        1.61,
+        12.32
+      ],
+      "stepCensus": {
+        "generatedAt": "2026-09-23T17:15:25.875Z",
+        "recordCount": 1395,
+        "totalSteps": 9219721,
+        "stepsMean": 6609.1,
+        "stepsMedian": 2650,
+        "missingStepCount": 0
+      },
+      "projectedFullArchiveHoursStepBasisMean": 16.72,
+      "projectedFullArchiveHoursStepBasisMedian": 8.71,
+      "projectedFullArchiveHoursStepBasisRange": [
+        8.71,
+        16.72
+      ],
+      "projectedFullArchiveMsStepStratified": 63449869,
+      "projectedFullArchiveHoursStepStratified": 17.62,
+      "projectedFullArchiveHoursStepStratifiedMedianBasis": 13.79,
+      "projectedFullArchiveHoursStepStratifiedBand": [
+        13.79,
+        17.62
+      ],
+      "stepStratification": [
+        {
+          "label": "1-999",
+          "archiveRecords": 394,
+          "archiveSteps": 202469,
+          "sampledEpisodes": 21,
+          "sampledSteps": 10827,
+          "sampledMsPerStep": 2.4383,
+          "sampledMsPerStepMedian": 4.029,
+          "usedPooledFallback": false,
+          "sampledMs": 26399
+        },
+        {
+          "label": "1000-4999",
+          "archiveRecords": 443,
+          "archiveSteps": 1013421,
+          "sampledEpisodes": 24,
+          "sampledSteps": 56089,
+          "sampledMsPerStep": 3.7547,
+          "sampledMsPerStepMedian": 3.5,
+          "usedPooledFallback": false,
+          "sampledMs": 210600
+        },
+        {
+          "label": "5000-14999",
+          "archiveRecords": 267,
+          "archiveSteps": 2545805,
+          "sampledEpisodes": 7,
+          "sampledSteps": 66748,
+          "sampledMsPerStep": 6.6185,
+          "sampledMsPerStepMedian": 4.2867,
+          "usedPooledFallback": false,
+          "sampledMs": 441771
+        },
+        {
+          "label": "15000+",
+          "archiveRecords": 291,
+          "archiveSteps": 5458026,
+          "sampledEpisodes": 8,
+          "sampledSteps": 158549,
+          "sampledMsPerStep": 7.7504,
+          "sampledMsPerStepMedian": 6.3,
+          "usedPooledFallback": false,
+          "sampledMs": 1228812
+        }
+      ],
+      "linearFit": {
+        "n": 60,
+        "interceptMs": -7067.1,
+        "msPerStep": 7.9791,
+        "r2": 0.86,
+        "interceptIsPositive": false,
+        "note": "线性拟合给出**负**截距，说明每步成本随对局变长而上升（超线性），单一直线模型不适用，故采用分桶投影"
+      },
+      "projectionBasis": "上界=每 PASS episode 平均 31793.0ms × 1395；下界=中位数 4158ms × 1395（两者都是外推，不是实测）",
+      "projectionIsProjection": true,
+      "projectionAssumption": "假设这 60 个已重放 episode 的耗时分布与归档全部 1395 个 episode 一致；由于单 episode 成本实测相差约 1520 倍，小样本下的均值受长对局离群值驱动，因此同时给出中位数口径"
+    },
+    "failureByCategory": {},
+    "failureByPlan": {
+      "sd-3p-high-gold-extra": {
+        "count": 0,
+        "attempted": 4,
+        "categories": {}
+      },
+      "sd-3p-low-unit-extra": {
+        "count": 0,
+        "attempted": 4,
+        "categories": {}
+      },
+      "sd-3p-normal-extra": {
+        "count": 0,
+        "attempted": 7,
+        "categories": {}
+      },
+      "sd-4p-normal-extra": {
+        "count": 0,
+        "attempted": 3,
+        "categories": {}
+      },
+      "sd-high-gold": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-high-unit-limit": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-low-gold": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-low-unit-limit": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-medium-advantage-endgame": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-normal": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      },
+      "sd-small-advantage-endgame": {
+        "count": 0,
+        "attempted": 6,
+        "categories": {}
+      }
+    },
+    "successByPlan": {
+      "sd-3p-high-gold-extra": {
+        "passed": 4,
+        "attempted": 4,
+        "steps": 5008,
+        "ms": 12258
+      },
+      "sd-3p-low-unit-extra": {
+        "passed": 4,
+        "attempted": 4,
+        "steps": 6460,
+        "ms": 15829
+      },
+      "sd-3p-normal-extra": {
+        "passed": 7,
+        "attempted": 7,
+        "steps": 69445,
+        "ms": 328316
+      },
+      "sd-4p-normal-extra": {
+        "passed": 3,
+        "attempted": 3,
+        "steps": 31066,
+        "ms": 183490
+      },
+      "sd-high-gold": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 8864,
+        "ms": 26828
+      },
+      "sd-high-unit-limit": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 57422,
+        "ms": 543639
+      },
+      "sd-low-gold": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 44504,
+        "ms": 255515
+      },
+      "sd-low-unit-limit": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 18957,
+        "ms": 67464
+      },
+      "sd-medium-advantage-endgame": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 14851,
+        "ms": 173962
+      },
+      "sd-normal": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 7295,
+        "ms": 18757
+      },
+      "sd-small-advantage-endgame": {
+        "passed": 6,
+        "attempted": 6,
+        "steps": 28341,
+        "ms": 281524
+      }
+    },
+    "seedFormulaCheck": {
+      "available": true,
+      "formula": "seed = defaults.seedBase + planIndex*100000 + mapIndex*1000 + episodeIndex",
+      "checked": 60,
+      "matched": 60,
+      "mismatches": []
+    },
+    "negativeControl": {
+      "description": "对首个抽样 episode 的内存副本做 4 种破坏，确认复用的 gate 真的会抛错（非空验证）",
+      "results": [
+        {
+          "mutation": "corrupt initialObservationHash",
+          "expectedCategory": "initial-observation-hash-mismatch",
+          "observedCategory": "initial-observation-hash-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem seed=2026671511 初始 observation hash 不一致",
+          "elapsedMs": 9
+        },
+        {
+          "mutation": "corrupt steps[0].actionCode",
+          "expectedCategory": "step-action-code-mismatch",
+          "observedCategory": "step-action-code-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem seed=2026671511 第 1 步动作编码错位：日志 MUTATED::NOT::A::REAL::CODE，重放 move:apk_u0:4,2",
+          "elapsedMs": 3
+        },
+        {
+          "mutation": "corrupt steps[0].reward (+1)",
+          "expectedCategory": "step-reward-mismatch",
+          "observedCategory": "step-reward-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem seed=2026671511 第 1 步 reward 错位：日志 1，重放 0",
+          "elapsedMs": 5
+        },
+        {
+          "mutation": "corrupt steps[0].winnerAfter",
+          "expectedCategory": "step-winner-mismatch",
+          "observedCategory": "step-winner-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem seed=2026671511 第 1 步 winner 错位：日志 999，重放 null",
+          "elapsedMs": 3
+        }
+      ],
+      "allAsExpected": true
+    },
+    "outcomeByFile": {
+      "sd-3p-high-gold-extra-episodes.jsonl": {
+        "attempted": 4,
+        "passed": 4,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-3p-low-unit-extra-episodes.jsonl": {
+        "attempted": 4,
+        "passed": 4,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-3p-normal-extra-episodes.jsonl": {
+        "attempted": 7,
+        "passed": 7,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-4p-normal-extra-episodes.jsonl": {
+        "attempted": 3,
+        "passed": 3,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-high-gold-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-high-unit-limit-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-low-gold-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-low-unit-limit-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-medium-advantage-endgame-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-normal-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-small-advantage-endgame-episodes.jsonl": {
+        "attempted": 6,
+        "passed": 6,
+        "thrown": 0,
+        "timeout": 0
+      }
+    },
+    "notAttempted": [
+      {
+        "file": "sd-high-gold-episodes.jsonl",
+        "lineIndex": 97,
+        "rank": 6
+      },
+      {
+        "file": "sd-high-unit-limit-episodes.jsonl",
+        "lineIndex": 96,
+        "rank": 6
+      },
+      {
+        "file": "sd-low-gold-episodes.jsonl",
+        "lineIndex": 88,
+        "rank": 6
+      },
+      {
+        "file": "sd-low-unit-limit-episodes.jsonl",
+        "lineIndex": 91,
+        "rank": 6
+      },
+      {
+        "file": "sd-medium-advantage-endgame-episodes.jsonl",
+        "lineIndex": 87,
+        "rank": 6
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 96,
+        "rank": 6
+      },
+      {
+        "file": "sd-small-advantage-endgame-episodes.jsonl",
+        "lineIndex": 89,
+        "rank": 6
+      },
+      {
+        "file": "sd-3p-normal-extra-episodes.jsonl",
+        "lineIndex": 103,
+        "rank": 7
+      },
+      {
+        "file": "sd-medium-advantage-endgame-episodes.jsonl",
+        "lineIndex": 101,
+        "rank": 7
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 109,
+        "rank": 7
+      },
+      {
+        "file": "sd-small-advantage-endgame-episodes.jsonl",
+        "lineIndex": 103,
+        "rank": 7
+      },
+      {
+        "file": "sd-3p-normal-extra-episodes.jsonl",
+        "lineIndex": 116,
+        "rank": 8
+      },
+      {
+        "file": "sd-medium-advantage-endgame-episodes.jsonl",
+        "lineIndex": 115,
+        "rank": 8
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 123,
+        "rank": 8
+      },
+      {
+        "file": "sd-small-advantage-endgame-episodes.jsonl",
+        "lineIndex": 117,
+        "rank": 8
+      },
+      {
+        "file": "sd-3p-normal-extra-episodes.jsonl",
+        "lineIndex": 129,
+        "rank": 9
+      },
+      {
+        "file": "sd-medium-advantage-endgame-episodes.jsonl",
+        "lineIndex": 129,
+        "rank": 9
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 137,
+        "rank": 9
+      },
+      {
+        "file": "sd-small-advantage-endgame-episodes.jsonl",
+        "lineIndex": 131,
+        "rank": 9
+      },
+      {
+        "file": "sd-3p-normal-extra-episodes.jsonl",
+        "lineIndex": 143,
+        "rank": 10
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 151,
+        "rank": 10
+      },
+      {
+        "file": "sd-3p-normal-extra-episodes.jsonl",
+        "lineIndex": 156,
+        "rank": 11
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 165,
+        "rank": 11
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 178,
+        "rank": 12
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 192,
+        "rank": 13
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 206,
+        "rank": 14
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 220,
+        "rank": 15
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 234,
+        "rank": 16
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 247,
+        "rank": 17
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 261,
+        "rank": 18
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 275,
+        "rank": 19
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 289,
+        "rank": 20
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 303,
+        "rank": 21
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 316,
+        "rank": 22
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 330,
+        "rank": 23
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 344,
+        "rank": 24
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 358,
+        "rank": 25
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 371,
+        "rank": 26
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 385,
+        "rank": 27
+      },
+      {
+        "file": "sd-normal-episodes.jsonl",
+        "lineIndex": 399,
+        "rank": 28
+      }
+    ],
+    "verificationBoundary": {
+      "checked": [
+        "初始 observation hash（sha256(JSON.stringify(env.reset(seed).observation))）与 episode 记录一致",
+        "初始合法动作数一致",
+        "固定动作空间大小一致",
+        "每步重放前的 currentPlayer / turn / 合法动作数 / 固定合法动作数 / step 序号连续性",
+        "每步固定动作索引可解析且其 actionCode 与日志一致",
+        "每步 env.stepAction 之后的 reward / done / winner 与日志一致"
+      ],
+      "notChecked": [
+        "episode 记录里没有逐步 state hash，因此\"中间状态发生偏离但 winner/reward/done/合法动作数恰好相同\"的情况无法被发现",
+        "除初始 reset 之外没有做完整 observation 相等性比较",
+        "日志中的经济字段（incomeValueByPlayer / spendValue / killValueByPlayer / lostValueByPlayer）从未比较",
+        "info 字符串从未比较",
+        "未进入重放的 episode（预算截断）完全未验证"
+      ]
+    }
+  },
+  "results": [
+    {
+      "file": "sd-3p-high-gold-extra-episodes.jsonl",
+      "lineIndex": 10,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem",
+      "planId": "sd-3p-high-gold-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026671511,
+      "maxPlies": 900,
+      "stepCount": 1679,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 36
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1679,
+      "elapsedMs": 3985,
+      "envSetupMs": 1,
+      "stepsPerSecond": 421.33
+    },
+    {
+      "file": "sd-3p-low-unit-extra-episodes.jsonl",
+      "lineIndex": 6,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem",
+      "planId": "sd-3p-low-unit-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026771507,
+      "maxPlies": 900,
+      "stepCount": 2054,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 58
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2054,
+      "elapsedMs": 4750,
+      "envSetupMs": 1,
+      "stepsPerSecond": 432.42
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 9,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026571510,
+      "maxPlies": 900,
+      "stepCount": 2533,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 54
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2533,
+      "elapsedMs": 7827,
+      "envSetupMs": 1,
+      "stepsPerSecond": 323.62
+    },
+    {
+      "file": "sd-4p-normal-extra-episodes.jsonl",
+      "lineIndex": 1,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem",
+      "planId": "sd-4p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2026870501,
+      "maxPlies": 1200,
+      "stepCount": 9132,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 163
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 9132,
+      "elapsedMs": 43337,
+      "envSetupMs": 5,
+      "stepsPerSecond": 210.72
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 11,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-high-gold:(2) Icy Paths.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Icy Paths.aem",
+      "seed": 2026272502,
+      "maxPlies": 600,
+      "stepCount": 2366,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 52
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2366,
+      "elapsedMs": 8460,
+      "envSetupMs": 5,
+      "stepsPerSecond": 279.67
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 10,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(2) Icy Paths.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Icy Paths.aem",
+      "seed": 2026472503,
+      "maxPlies": 600,
+      "stepCount": 1178,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 31
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1178,
+      "elapsedMs": 2967,
+      "envSetupMs": 1,
+      "stepsPerSecond": 397.03
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 3,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-low-gold:(4) Crossroads.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2026170504,
+      "maxPlies": 1200,
+      "stepCount": 1849,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 44
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1849,
+      "elapsedMs": 3609,
+      "envSetupMs": 1,
+      "stepsPerSecond": 512.33
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 5,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2026370502,
+      "maxPlies": 1200,
+      "stepCount": 2004,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 55
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2004,
+      "elapsedMs": 4205,
+      "envSetupMs": 1,
+      "stepsPerSecond": 476.58
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 3,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2027170501,
+      "maxPlies": 600,
+      "stepCount": 6723,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 151
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 6723,
+      "elapsedMs": 84140,
+      "envSetupMs": 7,
+      "stepsPerSecond": 79.9
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 13,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2026070512,
+      "maxPlies": 1200,
+      "stepCount": 2600,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 54
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2600,
+      "elapsedMs": 8409,
+      "envSetupMs": 2,
+      "stepsPerSecond": 309.19
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 5,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Crossroads.aem",
+      "seed": 2027070506,
+      "maxPlies": 600,
+      "stepCount": 893,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 62
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 893,
+      "elapsedMs": 4558,
+      "envSetupMs": 5,
+      "stepsPerSecond": 195.92
+    },
+    {
+      "file": "sd-3p-high-gold-extra-episodes.jsonl",
+      "lineIndex": 25,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem",
+      "planId": "sd-3p-high-gold-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026683511,
+      "maxPlies": 900,
+      "stepCount": 1334,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 29
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1334,
+      "elapsedMs": 3339,
+      "envSetupMs": 3,
+      "stepsPerSecond": 399.52
+    },
+    {
+      "file": "sd-3p-low-unit-extra-episodes.jsonl",
+      "lineIndex": 21,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem",
+      "planId": "sd-3p-low-unit-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026783507,
+      "maxPlies": 900,
+      "stepCount": 777,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 22
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 777,
+      "elapsedMs": 1381,
+      "envSetupMs": 2,
+      "stepsPerSecond": 562.64
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 23,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026571524,
+      "maxPlies": 900,
+      "stepCount": 14968,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 267
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 14968,
+      "elapsedMs": 63433,
+      "envSetupMs": 1,
+      "stepsPerSecond": 235.97
+    },
+    {
+      "file": "sd-4p-normal-extra-episodes.jsonl",
+      "lineIndex": 12,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-4p-normal-extra:(4) Shadowlands.aem",
+      "planId": "sd-4p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Shadowlands.aem",
+      "seed": 2026876503,
+      "maxPlies": 1200,
+      "stepCount": 20592,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 20592,
+      "elapsedMs": 135201,
+      "envSetupMs": 4,
+      "stepsPerSecond": 152.31
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 26,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-high-gold:(2) Peak Island.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Peak Island.aem",
+      "seed": 2026275502,
+      "maxPlies": 600,
+      "stepCount": 343,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 12
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 343,
+      "elapsedMs": 570,
+      "envSetupMs": 3,
+      "stepsPerSecond": 601.75
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 24,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(2) Peak Island.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Peak Island.aem",
+      "seed": 2026475503,
+      "maxPlies": 600,
+      "stepCount": 276,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 12
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 276,
+      "elapsedMs": 418,
+      "envSetupMs": 1,
+      "stepsPerSecond": 660.29
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 17,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-low-gold:(2) Liberty Port.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Liberty Port.aem",
+      "seed": 2026173503,
+      "maxPlies": 600,
+      "stepCount": 1095,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 29
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1095,
+      "elapsedMs": 2395,
+      "envSetupMs": 1,
+      "stepsPerSecond": 457.2
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 19,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(2) Mourningstar.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Mourningstar.aem",
+      "seed": 2026374502,
+      "maxPlies": 600,
+      "stepCount": 570,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 20
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 570,
+      "elapsedMs": 799,
+      "envSetupMs": 2,
+      "stepsPerSecond": 713.39
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 17,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(2) Liberty Port.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Liberty Port.aem",
+      "seed": 2027173501,
+      "maxPlies": 600,
+      "stepCount": 383,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 45
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 383,
+      "elapsedMs": 1643,
+      "envSetupMs": 4,
+      "stepsPerSecond": 233.11
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 27,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-normal:(3) Frozen fields.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026071510,
+      "maxPlies": 900,
+      "stepCount": 844,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 25
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 844,
+      "elapsedMs": 1387,
+      "envSetupMs": 1,
+      "stepsPerSecond": 608.51
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 19,
+      "rank": 1,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(2) Icy Paths.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Icy Paths.aem",
+      "seed": 2027072507,
+      "maxPlies": 600,
+      "stepCount": 16323,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 16323,
+      "elapsedMs": 185345,
+      "envSetupMs": 4,
+      "stepsPerSecond": 88.07
+    },
+    {
+      "file": "sd-3p-high-gold-extra-episodes.jsonl",
+      "lineIndex": 40,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem",
+      "planId": "sd-3p-high-gold-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Midway.aem",
+      "seed": 2026687511,
+      "maxPlies": 900,
+      "stepCount": 1520,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 31
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1520,
+      "elapsedMs": 4111,
+      "envSetupMs": 3,
+      "stepsPerSecond": 369.74
+    },
+    {
+      "file": "sd-3p-low-unit-extra-episodes.jsonl",
+      "lineIndex": 36,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem",
+      "planId": "sd-3p-low-unit-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Midway.aem",
+      "seed": 2026787507,
+      "maxPlies": 900,
+      "stepCount": 2961,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 71
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2961,
+      "elapsedMs": 8298,
+      "envSetupMs": 1,
+      "stepsPerSecond": 356.83
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 36,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Frozen fields.aem",
+      "seed": 2026571537,
+      "maxPlies": 900,
+      "stepCount": 4610,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 87
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 4610,
+      "elapsedMs": 18938,
+      "envSetupMs": 2,
+      "stepsPerSecond": 243.43
+    },
+    {
+      "file": "sd-4p-normal-extra-episodes.jsonl",
+      "lineIndex": 24,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-4p-normal-extra:(4) Solitude.aem",
+      "planId": "sd-4p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Solitude.aem",
+      "seed": 2026877507,
+      "maxPlies": 1200,
+      "stepCount": 1342,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 30
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1342,
+      "elapsedMs": 4952,
+      "envSetupMs": 4,
+      "stepsPerSecond": 271
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 40,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-high-gold:(2) The Crossing.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) The Crossing.aem",
+      "seed": 2026278501,
+      "maxPlies": 600,
+      "stepCount": 352,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 14
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 352,
+      "elapsedMs": 534,
+      "envSetupMs": 1,
+      "stepsPerSecond": 659.18
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 38,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(4) Solitude.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Solitude.aem",
+      "seed": 2026477504,
+      "maxPlies": 1200,
+      "stepCount": 29728,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 29728,
+      "elapsedMs": 322137,
+      "envSetupMs": 6,
+      "stepsPerSecond": 92.28
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 31,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-low-gold:(4) Shadowlands.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Shadowlands.aem",
+      "seed": 2026176502,
+      "maxPlies": 1200,
+      "stepCount": 19005,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 300
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 19005,
+      "elapsedMs": 130743,
+      "envSetupMs": 3,
+      "stepsPerSecond": 145.36
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 33,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(4) Solitude.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Solitude.aem",
+      "seed": 2026377502,
+      "maxPlies": 1200,
+      "stepCount": 12496,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 12496,
+      "elapsedMs": 53566,
+      "envSetupMs": 1,
+      "stepsPerSecond": 233.28
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 31,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(2) Mourningstar.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Mourningstar.aem",
+      "seed": 2027174506,
+      "maxPlies": 600,
+      "stepCount": 246,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 44
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 246,
+      "elapsedMs": 602,
+      "envSetupMs": 4,
+      "stepsPerSecond": 408.64
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 40,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-normal:(2) Icy Paths.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Icy Paths.aem",
+      "seed": 2026072501,
+      "maxPlies": 600,
+      "stepCount": 989,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 25
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 989,
+      "elapsedMs": 2438,
+      "envSetupMs": 1,
+      "stepsPerSecond": 405.66
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 33,
+      "rank": 2,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(2) Peak Island.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Peak Island.aem",
+      "seed": 2027075503,
+      "maxPlies": 600,
+      "stepCount": 69,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 39
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 69,
+      "elapsedMs": 278,
+      "envSetupMs": 3,
+      "stepsPerSecond": 248.2
+    },
+    {
+      "file": "sd-3p-high-gold-extra-episodes.jsonl",
+      "lineIndex": 55,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem",
+      "planId": "sd-3p-high-gold-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Glu.aem",
+      "seed": 2026689511,
+      "maxPlies": 900,
+      "stepCount": 475,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 16
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 475,
+      "elapsedMs": 823,
+      "envSetupMs": 3,
+      "stepsPerSecond": 577.16
+    },
+    {
+      "file": "sd-3p-low-unit-extra-episodes.jsonl",
+      "lineIndex": 51,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem",
+      "planId": "sd-3p-low-unit-extra",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Glu.aem",
+      "seed": 2026789507,
+      "maxPlies": 900,
+      "stepCount": 668,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 21
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 668,
+      "elapsedMs": 1400,
+      "envSetupMs": 1,
+      "stepsPerSecond": 477.14
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 49,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026583510,
+      "maxPlies": 900,
+      "stepCount": 9843,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 167
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 9843,
+      "elapsedMs": 45536,
+      "envSetupMs": 1,
+      "stepsPerSecond": 216.16
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 54,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-high-gold:(4) Waterways.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Waterways.aem",
+      "seed": 2026280505,
+      "maxPlies": 1200,
+      "stepCount": 1524,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 34
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1524,
+      "elapsedMs": 2940,
+      "envSetupMs": 2,
+      "stepsPerSecond": 518.37
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 53,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(4) Winterstorm.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Winterstorm.aem",
+      "seed": 2026481503,
+      "maxPlies": 1200,
+      "stepCount": 4910,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 72
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 4910,
+      "elapsedMs": 31947,
+      "envSetupMs": 2,
+      "stepsPerSecond": 153.69
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 45,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-low-gold:(4) The Crucible.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) The Crucible.aem",
+      "seed": 2026179501,
+      "maxPlies": 1200,
+      "stepCount": 18904,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 18904,
+      "elapsedMs": 108498,
+      "envSetupMs": 5,
+      "stepsPerSecond": 174.23
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 48,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(4) Waterways.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Waterways.aem",
+      "seed": 2026380501,
+      "maxPlies": 1200,
+      "stepCount": 1295,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 32
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1295,
+      "elapsedMs": 2677,
+      "envSetupMs": 1,
+      "stepsPerSecond": 483.75
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 45,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(4) Shadowlands.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Shadowlands.aem",
+      "seed": 2027176506,
+      "maxPlies": 600,
+      "stepCount": 328,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 43
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 328,
+      "elapsedMs": 1539,
+      "envSetupMs": 5,
+      "stepsPerSecond": 213.13
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 54,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-normal:(2) Icy Paths.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Icy Paths.aem",
+      "seed": 2026072517,
+      "maxPlies": 600,
+      "stepCount": 1418,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 32
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1418,
+      "elapsedMs": 4218,
+      "envSetupMs": 1,
+      "stepsPerSecond": 336.18
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 47,
+      "rank": 3,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(4) Solitude.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Solitude.aem",
+      "seed": 2027077502,
+      "maxPlies": 600,
+      "stepCount": 221,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 43
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 221,
+      "elapsedMs": 855,
+      "envSetupMs": 2,
+      "stepsPerSecond": 258.48
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 63,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026583524,
+      "maxPlies": 900,
+      "stepCount": 17629,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 17629,
+      "elapsedMs": 82729,
+      "envSetupMs": 1,
+      "stepsPerSecond": 213.09
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 69,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-high-gold:(3) classic 2.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026283505,
+      "maxPlies": 900,
+      "stepCount": 1545,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 33
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1545,
+      "elapsedMs": 3811,
+      "envSetupMs": 2,
+      "stepsPerSecond": 405.41
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 67,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(2) Duel.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Duel.aem",
+      "seed": 2026484502,
+      "maxPlies": 600,
+      "stepCount": 17178,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 194
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 17178,
+      "elapsedMs": 155453,
+      "envSetupMs": 3,
+      "stepsPerSecond": 110.5
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 60,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-low-gold:(4) classic 1.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) classic 1.aem",
+      "seed": 2026182501,
+      "maxPlies": 1200,
+      "stepCount": 3488,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 60
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 3488,
+      "elapsedMs": 10058,
+      "envSetupMs": 4,
+      "stepsPerSecond": 346.79
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 62,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(3) classic 2.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026383502,
+      "maxPlies": 900,
+      "stepCount": 1742,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 48
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 1742,
+      "elapsedMs": 4074,
+      "envSetupMs": 1,
+      "stepsPerSecond": 427.59
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 59,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(4) The Crucible.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) The Crucible.aem",
+      "seed": 2027179501,
+      "maxPlies": 600,
+      "stepCount": 264,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 42
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 264,
+      "elapsedMs": 1367,
+      "envSetupMs": 5,
+      "stepsPerSecond": 193.12
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 68,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-normal:(2) Liberty Port.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Liberty Port.aem",
+      "seed": 2026073511,
+      "maxPlies": 600,
+      "stepCount": 865,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 26
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 865,
+      "elapsedMs": 1492,
+      "envSetupMs": 1,
+      "stepsPerSecond": 579.76
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 61,
+      "rank": 4,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(4) Shadowlands.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Shadowlands.aem",
+      "seed": 2027076503,
+      "maxPlies": 600,
+      "stepCount": 4156,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 151
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 4156,
+      "elapsedMs": 23400,
+      "envSetupMs": 4,
+      "stepsPerSecond": 177.61
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 76,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) classic 2.aem",
+      "seed": 2026583537,
+      "maxPlies": 900,
+      "stepCount": 672,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 18
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 672,
+      "elapsedMs": 1147,
+      "envSetupMs": 1,
+      "stepsPerSecond": 585.88
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 83,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-high-gold:(4) Critical mass.aem",
+      "planId": "sd-high-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 1000,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Critical mass.aem",
+      "seed": 2026286504,
+      "maxPlies": 1200,
+      "stepCount": 2734,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 49
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2734,
+      "elapsedMs": 10513,
+      "envSetupMs": 4,
+      "stepsPerSecond": 260.06
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 81,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-high-unit-limit:(4) Critical mass.aem",
+      "planId": "sd-high-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 50,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) Critical mass.aem",
+      "seed": 2026486504,
+      "maxPlies": 1200,
+      "stepCount": 4152,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 66
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 4152,
+      "elapsedMs": 30717,
+      "envSetupMs": 1,
+      "stepsPerSecond": 135.17
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 74,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-low-gold:(2) Duel.aem",
+      "planId": "sd-low-gold",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 0,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Duel.aem",
+      "seed": 2026184505,
+      "maxPlies": 600,
+      "stepCount": 163,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 12
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 163,
+      "elapsedMs": 212,
+      "envSetupMs": 1,
+      "stepsPerSecond": 768.87
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 76,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-low-unit-limit:(2) Crossed swords.aem",
+      "planId": "sd-low-unit-limit",
+      "planKind": "parameter_variant",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 20,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Crossed swords.aem",
+      "seed": 2026385503,
+      "maxPlies": 600,
+      "stepCount": 850,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 22
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 850,
+      "elapsedMs": 2143,
+      "envSetupMs": 2,
+      "stepsPerSecond": 396.64
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 73,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(4) The Crucible.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) The Crucible.aem",
+      "seed": 2027179507,
+      "maxPlies": 600,
+      "stepCount": 6907,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 151
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 6907,
+      "elapsedMs": 84671,
+      "envSetupMs": 5,
+      "stepsPerSecond": 81.57
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 82,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-normal:(2) Mourningstar.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Mourningstar.aem",
+      "seed": 2026074506,
+      "maxPlies": 600,
+      "stepCount": 579,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 20
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 579,
+      "elapsedMs": 813,
+      "envSetupMs": 0,
+      "stepsPerSecond": 712.18
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 75,
+      "rank": 5,
+      "scenarioId": "SDPLAN:sd-small-advantage-endgame:(4) The Crucible.aem",
+      "planId": "sd-small-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(4) The Crucible.aem",
+      "seed": 2027079505,
+      "maxPlies": 600,
+      "stepCount": 6679,
+      "playerCount": 4,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 151
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 6679,
+      "elapsedMs": 67088,
+      "envSetupMs": 6,
+      "stepsPerSecond": 99.56
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 89,
+      "rank": 6,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Midway.aem",
+      "seed": 2026587510,
+      "maxPlies": 900,
+      "stepCount": 19190,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 301
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 19190,
+      "elapsedMs": 108706,
+      "envSetupMs": 2,
+      "stepsPerSecond": 176.53
+    }
+  ],
+  "notAttempted": [
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "lineIndex": 97,
+      "rank": 6
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "lineIndex": 96,
+      "rank": 6
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "lineIndex": 88,
+      "rank": 6
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "lineIndex": 91,
+      "rank": 6
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 87,
+      "rank": 6
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 96,
+      "rank": 6
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 89,
+      "rank": 6
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 103,
+      "rank": 7
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 101,
+      "rank": 7
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 109,
+      "rank": 7
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 103,
+      "rank": 7
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 116,
+      "rank": 8
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 115,
+      "rank": 8
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 123,
+      "rank": 8
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 117,
+      "rank": 8
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 129,
+      "rank": 9
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 129,
+      "rank": 9
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 137,
+      "rank": 9
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "lineIndex": 131,
+      "rank": 9
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 143,
+      "rank": 10
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 151,
+      "rank": 10
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 156,
+      "rank": 11
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 165,
+      "rank": 11
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 178,
+      "rank": 12
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 192,
+      "rank": 13
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 206,
+      "rank": 14
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 220,
+      "rank": 15
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 234,
+      "rank": 16
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 247,
+      "rank": 17
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 261,
+      "rank": 18
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 275,
+      "rank": 19
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 289,
+      "rank": 20
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 303,
+      "rank": 21
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 316,
+      "rank": 22
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 330,
+      "rank": 23
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 344,
+      "rank": 24
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 358,
+      "rank": 25
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 371,
+      "rank": 26
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 385,
+      "rank": 27
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 399,
+      "rank": 28
+    }
+  ]
+}

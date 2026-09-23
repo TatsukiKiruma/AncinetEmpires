@@ -1,0 +1,125 @@
+{
+  "kind": "t12_05_archive_step_census",
+  "version": 1,
+  "generatedAt": "2026-09-23T17:18:29.877Z",
+  "archiveDir": "C:\\code\\AncinetEmpires\\training_runs\\episodes\\sd_training_plan_20260705_heuristic-apk-like-balanced",
+  "source": "summary.stepCount read from the last 4KB of every record (no JSON parse of the full record)",
+  "recordCount": 1395,
+  "missingStepCount": 0,
+  "recordsWithMultipleMatches": 0,
+  "totalSteps": 9219721,
+  "stepsMin": 51,
+  "stepsMedian": 2650,
+  "stepsMean": 6609.1,
+  "stepsMax": 32506,
+  "stepHistogram": [
+    {
+      "label": "1-999",
+      "min": 1,
+      "max": 999,
+      "records": 394,
+      "steps": 202469
+    },
+    {
+      "label": "1000-4999",
+      "min": 1000,
+      "max": 4999,
+      "records": 443,
+      "steps": 1013421
+    },
+    {
+      "label": "5000-14999",
+      "min": 5000,
+      "max": 14999,
+      "records": 267,
+      "steps": 2545805
+    },
+    {
+      "label": "15000+",
+      "min": 15000,
+      "max": null,
+      "records": 291,
+      "steps": 5458026
+    }
+  ],
+  "perFile": [
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "records": 400,
+      "steps": 2833798,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-high-gold-episodes.jsonl",
+      "records": 100,
+      "steps": 771086,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-low-gold-episodes.jsonl",
+      "records": 100,
+      "steps": 691278,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-low-unit-limit-episodes.jsonl",
+      "records": 100,
+      "steps": 501359,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-high-unit-limit-episodes.jsonl",
+      "records": 100,
+      "steps": 810726,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "records": 160,
+      "steps": 1037151,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-3p-high-gold-extra-episodes.jsonl",
+      "records": 60,
+      "steps": 458867,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-3p-low-unit-extra-episodes.jsonl",
+      "records": 60,
+      "steps": 269789,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-4p-normal-extra-episodes.jsonl",
+      "records": 35,
+      "steps": 327192,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-small-advantage-endgame-episodes.jsonl",
+      "records": 140,
+      "steps": 719528,
+      "missing": 0,
+      "multi": 0
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "records": 140,
+      "steps": 798947,
+      "missing": 0,
+      "multi": 0
+    }
+  ],
+  "elapsedMs": 949
+}

@@ -1,0 +1,396 @@
+{
+  "kind": "t12_05_replay_pilot",
+  "version": 1,
+  "summary": {
+    "revision": "9c6c1ab897dd",
+    "generatedAt": "2026-09-23T16:41:41.212Z",
+    "legacyOpensslProvider": true,
+    "archiveDir": "C:\\code\\AncinetEmpires\\training_runs\\episodes\\sd_training_plan_20260705_heuristic-apk-like-balanced",
+    "sdPlanFile": "C:\\code\\AncinetEmpires\\training_configs\\sd_training_plan_20260705.json",
+    "unpackDir": "C:\\code\\AncinetEmpires\\APK\\_analysis\\unpack",
+    "samplingRule": {
+      "description": "分层抽样：按 claimed 行数比例分配（最大余数法），文件内用带种子偏移的等距 stride；处理顺序按 rank 轮转（每个文件各取第 r 个样本），因此预算截断后的样本仍跨变体成比例",
+      "seed": 20260923,
+      "target": 3,
+      "claimedTotalLines": 1395,
+      "plannedSampleCount": 3,
+      "allocation": [
+        {
+          "file": "sd-normal-episodes.jsonl",
+          "claimedLineCount": 400,
+          "sampleCount": 1,
+          "offset": 0.969625,
+          "lineIndexes": [
+            387
+          ]
+        },
+        {
+          "file": "sd-high-gold-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 0,
+          "offset": 0.838542,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-low-gold-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 0,
+          "offset": 0.210832,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-low-unit-limit-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 0,
+          "offset": 0.372792,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-high-unit-limit-episodes.jsonl",
+          "claimedLineCount": 100,
+          "sampleCount": 0,
+          "offset": 0.723257,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-3p-normal-extra-episodes.jsonl",
+          "claimedLineCount": 160,
+          "sampleCount": 1,
+          "offset": 0.743305,
+          "lineIndexes": [
+            118
+          ]
+        },
+        {
+          "file": "sd-3p-high-gold-extra-episodes.jsonl",
+          "claimedLineCount": 60,
+          "sampleCount": 0,
+          "offset": 0.731564,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-3p-low-unit-extra-episodes.jsonl",
+          "claimedLineCount": 60,
+          "sampleCount": 0,
+          "offset": 0.461193,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-4p-normal-extra-episodes.jsonl",
+          "claimedLineCount": 35,
+          "sampleCount": 0,
+          "offset": 0.106597,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-small-advantage-endgame-episodes.jsonl",
+          "claimedLineCount": 140,
+          "sampleCount": 0,
+          "offset": 0.384238,
+          "lineIndexes": []
+        },
+        {
+          "file": "sd-medium-advantage-endgame-episodes.jsonl",
+          "claimedLineCount": 140,
+          "sampleCount": 1,
+          "offset": 0.258792,
+          "lineIndexes": [
+            36
+          ]
+        }
+      ],
+      "processingOrder": "round-robin by rank, files sorted by name"
+    },
+    "measuredLineCounts": {
+      "sd-normal-episodes.jsonl": 400,
+      "sd-high-gold-episodes.jsonl": 100,
+      "sd-low-gold-episodes.jsonl": 100,
+      "sd-low-unit-limit-episodes.jsonl": 100,
+      "sd-high-unit-limit-episodes.jsonl": 100,
+      "sd-3p-normal-extra-episodes.jsonl": 160,
+      "sd-3p-high-gold-extra-episodes.jsonl": 60,
+      "sd-3p-low-unit-extra-episodes.jsonl": 60,
+      "sd-4p-normal-extra-episodes.jsonl": 35,
+      "sd-small-advantage-endgame-episodes.jsonl": 140,
+      "sd-medium-advantage-endgame-episodes.jsonl": 140
+    },
+    "measuredPhysicalLines": {
+      "sd-normal-episodes.jsonl": 400,
+      "sd-high-gold-episodes.jsonl": 100,
+      "sd-low-gold-episodes.jsonl": 100,
+      "sd-low-unit-limit-episodes.jsonl": 100,
+      "sd-high-unit-limit-episodes.jsonl": 100,
+      "sd-3p-normal-extra-episodes.jsonl": 160,
+      "sd-3p-high-gold-extra-episodes.jsonl": 60,
+      "sd-3p-low-unit-extra-episodes.jsonl": 60,
+      "sd-4p-normal-extra-episodes.jsonl": 35,
+      "sd-small-advantage-endgame-episodes.jsonl": 140,
+      "sd-medium-advantage-endgame-episodes.jsonl": 140
+    },
+    "fileBytes": {
+      "sd-normal-episodes.jsonl": 1011232836,
+      "sd-high-gold-episodes.jsonl": 275151164,
+      "sd-low-gold-episodes.jsonl": 247409042,
+      "sd-low-unit-limit-episodes.jsonl": 179191386,
+      "sd-high-unit-limit-episodes.jsonl": 289775985,
+      "sd-3p-normal-extra-episodes.jsonl": 370172013,
+      "sd-3p-high-gold-extra-episodes.jsonl": 163433492,
+      "sd-3p-low-unit-extra-episodes.jsonl": 96254233,
+      "sd-4p-normal-extra-episodes.jsonl": 117356704,
+      "sd-small-advantage-endgame-episodes.jsonl": 263745086,
+      "sd-medium-advantage-endgame-episodes.jsonl": 296658236
+    },
+    "missingFiles": [],
+    "archiveBytesTotal": 3310380177,
+    "indexMs": 871,
+    "attempted": 3,
+    "passed": 3,
+    "thrown": 0,
+    "timedOut": 0,
+    "budgetSkipped": 0,
+    "passRate": 1,
+    "passRateOfTarget": 1,
+    "stepsReplayed": 21116,
+    "passedSteps": 21116,
+    "wallClockMs": 125856,
+    "budgetMs": 900000,
+    "budgetExhausted": false,
+    "episodeTimeoutMs": 600000,
+    "cost": {
+      "totalReplayMs": 124920,
+      "indexMs": 871,
+      "perAttemptedEpisodeMs": 41640,
+      "perPassedEpisodeMs": 41640,
+      "perPassedEpisodeMsMedian": 10052,
+      "perPassedEpisodeMsMin": 321,
+      "perPassedEpisodeMsMax": 114547,
+      "perPassedStepMs": 5.9159,
+      "stepsPerSecondPassed": 169.04,
+      "episodesPerHourPassed": 86.5,
+      "projectedFullArchiveMs": 58087800,
+      "projectedFullArchiveHours": 16.14,
+      "projectionBasis": "每 PASS episode 实测平均 41640.0ms × 归档 1395 个 episode",
+      "projectionIsProjection": true
+    },
+    "failureByCategory": {},
+    "failureByPlan": {
+      "sd-3p-normal-extra": {
+        "count": 0,
+        "attempted": 1,
+        "categories": {}
+      },
+      "sd-medium-advantage-endgame": {
+        "count": 0,
+        "attempted": 1,
+        "categories": {}
+      },
+      "sd-normal": {
+        "count": 0,
+        "attempted": 1,
+        "categories": {}
+      }
+    },
+    "successByPlan": {
+      "sd-3p-normal-extra": {
+        "passed": 1,
+        "attempted": 1,
+        "steps": 2842,
+        "ms": 10052
+      },
+      "sd-medium-advantage-endgame": {
+        "passed": 1,
+        "attempted": 1,
+        "steps": 66,
+        "ms": 321
+      },
+      "sd-normal": {
+        "passed": 1,
+        "attempted": 1,
+        "steps": 18208,
+        "ms": 114547
+      }
+    },
+    "negativeControl": {
+      "description": "对首个抽样 episode 的内存副本做 4 种破坏，确认复用的 gate 真的会抛错（非空验证）",
+      "results": [
+        {
+          "mutation": "corrupt initialObservationHash",
+          "expectedCategory": "initial-observation-hash-mismatch",
+          "observedCategory": "initial-observation-hash-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem seed=2026587539 初始 observation hash 不一致",
+          "elapsedMs": 8
+        },
+        {
+          "mutation": "corrupt steps[0].actionCode",
+          "expectedCategory": "step-action-code-mismatch",
+          "observedCategory": "step-action-code-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem seed=2026587539 第 1 步动作编码错位：日志 MUTATED::NOT::A::REAL::CODE，重放 move:apk_u1:2,7",
+          "elapsedMs": 2
+        },
+        {
+          "mutation": "corrupt steps[0].reward (+1)",
+          "expectedCategory": "step-reward-mismatch",
+          "observedCategory": "step-reward-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem seed=2026587539 第 1 步 reward 错位：日志 1，重放 0",
+          "elapsedMs": 5
+        },
+        {
+          "mutation": "corrupt steps[0].winnerAfter",
+          "expectedCategory": "step-winner-mismatch",
+          "observedCategory": "step-winner-mismatch",
+          "threw": true,
+          "asExpected": true,
+          "message": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem seed=2026587539 第 1 步 winner 错位：日志 999，重放 null",
+          "elapsedMs": 4
+        }
+      ],
+      "allAsExpected": true
+    },
+    "outcomeByFile": {
+      "sd-3p-normal-extra-episodes.jsonl": {
+        "attempted": 1,
+        "passed": 1,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-medium-advantage-endgame-episodes.jsonl": {
+        "attempted": 1,
+        "passed": 1,
+        "thrown": 0,
+        "timeout": 0
+      },
+      "sd-normal-episodes.jsonl": {
+        "attempted": 1,
+        "passed": 1,
+        "thrown": 0,
+        "timeout": 0
+      }
+    },
+    "notAttempted": [],
+    "verificationBoundary": {
+      "checked": [
+        "初始 observation hash（sha256(JSON.stringify(env.reset(seed).observation))）与 episode 记录一致",
+        "初始合法动作数一致",
+        "固定动作空间大小一致",
+        "每步重放前的 currentPlayer / turn / 合法动作数 / 固定合法动作数 / step 序号连续性",
+        "每步固定动作索引可解析且其 actionCode 与日志一致",
+        "每步 env.stepAction 之后的 reward / done / winner 与日志一致"
+      ],
+      "notChecked": [
+        "episode 记录里没有逐步 state hash，因此\"中间状态发生偏离但 winner/reward/done/合法动作数恰好相同\"的情况无法被发现",
+        "除初始 reset 之外没有做完整 observation 相等性比较",
+        "日志中的经济字段（incomeValueByPlayer / spendValue / killValueByPlayer / lostValueByPlayer）从未比较",
+        "info 字符串从未比较",
+        "未进入重放的 episode（预算截断）完全未验证"
+      ]
+    }
+  },
+  "results": [
+    {
+      "file": "sd-3p-normal-extra-episodes.jsonl",
+      "lineIndex": 118,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem",
+      "planId": "sd-3p-normal-extra",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Midway.aem",
+      "seed": 2026587539,
+      "maxPlies": 900,
+      "stepCount": 2842,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 53
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 2842,
+      "elapsedMs": 10052,
+      "envSetupMs": 1,
+      "stepsPerSecond": 282.73
+    },
+    {
+      "file": "sd-medium-advantage-endgame-episodes.jsonl",
+      "lineIndex": 36,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-medium-advantage-endgame:(2) Peak Island.aem",
+      "planId": "sd-medium-advantage-endgame",
+      "planKind": "advantage_endgame",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(2) Peak Island.aem",
+      "seed": 2027175504,
+      "maxPlies": 600,
+      "stepCount": 66,
+      "playerCount": 2,
+      "loggedSummary": {
+        "timeout": false,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 38
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 66,
+      "elapsedMs": 321,
+      "envSetupMs": 10,
+      "stepsPerSecond": 205.61
+    },
+    {
+      "file": "sd-normal-episodes.jsonl",
+      "lineIndex": 387,
+      "rank": 0,
+      "scenarioId": "SDPLAN:sd-normal:(3) Glu.aem",
+      "planId": "sd-normal",
+      "planKind": "normal",
+      "planSetup": {
+        "initialGold": 300,
+        "unitLimit": 30,
+        "levelCap": 3
+      },
+      "mapScenarioId": "SD:(3) Glu.aem",
+      "seed": 2026089505,
+      "maxPlies": 900,
+      "stepCount": 18208,
+      "playerCount": 3,
+      "loggedSummary": {
+        "timeout": true,
+        "stoppedByMaxSteps": false,
+        "illegalActionCount": 0,
+        "finalTurn": 300
+      },
+      "outcome": "PASS",
+      "errorCategory": null,
+      "errorMessage": null,
+      "failureStep": null,
+      "failurePhase": null,
+      "stepsYielded": 18208,
+      "elapsedMs": 114547,
+      "envSetupMs": 2,
+      "stepsPerSecond": 158.96
+    }
+  ],
+  "notAttempted": []
+}

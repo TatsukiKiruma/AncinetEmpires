@@ -1,0 +1,623 @@
+{
+  "schema": "v12_historical_protocol_audit_1",
+  "task": "TASK3 - audit the HISTORICAL evaluation protocols for seat / policy-assignment / RNG / truncation confounds",
+  "generatedAt": "2026-09-24",
+  "repoState": { "branch": "train/battle-ai-20260923", "head": "9c6c1ab" },
+  "method": {
+    "primary": "static reading of the harness source; every behavioural claim carries a file:line",
+    "mirrorControlTool": "v12/tools/audit_mirror_seat_bias.ts (NEW; no historical file was modified or 'fixed')",
+    "mirrorControlArtifact": "v12/out/protocol_audit/mirror_seat_bias.json",
+    "mirrorControlDesign": "replay each harness's OWN map + seat layout + termination rule with HeuristicAI in EVERY seat; independent deterministic per-seat stream mulberry(hash(seed,seat)); never Math.random",
+    "knownDefectCode": "V11-D01 = `new HeuristicAI()` with no argument -> src/game/ai/heuristic_ai.ts:16-17 `this.rng = rng ?? Math.random;` => non-reproducible",
+    "notRun": [
+      "No historical harness was executed (process creation is sandbox-denied and the task forbids re-running/fixing them).",
+      "The exact BattleSearchAI 20-game run was NOT re-run; the 17/20 exists only as prose in v12 docs (no artifact found)."
+    ]
+  },
+
+  "harnesses": [
+    {
+      "id": "H1_battle_search_uncapped",
+      "toolPath": "tools/train_battle_eval_uncapped.ts",
+      "produces": ["stdout only; NO output artifact exists (no writeFileSync in the file)"],
+      "headlineNumber": "BattleSearchAI 17/20 vs HeuristicAI, cited in v12/V12_EXECUTION_REPORT.md:231-233 and v12/out/training/FINDING_seat_policy_confound.md:71",
+      "mapOrState": {
+        "value": "GameEngine(createDefaultAppGameState()) == createAppApkSkirmishGameState('(2) Duel.aem','SD')",
+        "players": 2,
+        "citations": [
+          "tools/train_battle_eval_uncapped.ts:34 `const engine = new GameEngine(createDefaultAppGameState());`",
+          "tools/train_battle_eval_uncapped.ts:3 `- 地图：默认 Duel（createDefaultAppGameState）`",
+          "src/game/default_state.ts:4-6 `createDefaultAppGameState()` returns `createAppApkSkirmishGameState()`",
+          "src/game/apk_skirmish_map_assets.ts:7 `DEFAULT_APP_APK_MAP_NAME = '(2) Duel.aem'`",
+          "src/game/apk_skirmish_map_assets.ts:79-82 `createAppApkSkirmishGameState(name=DEFAULT_APP_APK_MAP_NAME, mode='SD')`"
+        ]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "10 games per seat at --games 20",
+        "citations": ["tools/train_battle_eval_uncapped.ts:77 `const newGoesFirst = i % 2 === 0;`", "tools/train_battle_eval_uncapped.ts:41 `const newPid = opts.newGoesFirst ? 0 : 1;`"]
+      },
+      "seatAliasedToSeed": false,
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": true,
+        "detail": "the ONLY audited win/loss harness with a fully seeded, reproducible opponent",
+        "citations": [
+          "tools/train_battle_eval_uncapped.ts:35 `const hSeedBase = opts.seed + opts.gameIndex * 100003;`",
+          "tools/train_battle_eval_uncapped.ts:37 `const newAI = new BattleSearchAI(hSeedBase + 777, { topK: opts.topK, oppProbeK: opts.oppK });`",
+          "tools/train_battle_eval_uncapped.ts:38 `const heuAI = new HeuristicAI(mulberry(hSeedBase + 999));`",
+          "tools/train_battle_eval_uncapped.ts:14-21 `function mulberry(a: number)`",
+          "src/game/ai/battle_search_ai.ts:56-60 constructor(seedOrRng?, options?) -> mulberryDefault(seedOrRng ?? 0xBEEF)`, `this.heuristic = new HeuristicAI(this.rng)`"
+        ],
+        "v11d01Occurrences": [],
+        "note": "src/game/ai/battle_search_ai.ts contains no Date.now/performance.now/Math.random (grep: 5 matches total, all constructor/rng related) -> the search is a pure function of the seed."
+      },
+      "termination": {
+        "rule": "safety cap, capped games are NOT counted as wins",
+        "cap": "--safety 600 turns AND steps < safetyTurns*80 (=48000)",
+        "citations": [
+          "tools/train_battle_eval_uncapped.ts:46 `const maxSteps = opts.safetyTurns * 80;`",
+          "tools/train_battle_eval_uncapped.ts:47 `while (engine.getState().winner === null && steps < maxSteps && engine.getState().turn <= opts.safetyTurns)`",
+          "tools/train_battle_eval_uncapped.ts:55 `const capped = st.winner === null;`",
+          "tools/train_battle_eval_uncapped.ts:79-81 `if (r.winnerPolicy === 'new') newWins++; else if (...) heuWins++; else draws++;`"
+        ],
+        "measuredTruncationFraction": "NOT RECORDED - the tool prints it per game (`[SAFETY截断]`, :82) and in the final line (:84) but writes no artifact; no stored copy was found anywhere in the repo."
+      },
+      "verdict": "SURVIVES",
+      "verdictReason": "Alternating seats 10/10 keeps a policy-independent seat bias from moving the null: any seat-only effect caps at 10/20, so 17/20 cannot be produced by seat assignment; and unlike every other W/L harness here the opponent RNG is fully seeded (no V11-D01).",
+      "caveats": [
+        "No raw artifact of the 20-game run exists, so the literal 17/20 is unverifiable as a record; only the PROTOCOL is auditable.",
+        "The supporting claim in the v12 docs - 'Duel heuristic-mirror baseline 2-2, no seat bias' (FINDING_seat_policy_confound.md:71,92; V12_EXECUTION_REPORT.md:232) - has NO traceable raw artifact and is CONTRADICTED by this audit's mirror on the same map: P0 2 / P1 8 (n=10) and P0 1 / P1 7 (n=8), i.e. P1 10/12 pooled.",
+        "No per-seat split of the 17/20 was recorded, so the seat-stratified effect size is unknown (the total is robust, the decomposition is not)."
+      ]
+    },
+
+    {
+      "id": "H2_v6_all_models_5maps",
+      "toolPath": "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts",
+      "produces": ["docs/training/reports/agent_upgrade_20260921_v6_01/all_models_vs_heuristic_5maps_benchmark.json", "docs/training/reports/agent_upgrade_20260921_v6_01/all_models_vs_heuristic_5maps_benchmark.md"],
+      "headlineNumber": "\"every model 0/10\" - the JSON records wins 0 / losses 10 / draws 0 for ALL FOUR models (bc_ranker, net_a_dualhead, net_b_dualhead, spatial_resnet_v2)",
+      "mapOrState": {
+        "value": "createAppApkSkirmishGameState(mapInfo.name, 'SD') over 5 two-player APK maps",
+        "maps": ["(2) Duel.aem", "(2) Icy Paths.aem", "(2) Liberty Port.aem", "(2) Mourningstar.aem", "(2) Crossed swords.aem"],
+        "players": 2,
+        "citations": [
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:34-40 `export const BENCHMARK_MAPS = [...]`",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:156 `const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');`"
+        ]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "per map: match 1 model at P0, match 2 model at P1 => 5 games per seat per model",
+        "citations": [
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:381 `const m1 = runSingleMatch(model, heuristicAi, mapInfo, matchIdx++, 0, 100);`",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:386 `const m2 = runSingleMatch(model, heuristicAi, mapInfo, matchIdx++, 1, 100);`",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:152 `const heuristicPlayerId = modelPlayerId === 0 ? 1 : 0;`"
+        ]
+      },
+      "seatAliasedToSeed": "N/A - the harness has no seed at all",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": false,
+        "detail": "one unseeded HeuristicAI instance shared by all 40 games; the four models are deterministic argmax policies",
+        "citations": [
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:276 `const heuristicAi = new HeuristicAI();`  <-- V11-D01",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:297-305 (bc_ranker argmax), :322 (net_a `predictDecision` -> `legal[dec.topIndex]`), :339 (net_b), :357 (spatial `legal[pred.bestActionIndex]`)"
+        ],
+        "v11d01Occurrences": ["tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:276"]
+      },
+      "termination": {
+        "rule": "turn cap",
+        "cap": "maxTurns = 100",
+        "citations": [
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:166 `while (engine.getState().winner === null && engine.getState().turn <= maxTurns)`",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:150 `maxTurns: number = 100`",
+          "tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:216-227 terminationCause NATURAL_WIN / MAX_TURNS_TRUNCATION / DRAW"
+        ],
+        "measuredTruncationFraction": "0.0 (40/40) - from the artifact: every model has `draws: 0` and `losses: 10`; extrapolated from the per-model summaries in all_models_vs_heuristic_5maps_benchmark.json"
+      },
+      "verdict": "SURVIVES",
+      "verdictReason": "A seat confound cannot manufacture 0/10: the model occupied BOTH seats on all 5 maps (json p0Wins 0 and p1Wins 0 for all four models), whereas a seat-determined winner would have handed it 5 wins per model; the 40/40 losses are natural terminal losses (0 truncations, 0 draws), with the model's commander dying 10-13 times per model. The mirror control amplifies this: P1 wins 21/24 (87.5%) of all-heuristic games on these maps, and the harness gives every model 5 games in P1, of which all four models won none.",
+      "caveats": [
+        "UNVERIFIABLE as a reproducible measurement: the opponent falls back to Math.random (V11-D01) and no seed exists anywhere in the file, so the exact 40 games cannot be replayed.",
+        "The result is a floor effect in the weak sense that all four models are 1-ply greedy policies; it is a valid statement about those checkpoints, not about 'learned policy' in general."
+      ]
+    },
+
+    {
+      "id": "H3_v6_spatial_5maps",
+      "toolPath": "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts",
+      "produces": ["docs/training/reports/agent_upgrade_20260921_v6_01/spatial_vs_heuristic_5maps_10matches.json", "docs/training/reports/agent_upgrade_20260921_v6_01/spatial_vs_heuristic_5maps_10matches.md"],
+      "headlineNumber": "Spatial ResNet v2 0 wins / 10 losses, win rate 0.0%",
+      "mapOrState": {
+        "value": "createAppApkSkirmishGameState(mapInfo.name, 'SD') over the same 5 maps as H2",
+        "players": 2,
+        "citations": [
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:27-33 BENCHMARK_MAPS",
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:139 `const state = createAppApkSkirmishGameState(mapInfo.name, 'SD');`"
+        ]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "per map: match 1 spatial at P0, match 2 spatial at P1 => 5 games per seat",
+        "citations": [
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:278 `const match1 = runMatch(matchCounter++, mapInfo, 0, predictor, heuristicAi, 100);`",
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:282 `const match2 = runMatch(matchCounter++, mapInfo, 1, predictor, heuristicAi, 100);`",
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:135 `const heuristicPlayerId = spatialPlayerId === 0 ? 1 : 0;`"
+        ]
+      },
+      "seatAliasedToSeed": "N/A - no seed in the harness",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": false,
+        "citations": [
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:271 `const heuristicAi = new HeuristicAI();`  <-- V11-D01",
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:178 `action = legalActions[pred.bestActionIndex] ?? legalActions[0];` (the model itself is deterministic)"
+        ],
+        "v11d01Occurrences": ["tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:271"]
+      },
+      "termination": {
+        "rule": "turn cap; truncation counted as neither win nor loss but is reported separately",
+        "cap": "maxTurns = 100",
+        "citations": [
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:155 `while (engine.getState().winner === null && engine.getState().turn <= maxTurns)`",
+          "tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:302-308 `if (r.winner === r.spatialPlayerId) spatialWins++; else if (r.winner === r.heuristicPlayerId) heuristicWins++; else drawsOrTruncations++;`"
+        ],
+        "measuredTruncationFraction": "0.0 (0/10) - artifact `drawsOrTruncations: 0`"
+      },
+      "verdict": "SURVIVES",
+      "verdictReason": "The artifact itself proves the outcome tracks the POLICY and not the SEAT: heuristicWins 10, spatialWins 0, and p0WinsTotal 5 / p1WinsTotal 5 - i.e. the heuristic won 5 games from P0 and 5 from P1, so the spatial model lost in BOTH seats on all 5 maps. No seat bias can explain that.",
+      "caveats": [
+        "UNVERIFIABLE as a reproducible measurement (V11-D01, no seed).",
+        "The report md's rhetorical claim that the model 'significantly surpasses the heuristic baseline' (spatial_vs_heuristic_5maps_10matches.md section 4) is contradicted by its own JSON; the JSON/MD headline table (0 wins) is the trustworthy part."
+      ]
+    },
+
+    {
+      "id": "H4_skirmish_spatial_match_benchmark",
+      "toolPath": "tools/skirmish_spatial_match_benchmark.ts",
+      "produces": ["docs/training/reports/spatial_benchmark_01/spatial-match-benchmark.json", "docs/training/reports/spatial_benchmark_01/spatial-match-benchmark.md"],
+      "headlineNumber": "Spatial ResNet 0 wins / 8; HeuristicAI 0 wins / 8; natural win rate 0.0%; truncations 8/8 (100.0%)",
+      "mapOrState": {
+        "value": "createDemoState(getApkSkirmishRuleConfig('SD'))",
+        "players": 2,
+        "citations": [
+          "tools/skirmish_spatial_match_benchmark.ts:44 `const state = createDemoState(getApkSkirmishRuleConfig('SD'));`",
+          "tools/skirmish_spatial_match_benchmark.ts:14 `import { createDemoState } from '../src/game/demo_map';`"
+        ]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "but the seat moves together with the seed (parity aliasing)",
+        "citations": [
+          "tools/skirmish_spatial_match_benchmark.ts:130 `const spatialPlayer = (i % 2 === 0) ? 0 : 1;`",
+          "tools/skirmish_spatial_match_benchmark.ts:128 `const seed = seedStart + i;`"
+        ]
+      },
+      "seatAliasedToSeed": true,
+      "seatAliasedToSeedDetail": "seed and seat are both functions of the same `i % 2`, so 'P0 games' and 'even-seed games' are the same 4 games. Worse: the seed argument is decorative - runSpatialVsHeuristicMatch(seed,...) uses `seed` ONLY for the matchId string.",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": false,
+        "citations": [
+          "tools/skirmish_spatial_match_benchmark.ts:46 `const heuristicAi = new HeuristicAI();`  <-- V11-D01",
+          "tools/skirmish_spatial_match_benchmark.ts:86 `matchId: `match_seed_${seed}_spatial_p${spatialPlayerId}`,`  <-- the ONLY use of `seed` in the function",
+          "tools/skirmish_spatial_match_benchmark.ts:44-45 `createDemoState(...)` + `new GameEngine(state)` take no seed"
+        ],
+        "v11d01Occurrences": ["tools/skirmish_spatial_match_benchmark.ts:46"]
+      },
+      "termination": {
+        "rule": "step cap; truncation explicitly separated from wins",
+        "cap": "maxSteps = 80 (runSpatialBenchmark default :122; the caller passes only matches+outDir at :200)",
+        "citations": [
+          "tools/skirmish_spatial_match_benchmark.ts:53 `while (engine.getState().winner === null && stepCount < maxSteps)`",
+          "tools/skirmish_spatial_match_benchmark.ts:122 `const maxSteps = options.maxSteps ?? 80;`",
+          "tools/skirmish_spatial_match_benchmark.ts:75 `const isTruncated = winner === null && stepCount >= maxSteps;`",
+          "tools/skirmish_spatial_match_benchmark.ts:200 `runSpatialBenchmark({ matches: 8, outDir });`"
+        ],
+        "measuredTruncationFraction": "1.0 (8/8) - artifact truncations: 8, spatialWins: 0, heuristicWins: 0, naturalWinRate: 0; every match is UNRESOLVED_MAX_STEPS_TRUNCATION at stepCount 80"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "Not one of the 8 games ever reached a terminal state, so the reported '0 wins / 0.0% natural win rate' measures the 80-step cap, not the model; this audit's mirror control shows the harness's own map needs ~347 steps on average to resolve naturally (10/10 natural at a 4000-step cap), i.e. the cap is ~4.3x too small.",
+      "caveats": [
+        "The artifact and md are HONEST about the truncation (spatial-match-benchmark.md:16-17 prints '步数截断数 8 / 100.0%'), so the defect is in the headline interpretation, not in the recording.",
+        "Even with an adequate cap the map carries a strong P1 seat bias (this audit: P1 9 / P0 1 over 10 all-heuristic games), so an 8-game run with 4 games per seat could be dominated by seat noise."
+      ]
+    },
+
+    {
+      "id": "H5_skirmish_ai_duel_benchmark",
+      "toolPath": "tools/skirmish_ai_duel_benchmark.ts",
+      "produces": ["training_runs/benchmarks/sd_ai_duel_20260706_2p_t20/summary.json", "training_runs/benchmarks/sd_ai_duel_20260706_2p_t20/episodes.csv"],
+      "headlineNumber": "winsByPolicy {heuristic: 13, apk-like: 7}; winRateByPolicy {heuristic: 0.65, apk-like: 0.35} (this is the '65%/35%' quoted as the SD handover baseline)",
+      "mapOrState": {
+        "value": "real APK 2-player SD training scenarios loaded from APK/_analysis/unpack",
+        "players": 2,
+        "citations": [
+          "tools/skirmish_ai_duel_benchmark.ts:163-165 `getApkSkirmishTrainingScenarios().filter(scenario => scenario.playerCount === 2).slice(0, maps)`",
+          "tools/skirmish_ai_duel_benchmark.ts:205 `const map = await readApkSkirmishTrainingMap(unpackDir, scenario);`",
+          "artifact: training_runs/benchmarks/sd_ai_duel_20260706_2p_t20/summary.json `maps: 10, episodesPerMap: 2, totalEpisodes: 20`"
+        ]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "the NAMED policy on seat P0 flips every episode, but P0 itself is a fixed slot",
+        "citations": [
+          "tools/skirmish_ai_duel_benchmark.ts:207 `const p0Policy: PolicyName = episodeIndex % 2 === 0 ? 'heuristic' : 'apk-like';`",
+          "tools/skirmish_ai_duel_benchmark.ts:96-98 `const policyName: PolicyName = playerId === sortedPlayerIds[0] ? p0Policy : (p0Policy === 'heuristic' ? 'apk-like' : 'heuristic');`"
+        ]
+      },
+      "seatAliasedToSeed": true,
+      "seatAliasedToSeedDetail": "the policy flips on `episodeIndex % 2` (:207) while the seed advances by `episodeIndex` (:208), so seat parity IS seed parity; with only 2 episodes per scenario the seat effect and the seed effect are not separable at all.",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": true,
+        "butConfounded": true,
+        "citations": [
+          "tools/skirmish_ai_duel_benchmark.ts:208 `const episodeSeed = seed + scenarioIndex * 100 + episodeIndex;`",
+          "tools/skirmish_ai_duel_benchmark.ts:99 `const policySeed = episodeSeed + playerId * 1009 + sortedPlayerIds.indexOf(playerId) * 9173;`",
+          "tools/skirmish_ai_duel_benchmark.ts:100-102 `createHeuristicBaselinePolicy(policySeed)` / `createApkLikeBaselinePolicy(policySeed)`",
+          "tools/skirmish_ai_duel_benchmark.ts:210-213 `createApkSkirmishTrainingEnv(map, scenario, { seed: episodeSeed, maxPlies })`"
+        ],
+        "v11d01Occurrences": []
+      },
+      "termination": {
+        "rule": "ply cap PLUS army-value adjudication, and adjudicated results are counted as wins",
+        "cap": "--max-turns default 200 (:158); the archived run used 20",
+        "citations": [
+          "tools/skirmish_ai_duel_benchmark.ts:108 `const winnerAlliance = episode.summary.adjudicatedWinnerAlliance ?? episode.summary.winnerAlliance;`",
+          "tools/skirmish_ai_duel_benchmark.ts:209 `const maxPlies = maxTurns * Math.max(1, scenario.playerCount);`",
+          "tools/skirmish_ai_duel_benchmark.ts:220 `maxSteps: maxPlies * 64,`"
+        ],
+        "measuredTruncationFraction": "0.85 (17/20) - verified directly in the artifact: 20/20 rows at training_runs/benchmarks/sd_ai_duel_20260706_2p_t20/summary.json have a non-null adjudicatedWinnerAlliance and only 3/20 have a natural winnerAlliance"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "85% of the 20 games never produced a natural winner - they were decided by the army-value adjudication at a 20-turn cap - and the seat that holds each policy is a deterministic function of the same episode index that seeds the game, with no mirror arm, so the 65/35 split is an adjudication-plus-seat artifact of the same family as the archive confound.",
+      "additionalArtifacts": [
+        {
+          "path": "training_runs/benchmarks/sd_ai_duel_20260706_2p/summary.json",
+          "headlineNumber": "winsByPolicy {heuristic: 2, apk-like: 0}; winRateByPolicy {heuristic: 1, apk-like: 0}",
+          "measuredDetail": "the whole sample is 2 games on ONE map (`SD:(2) Icy Paths.aem`, seeds 20260706/20260707), both natural (2770 and 2476 steps); the heuristic won from BOTH seats (alliance 0 and alliance 1)",
+          "verdict": "UNVERIFIABLE",
+          "verdictReason": "n=2. It is not a seat artifact (the heuristic won in both seats) and it is not evidence of anything at n=2."
+        },
+        {
+          "path": "training_runs/benchmarks/sd_strategy_timing_smoke/summary.json",
+          "headlineNumber": "winsByPolicy {heuristic: 0, apk-like: 1, random: 2}, winRateByPolicy {heuristic: 0, apk-like: 0.3333, random: 0.6667}",
+          "measuredDetail": "3 episodes at maxTurns=1",
+          "verdict": "UNVERIFIABLE",
+          "verdictReason": "A 3-game smoke test at a 1-turn cap; it is not a result and should not be cited as one (it is, at least, named 'smoke')."
+        }
+      ],
+      "caveats": [
+        "The direction (heuristic > apk-like) is separately supported by mechanism, not by this number: src/game/ai/apk_like_ai.ts:31 `this.heuristic = new HeuristicAI(() => this.rng());` shows apk-like IS a heuristic with injected noise plus a restricted candidate set, so it is weaker by construction."
+      ]
+    },
+
+    {
+      "id": "H6_v6_all_policy_before_after",
+      "toolPath": "tools/v6_commander_specialist_pipeline.ts",
+      "produces": ["docs/training/reports/agent_upgrade_20260921_v6_01/all-policy-before-after.json"],
+      "headlineNumber": "wins 0 for ALL EIGHT policies - including `HeuristicAI (Baseline)` itself, which records 0 wins / 1 loss / 3 truncations",
+      "mapOrState": {
+        "value": "createDemoState(sdRules) - the SAME map as H4",
+        "players": 2,
+        "citations": ["tools/v6_commander_specialist_pipeline.ts:783 `const state = createDemoState(sdRules);`"]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "MATCHES = 4 -> 2 games per seat",
+        "citations": [
+          "tools/v6_commander_specialist_pipeline.ts:777 `const MATCHES = 4; // 2 as P0, 2 as P1`",
+          "tools/v6_commander_specialist_pipeline.ts:779 `const candidateSeat = m % 2; // 0 or 1`"
+        ]
+      },
+      "seatAliasedToSeed": "N/A - the seed variable is dead code",
+      "mirrorControlInHarness": "PARTIAL, and it is decisive: the `heuristic` arm is heuristic-vs-heuristic and it scored 0 wins, which is the harness's own evidence that the protocol floors at zero",
+      "rng": {
+        "seeded": false,
+        "detail": "`seed` is computed and never read; the opponent is an unseeded shared HeuristicAI",
+        "citations": [
+          "tools/v6_commander_specialist_pipeline.ts:680 `const heuristicAi = new HeuristicAI();`  <-- V11-D01",
+          "tools/v6_commander_specialist_pipeline.ts:157 `const heuristicAi = new HeuristicAI();`  <-- V11-D01",
+          "tools/v6_commander_specialist_pipeline.ts:781 `const seed = 7000 + m * 17;`  <-- DEAD: the only other `seed` occurrences in the file are at :262-264, :425-430, :510, :542, none of which read this one"
+        ],
+        "v11d01Occurrences": ["tools/v6_commander_specialist_pipeline.ts:157", "tools/v6_commander_specialist_pipeline.ts:680"]
+      },
+      "termination": {
+        "rule": "turn cap AND step cap; truncation counted separately from draws and wins",
+        "cap": "turn <= 35 && steps < 300",
+        "citations": [
+          "tools/v6_commander_specialist_pipeline.ts:787 `while (engine.getState().winner === null && engine.getState().turn <= 35 && steps < 300) {`",
+          "tools/v6_commander_specialist_pipeline.ts:817 `} else if (steps >= 300 || engine.getState().turn > 35) {`"
+        ],
+        "measuredTruncationFraction": "per policy, from all-policy-before-after.json (4 games each): HeuristicAI 3/4, Random 0/4, BC Ranker 2/4, Spatial ResNet v1 2/4, Spatial ResNet v2 2/4, NET_B old 1/4, NET_A 2/4, NET_B new 3/4"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "The reference yardstick scores ZERO wins in this same harness (HeuristicAI 0W-1L-3T), so 'every policy 0 wins' is a floor effect: the 300-step cap sits below the natural game length on this map (this audit measured mean 347 steps / 15.7 turns over 10 all-heuristic games), and V11-D01 makes it non-reproducible on top.",
+      "caveats": [
+        "The HeuristicAI arm is the cleanest in-protocol mirror control found in any historical harness, and it is the single most useful number in that file."
+      ]
+    },
+
+    {
+      "id": "H7_run_match_evaluation_200turns",
+      "toolPath": "tools/run_match_evaluation_200turns.ts",
+      "produces": ["stdout only; NO artifact (no writeFileSync in the file)"],
+      "headlineNumber": "2-game Spatial ResNet vs HeuristicAI match (1 game per seat); any W/L taken from it is n=2",
+      "mapOrState": {
+        "value": "createDemoState(getApkSkirmishRuleConfig('SD')) - the SAME map as H4/H6",
+        "players": 2,
+        "citations": ["tools/run_match_evaluation_200turns.ts:122 `const state = createDemoState(getApkSkirmishRuleConfig('SD'));`"]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "only two games exist: spatial at P0, then spatial at P1",
+        "citations": [
+          "tools/run_match_evaluation_200turns.ts:276 `// 对局 1: 红方新 AI (Spatial ResNet) vs 蓝方启发式 (HeuristicAI)`",
+          "tools/run_match_evaluation_200turns.ts:279 `// 对局 2: 双向换边！红方启发式 (HeuristicAI) vs 蓝方新 AI (Spatial ResNet)`"
+        ]
+      },
+      "seatAliasedToSeed": "N/A - no seed",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": false,
+        "citations": ["tools/run_match_evaluation_200turns.ts:124 `const heuristicAi = new HeuristicAI();`  <-- V11-D01"],
+        "v11d01Occurrences": ["tools/run_match_evaluation_200turns.ts:124"]
+      },
+      "termination": {
+        "rule": "turn cap",
+        "cap": "turn <= 200",
+        "citations": [
+          "tools/run_match_evaluation_200turns.ts:120 `maxTurns: number = 200`",
+          "tools/run_match_evaluation_200turns.ts:150 `while (engine.getState().winner === null && engine.getState().turn <= maxTurns) {`"
+        ],
+        "measuredTruncationFraction": "not recorded (console-only)"
+      },
+      "verdict": "UNVERIFIABLE",
+      "verdictReason": "n=2, an unseeded opponent (V11-D01), and no stored artifact - the harness cannot support any win-rate claim at all, and on this map an all-heuristic mirror is 8/2 to 9/1 for P1, which at n=2 is indistinguishable from pure seat luck."
+    },
+
+    {
+      "id": "H8_sd_training_archive_1003",
+      "toolPath": "tools/sd_training_plan_runner.ts (+ tools/sd_training_state_generator.ts, tools/skirmish_training_runner.ts)",
+      "produces": ["training_runs/episodes/sd_training_plan_20260705_heuristic-apk-like-balanced/*.jsonl (11 files)"],
+      "headlineNumber": "across 1,003 naturally-decided games the winner is a `heuristic`-policy player 755 times (75.27%) vs `apk-like` 248 (24.73%)",
+      "mapOrState": {
+        "value": "31 SD plan scenarios over 20 maps, 2-4 players, seeds derived from the plan config",
+        "players": "2, 3 or 4 depending on scenario",
+        "citations": [
+          "training_configs/sd_training_plan_20260705.json:29-31 `\"seedBase\": 2026070501, \"maxTurns\": 200, \"preset\": \"heuristic-apk-like-balanced\"`",
+          "tools/sd_training_state_generator.ts:98 `const DERIVED_SCENARIO_PREFIX = 'SDPLAN';`",
+          "tools/sd_training_state_generator.ts:157 `seed: config.defaults.seedBase + planIndex * 100000 + mapIndex * 1000 + episodeIndex,`",
+          "tools/sd_training_state_generator.ts:181 -> createSdTrainingGameState"
+        ]
+      },
+      "seatsAlternated": {
+        "value": "only as a group, and ONLY through the seed",
+        "detail": "heuristic occupies even seats iff the seed is even",
+        "citations": [
+          "tools/skirmish_training_runner.ts:1026-1031 `if (preset === 'heuristic-apk-like-balanced') { const playerIndex = sortedPlayerIds.indexOf(playerId); const heuristicOffset = Math.abs(episodeSeed) % 2; return (playerIndex + heuristicOffset) % 2 === 0 ? createHeuristicBaselinePolicy(policySeed) : createApkLikeBaselinePolicy(policySeed); }`"
+        ]
+      },
+      "seatAliasedToSeed": true,
+      "seatAliasedToSeedDetail": "seedBase 2026070501 is ODD while planIndex*100000 and mapIndex*1000 are even, so seed % 2 === (1 + episodeIndex) % 2. The policy's seat is therefore a deterministic function of the same single bit that indexes the RNG stream. Verified independently in this audit by reading the two lines above; seeds are consecutive integers within a (plan,map) block.",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": true,
+        "butConfounded": true,
+        "citations": [
+          "tools/skirmish_training_runner.ts:1004 `const policySeed = mixSeed(episodeSeed, playerId, sortedPlayerIds.indexOf(playerId) + 1);`",
+          "tools/skirmish_training_runner.ts:649 `const ai = new HeuristicAI(createSeededRng(seed));`",
+          "tools/skirmish_training_runner.ts:656 -> new ApkLikeAI(createSeededRng(seed))"
+        ],
+        "v11d01Occurrences": [],
+        "note": "V11-D01 is NOT present on the archive path - the archive is reproducible but confounded; the benchmarks are unconfounded-by-seat but non-reproducible."
+      },
+      "termination": {
+        "rule": "ply cap + timeout adjudication folded into the winner",
+        "cap": "maxTurns 200 -> maxPlies = maxTurns * turnPlayers; maxSteps = maxPlies * 64",
+        "citations": [
+          "tools/sd_training_plan_runner.ts:279 `const maxPlies = maxTurns * Math.max(1, getTurnPlayerIds(state).length);`",
+          "tools/sd_training_plan_runner.ts:280 `const maxSteps = maxPlies * 64;`",
+          "tools/skirmish_training_runner.ts:1287-1288 `const adjudicatedWinnerAlliance = result.state.winner ?? (timeout ? evaluateAdjudicatedWinnerAlliance(result.state) : null);`"
+        ],
+        "measuredTruncationFraction": "0.281 - v12/out/training/seat_asymmetry.txt:1-3 records `records with winner : 1003` and `records unparsed : 392` out of 1,395 total episodes"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "Seat is a pure function of the same bit as the seed and no mirror arm exists anywhere in the archive, so a 75/25 policy split cannot be read as a strength measurement; the direction is nonetheless real because apk-like is HeuristicAI plus injected noise by construction.",
+      "caveats": [
+        "The 75.27% figure is stored only as plain text (v12/out/training/winner_vs_policy.txt:1-8) - it is not a key in any JSON artifact."
+      ]
+    },
+
+    {
+      "id": "H9_sd_strategy_timing_benchmark",
+      "toolPath": "tools/sd_strategy_timing_benchmark.ts",
+      "produces": ["training_runs/benchmarks/sd_strategy_timing_30x500/summary.json"],
+      "headlineNumber": "winsByPolicy {heuristic: 16, apk-like: 14, random: 0}; winRateByPolicy {heuristic: 0.5333, apk-like: 0.4667, random: 0}",
+      "mapOrState": {
+        "value": "SD 2-player scenarios only",
+        "players": 2,
+        "citations": ["tools/sd_strategy_timing_benchmark.ts:579-580 `.filter(scenario => scenario.mode === 'SD' && scenario.playerCount === 2)`"]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "detail": "genuinely both directions - verified in the artifact: p0Policy values are apk-like=10, heuristic=10, random=10",
+        "citations": [
+          "tools/sd_strategy_timing_benchmark.ts:613 `const swapSides = repeatIndex % 2 === 1;`",
+          "tools/sd_strategy_timing_benchmark.ts:614-615 `const p0Policy = swapSides ? pairing.policies[1] : pairing.policies[0];`"
+        ]
+      },
+      "seatAliasedToSeed": true,
+      "seatAliasedToSeedDetail": "`swapSides` is `repeatIndex % 2` and the seed adds `repeatIndex` on the same axis, so the swap variable and the seed increment are the same bit.",
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": true,
+        "butConfounded": true,
+        "citations": [
+          "tools/sd_strategy_timing_benchmark.ts:616 `const episodeSeed = options.seed + scenarioIndex * 10000 + pairingIndex * 1000 + repeatIndex;`",
+          "tools/sd_strategy_timing_benchmark.ts:273 `const policySeed = episodeSeed + playerId * 1009 + playerIndex * 9173;`"
+        ],
+        "v11d01Occurrences": []
+      },
+      "termination": {
+        "rule": "turn cap + adjudication folded into the winner",
+        "cap": "--max-turns default 500; artifact maxTurns 500",
+        "citations": [
+          "tools/sd_strategy_timing_benchmark.ts:284 `const winnerAlliance = episode.summary.adjudicatedWinnerAlliance ?? episode.summary.winnerAlliance;`",
+          "tools/sd_strategy_timing_benchmark.ts:173 `maxTurns: parseIntegerArg(argv, '--max-turns', 500)`"
+        ],
+        "measuredTruncationFraction": "0.167 (5/30) - verified in the artifact: only 25/30 rows have a natural winnerAlliance"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "Mild but real: the seat does swap in both directions (unlike H5), but the variable that swaps it is the same variable added to the seed, there is no mirror arm, and 1/6 of the games are army-value adjudications - 53/47 is not distinguishable from a coin flip regardless."
+    },
+
+    {
+      "id": "H10_teacher_qualification_gate",
+      "toolPath": "tools/skirmish_final_eval_runner.ts / teacher-eval harness (20260920_01 run)",
+      "produces": ["docs/training/reports/agent_upgrade_20260920_01/teacher-qualification.json", "docs/training/reports/agent_upgrade_20260920_01/final-eval.jsonl", "docs/training/reports/agent_upgrade_20260920_01/teacher-eval.jsonl"],
+      "headlineNumber": "decision GLOBAL_GO; endgameDomain winRate 0.5 '4W-4D-0L, 0 losses'; normalDomain lossRate 0.0 'achieved 0 losses across all 8 games'",
+      "mapOrState": {
+        "value": "domain-specific held-out episodes (normal / endgame)",
+        "players": 2,
+        "citations": ["artifact docs/training/reports/agent_upgrade_20260920_01/teacher-qualification.json `qualificationScope`"]
+      },
+      "seatsAlternated": {
+        "value": "alternated in the final holdout, but the WINNING seat is the same in every decided game",
+        "citations": ["tools/skirmish_final_eval_runner.ts:128 `const candidatePlayerId = i % 2 === 0 ? 0 : 1;`"]
+      },
+      "seatAliasedToSeed": "not assessed",
+      "mirrorControlInHarness": false,
+      "rng": { "seeded": "not assessed", "v11d01Occurrences": [] },
+      "termination": {
+        "rule": "step cap, and every capped game is recorded as `draw: true`",
+        "cap": "150 steps (final holdout); 200 steps (teacher-eval)",
+        "citations": ["tools/skirmish_final_eval_runner.ts:115 `const maxSteps = options.maxSteps ?? 150;`"],
+        "measuredTruncationFraction": "final holdout 1.0 (8/8); teacher-eval endgame 0.5 (4/8); teacher-eval normal 0.625 (5/8)"
+      },
+      "verdict": "CONFOUNDED",
+      "verdictReason": "Verified line-by-line in this audit from the raw rows, not from the summary: all 8 final-eval.jsonl rows are `stepCount=150, winnerAlliance=null, draw=true`, so '0 losses in 8 games' is 100% truncation; and in teacher-eval.jsonl the teacher won 4/4 games as P0 (steps 108/132/132/108) and 0/4 as P1, where all four P1 games hit exactly stepCount=200 with no winner - the endgame `winRate 0.5` that was read as a positive signal is a pure P0 seat artifact.",
+      "caveats": [
+        "The project later re-audited this itself: docs/training/reports/agent_upgrade_20260920_v4_01/historical-outcome-reanalysis.json records verdict DISPUTED_ALL_TRUNCATED and seatBreakdown {p0TeacherWins:4, p1TeacherWins:0, p1TeacherTruncated:4}. This audit independently reproduced both from the raw JSONL."
+      ]
+    },
+
+    {
+      "id": "H11_v7_v10_unified_evaluation",
+      "toolPath": "tools/v7_unified_evaluation.ts (engine behind the v10 T10-01/03/04/06 headline numbers)",
+      "produces": ["docs/training/reports/agent_upgrade_20260923_v10_fix_01/*.json", "docs/training/reports/agent_upgrade_20260923_v10_identity_01/*.json"],
+      "headlineNumber": "SPATIAL_V2_BEST naturalWinRate 0; S00_SEARCH 46.2 vs T10_TURN_SEARCH 0; identity_01 armB sha256 == armC sha256 with deltaArmC_vs_ArmB_winRate 0",
+      "mapOrState": {
+        "value": "5 two-player SD maps via createAppApkSkirmishGameState(mapName,'SD'), optionally with setup variants",
+        "players": 2,
+        "citations": ["tools/v7_unified_evaluation.ts:446-448 `const state = setup ? createApkSkirmishGameState(parseAppApkSkirmishMap(mapName), { mode: 'SD', mapName, setup }) : createAppApkSkirmishGameState(mapName, 'SD');`"]
+      },
+      "seatsAlternated": {
+        "value": true,
+        "citations": ["tools/v7_unified_evaluation.ts:988 `for (const seat of [0, 1] as const) {`"]
+      },
+      "seatAliasedToSeed": "setup variants are a deterministic function of the seed (collectors.ts:23-26), so seed and setup are confounded",
+      "mirrorControlInHarness": "only by running HEURISTIC as the candidate - identity_01 new_checkpoint_benchmark.json records HEURISTIC winRateNaturalOnly 50 (6W/6L/8T), i.e. no measured seat bias at n=12 decided games",
+      "rng": {
+        "seeded": true,
+        "citations": [
+          "tools/v7_unified_evaluation.ts:464 `const candidateSeed = (seed * 10007 + 1) >>> 0;`",
+          "tools/v7_unified_evaluation.ts:472 `const opponentPolicy = new HeuristicAI(opponentRng);`",
+          "tools/v7_unified_evaluation.ts:296-298 `public setRng(rng: () => number): void {`"
+        ],
+        "v11d01Occurrences": [
+          "tools/v7_unified_evaluation.ts:984 `const turnAwareSearcher = (pType === 'T10_TURN_SEARCH' || pType === 'T10_TURN_SEARCH_VALUE') ? new TurnAwareSearchEngine(new HeuristicAI(), predictorForAgent) : undefined;`  <-- NOT re-seeded (TurnAwareSearchEngine has no setRng), so every T10_TURN_SEARCH number runs on Math.random",
+          "tools/v7_unified_evaluation.ts:291 and :985 - `new HeuristicAI()` defaults, but both are overwritten by setRng before use"
+        ],
+        "also": "tools/v7_unified_evaluation.ts:244 `deterministicReplay: false` -> search arms stop on wall clock (tools/v7_heuristic_bounded_search.ts:459-468), so search results are machine-load dependent"
+      },
+      "termination": {
+        "rule": "hard cap, no adjudication",
+        "cap": "45 turns / 800 atomic steps in the v10 runs",
+        "citations": ["tools/v7_unified_evaluation.ts:510 `while (!engine.isTerminal() && engine.getState().turn <= maxTurns && steps < maxAtomicSteps) {`"]
+      },
+      "verdict": "MIXED",
+      "verdictReason": "Seat handling in this suite is the best of the historical family (explicit seat alternation + a HEURISTIC self-mirror at 50%), but the specific headline comparisons fail for other reasons: the T10_TURN_SEARCH arms run on an unseeded heuristic, and tools/v10fix/pipeline.ts:62 `const truncations = outcomes.length - wins - losses - draws;` lumps ENGINE_ERROR aborts into 'truncations' (search_comparison.json reports truncations 14 where the raw benchmark records engineErrors 14).",
+      "caveats": [
+        "The identity_01 3-arm DAgger comparison is invalid outright: arms B and C carry the SAME checkpoint sha256, so the reported 0 delta compares one model with itself."
+      ]
+    },
+
+    {
+      "id": "H12_skirmish_multiscenario_eval",
+      "toolPath": "tools/skirmish_multiscenario_eval.ts",
+      "produces": ["training_runs/evaluation_20260918/results.json"],
+      "headlineNumber": "not read / not verified in this audit",
+      "mapOrState": { "value": "4 SD 2-player maps x fixed seeds x opponents x seats", "players": 2, "citations": ["tools/skirmish_multiscenario_eval.ts:18-21"] },
+      "seatsAlternated": { "value": true, "citations": ["tools/skirmish_multiscenario_eval.ts:20 `for (const seat of [0, 1]) jobs.push({ … seat })`", "tools/skirmish_multiscenario_eval.ts:37 `const subjectId = endgame ? state.currentPlayer : players[job.seat];`"] },
+      "mirrorControlInHarness": false,
+      "rng": {
+        "seeded": true,
+        "citations": ["tools/skirmish_multiscenario_eval.ts:48 `createHeuristicBaselinePolicy(job.seed + id * 1009 + players.indexOf(id) * 9173)`"],
+        "v11d01Occurrences": []
+      },
+      "termination": {
+        "rule": "ply cap; natural vs adjudicated reported separately (correct)",
+        "cap": "maxPlies 400 / maxSteps 25600",
+        "citations": ["tools/skirmish_multiscenario_eval.ts:42 `maxPlies: 400, maxSteps: 25600`"]
+      },
+      "verdict": "SURVIVES_WITH_CAVEAT",
+      "verdictReason": "The protocol is the cleanest of the skirmish family (both seats, seeded, natural/adjudicated separated), but no numbers from it were verified here and in endgame plans the subject always holds the advantaged roster, so 'seat' there is not a symmetric seat.",
+      "caveats": ["numbers not read (training_runs/evaluation_20260918/results.json)"]
+    }
+  ],
+
+  "crossCuttingFindings": [
+    {
+      "finding": "Seat advantage is real but MAP- AND SETUP-SPECIFIC, and it points in OPPOSITE directions on different maps.",
+      "evidence": [
+        "Duel SD ((2) Duel.aem), all-HeuristicAI, n=10, this audit: P1 8 / P0 2",
+        "Demo map SD (createDemoState), all-HeuristicAI, n=10, this audit: P1 9 / P0 1",
+        "Teacher-eval endgame domain, n=8, raw rows: P0 4/4, P1 0/4 (P0 favoured)",
+        "(4) Crossroads SDPLAN, prior round: P2 7/7"
+      ],
+      "implication": "There is no portable 'seat correction'. A harness must carry its own mirror control on its own map, or must alternate seats an equal number of times per side."
+    },
+    {
+      "finding": "Alternating seats centres the null at 50% only when the seat effect is independent of the policy occupying it; it does not remove seat VARIANCE.",
+      "implication": "Alternation (H1, H2, H3) rules out a seat-only explanation of a one-sided result, but a small-n per-seat split can still be dominated by seat noise."
+    },
+    {
+      "finding": "V11-D01 (`new HeuristicAI()` -> Math.random) occurs in every unseeded benchmark harness audited: tools/v6_all_models_vs_heuristic_5maps_benchmark.ts:276, tools/v6_spatial_vs_heuristic_5maps_benchmark.ts:271, tools/skirmish_spatial_match_benchmark.ts:46, tools/v6_commander_specialist_pipeline.ts:157 and :680, tools/run_match_evaluation_200turns.ts:124, tools/v7_unified_evaluation.ts:984, tools/v10_dagger_controlled.ts:162, tools/v10_expert_iteration.ts:76 and :291, tools/v8_search_profile.ts:55, tools/v9_benchmark_search.ts:15 and :84, tools/v9_run_reeval_01.ts:215, tools/skirmish_live_match.ts:99, tools/skirmish_spatial_dataset_export.ts:66. It does NOT occur on the archive path (tools/skirmish_training_runner.ts:649,656 are seeded) nor in tools/train_battle_eval_uncapped.ts (seeded at :37-38).",
+      "implication": "The project's reproducibility defect and its seat confound live in DIFFERENT halves of the pipeline: the training archive is reproducible but confounded; the benchmark harnesses are seat-clean-ish but non-reproducible."
+    },
+    {
+      "finding": "Dead seed variables create false reproducibility: a `seed` is computed and never read.",
+      "evidence": [
+        "tools/v6_commander_specialist_pipeline.ts:781 `const seed = 7000 + m * 17;`",
+        "tools/skirmish_spatial_match_benchmark.ts:128 `const seed = seedStart + i;` (used only for the matchId, :86)"
+      ]
+    },
+    {
+      "finding": "Two headline numbers in the v6 report bundle come from DIFFERENT protocols on DIFFERENT maps and are mutually incompatible: all_models_vs_heuristic_5maps_benchmark.json has the heuristic beating every model 10/10 with 0 truncations on the 5 APK maps, while all-policy-before-after.json has the heuristic itself winning 0/4 with 3 truncations on the demo map."
+    }
+  ],
+
+  "mirrorControl": {
+    "artifact": "v12/out/protocol_audit/mirror_seat_bias.json",
+    "tool": "v12/tools/audit_mirror_seat_bias.ts",
+    "rng": "mulberry(hash(seed, seat)) per seat; independent per seat; never Math.random",
+    "design": "replay each harness's OWN map + seat layout + termination rule with HeuristicAI in EVERY seat",
+    "results": {
+      "train_battle_eval_uncapped.ts / createDefaultAppGameState() == (2) Duel.aem SD / cap 600 turns": { "games": 10, "naturalWinsBySeat": { "P0": 2, "P1": 8 }, "truncated": 0, "meanSteps": 319.4, "meanFinalTurn": 14.4 },
+      "skirmish_spatial_match_benchmark.ts / createDemoState(SD) / cap 80 steps (historical)": { "games": 10, "naturalWinsBySeat": { "P0": 0, "P1": 0 }, "truncated": 10, "note": "100% truncation - this is the cap, not the model" },
+      "skirmish_spatial_match_benchmark.ts / createDemoState(SD) / cap 4000 steps": { "games": 10, "naturalWinsBySeat": { "P0": 1, "P1": 9 }, "truncated": 0, "meanSteps": 346.9, "meanFinalTurn": 15.7 },
+      "v6_5maps / (2) Duel.aem / cap 100 turns (seed block A)": { "games": 8, "naturalWinsBySeat": { "P0": 1, "P1": 7 }, "truncated": 0 },
+      "v6_5maps / (2) Duel.aem / cap 100 turns (seed block B)": { "games": 4, "naturalWinsBySeat": { "P0": 1, "P1": 3 }, "truncated": 0 },
+      "v6_5maps / (2) Liberty Port.aem / cap 100 turns": { "games": 4, "naturalWinsBySeat": { "P0": 1, "P1": 3 }, "truncated": 0, "meanSteps": 974.8, "meanFinalTurn": 28.3 },
+      "v6_5maps / (2) Mourningstar.aem / cap 100 turns": { "games": 4, "naturalWinsBySeat": { "P0": 0, "P1": 4 }, "truncated": 0, "meanSteps": 423.8, "meanFinalTurn": 16.3 },
+      "v6_5maps / (2) Crossed swords.aem / cap 100 turns": { "games": 4, "naturalWinsBySeat": { "P0": 0, "P1": 4 }, "truncated": 0, "meanSteps": 511.0, "meanFinalTurn": 15.0 },
+      "v6 map set POOLED (4 of 5 maps; Icy Paths not run)": { "games": 24, "naturalWinsBySeat": { "P0": 3, "P1": 21 }, "p1WinShare": 0.875, "binomialTwoSidedP": 0.000277, "pValueNote": "computed from the counts against a fair seat null; arithmetic, not a measurement" }
+    },
+    "mapsNotRun": "(2) Icy Paths.aem - measured cost 150-357 s per all-heuristic game. An aborted attempt logged 3 games (1265, 3434, 1594 steps; winners P0, P1, P0) which are NOT part of the artifact.",
+    "consequenceForV6": "P1 is the seat that wins 87.5% of all-heuristic games on these maps, and the v6 harness gives every model 5 games in P1. All four models won none of them, so the 0/10 and 0/40 are not merely unconfounded by seat - they are losses in the seat that wins by default.",
+    "caveat": "The mirror measures the seat effect only in the all-heuristic configuration; a policy x seat interaction would weaken the amplification argument, though not the direct artifact evidence that both seats were occupied and lost."
+  }
+}

@@ -1,0 +1,835 @@
+{
+  "source": {
+    "pool": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+    "rows_read": 48714,
+    "rows_skipped": {}
+  },
+  "B1_valueTarget_distribution": {
+    "valueTarget_raw_counts": {
+      "1": 28229,
+      "null": 13519,
+      "-1": 6966
+    },
+    "n_rows": 48714,
+    "n_null": 13519,
+    "pct_null": 27.7518,
+    "n_plus1": 28229,
+    "n_minus1": 6966,
+    "n_zero_or_other": 0,
+    "n_signed_(+-1)": 35195,
+    "best_constant_predictor": {
+      "majority_sign": "+1",
+      "accuracy": 0.802074,
+      "optimal_constant_for_MSE": 0.604148,
+      "MSE": 0.635005,
+      "optimal_constant_prob_for_Brier": 0.802074,
+      "Brier": 0.158751,
+      "note": "MSE/Brier are the values at the optimum constant; a trivial constant already achieves them"
+    }
+  },
+  "B2_predict_valueTarget_from": {
+    "policy_alone": {
+      "n_rows_with_policy_join": 48714,
+      "policy_join_hit_rows": 48714,
+      "policy_join_miss_rows": 0,
+      "accuracy_majority_per_policy": 0.790266,
+      "conditional_distribution": {
+        "apk-like": {
+          "null": 10841,
+          "-1": 5876,
+          "+1": 573
+        },
+        "heuristic": {
+          "null": 2678,
+          "+1": 27656,
+          "-1": 1090
+        }
+      }
+    },
+    "turn_alone": {
+      "accuracy_majority_per_turn": 0.647514,
+      "n_distinct_turn_values": 67
+    },
+    "step_alone": {
+      "accuracy_majority_per_step": 0.614834,
+      "n_distinct_step_values": 2964
+    },
+    "rootFamilyId_alone": {
+      "n_groups": 37,
+      "accuracy_majority_per_group": 0.857002,
+      "group_purity": 0.189189,
+      "mean_rows_per_group": 1316.595
+    },
+    "rootFamilyId_and_playerId_alone": {
+      "n_groups": 112,
+      "accuracy_majority_per_group": 1.0,
+      "group_purity": 1.0,
+      "mean_rows_per_group": 434.946,
+      "n_groups_with_mixed_labels": 0,
+      "interpretation": "MEMORISE-THE-SEAT CEILING / LEAKAGE, not learning: the key contains the episode identity"
+    }
+  },
+  "B4_information": {
+    "alphabet": "{+1, -1, null} over ALL rows unless the key says 'signed_only'",
+    "H_valueTarget_bits_all_rows": 1.370616,
+    "H_valueTarget_bits_signed_only": 0.71776,
+    "H_given_policy_bits": 0.803927,
+    "H_given_rootFamilyId_bits": 0.497825,
+    "H_given_seat_(root,player)_bits": 0.0,
+    "H_given_seat_signed_only_bits": 0.0,
+    "I_valueTarget_policy_bits": 0.566689,
+    "I_valueTarget_rootFamilyId_bits": 0.872791,
+    "I_valueTarget_seat_bits": 1.370616,
+    "note": "all MI values use the same 3-way alphabet and the same row set, so they are comparable and non-negative"
+  },
+  "B5_sign_equals_my_alliance_won": {
+    "rows_checked": 35195,
+    "agree": 35195,
+    "disagree": 0,
+    "agreement_rate": 1.0
+  },
+  "B6_join_coverage": {
+    "rows_joined_to_episode_archive": 48714,
+    "rows_not_joined": 0,
+    "join_rate": 1.0,
+    "join_key": "rootFamilyId split on '#' -> scenario#seed -> episode_index.json"
+  },
+  "B7_rows_from_informative_episodes": {
+    "definition": "episode winner is neither policy-optimal-LOO-predicted nor LOO-modal (section A4)",
+    "n_informative_episodes_in_section_A": 131,
+    "rows_in_those_episodes": 987,
+    "pct_of_pool": 2.0261,
+    "distinct_rootFamilyIds": 1
+  },
+  "B8_null_rows": {
+    "n_null_rows": 13519,
+    "n_distinct_episodes_with_null": 7,
+    "episodes_all_null": 7
+  },
+  "B9_episode_label_shape": {
+    "n_episodes_in_pool": 37,
+    "episodes_with_both_+1_and_-1": 30,
+    "episodes_with_only_+1": 0,
+    "episodes_with_only_-1": 0,
+    "episodes_with_neither": 7
+  },
+  "B10_effective_sample_size": {
+    "n_rows": 48714,
+    "n_distinct_rootFamilyId_episodes": 37,
+    "n_distinct_seats_(rootFamilyId,playerId)": 112,
+    "n_seats_carrying_a_signed_label": 85,
+    "mean_rows_per_seat": 434.946,
+    "seats_with_mixed_valueTarget": 0,
+    "independent_label_count": 85,
+    "rows_per_independent_label": 573.11,
+    "interpretation": "valueTarget is CONSTANT inside every (episode, seat). The whole 48,714-row pool therefore carries at most one distinct label per seat, i.e. no within-episode advantage signal at all."
+  },
+  "B11_rows_per_episode_top": {
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": 2964,
+    "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0": 2800,
+    "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0": 2800,
+    "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0": 2800,
+    "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1": 2800,
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": 2690,
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0": 2593,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": 2533,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": 2501,
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2": 1813
+  },
+  "B12_root_rows_full": {
+    "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0": 2800,
+    "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0": 2800,
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0": 2593,
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170502#1": 207,
+    "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0": 2800,
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370501#0": 987,
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2": 1813,
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170504#0": 413,
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170502#1": 709,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070504#0": 376,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070502#1": 528,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070503#2": 396,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070505#3": 343,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070501#4": 465,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": 2501,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1": 299,
+    "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1": 2800,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0": 999,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1": 1461,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": 2964,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3": 1319,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4": 715,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5": 801,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6": 1807,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7": 1351,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8": 1411,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9": 736,
+    "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10": 1402,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11": 812,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789513#12": 786,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13": 668,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787505#14": 1113,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15": 828,
+    "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16": 718,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": 2533,
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": 2690,
+    "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19": 770
+  },
+  "B13_root_label_counts": {
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0": {
+      "-1": 263,
+      "+1": 736
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4": {
+      "-1": 233,
+      "+1": 482
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3": {
+      "-1": 225,
+      "+1": 1094
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6": {
+      "-1": 350,
+      "+1": 1457
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": {
+      "-1": 439,
+      "+1": 2525
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7": {
+      "-1": 414,
+      "+1": 937
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1": {
+      "+1": 1026,
+      "-1": 435
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5": {
+      "-1": 214,
+      "+1": 587
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11": {
+      "-1": 257,
+      "+1": 555
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13": {
+      "-1": 105,
+      "+1": 563
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9": {
+      "-1": 110,
+      "+1": 626
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15": {
+      "-1": 111,
+      "+1": 717
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789513#12": {
+      "-1": 106,
+      "+1": 680
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8": {
+      "-1": 209,
+      "+1": 1202
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787505#14": {
+      "-1": 192,
+      "+1": 921
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10": {
+      "-1": 242,
+      "+1": 1160
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": {
+      "-1": 357,
+      "+1": 2144
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1": {
+      "null": 299
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": {
+      "-1": 252,
+      "+1": 2281
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16": {
+      "+1": 573,
+      "-1": 145
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": {
+      "-1": 372,
+      "+1": 2318
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19": {
+      "-1": 231,
+      "+1": 539
+    },
+    "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1": {
+      "null": 2800
+    },
+    "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0": {
+      "null": 2800
+    },
+    "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0": {
+      "null": 2800
+    },
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0": {
+      "-1": 504,
+      "+1": 2089
+    },
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170502#1": {
+      "null": 207
+    },
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370501#0": {
+      "-1": 299,
+      "+1": 688
+    },
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2": {
+      "null": 1813
+    },
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170502#1": {
+      "+1": 659,
+      "-1": 50
+    },
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170504#0": {
+      "+1": 364,
+      "-1": 49
+    },
+    "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0": {
+      "null": 2800
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070501#4": {
+      "-1": 202,
+      "+1": 263
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070502#1": {
+      "-1": 189,
+      "+1": 339
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070503#2": {
+      "-1": 151,
+      "+1": 245
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070504#0": {
+      "-1": 142,
+      "+1": 234
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070505#3": {
+      "-1": 118,
+      "+1": 225
+    }
+  },
+  "B14_per_root_detail": {
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0": {
+      "rows": 999,
+      "label_counts": {
+        "-1": 263,
+        "+1": 736
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4": {
+      "rows": 715,
+      "label_counts": {
+        "-1": 233,
+        "+1": 482
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3": {
+      "rows": 1319,
+      "label_counts": {
+        "-1": 225,
+        "+1": 1094
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6": {
+      "rows": 1807,
+      "label_counts": {
+        "-1": 350,
+        "+1": 1457
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": {
+      "rows": 2964,
+      "label_counts": {
+        "-1": 439,
+        "+1": 2525
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7": {
+      "rows": 1351,
+      "label_counts": {
+        "-1": 414,
+        "+1": 937
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "2": "heuristic",
+        "3": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1": {
+      "rows": 1461,
+      "label_counts": {
+        "+1": 1026,
+        "-1": 435
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5": {
+      "rows": 801,
+      "label_counts": {
+        "-1": 214,
+        "+1": 587
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "2": "heuristic",
+        "3": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11": {
+      "rows": 812,
+      "label_counts": {
+        "-1": 257,
+        "+1": 555
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like",
+        "2": "heuristic"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13": {
+      "rows": 668,
+      "label_counts": {
+        "-1": 105,
+        "+1": 563
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9": {
+      "rows": 736,
+      "label_counts": {
+        "-1": 110,
+        "+1": 626
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15": {
+      "rows": 828,
+      "label_counts": {
+        "-1": 111,
+        "+1": 717
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789513#12": {
+      "rows": 786,
+      "label_counts": {
+        "-1": 106,
+        "+1": 680
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8": {
+      "rows": 1411,
+      "label_counts": {
+        "-1": 209,
+        "+1": 1202
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787505#14": {
+      "rows": 1113,
+      "label_counts": {
+        "-1": 192,
+        "+1": 921
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10": {
+      "rows": 1402,
+      "label_counts": {
+        "-1": 242,
+        "+1": 1160
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "2": "heuristic",
+        "3": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": {
+      "rows": 2501,
+      "label_counts": {
+        "-1": 357,
+        "+1": 2144
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1": {
+      "rows": 299,
+      "label_counts": {
+        "null": 299
+      },
+      "n_seats": 3,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like",
+        "2": "heuristic"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": {
+      "rows": 2533,
+      "label_counts": {
+        "-1": 252,
+        "+1": 2281
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like",
+        "2": "heuristic"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16": {
+      "rows": 718,
+      "label_counts": {
+        "+1": 573,
+        "-1": 145
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like",
+        "2": "heuristic"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": {
+      "rows": 2690,
+      "label_counts": {
+        "-1": 372,
+        "+1": 2318
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like"
+      }
+    },
+    "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19": {
+      "rows": 770,
+      "label_counts": {
+        "-1": 231,
+        "+1": 539
+      },
+      "n_seats": 3,
+      "seats_with_sign": 3,
+      "policy_by_player": {
+        "0": "apk-like",
+        "2": "heuristic",
+        "3": "apk-like"
+      }
+    },
+    "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1": {
+      "rows": 2800,
+      "label_counts": {
+        "null": 2800
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0": {
+      "rows": 2800,
+      "label_counts": {
+        "null": 2800
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0": {
+      "rows": 2800,
+      "label_counts": {
+        "null": 2800
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0": {
+      "rows": 2593,
+      "label_counts": {
+        "-1": 504,
+        "+1": 2089
+      },
+      "n_seats": 4,
+      "seats_with_sign": 4,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170502#1": {
+      "rows": 207,
+      "label_counts": {
+        "null": 207
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like",
+        "2": "heuristic",
+        "3": "apk-like"
+      }
+    },
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370501#0": {
+      "rows": 987,
+      "label_counts": {
+        "-1": 299,
+        "+1": 688
+      },
+      "n_seats": 4,
+      "seats_with_sign": 4,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2": {
+      "rows": 1813,
+      "label_counts": {
+        "null": 1813
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170502#1": {
+      "rows": 709,
+      "label_counts": {
+        "+1": 659,
+        "-1": 50
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like"
+      }
+    },
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170504#0": {
+      "rows": 413,
+      "label_counts": {
+        "+1": 364,
+        "-1": 49
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like"
+      }
+    },
+    "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0": {
+      "rows": 2800,
+      "label_counts": {
+        "null": 2800
+      },
+      "n_seats": 4,
+      "seats_with_sign": 0,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic",
+        "2": "apk-like",
+        "3": "heuristic"
+      }
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070501#4": {
+      "rows": 465,
+      "label_counts": {
+        "-1": 202,
+        "+1": 263
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic"
+      }
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070502#1": {
+      "rows": 528,
+      "label_counts": {
+        "-1": 189,
+        "+1": 339
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like"
+      }
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070503#2": {
+      "rows": 396,
+      "label_counts": {
+        "-1": 151,
+        "+1": 245
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic"
+      }
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070504#0": {
+      "rows": 376,
+      "label_counts": {
+        "-1": 142,
+        "+1": 234
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "heuristic",
+        "1": "apk-like"
+      }
+    },
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070505#3": {
+      "rows": 343,
+      "label_counts": {
+        "-1": 118,
+        "+1": 225
+      },
+      "n_seats": 2,
+      "seats_with_sign": 2,
+      "policy_by_player": {
+        "0": "apk-like",
+        "1": "heuristic"
+      }
+    }
+  }
+}

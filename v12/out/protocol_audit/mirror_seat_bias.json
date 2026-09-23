@@ -1,0 +1,739 @@
+{
+  "schema": "v12_historical_protocol_mirror_control_1",
+  "generatedAt": "2026-09-24T07:25:08.0411088+08:00",
+  "purpose": "seat-bias control for historical harnesses: HeuristicAI in EVERY seat, harness-native map + termination rule | merged: part A = harness-loop replays (Duel + demo map), part B = v6 5-map set",
+  "rng": "mulberry( hash(seed, seat) ) per seat; independent per seat; never Math.random",
+  "partA_config": {
+    "which": "all",
+    "games": 10,
+    "perMapGames": 8,
+    "baseSeed": 2026070601,
+    "safetyTurns": 600,
+    "demoMaxSteps": 80,
+    "demoLongMaxSteps": 4000,
+    "apkMaxTurns": 100,
+    "apkHardStepLimit": 40000,
+    "mapsCompleted": 1
+  },
+  "partB_config": {
+    "which": "apk5-sd",
+    "games": 10,
+    "perMapGames": 4,
+    "baseSeed": 2026070601,
+    "safetyTurns": 600,
+    "demoMaxSteps": 80,
+    "demoLongMaxSteps": 4000,
+    "apkMaxTurns": 100,
+    "apkHardStepLimit": 40000,
+    "mapsCompleted": 4
+  },
+  "scripts": [
+    {
+      "script": "train_battle_eval_uncapped.ts",
+      "map": "createDefaultAppGameState() (Duel)",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && steps<safetyTurns*80 && turn<=safetyTurns)",
+      "cap": 600,
+      "games": 10,
+      "naturalWinsBySeat": {
+        "P0": 2,
+        "P1": 8
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 10,
+        "P1": 10
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 433,
+          "turn": 20
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 439,
+          "turn": 18
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 137,
+          "turn": 8
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 365,
+          "turn": 15
+        },
+        {
+          "seed": 2026070605,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 137,
+          "turn": 8
+        },
+        {
+          "seed": 2026070606,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 288,
+          "turn": 13
+        },
+        {
+          "seed": 2026070607,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 211,
+          "turn": 11
+        },
+        {
+          "seed": 2026070608,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 633,
+          "turn": 23
+        },
+        {
+          "seed": 2026070609,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 203,
+          "turn": 12
+        },
+        {
+          "seed": 2026070610,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 348,
+          "turn": 16
+        }
+      ],
+      "meanSteps": 319.4,
+      "meanFinalTurn": 14.4
+    },
+    {
+      "script": "skirmish_spatial_match_benchmark.ts",
+      "map": "createDemoState(getApkSkirmishRuleConfig(\"SD\"))",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && stepCount < maxSteps)",
+      "cap": 80,
+      "games": 10,
+      "naturalWinsBySeat": {
+        "P0": 0,
+        "P1": 0
+      },
+      "draws": 0,
+      "truncated": 10,
+      "seatOccupancy": {
+        "P0": 10,
+        "P1": 10
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070602,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070603,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070604,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070605,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070606,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070607,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070608,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070609,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        },
+        {
+          "seed": 2026070610,
+          "winner": null,
+          "termination": "TRUNCATED",
+          "steps": 80,
+          "turn": 4
+        }
+      ],
+      "meanSteps": 80,
+      "meanFinalTurn": 4
+    },
+    {
+      "script": "skirmish_spatial_match_benchmark.ts (cap raised)",
+      "map": "createDemoState(getApkSkirmishRuleConfig(\"SD\"))",
+      "playerCount": 2,
+      "loopRule": "same loop, cap raised to see whether the map can ever resolve",
+      "cap": 4000,
+      "games": 10,
+      "naturalWinsBySeat": {
+        "P0": 1,
+        "P1": 9
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 10,
+        "P1": 10
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 256,
+          "turn": 13
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 272,
+          "turn": 14
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 309,
+          "turn": 15
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 659,
+          "turn": 23
+        },
+        {
+          "seed": 2026070605,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 256,
+          "turn": 13
+        },
+        {
+          "seed": 2026070606,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 307,
+          "turn": 15
+        },
+        {
+          "seed": 2026070607,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 577,
+          "turn": 22
+        },
+        {
+          "seed": 2026070608,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 254,
+          "turn": 13
+        },
+        {
+          "seed": 2026070609,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 272,
+          "turn": 14
+        },
+        {
+          "seed": 2026070610,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 307,
+          "turn": 15
+        }
+      ],
+      "meanSteps": 346.9,
+      "meanFinalTurn": 15.7
+    },
+    {
+      "script": "v6_*_5maps_benchmark.ts",
+      "map": "(2) Duel.aem",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && turn <= maxTurns)",
+      "cap": 100,
+      "games": 8,
+      "naturalWinsBySeat": {
+        "P0": 1,
+        "P1": 7
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 8,
+        "P1": 8
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 433,
+          "turn": 20
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 439,
+          "turn": 18
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 137,
+          "turn": 8
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 365,
+          "turn": 15
+        },
+        {
+          "seed": 2026070605,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 137,
+          "turn": 8
+        },
+        {
+          "seed": 2026070606,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 288,
+          "turn": 13
+        },
+        {
+          "seed": 2026070607,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 211,
+          "turn": 11
+        },
+        {
+          "seed": 2026070608,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 633,
+          "turn": 23
+        }
+      ],
+      "meanSteps": 330.4,
+      "meanFinalTurn": 14.5
+    },
+    {
+      "script": "v6_*_5maps_benchmark.ts",
+      "map": "(2) Duel.aem",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && turn <= maxTurns)",
+      "cap": 100,
+      "games": 4,
+      "naturalWinsBySeat": {
+        "P0": 1,
+        "P1": 3
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 4,
+        "P1": 4
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 433,
+          "turn": 20
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 439,
+          "turn": 18
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 137,
+          "turn": 8
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 365,
+          "turn": 15
+        }
+      ],
+      "meanSteps": 343.5,
+      "meanFinalTurn": 15.3
+    },
+    {
+      "script": "v6_*_5maps_benchmark.ts",
+      "map": "(2) Liberty Port.aem",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && turn <= maxTurns)",
+      "cap": 100,
+      "games": 4,
+      "naturalWinsBySeat": {
+        "P0": 1,
+        "P1": 3
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 4,
+        "P1": 4
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 745,
+          "turn": 25
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 959,
+          "turn": 26
+        },
+        {
+          "seed": 2026070603,
+          "winner": 0,
+          "termination": "NATURAL_WIN",
+          "steps": 1236,
+          "turn": 35
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 959,
+          "turn": 27
+        }
+      ],
+      "meanSteps": 974.8,
+      "meanFinalTurn": 28.3
+    },
+    {
+      "script": "v6_*_5maps_benchmark.ts",
+      "map": "(2) Mourningstar.aem",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && turn <= maxTurns)",
+      "cap": 100,
+      "games": 4,
+      "naturalWinsBySeat": {
+        "P0": 0,
+        "P1": 4
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 4,
+        "P1": 4
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 396,
+          "turn": 16
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 363,
+          "turn": 15
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 648,
+          "turn": 22
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 288,
+          "turn": 12
+        }
+      ],
+      "meanSteps": 423.8,
+      "meanFinalTurn": 16.3
+    },
+    {
+      "script": "v6_*_5maps_benchmark.ts",
+      "map": "(2) Crossed swords.aem",
+      "playerCount": 2,
+      "loopRule": "while (winner===null && turn <= maxTurns)",
+      "cap": 100,
+      "games": 4,
+      "naturalWinsBySeat": {
+        "P0": 0,
+        "P1": 4
+      },
+      "draws": 0,
+      "truncated": 0,
+      "seatOccupancy": {
+        "P0": 4,
+        "P1": 4
+      },
+      "rows": [
+        {
+          "seed": 2026070601,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 546,
+          "turn": 16
+        },
+        {
+          "seed": 2026070602,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 263,
+          "turn": 10
+        },
+        {
+          "seed": 2026070603,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 410,
+          "turn": 14
+        },
+        {
+          "seed": 2026070604,
+          "winner": 1,
+          "termination": "NATURAL_WIN",
+          "steps": 825,
+          "turn": 20
+        }
+      ],
+      "meanSteps": 511,
+      "meanFinalTurn": 15
+    }
+  ],
+  "apk5PerGameLog": [
+    null,
+    {
+      "map": "(2) Duel.aem",
+      "seed": 2026070601,
+      "winner": 0,
+      "termination": "NATURAL_WIN",
+      "steps": 433,
+      "turn": 20,
+      "ms": 19012
+    },
+    {
+      "map": "(2) Duel.aem",
+      "seed": 2026070602,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 439,
+      "turn": 18,
+      "ms": 21102
+    },
+    {
+      "map": "(2) Duel.aem",
+      "seed": 2026070603,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 137,
+      "turn": 8,
+      "ms": 4669
+    },
+    {
+      "map": "(2) Duel.aem",
+      "seed": 2026070604,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 365,
+      "turn": 15,
+      "ms": 18019
+    },
+    {
+      "map": "(2) Liberty Port.aem",
+      "seed": 2026070601,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 745,
+      "turn": 25,
+      "ms": 37348
+    },
+    {
+      "map": "(2) Liberty Port.aem",
+      "seed": 2026070602,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 959,
+      "turn": 26,
+      "ms": 41062
+    },
+    {
+      "map": "(2) Liberty Port.aem",
+      "seed": 2026070603,
+      "winner": 0,
+      "termination": "NATURAL_WIN",
+      "steps": 1236,
+      "turn": 35,
+      "ms": 90313
+    },
+    {
+      "map": "(2) Liberty Port.aem",
+      "seed": 2026070604,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 959,
+      "turn": 27,
+      "ms": 46153
+    },
+    {
+      "map": "(2) Mourningstar.aem",
+      "seed": 2026070601,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 396,
+      "turn": 16,
+      "ms": 16920
+    },
+    {
+      "map": "(2) Mourningstar.aem",
+      "seed": 2026070602,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 363,
+      "turn": 15,
+      "ms": 17390
+    },
+    {
+      "map": "(2) Mourningstar.aem",
+      "seed": 2026070603,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 648,
+      "turn": 22,
+      "ms": 29759
+    },
+    {
+      "map": "(2) Mourningstar.aem",
+      "seed": 2026070604,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 288,
+      "turn": 12,
+      "ms": 13850
+    },
+    {
+      "map": "(2) Crossed swords.aem",
+      "seed": 2026070601,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 546,
+      "turn": 16,
+      "ms": 23631
+    },
+    {
+      "map": "(2) Crossed swords.aem",
+      "seed": 2026070602,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 263,
+      "turn": 10,
+      "ms": 12776
+    },
+    {
+      "map": "(2) Crossed swords.aem",
+      "seed": 2026070603,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 410,
+      "turn": 14,
+      "ms": 24940
+    },
+    {
+      "map": "(2) Crossed swords.aem",
+      "seed": 2026070604,
+      "winner": 1,
+      "termination": "NATURAL_WIN",
+      "steps": 825,
+      "turn": 20,
+      "ms": 50683
+    }
+  ],
+  "apk5PooledNaturalWinsBySeat": {
+    "P0": 3,
+    "P1": 21
+  },
+  "apk5PooledGames": 24,
+  "note_mapsNotRun": "(2) Icy Paths.aem was NOT run in this artifact (measured cost ~150-357 s per all-heuristic game); an aborted attempt logged 3 games at 1265/3434/1594 steps, winners P0/P1/P0, which are NOT part of this artifact."
+}

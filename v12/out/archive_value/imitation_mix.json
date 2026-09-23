@@ -1,0 +1,400 @@
+{
+  "source": {
+    "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+    "rows_read": 48714,
+    "rows_skipped": {},
+    "key_occurrence_audit": {
+      "\"actionCode\"_total": 48714,
+      "\"policy\"_total": 48714,
+      "\"legalActionCodes\"_total": 48714
+    }
+  },
+  "C1_action_type_by_policy": {
+    "action_types": [
+      "attack",
+      "capture",
+      "destroy_town",
+      "end_turn",
+      "heal",
+      "move",
+      "post_attack_move",
+      "recruit_to_castle",
+      "repair",
+      "summon",
+      "support",
+      "wait"
+    ],
+    "counts": {
+      "apk-like": {
+        "move": 7554,
+        "wait": 4833,
+        "attack": 2707,
+        "recruit_to_castle": 967,
+        "end_turn": 406,
+        "heal": 353,
+        "capture": 319,
+        "post_attack_move": 75,
+        "summon": 37,
+        "repair": 34,
+        "support": 4,
+        "destroy_town": 1
+      },
+      "heuristic": {
+        "move": 14143,
+        "wait": 10429,
+        "attack": 3214,
+        "recruit_to_castle": 1072,
+        "post_attack_move": 839,
+        "heal": 567,
+        "capture": 542,
+        "end_turn": 269,
+        "summon": 132,
+        "repair": 115,
+        "destroy_town": 101,
+        "support": 1
+      }
+    },
+    "shares": {
+      "apk-like": {
+        "move": 0.4369,
+        "wait": 0.279526,
+        "attack": 0.156564,
+        "recruit_to_castle": 0.055928,
+        "end_turn": 0.023482,
+        "heal": 0.020416,
+        "capture": 0.01845,
+        "post_attack_move": 0.004338,
+        "summon": 0.00214,
+        "repair": 0.001966,
+        "support": 0.000231,
+        "destroy_town": 5.8e-05
+      },
+      "heuristic": {
+        "move": 0.45007,
+        "wait": 0.33188,
+        "attack": 0.102279,
+        "recruit_to_castle": 0.034114,
+        "post_attack_move": 0.026699,
+        "heal": 0.018044,
+        "capture": 0.017248,
+        "end_turn": 0.00856,
+        "summon": 0.004201,
+        "repair": 0.00366,
+        "destroy_town": 0.003214,
+        "support": 3.2e-05
+      }
+    },
+    "pooled_counts": {
+      "move": 21697,
+      "wait": 15262,
+      "attack": 5921,
+      "recruit_to_castle": 2039,
+      "heal": 920,
+      "post_attack_move": 914,
+      "capture": 861,
+      "end_turn": 675,
+      "summon": 169,
+      "repair": 149,
+      "destroy_town": 102,
+      "support": 5
+    }
+  },
+  "C2_teacher_divergence": {
+    "per_action_type": {
+      "move": {
+        "heuristic_n": 14143,
+        "apk_like_n": 7554,
+        "heuristic_share": 0.45007,
+        "apk_like_share": 0.4369,
+        "share_diff_h_minus_a": 0.01317
+      },
+      "wait": {
+        "heuristic_n": 10429,
+        "apk_like_n": 4833,
+        "heuristic_share": 0.33188,
+        "apk_like_share": 0.279526,
+        "share_diff_h_minus_a": 0.052354
+      },
+      "attack": {
+        "heuristic_n": 3214,
+        "apk_like_n": 2707,
+        "heuristic_share": 0.102279,
+        "apk_like_share": 0.156564,
+        "share_diff_h_minus_a": -0.054286
+      },
+      "recruit_to_castle": {
+        "heuristic_n": 1072,
+        "apk_like_n": 967,
+        "heuristic_share": 0.034114,
+        "apk_like_share": 0.055928,
+        "share_diff_h_minus_a": -0.021814
+      },
+      "heal": {
+        "heuristic_n": 567,
+        "apk_like_n": 353,
+        "heuristic_share": 0.018044,
+        "apk_like_share": 0.020416,
+        "share_diff_h_minus_a": -0.002373
+      },
+      "post_attack_move": {
+        "heuristic_n": 839,
+        "apk_like_n": 75,
+        "heuristic_share": 0.026699,
+        "apk_like_share": 0.004338,
+        "share_diff_h_minus_a": 0.022362
+      },
+      "capture": {
+        "heuristic_n": 542,
+        "apk_like_n": 319,
+        "heuristic_share": 0.017248,
+        "apk_like_share": 0.01845,
+        "share_diff_h_minus_a": -0.001202
+      },
+      "end_turn": {
+        "heuristic_n": 269,
+        "apk_like_n": 406,
+        "heuristic_share": 0.00856,
+        "apk_like_share": 0.023482,
+        "share_diff_h_minus_a": -0.014921
+      },
+      "summon": {
+        "heuristic_n": 132,
+        "apk_like_n": 37,
+        "heuristic_share": 0.004201,
+        "apk_like_share": 0.00214,
+        "share_diff_h_minus_a": 0.002061
+      },
+      "repair": {
+        "heuristic_n": 115,
+        "apk_like_n": 34,
+        "heuristic_share": 0.00366,
+        "apk_like_share": 0.001966,
+        "share_diff_h_minus_a": 0.001693
+      },
+      "destroy_town": {
+        "heuristic_n": 101,
+        "apk_like_n": 1,
+        "heuristic_share": 0.003214,
+        "apk_like_share": 5.8e-05,
+        "share_diff_h_minus_a": 0.003156
+      },
+      "support": {
+        "heuristic_n": 1,
+        "apk_like_n": 4,
+        "heuristic_share": 3.2e-05,
+        "apk_like_share": 0.000231,
+        "share_diff_h_minus_a": -0.0002
+      }
+    },
+    "total_variation_distance": 0.094796,
+    "L1_distance": 0.189592,
+    "distribution_overlap_1_minus_TV": 0.905204,
+    "teacher_entropy_bits": 0.938393,
+    "teacher_entropy_given_action_type_bits": 0.921481,
+    "mutual_information_teacher_actiontype_bits": 0.016912,
+    "bayes_accuracy_guessing_teacher_from_action_type": 0.647945,
+    "majority_teacher_base_rate": 0.645071,
+    "accuracy_gain_over_base_rate_pp": 0.2874,
+    "interpretation": "the action TYPE is almost uninformative about which teacher produced it; the teachers differ in WHEN/WHERE, not in WHAT KIND"
+  },
+  "C3_corpus_mix": {
+    "rows_by_policy": {
+      "heuristic": 31424,
+      "apk-like": 17290
+    },
+    "row_share_by_policy": {
+      "heuristic": 0.645071,
+      "apk-like": 0.354929
+    },
+    "n_distinct_episodes": 37,
+    "episodes_containing_both_teachers": 37,
+    "episodes_only_heuristic": 0,
+    "episodes_only_apk_like": 0,
+    "pct_episodes_interleaving_both_teachers": 100.0
+  },
+  "C3b_cost_of_one_head_on_the_union": {
+    "context": "legality context: whether a recruit_to_castle and an attack were legal",
+    "rule_labels": {
+      "pooled_rule_best_type_per_ctx": {
+        "rec-": "move",
+        "--": "wait",
+        "-atk": "move",
+        "recatk": "move"
+      },
+      "heuristic_rule_best_type_per_ctx": {
+        "rec-": "move",
+        "--": "wait",
+        "-atk": "move",
+        "recatk": "move"
+      },
+      "apk_like_rule_best_type_per_ctx": {
+        "rec-": "wait",
+        "--": "move",
+        "-atk": "move",
+        "recatk": "move"
+      }
+    },
+    "accuracy_matrix_rows_are_rules_cols_are_evaluated_on": {
+      "pooled_rule": {
+        "on_heuristic_rows": 0.545061,
+        "on_apk_like_rows": 0.427877,
+        "on_all_rows": 0.503469
+      },
+      "heuristic_rule": {
+        "on_heuristic_rows": 0.545061,
+        "on_apk_like_rows": 0.427877
+      },
+      "apk_like_rule": {
+        "on_heuristic_rows": 0.432281,
+        "on_apk_like_rows": 0.442915
+      }
+    }
+  },
+  "C4_recruit_vs_attack_conditional_on_legality": {
+    "ALL": {
+      "n_decisions": 48714,
+      "raw_counts": {
+        "attack_legal": 19385,
+        "both_legal": 12371,
+        "chose_attack": 5921,
+        "chose_attack_given_both": 2924,
+        "chose_attack_given_legal": 5921,
+        "chose_recruit": 2039,
+        "chose_recruit_given_both": 644,
+        "chose_recruit_given_legal": 2039,
+        "chosen_code_in_legal_set": 48714,
+        "n_attack_legal": 19385,
+        "n_both_legal": 12371,
+        "n_recruit_legal": 19064,
+        "recruit_legal": 19064
+      },
+      "VALIDATION_pct_chosen_code_present_in_legalActionCodes": 100.0,
+      "pct_recruit_legal": 39.1345,
+      "pct_attack_legal": 39.7935,
+      "pct_both_legal": 25.3952,
+      "unconditional_recruit_rate_pct": 4.1857,
+      "unconditional_attack_rate_pct": 12.1546,
+      "recruit_rate_given_recruit_legal_pct": 10.6956,
+      "attack_rate_given_attack_legal_pct": 30.5442,
+      "n_both_legal": 12371,
+      "recruit_rate_given_both_legal_pct": 5.2057,
+      "attack_rate_given_both_legal_pct": 23.6359
+    },
+    "apk-like": {
+      "n_decisions": 17290,
+      "raw_counts": {
+        "attack_legal": 8412,
+        "both_legal": 6815,
+        "chose_attack": 2707,
+        "chose_attack_given_both": 2153,
+        "chose_attack_given_legal": 2707,
+        "chose_recruit": 967,
+        "chose_recruit_given_both": 0,
+        "chose_recruit_given_legal": 967,
+        "chosen_code_in_legal_set": 17290,
+        "n_attack_legal": 8412,
+        "n_both_legal": 6815,
+        "n_recruit_legal": 11684,
+        "recruit_legal": 11684
+      },
+      "VALIDATION_pct_chosen_code_present_in_legalActionCodes": 100.0,
+      "pct_recruit_legal": 67.5766,
+      "pct_attack_legal": 48.6524,
+      "pct_both_legal": 39.4158,
+      "unconditional_recruit_rate_pct": 5.5928,
+      "unconditional_attack_rate_pct": 15.6564,
+      "recruit_rate_given_recruit_legal_pct": 8.2763,
+      "attack_rate_given_attack_legal_pct": 32.1802,
+      "n_both_legal": 6815,
+      "recruit_rate_given_both_legal_pct": 0.0,
+      "attack_rate_given_both_legal_pct": 31.5921
+    },
+    "heuristic": {
+      "n_decisions": 31424,
+      "raw_counts": {
+        "attack_legal": 10973,
+        "both_legal": 5556,
+        "chose_attack": 3214,
+        "chose_attack_given_both": 771,
+        "chose_attack_given_legal": 3214,
+        "chose_recruit": 1072,
+        "chose_recruit_given_both": 644,
+        "chose_recruit_given_legal": 1072,
+        "chosen_code_in_legal_set": 31424,
+        "n_attack_legal": 10973,
+        "n_both_legal": 5556,
+        "n_recruit_legal": 7380,
+        "recruit_legal": 7380
+      },
+      "VALIDATION_pct_chosen_code_present_in_legalActionCodes": 100.0,
+      "pct_recruit_legal": 23.4852,
+      "pct_attack_legal": 34.9192,
+      "pct_both_legal": 17.6808,
+      "unconditional_recruit_rate_pct": 3.4114,
+      "unconditional_attack_rate_pct": 10.2279,
+      "recruit_rate_given_recruit_legal_pct": 14.5257,
+      "attack_rate_given_attack_legal_pct": 29.2901,
+      "n_both_legal": 5556,
+      "recruit_rate_given_both_legal_pct": 11.5911,
+      "attack_rate_given_both_legal_pct": 13.8769
+    }
+  },
+  "C5_outcome_conditioned_filtering": {
+    "join_key": "scenario#seed -> episode_index.json",
+    "rows_joined": 48714,
+    "rows_not_joined": 0,
+    "join_rate": 1.0,
+    "rows_on_winning_side_by_policy": {
+      "heuristic": 27845,
+      "apk-like": 10341
+    },
+    "winner_side_row_share_by_policy": {
+      "heuristic": 0.729194,
+      "apk-like": 0.270806
+    }
+  },
+  "C6_episode_rows_full": {
+    "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0": 2800,
+    "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0": 2800,
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0": 2593,
+    "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170502#1": 207,
+    "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0": 2800,
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370501#0": 987,
+    "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2": 1813,
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170504#0": 413,
+    "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170502#1": 709,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070504#0": 376,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070502#1": 528,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070503#2": 396,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070505#3": 343,
+    "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070501#4": 465,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": 2501,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1": 299,
+    "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1": 2800,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0": 999,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1": 1461,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": 2964,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3": 1319,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4": 715,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5": 801,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6": 1807,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7": 1351,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8": 1411,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9": 736,
+    "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10": 1402,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11": 812,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789513#12": 786,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13": 668,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787505#14": 1113,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15": 828,
+    "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16": 718,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": 2533,
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": 2690,
+    "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19": 770
+  },
+  "C7_episode_key_check": {
+    "episode_key_used": "scenario.id#seed#source.episodeIndex",
+    "n_distinct_episode_keys": 37,
+    "n_distinct_scenario_seed_keys": 37
+  }
+}
