@@ -1,0 +1,87 @@
+{
+  "headline": {
+    "rowsAreNotTrajectories": "one episode contributes 200-3000 decision rows; episode counts are the meaningful diversity measure",
+    "distinctEpisodes": 37,
+    "episodesWithTerminalWinner": 30,
+    "episodesCensored": 7,
+    "samples": 48714,
+    "samplesWithNonNullValueTarget": 35195,
+    "rowsPerEpisode": {
+      "min": 207,
+      "median": 987,
+      "max": 2964,
+      "mean": 1316.6
+    }
+  },
+  "generatedAtUtc": "2026-09-23T16:29:55.815Z",
+  "dataset": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+  "datasetBytes": 1325414145,
+  "datasetBytesGiB": 1.234,
+  "sourcePool": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+  "totals": {
+    "samples": 48714,
+    "parseFailures": 0,
+    "uniqueRootFamilyIds": 37,
+    "episodes": 37,
+    "duplicateSampleIds": 0,
+    "distinctSampleIds": 48714
+  },
+  "episodeIdentity": {
+    "rootFamilyIdFieldAbsent": 0,
+    "rootFamilyIdEmpty": 0,
+    "episodeIdEmptyOrAbsent": 0,
+    "rootFamilyIdNotEqualToEpisodeId": 0,
+    "rootFamilyIdNonEmptyPct": 100
+  },
+  "freeFields": {
+    "stepNull": 0,
+    "turnNull": 0,
+    "playerIdNull": 0
+  },
+  "valueTarget": {
+    "nonNull": 35195,
+    "null": 13519,
+    "nonNullPct": 72.248,
+    "plusOne": 28229,
+    "minusOne": 6966,
+    "otherValue": 0,
+    "episodesWithAtLeastOneNonNullValue": 30,
+    "episodesEntirelyCensored_nullValue": 7,
+    "episodesWithBothNullAndNonNull": 0,
+    "episodesWithBothPlusAndMinusOne": 30
+  },
+  "episodeSizeSamples": {
+    "min": 207,
+    "p25": 709,
+    "median": 987,
+    "p75": 1813,
+    "max": 2964,
+    "mean": 1316.6
+  },
+  "structuralChecks": {
+    "candidateActionsMin": 1,
+    "candidateActionsMax": 48,
+    "targetActionIndexOutOfRange": 0,
+    "spatialTensorWrongLength": 0,
+    "globalFeaturesNotArray": 0,
+    "keySignatures": [
+      {
+        "keys": "sampleId,episodeId,rootFamilyId,step,turn,playerId,spatialTensor,globalFeatures,targetActionIndex,candidateActions,valueTarget",
+        "count": 48714
+      }
+    ]
+  },
+  "independentValueVerification": {
+    "method": "re-derived episodeKey -> LAST non-null outcome.winnerAfter directly from the source pool, then compared against every emitted (rootFamilyId, playerId, valueTarget) triple",
+    "sourceLinesScanned": 48714,
+    "sourceExtractionFailures": 0,
+    "sourceEpisodes": 37,
+    "sourceEpisodesWithTerminalWinner": 30,
+    "samplesWhereValueDisagreesWithSource": 0,
+    "samplesWithNonNullValueOnCensoredEpisode": 0,
+    "samplesWithNullValueOnTerminatedEpisode": 0,
+    "everyNonNullValueExplainedByTerminatedEpisode": true,
+    "everyCensoredEpisodeSampleIsNull": true,
+    "mismatchExamples": []
+  }
+}

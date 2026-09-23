@@ -1,0 +1,24 @@
+{
+  "model_version": "spatial-resnet-v2",
+  "num_blocks": 2,
+  "dataset": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+  "value_weight": 0.0,
+  "loss_mode": "ce",
+  "teacher_temperature": 1.0,
+  "soft_weight": 0.5,
+  "equiv_weight": 0.5,
+  "seed": 42,
+  "best_val_acc": 0.13412192902638762,
+  "best_epoch": 1,
+  "train_samples": 43219,
+  "val_samples": 5495,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 3.1172804832458496,
+      "train_acc": 0.1875,
+      "val_loss": 3.164997558261073,
+      "val_acc": 0.13412192902638762
+    }
+  ]
+}

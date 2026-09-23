@@ -1,0 +1,60 @@
+{
+  "headline": {
+    "rowsAreNotTrajectories": "one episode contributes 200-3000 decision rows; episode counts are the meaningful diversity measure",
+    "distinctEpisodes": 37,
+    "distinctTrainEpisodes": 33,
+    "distinctValEpisodes": 4,
+    "episodeIntersectionSize": 0,
+    "trainRows": 43219,
+    "valRows": 5495,
+    "valRowsFraction": 0.1128,
+    "episodesCensoredVsTerminatedReportedIn": "v12/out/spatial/T12-04_dataset_report.json"
+  },
+  "generatedAtUtc": "2026-09-23T16:22:10.103268+00:00",
+  "dataset": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+  "replicatedCode": "python/train_spatial_resnet.py lines 477-499 (grouped split), defaults --seed 42 --val-split 0.1",
+  "totalSamples": 48714,
+  "samplesMissingRootFamilyIdAndEpisodeId": 0,
+  "realSplit": {
+    "groupingKey": "rootFamilyId (fallback episodeId, then f'ep_{idx//60}')",
+    "distinctGroupKeys": 37,
+    "trainSamples": 43219,
+    "valSamples": 5495,
+    "trainRoots": 33,
+    "valRoots": 4,
+    "trainValRootOverlapCount": 0,
+    "trainValRootOverlap": [],
+    "trainValIndexOverlap": 0,
+    "trainValSampleSumEqualsTotal": true,
+    "valFractionOfSamples": 0.1128,
+    "valFractionOfEpisodes": 0.1081,
+    "distinctRealEpisodes": 37,
+    "episodeIndexRuns": 37,
+    "episodeIsIndexContiguous": true,
+    "episodeSizeSamplesMin": 207,
+    "episodeSizeSamplesMedian": 987,
+    "episodeSizeSamplesMax": 2964
+  },
+  "legacyGroupingSimulation": {
+    "groupingKey": "f'ep_{idx // 60}' (what the trainer falls back to when episodeId/rootFamilyId are absent)",
+    "legacyGroupCount": 811,
+    "trainRoots": 37,
+    "valRoots": 33,
+    "trainValRealRootOverlapCount": 33,
+    "samplesInsideLeakedEpisodes": 46512,
+    "leakedSamplePct": 95.48
+  },
+  "realTrainerCrossCheck": {
+    "available": true,
+    "manifest": "v12/out/spatial/T12-04_planned_manifest.json",
+    "trainerTrainRows": 43219,
+    "trainerValRows": 5495,
+    "replicatedTrainRows": 43219,
+    "replicatedValRows": 5495,
+    "trainSymmetricDifference": 0,
+    "valSymmetricDifference": 0,
+    "exactIndexForIndexMatch": true,
+    "sampleIdOrderMatchesFileOrder": true
+  },
+  "passed": true
+}

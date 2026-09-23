@@ -1,0 +1,64 @@
+dataset                : training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl
+rows                   : 30000
+
+distinct spatialTensor : 27991  (row/state ratio = 1.07)
+rows sharing a tensor with another row: 2009 (6.7%)
+max multiplicity of one tensor        : 6
+
+distinct full rows     : 30000
+
+spatialTensor length   : {9600: 30000}
+globalFeatures length  : {16: 30000}
+targetActionIndex == 0 : 4862 (16.2%)
+
+candidateActions width distribution (width -> rows):
+    1 -> 16
+    2 -> 19
+    3 -> 1084
+    4 -> 816
+    5 -> 730
+    6 -> 579
+    7 -> 628
+    8 -> 561
+    9 -> 738
+   10 -> 556
+   11 -> 701
+   12 -> 576
+   13 -> 637
+   14 -> 569
+   15 -> 507
+   16 -> 559
+   17 -> 564
+   18 -> 561
+   19 -> 470
+   20 -> 501
+   21 -> 475
+   22 -> 419
+   23 -> 341
+   24 -> 327
+   25 -> 314
+   26 -> 303
+   27 -> 291
+   28 -> 255
+   29 -> 245
+   30 -> 201
+   31 -> 195
+   32 -> 185
+   33 -> 195
+   34 -> 163
+   35 -> 180
+   36 -> 152
+   37 -> 151
+   38 -> 162
+   39 -> 127
+   40 -> 142
+   41 -> 128
+   42 -> 121
+   43 -> 133
+   44 -> 119
+   45 -> 109
+   46 -> 103
+   47 -> 114
+   48 -> 12978
+
+rows with a single candidate (no policy signal): 16 (0.1%)

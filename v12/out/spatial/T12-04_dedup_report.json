@@ -1,0 +1,531 @@
+{
+  "headline": {
+    "why": "Rows per episode are 200-3,000, so row counts massively overstate trajectory diversity. Episode keys are the unit that matters for the grouped train/val split.",
+    "episodeKeyDefinition": "(scenario.id, seed, source.episodeIndex) = `${scenarioId}#${seed}#${episodeIndex}`",
+    "rawPool": {
+      "filesScanned": 11,
+      "totalRowsAcrossFiles": 97428,
+      "sumOfPerFileDistinctEpisodes": 74,
+      "GLOBAL_DISTINCT_EPISODES_AFTER_DEDUP": 37,
+      "GLOBAL_EPISODES_WITH_TERMINAL_WINNER": 30,
+      "GLOBAL_EPISODES_CENSORED": 7,
+      "duplicateEpisodeKeyAppearances": 37,
+      "rowsPerEpisodeAcrossAllFilesWithDuplicates": {
+        "note": "These counts SUM rows for a key over every file it appears in, so they double-count the duplicated pool. The deduplicated distribution is dedupedPool.rowsPerEpisode.",
+        "min": 414,
+        "median": 1974,
+        "max": 5928,
+        "mean": 2633.2
+      }
+    },
+    "dedupedPool": {
+      "note": "baseline_dataset.jsonl alone is a byte-exact superset of the other 10 files, so the deduplicated pool is that file. The converter produced spatial_v2_full_pool.jsonl from it with dedupeSamples on.",
+      "distinctEpisodes": 37,
+      "samples": 48714,
+      "episodesWithTerminalWinner": 30,
+      "episodesCensored": 7,
+      "rowsPerEpisode": {
+        "min": 207,
+        "p25": 709,
+        "median": 987,
+        "p75": 1813,
+        "max": 2964,
+        "mean": 1316.6
+      }
+    },
+    "episodeKeyRelations": {
+      "partsUnion_vs_baseline": {
+        "relation": "baselineDataset is a strict SUPERSET of partsUnion",
+        "partsUnionEpisodes": 17,
+        "baselineDatasetEpisodes": 37,
+        "shared": 17,
+        "onlyInThis": 0,
+        "onlyInOther": 20
+      },
+      "pvp_vs_baseline": {
+        "relation": "baselineDataset is a strict SUPERSET of pvp",
+        "pvpEpisodes": 20,
+        "baselineDatasetEpisodes": 37,
+        "shared": 20,
+        "onlyInThis": 0,
+        "onlyInOther": 17
+      },
+      "partsUnion_vs_pvp": {
+        "relation": "DISJOINT (no shared episode keys)",
+        "partsUnionEpisodes": 17,
+        "pvpEpisodes": 20,
+        "shared": 0,
+        "onlyInThis": 17,
+        "onlyInOther": 20
+      },
+      "partsUnion_plus_pvp_vs_baseline": {
+        "relation": "identical",
+        "partsPlusPvpEpisodes": 37,
+        "baselineDatasetEpisodes": 37,
+        "shared": 37,
+        "onlyInThis": 0,
+        "onlyInOther": 0
+      },
+      "partsPlusPvpEpisodeSum": 37,
+      "baselineEpisodes": 37
+    },
+    "perFile": [
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_00.jsonl",
+        "missing": false,
+        "bytes": 425456190,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 1,
+        "distinctScenarioSeedPairs": 1,
+        "episodesWithTerminalWinner": 0,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 2800,
+          "max": 2800,
+          "mean": 2800
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_01.jsonl",
+        "missing": false,
+        "bytes": 430233048,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 1,
+        "distinctScenarioSeedPairs": 1,
+        "episodesWithTerminalWinner": 0,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 2800,
+          "max": 2800,
+          "mean": 2800
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_02.jsonl",
+        "missing": false,
+        "bytes": 428940564,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 2,
+        "distinctScenarioSeedPairs": 2,
+        "episodesWithTerminalWinner": 1,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 207,
+          "max": 2593,
+          "mean": 1400
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_03.jsonl",
+        "missing": false,
+        "bytes": 448161628,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 1,
+        "distinctScenarioSeedPairs": 1,
+        "episodesWithTerminalWinner": 0,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 2800,
+          "max": 2800,
+          "mean": 2800
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_04.jsonl",
+        "missing": false,
+        "bytes": 403459268,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 2,
+        "distinctScenarioSeedPairs": 2,
+        "episodesWithTerminalWinner": 1,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 987,
+          "max": 1813,
+          "mean": 1400
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_05.jsonl",
+        "missing": false,
+        "bytes": 168932714,
+        "rows": 1122,
+        "extractionFailures": 0,
+        "distinctEpisodes": 2,
+        "distinctScenarioSeedPairs": 2,
+        "episodesWithTerminalWinner": 2,
+        "episodesCensored": 0,
+        "rowsPerEpisode": {
+          "min": 413,
+          "max": 709,
+          "mean": 561
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_06.jsonl",
+        "missing": false,
+        "bytes": 291495710,
+        "rows": 2108,
+        "extractionFailures": 0,
+        "distinctEpisodes": 5,
+        "distinctScenarioSeedPairs": 5,
+        "episodesWithTerminalWinner": 5,
+        "episodesCensored": 0,
+        "rowsPerEpisode": {
+          "min": 343,
+          "max": 528,
+          "mean": 421.6
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_07.jsonl",
+        "missing": false,
+        "bytes": 383698149,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 2,
+        "distinctScenarioSeedPairs": 2,
+        "episodesWithTerminalWinner": 1,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 299,
+          "max": 2501,
+          "mean": 1400
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_08.jsonl",
+        "missing": false,
+        "bytes": 430263385,
+        "rows": 2800,
+        "extractionFailures": 0,
+        "distinctEpisodes": 1,
+        "distinctScenarioSeedPairs": 1,
+        "episodesWithTerminalWinner": 0,
+        "episodesCensored": 1,
+        "rowsPerEpisode": {
+          "min": 2800,
+          "max": 2800,
+          "mean": 2800
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_pvp.jsonl",
+        "missing": false,
+        "bytes": 3859562755,
+        "rows": 25884,
+        "extractionFailures": 0,
+        "distinctEpisodes": 20,
+        "distinctScenarioSeedPairs": 20,
+        "episodesWithTerminalWinner": 20,
+        "episodesCensored": 0,
+        "rowsPerEpisode": {
+          "min": 668,
+          "max": 2964,
+          "mean": 1294.2
+        }
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+        "missing": false,
+        "bytes": 7270203411,
+        "rows": 48714,
+        "extractionFailures": 0,
+        "distinctEpisodes": 37,
+        "distinctScenarioSeedPairs": 37,
+        "episodesWithTerminalWinner": 30,
+        "episodesCensored": 7,
+        "rowsPerEpisode": {
+          "min": 207,
+          "max": 2964,
+          "mean": 1316.6
+        }
+      }
+    ]
+  },
+  "generatedAtUtc": "2026-09-23T16:10:23.535Z",
+  "keyDefinition": "(scenario.id, seed, step) serialised as `${scenarioId}|${seed}|${step}`",
+  "method": "streaming readline; key fields extracted from first 1024 bytes of each line; winnerAfter from last 160 bytes; cross-checked against JSON.parse on a sparse sample",
+  "elapsedSeconds": 53.3,
+  "files": [
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_00.jsonl",
+      "missing": false,
+      "bytes": 425456190,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 1,
+      "stepsWithTerminalOutcome": 0,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 0,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_01.jsonl",
+      "missing": false,
+      "bytes": 430233048,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 1,
+      "stepsWithTerminalOutcome": 0,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 0,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_02.jsonl",
+      "missing": false,
+      "bytes": 428940564,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 2,
+      "stepsWithTerminalOutcome": 1,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 1,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_03.jsonl",
+      "missing": false,
+      "bytes": 448161628,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 1,
+      "stepsWithTerminalOutcome": 0,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 0,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_04.jsonl",
+      "missing": false,
+      "bytes": 403459268,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 2,
+      "stepsWithTerminalOutcome": 1,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 1,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_05.jsonl",
+      "missing": false,
+      "bytes": 168932714,
+      "lines": 1122,
+      "uniqueKeys": 1122,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 2,
+      "stepsWithTerminalOutcome": 2,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 2,
+      "jsonParseCrossCheck": {
+        "checked": 1,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_06.jsonl",
+      "missing": false,
+      "bytes": 291495710,
+      "lines": 2108,
+      "uniqueKeys": 2108,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 5,
+      "stepsWithTerminalOutcome": 5,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 5,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_07.jsonl",
+      "missing": false,
+      "bytes": 383698149,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 2,
+      "stepsWithTerminalOutcome": 1,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 1,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_08.jsonl",
+      "missing": false,
+      "bytes": 430263385,
+      "lines": 2800,
+      "uniqueKeys": 2800,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 1,
+      "stepsWithTerminalOutcome": 0,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 0,
+      "jsonParseCrossCheck": {
+        "checked": 2,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_pvp.jsonl",
+      "missing": false,
+      "bytes": 3859562755,
+      "lines": 25884,
+      "uniqueKeys": 25884,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 20,
+      "stepsWithTerminalOutcome": 20,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 20,
+      "jsonParseCrossCheck": {
+        "checked": 13,
+        "mismatches": 0
+      }
+    },
+    {
+      "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+      "missing": false,
+      "bytes": 7270203411,
+      "lines": 48714,
+      "uniqueKeys": 48714,
+      "duplicateKeyLines": 0,
+      "keyExtractionFailures": 0,
+      "episodes": 37,
+      "stepsWithTerminalOutcome": 30,
+      "linesWhereWinnerFieldMissing": 0,
+      "episodesWithFinalWinner": 30,
+      "jsonParseCrossCheck": {
+        "checked": 25,
+        "mismatches": 0
+      }
+    }
+  ],
+  "union": {
+    "partsUnionUniqueKeys": 22830,
+    "pvpUniqueKeys": 25884,
+    "bigUniqueKeys": 48714,
+    "allFilesUniqueKeys": 48714
+  },
+  "overlap": {
+    "baseline_vs_parts_union_sharedKeys": 22830,
+    "baseline_vs_parts_union_partKeysNotInBaseline": 0,
+    "baseline_vs_parts_union_extraKeysOnlyInBaseline": 25884,
+    "baseline_is_superset_of_parts_union": true,
+    "baseline_vs_pvp_sharedKeys": 25884,
+    "pvpKeysNotInBaseline": 0,
+    "parts_union_vs_pvp_sharedKeys": 0
+  },
+  "episodesWithFinalWinnerOverall": 30,
+  "episodesOverall": 37,
+  "contentIdentityCheck": {
+    "generatedAtUtc": "2026-09-23T16:12:45.922Z",
+    "method": "sha1 of the raw JSONL line text, keyed by (scenario.id, seed, step)",
+    "sideFiles": [
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_00.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_01.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_02.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_03.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_04.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_05.jsonl",
+        "lines": 1122,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_06.jsonl",
+        "lines": 2108,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_07.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_08.jsonl",
+        "lines": 2800,
+        "noKey": 0
+      },
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/dataset_part_pvp.jsonl",
+        "lines": 25884,
+        "noKey": 0
+      }
+    ],
+    "baselineDataset": {
+      "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+      "lines": 48714,
+      "noKey": 0
+    },
+    "comparison": {
+      "keysChecked": 48714,
+      "identicalLineSha1": 48714,
+      "mismatchedOrMissing": 0,
+      "keysOnlyInBaseline": 0,
+      "sideKeysWithDuplicateHashes": 0,
+      "allSideRecordsByteIdenticalInBaseline": true,
+      "mismatchExamples": []
+    }
+  }
+}

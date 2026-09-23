@@ -1,0 +1,20 @@
+dataset            : training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl
+samples            : 30000
+with rootFamilyId  : 0/30000
+with episodeId     : 0/30000
+non-null valueTarget: 20/30000  (0.067%)
+sampleId unparsed  : 0/30000
+distinct episodeIndex values (lower bound on real episodes): 20
+episodeIndex counts: top5=[('ep0', 5115), ('ep2', 2964), ('ep18', 2690), ('ep17', 2533), ('ep6', 1807)] singletons=0
+max step observed  : 2964
+trainer groups     : 500 (all synthetic, size [60])
+real episodes mixed per synthetic group: min=1 max=2 mean=1.04
+
+split (seed=42, val_split=0.1): train=27000 rows / val=3000 rows
+distinct real episodes: train=20 val=18
+LEAKED episodes present in BOTH train and val: 18
+leak rate = 100.0% of val episodes are also in train
+val ROWS whose episode also appears in train: 3000/3000 (100.0%)
+
+interpretation: with no rootFamilyId/episodeId the trainer cannot group by real
+episode, so the reported val metrics measure memorisation of the same games.

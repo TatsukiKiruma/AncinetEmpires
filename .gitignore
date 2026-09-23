@@ -32,3 +32,11 @@ docs/training/reports/**/overfit_sanity/overfit_model_*_last.json
 
 # Large one-off working-tree patch from the earlier v8_closure_02 batch (kept on disk, not in git).
 docs/training/reports/**/closure_02_changes.patch
+
+# --- V12 generated heavy artifacts -----------------------------------------------
+# 1.0 GB diagnostic copy of the 30k spatial dataset with recovered rootFamilyId.
+# Reproducible in ~1 minute with: py -3.12 v12/tools/diag_inject_roots.py \
+#   training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl \
+#   v12/out/spatial/diag_30k_with_roots.jsonl
+# Kept on disk for reproduction, deliberately not committed.
+v12/out/spatial/diag_30k_with_roots.jsonl

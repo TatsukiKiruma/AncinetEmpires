@@ -1,0 +1,42 @@
+{
+  "outputFile": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+  "outputBytes": 1325414145,
+  "inputFiles": [
+    "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl"
+  ],
+  "requestedMaxSamples": 0,
+  "unlimited": true,
+  "hitSampleCap": false,
+  "capStoppedInFile": null,
+  "totalSaved": 48714,
+  "totalSkipped": 0,
+  "duplicateSamplesSkipped": 0,
+  "valueTargetNonNull": 35195,
+  "valueTargetNull": 13519,
+  "valueTargetNonNullPct": 72.248,
+  "distinctRootFamilyIdsEmitted": 37,
+  "distinctEpisodesWithNonNullValue": 30,
+  "distinctEpisodesWithTerminalWinnerInInput": 30,
+  "distinctEpisodesInInput": 37,
+  "episodeKeyFallbacks": 0,
+  "pass1": {
+    "lines": 48714,
+    "elapsedSeconds": 29.76,
+    "linesPerSecond": 1636.7,
+    "cheapPathFallbacks": 0,
+    "parseFailures": 0,
+    "linesWithMissingEpisodeKey": 0,
+    "perFile": [
+      {
+        "file": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+        "lines": 48714,
+        "episodesSeen": 37,
+        "cheapPathFallbacks": 0,
+        "parseFailures": 0,
+        "linesWithMissingEpisodeKey": 0
+      }
+    ]
+  },
+  "elapsedSeconds": 137.05,
+  "samplesPerSecond": 355.5
+}

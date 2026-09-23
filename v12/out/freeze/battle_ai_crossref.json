@@ -1,0 +1,89 @@
+{
+  "schema": "v12_battle_ai_crossref_1",
+  "runId": "agent_upgrade_v12_b1",
+  "generatedAt": "2026-09-23T00:00:00Z",
+  "purpose": "T12-00: register the two parallel workstreams that pursued the same goal without citing each other, and declare which of them is authoritative for what.",
+  "reviewCommit": "4451947355e9683437a6fc1348cf01657eaf50e3",
+  "workingTreeHead": "9c6c1ab897dd2612a56912d5f843ffc399e2bae5",
+  "headMatchesReviewCommit": false,
+  "deltaDeclaration": {
+    "claim": "The delta from the review commit to the current HEAD does not touch any file implicated by F01-F07.",
+    "command": "git diff --name-status 4451947355e9683437a6fc1348cf01657eaf50e3 9c6c1ab",
+    "result": [
+      { "status": "A", "path": "src/game/ai/battle_search_ai.ts" },
+      { "status": "A", "path": "tools/train_battle_eval_uncapped.ts" }
+    ],
+    "modifiedFiles": 0,
+    "overlapWithF01ToF07Sources": [],
+    "conclusion": "F01-F07 remain valid at 9c6c1ab. The V11 batch-1 freeze was pinned at 4451947; this re-freeze at 9c6c1ab supersedes it only for provenance, not for any F01-F07 finding."
+  },
+  "workstreams": [
+    {
+      "name": "V11 taskbook pipeline",
+      "artifacts": ["v11/out/**", "tools/v11/**", "v11/V11_BATCH1_REPORT.md", "v11/V11_BATCH2_REPORT.md"],
+      "activityWindow": "2026-09-23T17:12Z .. 2026-09-23T23:37Z",
+      "goal": "Correctness-first rebuild of value/replay/search/training-consumption accounting, then one attributable learning experiment.",
+      "achieved": [
+        "Verified replay contract (v11_replay_e2e.test.ts)",
+        "Measured optimizer consumption replacing a self-certifying planned manifest",
+        "Transition accounting for candidate generation",
+        "A deterministic comparability harness with a hard controlCheck"
+      ],
+      "failed": [
+        "T11-04 produced no attributable strength conclusion: 3 of 4 arms truncated at 100%",
+        "Yield 20%, distinctDeltaValues = 1 (every label dQ = 2)"
+      ]
+    },
+    {
+      "name": "BattleSearchAI series",
+      "artifacts": [
+        "src/game/ai/battle_search_ai.ts",
+        "tools/train_battle_eval_uncapped.ts",
+        "docs/training/battle_ai/** (branch train/battle-ai-100pct, commit d918df6)"
+      ],
+      "activityWindow": "2026-09-23T18:03Z onward (v3 committed; v4-v8 evolved on train/battle-ai-100pct)",
+      "goal": "Direct strength: heuristic-anchored bounded search with takeover/veto gating, measured by uncapped natural-termination matches.",
+      "kind": "heuristic_anchored_search (no neural network weights; a 'model' here is code + a parameter snapshot)",
+      "achieved": [
+        "v3: Duel 17/20 vs HeuristicAI (P0 10/10, P1 7/10), all natural terminations",
+        "v8: 5 maps x 4 games = 10/20 (P0 3/10, P1 7/10)",
+        "Explicit reproducibility handling of the HeuristicAI rng jitter"
+      ],
+      "failed": [
+        "Large-map P0 first-player is a systematic weakness (v6 0/10)",
+        "v4 relaxing the takeover/veto thresholds regressed to 10/20 (noise takeover is harmful)"
+      ]
+    }
+  ],
+  "duplication": [
+    {
+      "issue": "Deterministic baseline action",
+      "v11Side": "V11-D01 in v11/out/self_audit.json: an unseeded `new HeuristicAI()` fell back to Math.random, flipping the baseline action between identical runs; fixed by adding fixedRng/seedFromHash.",
+      "battleSide": "src/game/ai/battle_search_ai.ts:59-60 already handled exactly this: it passes a derived rng into HeuristicAI with the comment that the heuristic's internal *20/*30 jitter needs a reproducible stream.",
+      "conclusion": "Two independent solutions to the same defect. The V11 report does not cite BattleSearchAI."
+    },
+    {
+      "issue": "Heuristic-anchored residual override",
+      "v11Side": "tools/v11/residual_policy.ts + ranker: learned residual over the heuristic top action, gated by a margin threshold (minDelta 0.02).",
+      "battleSide": "BattleSearchAI getAction: heuristic top action by default, overridden only on a large search margin (takeover) or danger (veto).",
+      "conclusion": "Same architecture; the difference is the override signal (learned ranker vs bounded maximin search). The battle-side signal is the one that produced measurable strength."
+    },
+    {
+      "issue": "The required control arm",
+      "v11Side": "T11-04 required an arm 'baseline-preserving planner without a learning module'. Batch 2 shipped planner/planner_zeroed -- a weaker re-implementation, truncated at 100% by maxDecisionsPerMatch=8.",
+      "battleSide": "BattleSearchAI v3 is exactly that arm, already implemented and already measured.",
+      "conclusion": "Reusable asset misidentified as a separate project (recorded as F08)."
+    }
+  ],
+  "authorityAssignment": {
+    "for_measurement_and_accounting": "V11 pipeline (verified replay, optimized-consumption ledger, transition ledger, controlCheck).",
+    "for_strength_and_reference_value": "BattleSearchAI (bounded maximin search with a heuristic floor).",
+    "for_dQ_reference_labels": "BattleSearchAI evaluateCandidate maximin leaf, labelled PROXY REFERENCE, not optimal Q and not calibrated to win probability.",
+    "not_interchangeable": "BattleSearchAI is not a neural checkpoint: it cannot be registered as a trained model nor shipped in the browser weights path. Its per-decision cost is 1.5-4.5s, versus ~21ms p50 for the spatial network."
+  },
+  "reproducibilityCaveat": {
+    "preciselyReproducible": ["v3 @ 9c6c1ab", "v8 @ d918df6 (branch train/battle-ai-100pct)"],
+    "notPreciselyReproducible": ["v4", "v6", "v7"],
+    "reason": "docs/training/battle_ai/models/battle_search_v{4,6,7}.json record codeRef as 'uncommitted worktree evolution'; only their match records pin their behaviour."
+  }
+}

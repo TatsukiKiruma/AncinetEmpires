@@ -1,0 +1,78 @@
+{
+  "generatedAtUtc": "2026-09-23T16:09:30.369Z",
+  "schemaWanted": [
+    "sampleId",
+    "episodeId",
+    "rootFamilyId",
+    "step",
+    "turn",
+    "playerId",
+    "spatialTensor",
+    "globalFeatures",
+    "targetActionIndex",
+    "candidateActions",
+    "valueTarget"
+  ],
+  "files": [
+    {
+      "path": "training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl",
+      "bytes": 772843109,
+      "mtimeUtc": "2026-09-20T10:39:42.056Z",
+      "lines": 30000,
+      "parseErrors": 0,
+      "valueTargetNonNull": 20,
+      "valueTargetNullPct": 99.933,
+      "rootFamilyIdAbsent": 30000,
+      "rootFamilyIdEmpty": 0,
+      "rootFamilyIdDistinct": 0,
+      "episodeIdEmpty": 0,
+      "keySignatures": [
+        {
+          "keys": "sampleId,spatialTensor,globalFeatures,targetActionIndex,candidateActions,valueTarget",
+          "count": 30000
+        }
+      ],
+      "keySignatureCount": 1
+    },
+    {
+      "path": "training_runs/spatial_dataset/spatial_train_25ep.jsonl",
+      "bytes": 43171210,
+      "mtimeUtc": "2026-09-20T10:08:47.442Z",
+      "lines": 1500,
+      "parseErrors": 0,
+      "valueTargetNonNull": 0,
+      "valueTargetNullPct": 100,
+      "rootFamilyIdAbsent": 0,
+      "rootFamilyIdEmpty": 0,
+      "rootFamilyIdDistinct": 25,
+      "episodeIdEmpty": 0,
+      "keySignatures": [
+        {
+          "keys": "sampleId,episodeId,rootFamilyId,step,turn,playerId,spatialTensor,globalFeatures,targetActionIndex,candidateActions,valueTarget",
+          "count": 1500
+        }
+      ],
+      "keySignatureCount": 1
+    },
+    {
+      "path": "training_runs/spatial_dataset/spatial_pilot_01.jsonl",
+      "bytes": 8628599,
+      "mtimeUtc": "2026-09-20T09:39:43.450Z",
+      "lines": 300,
+      "parseErrors": 0,
+      "valueTargetNonNull": 0,
+      "valueTargetNullPct": 100,
+      "rootFamilyIdAbsent": 0,
+      "rootFamilyIdEmpty": 0,
+      "rootFamilyIdDistinct": 5,
+      "episodeIdEmpty": 0,
+      "keySignatures": [
+        {
+          "keys": "sampleId,episodeId,rootFamilyId,step,turn,playerId,spatialTensor,globalFeatures,targetActionIndex,candidateActions,valueTarget",
+          "count": 300
+        }
+      ],
+      "keySignatureCount": 1
+    }
+  ]
+}
