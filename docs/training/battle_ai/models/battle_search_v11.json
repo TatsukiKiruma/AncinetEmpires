@@ -1,0 +1,32 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v11",
+  "kind": "heuristic_anchored_search",
+  "description": "v8 + 缺人爆兵门（数量落后才加码，避免便宜人海）+ 防偷守卫收紧到真一回合威胁（半径5→8但要求城堡周边3格无人防守）+ 局部兵力（落单进人堆罚/抱团奖）+ 有利交换攻击放行（1换1好买卖不再被安全检查否决）+ 扫尾模式（敌≤3单位占领+1500）。教师快照：蒸馏训练数据的 teacher。",
+  "params": {
+    "topK": 6,
+    "oppDepth": 3,
+    "friendlyRolloutSteps": 1,
+    "takeoverThreshold": 350,
+    "earlyAttackTakeoverGate": 1500,
+    "vetoMargin": 300,
+    "dangerLine": -800,
+    "searchStartTurn": 1,
+    "attackSafetyCheck": true,
+    "favorableTradeAllowed": true,
+    "phaseBonus": "full(v1+opener+deficitSpend+quality+ball+localForce+mopUp+garrison8undefended)",
+    "twoStage": true,
+    "tacticalCandidates": true,
+    "pendingFirst": true
+  },
+  "codeRef": "train/battle-ai-100pct HEAD (this commit)",
+  "tunedOn": "5-map suite seed 1001",
+  "knownResults": [
+    { "matchFile": "../matches/liberty_seed1001_v11_4games.json", "score": "4/4" },
+    { "matchFile": "../matches/peak_seed1001_v11_4games.json", "score": "4/4" },
+    { "matchFile": "../matches/icy_seed1001_v11_4games.json", "score": "1/4" },
+    { "matchFile": "../matches/crossing_seed1001_v11_4games.json", "score": "3/4" },
+    { "matchFile": "../matches/mourning_seed1001_v11_4games.json", "score": "4/4" },
+    { "suite": "16/20" }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T14:57:00.231Z",
+  "gitHead": "d918df67fc47a7111f1ee913228bee2a73a9bb44",
+  "model": "BattleSearchAI",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "peak",
+    "mapLabel": "(2) Peak Island.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 4,
+    "heuWins": 0,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 13,
+      "steps": 451,
+      "ms": 103767,
+      "capped": false,
+      "newStats": "dec=332 urg=3 win=0 take=48 veto=0 follow=281"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 15,
+      "steps": 569,
+      "ms": 148280,
+      "capped": false,
+      "newStats": "dec=433 urg=4 win=0 take=51 veto=0 follow=378"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 13,
+      "steps": 457,
+      "ms": 103919,
+      "capped": false,
+      "newStats": "dec=342 urg=3 win=1 take=65 veto=0 follow=273"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 14,
+      "steps": 508,
+      "ms": 121361,
+      "capped": false,
+      "newStats": "dec=373 urg=4 win=1 take=46 veto=0 follow=322"
+    }
+  ]
+}

@@ -11,7 +11,8 @@
 | v4 | topK8 / 单步探测宽6(含对手heuristic评分) / rollout3 / takeover350 / veto300 / danger-800 + 战术候选 | Duel 10/20 | 退化实验：P1发现4回合固定rush线十局全胜，P0十局全败 |
 | v6 | topK6 / 集火深度3 / rollout1 / takeover350 / veto300 / danger-800 + 两阶段评估 + 战术候选 + 局面修正v1 | Liberty 4/10，Peak 5/10 | P1九胜一负，P0十局全败；大图P0问题暴露 |
 | v7 | v6 + 攻击安全检查 + 招募名额保证 + 扩张期攻击接管门槛1500 + searchStartTurn开关 + 早期爆兵 | 调优中 | Liberty game1 仍负（13回合），继续优化 P0 |
-| v8 | v7 + 开局双招修正（指挥官让城/便宜优先）+ 全双人图评估表 | 5图×4局=10/20 | 当前 HEAD：Liberty 3/4，Peak 2/4，Icy 2/4，Crossing 2/4，Mourning 1/4 |
+| v8 | v7 + 开局双招修正（指挥官让城/便宜优先）+ 全双人图评估表 | 5图×4局=10/20 | Liberty 3/4，Peak 2/4，Icy 2/4，Crossing 2/4，Mourning 1/4 |
+| v11 | v8 + 缺人数爆兵门 + 防偷半径8+无人防守 + 局部兵力 + 有利交换 + 扫尾 | 5图×4局=16/20 | 当前 HEAD：Liberty 4/4，Peak 4/4，Icy 1/4，Crossing 3/4，Mourning 4/4；教师快照 |
 
 参数快照：`models/battle_search_v*.json`。v4/v6 的 codeRef 为未提交演进态，以对局记录行为为准；
 HEAD（含 v7）提交后即为精确可复现态，后续运行一律用 `--out` 存档。
@@ -32,6 +33,8 @@ HEAD（含 v7）提交后即为精确可复现态，后续运行一律用 `--out
 | `mirror_baselines.json` | Heuristic内战基线（Duel/Liberty/Peak，含swap对照） |
 
 5图×4局（v8，seed 1001，topK6/深度3/rollout1）合计 10/20：P0 3/10（Liberty 2/2 为 opener 修复所救），P1 7/10。
+5图×4局（v11，同配置）合计 16/20：Liberty 4/4，Peak 4/4，Mourning 4/4，Crossing 3/4（负第1局P0），Icy 1/4（仅第4局P1胜）。
+转向：用户要求改走深度/强化/监督学习道路。v11 作为蒸馏 teacher，快照于此；学习型模型见 `learned/`（待训练）。
 
 ## 关键结论（截至本存档）
 

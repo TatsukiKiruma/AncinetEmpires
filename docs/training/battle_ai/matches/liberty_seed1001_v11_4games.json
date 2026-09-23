@@ -1,0 +1,86 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T15:24:14.600Z",
+  "gitHead": "d918df67fc47a7111f1ee913228bee2a73a9bb44",
+  "model": "BattleSearchAI",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "liberty",
+    "mapLabel": "(2) Liberty Port.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 4,
+    "heuWins": 0,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 20,
+      "steps": 670,
+      "ms": 63163,
+      "capped": false,
+      "newStats": "dec=499 urg=6 win=0 take=42 veto=0 follow=451"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 18,
+      "steps": 531,
+      "ms": 50908,
+      "capped": false,
+      "newStats": "dec=364 urg=6 win=0 take=37 veto=4 follow=321"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 20,
+      "steps": 654,
+      "ms": 61652,
+      "capped": false,
+      "newStats": "dec=480 urg=6 win=0 take=50 veto=0 follow=424"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 53,
+      "steps": 2687,
+      "ms": 549599,
+      "capped": false,
+      "newStats": "dec=2509 urg=8 win=0 take=837 veto=4 follow=1664"
+    }
+  ]
+}

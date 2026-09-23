@@ -1,0 +1,86 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T15:30:58.543Z",
+  "gitHead": "d918df67fc47a7111f1ee913228bee2a73a9bb44",
+  "model": "BattleSearchAI",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "crossing",
+    "mapLabel": "(2) The Crossing.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 3,
+    "heuWins": 1,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 22,
+      "steps": 719,
+      "ms": 56252,
+      "capped": false,
+      "newStats": "dec=145 urg=24 win=0 take=47 veto=5 follow=70"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 11,
+      "steps": 307,
+      "ms": 54925,
+      "capped": false,
+      "newStats": "dec=240 urg=6 win=0 take=15 veto=0 follow=219"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 24,
+      "steps": 754,
+      "ms": 142822,
+      "capped": false,
+      "newStats": "dec=568 urg=10 win=0 take=75 veto=12 follow=477"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 19,
+      "steps": 674,
+      "ms": 131999,
+      "capped": false,
+      "newStats": "dec=592 urg=6 win=0 take=32 veto=0 follow=554"
+    }
+  ]
+}

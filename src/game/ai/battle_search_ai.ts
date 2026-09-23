@@ -6,6 +6,7 @@ import { encodeAction } from '../env';
 import { getAllianceId, getUnitCost, isCommanderUnit } from '../rule_config';
 import { calculateDamage, inRange } from '../rules';
 import { getEffectiveStats } from '../abilities';
+import { getReachablePositions } from '../map';
 import { UNIT_CONFIGS } from '../constants';
 import { getTileTerrainConfig } from '../terrain_rules';
 
@@ -95,9 +96,23 @@ export class BattleSearchAI {
     const legal = (preparedActions ?? engine.getLegalActions(playerId)).slice();
     if (legal.length === 0) return { type: 'end_turn' };
     const nonSurrender = legal.filter(a => a.type !== 'surrender');
-    const pool = this.allowSurrender ? legal : (nonSurrender.length > 0 ? nonSurrender : legal);
+    let pool = this.allowSurrender ? legal : (nonSurrender.length > 0 ? nonSurrender : legal);
 
     if (pool.length === 1) return pool[0];
+
+    // 待行动（pending）单位优先：刚招募的单位必须先行动才能解锁后续招募。
+    // 否则出现“招一停”：pending 常驻整回合，招募链断裂（Peak P0 T1 单招 vs P1 三连招教训）。
+    const pendingId = engine.getState().pendingUnitId;
+    if (pendingId) {
+      const pendingUnit = engine.getState().units.find(u => u.id === pendingId && u.ownerId === playerId);
+      if (pendingUnit && !pendingUnit.hasActed && pendingUnit.hp > 0) {
+        const pendingActions = pool.filter(a => this.getActionUnitId(a) === pendingId);
+        if (pendingActions.length > 0) {
+          pool = pendingActions;
+          if (pool.length === 1) return pool[0];
+        }
+      }
+    }
 
     this.stats.decisions += 1;
     const scored = this.heuristic.scoreCandidateActions(engine, playerId, pool);
@@ -131,7 +146,7 @@ export class BattleSearchAI {
     }
 
     const ordered = [...scored].sort((a, b) => b.score - a.score);
-    const candidates = this.buildTacticalCandidates(pool, ordered);
+    const candidates = this.buildTacticalCandidates(pool, ordered, engine.getState(), playerId);
     const heuTop = candidates[0];
 
     // 两阶段评估：A阶段便宜叶子（1步模拟直评）全覆盖找即时胜负并排序，
@@ -212,13 +227,19 @@ export class BattleSearchAI {
     return chosen;
   }
 
-  /** 攻击是否安全：优势/杀指挥官直接放行，否则验算现有站位火力围殴。 */
+  /** 攻击是否安全：优势/杀指挥官直接放行； zicht 有利交换（杀掉价值相当或更高的目标）
+   * 即使攻击者会死也放行（Crossing game1 全局零杀戮就是这么输的：安全检查把 1 换 1
+   * 的好买卖全否了）；只否决“白送”（杀不掉还搭上自己）。
+   */
   private isAttackSafe(engine: GameEngine, playerId: number, action: Action): boolean {
     if (action.type !== 'attack') return true;
     const state = engine.getState();
     if (this.materialRatio(state, playerId) > 1.25) return true;
     const target = state.units.find(u => u.id === action.targetId);
     if (target && isCommanderUnit(state, target)) return true;
+    const attackerBefore = state.units.find(u => u.id === action.attackerId);
+    const targetValue = target ? (getUnitCost(state, target.ownerId, target.unitClass) ?? 200) : 0;
+    const attackerValue = attackerBefore ? (getUnitCost(state, attackerBefore.ownerId, attackerBefore.unitClass) ?? 200) : 99999;
     const sim = engine.clone();
     try {
       sim.step(action);
@@ -226,6 +247,10 @@ export class BattleSearchAI {
       return false;
     }
     const after = sim.getState();
+    const targetAfter = after.units.find(u => u.id === action.targetId);
+    const targetDied = !targetAfter || targetAfter.hp <= 0;
+    // 有利交换：杀掉价值相当或更高的目标，攻击者陪葬也值
+    if (targetDied && targetValue >= attackerValue * 0.8) return true;
     const attacker = after.units.find(u => u.id === action.attackerId);
     if (!attacker || attacker.hp <= 0) return false;
     // 有战后撤离手段则假定可逃生
@@ -249,6 +274,41 @@ export class BattleSearchAI {
       if (incoming >= attacker.hp) return false;
     }
     return incoming < attacker.hp;
+  }
+
+  /** 受偷袭威胁的我方城堡：敌指挥官逼近（曼哈顿≤8）且城堡周边3格无我方守军。
+   * 双条件缺一不可：半径≤5 会漏掉两回合走上来偷城（Crossing game1 T10 丢第二城堡教训）；
+   * 无“无人防守”条件则会在指挥官中场游荡时全程误报，把部队钉死在城堡里（Peak game2 教训）。 */
+  private threatenedOwnCastles(state: GameState, playerId: number): Array<{ x: number; y: number }> {
+    const enemyCommanders: Array<{ x: number; y: number }> = [];
+    for (const u of state.units) {
+      if (u.hp <= 0 || u.ownerId === playerId) continue;
+      if (getAllianceId(state, u.ownerId) === getAllianceId(state, playerId)) continue;
+      if (isCommanderUnit(state, u)) enemyCommanders.push(u.pos);
+    }
+    if (enemyCommanders.length === 0) return [];
+    const allied = getAllianceId(state, playerId);
+    const out: Array<{ x: number; y: number }> = [];
+    for (let y = 0; y < state.map.height; y++) {
+      for (let x = 0; x < state.map.width; x++) {
+        const tile = state.map.tiles[y][x];
+        if (getTileTerrainConfig(tile).key !== 'castle') continue;
+        if ((tile as { ownerId: number | null }).ownerId !== playerId) continue;
+        const d = Math.min(...enemyCommanders.map(e => Math.abs(e.x - x) + Math.abs(e.y - y)));
+        if (d > 8) continue;
+        // 周边3格有守军则不告警（ heuristic 自带近身急救；避免中场误报）
+        let defended = false;
+        for (const u of state.units) {
+          if (u.hp <= 0 || getAllianceId(state, u.ownerId) !== allied) continue;
+          if (Math.abs(u.pos.x - x) + Math.abs(u.pos.y - y) <= 3) {
+            defended = true;
+            break;
+          }
+        }
+        if (!defended) out.push({ x, y });
+      }
+    }
+    return out;
   }
 
   /** 候选中的最优非攻击动作（按叶子+局面修正），攻击被安全否决时的退路。 */
@@ -305,12 +365,29 @@ export class BattleSearchAI {
     const behind = ratio < 0.85;
     const ahead = ratio > 1.25;
     switch (action.type) {
-      case 'attack':
+      case 'attack': {
+        // 击杀偷袭指挥官优先
+        const target = state.units.find(u => u.id === (action as { targetId: string }).targetId);
+        if (target && isCommanderUnit(state, target)) {
+          const threatened = this.threatenedOwnCastles(state, playerId);
+          if (threatened.length > 0) {
+            const d = Math.min(...threatened.map(c => Math.abs(c.x - target.pos.x) + Math.abs(c.y - target.pos.y)));
+            if (d <= 8) return 1500;
+          }
+        }
         if (behind) return -600;
         if (ahead) return 250;
         return 0;
-      case 'capture':
+      }
+      case 'capture': {
+        // 扫尾模式：敌方只剩≤3单位时，占领即胜势，强推结束比赛（Liberty game4 67回合打扫教训）
+        let enemyCount = 0;
+        for (const u of state.units) {
+          if (u.hp > 0 && getAllianceId(state, u.ownerId) !== allied) enemyCount += 1;
+        }
+        if (enemyCount <= 3) return 1500;
         return (turn <= 8 ? 500 : 0) + (behind ? 250 : 0);
+      }
       case 'recruit_to_castle': {
         // 开局指挥官让城：指挥官站城堡时堆叠招募会堵住第二招，先让指挥官走开
         if (turn <= 3) {
@@ -336,8 +413,26 @@ export class BattleSearchAI {
           const cost = getUnitCost(state, playerId, action.unitClass) ?? 999;
           return 2000 + Math.max(0, 300 - cost) * 5 + deployBonus;
         }
-        // 扩张期绝不屯钱：有钱就爆兵（T9 5v9 就是这么输的）
-        if (turn <= 10 && gold >= 250) return 600 + (behind ? 150 : 0) + deployBonus;
+        // 有钱买精兵：金库充裕时偏好 400~800 中坚（paladin/witch/elf/berserker），
+        // 避免 soldier 人海（Liberty game2 教训）；缺人时才用便宜货填数。
+        if (gold >= 450) {
+          const cost = getUnitCost(state, playerId, action.unitClass) ?? 999;
+          if (cost >= 400 && cost <= 800) return 350 + deployBonus;
+        }
+        // 缺人就爆兵：均势/劣势且数量落后时有钱就爆兵（Liberty game4 T11囤475金被骷髅海淹死教训）。
+        // 只看物质比会陷入“便宜人海”陷阱（Peak game2：15个弱兵被8个精兵全歼），必须同时数量落后才加码；
+        // 数量持平/领先时让 heuristic 按质取舍，避免弱兵稀释战力。
+        // 优势才允许存钱憋大怪。
+        let myCount = 0;
+        let enemyCount = 0;
+        for (const u of state.units) {
+          if (u.hp <= 0) continue;
+          if (getAllianceId(state, u.ownerId) === allied) myCount += 1;
+          else enemyCount += 1;
+        }
+        if (gold >= 250 && (turn <= 10 || (ratio < 1.1 && myCount < enemyCount))) {
+          return 600 + (behind ? 150 : 0) + deployBonus;
+        }
         return behind ? 150 : 0;
       }
       case 'wait':
@@ -346,7 +441,16 @@ export class BattleSearchAI {
       case 'move':
       case 'post_attack_move': {
         const unit = state.units.find(u => u.id === action.unitId);
-        if (!unit || enemies.length === 0) return 0;
+        if (!unit) return 0;
+        // 城堡防偷：敌指挥官逼近时，重奖回防驻守
+        if (enemies.length > 0) {
+          const threatened = this.threatenedOwnCastles(state, playerId);
+          if (threatened.length > 0
+            && threatened.some(c => c.x === action.to.x && c.y === action.to.y)) {
+            return 1500;
+          }
+        }
+        if (enemies.length === 0) return 0;
         const manhattan = (x1: number, y1: number, x2: number, y2: number): number => (
           Math.abs(x1 - x2) + Math.abs(y1 - y2)
         );
@@ -356,6 +460,31 @@ export class BattleSearchAI {
         // 劣势：远离敌群（放风筝），靠近敌群重罚（不送）
         if (behind) bonus += Math.max(-600, Math.min(600, (dAfter - dBefore) * 150));
         else if (ahead) bonus += Math.max(-400, Math.min(400, (dBefore - dAfter) * 80));
+        // 局部兵力：别落单进人堆（Icy game2 T17-T18 五个单位两回合蒸发教训）；
+        // 抱团推进则奖励。曼哈顿3格为局部。
+        {
+          let alliesNear = 0;
+          let enemiesNear = 0;
+          for (const u of state.units) {
+            if (u.hp <= 0 || u.id === unit.id) continue;
+            const d = Math.abs(u.pos.x - action.to.x) + Math.abs(u.pos.y - action.to.y);
+            if (d > 3) continue;
+            if (getAllianceId(state, u.ownerId) === allied) alliesNear += 1;
+            else enemiesNear += 1;
+          }
+          const abilities = UNIT_CONFIGS[unit.unitClass]?.abilities ?? [];
+          const isCapturer = abilities.includes('village_capturer') || abilities.includes('castle_capturer');
+          if (enemiesNear > alliesNear + 1) {
+            bonus += behind ? -800 : -400;
+          } else if (alliesNear === 0 && enemiesNear >= 1 && !isCapturer) {
+            // 非占领单位落单进敌区 = 送（Crossing game1 T6 9v8 优势开局随后被各个击破教训）；
+            // 占领单位单走是本职，不罚。
+            bonus += -700;
+          } else if (alliesNear >= 2) {
+            // 抱团推进才是战力
+            bonus += 400;
+          }
+        }
         // 开局：占领者向无主建筑靠拢
         if (turn <= 8) {
           const abilities = UNIT_CONFIGS[unit.unitClass]?.abilities ?? [];
@@ -391,7 +520,9 @@ export class BattleSearchAI {
    */
   private buildTacticalCandidates(
     pool: Action[],
-    ordered: Array<{ action: Action; score: number }>
+    ordered: Array<{ action: Action; score: number }>,
+    state: GameState,
+    playerId: number
   ): Array<{ action: Action; score: number }> {
     const seen = new Set<string>();
     const out: Array<{ action: Action; score: number }> = [];
@@ -427,13 +558,34 @@ export class BattleSearchAI {
         push(item);
       }
     }
-    // 5. 最优招募（任意兵种，保证屯钱时有兵可爆；扩张期胜负手）
-    for (const item of ordered) {
-      if (out.length >= this.topK) break;
-      const a = item.action;
-      if (a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') {
-        push(item);
-        break;
+    // 5. 招募名额：开局（T≤4）按最便宜优先，保证穷时也能连爆（Peak P0 开局 300 金买
+    // mermaid(200)会卡死第二招，买 soldier(150)x2 才是正解；heuristic 的 cost*2 偏好贵兵是陷阱）；
+    // 中后期按 heuristic 评分优先，保证兵种质量（便宜槽全期开放会导致 soldier 人海稀释战力，
+    // Liberty game2 十几个弱兵被精兵全歼教训）。
+    {
+      const turn = state.turn;
+      if (turn <= 4) {
+        let cheapest: { action: Action; score: number } | null = null;
+        let cheapestCost = Infinity;
+        for (const item of ordered) {
+          const a = item.action;
+          if (a.type !== 'recruit_to_castle' && a.type !== 'recruit_and_deploy') continue;
+          const cost = getUnitCost(state, playerId, a.unitClass) ?? Infinity;
+          if (cost < cheapestCost || (cost === cheapestCost && cheapest !== null && item.score > cheapest.score)) {
+            cheapestCost = cost;
+            cheapest = item;
+          }
+        }
+        if (cheapest && out.length < this.topK) push(cheapest);
+      } else {
+        for (const item of ordered) {
+          if (out.length >= this.topK) break;
+          const a = item.action;
+          if (a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') {
+            push(item);
+            break;
+          }
+        }
       }
     }
     // 6. heuristic 顺序填充
@@ -508,7 +660,87 @@ export class BattleSearchAI {
     if (after.currentPlayer === playerId) {
       return evaluatePositionHeuristic(after, playerId);
     }
-    return this.probeOpponentFocusFire(sim, playerId, after.currentPlayer);
+    const probed = this.probeOpponentFocusFire(sim, playerId, after.currentPlayer);
+    // 劣势下再扣“走位进人堆”罚分：对手走上来就能围殴的落单单位（Crossing game1 T7/T11、
+    // Liberty T9、Icy T17 都是这么一次蒸发好几个；单步探测看不见 move-then-attack）。
+    if (this.materialRatio(after, playerId) < 1.0) {
+      return probed - this.repositionCrowdPenalty(after, playerId);
+    }
+    return probed;
+  }
+
+  /** 动作归属单位（pending 过滤用；招募/终局动作返回 null）。 */
+  private getActionUnitId(action: Action): string | null {
+    switch (action.type) {
+      case 'move':
+      case 'capture':
+      case 'repair':
+      case 'wait':
+      case 'destroy_town':
+      case 'post_attack_move':
+        return action.unitId;
+      case 'attack':
+        return action.attackerId;
+      case 'heal':
+        return action.healerId;
+      case 'support':
+        return action.supporterId;
+      case 'summon':
+        return action.summonerId;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * 走位进人堆罚分：每个可被≥2个敌人（ present 站位或一动可达站位）纳入射程的我方单位，
+   * 罚 700（指挥官 2500）。只在劣势时启用；顺风时接触战正常，不罚。
+   */
+  private repositionCrowdPenalty(state: GameState, rootId: number): number {
+    const allied = getAllianceId(state, rootId);
+    const mine = state.units.filter(u => u.hp > 0 && getAllianceId(state, u.ownerId) === allied);
+    if (mine.length === 0) return 0;
+    const enemies = state.units
+      .filter(u => u.hp > 0 && getAllianceId(state, u.ownerId) !== allied)
+      .slice(0, 10);
+    if (enemies.length === 0) return 0;
+    // 敌人可达站位只算一次（多候选间状态不同，此处按当前 sim 态估算）
+    const reachCache = new Map<string, Array<{ x: number; y: number }>>();
+    const reachOf = (enemyId: string): Array<{ x: number; y: number }> => {
+      const cached = reachCache.get(enemyId);
+      if (cached) return cached;
+      let r: Array<{ x: number; y: number }> = [];
+      try {
+        r = getReachablePositions(state, enemyId).slice(0, 20);
+      } catch {
+        r = [];
+      }
+      reachCache.set(enemyId, r);
+      return r;
+    };
+    let penalty = 0;
+    for (const m of mine) {
+      let threateners = 0;
+      for (const e of enemies) {
+        const stats = getEffectiveStats(e);
+        if (inRange(e.pos, m.pos, stats.minRange, stats.maxRange)) {
+          threateners += 1;
+        } else {
+          const reach = reachOf(e.id);
+          for (const dest of reach) {
+            if (inRange(dest, m.pos, stats.minRange, stats.maxRange)) {
+              threateners += 1;
+              break;
+            }
+          }
+        }
+        if (threateners >= 2) break;
+      }
+      if (threateners >= 2) {
+        penalty += isCommanderUnit(state, m) ? 2500 : 700;
+      }
+    }
+    return penalty;
   }
 
   /** 无需模拟的静态攻击威胁分（杀招重奖，与 heuristic 击杀观一致）。 */

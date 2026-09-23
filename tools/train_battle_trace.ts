@@ -12,7 +12,12 @@ import { getTileTerrainKey } from '../src/game/terrain_rules';
 const MAPS: Record<string, () => GameState> = {
   duel: () => createDefaultAppGameState(),
   liberty: () => createAppApkSkirmishGameState('(2) Liberty Port.aem', 'SD'),
-  peak: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD')
+  peak: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD'),
+  icy: () => createAppApkSkirmishGameState('(2) Icy Paths.aem', 'SD'),
+  crossing: () => createAppApkSkirmishGameState('(2) The Crossing.aem', 'SD'),
+  mourning: () => createAppApkSkirmishGameState('(2) Mourningstar.aem', 'SD'),
+  swords: () => createAppApkSkirmishGameState('(2) Crossed swords.aem', 'SD'),
+  swamp: () => createAppApkSkirmishGameState('(2) Swamplands.aem', 'SD')
 };
 function arg(name: string, fb: string): string {
   const i = process.argv.indexOf(name);
@@ -45,6 +50,7 @@ const mapKey = arg('--map', 'liberty').toLowerCase();
 const seed = Number(arg('--seed', '1001'));
 const gameIdx = Number(arg('--game', '1')) - 1;
 const p0kind = arg('--p0', 'new');
+const p1kind = arg('--p1', 'heuristic');
 const hBase = seed + gameIdx * 100003;
 const swap = process.argv.includes('--swap');
 const newAI = new BattleSearchAI(hBase + 777, { topK: 6, oppDepth: 3, friendlyRolloutSteps: 1, takeoverThreshold: 350, vetoMargin: 300, dangerLine: -800 });
@@ -63,7 +69,7 @@ while (engine.getState().winner === null && steps < 600 * 80 && engine.getState(
     const u1 = s.units.filter(u => u.ownerId === 1 && u.hp > 0).length;
     console.log(`T${s.turn} cur=P${s.currentPlayer} army=${army(s, 0)}/${army(s, 1)} gold=${s.players[0].gold}/${s.players[1].gold} terr=${t0.castle}+${t0.town}/${t1.castle}+${t1.town} units=${u0}/${u1}`);
   }
-  const pol = s.currentPlayer === 0 ? p0kind : 'heuristic';
+  const pol = s.currentPlayer === 0 ? p0kind : p1kind;
   const ai = pol === 'new' ? newAI : (s.currentPlayer === 0 ? heuH : heuA);
   const action = ai.getAction(engine, s.currentPlayer);
   if (process.argv.includes('--actions') && s.turn >= Number(arg('--from', '1'))) {

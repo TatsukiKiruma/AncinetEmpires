@@ -7,7 +7,12 @@ import { getTileTerrainKey } from '../src/game/terrain_rules';
 const MAPS: Record<string, () => GameState> = {
   duel: () => createDefaultAppGameState(),
   liberty: () => createAppApkSkirmishGameState('(2) Liberty Port.aem', 'SD'),
-  peak: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD')
+  peak: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD'),
+  icy: () => createAppApkSkirmishGameState('(2) Icy Paths.aem', 'SD'),
+  crossing: () => createAppApkSkirmishGameState('(2) The Crossing.aem', 'SD'),
+  mourning: () => createAppApkSkirmishGameState('(2) Mourningstar.aem', 'SD'),
+  swords: () => createAppApkSkirmishGameState('(2) Crossed swords.aem', 'SD'),
+  swamp: () => createAppApkSkirmishGameState('(2) Swamplands.aem', 'SD')
 };
 function arg(name: string, fb: string): string {
   const i = process.argv.indexOf(name);
