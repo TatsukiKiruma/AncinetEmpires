@@ -1,0 +1,21 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v7",
+  "kind": "heuristic_anchored_search",
+  "description": "v6 + 攻击安全检查（非优势下，被现有站位火力围殴致死的攻击一律否决，转投最优非攻击；杀指挥官/优势/可战后撤离除外）+ 招募名额保证（候选集必含最优招募）+ 扩张期攻击接管门槛1500 + searchStartTurn开局跟随开关。当前HEAD版本，仍在调优P0先手问题（Liberty game1仍负），未达目标。",
+  "params": {
+    "topK": 6,
+    "oppDepth": 3,
+    "friendlyRolloutSteps": 1,
+    "takeoverThreshold": 350,
+    "earlyAttackTakeoverGate": 1500,
+    "vetoMargin": 300,
+    "dangerLine": -800,
+    "phaseBonus": "v1 + kite + expand-approach + earlySpend(recruit+600 when turn<=10 and gold>=250)",
+    "searchStartTurn": 1,
+    "attackSafetyCheck": true
+  },
+  "codeRef": "train/battle-ai-100pct HEAD (to be committed; src/game/ai/battle_search_ai.ts)",
+  "tunedOn": "(2) Liberty Port.aem SD, seed 1001 (game1 still loss: 13 turns)",
+  "knownResults": []
+}

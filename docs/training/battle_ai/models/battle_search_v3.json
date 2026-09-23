@@ -1,0 +1,22 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v3",
+  "kind": "heuristic_anchored_search",
+  "description": "保底+否决：默认跟随HeuristicAI首选；topK候选各模拟1步+己方连动展开，再做单步最危险对手回应探测，取maximin叶子；仅在大优(>=takeover)或避险(<=danger且备选好veto以上)时接管；终局胜负主导；urgent(>=50000)直走。",
+  "params": {
+    "topK": 6,
+    "oppProbeBreadth": 4,
+    "oppProbeNote": "v3为单步探测：攻击优先取前N个各模拟一步取最坏叶子（非v4+的集火深度探测）",
+    "friendlyRolloutSteps": 3,
+    "takeoverThreshold": 1200,
+    "vetoMargin": 800,
+    "dangerLine": -1500,
+    "phaseBonus": "none",
+    "searchStartTurn": 1
+  },
+  "codeRef": "train/battle-ai-20260923 commit 9c6c1ab (src/game/ai/battle_search_ai.ts at that commit)",
+  "tunedOn": "(2) Duel.aem SD, seed 1001",
+  "knownResults": [
+    { "matchFile": "../matches/duel_seed1001_v3_20games.json", "score": "17/20" }
+  ]
+}

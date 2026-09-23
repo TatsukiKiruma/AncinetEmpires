@@ -1,0 +1,22 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v6",
+  "kind": "heuristic_anchored_search",
+  "description": "v4的快速重构：两阶段评估（A阶段1步便宜叶子全覆盖找即时胜负并排序，B阶段只对heuTop+cheap前3做连动展开+对手探测）；对手探测改为贪心多步集火深度探测（静态攻击排序、零heuristic评分，看穿围殴）；保留战术覆盖候选集；新增局面导向修正v1（劣势攻击-600/优势攻击+250、T≤8占领+500/劣势占领+250、劣势招募+150、优势wait/end-400）+开局占领者向无主目标靠拢与劣势放风筝。Liberty/Peak各10局：P1九胜一负，P0十局全败。",
+  "params": {
+    "topK": 6,
+    "oppDepth": 3,
+    "friendlyRolloutSteps": 1,
+    "takeoverThreshold": 350,
+    "vetoMargin": 300,
+    "dangerLine": -800,
+    "phaseBonus": "v1 + kite + expand-approach (attack/capture/recruit/wait/end_turn/move)",
+    "searchStartTurn": 1
+  },
+  "codeRef": "uncommitted worktree evolution on train/battle-ai-100pct after 9c6c1ab (behavior pinned by match records; superseded by v7 in HEAD)",
+  "tunedOn": "(2) Liberty Port.aem SD + (2) Peak Island.aem SD, seed 1001",
+  "knownResults": [
+    { "matchFile": "../matches/liberty_seed1001_v6_10games.json", "score": "4/10" },
+    { "matchFile": "../matches/peak_seed1001_v6_10games.json", "score": "5/10" }
+  ]
+}

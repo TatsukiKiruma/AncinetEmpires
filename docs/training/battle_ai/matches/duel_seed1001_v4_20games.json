@@ -1,0 +1,33 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T00:00:00.000Z",
+  "transcribedFrom": "session-console-log summary + pattern (full per-game table not preserved; only summary and exemplar rows below are verbatim)",
+  "gitHead": "uncommitted-v4-worktree",
+  "model": "BattleSearchAI v4",
+  "modelFile": "../models/battle_search_v4.json",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "duel",
+    "mapLabel": "(2) Duel.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 8,
+    "oppProbeBreadth": 6,
+    "rollout": 3,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": { "games": 20, "newWins": 10, "heuWins": 10, "draws": 0 },
+  "note": "相对v3退化：10局heuristic先手（新模型P1）全部4回合69步固定屠杀线获胜；10局新模型先手（P0）全部落败。证明阈值放宽后P0侧噪声接管有害，P1侧发现固定rush线。全部自然终局。",
+  "exemplarRecords": [
+    { "game": 1, "gameIndex": 0, "seed": 1001, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 12, "steps": 241, "ms": 17963, "capped": false, "newStats": "dec=43 urg=13 win=0 take=2 veto=0 follow=28" },
+    { "game": 10, "gameIndex": 9, "seed": 901028, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 4, "steps": 69, "ms": 16887, "capped": false, "newStats": "dec=49 urg=2 win=4 take=5 veto=0 follow=38" },
+    { "game": 12, "gameIndex": 11, "seed": 1101034, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 4, "steps": 69, "ms": 17267, "capped": false, "newStats": "dec=49 urg=2 win=4 take=5 veto=0 follow=38" },
+    { "game": 16, "gameIndex": 15, "seed": 1501046, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 4, "steps": 69, "ms": 18238, "capped": false, "newStats": "dec=49 urg=2 win=4 take=5 veto=0 follow=38" }
+  ],
+  "records": []
+}

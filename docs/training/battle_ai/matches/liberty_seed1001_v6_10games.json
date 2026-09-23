@@ -1,0 +1,38 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T00:00:00.000Z",
+  "transcribedFrom": "session-console-log (pre---out runs, transcribed verbatim)",
+  "gitHead": "uncommitted-v6-worktree",
+  "model": "BattleSearchAI v6",
+  "modelFile": "../models/battle_search_v6.json",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "liberty",
+    "mapLabel": "(2) Liberty Port.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": { "games": 10, "newWins": 4, "heuWins": 6, "draws": 0 },
+  "note": "P1后手4局全胜，P0先手5局全败（1,3,5,7,9局）。全部自然终局，无截断。",
+  "records": [
+    { "game": 1, "gameIndex": 0, "seed": 1001, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 25, "steps": 823, "ms": 50270, "capped": false, "newStats": "dec=185 urg=7 win=0 take=72 veto=4 follow=102" },
+    { "game": 2, "gameIndex": 1, "seed": 101004, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 0, "winnerPolicy": "heuristic", "turns": 25, "steps": 830, "ms": 54304, "capped": false, "newStats": "dec=232 urg=17 win=0 take=53 veto=5 follow=157" },
+    { "game": 3, "gameIndex": 2, "seed": 201007, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 22, "steps": 747, "ms": 49566, "capped": false, "newStats": "dec=185 urg=3 win=0 take=91 veto=4 follow=87" },
+    { "game": 4, "gameIndex": 3, "seed": 301010, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 25, "steps": 876, "ms": 129869, "capped": false, "newStats": "dec=687 urg=9 win=0 take=77 veto=0 follow=601" },
+    { "game": 5, "gameIndex": 4, "seed": 401013, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 23, "steps": 708, "ms": 48445, "capped": false, "newStats": "dec=186 urg=5 win=0 take=82 veto=4 follow=95" },
+    { "game": 6, "gameIndex": 5, "seed": 501016, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 27, "steps": 968, "ms": 128470, "capped": false, "newStats": "dec=791 urg=10 win=0 take=120 veto=0 follow=661" },
+    { "game": 7, "gameIndex": 6, "seed": 601019, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 21, "steps": 633, "ms": 46153, "capped": false, "newStats": "dec=185 urg=5 win=0 take=80 veto=4 follow=96" },
+    { "game": 8, "gameIndex": 7, "seed": 701022, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 24, "steps": 715, "ms": 86890, "capped": false, "newStats": "dec=534 urg=6 win=0 take=74 veto=0 follow=454" },
+    { "game": 9, "gameIndex": 8, "seed": 801025, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 21, "steps": 707, "ms": 39951, "capped": false, "newStats": "dec=180 urg=5 win=0 take=76 veto=3 follow=96" },
+    { "game": 10, "gameIndex": 9, "seed": 901028, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 34, "steps": 1207, "ms": 177786, "capped": false, "newStats": "dec=803 urg=11 win=0 take=196 veto=5 follow=591" }
+  ]
+}

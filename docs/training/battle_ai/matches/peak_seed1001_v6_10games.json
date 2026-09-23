@@ -1,0 +1,38 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T00:00:00.000Z",
+  "transcribedFrom": "session-console-log (pre---out runs, transcribed verbatim)",
+  "gitHead": "uncommitted-v6-worktree",
+  "model": "BattleSearchAI v6",
+  "modelFile": "../models/battle_search_v6.json",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "peak",
+    "mapLabel": "(2) Peak Island.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": { "games": 10, "newWins": 5, "heuWins": 5, "draws": 0 },
+  "note": "P1后手5局全胜（2,4,6,8,10局），P0先手5局全败（1,3,5,7,9局）。Peak开局P1自带2村庄，结构上有利于后手。全部自然终局，无截断。第5局打满72回合3845步。",
+  "records": [
+    { "game": 1, "gameIndex": 0, "seed": 1001, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 14, "steps": 380, "ms": 31710, "capped": false, "newStats": "dec=127 urg=3 win=0 take=32 veto=0 follow=92" },
+    { "game": 2, "gameIndex": 1, "seed": 101004, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 22, "steps": 594, "ms": 140837, "capped": false, "newStats": "dec=436 urg=11 win=0 take=77 veto=1 follow=347" },
+    { "game": 3, "gameIndex": 2, "seed": 201007, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 29, "steps": 1065, "ms": 81334, "capped": false, "newStats": "dec=139 urg=28 win=0 take=22 veto=2 follow=87" },
+    { "game": 4, "gameIndex": 3, "seed": 301010, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 18, "steps": 449, "ms": 93054, "capped": false, "newStats": "dec=278 urg=8 win=0 take=64 veto=1 follow=205" },
+    { "game": 5, "gameIndex": 4, "seed": 401013, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 72, "steps": 3845, "ms": 327819, "capped": false, "newStats": "dec=135 urg=13 win=0 take=31 veto=1 follow=90" },
+    { "game": 6, "gameIndex": 5, "seed": 501016, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 15, "steps": 361, "ms": 62064, "capped": false, "newStats": "dec=209 urg=10 win=0 take=48 veto=1 follow=150" },
+    { "game": 7, "gameIndex": 6, "seed": 601019, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 13, "steps": 346, "ms": 31629, "capped": false, "newStats": "dec=125 urg=4 win=0 take=33 veto=0 follow=88" },
+    { "game": 8, "gameIndex": 7, "seed": 701022, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 16, "steps": 418, "ms": 73386, "capped": false, "newStats": "dec=262 urg=10 win=0 take=57 veto=1 follow=194" },
+    { "game": 9, "gameIndex": 8, "seed": 801025, "newGoesFirst": true, "firstPolicy": "new", "winner": 1, "winnerPolicy": "heuristic", "turns": 20, "steps": 538, "ms": 31069, "capped": false, "newStats": "dec=123 urg=13 win=0 take=21 veto=1 follow=88" },
+    { "game": 10, "gameIndex": 9, "seed": 901028, "newGoesFirst": false, "firstPolicy": "heuristic", "winner": 1, "winnerPolicy": "new", "turns": 19, "steps": 471, "ms": 82165, "capped": false, "newStats": "dec=321 urg=9 win=0 take=73 veto=1 follow=238" }
+  ]
+}

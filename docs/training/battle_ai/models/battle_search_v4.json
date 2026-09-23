@@ -1,0 +1,22 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v4",
+  "kind": "heuristic_anchored_search",
+  "description": "v3 + 战术覆盖候选集（heuTop保底+全部capture+top攻击+指挥官招募+heuristic填充）；对手探测改为攻击/占领优先+对手heuristic最优回应兜底（含全量heuristic评分，较慢）；接管/否决阈值大幅放宽。Duel上P1十局全胜但出现4回合固定屠杀线，P0十局全败，总分退化，证明阈值放宽引入噪声接管。",
+  "params": {
+    "topK": 8,
+    "oppProbeBreadth": 6,
+    "oppProbeNote": "单步探测，攻击/占领优先+对手heuristic最优回应（含一次全量对手heuristic评分，最慢环节）",
+    "friendlyRolloutSteps": 3,
+    "takeoverThreshold": 350,
+    "vetoMargin": 300,
+    "dangerLine": -800,
+    "phaseBonus": "none",
+    "searchStartTurn": 1
+  },
+  "codeRef": "uncommitted worktree evolution on train/battle-ai-100pct after 9c6c1ab (superseded by v6/v7 in HEAD)",
+  "tunedOn": "(2) Duel.aem SD, seed 1001",
+  "knownResults": [
+    { "matchFile": "../matches/duel_seed1001_v4_20games.json", "score": "10/20" }
+  ]
+}
