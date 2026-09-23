@@ -32,13 +32,18 @@ function parseStringArg(name: string, fallback: string): string {
 const MAP_TABLE: Record<string, { label: string; make: () => GameState }> = {
   duel: { label: '(2) Duel.aem', make: () => createDefaultAppGameState() },
   liberty: { label: '(2) Liberty Port.aem', make: () => createAppApkSkirmishGameState('(2) Liberty Port.aem', 'SD') },
-  peak: { label: '(2) Peak Island.aem', make: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD') }
+  peak: { label: '(2) Peak Island.aem', make: () => createAppApkSkirmishGameState('(2) Peak Island.aem', 'SD') },
+  icy: { label: '(2) Icy Paths.aem', make: () => createAppApkSkirmishGameState('(2) Icy Paths.aem', 'SD') },
+  crossing: { label: '(2) The Crossing.aem', make: () => createAppApkSkirmishGameState('(2) The Crossing.aem', 'SD') },
+  mourning: { label: '(2) Mourningstar.aem', make: () => createAppApkSkirmishGameState('(2) Mourningstar.aem', 'SD') },
+  swords: { label: '(2) Crossed swords.aem', make: () => createAppApkSkirmishGameState('(2) Crossed swords.aem', 'SD') },
+  swamp: { label: '(2) Swamplands.aem', make: () => createAppApkSkirmishGameState('(2) Swamplands.aem', 'SD') }
 };
 
 function parseMapName(): string {
   const i = process.argv.indexOf('--map');
   const v = (i >= 0 ? process.argv[i + 1] ?? 'duel' : 'duel').toLowerCase();
-  if (!MAP_TABLE[v]) throw new Error(`--map 只能是 duel、liberty、peak，收到 ${v}`);
+  if (!MAP_TABLE[v]) throw new Error(`--map 只能是 ${Object.keys(MAP_TABLE).join('、')}，收到 ${v}`);
   return v;
 }
 

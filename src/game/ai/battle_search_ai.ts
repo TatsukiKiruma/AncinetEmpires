@@ -172,6 +172,16 @@ export class BattleSearchAI {
       }
     }
 
+    // 临时诊断：BATTLE_DEBUG=1 时打印会战回合的决策明细
+    if (process.env.BATTLE_DEBUG === '1') {
+      const st = engine.getState();
+      const detail = candidates.map((c, i) => {
+        const flag = (stageB.has(i) ? 'B' : 'A') + (i === 0 ? '(heu)' : '') + (i === bestIdx ? '(best)' : '');
+        return `${c.action.type}${flag}:${Math.round(leafOf(i))}`;
+      }).join(' ');
+      console.error(`[DBG] T${st.turn} P${playerId} heuTopLeaf=${Math.round(heuTopLeaf)} bestLeaf=${Math.round(bestLeaf)} margin=${Math.round(bestLeaf - heuTopLeaf)} | ${detail}`);
+    }
+
     // ① 大优接管：最优叶子比 heuristic 首选高出 takeoverThreshold。
     // 扩张期（T≤8）攻击接管要过更高的门槛：防止为小人头放弃扩张、
     // 打完被围殴（对手 move-then-attack 报复是探测盲区）。
@@ -301,12 +311,33 @@ export class BattleSearchAI {
         return 0;
       case 'capture':
         return (turn <= 8 ? 500 : 0) + (behind ? 250 : 0);
-      case 'recruit_to_castle':
+      case 'recruit_to_castle': {
+        // 开局指挥官让城：指挥官站城堡时堆叠招募会堵住第二招，先让指挥官走开
+        if (turn <= 3) {
+          const commander = state.units.find(
+            u => u.ownerId === playerId && u.hp > 0 && isCommanderUnit(state, u)
+          );
+          if (commander
+            && commander.pos.x === action.castlePos.x
+            && commander.pos.y === action.castlePos.y) {
+            return -3000;
+          }
+        }
+      }
+      // eslint-disable-next-line no-fallthrough
       case 'recruit_and_deploy': {
         const me = state.players.find(p => p.id === playerId);
         const gold = me?.gold ?? 0;
+        // 部署招募优先于堆叠招募：堆叠占住城堡会堵住后续招募（P1 靠 deploy 连爆两兵）
+        const deployBonus = action.type === 'recruit_and_deploy' && turn <= 4 ? 300 : 0;
+        // 开局强制爆兵：T1 不招募整局少一单位（P1 每局 T1 招募就是这么领先的）。
+        // 必须买便宜货：贵单位一次掏空金库会堵死第二招（dark_mage 300 教训）。
+        if (turn <= 2 && gold >= 150) {
+          const cost = getUnitCost(state, playerId, action.unitClass) ?? 999;
+          return 2000 + Math.max(0, 300 - cost) * 5 + deployBonus;
+        }
         // 扩张期绝不屯钱：有钱就爆兵（T9 5v9 就是这么输的）
-        if (turn <= 10 && gold >= 250) return 600 + (behind ? 150 : 0);
+        if (turn <= 10 && gold >= 250) return 600 + (behind ? 150 : 0) + deployBonus;
         return behind ? 150 : 0;
       }
       case 'wait':

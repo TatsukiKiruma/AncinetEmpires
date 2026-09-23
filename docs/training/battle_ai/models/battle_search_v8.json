@@ -1,0 +1,27 @@
+{
+  "model": "BattleSearchAI",
+  "modelVersion": "v8",
+  "kind": "heuristic_anchored_search",
+  "description": "v7 + 开局双招修正（指挥官T≤3让城避免堆叠堵招；T≤2招募按便宜优先，soldier/mermaid优先于dark_mage等吸金单位；deploy类招募早期+300）。起因：Liberty P0连续T2以2v3落后，根因为首招抢dark_mage(300)掏空金库且指挥官站城导致第二招非法，而P1走mermaid双招。修后Liberty game1从连败转为16回合碾压胜（T9 9v6领先）。Peak P0的8回合速败未受影响（另一故障模式，待查）。",
+  "params": {
+    "topK": 6,
+    "oppDepth": 3,
+    "friendlyRolloutSteps": 1,
+    "takeoverThreshold": 350,
+    "earlyAttackTakeoverGate": 1500,
+    "vetoMargin": 300,
+    "dangerLine": -800,
+    "phaseBonus": "v1 + kite + expand-approach + earlySpend + cheapOpener + commanderVacate",
+    "searchStartTurn": 1,
+    "attackSafetyCheck": true
+  },
+  "codeRef": "train/battle-ai-100pct HEAD (this commit; src/game/ai/battle_search_ai.ts)",
+  "tunedOn": "(2) Liberty Port.aem SD seed1001 game1 + 5-map suite",
+  "knownResults": [
+    { "matchFile": "../matches/liberty_seed1001_v8_4games.json", "score": "3/4" },
+    { "matchFile": "../matches/peak_seed1001_v8_4games.json", "score": "2/4" },
+    { "matchFile": "../matches/icy_seed1001_v8_4games.json", "score": "2/4" },
+    { "matchFile": "../matches/crossing_seed1001_v8_4games.json", "score": "2/4" },
+    { "matchFile": "../matches/mourning_seed1001_v8_4games.json", "score": "1/4" }
+  ]
+}

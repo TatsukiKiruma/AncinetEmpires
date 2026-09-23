@@ -10,7 +10,8 @@
 | v3 | topK6 / 单步探测宽4 / rollout3 / takeover1200 / veto800 / danger-1500 | Duel 17/20 | 首个达标版本，P0十局全胜 |
 | v4 | topK8 / 单步探测宽6(含对手heuristic评分) / rollout3 / takeover350 / veto300 / danger-800 + 战术候选 | Duel 10/20 | 退化实验：P1发现4回合固定rush线十局全胜，P0十局全败 |
 | v6 | topK6 / 集火深度3 / rollout1 / takeover350 / veto300 / danger-800 + 两阶段评估 + 战术候选 + 局面修正v1 | Liberty 4/10，Peak 5/10 | P1九胜一负，P0十局全败；大图P0问题暴露 |
-| v7 | v6 + 攻击安全检查 + 招募名额保证 + 扩张期攻击接管门槛1500 + searchStartTurn开关 + 早期爆兵 | 调优中 | 当前 HEAD 代码，Liberty game1 仍负（13回合），继续优化 P0 |
+| v7 | v6 + 攻击安全检查 + 招募名额保证 + 扩张期攻击接管门槛1500 + searchStartTurn开关 + 早期爆兵 | 调优中 | Liberty game1 仍负（13回合），继续优化 P0 |
+| v8 | v7 + 开局双招修正（指挥官让城/便宜优先）+ 全双人图评估表 | 5图×4局=10/20 | 当前 HEAD：Liberty 3/4，Peak 2/4，Icy 2/4，Crossing 2/4，Mourning 1/4 |
 
 参数快照：`models/battle_search_v*.json`。v4/v6 的 codeRef 为未提交演进态，以对局记录行为为准；
 HEAD（含 v7）提交后即为精确可复现态，后续运行一律用 `--out` 存档。
@@ -21,9 +22,16 @@ HEAD（含 v7）提交后即为精确可复现态，后续运行一律用 `--out
 |---|---|
 | `duel_seed1001_v3_20games.json` | Duel 20局全记录，17/20（P0全胜，P1三负于10/12/16局） |
 | `duel_seed1001_v4_20games.json` | Duel 20局摘要10/20 + 逐字摘录4行（含10/12/16三局全记录） |
-| `liberty_seed1001_v6_10games.json` | Liberty 10局全记录，4/10（P1四胜，P0五负） |
-| `peak_seed1001_v6_10games.json` | Peak 10局全记录，5/10（P1五胜，P0五负；第5局72回合3845步） |
+| `liberty_seed1001_v6_10games.json` | Liberty 10局全记录，4/10（P1四胜，P0五负；v6旧码） |
+| `peak_seed1001_v6_10games.json` | Peak 10局全记录，5/10（P1五胜，P0五负；第5局72回合3845步；v6旧码） |
+| `liberty_seed1001_v8_4games.json` | Liberty 4局全记录，3/4（v8现码；负于第4局P1） |
+| `peak_seed1001_v8_4games.json` | Peak 4局全记录，2/4（v8现码；P0两局皆8回合速败，故障模式待查） |
+| `icy_seed1001_v8_4games.json` | Icy Paths 4局全记录，2/4（v8现码；P0胜第3局） |
+| `crossing_seed1001_v8_4games.json` | The Crossing 4局全记录，2/4（v8现码；P1两胜，P0两负） |
+| `mourning_seed1001_v8_4games.json` | Mourningstar 4局全记录，1/4（v8现码；仅第4局P1胜，第2局P1亦负） |
 | `mirror_baselines.json` | Heuristic内战基线（Duel/Liberty/Peak，含swap对照） |
+
+5图×4局（v8，seed 1001，topK6/深度3/rollout1）合计 10/20：P0 3/10（Liberty 2/2 为 opener 修复所救），P1 7/10。
 
 ## 关键结论（截至本存档）
 

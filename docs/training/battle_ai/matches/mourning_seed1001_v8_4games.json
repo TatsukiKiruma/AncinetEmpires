@@ -1,0 +1,86 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-23T12:02:07.535Z",
+  "gitHead": "1bdcaa6df8e04cd1e06df0365c4851bf9071e630",
+  "model": "BattleSearchAI",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "mourning",
+    "mapLabel": "(2) Mourningstar.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 6,
+    "oppDepth": 3,
+    "rollout": 1,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 1,
+    "heuWins": 3,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 21,
+      "steps": 581,
+      "ms": 48090,
+      "capped": false,
+      "newStats": "dec=185 urg=10 win=0 take=50 veto=11 follow=118"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 0,
+      "winnerPolicy": "heuristic",
+      "turns": 24,
+      "steps": 740,
+      "ms": 57027,
+      "capped": false,
+      "newStats": "dec=239 urg=12 win=0 take=76 veto=7 follow=146"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 23,
+      "steps": 632,
+      "ms": 53814,
+      "capped": false,
+      "newStats": "dec=213 urg=19 win=0 take=63 veto=11 follow=124"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 18,
+      "steps": 489,
+      "ms": 45156,
+      "capped": false,
+      "newStats": "dec=273 urg=6 win=0 take=55 veto=6 follow=207"
+    }
+  ]
+}
