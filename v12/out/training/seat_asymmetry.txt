@@ -1,0 +1,45 @@
+files scanned        : 11
+records with winner  : 1003
+records unparsed     : 392
+
+overall winnerAlliance distribution (all scenarios pooled):
+  alliance 0:   281   28.02%
+  alliance 1:   511   50.95%
+  alliance 2:   168   16.75%
+  alliance 3:    43    4.29%
+
+per-scenario seat/ally win distribution (only scenarios with >=10 games):
+  scenario                                                n  distribution
+  SDPLAN:sd-3p-normal-extra:(3) Glu.aem                  36  a0:14 a1:15 a2:7
+  SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem        34  a1:22 a2:12  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-normal-extra:(3) classic 2.aem            29  a0:9 a2:20  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-normal-extra:(3) Midway.aem               22  a1:22  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) Crossroads.aem                    20  a2:16 a3:4  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Icy Paths.aem                     20  a0:11 a1:9  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) Critical mass.aem                 20  a0:7 a1:7 a2:3 a3:3
+  SDPLAN:sd-normal:(3) Frozen fields.aem                 19  a1:11 a2:8  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) Winterstorm.aem                   19  a0:6 a1:3 a2:7 a3:3
+  SDPLAN:sd-normal:(4) classic 1.aem                     17  a1:8 a3:9  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Duel.aem                          17  a0:5 a1:12  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(3) Glu.aem                           17  a0:8 a1:8 a2:1
+  SDPLAN:sd-normal:(4) Solitude.aem                      16  a1:16  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Liberty Port.aem                  15  a1:15  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Mourningstar.aem                  15  a0:5 a1:10  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) Waterways.aem                     15  a1:11 a2:4  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(3) classic 2.aem                     15  a0:4 a2:11  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Swamplands.aem                    15  a1:15  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) The Crucible.aem                  13  a0:1 a1:12  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem     12  a1:11 a2:1  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem            12  a0:2 a1:10  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem      12  a1:7 a2:5  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem                12  a0:5 a1:4 a2:3
+  SDPLAN:sd-normal:(2) Peak Island.aem                   12  a1:12  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(4) Shadowlands.aem                   12  a0:8 a1:4  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem          11  a0:6 a2:5  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) Crossed swords.aem                11  a1:11  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(3) Midway.aem                        11  a1:11  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem         10  a0:2 a2:8  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem             10  a1:10  <-- DEGENERATE (<=2 distinct winners)
+  SDPLAN:sd-normal:(2) The Crossing.aem                  10  a1:10  <-- DEGENERATE (<=2 distinct winners)
+
+degenerate scenarios (<=2 distinct winners): 26

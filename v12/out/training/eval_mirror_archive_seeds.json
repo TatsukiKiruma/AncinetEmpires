@@ -1,0 +1,188 @@
+{
+  "schema": "v12_budget_strength_eval_1",
+  "generatedAt": "2026-09-23T21:55:04.718Z",
+  "arm": "heuristic-mirror",
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "map": "(4) Crossroads.aem",
+    "players": 4,
+    "games": 3,
+    "maxSteps": 4000,
+    "seedStart": 20260924,
+    "seatsAlternate": true,
+    "distributionNote": "This is the SD training distribution (3-4 player plan maps), not the demo map used by tools/skirmish_spatial_match_benchmark.ts."
+  },
+  "summary": {
+    "games": 3,
+    "modelWins": 0,
+    "naturalTerminations": 3,
+    "naturalModelWins": 0,
+    "truncated": 0,
+    "truncationRate": 0,
+    "naturalWinRate": 0,
+    "totalFallbacks": 0,
+    "intervention": "none",
+    "totalInterventions": 0,
+    "overallAgreementWithHeuristic": null
+  },
+  "records": [
+    {
+      "game": 1,
+      "seed": 2026070501,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 2680,
+      "turn": 55,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 5,
+          "attack": 11,
+          "end_turn": 2,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 1,
+          "move": 11,
+          "attack": 9,
+          "end_turn": 2,
+          "recruit_to_castle": 3,
+          "wait": 2
+        },
+        "11-20": {
+          "move": 8,
+          "attack": 6,
+          "end_turn": 7,
+          "recruit_to_castle": 3,
+          "wait": 3
+        },
+        "21-40": {
+          "move": 12,
+          "recruit_to_castle": 7,
+          "attack": 6,
+          "wait": 9,
+          "end_turn": 5
+        },
+        "41+": {
+          "recruit_to_castle": 1,
+          "wait": 1
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 2,
+      "seed": 2026070502,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1413,
+      "turn": 32,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 9,
+          "attack": 10,
+          "end_turn": 2
+        },
+        "6-10": {
+          "attack": 8,
+          "move": 9,
+          "end_turn": 3,
+          "recruit_to_castle": 2,
+          "capture": 1,
+          "wait": 1
+        },
+        "11-20": {
+          "recruit_to_castle": 6,
+          "move": 11,
+          "attack": 8,
+          "wait": 8,
+          "end_turn": 3
+        },
+        "21-40": {
+          "wait": 1
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 3,
+      "seed": 2026070506,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1965,
+      "turn": 44,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 5,
+          "attack": 11,
+          "end_turn": 2,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 1,
+          "move": 11,
+          "attack": 9,
+          "end_turn": 2,
+          "recruit_to_castle": 3,
+          "wait": 2
+        },
+        "11-20": {
+          "move": 8,
+          "attack": 6,
+          "end_turn": 7,
+          "recruit_to_castle": 3,
+          "wait": 3
+        },
+        "21-40": {
+          "move": 12,
+          "recruit_to_castle": 4,
+          "attack": 9,
+          "wait": 3,
+          "end_turn": 8
+        },
+        "41+": {
+          "recruit_to_castle": 1,
+          "wait": 1
+        }
+      },
+      "p50Ms": null
+    }
+  ],
+  "caveats": [
+    "Mirror control: both seats are HeuristicAI, so deviations from 50% indicate seat/map bias rather than model strength.",
+    "Natural termination is distinguished from step-cap truncation; a truncated game is NOT counted as a win.",
+    "Small n. This is a translation check for the budget result, not a promotion confirmation."
+  ]
+}

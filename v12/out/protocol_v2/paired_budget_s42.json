@@ -1,0 +1,298 @@
+{
+  "schema": "v12_paired_seat_eval_1",
+  "generatedAt": "2026-09-23T23:18:49.969Z",
+  "candidate": "v12/models/budget_s42.json",
+  "candidateIsModel": true,
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "seeds": [
+      2026070501,
+      2026070502
+    ],
+    "seats": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "maxSteps": 20000,
+    "arms": "CANDIDATE (candidate at `seat`, heuristic elsewhere) vs MIRROR (heuristic at every seat)",
+    "rng": "per-seat deterministic stream: mulberry(hash(seed, seat)); identical across both arms; never Math.random",
+    "pairedBy": "(seed, seat) - the only difference between arms is who occupies `seat`",
+    "fallbackPolicy": "allowInteractiveFallback=false for the candidate (no silent heuristic fallback)"
+  },
+  "perSeat": {
+    "P0": {
+      "games": 2,
+      "candidateWins": 0,
+      "mirrorWins": 0,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 0,
+      "delta": 0,
+      "candidateTruncations": 0,
+      "mirrorTruncations": 0,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": 25
+    },
+    "P1": {
+      "games": 2,
+      "candidateWins": 0,
+      "mirrorWins": 0,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 0,
+      "delta": 0,
+      "candidateTruncations": 0,
+      "mirrorTruncations": 0,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": 38
+    },
+    "P2": {
+      "games": 2,
+      "candidateWins": 0,
+      "mirrorWins": 2,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 1,
+      "delta": -1,
+      "candidateTruncations": 0,
+      "mirrorTruncations": 0,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": 40
+    },
+    "P3": {
+      "games": 2,
+      "candidateWins": 0,
+      "mirrorWins": 0,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 0,
+      "delta": 0,
+      "candidateTruncations": 0,
+      "mirrorTruncations": 0,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": 37
+    }
+  },
+  "mirrorWinBySeat": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 8,
+    "P3": 0
+  },
+  "overall": {
+    "games": 8,
+    "candidateWins": 0,
+    "mirrorWins": 2,
+    "candidateWinRate": 0,
+    "mirrorWinRate": 0.25,
+    "delta": -0.25,
+    "candidateTruncationRate": 0,
+    "mirrorTruncationRate": 0
+  },
+  "selfTest": null,
+  "rows": [
+    {
+      "seed": 2026070501,
+      "seat": 0,
+      "candidate": {
+        "winner": 3,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 4353,
+        "turn": 83,
+        "fallbacks": 0,
+        "candidateDecisions": 38,
+        "candidateP50Ms": 24
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2975,
+        "turn": 57,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070501,
+      "seat": 1,
+      "candidate": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 1036,
+        "turn": 27,
+        "fallbacks": 0,
+        "candidateDecisions": 68,
+        "candidateP50Ms": 38
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2975,
+        "turn": 57,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070501,
+      "seat": 2,
+      "candidate": {
+        "winner": 0,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2651,
+        "turn": 67,
+        "fallbacks": 0,
+        "candidateDecisions": 169,
+        "candidateP50Ms": 39
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2975,
+        "turn": 57,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": -1
+    },
+    {
+      "seed": 2026070501,
+      "seat": 3,
+      "candidate": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 1399,
+        "turn": 34,
+        "fallbacks": 0,
+        "candidateDecisions": 79,
+        "candidateP50Ms": 35
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2975,
+        "turn": 57,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070502,
+      "seat": 0,
+      "candidate": {
+        "winner": 3,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 869,
+        "turn": 26,
+        "fallbacks": 0,
+        "candidateDecisions": 33,
+        "candidateP50Ms": 25
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 4577,
+        "turn": 84,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070502,
+      "seat": 1,
+      "candidate": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 1823,
+        "turn": 41,
+        "fallbacks": 0,
+        "candidateDecisions": 68,
+        "candidateP50Ms": 32
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 4577,
+        "turn": 84,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070502,
+      "seat": 2,
+      "candidate": {
+        "winner": 0,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 2869,
+        "turn": 71,
+        "fallbacks": 0,
+        "candidateDecisions": 176,
+        "candidateP50Ms": 40
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 4577,
+        "turn": 84,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": -1
+    },
+    {
+      "seed": 2026070502,
+      "seat": 3,
+      "candidate": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 1601,
+        "turn": 44,
+        "fallbacks": 0,
+        "candidateDecisions": 79,
+        "candidateP50Ms": 37
+      },
+      "mirror": {
+        "winner": 2,
+        "candidateWon": false,
+        "capped": false,
+        "steps": 4577,
+        "turn": 84,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    }
+  ],
+  "caveats": [
+    "n is small (seeds x seats). Deltas of +-1 game are noise.",
+    "A positive delta means the candidate won its seat more often than the heuristic would have in the SAME seat with the SAME streams; that is the only quantity this protocol licenses.",
+    "Truncated games are not counted as wins for either arm."
+  ]
+}

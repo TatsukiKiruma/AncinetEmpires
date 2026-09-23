@@ -1,0 +1,630 @@
+{
+  "schema": "v12_label_quality_2",
+  "generatedAt": "2026-09-23T16:33:47.984Z",
+  "tag": "detA",
+  "provenance": "proxy_reference:battle_search_ai_v3:maximin_leaf(6,3)",
+  "config": {
+    "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+    "maxEpisodes": 1,
+    "decisionsPerEpisode": 4,
+    "minStepFraction": 0.08,
+    "maxStepFraction": 0.92,
+    "plan": "uniform",
+    "idsFile": null,
+    "limit": 0,
+    "maxCandidates": 6,
+    "topK": 10,
+    "seedBase": 20260924,
+    "search": {
+      "oppProbeK": 6,
+      "friendlyRolloutSteps": 3,
+      "takeoverThreshold": 1200,
+      "vetoMargin": 800,
+      "dangerLine": -1500
+    }
+  },
+  "sample": {
+    "episodesUsed": 1,
+    "episodesSkipped": 0,
+    "skippedEpisodes": [],
+    "decisionPointsPlanned": 4,
+    "decisionsCompared": 4,
+    "decisionsSkipped": 0,
+    "skippedDecisions": [],
+    "planMs": 384
+  },
+  "yield": {
+    "decisionsKeptNonDegenerate": 4,
+    "decisionsDroppedDegenerate": 0,
+    "yieldRate": 1,
+    "fractionAllCandidatesTie": 0,
+    "decisionsWithNonZeroDeltaQ": 4,
+    "yieldRateNonZeroDeltaQ": 1,
+    "marginZeroBreakdown": {
+      "allCandidatesTie": 0,
+      "baselineAlreadyBest": 0,
+      "totalMarginZero": 0
+    },
+    "criterionNote": "Two different criteria are reported because they answer different questions. (a) \"non-degenerate\" = the candidate leaves are not all equal; this is what the T12-07 prescreen asks for. (b) \"dQ != 0\" = some candidate beats the heuristic baseline; this is exactly the v11 batch-2 keep rule, so it is the like-for-like comparison against 20%. A decision whose candidates differ but whose baseline is already the maximin-best one has dQ = 0 and would have been dropped by batch-2 as uninformative, even though it now carries a graded candidate ordering."
+  },
+  "effectSize": {
+    "headline": "decision-level dQ = bestLeaf - leaf(a0)",
+    "distinctDeltaValues": 3,
+    "allDeltasEqual": false,
+    "deltaValuesExact": [
+      {
+        "value": 184,
+        "count": 2
+      },
+      {
+        "value": 288,
+        "count": 1
+      },
+      {
+        "value": 2030.5,
+        "count": 1
+      }
+    ],
+    "summaryAll": {
+      "count": 4,
+      "distinct": 3,
+      "min": 184,
+      "max": 2030.5,
+      "mean": 671.625,
+      "stdDev": 785.694866,
+      "median": 288,
+      "p10": 184,
+      "p90": 2030.5
+    },
+    "histogramAll": {
+      "binCount": 20,
+      "lo": 184,
+      "hi": 2030.5,
+      "width": 92.325,
+      "bins": [
+        {
+          "lo": 184,
+          "hi": 276.325,
+          "count": 2
+        },
+        {
+          "lo": 276.325,
+          "hi": 368.65,
+          "count": 1
+        },
+        {
+          "lo": 368.65,
+          "hi": 460.975,
+          "count": 0
+        },
+        {
+          "lo": 460.975,
+          "hi": 553.3,
+          "count": 0
+        },
+        {
+          "lo": 553.3,
+          "hi": 645.625,
+          "count": 0
+        },
+        {
+          "lo": 645.625,
+          "hi": 737.95,
+          "count": 0
+        },
+        {
+          "lo": 737.95,
+          "hi": 830.275,
+          "count": 0
+        },
+        {
+          "lo": 830.275,
+          "hi": 922.6,
+          "count": 0
+        },
+        {
+          "lo": 922.6,
+          "hi": 1014.925,
+          "count": 0
+        },
+        {
+          "lo": 1014.925,
+          "hi": 1107.25,
+          "count": 0
+        },
+        {
+          "lo": 1107.25,
+          "hi": 1199.575,
+          "count": 0
+        },
+        {
+          "lo": 1199.575,
+          "hi": 1291.9,
+          "count": 0
+        },
+        {
+          "lo": 1291.9,
+          "hi": 1384.225,
+          "count": 0
+        },
+        {
+          "lo": 1384.225,
+          "hi": 1476.55,
+          "count": 0
+        },
+        {
+          "lo": 1476.55,
+          "hi": 1568.875,
+          "count": 0
+        },
+        {
+          "lo": 1568.875,
+          "hi": 1661.2,
+          "count": 0
+        },
+        {
+          "lo": 1661.2,
+          "hi": 1753.525,
+          "count": 0
+        },
+        {
+          "lo": 1753.525,
+          "hi": 1845.85,
+          "count": 0
+        },
+        {
+          "lo": 1845.85,
+          "hi": 1938.175,
+          "count": 0
+        },
+        {
+          "lo": 1938.175,
+          "hi": 2030.5,
+          "count": 1
+        }
+      ]
+    },
+    "summaryNonDegenerateOnly": {
+      "count": 4,
+      "distinct": 3,
+      "min": 184,
+      "max": 2030.5,
+      "mean": 671.625,
+      "stdDev": 785.694866,
+      "median": 288,
+      "p10": 184,
+      "p90": 2030.5
+    },
+    "histogramNonDegenerateOnly": {
+      "binCount": 20,
+      "lo": 184,
+      "hi": 2030.5,
+      "width": 92.325,
+      "bins": [
+        {
+          "lo": 184,
+          "hi": 276.325,
+          "count": 2
+        },
+        {
+          "lo": 276.325,
+          "hi": 368.65,
+          "count": 1
+        },
+        {
+          "lo": 368.65,
+          "hi": 460.975,
+          "count": 0
+        },
+        {
+          "lo": 460.975,
+          "hi": 553.3,
+          "count": 0
+        },
+        {
+          "lo": 553.3,
+          "hi": 645.625,
+          "count": 0
+        },
+        {
+          "lo": 645.625,
+          "hi": 737.95,
+          "count": 0
+        },
+        {
+          "lo": 737.95,
+          "hi": 830.275,
+          "count": 0
+        },
+        {
+          "lo": 830.275,
+          "hi": 922.6,
+          "count": 0
+        },
+        {
+          "lo": 922.6,
+          "hi": 1014.925,
+          "count": 0
+        },
+        {
+          "lo": 1014.925,
+          "hi": 1107.25,
+          "count": 0
+        },
+        {
+          "lo": 1107.25,
+          "hi": 1199.575,
+          "count": 0
+        },
+        {
+          "lo": 1199.575,
+          "hi": 1291.9,
+          "count": 0
+        },
+        {
+          "lo": 1291.9,
+          "hi": 1384.225,
+          "count": 0
+        },
+        {
+          "lo": 1384.225,
+          "hi": 1476.55,
+          "count": 0
+        },
+        {
+          "lo": 1476.55,
+          "hi": 1568.875,
+          "count": 0
+        },
+        {
+          "lo": 1568.875,
+          "hi": 1661.2,
+          "count": 0
+        },
+        {
+          "lo": 1661.2,
+          "hi": 1753.525,
+          "count": 0
+        },
+        {
+          "lo": 1753.525,
+          "hi": 1845.85,
+          "count": 0
+        },
+        {
+          "lo": 1845.85,
+          "hi": 1938.175,
+          "count": 0
+        },
+        {
+          "lo": 1938.175,
+          "hi": 2030.5,
+          "count": 1
+        }
+      ]
+    },
+    "summaryNonZeroOnly": {
+      "count": 4,
+      "distinct": 3,
+      "min": 184,
+      "max": 2030.5,
+      "mean": 671.625,
+      "stdDev": 785.694866,
+      "median": 288,
+      "p10": 184,
+      "p90": 2030.5
+    },
+    "histogramNonZeroOnly": {
+      "binCount": 20,
+      "lo": 184,
+      "hi": 2030.5,
+      "width": 92.325,
+      "bins": [
+        {
+          "lo": 184,
+          "hi": 276.325,
+          "count": 2
+        },
+        {
+          "lo": 276.325,
+          "hi": 368.65,
+          "count": 1
+        },
+        {
+          "lo": 368.65,
+          "hi": 460.975,
+          "count": 0
+        },
+        {
+          "lo": 460.975,
+          "hi": 553.3,
+          "count": 0
+        },
+        {
+          "lo": 553.3,
+          "hi": 645.625,
+          "count": 0
+        },
+        {
+          "lo": 645.625,
+          "hi": 737.95,
+          "count": 0
+        },
+        {
+          "lo": 737.95,
+          "hi": 830.275,
+          "count": 0
+        },
+        {
+          "lo": 830.275,
+          "hi": 922.6,
+          "count": 0
+        },
+        {
+          "lo": 922.6,
+          "hi": 1014.925,
+          "count": 0
+        },
+        {
+          "lo": 1014.925,
+          "hi": 1107.25,
+          "count": 0
+        },
+        {
+          "lo": 1107.25,
+          "hi": 1199.575,
+          "count": 0
+        },
+        {
+          "lo": 1199.575,
+          "hi": 1291.9,
+          "count": 0
+        },
+        {
+          "lo": 1291.9,
+          "hi": 1384.225,
+          "count": 0
+        },
+        {
+          "lo": 1384.225,
+          "hi": 1476.55,
+          "count": 0
+        },
+        {
+          "lo": 1476.55,
+          "hi": 1568.875,
+          "count": 0
+        },
+        {
+          "lo": 1568.875,
+          "hi": 1661.2,
+          "count": 0
+        },
+        {
+          "lo": 1661.2,
+          "hi": 1753.525,
+          "count": 0
+        },
+        {
+          "lo": 1753.525,
+          "hi": 1845.85,
+          "count": 0
+        },
+        {
+          "lo": 1845.85,
+          "hi": 1938.175,
+          "count": 0
+        },
+        {
+          "lo": 1938.175,
+          "hi": 2030.5,
+          "count": 1
+        }
+      ]
+    },
+    "distinctDeltaValuesNonZero": 3,
+    "candidateLevelPooled": {
+      "note": "all non-baseline candidate dQ values pooled across every decision; this is the raw signal a ranker would train on",
+      "summary": {
+        "count": 13,
+        "distinct": 5,
+        "min": -8,
+        "max": 2030.5,
+        "mean": 724.461538,
+        "stdDev": 875.749447,
+        "median": 184,
+        "p10": -8,
+        "p90": 2030.5
+      },
+      "histogram": {
+        "binCount": 20,
+        "lo": -8,
+        "hi": 2030.5,
+        "width": 101.925,
+        "bins": [
+          {
+            "lo": -8,
+            "hi": 93.925,
+            "count": 3
+          },
+          {
+            "lo": 93.925,
+            "hi": 195.85,
+            "count": 4
+          },
+          {
+            "lo": 195.85,
+            "hi": 297.775,
+            "count": 2
+          },
+          {
+            "lo": 297.775,
+            "hi": 399.7,
+            "count": 0
+          },
+          {
+            "lo": 399.7,
+            "hi": 501.625,
+            "count": 0
+          },
+          {
+            "lo": 501.625,
+            "hi": 603.55,
+            "count": 0
+          },
+          {
+            "lo": 603.55,
+            "hi": 705.475,
+            "count": 0
+          },
+          {
+            "lo": 705.475,
+            "hi": 807.4,
+            "count": 0
+          },
+          {
+            "lo": 807.4,
+            "hi": 909.325,
+            "count": 0
+          },
+          {
+            "lo": 909.325,
+            "hi": 1011.25,
+            "count": 0
+          },
+          {
+            "lo": 1011.25,
+            "hi": 1113.175,
+            "count": 0
+          },
+          {
+            "lo": 1113.175,
+            "hi": 1215.1,
+            "count": 0
+          },
+          {
+            "lo": 1215.1,
+            "hi": 1317.025,
+            "count": 0
+          },
+          {
+            "lo": 1317.025,
+            "hi": 1418.95,
+            "count": 0
+          },
+          {
+            "lo": 1418.95,
+            "hi": 1520.875,
+            "count": 0
+          },
+          {
+            "lo": 1520.875,
+            "hi": 1622.8,
+            "count": 0
+          },
+          {
+            "lo": 1622.8,
+            "hi": 1724.725,
+            "count": 0
+          },
+          {
+            "lo": 1724.725,
+            "hi": 1826.65,
+            "count": 0
+          },
+          {
+            "lo": 1826.65,
+            "hi": 1928.575,
+            "count": 0
+          },
+          {
+            "lo": 1928.575,
+            "hi": 2030.5,
+            "count": 4
+          }
+        ]
+      }
+    }
+  },
+  "labelQualityMix": {
+    "PROXY_CONTINUOUS": 4
+  },
+  "branchMix": {
+    "FOLLOW": 3,
+    "URGENT": 1
+  },
+  "byRootFamily": {
+    "root__2__Duel_aem_s42": 4
+  },
+  "byMap": {
+    "(2) Duel.aem": 4
+  },
+  "candidateBreadth": {
+    "legalActions": {
+      "count": 4,
+      "distinct": 3,
+      "min": 3,
+      "max": 54,
+      "mean": 16.25,
+      "stdDev": 21.810261,
+      "median": 5,
+      "p10": 3,
+      "p90": 54
+    },
+    "evaluatedCandidates": {
+      "count": 4,
+      "distinct": 3,
+      "min": 3,
+      "max": 6,
+      "mean": 4.25,
+      "stdDev": 1.299038,
+      "median": 5,
+      "p10": 3,
+      "p90": 6
+    },
+    "decisionsWithSingleEvaluatedCandidate": 0
+  },
+  "cost": {
+    "wallMsTotal": 732,
+    "searchSecondsTotal": 0.73,
+    "secondsPerComparedDecision": 0.183,
+    "leafEvalsTotal": 17,
+    "secondsPerLeafEval": 0.043,
+    "engineTransitionsTotal": 160,
+    "engineTransitionsPerDecision": 40,
+    "engineTransitionsPerLeafEval": 9.4
+  },
+  "comparisonToPreviousBatch": {
+    "previous": {
+      "decisionsCompared": 40,
+      "decisionsKept": 8,
+      "yieldRate": 0.2,
+      "distinctDeltaValues": 1,
+      "secondsPerComparedDecision": 54.46,
+      "sources": [
+        "v11/out/label_quality.json",
+        "v11/out/power_analysis.json",
+        "v11/V11_BATCH2_REPORT.md"
+      ]
+    },
+    "thisRun": {
+      "decisionsCompared": 4,
+      "distinctDeltaValues": 3,
+      "distinctDeltaValuesNonZero": 3,
+      "yieldRate": 1,
+      "yieldRateNonZeroDeltaQ": 1,
+      "secondsPerComparedDecision": 0.183,
+      "valueScale": "evaluatePositionHeuristic units (hundreds..thousands, +/-100000 terminals)",
+      "previousValueScale": "tanh of a {-1,0,+1} terminal payoff, range [-1, 1]"
+    },
+    "comparability": "Same episodes file and the SAME v11 sampling machinery. Whether the sampled positions coincide with the batch-2 positions is reported separately under sameFooting."
+  },
+  "sameFooting": null,
+  "invocation": "node --require ./v11/tools/core-spawn-shim.cjs v11/tools/run-tool.mjs v12/tools/search_labels.ts --episodes 1 --per-episode 4 --tag detA --quiet",
+  "verificationBoundary": [
+    "Q_ref is a PROXY REFERENCE from a bounded heuristic maximin search, NOT a win probability.",
+    "It is NOT calibrated against natural terminals and NOT optimal Q.",
+    "It is keyed to the evaluatePositionHeuristic score scale and must NOT be added raw to heuristic scores; any combination requires normalisation and calibration first.",
+    "A DEGENERATE decision (every candidate leaf equal) carries no ranking information and is dropped."
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "schema": "v12_decision_prescreen_1",
+  "generatedAt": "2026-09-23T16:33:47.986Z",
+  "tag": "detA",
+  "decisionsCompared": 4,
+  "baselineYield": {
+    "definition": "a decision yields iff its candidates do not all share one leaf value",
+    "nonDegenerate": 4,
+    "total": 4,
+    "yieldRate": 1,
+    "previousBatchYieldRate": 0.2,
+    "absoluteChange": 0.8,
+    "nonZeroDeltaQ": 4,
+    "yieldRateNonZeroDeltaQ": 1,
+    "absoluteChangeNonZeroDeltaQ": 0.8,
+    "criterionNote": "The v11 batch-2 keep rule was \"some candidate separated from the baseline\", i.e. dQ != 0, which is the `yieldRateNonZeroDeltaQ` row. The `yieldRate` row is the weaker \"candidates do not all tie\" criterion that the T12-07 prescreen is stated against. Both are reported so the comparison cannot be read as one number doing two jobs."
+  },
+  "predicates": [
+    {
+      "id": "margin_band",
+      "definition": "0 < |margin| < takeoverThreshold(1200)",
+      "evaluableBeforeSearch": false,
+      "kept": 3,
+      "total": 4,
+      "keptNonDegenerate": 3,
+      "allNonDegenerate": 4,
+      "yieldRateInside": 1,
+      "yieldRateOutside": 1,
+      "precision": {
+        "numerator": 3,
+        "denominator": 3,
+        "value": 1
+      },
+      "recall": {
+        "numerator": 3,
+        "denominator": 4,
+        "value": 0.75
+      },
+      "wallMsInside": 151,
+      "wallMsOutside": 581,
+      "wallMsPerKeptDecision": 50.3,
+      "note": "margin is the same quantity the search computes to decide a takeover, so this band is \"the search almost overrode but did not\". It is only available AFTER the leaves exist."
+    },
+    {
+      "id": "margin_band_or_danger",
+      "definition": "0 < |margin| < takeoverThreshold(1200) OR baselineLeaf <= dangerLine(-1500)",
+      "evaluableBeforeSearch": false,
+      "kept": 4,
+      "total": 4,
+      "keptNonDegenerate": 4,
+      "allNonDegenerate": 4,
+      "yieldRateInside": 1,
+      "yieldRateOutside": 0,
+      "precision": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "recall": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "wallMsInside": 732,
+      "wallMsOutside": 0,
+      "wallMsPerKeptDecision": 183,
+      "note": "adds the danger flag BattleSearchAI already evaluates internally."
+    },
+    {
+      "id": "heuristic_score_gap_nonzero",
+      "definition": "heuristic top-1 score != heuristic top-2 score (cheap, pre-search)",
+      "evaluableBeforeSearch": true,
+      "kept": 4,
+      "total": 4,
+      "keptNonDegenerate": 4,
+      "allNonDegenerate": 4,
+      "yieldRateInside": 1,
+      "yieldRateOutside": 0,
+      "precision": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "recall": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "wallMsInside": 732,
+      "wallMsOutside": 0,
+      "wallMsPerKeptDecision": 183,
+      "note": "only requires HeuristicAI.scoreCandidateActions, i.e. no search at all."
+    },
+    {
+      "id": "candidate_count_at_least_3",
+      "definition": "at least 3 legal non-surrender actions (cheap, pre-search)",
+      "evaluableBeforeSearch": true,
+      "kept": 4,
+      "total": 4,
+      "keptNonDegenerate": 4,
+      "allNonDegenerate": 4,
+      "yieldRateInside": 1,
+      "yieldRateOutside": 0,
+      "precision": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "recall": {
+        "numerator": 4,
+        "denominator": 4,
+        "value": 1
+      },
+      "wallMsInside": 732,
+      "wallMsOutside": 0,
+      "wallMsPerKeptDecision": 183,
+      "note": "a decision with 2 legal actions has at most 2 distinct leaves; breadth is a hard ceiling on the number of distinct dQ values."
+    }
+  ],
+  "branchMix": {
+    "reconstructedExternally": {
+      "FOLLOW": 3,
+      "URGENT": 1
+    },
+    "note": "BattleSearchAI v3 at HEAD (9c6c1ab) exposes NO `stats` field: `decisions / urgentHits / forcedWins / takeovers / vetos / follows` do not exist in src/game/ai/battle_search_ai.ts. The counts below are reconstructed externally, from the same thresholds and the same branch order, over the leaves this run measured; they are not read from an internal counter.",
+    "perBranch": [
+      {
+        "branch": "FOLLOW",
+        "count": 3,
+        "nonDegenerate": 3,
+        "yieldRate": 1,
+        "meanMargin": 218.667,
+        "wallMsTotal": 151
+      },
+      {
+        "branch": "URGENT",
+        "count": 1,
+        "nonDegenerate": 1,
+        "yieldRate": 1,
+        "meanMargin": 2030.5,
+        "wallMsTotal": 581
+      }
+    ]
+  },
+  "sameFooting": null,
+  "policyCheck": {
+    "requested": 0,
+    "checked": 0,
+    "realMatchesHeuristicTop": 0,
+    "realMatchesReconstruction": 0,
+    "mismatches": [],
+    "method": "a fresh BattleSearchAI(seed=seedFromHash(stateHash)) runs the real getAction on the same state; its returned action code is compared with the heuristic top and with this tool's external branch reconstruction"
+  },
+  "wallClock": {
+    "allDecisionsMs": 732,
+    "note": "The margin/danger predicates need the leaf values, so they cannot skip the search itself. What they save is the downstream cost (continuation, ranking, fitting) on decisions that are dropped. `wallMsOutside` on a margin-band predicate is therefore the search cost that a PREVIOUS-ROUND band would have avoided, and `wallMsPerKeptDecision` is the search cost of the decisions a kept-only workflow would still pay."
+  },
+  "determinism": {
+    "checked": false
+  },
+  "verificationBoundary": [
+    "Q_ref is a PROXY REFERENCE from a bounded heuristic maximin search, NOT a win probability.",
+    "It is NOT calibrated against natural terminals and NOT optimal Q.",
+    "It is keyed to the evaluatePositionHeuristic score scale and must NOT be added raw to heuristic scores; any combination requires normalisation and calibration first.",
+    "A DEGENERATE decision (every candidate leaf equal) carries no ranking information and is dropped."
+  ]
+}

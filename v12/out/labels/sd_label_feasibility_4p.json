@@ -1,0 +1,294 @@
+{
+  "schema": "v12_sd_label_feasibility_1",
+  "generatedAt": "2026-09-23T17:21:12.879Z",
+  "purpose": "Bounded feasibility + cost probe for T12-08 step 3 (regenerate proxy-Q labels on the SPATIAL training distribution). NOT the authorised experiment and NOT a training label file.",
+  "config": {
+    "archiveDir": "training_runs/episodes/sd_training_plan_20260705_heuristic-apk-like-balanced",
+    "file": "sd-4p-normal-extra-episodes.jsonl",
+    "episodeIndex": 0,
+    "every": 200,
+    "maxDecisions": 6,
+    "k": 6
+  },
+  "episode": {
+    "scenarioId": "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem",
+    "seed": 2026870503,
+    "recordedSteps": 17135,
+    "maxPlies": 1200,
+    "stepsWalked": 1001
+  },
+  "engineReachable": true,
+  "decisionsCompared": 6,
+  "leavesEvaluated": 32,
+  "cost": {
+    "wallTotalMs": 1791,
+    "wallPerDecisionMs": 298.5,
+    "wallPerLeafMs": 55.96875,
+    "v11PoolPerDecisionMs": 1305,
+    "v11PoolPerLeafMs": 232
+  },
+  "decisions": [
+    {
+      "step": 1,
+      "phase": "PRE_STEP",
+      "turn": 1,
+      "playerId": 0,
+      "legalActionCount": 26,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":9,\"y\":16}}",
+          "leaf": -5962,
+          "wallMs": 32
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":9,\"y\":14}}",
+          "leaf": -5978,
+          "wallMs": 15
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":10,\"y\":15}}",
+          "leaf": -5962,
+          "wallMs": 12
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":8,\"y\":15}}",
+          "leaf": -5970,
+          "wallMs": 18
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":9,\"y\":13}}",
+          "leaf": -5986,
+          "wallMs": 12
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u3\",\"to\":{\"x\":10,\"y\":14}}",
+          "leaf": -5970,
+          "wallMs": 15
+        }
+      ],
+      "distinctLeafValues": 4,
+      "minLeaf": -5986,
+      "maxLeaf": -5962,
+      "spread": 24,
+      "wallMs": 104,
+      "msPerLeaf": 17.333333333333332
+    },
+    {
+      "step": 201,
+      "phase": "PRE_STEP",
+      "turn": 7,
+      "playerId": 3,
+      "legalActionCount": 46,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":10,\"y\":14}}",
+          "leaf": -3829.5,
+          "wallMs": 65
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":10,\"y\":12}}",
+          "leaf": -3869.5,
+          "wallMs": 53
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":9,\"y\":13}}",
+          "leaf": -4077.5,
+          "wallMs": 46
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":10,\"y\":15}}",
+          "leaf": -3805.5,
+          "wallMs": 43
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":9,\"y\":14}}",
+          "leaf": -4057.5,
+          "wallMs": 43
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u2\",\"to\":{\"x\":8,\"y\":13}}",
+          "leaf": -3889.5,
+          "wallMs": 47
+        }
+      ],
+      "distinctLeafValues": 6,
+      "minLeaf": -4077.5,
+      "maxLeaf": -3805.5,
+      "spread": 272,
+      "wallMs": 297,
+      "msPerLeaf": 49.5
+    },
+    {
+      "step": 401,
+      "phase": "PRE_STEP",
+      "turn": 13,
+      "playerId": 2,
+      "legalActionCount": 3,
+      "evaluatedCandidates": 2,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_37\"}",
+          "leaf": -2947.5,
+          "wallMs": 7
+        },
+        {
+          "actionCode": "{\"type\":\"end_turn\"}",
+          "leaf": -2947.5,
+          "wallMs": 7
+        }
+      ],
+      "distinctLeafValues": 1,
+      "minLeaf": -2947.5,
+      "maxLeaf": -2947.5,
+      "spread": 0,
+      "wallMs": 14,
+      "msPerLeaf": 7
+    },
+    {
+      "step": 601,
+      "phase": "PRE_STEP",
+      "turn": 20,
+      "playerId": 2,
+      "legalActionCount": 13,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"attack\",\"attackerId\":\"u_33\",\"targetId\":\"u_26\"}",
+          "leaf": -1445,
+          "wallMs": 27
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_33\"}",
+          "leaf": -1470,
+          "wallMs": 28
+        },
+        {
+          "actionCode": "{\"type\":\"recruit_to_castle\",\"unitClass\":\"soldier\",\"castlePos\":{\"x\":9,\"y\":3}}",
+          "leaf": -1520,
+          "wallMs": 24
+        },
+        {
+          "actionCode": "{\"type\":\"recruit_to_castle\",\"unitClass\":\"ghost\",\"castlePos\":{\"x\":9,\"y\":3}}",
+          "leaf": -1429,
+          "wallMs": 46
+        },
+        {
+          "actionCode": "{\"type\":\"recruit_to_castle\",\"unitClass\":\"mermaid\",\"castlePos\":{\"x\":9,\"y\":3}}",
+          "leaf": -1445,
+          "wallMs": 40
+        },
+        {
+          "actionCode": "{\"type\":\"recruit_to_castle\",\"unitClass\":\"archer\",\"castlePos\":{\"x\":9,\"y\":3}}",
+          "leaf": -1270,
+          "wallMs": 26
+        }
+      ],
+      "distinctLeafValues": 5,
+      "minLeaf": -1520,
+      "maxLeaf": -1270,
+      "spread": 250,
+      "wallMs": 191,
+      "msPerLeaf": 31.833333333333332
+    },
+    {
+      "step": 801,
+      "phase": "PRE_STEP",
+      "turn": 28,
+      "playerId": 1,
+      "legalActionCount": 31,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":1,\"y\":4}}",
+          "leaf": -9037.5,
+          "wallMs": 59
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":1,\"y\":2}}",
+          "leaf": -11449,
+          "wallMs": 48
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":2,\"y\":3}}",
+          "leaf": -11449,
+          "wallMs": 48
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":0,\"y\":3}}",
+          "leaf": -9045.5,
+          "wallMs": 52
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":1,\"y\":5}}",
+          "leaf": -9229.5,
+          "wallMs": 52
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_58\",\"to\":{\"x\":2,\"y\":4}}",
+          "leaf": -11211,
+          "wallMs": 53
+        }
+      ],
+      "distinctLeafValues": 5,
+      "minLeaf": -11449,
+      "maxLeaf": -9037.5,
+      "spread": 2411.5,
+      "wallMs": 312,
+      "msPerLeaf": 52
+    },
+    {
+      "step": 1001,
+      "phase": "PRE_STEP",
+      "turn": 33,
+      "playerId": 0,
+      "legalActionCount": 33,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":6,\"y\":13}}",
+          "leaf": -18413.5,
+          "wallMs": 139
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":6,\"y\":11}}",
+          "leaf": -18709.5,
+          "wallMs": 160
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":7,\"y\":12}}",
+          "leaf": -18605.5,
+          "wallMs": 145
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":5,\"y\":12}}",
+          "leaf": -18501.5,
+          "wallMs": 148
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":6,\"y\":10}}",
+          "leaf": -19137.5,
+          "wallMs": 150
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_69\",\"to\":{\"x\":7,\"y\":11}}",
+          "leaf": -19049.5,
+          "wallMs": 131
+        }
+      ],
+      "distinctLeafValues": 6,
+      "minLeaf": -19137.5,
+      "maxLeaf": -18413.5,
+      "spread": 724,
+      "wallMs": 873,
+      "msPerLeaf": 145.5
+    }
+  ],
+  "verificationBoundary": [
+    "This probe measures COST and FEASIBILITY only; it emits no trainable label file.",
+    "It does not verify that the produced leaves are a good ordering, nor that they correlate with outcome.",
+    "The candidate set is the first k legal non-surrender actions, NOT the heuristic top-k, so the values here are not deltaQ against a heuristic baseline.",
+    "Labels are on the evaluatePositionHeuristic scale - a PROXY reference, not a win probability."
+  ]
+}

@@ -1,0 +1,19 @@
+records scanned                     : 48714
+records with a parsed legal set      : 48714
+records where a RECRUIT was legal    : 19064 (39.13% of decisions)
+chosen action was RECRUIT (all)      : 2039 (4.19%)
+
+>>> CONDITIONAL recruit rate (chosen RECRUIT | RECRUIT was legal): 10.70%  (2039/19064)
+
+by turn bucket:
+  turn          n   legal%  recruitShare  condRecruit
+  0-5        4533   61.97%        10.96%       17.69%
+  6-10       4922   56.14%         6.70%       11.94%
+  11-20     11009   41.26%         4.90%       11.87%
+  21-40     16886   31.48%         2.84%        9.01%
+  41+       11364   31.98%         1.71%        5.34%
+
+by policy tag:
+  policy             n   legal%  recruitShare  condRecruit
+  apk-like       17290   67.58%         5.59%        8.28%
+  heuristic      31424   23.49%         3.41%       14.53%

@@ -1,0 +1,360 @@
+{
+  "schema": "v12_decision_prescreen_1",
+  "generatedAt": "2026-09-23T16:31:18.625Z",
+  "tag": "main",
+  "decisionsCompared": 256,
+  "baselineYield": {
+    "definition": "a decision yields iff its candidates do not all share one leaf value",
+    "nonDegenerate": 234,
+    "total": 256,
+    "yieldRate": 0.914063,
+    "previousBatchYieldRate": 0.2,
+    "absoluteChange": 0.714063,
+    "nonZeroDeltaQ": 156,
+    "yieldRateNonZeroDeltaQ": 0.609375,
+    "absoluteChangeNonZeroDeltaQ": 0.409375,
+    "criterionNote": "The v11 batch-2 keep rule was \"some candidate separated from the baseline\", i.e. dQ != 0, which is the `yieldRateNonZeroDeltaQ` row. The `yieldRate` row is the weaker \"candidates do not all tie\" criterion that the T12-07 prescreen is stated against. Both are reported so the comparison cannot be read as one number doing two jobs."
+  },
+  "predicates": [
+    {
+      "id": "margin_band",
+      "definition": "0 < |margin| < takeoverThreshold(1200)",
+      "evaluableBeforeSearch": false,
+      "kept": 142,
+      "total": 256,
+      "keptNonDegenerate": 142,
+      "allNonDegenerate": 234,
+      "yieldRateInside": 1,
+      "yieldRateOutside": 0.807018,
+      "precision": {
+        "numerator": 142,
+        "denominator": 142,
+        "value": 1
+      },
+      "recall": {
+        "numerator": 142,
+        "denominator": 234,
+        "value": 0.606838
+      },
+      "wallMsInside": 206804,
+      "wallMsOutside": 127304,
+      "wallMsPerKeptDecision": 1456.4,
+      "note": "margin is the same quantity the search computes to decide a takeover, so this band is \"the search almost overrode but did not\". It is only available AFTER the leaves exist."
+    },
+    {
+      "id": "margin_band_or_danger",
+      "definition": "0 < |margin| < takeoverThreshold(1200) OR baselineLeaf <= dangerLine(-1500)",
+      "evaluableBeforeSearch": false,
+      "kept": 174,
+      "total": 256,
+      "keptNonDegenerate": 173,
+      "allNonDegenerate": 234,
+      "yieldRateInside": 0.994253,
+      "yieldRateOutside": 0.743902,
+      "precision": {
+        "numerator": 173,
+        "denominator": 174,
+        "value": 0.994253
+      },
+      "recall": {
+        "numerator": 173,
+        "denominator": 234,
+        "value": 0.739316
+      },
+      "wallMsInside": 239078,
+      "wallMsOutside": 95030,
+      "wallMsPerKeptDecision": 1374,
+      "note": "adds the danger flag BattleSearchAI already evaluates internally."
+    },
+    {
+      "id": "heuristic_score_gap_nonzero",
+      "definition": "heuristic top-1 score != heuristic top-2 score (cheap, pre-search)",
+      "evaluableBeforeSearch": true,
+      "kept": 256,
+      "total": 256,
+      "keptNonDegenerate": 234,
+      "allNonDegenerate": 234,
+      "yieldRateInside": 0.914063,
+      "yieldRateOutside": 0,
+      "precision": {
+        "numerator": 234,
+        "denominator": 256,
+        "value": 0.914063
+      },
+      "recall": {
+        "numerator": 234,
+        "denominator": 234,
+        "value": 1
+      },
+      "wallMsInside": 334108,
+      "wallMsOutside": 0,
+      "wallMsPerKeptDecision": 1305.1,
+      "note": "only requires HeuristicAI.scoreCandidateActions, i.e. no search at all."
+    },
+    {
+      "id": "candidate_count_at_least_3",
+      "definition": "at least 3 legal non-surrender actions (cheap, pre-search)",
+      "evaluableBeforeSearch": true,
+      "kept": 248,
+      "total": 256,
+      "keptNonDegenerate": 231,
+      "allNonDegenerate": 234,
+      "yieldRateInside": 0.931452,
+      "yieldRateOutside": 0.375,
+      "precision": {
+        "numerator": 231,
+        "denominator": 248,
+        "value": 0.931452
+      },
+      "recall": {
+        "numerator": 231,
+        "denominator": 234,
+        "value": 0.987179
+      },
+      "wallMsInside": 333908,
+      "wallMsOutside": 200,
+      "wallMsPerKeptDecision": 1346.4,
+      "note": "a decision with 2 legal actions has at most 2 distinct leaves; breadth is a hard ceiling on the number of distinct dQ values."
+    }
+  ],
+  "branchMix": {
+    "reconstructedExternally": {
+      "FOLLOW": 217,
+      "URGENT": 32,
+      "TAKEOVER": 6,
+      "VETO": 1
+    },
+    "note": "BattleSearchAI v3 at HEAD (9c6c1ab) exposes NO `stats` field: `decisions / urgentHits / forcedWins / takeovers / vetos / follows` do not exist in src/game/ai/battle_search_ai.ts. The counts below are reconstructed externally, from the same thresholds and the same branch order, over the leaves this run measured; they are not read from an internal counter.",
+    "perBranch": [
+      {
+        "branch": "FOLLOW",
+        "count": 217,
+        "nonDegenerate": 195,
+        "yieldRate": 0.898618,
+        "meanMargin": 105.537,
+        "wallMsTotal": 262859
+      },
+      {
+        "branch": "URGENT",
+        "count": 32,
+        "nonDegenerate": 32,
+        "yieldRate": 1,
+        "meanMargin": 717.578,
+        "wallMsTotal": 67681
+      },
+      {
+        "branch": "TAKEOVER",
+        "count": 6,
+        "nonDegenerate": 6,
+        "yieldRate": 1,
+        "meanMargin": 2434.583,
+        "wallMsTotal": 3263
+      },
+      {
+        "branch": "VETO",
+        "count": 1,
+        "nonDegenerate": 1,
+        "yieldRate": 1,
+        "meanMargin": 863,
+        "wallMsTotal": 305
+      }
+    ]
+  },
+  "sameFooting": {
+    "footingIdsFile": "v12/out/labels/b2_recovered_decision_ids.json",
+    "footingDecisionsRequested": 40,
+    "footingDecisionsCompared": 40,
+    "footingMissing": [],
+    "footingNonDegenerate": 39,
+    "footingYieldRate": 0.975,
+    "footingNonZeroDeltaQ": 31,
+    "footingYieldRateNonZeroDeltaQ": 0.775,
+    "footingDistinctDeltaValues": 28,
+    "footingDistinctDeltaValuesNonZero": 27,
+    "footingHistogram": {
+      "binCount": 20,
+      "lo": 0,
+      "hi": 4097.5,
+      "width": 204.875,
+      "bins": [
+        {
+          "lo": 0,
+          "hi": 204.875,
+          "count": 22
+        },
+        {
+          "lo": 204.875,
+          "hi": 409.75,
+          "count": 8
+        },
+        {
+          "lo": 409.75,
+          "hi": 614.625,
+          "count": 1
+        },
+        {
+          "lo": 614.625,
+          "hi": 819.5,
+          "count": 2
+        },
+        {
+          "lo": 819.5,
+          "hi": 1024.375,
+          "count": 1
+        },
+        {
+          "lo": 1024.375,
+          "hi": 1229.25,
+          "count": 1
+        },
+        {
+          "lo": 1229.25,
+          "hi": 1434.125,
+          "count": 0
+        },
+        {
+          "lo": 1434.125,
+          "hi": 1639,
+          "count": 1
+        },
+        {
+          "lo": 1639,
+          "hi": 1843.875,
+          "count": 0
+        },
+        {
+          "lo": 1843.875,
+          "hi": 2048.75,
+          "count": 1
+        },
+        {
+          "lo": 2048.75,
+          "hi": 2253.625,
+          "count": 1
+        },
+        {
+          "lo": 2253.625,
+          "hi": 2458.5,
+          "count": 1
+        },
+        {
+          "lo": 2458.5,
+          "hi": 2663.375,
+          "count": 0
+        },
+        {
+          "lo": 2663.375,
+          "hi": 2868.25,
+          "count": 0
+        },
+        {
+          "lo": 2868.25,
+          "hi": 3073.125,
+          "count": 0
+        },
+        {
+          "lo": 3073.125,
+          "hi": 3278,
+          "count": 0
+        },
+        {
+          "lo": 3278,
+          "hi": 3482.875,
+          "count": 0
+        },
+        {
+          "lo": 3482.875,
+          "hi": 3687.75,
+          "count": 0
+        },
+        {
+          "lo": 3687.75,
+          "hi": 3892.625,
+          "count": 0
+        },
+        {
+          "lo": 3892.625,
+          "hi": 4097.5,
+          "count": 1
+        }
+      ]
+    },
+    "previousBatchKeptIds": 8,
+    "previouslyKeptDecisionsReproduced": 8,
+    "previouslyKeptNewDeltaQ": [
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "deltaQ": 710,
+        "distinctLeafValues": 5,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "deltaQ": 280,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "deltaQ": 4,
+        "distinctLeafValues": 2,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "deltaQ": 139,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "deltaQ": 280,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "deltaQ": 0,
+        "distinctLeafValues": 3,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "deltaQ": 0,
+        "distinctLeafValues": 3,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "deltaQ": 0,
+        "distinctLeafValues": 6,
+        "labelQuality": "PROXY_CONTINUOUS"
+      }
+    ],
+    "note": "The batch-2 label file published 8 kept decision ids; the 40 compared decision ids were recovered by matching the published ids against deterministic re-samples of the same episodes file (see b2_recovered_decision_ids.json). Decisions listed in `footingMissing` were not reproducible in this run."
+  },
+  "policyCheck": {
+    "requested": 12,
+    "checked": 12,
+    "realMatchesHeuristicTop": 1,
+    "realMatchesReconstruction": 1,
+    "mismatches": [],
+    "method": "a fresh BattleSearchAI(seed=seedFromHash(stateHash)) runs the real getAction on the same state; its returned action code is compared with the heuristic top and with this tool's external branch reconstruction"
+  },
+  "wallClock": {
+    "allDecisionsMs": 334108,
+    "note": "The margin/danger predicates need the leaf values, so they cannot skip the search itself. What they save is the downstream cost (continuation, ranking, fitting) on decisions that are dropped. `wallMsOutside` on a margin-band predicate is therefore the search cost that a PREVIOUS-ROUND band would have avoided, and `wallMsPerKeptDecision` is the search cost of the decisions a kept-only workflow would still pay."
+  },
+  "determinism": {
+    "checked": true,
+    "decisions": 3,
+    "allBitIdenticalIgnoringWallClock": true,
+    "file": "v12\\out\\labels\\determinism_check.json"
+  },
+  "verificationBoundary": [
+    "Q_ref is a PROXY REFERENCE from a bounded heuristic maximin search, NOT a win probability.",
+    "It is NOT calibrated against natural terminals and NOT optimal Q.",
+    "It is keyed to the evaluatePositionHeuristic score scale and must NOT be added raw to heuristic scores; any combination requires normalisation and calibration first.",
+    "A DEGENERATE decision (every candidate leaf equal) carries no ranking information and is dropped."
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "schema": "v12_determinism_check_1",
+  "generatedAt": "2026-09-23T16:31:16.069Z",
+  "method": "the same decision points are evaluated a second time by a freshly constructed BattleSearchAI per candidate (same seeds); records are compared by sha256 after zeroing wall-clock fields only",
+  "wallClockFieldsExcluded": [
+    "wallMs",
+    "leaves[].wallMs"
+  ],
+  "checks": [
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#54",
+      "hashA": "a092b4b258599098f614f29c84b965cac8a38c0ea0f9481a10859f283226d669",
+      "hashB": "a092b4b258599098f614f29c84b965cac8a38c0ea0f9481a10859f283226d669",
+      "bitIdenticalIgnoringWallClock": true,
+      "leafValuesA": [
+        -881,
+        -689,
+        -897,
+        -549,
+        -705,
+        -689
+      ],
+      "leafValuesB": [
+        -881,
+        -689,
+        -897,
+        -549,
+        -705,
+        -689
+      ],
+      "deltaQsA": [
+        0,
+        192,
+        -16,
+        332,
+        176,
+        192
+      ],
+      "deltaQsB": [
+        0,
+        192,
+        -16,
+        332,
+        176,
+        192
+      ],
+      "engineTransitionsA": 80,
+      "engineTransitionsB": 80
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+      "hashA": "b9a21f3265e9d05a37b54785fe0e0a82a332ef4363f2599a166b985d458d1911",
+      "hashB": "b9a21f3265e9d05a37b54785fe0e0a82a332ef4363f2599a166b985d458d1911",
+      "bitIdenticalIgnoringWallClock": true,
+      "leafValuesA": [
+        -881,
+        -889,
+        -889,
+        -697,
+        -697
+      ],
+      "leafValuesB": [
+        -881,
+        -889,
+        -889,
+        -697,
+        -697
+      ],
+      "deltaQsA": [
+        0,
+        -8,
+        -8,
+        184,
+        184
+      ],
+      "deltaQsB": [
+        0,
+        -8,
+        -8,
+        184,
+        184
+      ],
+      "engineTransitionsA": 43,
+      "engineTransitionsB": 43
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+      "hashA": "62409a944a88c1a1f97b73ad26e0be6c9527cb1cf301b26503e9def4d59ac02a",
+      "hashB": "62409a944a88c1a1f97b73ad26e0be6c9527cb1cf301b26503e9def4d59ac02a",
+      "bitIdenticalIgnoringWallClock": true,
+      "leafValuesA": [
+        -881,
+        -697,
+        -697
+      ],
+      "leafValuesB": [
+        -881,
+        -697,
+        -697
+      ],
+      "deltaQsA": [
+        0,
+        184,
+        184
+      ],
+      "deltaQsB": [
+        0,
+        184,
+        184
+      ],
+      "engineTransitionsA": 21,
+      "engineTransitionsB": 21
+    }
+  ],
+  "allBitIdentical": true
+}

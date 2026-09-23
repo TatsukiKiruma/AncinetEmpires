@@ -1,0 +1,112 @@
+WebSocket server error: Port 24678 is already in use
+[plan] uniform episodes<=32 perEpisode=8 candidates<=6 seed=20260924
+[plan] loaded 32 episodes (0 skipped), 256 decision points in 92.7s
+[search] 10 decisions, 8s elapsed, 0.82s/decision
+[search] 20 decisions, 18s elapsed, 0.92s/decision
+[search] 30 decisions, 25s elapsed, 0.84s/decision
+[search] 40 decisions, 41s elapsed, 1.02s/decision
+[search] 50 decisions, 52s elapsed, 1.03s/decision
+[search] 60 decisions, 62s elapsed, 1.03s/decision
+[search] 70 decisions, 81s elapsed, 1.16s/decision
+[search] 80 decisions, 89s elapsed, 1.12s/decision
+[search] 90 decisions, 108s elapsed, 1.20s/decision
+[search] 100 decisions, 131s elapsed, 1.31s/decision
+[search] 110 decisions, 150s elapsed, 1.37s/decision
+[search] 120 decisions, 184s elapsed, 1.54s/decision
+[search] 130 decisions, 207s elapsed, 1.59s/decision
+[search] 140 decisions, 215s elapsed, 1.54s/decision
+[search] 150 decisions, 223s elapsed, 1.49s/decision
+[search] 160 decisions, 246s elapsed, 1.54s/decision
+[search] 170 decisions, 258s elapsed, 1.52s/decision
+[search] 180 decisions, 281s elapsed, 1.56s/decision
+[search] 190 decisions, 298s elapsed, 1.57s/decision
+[search] 200 decisions, 301s elapsed, 1.50s/decision
+[search] 210 decisions, 304s elapsed, 1.45s/decision
+[search] 220 decisions, 308s elapsed, 1.40s/decision
+[search] 230 decisions, 316s elapsed, 1.37s/decision
+[search] 240 decisions, 326s elapsed, 1.36s/decision
+[search] 250 decisions, 332s elapsed, 1.33s/decision
+[search] compared 256 decisions in 334.5s (1.31s/decision)
+[determinism] 3 decisions re-evaluated a second time: BIT-IDENTICAL (wall clock excluded)
+[determinism]   match_HEURISTIC_seat0__2__Duel_aem_s42#54 equal=true dQ=[0,192,-16,332,176,192] vs [0,192,-16,332,176,192]
+[determinism]   match_HEURISTIC_seat0__2__Duel_aem_s42#55 equal=true dQ=[0,-8,-8,184,184] vs [0,-8,-8,184,184]
+[determinism]   match_HEURISTIC_seat0__2__Duel_aem_s42#56 equal=true dQ=[0,184,184] vs [0,184,184]
+[policy-check] 12 decisions: real getAction == heuristic top 12/12; real == reconstructed 12/12
+
+============================================================
+  v12 continuous proxy-Q labels  (tag=main)
+============================================================
+provenance        : proxy_reference:battle_search_ai_v3:maximin_leaf(6,3)
+episodes loaded   : 32  (skipped 0)
+decisions compared: 256   (planned 256, skipped 0)
+leaf evaluations  : 1443
+search cost       : 334.1s total, 1.31s/decision, 0.23s/leaf-eval
+engine transitions: 20319 (79.4/decision)
+
+distinct dQ values (decision level) : 108   [previous batch: 1]
+  ... over dQ != 0 only (batch-2 keep rule): 107
+yield rate (non-degenerate)         : 91.4%   [previous batch: 20.0%]
+yield rate (dQ != 0, same rule as batch-2): 60.9%   [previous batch: 20.0%]
+all candidates tie                  : 22/256
+
+dQ summary (all 256 decisions): min=0 max=4097.5 mean=239.587891 sd=523.911611 median=16
+dQ summary (non-degenerate only, n=234): min=0 max=4097.5 mean=262.113248 sd=542.572862
+dQ summary (dQ != 0 only, n=156): min=4 max=4097.5 mean=393.169872 sd=624.540191 distinct=107
+pooled candidate dQ (n=1187): distinct=393 min=-2297 max=4097.5 mean=48.438922
+
+dQ histogram (20 bins over [min,max])
+  [         0,    204.875)   182  ########################################
+  [   204.875,     409.75)    34  #######
+  [    409.75,    614.625)    13  ###
+  [   614.625,      819.5)     7  ##
+  [     819.5,   1024.375)     4  #
+  [  1024.375,    1229.25)     2  #
+  [   1229.25,   1434.125)     2  #
+  [  1434.125,       1639)     4  #
+  [      1639,   1843.875)     0  
+  [  1843.875,    2048.75)     2  #
+  [   2048.75,   2253.625)     1  #
+  [  2253.625,     2458.5)     1  #
+  [    2458.5,   2663.375)     1  #
+  [  2663.375,    2868.25)     1  #
+  [   2868.25,   3073.125)     1  #
+  [  3073.125,       3278)     0  
+  [      3278,   3482.875)     0  
+  [  3482.875,    3687.75)     0  
+  [   3687.75,   3892.625)     0  
+  [  3892.625,     4097.5)     1  #
+
+exact dQ values (top 10 by count)
+             0  x100
+             4  x16
+            12  x7
+            16  x6
+            24  x5
+             8  x3
+            32  x3
+            80  x3
+           184  x3
+            20  x2
+
+label quality mix : {"PROXY_CONTINUOUS":234,"DEGENERATE":22}
+policy branch mix : {"FOLLOW":217,"URGENT":32,"TAKEOVER":6,"VETO":1}
+
+prescreen predicates
+  margin_band                  kept 142/256  yieldIn=100.0% yieldOut=80.7%  precision=100.0% recall=60.7%  preSearch=false
+  margin_band_or_danger        kept 174/256  yieldIn=99.4% yieldOut=74.4%  precision=99.4% recall=73.9%  preSearch=false
+  heuristic_score_gap_nonzero  kept 256/256  yieldIn=91.4% yieldOut=0.0%  precision=91.4% recall=100.0%  preSearch=true
+  candidate_count_at_least_3   kept 248/256  yieldIn=93.1% yieldOut=37.5%  precision=93.1% recall=98.7%  preSearch=true
+
+policy check      : real getAction == heuristic top 12/12; real == reconstruction 12/12
+
+determinism       : PASS (bit-identical, wall clock excluded)
+
+same-footing      : 40/40 batch-2 decisions reproduced, yield 97.5%, distinct dQ 28
+                    8/8 previously-kept batch-2 decisions present in this run
+
+wrote v12\out\labels\counterfactual_labels_v2.jsonl
+wrote v12\out\labels\label_quality_v2.json
+wrote v12\out\labels\decision_prescreen.json
+wrote v12\out\labels\counterfactual_labels_v2.jsonl (canonical copy)
+wrote v12\out\labels\label_quality_v2.json (canonical copy)
+wrote v12\out\labels\decision_prescreen.json (canonical copy)

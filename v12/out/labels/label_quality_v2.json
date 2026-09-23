@@ -1,0 +1,971 @@
+{
+  "schema": "v12_label_quality_2",
+  "generatedAt": "2026-09-23T16:31:18.622Z",
+  "tag": "main",
+  "provenance": "proxy_reference:battle_search_ai_v3:maximin_leaf(6,3)",
+  "config": {
+    "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+    "maxEpisodes": 32,
+    "decisionsPerEpisode": 8,
+    "minStepFraction": 0.08,
+    "maxStepFraction": 0.92,
+    "plan": "uniform",
+    "idsFile": null,
+    "limit": 0,
+    "maxCandidates": 6,
+    "topK": 10,
+    "seedBase": 20260924,
+    "search": {
+      "oppProbeK": 6,
+      "friendlyRolloutSteps": 3,
+      "takeoverThreshold": 1200,
+      "vetoMargin": 800,
+      "dangerLine": -1500
+    }
+  },
+  "sample": {
+    "episodesUsed": 32,
+    "episodesSkipped": 0,
+    "skippedEpisodes": [],
+    "decisionPointsPlanned": 256,
+    "decisionsCompared": 256,
+    "decisionsSkipped": 0,
+    "skippedDecisions": [],
+    "planMs": 92741
+  },
+  "yield": {
+    "decisionsKeptNonDegenerate": 234,
+    "decisionsDroppedDegenerate": 22,
+    "yieldRate": 0.914063,
+    "fractionAllCandidatesTie": 0.085938,
+    "decisionsWithNonZeroDeltaQ": 156,
+    "yieldRateNonZeroDeltaQ": 0.609375,
+    "marginZeroBreakdown": {
+      "allCandidatesTie": 22,
+      "baselineAlreadyBest": 78,
+      "totalMarginZero": 100
+    },
+    "criterionNote": "Two different criteria are reported because they answer different questions. (a) \"non-degenerate\" = the candidate leaves are not all equal; this is what the T12-07 prescreen asks for. (b) \"dQ != 0\" = some candidate beats the heuristic baseline; this is exactly the v11 batch-2 keep rule, so it is the like-for-like comparison against 20%. A decision whose candidates differ but whose baseline is already the maximin-best one has dQ = 0 and would have been dropped by batch-2 as uninformative, even though it now carries a graded candidate ordering."
+  },
+  "effectSize": {
+    "headline": "decision-level dQ = bestLeaf - leaf(a0)",
+    "distinctDeltaValues": 108,
+    "allDeltasEqual": false,
+    "deltaValuesExact": [
+      {
+        "value": 0,
+        "count": 100
+      },
+      {
+        "value": 4,
+        "count": 16
+      },
+      {
+        "value": 12,
+        "count": 7
+      },
+      {
+        "value": 16,
+        "count": 6
+      },
+      {
+        "value": 24,
+        "count": 5
+      },
+      {
+        "value": 8,
+        "count": 3
+      },
+      {
+        "value": 32,
+        "count": 3
+      },
+      {
+        "value": 80,
+        "count": 3
+      },
+      {
+        "value": 184,
+        "count": 3
+      },
+      {
+        "value": 20,
+        "count": 2
+      },
+      {
+        "value": 46,
+        "count": 2
+      },
+      {
+        "value": 88,
+        "count": 2
+      },
+      {
+        "value": 180,
+        "count": 2
+      },
+      {
+        "value": 280,
+        "count": 2
+      },
+      {
+        "value": 281,
+        "count": 2
+      },
+      {
+        "value": 316,
+        "count": 2
+      },
+      {
+        "value": 332,
+        "count": 2
+      },
+      {
+        "value": 416,
+        "count": 2
+      },
+      {
+        "value": 1436,
+        "count": 2
+      },
+      {
+        "value": 2030.5,
+        "count": 2
+      },
+      {
+        "value": 28,
+        "count": 1
+      },
+      {
+        "value": 30,
+        "count": 1
+      },
+      {
+        "value": 40,
+        "count": 1
+      },
+      {
+        "value": 44,
+        "count": 1
+      },
+      {
+        "value": 52,
+        "count": 1
+      },
+      {
+        "value": 55,
+        "count": 1
+      },
+      {
+        "value": 56,
+        "count": 1
+      },
+      {
+        "value": 64,
+        "count": 1
+      },
+      {
+        "value": 67,
+        "count": 1
+      },
+      {
+        "value": 68,
+        "count": 1
+      },
+      {
+        "value": 70,
+        "count": 1
+      },
+      {
+        "value": 75,
+        "count": 1
+      },
+      {
+        "value": 81,
+        "count": 1
+      },
+      {
+        "value": 104,
+        "count": 1
+      },
+      {
+        "value": 111,
+        "count": 1
+      },
+      {
+        "value": 120,
+        "count": 1
+      },
+      {
+        "value": 124,
+        "count": 1
+      },
+      {
+        "value": 127,
+        "count": 1
+      },
+      {
+        "value": 128,
+        "count": 1
+      },
+      {
+        "value": 135,
+        "count": 1
+      }
+    ],
+    "summaryAll": {
+      "count": 256,
+      "distinct": 108,
+      "min": 0,
+      "max": 4097.5,
+      "mean": 239.587891,
+      "stdDev": 523.911611,
+      "median": 16,
+      "p10": 0,
+      "p90": 640
+    },
+    "histogramAll": {
+      "binCount": 20,
+      "lo": 0,
+      "hi": 4097.5,
+      "width": 204.875,
+      "bins": [
+        {
+          "lo": 0,
+          "hi": 204.875,
+          "count": 182
+        },
+        {
+          "lo": 204.875,
+          "hi": 409.75,
+          "count": 34
+        },
+        {
+          "lo": 409.75,
+          "hi": 614.625,
+          "count": 13
+        },
+        {
+          "lo": 614.625,
+          "hi": 819.5,
+          "count": 7
+        },
+        {
+          "lo": 819.5,
+          "hi": 1024.375,
+          "count": 4
+        },
+        {
+          "lo": 1024.375,
+          "hi": 1229.25,
+          "count": 2
+        },
+        {
+          "lo": 1229.25,
+          "hi": 1434.125,
+          "count": 2
+        },
+        {
+          "lo": 1434.125,
+          "hi": 1639,
+          "count": 4
+        },
+        {
+          "lo": 1639,
+          "hi": 1843.875,
+          "count": 0
+        },
+        {
+          "lo": 1843.875,
+          "hi": 2048.75,
+          "count": 2
+        },
+        {
+          "lo": 2048.75,
+          "hi": 2253.625,
+          "count": 1
+        },
+        {
+          "lo": 2253.625,
+          "hi": 2458.5,
+          "count": 1
+        },
+        {
+          "lo": 2458.5,
+          "hi": 2663.375,
+          "count": 1
+        },
+        {
+          "lo": 2663.375,
+          "hi": 2868.25,
+          "count": 1
+        },
+        {
+          "lo": 2868.25,
+          "hi": 3073.125,
+          "count": 1
+        },
+        {
+          "lo": 3073.125,
+          "hi": 3278,
+          "count": 0
+        },
+        {
+          "lo": 3278,
+          "hi": 3482.875,
+          "count": 0
+        },
+        {
+          "lo": 3482.875,
+          "hi": 3687.75,
+          "count": 0
+        },
+        {
+          "lo": 3687.75,
+          "hi": 3892.625,
+          "count": 0
+        },
+        {
+          "lo": 3892.625,
+          "hi": 4097.5,
+          "count": 1
+        }
+      ]
+    },
+    "summaryNonDegenerateOnly": {
+      "count": 234,
+      "distinct": 108,
+      "min": 0,
+      "max": 4097.5,
+      "mean": 262.113248,
+      "stdDev": 542.572862,
+      "median": 28,
+      "p10": 0,
+      "p90": 679
+    },
+    "histogramNonDegenerateOnly": {
+      "binCount": 20,
+      "lo": 0,
+      "hi": 4097.5,
+      "width": 204.875,
+      "bins": [
+        {
+          "lo": 0,
+          "hi": 204.875,
+          "count": 160
+        },
+        {
+          "lo": 204.875,
+          "hi": 409.75,
+          "count": 34
+        },
+        {
+          "lo": 409.75,
+          "hi": 614.625,
+          "count": 13
+        },
+        {
+          "lo": 614.625,
+          "hi": 819.5,
+          "count": 7
+        },
+        {
+          "lo": 819.5,
+          "hi": 1024.375,
+          "count": 4
+        },
+        {
+          "lo": 1024.375,
+          "hi": 1229.25,
+          "count": 2
+        },
+        {
+          "lo": 1229.25,
+          "hi": 1434.125,
+          "count": 2
+        },
+        {
+          "lo": 1434.125,
+          "hi": 1639,
+          "count": 4
+        },
+        {
+          "lo": 1639,
+          "hi": 1843.875,
+          "count": 0
+        },
+        {
+          "lo": 1843.875,
+          "hi": 2048.75,
+          "count": 2
+        },
+        {
+          "lo": 2048.75,
+          "hi": 2253.625,
+          "count": 1
+        },
+        {
+          "lo": 2253.625,
+          "hi": 2458.5,
+          "count": 1
+        },
+        {
+          "lo": 2458.5,
+          "hi": 2663.375,
+          "count": 1
+        },
+        {
+          "lo": 2663.375,
+          "hi": 2868.25,
+          "count": 1
+        },
+        {
+          "lo": 2868.25,
+          "hi": 3073.125,
+          "count": 1
+        },
+        {
+          "lo": 3073.125,
+          "hi": 3278,
+          "count": 0
+        },
+        {
+          "lo": 3278,
+          "hi": 3482.875,
+          "count": 0
+        },
+        {
+          "lo": 3482.875,
+          "hi": 3687.75,
+          "count": 0
+        },
+        {
+          "lo": 3687.75,
+          "hi": 3892.625,
+          "count": 0
+        },
+        {
+          "lo": 3892.625,
+          "hi": 4097.5,
+          "count": 1
+        }
+      ]
+    },
+    "summaryNonZeroOnly": {
+      "count": 156,
+      "distinct": 107,
+      "min": 4,
+      "max": 4097.5,
+      "mean": 393.169872,
+      "stdDev": 624.540191,
+      "median": 184,
+      "p10": 8,
+      "p90": 1053.5
+    },
+    "histogramNonZeroOnly": {
+      "binCount": 20,
+      "lo": 4,
+      "hi": 4097.5,
+      "width": 204.675,
+      "bins": [
+        {
+          "lo": 4,
+          "hi": 208.675,
+          "count": 82
+        },
+        {
+          "lo": 208.675,
+          "hi": 413.35,
+          "count": 35
+        },
+        {
+          "lo": 413.35,
+          "hi": 618.025,
+          "count": 12
+        },
+        {
+          "lo": 618.025,
+          "hi": 822.7,
+          "count": 7
+        },
+        {
+          "lo": 822.7,
+          "hi": 1027.375,
+          "count": 4
+        },
+        {
+          "lo": 1027.375,
+          "hi": 1232.05,
+          "count": 2
+        },
+        {
+          "lo": 1232.05,
+          "hi": 1436.725,
+          "count": 4
+        },
+        {
+          "lo": 1436.725,
+          "hi": 1641.4,
+          "count": 2
+        },
+        {
+          "lo": 1641.4,
+          "hi": 1846.075,
+          "count": 0
+        },
+        {
+          "lo": 1846.075,
+          "hi": 2050.75,
+          "count": 2
+        },
+        {
+          "lo": 2050.75,
+          "hi": 2255.425,
+          "count": 1
+        },
+        {
+          "lo": 2255.425,
+          "hi": 2460.1,
+          "count": 1
+        },
+        {
+          "lo": 2460.1,
+          "hi": 2664.775,
+          "count": 1
+        },
+        {
+          "lo": 2664.775,
+          "hi": 2869.45,
+          "count": 1
+        },
+        {
+          "lo": 2869.45,
+          "hi": 3074.125,
+          "count": 1
+        },
+        {
+          "lo": 3074.125,
+          "hi": 3278.8,
+          "count": 0
+        },
+        {
+          "lo": 3278.8,
+          "hi": 3483.475,
+          "count": 0
+        },
+        {
+          "lo": 3483.475,
+          "hi": 3688.15,
+          "count": 0
+        },
+        {
+          "lo": 3688.15,
+          "hi": 3892.825,
+          "count": 0
+        },
+        {
+          "lo": 3892.825,
+          "hi": 4097.5,
+          "count": 1
+        }
+      ]
+    },
+    "distinctDeltaValuesNonZero": 107,
+    "candidateLevelPooled": {
+      "note": "all non-baseline candidate dQ values pooled across every decision; this is the raw signal a ranker would train on",
+      "summary": {
+        "count": 1187,
+        "distinct": 393,
+        "min": -2297,
+        "max": 4097.5,
+        "mean": 48.438922,
+        "stdDev": 489.649162,
+        "median": 0,
+        "p10": -216,
+        "p90": 320
+      },
+      "histogram": {
+        "binCount": 20,
+        "lo": -2297,
+        "hi": 4097.5,
+        "width": 319.725,
+        "bins": [
+          {
+            "lo": -2297,
+            "hi": -1977.275,
+            "count": 3
+          },
+          {
+            "lo": -1977.275,
+            "hi": -1657.55,
+            "count": 2
+          },
+          {
+            "lo": -1657.55,
+            "hi": -1337.825,
+            "count": 3
+          },
+          {
+            "lo": -1337.825,
+            "hi": -1018.1,
+            "count": 12
+          },
+          {
+            "lo": -1018.1,
+            "hi": -698.375,
+            "count": 10
+          },
+          {
+            "lo": -698.375,
+            "hi": -378.65,
+            "count": 41
+          },
+          {
+            "lo": -378.65,
+            "hi": -58.925,
+            "count": 191
+          },
+          {
+            "lo": -58.925,
+            "hi": 260.8,
+            "count": 774
+          },
+          {
+            "lo": 260.8,
+            "hi": 580.525,
+            "count": 80
+          },
+          {
+            "lo": 580.525,
+            "hi": 900.25,
+            "count": 20
+          },
+          {
+            "lo": 900.25,
+            "hi": 1219.975,
+            "count": 12
+          },
+          {
+            "lo": 1219.975,
+            "hi": 1539.7,
+            "count": 16
+          },
+          {
+            "lo": 1539.7,
+            "hi": 1859.425,
+            "count": 0
+          },
+          {
+            "lo": 1859.425,
+            "hi": 2179.15,
+            "count": 11
+          },
+          {
+            "lo": 2179.15,
+            "hi": 2498.875,
+            "count": 5
+          },
+          {
+            "lo": 2498.875,
+            "hi": 2818.6,
+            "count": 3
+          },
+          {
+            "lo": 2818.6,
+            "hi": 3138.325,
+            "count": 1
+          },
+          {
+            "lo": 3138.325,
+            "hi": 3458.05,
+            "count": 0
+          },
+          {
+            "lo": 3458.05,
+            "hi": 3777.775,
+            "count": 0
+          },
+          {
+            "lo": 3777.775,
+            "hi": 4097.5,
+            "count": 3
+          }
+        ]
+      }
+    }
+  },
+  "labelQualityMix": {
+    "PROXY_CONTINUOUS": 234,
+    "DEGENERATE": 22
+  },
+  "branchMix": {
+    "FOLLOW": 217,
+    "URGENT": 32,
+    "TAKEOVER": 6,
+    "VETO": 1
+  },
+  "byRootFamily": {
+    "root__2__Duel_aem_s42": 16,
+    "root__2__Duel_aem_s1337": 16,
+    "root__2__Duel_aem_s2026": 16,
+    "root__2__Duel_aem_s4242": 16,
+    "root__2__Crossed_swords_aem_s42": 16,
+    "root__2__Crossed_swords_aem_s1337": 16,
+    "root__2__Crossed_swords_aem_s2026": 16,
+    "root__2__Crossed_swords_aem_s4242": 16,
+    "root__2__Icy_Paths_aem_s42": 16,
+    "root__2__Icy_Paths_aem_s1337": 16,
+    "root__2__Icy_Paths_aem_s2026": 16,
+    "root__2__Icy_Paths_aem_s4242": 16,
+    "root__2__Mourningstar_aem_s42": 16,
+    "root__2__Mourningstar_aem_s1337": 16,
+    "root__2__Mourningstar_aem_s2026": 16,
+    "root__2__Mourningstar_aem_s4242": 16
+  },
+  "byMap": {
+    "(2) Duel.aem": 64,
+    "(2) Crossed swords.aem": 64,
+    "(2) Icy Paths.aem": 64,
+    "(2) Mourningstar.aem": 64
+  },
+  "candidateBreadth": {
+    "legalActions": {
+      "count": 256,
+      "distinct": 120,
+      "min": 2,
+      "max": 444,
+      "mean": 64.886719,
+      "stdDev": 79.306853,
+      "median": 31,
+      "p10": 4,
+      "p90": 186
+    },
+    "evaluatedCandidates": {
+      "count": 256,
+      "distinct": 5,
+      "min": 2,
+      "max": 6,
+      "mean": 5.636719,
+      "stdDev": 0.998465,
+      "median": 6,
+      "p10": 4,
+      "p90": 6
+    },
+    "decisionsWithSingleEvaluatedCandidate": 0
+  },
+  "cost": {
+    "wallMsTotal": 334108,
+    "searchSecondsTotal": 334.11,
+    "secondsPerComparedDecision": 1.305,
+    "leafEvalsTotal": 1443,
+    "secondsPerLeafEval": 0.232,
+    "engineTransitionsTotal": 20319,
+    "engineTransitionsPerDecision": 79.4,
+    "engineTransitionsPerLeafEval": 14.1
+  },
+  "comparisonToPreviousBatch": {
+    "previous": {
+      "decisionsCompared": 40,
+      "decisionsKept": 8,
+      "yieldRate": 0.2,
+      "distinctDeltaValues": 1,
+      "secondsPerComparedDecision": 54.46,
+      "sources": [
+        "v11/out/label_quality.json",
+        "v11/out/power_analysis.json",
+        "v11/V11_BATCH2_REPORT.md"
+      ]
+    },
+    "thisRun": {
+      "decisionsCompared": 256,
+      "distinctDeltaValues": 108,
+      "distinctDeltaValuesNonZero": 107,
+      "yieldRate": 0.914063,
+      "yieldRateNonZeroDeltaQ": 0.609375,
+      "secondsPerComparedDecision": 1.305,
+      "valueScale": "evaluatePositionHeuristic units (hundreds..thousands, +/-100000 terminals)",
+      "previousValueScale": "tanh of a {-1,0,+1} terminal payoff, range [-1, 1]"
+    },
+    "comparability": "Same episodes file and the SAME v11 sampling machinery. Whether the sampled positions coincide with the batch-2 positions is reported separately under sameFooting."
+  },
+  "sameFooting": {
+    "footingIdsFile": "v12/out/labels/b2_recovered_decision_ids.json",
+    "footingDecisionsRequested": 40,
+    "footingDecisionsCompared": 40,
+    "footingMissing": [],
+    "footingNonDegenerate": 39,
+    "footingYieldRate": 0.975,
+    "footingNonZeroDeltaQ": 31,
+    "footingYieldRateNonZeroDeltaQ": 0.775,
+    "footingDistinctDeltaValues": 28,
+    "footingDistinctDeltaValuesNonZero": 27,
+    "footingHistogram": {
+      "binCount": 20,
+      "lo": 0,
+      "hi": 4097.5,
+      "width": 204.875,
+      "bins": [
+        {
+          "lo": 0,
+          "hi": 204.875,
+          "count": 22
+        },
+        {
+          "lo": 204.875,
+          "hi": 409.75,
+          "count": 8
+        },
+        {
+          "lo": 409.75,
+          "hi": 614.625,
+          "count": 1
+        },
+        {
+          "lo": 614.625,
+          "hi": 819.5,
+          "count": 2
+        },
+        {
+          "lo": 819.5,
+          "hi": 1024.375,
+          "count": 1
+        },
+        {
+          "lo": 1024.375,
+          "hi": 1229.25,
+          "count": 1
+        },
+        {
+          "lo": 1229.25,
+          "hi": 1434.125,
+          "count": 0
+        },
+        {
+          "lo": 1434.125,
+          "hi": 1639,
+          "count": 1
+        },
+        {
+          "lo": 1639,
+          "hi": 1843.875,
+          "count": 0
+        },
+        {
+          "lo": 1843.875,
+          "hi": 2048.75,
+          "count": 1
+        },
+        {
+          "lo": 2048.75,
+          "hi": 2253.625,
+          "count": 1
+        },
+        {
+          "lo": 2253.625,
+          "hi": 2458.5,
+          "count": 1
+        },
+        {
+          "lo": 2458.5,
+          "hi": 2663.375,
+          "count": 0
+        },
+        {
+          "lo": 2663.375,
+          "hi": 2868.25,
+          "count": 0
+        },
+        {
+          "lo": 2868.25,
+          "hi": 3073.125,
+          "count": 0
+        },
+        {
+          "lo": 3073.125,
+          "hi": 3278,
+          "count": 0
+        },
+        {
+          "lo": 3278,
+          "hi": 3482.875,
+          "count": 0
+        },
+        {
+          "lo": 3482.875,
+          "hi": 3687.75,
+          "count": 0
+        },
+        {
+          "lo": 3687.75,
+          "hi": 3892.625,
+          "count": 0
+        },
+        {
+          "lo": 3892.625,
+          "hi": 4097.5,
+          "count": 1
+        }
+      ]
+    },
+    "previousBatchKeptIds": 8,
+    "previouslyKeptDecisionsReproduced": 8,
+    "previouslyKeptNewDeltaQ": [
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "deltaQ": 710,
+        "distinctLeafValues": 5,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "deltaQ": 280,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "deltaQ": 4,
+        "distinctLeafValues": 2,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "deltaQ": 139,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "deltaQ": 280,
+        "distinctLeafValues": 4,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "deltaQ": 0,
+        "distinctLeafValues": 3,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "deltaQ": 0,
+        "distinctLeafValues": 3,
+        "labelQuality": "PROXY_CONTINUOUS"
+      },
+      {
+        "decisionId": "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "deltaQ": 0,
+        "distinctLeafValues": 6,
+        "labelQuality": "PROXY_CONTINUOUS"
+      }
+    ],
+    "note": "The batch-2 label file published 8 kept decision ids; the 40 compared decision ids were recovered by matching the published ids against deterministic re-samples of the same episodes file (see b2_recovered_decision_ids.json). Decisions listed in `footingMissing` were not reproducible in this run."
+  },
+  "invocation": "node --require ./v11/tools/core-spawn-shim.cjs v11/tools/run-tool.mjs v12/tools/search_labels.ts --episodes 32 --per-episode 8 --determinism 3 --policy-check 12 --footing-ids-file v12/out/labels/b2_recovered_decision_ids.json",
+  "verificationBoundary": [
+    "Q_ref is a PROXY REFERENCE from a bounded heuristic maximin search, NOT a win probability.",
+    "It is NOT calibrated against natural terminals and NOT optimal Q.",
+    "It is keyed to the evaluatePositionHeuristic score scale and must NOT be added raw to heuristic scores; any combination requires normalisation and calibration first.",
+    "A DEGENERATE decision (every candidate leaf equal) carries no ranking information and is dropped."
+  ]
+}

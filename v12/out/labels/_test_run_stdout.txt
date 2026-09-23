@@ -1,0 +1,19 @@
+
+ RUN  v4.1.9 C:/code/AncinetEmpires
+
+ ✓ tools/v11_regression_contract.test.ts (21 tests) 32216ms
+     ✓ reports the real turn and candidate list of each sampled state  7911ms
+     ✓ the subject player of a sample is the player who actually acted  6197ms
+     ✓ a mid-episode illegal action publishes zero samples  14312ms
+     ✓ the intact episode commits its samples  635ms
+     ✓ survives the repository tactical fixtures  2324ms
+ ✓ tools/v11_replay_e2e.test.ts (3 tests) 9280ms
+     ✓ a recorded match replays from its trajectory file without a guessed setup  4571ms
+     ✓ the recorded snapshot is refused when its state is tampered with  1997ms
+     ✓ a non-default setup survives the round trip  2710ms
+
+ Test Files  2 passed (2)
+      Tests  24 passed (24)
+   Start at  00:34:35
+   Duration  43.11s (transform 1.13s, setup 0ms, import 1.31s, tests 41.50s, environment 0ms)
+

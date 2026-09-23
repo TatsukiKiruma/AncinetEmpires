@@ -1,0 +1,148 @@
+{
+  "schema": "v12_determinism_cross_process_1",
+  "generatedAt": "2026-09-23T16:33:51.022Z",
+  "method": "two separate node processes loaded the same episodes file and evaluated the same decision points; every label record is hashed sha256 after zeroing wall-clock fields only (wallMs, leaves[].wallMs)",
+  "fileA": "v12/out/labels/counterfactual_labels_v2_detA.jsonl",
+  "fileB": "v12/out/labels/counterfactual_labels_v2_detB.jsonl",
+  "decisionsCompared": 4,
+  "decisionsMissingInB": [],
+  "checks": [
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+      "present": true,
+      "bitIdenticalIgnoringWallClock": true,
+      "hashA": "b9a21f3265e9d05a37b54785fe0e0a82a332ef4363f2599a166b985d458d1911",
+      "hashB": "b9a21f3265e9d05a37b54785fe0e0a82a332ef4363f2599a166b985d458d1911",
+      "leafValuesA": [
+        -881,
+        -889,
+        -889,
+        -697,
+        -697
+      ],
+      "leafValuesB": [
+        -881,
+        -889,
+        -889,
+        -697,
+        -697
+      ],
+      "deltaQsA": [
+        0,
+        -8,
+        -8,
+        184,
+        184
+      ],
+      "deltaQsB": [
+        0,
+        -8,
+        -8,
+        184,
+        184
+      ],
+      "engineTransitionsA": 43,
+      "engineTransitionsB": 43
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+      "present": true,
+      "bitIdenticalIgnoringWallClock": true,
+      "hashA": "62409a944a88c1a1f97b73ad26e0be6c9527cb1cf301b26503e9def4d59ac02a",
+      "hashB": "62409a944a88c1a1f97b73ad26e0be6c9527cb1cf301b26503e9def4d59ac02a",
+      "leafValuesA": [
+        -881,
+        -697,
+        -697
+      ],
+      "leafValuesB": [
+        -881,
+        -697,
+        -697
+      ],
+      "deltaQsA": [
+        0,
+        184,
+        184
+      ],
+      "deltaQsB": [
+        0,
+        184,
+        184
+      ],
+      "engineTransitionsA": 21,
+      "engineTransitionsB": 21
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#73",
+      "present": true,
+      "bitIdenticalIgnoringWallClock": true,
+      "hashA": "713df6187bfe5dad44d3add46338e715d3f93b2c4851152e010d8e8e6f6ff715",
+      "hashB": "713df6187bfe5dad44d3add46338e715d3f93b2c4851152e010d8e8e6f6ff715",
+      "leafValuesA": [
+        -3369.5,
+        -3081.5,
+        -3081.5
+      ],
+      "leafValuesB": [
+        -3369.5,
+        -3081.5,
+        -3081.5
+      ],
+      "deltaQsA": [
+        0,
+        288,
+        288
+      ],
+      "deltaQsB": [
+        0,
+        288,
+        288
+      ],
+      "engineTransitionsA": 21,
+      "engineTransitionsB": 21
+    },
+    {
+      "decisionId": "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+      "present": true,
+      "bitIdenticalIgnoringWallClock": true,
+      "hashA": "29d1e5bb6283b0ac3817b4dc999d7298b5eb90ba84c2441e5cc16757795c2ba1",
+      "hashB": "29d1e5bb6283b0ac3817b4dc999d7298b5eb90ba84c2441e5cc16757795c2ba1",
+      "leafValuesA": [
+        -6415,
+        -4384.5,
+        -6415,
+        -4384.5,
+        -4384.5,
+        -4384.5
+      ],
+      "leafValuesB": [
+        -6415,
+        -4384.5,
+        -6415,
+        -4384.5,
+        -4384.5,
+        -4384.5
+      ],
+      "deltaQsA": [
+        0,
+        2030.5,
+        0,
+        2030.5,
+        2030.5,
+        2030.5
+      ],
+      "deltaQsB": [
+        0,
+        2030.5,
+        0,
+        2030.5,
+        2030.5,
+        2030.5
+      ],
+      "engineTransitionsA": 75,
+      "engineTransitionsB": 75
+    }
+  ],
+  "allBitIdentical": true
+}

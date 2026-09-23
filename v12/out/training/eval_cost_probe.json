@@ -1,0 +1,43 @@
+{
+  "schema": "v12_budget_strength_eval_1",
+  "generatedAt": "2026-09-23T17:35:16.525Z",
+  "arm": "heuristic-mirror",
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "map": "(4) Crossroads.aem",
+    "players": 4,
+    "games": 1,
+    "maxSteps": 300,
+    "seedStart": 20260924,
+    "seatsAlternate": true,
+    "distributionNote": "This is the SD training distribution (3-4 player plan maps), not the demo map used by tools/skirmish_spatial_match_benchmark.ts."
+  },
+  "summary": {
+    "games": 1,
+    "modelWins": 0,
+    "naturalTerminations": 0,
+    "naturalModelWins": 0,
+    "truncated": 1,
+    "truncationRate": 1,
+    "naturalWinRate": null
+  },
+  "records": [
+    {
+      "game": 1,
+      "seed": 20260924,
+      "modelSeat": 0,
+      "winner": null,
+      "modelWon": false,
+      "capped": true,
+      "steps": 300,
+      "turn": 10,
+      "decisionsMade": 0,
+      "p50Ms": null
+    }
+  ],
+  "caveats": [
+    "Mirror control: both seats are HeuristicAI, so deviations from 50% indicate seat/map bias rather than model strength.",
+    "Natural termination is distinguished from step-cap truncation; a truncated game is NOT counted as a win.",
+    "Small n. This is a translation check for the budget result, not a promotion confirmation."
+  ]
+}

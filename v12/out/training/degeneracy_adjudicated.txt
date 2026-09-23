@@ -1,0 +1,50 @@
+records scanned                     : 1395
+winnerAlliance null (terminal)      : 392 (28.10%)
+adjudicatedWinnerAlliance null      : 0 (0.00%)
+EFFECTIVE null (both missing)       : 0 (0.00%)
+
+TERMINAL     scenarios(>=10 games)=35  degenerate(<=2)=30  single-winner=10
+ADJUDICATED  scenarios(>=10 games)=35  degenerate(<=2)=29  single-winner=10
+EFFECTIVE    scenarios(>=10 games)=35  degenerate(<=2)=29  single-winner=10
+
+per-scenario comparison (>=10 games), TERMINAL vs EFFECTIVE:
+  scenario                                                n  TERMINAL               EFFECTIVE             
+  SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem        40  a1:22 a2:12            a1:25 a2:15           
+  SDPLAN:sd-3p-normal-extra:(3) classic 2.aem            40  a0:9 a2:20             a0:13 a2:27           
+  SDPLAN:sd-3p-normal-extra:(3) Midway.aem               40  a1:22                  a1:40                 
+  SDPLAN:sd-3p-normal-extra:(3) Glu.aem                  40  a0:14 a1:15 a2:7       a0:15 a1:15 a2:10     
+  SDPLAN:sd-normal:(4) Crossroads.aem                    20  a2:16 a3:4             a2:16 a3:4            
+  SDPLAN:sd-normal:(3) Frozen fields.aem                 20  a1:11 a2:8             a1:12 a2:8            
+  SDPLAN:sd-normal:(2) Icy Paths.aem                     20  a0:11 a1:9             a0:11 a1:9            
+  SDPLAN:sd-normal:(2) Liberty Port.aem                  20  a1:15                  a1:20                 
+  SDPLAN:sd-normal:(2) Mourningstar.aem                  20  a0:5 a1:10             a0:5 a1:15            
+  SDPLAN:sd-normal:(2) Peak Island.aem                   20  a1:12                  a1:20                 
+  SDPLAN:sd-normal:(4) Shadowlands.aem                   20  a0:8 a1:4              a0:13 a1:7            
+  SDPLAN:sd-normal:(4) Solitude.aem                      20  a1:16                  a1:20                 
+  SDPLAN:sd-normal:(2) The Crossing.aem                  20  a1:10                  a1:20                 
+  SDPLAN:sd-normal:(4) The Crucible.aem                  20  a0:1 a1:12             a0:1 a1:19            
+  SDPLAN:sd-normal:(4) Waterways.aem                     20  a1:11 a2:4             a1:14 a2:6            
+  SDPLAN:sd-normal:(4) Winterstorm.aem                   20  a0:6 a1:3 a2:7 a3:3    a0:6 a1:3 a2:8 a3:3   
+  SDPLAN:sd-normal:(4) classic 1.aem                     20  a1:8 a3:9              a0:1 a1:10 a3:9          <-- degeneracy EXPLAINED by the 392 timeouts
+  SDPLAN:sd-normal:(3) classic 2.aem                     20  a0:4 a2:11             a0:4 a2:16            
+  SDPLAN:sd-normal:(2) Duel.aem                          20  a0:5 a1:12             a0:5 a1:15            
+  SDPLAN:sd-normal:(2) Crossed swords.aem                20  a1:11                  a1:20                 
+  SDPLAN:sd-normal:(4) Critical mass.aem                 20  a0:7 a1:7 a2:3 a3:3    a0:7 a1:7 a2:3 a3:3   
+  SDPLAN:sd-normal:(3) Midway.aem                        20  a1:11                  a1:20                 
+  SDPLAN:sd-normal:(2) Swamplands.aem                    20  a1:15                  a1:20                 
+  SDPLAN:sd-normal:(3) Glu.aem                           20  a0:8 a1:8 a2:1         a0:8 a1:8 a2:4        
+  SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem     15  a1:11 a2:1             a1:14 a2:1            
+  SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem         15  a0:2 a2:8              a0:2 a2:13            
+  SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem            15  a0:2 a1:10             a0:2 a1:13            
+  SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem               15  a1:6 a2:2              a1:12 a2:3            
+  SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem      15  a1:7 a2:5              a1:8 a2:7             
+  SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem          15  a0:6 a2:5              a0:6 a2:9             
+  SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem             15  a1:10                  a1:15                 
+  SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem                15  a0:5 a1:4 a2:3         a0:5 a1:4 a2:6        
+  SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem           10  a2:6 a3:2              a2:8 a3:2             
+  SDPLAN:sd-4p-normal-extra:(4) Shadowlands.aem          10  a0:4 a1:1              a0:8 a1:2             
+  SDPLAN:sd-4p-normal-extra:(4) Solitude.aem             10  a1:6                   a1:10                 
+
+interpretation: if EFFECTIVE shows markedly more distinct winners than
+TERMINAL, then the earlier '26/31 degenerate' figure was inflated by
+counting only naturally-terminated games.

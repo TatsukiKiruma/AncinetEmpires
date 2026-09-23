@@ -1,0 +1,79 @@
+{
+  "schema": "v12_budget_strength_eval_1",
+  "generatedAt": "2026-09-23T17:39:30.910Z",
+  "arm": "trained:v12/models/budget_s42.json",
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "map": "(4) Crossroads.aem",
+    "players": 4,
+    "games": 4,
+    "maxSteps": 20000,
+    "seedStart": 20260924,
+    "seatsAlternate": true,
+    "distributionNote": "This is the SD training distribution (3-4 player plan maps), not the demo map used by tools/skirmish_spatial_match_benchmark.ts."
+  },
+  "summary": {
+    "games": 4,
+    "modelWins": 0,
+    "naturalTerminations": 4,
+    "naturalModelWins": 0,
+    "truncated": 0,
+    "truncationRate": 0,
+    "naturalWinRate": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "seed": 20260924,
+      "modelSeat": 0,
+      "winner": 3,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1324,
+      "turn": 33,
+      "decisionsMade": 33,
+      "p50Ms": 23
+    },
+    {
+      "game": 2,
+      "seed": 20360927,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1093,
+      "turn": 31,
+      "decisionsMade": 85,
+      "p50Ms": 36
+    },
+    {
+      "game": 3,
+      "seed": 20460930,
+      "modelSeat": 0,
+      "winner": 3,
+      "modelWon": false,
+      "capped": false,
+      "steps": 675,
+      "turn": 22,
+      "decisionsMade": 33,
+      "p50Ms": 38
+    },
+    {
+      "game": 4,
+      "seed": 20560933,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1061,
+      "turn": 28,
+      "decisionsMade": 73,
+      "p50Ms": 40
+    }
+  ],
+  "caveats": [
+    "The model plays ONLY its own seat turns; the opponent is HeuristicAI, matching the historical 0/10 protocol.",
+    "Natural termination is distinguished from step-cap truncation; a truncated game is NOT counted as a win.",
+    "Small n. This is a translation check for the budget result, not a promotion confirmation."
+  ]
+}

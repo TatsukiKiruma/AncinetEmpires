@@ -1,0 +1,73 @@
+{
+  "model_version": "spatial-resnet-v2",
+  "num_blocks": 2,
+  "dataset": "training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl",
+  "value_weight": 0.0,
+  "loss_mode": "ce",
+  "teacher_temperature": 1.0,
+  "soft_weight": 0.5,
+  "equiv_weight": 0.5,
+  "seed": 42,
+  "best_val_acc": 0.442,
+  "best_epoch": 7,
+  "train_samples": 27000,
+  "val_samples": 3000,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 4.646128798548079,
+      "train_acc": 0.338037037037037,
+      "val_loss": 2.1885651032975377,
+      "val_acc": 0.377
+    },
+    {
+      "epoch": 2,
+      "train_loss": 3.938991762450521,
+      "train_acc": 0.4231111111111111,
+      "val_loss": 2.029597503707764,
+      "val_acc": 0.4073333333333333
+    },
+    {
+      "epoch": 3,
+      "train_loss": 3.665996183433804,
+      "train_acc": 0.4526296296296296,
+      "val_loss": 2.005508913004652,
+      "val_acc": 0.42033333333333334
+    },
+    {
+      "epoch": 4,
+      "train_loss": 3.4496317666853775,
+      "train_acc": 0.48,
+      "val_loss": 1.9572255281691855,
+      "val_acc": 0.436
+    },
+    {
+      "epoch": 5,
+      "train_loss": 3.2418488820582203,
+      "train_acc": 0.5037037037037037,
+      "val_loss": 1.9461851874564557,
+      "val_acc": 0.44166666666666665
+    },
+    {
+      "epoch": 6,
+      "train_loss": 3.0626225539293332,
+      "train_acc": 0.5307777777777778,
+      "val_loss": 1.9644556089918663,
+      "val_acc": 0.43933333333333335
+    },
+    {
+      "epoch": 7,
+      "train_loss": 2.914359677883121,
+      "train_acc": 0.5496666666666666,
+      "val_loss": 1.9606743429569489,
+      "val_acc": 0.442
+    },
+    {
+      "epoch": 8,
+      "train_loss": 2.812740818584135,
+      "train_acc": 0.5644074074074074,
+      "val_loss": 1.9768968395730282,
+      "val_acc": 0.43833333333333335
+    }
+  ]
+}

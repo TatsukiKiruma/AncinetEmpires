@@ -1,0 +1,355 @@
+{
+  "schema": "v12_sd_label_feasibility_1",
+  "generatedAt": "2026-09-23T17:21:03.149Z",
+  "purpose": "Bounded feasibility + cost probe for T12-08 step 3 (regenerate proxy-Q labels on the SPATIAL training distribution). NOT the authorised experiment and NOT a training label file.",
+  "config": {
+    "archiveDir": "training_runs/episodes/sd_training_plan_20260705_heuristic-apk-like-balanced",
+    "file": "sd-3p-high-gold-extra-episodes.jsonl",
+    "episodeIndex": 0,
+    "every": 400,
+    "maxDecisions": 7,
+    "k": 6
+  },
+  "episode": {
+    "scenarioId": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem",
+    "seed": 2026671501,
+    "recordedSteps": 2823,
+    "maxPlies": 900,
+    "stepsWalked": 2401
+  },
+  "engineReachable": true,
+  "decisionsCompared": 7,
+  "leavesEvaluated": 41,
+  "cost": {
+    "wallTotalMs": 4195,
+    "wallPerDecisionMs": 599.2857142857143,
+    "wallPerLeafMs": 102.26829268292683,
+    "v11PoolPerDecisionMs": 1305,
+    "v11PoolPerLeafMs": 232
+  },
+  "decisions": [
+    {
+      "step": 1,
+      "phase": "PRE_STEP",
+      "turn": 1,
+      "playerId": 0,
+      "legalActionCount": 34,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":2,\"y\":2}}",
+          "leaf": -2713,
+          "wallMs": 30
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":2,\"y\":0}}",
+          "leaf": -2705,
+          "wallMs": 14
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":3,\"y\":1}}",
+          "leaf": -2713,
+          "wallMs": 10
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":1,\"y\":1}}",
+          "leaf": -2705,
+          "wallMs": 24
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":3,\"y\":0}}",
+          "leaf": -2709,
+          "wallMs": 13
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"apk_u0\",\"to\":{\"x\":1,\"y\":0}}",
+          "leaf": -2701,
+          "wallMs": 12
+        }
+      ],
+      "distinctLeafValues": 4,
+      "minLeaf": -2713,
+      "maxLeaf": -2701,
+      "spread": 12,
+      "wallMs": 103,
+      "msPerLeaf": 17.166666666666668
+    },
+    {
+      "step": 401,
+      "phase": "PRE_STEP",
+      "turn": 11,
+      "playerId": 1,
+      "legalActionCount": 6,
+      "evaluatedCandidates": 5,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_19\"}",
+          "leaf": 8102,
+          "wallMs": 9
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_29\"}",
+          "leaf": 8102,
+          "wallMs": 8
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_35\"}",
+          "leaf": 8102,
+          "wallMs": 10
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_36\"}",
+          "leaf": 8102,
+          "wallMs": 10
+        },
+        {
+          "actionCode": "{\"type\":\"end_turn\"}",
+          "leaf": 8102,
+          "wallMs": 7
+        }
+      ],
+      "distinctLeafValues": 1,
+      "minLeaf": 8102,
+      "maxLeaf": 8102,
+      "spread": 0,
+      "wallMs": 45,
+      "msPerLeaf": 9
+    },
+    {
+      "step": 801,
+      "phase": "PRE_STEP",
+      "turn": 20,
+      "playerId": 1,
+      "legalActionCount": 198,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":2,\"y\":2}}",
+          "leaf": 21519,
+          "wallMs": 209
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":2,\"y\":0}}",
+          "leaf": 21511,
+          "wallMs": 190
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":3,\"y\":1}}",
+          "leaf": 21519,
+          "wallMs": 186
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":3,\"y\":0}}",
+          "leaf": 21515,
+          "wallMs": 181
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":1,\"y\":0}}",
+          "leaf": 21507,
+          "wallMs": 213
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":4,\"y\":1}}",
+          "leaf": 21523,
+          "wallMs": 294
+        }
+      ],
+      "distinctLeafValues": 5,
+      "minLeaf": 21507,
+      "maxLeaf": 21523,
+      "spread": 16,
+      "wallMs": 1273,
+      "msPerLeaf": 212.16666666666666
+    },
+    {
+      "step": 1201,
+      "phase": "PRE_STEP",
+      "turn": 26,
+      "playerId": 1,
+      "legalActionCount": 10,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_14\"}",
+          "leaf": 29755,
+          "wallMs": 5
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_36\"}",
+          "leaf": 29755,
+          "wallMs": 3
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_49\"}",
+          "leaf": 29699,
+          "wallMs": 4
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_55\"}",
+          "leaf": 29735,
+          "wallMs": 4
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_58\"}",
+          "leaf": 29765,
+          "wallMs": 3
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_59\"}",
+          "leaf": 29755,
+          "wallMs": 5
+        }
+      ],
+      "distinctLeafValues": 4,
+      "minLeaf": 29699,
+      "maxLeaf": 29765,
+      "spread": 66,
+      "wallMs": 24,
+      "msPerLeaf": 4
+    },
+    {
+      "step": 1601,
+      "phase": "PRE_STEP",
+      "turn": 33,
+      "playerId": 1,
+      "legalActionCount": 94,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_14\"}",
+          "leaf": 29845.5,
+          "wallMs": 133
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_16\"}",
+          "leaf": 29845.5,
+          "wallMs": 113
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_19\"}",
+          "leaf": 29845.5,
+          "wallMs": 120
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_21\"}",
+          "leaf": 29845.5,
+          "wallMs": 118
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_23\",\"to\":{\"x\":14,\"y\":3}}",
+          "leaf": 29953.5,
+          "wallMs": 125
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_23\",\"to\":{\"x\":13,\"y\":5}}",
+          "leaf": 29949.5,
+          "wallMs": 141
+        }
+      ],
+      "distinctLeafValues": 3,
+      "minLeaf": 29845.5,
+      "maxLeaf": 29953.5,
+      "spread": 108,
+      "wallMs": 750,
+      "msPerLeaf": 125
+    },
+    {
+      "step": 2001,
+      "phase": "PRE_STEP",
+      "turn": 39,
+      "playerId": 1,
+      "legalActionCount": 17,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_14\"}",
+          "leaf": 30920.5,
+          "wallMs": 8
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_19\"}",
+          "leaf": 30920.5,
+          "wallMs": 7
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_21\"}",
+          "leaf": 30920.5,
+          "wallMs": 7
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_23\"}",
+          "leaf": 30920.5,
+          "wallMs": 8
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_31\"}",
+          "leaf": 30920.5,
+          "wallMs": 7
+        },
+        {
+          "actionCode": "{\"type\":\"wait\",\"unitId\":\"u_35\"}",
+          "leaf": 30920.5,
+          "wallMs": 6
+        }
+      ],
+      "distinctLeafValues": 1,
+      "minLeaf": 30920.5,
+      "maxLeaf": 30920.5,
+      "spread": 0,
+      "wallMs": 44,
+      "msPerLeaf": 7.333333333333333
+    },
+    {
+      "step": 2401,
+      "phase": "PRE_STEP",
+      "turn": 46,
+      "playerId": 1,
+      "legalActionCount": 208,
+      "evaluatedCandidates": 6,
+      "leaves": [
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":1,\"y\":3}}",
+          "leaf": 35943,
+          "wallMs": 315
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":1,\"y\":4}}",
+          "leaf": 35947,
+          "wallMs": 313
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":2,\"y\":3}}",
+          "leaf": 35947,
+          "wallMs": 333
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":0,\"y\":3}}",
+          "leaf": 35939,
+          "wallMs": 338
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":2,\"y\":4}}",
+          "leaf": 35951,
+          "wallMs": 345
+        },
+        {
+          "actionCode": "{\"type\":\"move\",\"unitId\":\"u_14\",\"to\":{\"x\":0,\"y\":4}}",
+          "leaf": 35943,
+          "wallMs": 312
+        }
+      ],
+      "distinctLeafValues": 4,
+      "minLeaf": 35939,
+      "maxLeaf": 35951,
+      "spread": 12,
+      "wallMs": 1956,
+      "msPerLeaf": 326
+    }
+  ],
+  "verificationBoundary": [
+    "This probe measures COST and FEASIBILITY only; it emits no trainable label file.",
+    "It does not verify that the produced leaves are a good ordering, nor that they correlate with outcome.",
+    "The candidate set is the first k legal non-surrender actions, NOT the heuristic top-k, so the values here are not deltaQ against a heuristic baseline.",
+    "Labels are on the evaluatePositionHeuristic scale - a PROXY reference, not a win probability."
+  ]
+}

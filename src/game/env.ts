@@ -759,6 +759,20 @@ export class AncientEmpiresEnv {
       return this.engine.getState();
   }
 
+  /**
+   * Read-only access to the underlying engine.
+   *
+   * Added for V12/T12-08 prerequisite probing: `BattleSearchAI` scores candidate
+   * actions by cloning a `GameEngine` and stepping it, so producing proxy-Q
+   * labels on the SD training distribution requires the engine, not just the
+   * state. This is a pure accessor - it adds no behaviour and changes no rules.
+   * Callers MUST treat the returned engine as read-only unless they intend to
+   * advance the live episode.
+   */
+  public getEngine(): GameEngine {
+      return this.engine;
+  }
+
   public getCurrentPlayer(): number {
       return this.engine.getState().currentPlayer;
   }

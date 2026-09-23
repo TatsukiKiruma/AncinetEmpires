@@ -1,0 +1,42 @@
+decisions loaded        : 256
+action types            : ['attack', 'capture', 'destroy_town', 'end_turn', 'heal', 'move', 'post_attack_move', 'recruit_to_castle', 'repair', 'summon', 'wait']
+
+--- leaf vs heuristic ordering ---
+decisions where leaf-top != heuristic-top : 156/256 (60.9%)
+within-decision Spearman(heuristicScore, deltaQ): n=234 mean=0.108 median=0.116
+
+root families           : 16
+decisions per family    : [16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16]
+
+--- leave-one-rootFamily-out evaluation (n=256 decisions) ---
+  heuristic baseline (a0)      mean dQ =      0.00   median =     0.00   >0 in   0.0%
+  random (all candidates)      mean dQ =     25.54   median =     0.00   >0 in  27.0%
+  random (non-baseline only)   mean dQ =     68.88   median =     0.00   >0 in  32.4%
+  MODEL (no board feats)       mean dQ =     70.14   median =     0.00   >0 in  29.7%
+  oracle upper bound           mean dQ =    239.59   median =    16.00   >0 in  60.9%
+
+  top-1 agreement with leaf-argmax: model 23.4% | always-a0 39.1%
+  headroom over random-non-baseline = 170.70 mean dQ; model captures 1.26 (0.7%)
+
+--- override-gated policy (deviate from a0 only when predMargin > t) ---
+         t  override%    mean dQ   harmful%  median dQ
+         0      85.9%      81.62      34.1%       0.00
+        25      67.2%      96.90      30.2%       0.00
+        50      48.4%     121.85      30.6%       0.00
+       100      28.9%     216.18      24.3%       0.00
+       200       7.8%     469.73      10.0%      10.00
+       400       1.6%    1534.25       0.0%    1419.00
+
+  per-root-family mean dQ (n=16 families): mean=70.86 sd=137.59 se=34.40
+  families with mean dQ > 0: 10/16
+  naive 95% CI on the family mean: [3.44, 138.28] (families are not independent samples; treat as indicative only)
+
+--- verdict ---
+  POSITIVE: model beats the heuristic baseline by 70.14 mean dQ on
+  held-out root families. Necessary but NOT sufficient: dQ is on the
+  evaluatePositionHeuristic scale, not a win probability.
+
+  CAVEAT: features are heuristicScore / rank / actionType ONLY. There is no
+  board state here, so a negative result is not evidence that the LABEL is
+  bad -- only that this feature set is too thin. See report section 'what this
+  does and does not establish'.

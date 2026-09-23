@@ -1,0 +1,4584 @@
+{
+  "schema": "v12_b2_sample_recovery_1",
+  "generatedAt": "2026-09-23T16:14:52.892Z",
+  "episodesFile": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+  "previousDecisionsCompared": 40,
+  "publishedKeptIds": [
+    "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+    "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+    "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+    "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+    "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+    "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+    "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+    "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+  ],
+  "publishedUninformativeExamples": [
+    "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+    "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+    "match_HEURISTIC_seat0__2__Duel_aem_s42#73",
+    "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+    "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+    "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+    "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+    "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+    "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+    "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+  ],
+  "publishedIdsKnown": 18,
+  "candidates": [
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 1,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 2,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 3,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 4,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 5,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 6,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 7,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 8,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 9,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 10,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 11,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 1,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 2,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 4,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 6,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 8,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 10,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 14,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 16,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 18,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 20,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 22,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 2,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 3,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 6,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 9,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 15,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 18,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 21,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 27,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 33,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 3,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#56"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 4,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 8,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 16,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 20,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 28,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 32,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 40,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": true
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 44,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 4,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 48,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 5,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 10,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 15,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 20,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 25,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 35,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 40,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": true
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 45,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 50,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 55,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 5,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 60,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 6,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 18,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 42,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 48,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 54,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 60,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 66,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 6,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 72,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 7,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 14,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 21,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 28,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 35,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 42,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 49,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 56,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 63,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 70,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 77,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 7,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 84,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 8,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 16,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 32,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 40,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": true
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 48,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 56,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 64,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 72,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 80,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 88,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 8,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 96,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 9,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 18,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 27,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 45,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 54,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 63,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 72,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 81,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 90,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 99,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 9,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 108,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 10,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 20,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 40,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": true
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 50,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 60,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 70,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 80,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 90,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 100,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 110,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 10,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 11,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 22,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 33,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 44,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 55,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 66,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 77,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 88,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 99,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 110,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 121,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 11,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 132,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 12,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 48,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 60,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 72,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 84,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 96,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 108,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 132,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 12,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 144,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 13,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 26,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 39,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 52,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 65,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 78,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 91,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 104,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 117,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 130,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 143,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 13,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 156,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 14,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 28,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 42,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 56,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 70,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 84,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 98,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 112,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 126,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 140,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 154,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 14,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 168,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 15,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 45,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 60,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 75,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 90,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 105,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 135,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 150,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 165,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 15,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 180,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 16,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 32,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 48,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 64,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 80,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 96,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 112,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 128,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 144,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 160,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 176,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 16,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 192,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 17,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 34,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 51,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 68,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 85,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 102,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 119,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 136,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 153,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 170,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 187,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 17,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 204,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 18,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 36,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 54,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 72,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 90,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 108,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 126,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 144,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 162,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 180,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 198,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 18,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 216,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 19,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 38,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 57,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 76,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 95,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 114,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 133,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 152,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 171,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 190,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 209,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 19,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 228,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 20,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 40,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": true
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 60,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 80,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 100,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 140,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 160,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 180,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 200,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 220,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 20,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 240,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 21,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 42,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 63,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 84,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 105,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 126,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 147,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 168,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 189,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 210,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 231,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 21,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 252,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 22,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 44,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 66,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 88,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 110,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 132,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 154,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 176,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 198,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 220,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 242,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 22,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 264,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 23,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 46,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 69,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 92,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 115,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 138,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 161,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 184,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 207,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 230,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 253,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 23,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 276,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 24,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 48,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 72,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 96,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 144,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 168,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 192,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 216,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 240,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 264,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 24,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 288,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 25,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 50,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 75,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 100,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 125,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 150,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 175,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 200,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 225,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 250,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 275,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 25,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 300,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 26,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 52,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 78,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 104,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 130,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 156,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 182,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 208,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 234,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 260,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 286,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 26,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 312,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 27,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 54,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 81,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 108,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 135,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 162,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 189,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 216,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 243,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 270,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 297,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 27,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 324,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 28,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 56,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 84,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 112,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 140,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 168,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 196,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 224,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 252,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 280,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 308,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 28,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 336,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 29,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 58,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 87,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 116,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 145,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 174,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 203,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 232,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 261,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 290,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 319,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 29,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 348,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 30,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 60,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 90,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 120,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 150,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 180,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 210,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 240,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 270,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 300,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 330,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 30,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 360,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 31,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 62,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 93,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 124,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 155,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 186,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 217,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 248,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 279,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 310,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 341,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 31,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 372,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 1,
+      "sampleSize": 32,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 2,
+      "sampleSize": 64,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 3,
+      "sampleSize": 96,
+      "containsAllPublishedIds": false,
+      "missingPublishedIds": [
+        "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+        "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+        "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+        "match_HEURISTIC_seat0__2__Duel_aem_s2026#193"
+      ],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 4,
+      "sampleSize": 128,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 5,
+      "sampleSize": 160,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 6,
+      "sampleSize": 192,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 7,
+      "sampleSize": 224,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 8,
+      "sampleSize": 256,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 9,
+      "sampleSize": 288,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 10,
+      "sampleSize": 320,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 11,
+      "sampleSize": 352,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    },
+    {
+      "maxEpisodes": 32,
+      "decisionsPerEpisode": 12,
+      "sampleSize": 384,
+      "containsAllPublishedIds": true,
+      "missingPublishedIds": [],
+      "matchesPublishedCount": false
+    }
+  ],
+  "recovered": {
+    "maxEpisodes": 10,
+    "decisionsPerEpisode": 4,
+    "decisionIds": [
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#142",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#174",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#206",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s1337#86",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#140",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#204",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#56",
+      "match_HEURISTIC_seat0__2__Crossed_swords_aem_s42#79",
+      "match_HEURISTIC_seat0__2__Duel_aem_s1337#19",
+      "match_HEURISTIC_seat0__2__Duel_aem_s1337#20",
+      "match_HEURISTIC_seat0__2__Duel_aem_s1337#32",
+      "match_HEURISTIC_seat0__2__Duel_aem_s1337#34",
+      "match_HEURISTIC_seat0__2__Duel_aem_s2026#106",
+      "match_HEURISTIC_seat0__2__Duel_aem_s2026#161",
+      "match_HEURISTIC_seat0__2__Duel_aem_s2026#169",
+      "match_HEURISTIC_seat0__2__Duel_aem_s2026#193",
+      "match_HEURISTIC_seat0__2__Duel_aem_s42#55",
+      "match_HEURISTIC_seat0__2__Duel_aem_s42#56",
+      "match_HEURISTIC_seat0__2__Duel_aem_s42#73",
+      "match_HEURISTIC_seat0__2__Duel_aem_s42#85",
+      "match_HEURISTIC_seat0__2__Duel_aem_s4242#23",
+      "match_HEURISTIC_seat0__2__Duel_aem_s4242#32",
+      "match_HEURISTIC_seat0__2__Duel_aem_s4242#56",
+      "match_HEURISTIC_seat0__2__Duel_aem_s4242#99",
+      "match_HEURISTIC_seat1__2__Duel_aem_s1337#118",
+      "match_HEURISTIC_seat1__2__Duel_aem_s1337#64",
+      "match_HEURISTIC_seat1__2__Duel_aem_s1337#88",
+      "match_HEURISTIC_seat1__2__Duel_aem_s1337#95",
+      "match_HEURISTIC_seat1__2__Duel_aem_s2026#149",
+      "match_HEURISTIC_seat1__2__Duel_aem_s2026#182",
+      "match_HEURISTIC_seat1__2__Duel_aem_s2026#38",
+      "match_HEURISTIC_seat1__2__Duel_aem_s2026#76",
+      "match_HEURISTIC_seat1__2__Duel_aem_s42#176",
+      "match_HEURISTIC_seat1__2__Duel_aem_s42#217",
+      "match_HEURISTIC_seat1__2__Duel_aem_s42#28",
+      "match_HEURISTIC_seat1__2__Duel_aem_s42#62",
+      "match_HEURISTIC_seat1__2__Duel_aem_s4242#104",
+      "match_HEURISTIC_seat1__2__Duel_aem_s4242#112",
+      "match_HEURISTIC_seat1__2__Duel_aem_s4242#31",
+      "match_HEURISTIC_seat1__2__Duel_aem_s4242#89"
+    ],
+    "publishedIdsCovered": 18,
+    "uniqueSolution": true
+  },
+  "note": "Recovery is a consistency argument, not a proof: it finds every (maxEpisodes, decisionsPerEpisode) pair whose deterministic re-sample reproduces all published batch-2 decision ids and the published compared-decision count. If more than one pair fits, the recovered id list is the first and `uniqueSolution` is false - read the candidate table before relying on it."
+}

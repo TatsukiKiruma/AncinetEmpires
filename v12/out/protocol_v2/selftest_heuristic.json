@@ -1,0 +1,122 @@
+{
+  "schema": "v12_paired_seat_eval_1",
+  "generatedAt": "2026-09-23T22:25:08.307Z",
+  "candidate": "heuristic",
+  "candidateIsModel": false,
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "seeds": [
+      2026070501
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "maxSteps": 1200,
+    "arms": "CANDIDATE (candidate at `seat`, heuristic elsewhere) vs MIRROR (heuristic at every seat)",
+    "rng": "per-seat deterministic stream: mulberry(hash(seed, seat)); identical across both arms; never Math.random",
+    "pairedBy": "(seed, seat) - the only difference between arms is who occupies `seat`",
+    "fallbackPolicy": "allowInteractiveFallback=false for the candidate (no silent heuristic fallback)"
+  },
+  "perSeat": {
+    "P0": {
+      "games": 1,
+      "candidateWins": 0,
+      "mirrorWins": 0,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 0,
+      "delta": 0,
+      "candidateTruncations": 1,
+      "mirrorTruncations": 1,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": null
+    },
+    "P1": {
+      "games": 1,
+      "candidateWins": 0,
+      "mirrorWins": 0,
+      "candidateWinRate": 0,
+      "mirrorWinRate": 0,
+      "delta": 0,
+      "candidateTruncations": 1,
+      "mirrorTruncations": 1,
+      "candidateFallbacks": 0,
+      "candidateP50Ms": null
+    }
+  },
+  "mirrorWinBySeat": {
+    "P0": 0,
+    "P1": 0
+  },
+  "overall": {
+    "games": 2,
+    "candidateWins": 0,
+    "mirrorWins": 0,
+    "candidateWinRate": 0,
+    "mirrorWinRate": 0,
+    "delta": 0,
+    "candidateTruncationRate": 1,
+    "mirrorTruncationRate": 1
+  },
+  "selfTest": {
+    "expectation": "candidate arm == mirror arm when the candidate is the heuristic, so every delta MUST be 0",
+    "allDeltasZero": true
+  },
+  "rows": [
+    {
+      "seed": 2026070501,
+      "seat": 0,
+      "candidate": {
+        "winner": null,
+        "candidateWon": false,
+        "capped": true,
+        "steps": 1200,
+        "turn": 27,
+        "fallbacks": 0,
+        "candidateDecisions": 159,
+        "candidateP50Ms": null
+      },
+      "mirror": {
+        "winner": null,
+        "candidateWon": false,
+        "capped": true,
+        "steps": 1200,
+        "turn": 27,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    },
+    {
+      "seed": 2026070501,
+      "seat": 1,
+      "candidate": {
+        "winner": null,
+        "candidateWon": false,
+        "capped": true,
+        "steps": 1200,
+        "turn": 27,
+        "fallbacks": 0,
+        "candidateDecisions": 69,
+        "candidateP50Ms": null
+      },
+      "mirror": {
+        "winner": null,
+        "candidateWon": false,
+        "capped": true,
+        "steps": 1200,
+        "turn": 27,
+        "fallbacks": 0,
+        "candidateDecisions": 0,
+        "candidateP50Ms": null
+      },
+      "delta": 0
+    }
+  ],
+  "caveats": [
+    "n is small (seeds x seats). Deltas of +-1 game are noise.",
+    "A positive delta means the candidate won its seat more often than the heuristic would have in the SAME seat with the SAME streams; that is the only quantity this protocol licenses.",
+    "Truncated games are not counted as wins for either arm."
+  ]
+}

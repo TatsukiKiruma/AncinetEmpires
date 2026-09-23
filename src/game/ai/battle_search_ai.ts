@@ -124,7 +124,16 @@ export class BattleSearchAI {
     return heuTop.action;
   }
 
-  private evaluateCandidate(engine: GameEngine, playerId: number, action: Action): number {
+  /**
+   * Maximin leaf value (proxy reference Q_ref) for stepping `action` in `engine`.
+   *
+   * T12-06 change: visibility widened from `private` to `public` so the
+   * continuous-label tooling (`v12/tools/search_labels.ts`) can read the exact
+   * same maximin leaf the policy itself uses. No other change: same body, same
+   * seeding contract, same behaviour. It is a pure function of
+   * (state, playerId, action, this.rng's seed) — it never touches `engine`.
+   */
+  public evaluateCandidate(engine: GameEngine, playerId: number, action: Action): number {
     const sim = engine.clone();
     try {
       sim.step(action);

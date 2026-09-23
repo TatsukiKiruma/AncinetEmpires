@@ -1,0 +1,430 @@
+{
+  "schema": "v12_budget_strength_eval_1",
+  "generatedAt": "2026-09-23T22:11:41.521Z",
+  "arm": "heuristic-mirror",
+  "protocol": {
+    "scenarioId": "SDPLAN:sd-normal:(4) Crossroads.aem",
+    "map": "(4) Crossroads.aem",
+    "players": 4,
+    "games": 8,
+    "maxSteps": 3000,
+    "seedStart": 20260924,
+    "seatsAlternate": true,
+    "distributionNote": "This is the SD training distribution (3-4 player plan maps), not the demo map used by tools/skirmish_spatial_match_benchmark.ts."
+  },
+  "summary": {
+    "games": 8,
+    "modelWins": 0,
+    "naturalTerminations": 7,
+    "naturalModelWins": 0,
+    "truncated": 1,
+    "truncationRate": 0.125,
+    "naturalWinRate": 0,
+    "totalFallbacks": 0,
+    "intervention": "none",
+    "totalInterventions": 0,
+    "overallAgreementWithHeuristic": null
+  },
+  "records": [
+    {
+      "game": 1,
+      "seed": 2026070501,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1575,
+      "turn": 36,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 5,
+          "attack": 11,
+          "end_turn": 2,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 1,
+          "move": 11,
+          "attack": 9,
+          "end_turn": 2,
+          "recruit_to_castle": 3,
+          "wait": 2
+        },
+        "11-20": {
+          "move": 7,
+          "attack": 4,
+          "end_turn": 7,
+          "recruit_to_castle": 3,
+          "wait": 4
+        },
+        "21-40": {
+          "move": 7,
+          "recruit_to_castle": 5,
+          "attack": 4,
+          "end_turn": 6,
+          "wait": 5
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 2,
+      "seed": 2026070502,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1479,
+      "turn": 33,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 9,
+          "attack": 10,
+          "end_turn": 2
+        },
+        "6-10": {
+          "attack": 8,
+          "move": 9,
+          "end_turn": 3,
+          "recruit_to_castle": 2,
+          "capture": 1,
+          "wait": 1
+        },
+        "11-20": {
+          "recruit_to_castle": 4,
+          "move": 10,
+          "wait": 3,
+          "attack": 7,
+          "end_turn": 5
+        },
+        "21-40": {
+          "move": 3,
+          "recruit_to_castle": 1,
+          "capture": 1,
+          "wait": 1,
+          "attack": 1,
+          "end_turn": 4
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 3,
+      "seed": 2026070503,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1930,
+      "turn": 41,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 20,
+          "recruit_to_castle": 5,
+          "wait": 4,
+          "attack": 15,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 4,
+          "move": 19,
+          "recruit_to_castle": 3,
+          "attack": 14,
+          "repair": 1,
+          "wait": 2,
+          "end_turn": 2
+        },
+        "11-20": {
+          "attack": 28,
+          "move": 49,
+          "recruit_to_castle": 9,
+          "wait": 21,
+          "capture": 3,
+          "end_turn": 3,
+          "repair": 1
+        },
+        "21-40": {
+          "end_turn": 5,
+          "recruit_to_castle": 1,
+          "move": 1,
+          "attack": 1
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 4,
+      "seed": 2026070504,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 2459,
+      "turn": 50,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 9,
+          "attack": 10,
+          "end_turn": 2
+        },
+        "6-10": {
+          "attack": 3,
+          "move": 6,
+          "end_turn": 2,
+          "recruit_to_castle": 2,
+          "capture": 3,
+          "wait": 3
+        },
+        "11-20": {
+          "move": 9,
+          "attack": 6,
+          "end_turn": 3,
+          "wait": 6,
+          "recruit_to_castle": 3,
+          "capture": 1
+        },
+        "21-40": {
+          "wait": 11,
+          "recruit_to_castle": 5
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 5,
+      "seed": 2026070505,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 2970,
+      "turn": 57,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 5,
+          "attack": 11,
+          "end_turn": 2,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 1,
+          "move": 10,
+          "attack": 7,
+          "end_turn": 2,
+          "recruit_to_castle": 3,
+          "wait": 4
+        },
+        "11-20": {
+          "move": 23,
+          "recruit_to_castle": 6,
+          "attack": 15,
+          "wait": 7,
+          "capture": 1,
+          "end_turn": 4
+        },
+        "21-40": {
+          "end_turn": 6,
+          "recruit_to_castle": 4,
+          "move": 7,
+          "wait": 4,
+          "attack": 3
+        },
+        "41+": {
+          "recruit_to_castle": 4,
+          "attack": 4
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 6,
+      "seed": 2026070506,
+      "modelSeat": 1,
+      "winner": null,
+      "modelWon": false,
+      "capped": true,
+      "steps": 3000,
+      "turn": 64,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 8,
+          "attack": 10,
+          "end_turn": 2
+        },
+        "6-10": {
+          "move": 2,
+          "attack": 2,
+          "end_turn": 1,
+          "recruit_to_castle": 1,
+          "wait": 4
+        },
+        "11-20": {
+          "wait": 10,
+          "recruit_to_castle": 6,
+          "move": 18,
+          "attack": 11,
+          "end_turn": 2,
+          "capture": 2
+        },
+        "21-40": {
+          "move": 45,
+          "capture": 5,
+          "attack": 35,
+          "recruit_to_castle": 9,
+          "wait": 18,
+          "end_turn": 4,
+          "summon": 1
+        },
+        "41+": {
+          "wait": 5,
+          "recruit_to_castle": 3
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 7,
+      "seed": 2026070507,
+      "modelSeat": 0,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1854,
+      "turn": 39,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 5,
+          "attack": 11,
+          "end_turn": 2,
+          "repair": 1
+        },
+        "6-10": {
+          "capture": 1,
+          "move": 11,
+          "attack": 9,
+          "end_turn": 2,
+          "recruit_to_castle": 3,
+          "wait": 2
+        },
+        "11-20": {
+          "move": 11,
+          "recruit_to_castle": 3,
+          "attack": 8,
+          "wait": 2,
+          "end_turn": 9
+        },
+        "21-40": {
+          "recruit_to_castle": 2,
+          "move": 3,
+          "attack": 2,
+          "end_turn": 5
+        }
+      },
+      "p50Ms": null
+    },
+    {
+      "game": 8,
+      "seed": 2026070508,
+      "modelSeat": 1,
+      "winner": 2,
+      "modelWon": false,
+      "capped": false,
+      "steps": 1562,
+      "turn": 36,
+      "decisionsMade": 0,
+      "fallbacks": 0,
+      "errors": 0,
+      "interventions": 0,
+      "agreementWithHeuristic": null,
+      "modelActionTypes": {},
+      "heuristicActionTypes": {},
+      "heuristicByTurn": {
+        "0-5": {
+          "move": 18,
+          "recruit_to_castle": 4,
+          "wait": 8,
+          "attack": 10,
+          "end_turn": 2
+        },
+        "6-10": {
+          "move": 4,
+          "attack": 3,
+          "end_turn": 1,
+          "recruit_to_castle": 3,
+          "wait": 4
+        },
+        "11-20": {
+          "wait": 5,
+          "recruit_to_castle": 1
+        }
+      },
+      "p50Ms": null
+    }
+  ],
+  "caveats": [
+    "Mirror control: both seats are HeuristicAI, so deviations from 50% indicate seat/map bias rather than model strength.",
+    "Natural termination is distinguished from step-cap truncation; a truncated game is NOT counted as a win.",
+    "Small n. This is a translation check for the budget result, not a promotion confirmation."
+  ]
+}
