@@ -12,7 +12,7 @@ import * as path from 'node:path';
 import { createHash } from 'node:crypto';
 import {
     RUN_ID, RUN_DIR, REPORT_DIR, V10_DIR,
-    ensureDir, getSha256, readJson, writeJson, appendJsonlSync, countLinesSync, readJsonl
+    ensureDir, getSha256, readJson, writeJson, appendJsonlSync, countLinesSync, readJsonl, isMain
 } from '../v10_common';
 import { collectOnPolicySamples, buildArmDatasets } from '../v10_dagger_controlled';
 import { extractEndgameValueSamples, buildValueTrainingDataset, createUnifiedSplitManifest, evaluateValuePredictions, getSamplePartition } from '../v10_value_learning';
@@ -1033,4 +1033,8 @@ async function main(): Promise<void> {
     throw new Error(`Unknown command: ${cmd}`);
 }
 
-main().catch(err => { console.error('FATAL', err); process.exit(1); });
+// Guarded entry point: an unguarded `main()` would execute on import and read a
+// process.argv it does not own.
+if (isMain('v10fix/pipeline.ts') || isMain('pipeline.ts')) {
+    main().catch(err => { console.error('FATAL', err); process.exit(1); });
+}

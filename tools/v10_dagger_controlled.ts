@@ -122,7 +122,13 @@ export function detectTacticalCategory(
 export async function collectOnPolicySamples(
     predictor: SpatialResNetPredictor,
     matchCount: number = 48,
-    maxSteps: number = 400
+    maxSteps: number = 400,
+    /**
+     * V11/F06 fix: chunk label carried into every sampleId / rootFamilyId. Without
+     * it, two chunks collected with different V10_DAGGER_MATCH_OFFSET values
+     * produced identical ids for structurally different live states.
+     */
+    chunkLabel: string = process.env.V10_DAGGER_CHUNK_LABEL || `off${process.env.V10_DAGGER_MATCH_OFFSET || 0}`
 ): Promise<CollectedSample[]> {
     console.log(`\n[T10-03 Sampling] Collecting on-policy samples across ${matchCount} matches (maxSteps=${maxSteps})...`);
     const samples: CollectedSample[] = [];
@@ -201,8 +207,10 @@ export async function collectOnPolicySamples(
 
                     if (targetIdx !== -1) {
                         const rawSample = {
-                            sampleId: `v10_onpolicy_m${m}_s${step}_${category}`,
-                            rootFamilyId: `root_${mapName.replace(/[^a-zA-Z0-9]/g, '_')}_m${m}`,
+                            // V11/F06: the chunk label is part of the id, so ids are unique
+                            // across chunks even when the per-chunk match index restarts at 0.
+                            sampleId: `v10_onpolicy_${chunkLabel}_m${m}_s${step}_${category}`,
+                            rootFamilyId: `root_${mapName.replace(/[^a-zA-Z0-9]/g, '_')}_${chunkLabel}_m${m}`,
                             episodeId: `ep_v10_dagger_m${m}`,
                             playerId: curPlayer,
                             spatialTensor: Array.from(encSpatial.spatialTensor),

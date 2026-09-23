@@ -34,6 +34,7 @@ import { getAllianceId, getUnitCost, isCommanderUnit } from '../src/game/rule_co
 import { encodeAction } from '../src/game/env';
 import { loadSpatialResNetFromJson, SpatialResNetPredictor } from '../src/game/ai/spatial_conv_net';
 import { encodeGameStateSpatial, encodeCandidateActionSpatial } from '../src/game/ai/spatial_tensor_encoder';
+import { buildInitialSnapshot } from '../src/game/state_snapshot';
 import { predictSpatialAction } from '../src/game/ai/shared_spatial_policy';
 import { loadDualHeadModelFromJson, predictDecision, DualHeadNet } from './skirmish_dual_head_net';
 import { encodeGameState, encodeGameActionV2 } from './skirmish_network_features';
@@ -448,6 +449,16 @@ export function runBenchmarkMatch(
     (state as any).mapName = mapName;
     const initialStateHash = getBehavioralStateHash(state, candidateSeat);
     const rulesHash = getSha256(JSON.stringify(state.rules));
+    // V11/T11-01: freeze the exact initial state (and the setup that produced it)
+    // alongside the action history, so replay validation is a proof rather than a
+    // re-guess. Written into the trajectory log below.
+    const v11InitialSnapshot = buildInitialSnapshot(
+        JSON.parse(JSON.stringify(state)) as GameState,
+        mapName,
+        setup ?? null,
+        candidateSeat,
+        { sha256Hex: getSha256 }
+    );
     const engine = new GameEngine(state);
 
     const candidateSeed = (seed * 10007 + 1) >>> 0;
@@ -634,7 +645,16 @@ export function runBenchmarkMatch(
             turns: engine.getState().turn,
             steps,
             errorDetails,
-            actionHistory
+            actionHistory,
+            // V11/T11-01: persist the initial state so a later replay can be *proven*.
+            // Without this the V10 pool could not be revalidated at all: setups varied
+            // per seed and nothing recorded which setup was used.
+            initialSnapshot: v11InitialSnapshot,
+            initialStateHash,
+            rulesHash,
+            seed,
+            candidateSeat,
+            setupSelection: setup ?? null
         };
         try {
             writeFileSync(trajFile, JSON.stringify(outcomeLog, null, 2), 'utf8');

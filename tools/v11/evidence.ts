@@ -1,0 +1,296 @@
+/**
+ * V11 issue ledger data source (T11-00).
+ *
+ * Every entry was re-verified against the working tree at the review commit
+ * before being recorded. `verifiedLocations` are file:line anchors a reader can
+ * open directly; `plannedRegressionTest` names the test that must fail on the
+ * pre-fix implementation and pass after the fix.
+ */
+
+export type IssueOwnership = 'CONFIRMED_FROM_SOURCE' | 'CONFIRMED_FROM_ARTIFACT_ARITHMETIC' | 'RISK_NOT_QUANTIFIED';
+
+export interface V11Issue {
+    id: string;
+    title: string;
+    severity: 'P0' | 'P0/P1' | 'P1';
+    ownership: IssueOwnership;
+    claim: string;
+    verifiedLocations: string[];
+    impact: string;
+    remedy: string;
+    plannedRegressionTest: string;
+    invalidates: string[];
+}
+
+export const V11_ISSUES: V11Issue[] = [
+    {
+        id: 'F01',
+        title: '价值样本把开局棋盘与后续动作/结果配在一起',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim:
+            'extractEndgameValueSamples 创建一次 `state` 并构造 `new GameEngine(state)`；GameEngine 深拷贝初态，' +
+            'engine.step 推进不会更新外部 state，但 tensor/global/candidate/turn 仍全部由该外部 state 生成，' +
+            '因此第 1 步之后的每个样本都把开局棋盘与当前合法动作集合配在一起。',
+        verifiedLocations: [
+            'tools/v10_value_learning.ts:103-104 (state 创建 + engine 构造)',
+            'tools/v10_value_learning.ts:109 (curPlayer 取自 engine)',
+            'tools/v10_value_learning.ts:112 (legals 取自 engine)',
+            'tools/v10_value_learning.ts:138-139 (encoder 却传外部 state)',
+            'tools/v10_value_learning.ts:151 (turn: state.turn 恒为初值)',
+            'src/game/engine.ts:115 (构造函数 JSON 深拷贝)',
+        ],
+        impact: '价值数据集、依赖它训练的权重、价值校准与 value-in-search 结果，以及架构选择依据全部不可归因。',
+        remedy: '一次性取 `const currentState = engine.getState()`，使合法动作、tensor、globals、动作特征、turn、stateHash 全部对应同一个 currentState。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F01 current-state alignment)',
+        invalidates: ['v10 value calibration', 'spatial_resnet_cv0/cv01/cv025 arms', 'representation ablation architecture choice'],
+    },
+    {
+        id: 'F01b',
+        title: '回放失败不等于“没有抛异常”：失败前缀未回滚',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'extractEndgameValueSamples 在发现某个后续步非法之前已把该 episode 之前的样本 push 进全局数组；检测到 replayFailed 后仅 continue，不移除。',
+        verifiedLocations: [
+            'tools/v10_value_learning.ts:141-168 (push 进全局 extractedSamples)',
+            'tools/v10_value_learning.ts:175-178 (replayFailed 仅 continue)',
+        ],
+        impact: '失败局的前缀样本被静默保留，数据池被污染却无法从输出中区分。',
+        remedy: 'episode 局部缓冲，整条回放验证通过后事务提交；失败整局隔离并记录失败步位置。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F01b episode transaction)',
+        invalidates: ['v10 value dataset row provenance'],
+    },
+    {
+        id: 'F02',
+        title: '回放校验只看异常，不看引擎返回的失败信息',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'GameEngine.step 遇到非法动作返回 `{ info: "非法动作..." }` 而不抛异常；replayEpisodeCoverage 只 catch 异常，所以 `replayErrors = 0` 不能证明动作序列被合法完整复现。',
+        verifiedLocations: [
+            'src/game/engine.ts:511-529 (非法动作 return 而非 throw)',
+            'tools/v10fix/pipeline.ts:321-364 (replayEpisodeCoverage)',
+            'tools/v10fix/pipeline.ts:441-446 (replayErrors 统计)',
+        ],
+        impact: 'v10 数据集清单中 `replayErrors: 0` 与“349 自然终局”的可复现性声明不成立。',
+        remedy: '逐步校验：当前合法集合定位动作 → step → 检查接受结果 → state hash 与终局校验。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F02 replay acceptance)',
+        invalidates: ['v10/fix_01/dataset_v10_manifest.json accounting.replayErrors'],
+    },
+    {
+        id: 'F02b',
+        title: '采集器改变了初始设置，回放却按默认设置重建初态',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'collectors 对部分 seed 使用 initialGold/unitLimit/levelCap 变体，而回放时调用 createAppApkSkirmishGameState(mapName, "SD") 忽略 setup，因此那些 episode 的初态 hash 与真实初态不同。',
+        verifiedLocations: [
+            'tools/v10fix/collectors.ts:16-27 (SETUP_VARIANTS + setupForSeed)',
+            'tools/v10fix/collectors.ts:115,285,343 (setupForSeed 传入比赛)',
+            'tools/v10_value_learning.ts:103 (默认设置重建)',
+            'tools/v10fix/pipeline.ts:329 (默认设置重建)',
+        ],
+        impact: '非默认 setup 的 episode 无法严格回放；按默认设置“成功”回放是假阳性。',
+        remedy: '轨迹必须显式保存 initialSnapshot + setup + rulesHash；缺失则整局隔离，不猜测补齐。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F02b setup-aware replay)',
+        invalidates: ['v10 curriculum coverage counts'],
+    },
+    {
+        id: 'F03',
+        title: '回合搜索默认候选不包含所有必要单步行动',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'generateMacroActions 的单步分支只收 end_turn 与两类 recruit；默认 priorMode="off" 时直接 attack/capture/repair/heal/support/summon/wait 没有系统保留，因此“本回合已移动、现在可直接致胜攻击”这类候选不会出现在根候选里。',
+        verifiedLocations: [
+            'tools/v10_turn_aware_search.ts (generateMacroActions 单步分支)',
+            'tools/v10_turn_aware_search.ts (priorMode off 时不注入基准动作)',
+        ],
+        impact: 'T10-04 回合搜索 0W/29L 无法区分“算法无效”与“关键候选被生成阶段丢弃”。',
+        remedy: '根候选强制保留必要合法单步（Heuristic 首选、确切立即制胜、待解决 pending），再添加约束清楚的宏动作，并记录删除理由。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F03 root candidate coverage)',
+        invalidates: ['T10-04 turn-aware search negative result as an algorithm verdict'],
+    },
+    {
+        id: 'F03b',
+        title: '宏动作 followup 不限定刚移动的单位',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'macro followup 取 `sim.getLegalActions(playerId)` 全玩家合法集合，未限定为刚移动的单位，因此可生成 move(A)→wait(B) 这类跨单位组合。',
+        verifiedLocations: ['tools/v10_turn_aware_search.ts (chained follow-up loop)'],
+        impact: '宏动作语义不成立，工作量与语义不可比；跨单位计划被混入单位宏动作。',
+        remedy: '仅同单位后续接入单位宏动作；跨单位组合另设显式类型。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F03b same-unit followup)',
+        invalidates: ['macro action semantic claims in T10-04'],
+    },
+    {
+        id: 'F04',
+        title: '搜索预算、展开顺序与价值尺度不成立',
+        severity: 'P0/P1',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim:
+            '(1) 宏动作生成阶段 clone 并 step 所有 move 但不计 transitionCount；' +
+            '(2) 根候选逐个完整推演；' +
+            '(3) moveThreatScore 读移动前 unit.pos 而非 action.to；' +
+            '(4) 部分分支到对手后评分、部分停在己方回合评分；' +
+            '(5) formal 入口写死 128 transitions；' +
+            '(6) wallClockExceeded 写死 false；' +
+            '(7) 叶值 = 启发式原始分 + 0.5*V，V∈[-1,1] 时排序差最多改变 1 分。',
+        verifiedLocations: [
+            'tools/v10_turn_aware_search.ts (generateMacroActions clone/step 未计数)',
+            'tools/v10_turn_aware_search.ts (moveThreatScore 用 unit.pos)',
+            'tools/v10_turn_aware_search.ts (根候选逐个推演 + 预算)',
+            'v11/audit_arithmetic.json value_scale',
+        ],
+        impact: '“相同实际仿真工作量”的对照未建立，value 对排序几乎无作用，搜索对照结论不可比。',
+        remedy: '唯一 transition 计数/计时上下文覆盖生成、探针、rollout 与启发式内部 step；先做廉价同层评估再轮转扩展；统一状态、视角与尺度后才测 value。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts (F04 budget/scale)',
+        invalidates: ['T10-04 equal-work comparison', 'T10-06 search-value comparison'],
+    },
+    {
+        id: 'F05',
+        title: '“消费 3980 条新记录”由训练前清单冒充',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: 'train_spatial_resnet.py 在创建 DataLoader 与训练之前，根据 train_indices 写 consumed_manifest；DAgger 校验读同一清单再宣称新样本全部消费，形成自证闭环。',
+        verifiedLocations: [
+            'python/train_spatial_resnet.py (训练前写 consumed_manifest)',
+            'python/train_spatial_resnet.py (optimizer.step 与 max_steps break)',
+            'tools/v10_dagger_controlled.ts (消费不变量读同一清单)',
+            'v11/audit_arithmetic.json dagger_budget',
+        ],
+        impact: '“C 消费新样本 3980/3980”不是实测梯度消费，计划清单不代表实际被优化的样本。',
+        remedy: 'planned_manifest 与 optimized_manifest 分离；仅成功 optimizer.step 后累计样本 ID、mask 参与情况、exposures 与 updates；未知 root 显式拒绝。',
+        plannedRegressionTest: 'python/tests/test_v11_optimizer_consumption.py',
+        invalidates: ['T10-03 C-arm consumption claim', 'dagger_controlled_report.json'],
+    },
+    {
+        id: 'F05b',
+        title: 'max_steps 达到时先 break 再累加 loss',
+        severity: 'P1',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim: '训练循环在 optimizer.step 后立即 break，total_loss/total_pol_loss/total_val_loss 的累加位于 break 之后，因此最后一个已优化批次的损失被丢弃，而分母仍按 steps_run 计算。',
+        verifiedLocations: ['python/train_spatial_resnet.py (run_epoch 训练分支)'],
+        impact: '报告曲线中最后一个 batch 的损失系统性缺失；max_steps 也是每 epoch 重置，与 global update limit 混淆。',
+        remedy: '累加在 break 之前；显式 globalUpdateLimit 与 per-epoch 上限区分。',
+        plannedRegressionTest: 'python/tests/test_v11_optimizer_consumption.py',
+        invalidates: ['T10-03 A/B/C loss curves at the truncation batch'],
+    },
+    {
+        id: 'F06',
+        title: '训练目标与架构对照尚不支持路线结论',
+        severity: 'P1',
+        ownership: 'RISK_NOT_QUANTIFIED',
+        claim:
+            'DAgger/value/结构适配对照仅 1 epoch、单 seed；新增 GAP 输入与附加残差块保持随机初始化；' +
+            'DAgger 分块 sampleId/rootFamilyId 使用本块 m 不含 matchOffset，块间可重号；seed 变量已计算但 Heuristic 未使用。' +
+            '在拿到原始样本统计前不虚报碰撞数——这里只登记为风险。',
+        verifiedLocations: [
+            'tools/v10_dagger_controlled.ts (matchOffset 与 seed)',
+            'tools/v10_dagger_controlled.ts (ID 不含 matchOffset)',
+            'python/spatial_resnet_model.py (GAP 与残差块初始化)',
+        ],
+        impact: '短程适配读数不能回答结构能力上限；块间 ID 复用使样本血缘不可靠。',
+        remedy: '修块 ID 与随机流；架构扩展零初始化或从头训练；mask 分离 policyLossMask/valueLossMask。',
+        plannedRegressionTest: 'tools/v11_regression_contract.test.ts + v10_dagger_controlled.ts chunkLabel',
+        invalidates: ['representation_ablation architecture ranking (already invalid via F01)'],
+    },
+    {
+        id: 'F07',
+        title: 'V10 语料库没有保存初态，整池不可复核',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim:
+            '454 条 episodes.jsonl 记录与它们的 trajectory 日志都不含 initialSnapshot / initialStateHash / setup；' +
+            'trajectory 只有 matchId/candidatePolicy/terminationReason/turns/steps/actionHistory。' +
+            '在缺少真实初态的情况下，任何“回放成功”都建立在猜测的初态上。',
+        verifiedLocations: [
+            'v10/fix_01/episodes.jsonl (18 个字段，无 initialStateHash / setup)',
+            'tools/v7_unified_evaluation.ts (V10 轨迹写入内容)',
+            'tools/v10fix/collectors.ts:16-27 (setup 随 seed 变化却从未落盘)',
+        ],
+        impact: 'V10 池只能得出“0 条可证明”的结论；价值数据集与比赛结果都无法就地重建，必须用新 runId 重新采集。',
+        remedy: '在 runBenchmarkMatch 的轨迹写入中持久化 initialSnapshot；V11 replay 校验器优先使用记录的 snapshot，缺失即整局隔离。',
+        plannedRegressionTest: 'tools/v11_replay_e2e.test.ts',
+        invalidates: ['v10 value dataset rebuild-by-replay', 'v10 curriculum coverage counts'],
+    },
+    {
+        id: 'F08',
+        title: 'V11 管线与 BattleSearchAI 两条平行线互不引用（V12 补记）',
+        severity: 'P1',
+        ownership: 'CONFIRMED_FROM_SOURCE',
+        claim:
+            '提交 9c6c1ab 在 V11 批一（17:12–17:50）与批二（23:36）之间加入了 src/game/ai/battle_search_ai.ts（v3，18:03），' +
+            '但 v11/V11_BATCH1_REPORT.md 与 v11/V11_BATCH2_REPORT.md 都没有提到它。' +
+            '批二自我审计缺陷 V11-D01（未播种的 new HeuristicAI() 回退 Math.random，使基准动作在两次相同运行间翻转）' +
+            '正是 battle_search_ai.ts:59-60 已经处理过的问题（"heuristic 内部有 rng 抖动（*20/*30），给它一个派生 rng 以保证可复现"）。' +
+            '两条线在同一目标上各自重造了启发式锚定的残差覆盖结构。',
+        verifiedLocations: [
+            'src/game/ai/battle_search_ai.ts:59-60 (派生 rng，已修 V11-D01 同类问题)',
+            'v11/out/self_audit.json (V11-D01 记录)',
+            'v11/V11_BATCH2_REPORT.md (未引用 BattleSearchAI)',
+            'git: 9c6c1ab 与 4451947 的 delta 仅新增 2 个文件，与 F01–F07 涉及文件零交集',
+        ],
+        impact:
+            '重复劳动；且 V11 的 planner 臂是 BattleSearchAI 的弱化重造版（受 maxDecisionsPerMatch=8 导致 100% 截断），' +
+            '使批二的强度对照完全不可读，而 BattleSearchAI v3 在同一时期已在 Duel 上取得 17/20 的实测战绩。',
+        remedy:
+            '把 BattleSearchAI 显式登记为 T11-04 所需"同预算规划器无学习模块"对照臂与 ΔQ_ref 代理参考来源；' +
+            '并在冻结元数据中声明 9c6c1ab 的 delta 不触及 F01–F07。',
+        plannedRegressionTest: 'v12/out/freeze/battle_ai_crossref.json + T12-00 冻结报告',
+        invalidates: ['v11 strength_ablation arm design (planner arm was a re-implementation, not the available one)'],
+    },
+    {
+        id: 'F09',
+        title: '空间数据集丢失局面身份字段且 valueTarget 只在终局赋值（V12 发现）',
+        severity: 'P0',
+        ownership: 'CONFIRMED_FROM_ARTIFACT_ARITHMETIC',
+        claim:
+            'training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl 的 30,000 条记录只有 6 个字段' +
+            '（sampleId/spatialTensor/globalFeatures/targetActionIndex/candidateActions/valueTarget）：' +
+            'rootFamilyId 缺失 30,000/30,000，episodeId/step/turn/playerId 同样缺失；valueTarget 为 null 29,980/30,000（99.93%）。' +
+            '根因在 tools/convert_archive_to_spatial.ts:166-179：exportObj 只写 6 个字段，丢掉了输入中已有的 ' +
+            'scenario.id/seed/source.episodeIndex；valueTarget 仅在 outcome.winnerAfter != null（即该局最后一步）时赋值。' +
+            '对照 spatial_pilot_01.jsonl 与 spatial_train_25ep.jsonl 均具备 sampleId/episodeId/rootFamilyId/step/turn/playerId。',
+        verifiedLocations: [
+            'tools/convert_archive_to_spatial.ts:166-179 (exportObj 仅 6 字段 + valueTarget 终局限定)',
+            'python/train_spatial_resnet.py:477-499 (grouped split 依赖 rootFamilyId，缺失时回退 ep_{idx//60})',
+            'training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl (30,000 行实测)',
+        ],
+        impact:
+            'python/train_spatial_resnet.py 的分组切分因字段缺失而静默回退到 f"ep_{idx // 60}" 的合成分组，' +
+            '同一局的相邻决策被拆进不同分组，train/val 共享同一 episode —— 所有 val_acc 与 OOD top-1 读数是同局泄漏值，' +
+            '不能作为泛化指标；同时 value 头几乎没有监督标签，价值线被数据阻塞而非算法阻塞。',
+        remedy:
+            '转换器补出 episodeId/rootFamilyId/step/turn/playerId；valueTarget 改为把该局最终胜负广播到该局所有决策步，' +
+            '未自然终局的截断局保持 null；重转后重跑全部训练读数。',
+        plannedRegressionTest: 'v12/out/spatial/T12-04_split_check.json (train/val root 交集必须为 0)',
+        invalidates: [
+            'val_acc / OOD top-1 from spatial_train_scaled_30k training runs',
+            'value head qualification on the 30k dataset',
+            'architecture comparisons that read the 30k dataset',
+        ],
+    },
+];
+
+export type EvidenceStatus =
+    | 'MEASURED_NEGATIVE_RESULT'
+    | 'INSUFFICIENT_SAMPLE'
+    | 'NOT_RUN'
+    | 'INVALID_INPUT_ALIGNMENT_PENDING_REBUILD';
+
+export interface EvidenceEntry {
+    artifact: string;
+    status: EvidenceStatus;
+    reason: string;
+}
+
+export const V10_EVIDENCE_CLASSIFICATION: EvidenceEntry[] = [
+    { artifact: 'v10/fix_01/T10-01_corrected_report.json', status: 'MEASURED_NEGATIVE_RESULT', reason: '新旧纯策略确有参赛；新纯策略未显示收益。搜索臂场次不足，算法结论未定。' },
+    { artifact: 'v10/fix_01/T10-04_formal_comparison.json', status: 'MEASURED_NEGATIVE_RESULT', reason: '同工作量对照实测回合搜索未胜 S00；但受 F03/F04 影响，不能作为算法优劣定论。' },
+    { artifact: 'v10/fix_01/T10-01_confirmation.json', status: 'INSUFFICIENT_SAMPLE', reason: 'S00 22 场 / S10 20 场，截断率 41%–55%，两臂场次不一致。' },
+    { artifact: 'v10/fix_01/dagger_controlled_report.json', status: 'INSUFFICIENT_SAMPLE', reason: 'A/B/C 各 20 场全负自然终局；且消费口径受 F05 影响。' },
+    { artifact: 'v10/fix_01/value_calibration.json', status: 'INVALID_INPUT_ALIGNMENT_PENDING_REBUILD', reason: '输入由 F01 状态错位生成；数字本身是实测，但不能解释为价值学习能力。' },
+    { artifact: 'v10/fix_01/representation_ablation.json', status: 'INVALID_INPUT_ALIGNMENT_PENDING_REBUILD', reason: '架构评测读取 F01 数据集，且只短程适配一次。' },
+    { artifact: 'v10/fix_01/T10-05_loss_ablation.json', status: 'INSUFFICIENT_SAMPLE', reason: '单 epoch、单 seed，teacherQ 为单步启发式叶评价。' },
+    { artifact: 'v10/fix_01/T10-06_search_value_comparison.json', status: 'INVALID_INPUT_ALIGNMENT_PENDING_REBUILD', reason: 'value 标尺与叶状态受 F01/F04 影响。' },
+    { artifact: 'v10/fix_01/browser_e2e.json', status: 'NOT_RUN', reason: '无冻结候选，报告明确未完成产品验收。' },
+    { artifact: 'v10/fix_01/confirmation_results.json', status: 'NOT_RUN', reason: '无冻结候选与 400 场确认预算，T10-08 未运行。' },
+];

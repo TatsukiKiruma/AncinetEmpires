@@ -32,6 +32,68 @@ if not TORCH_AVAILABLE:
 else:
     from spatial_resnet_model import SpatialResNet, export_model_to_ts_json, load_model_from_ts_json
 
+    class ConsumptionRecorder:
+        """
+        V11/T11-03: measured optimizer consumption.
+
+        The V10 pipeline wrote a "consumed" manifest *before* training, from the
+        planned index split, and then validated DAgger coverage against that same
+        file - a closed loop that could not fail. This recorder only accumulates
+        after a successful optimizer.step().
+        """
+
+        def __init__(self) -> None:
+            self.updates = 0
+            self.unique_sample_ids: set = set()
+            self.total_exposures = 0
+            self.value_supervised = 0
+            self.value_masked = 0
+            self.policy_masked = 0
+            self.per_epoch: Dict[int, Dict[str, int]] = {}
+            self.update_log: List[Dict[str, Any]] = []
+
+        def record_update(self, *, epoch: int, samples: List[Any], policy_masked: int,
+                          value_masked: int, value_used: int) -> None:
+            ids = [str(s) for s in samples if s is not None]
+            self.updates += 1
+            self.total_exposures += len(ids)
+            self.unique_sample_ids.update(ids)
+            self.policy_masked += int(policy_masked)
+            self.value_masked += int(value_masked)
+            self.value_supervised += int(value_used)
+            bucket = self.per_epoch.setdefault(epoch, {
+                "updates": 0, "exposures": 0, "policy_masked": 0,
+                "value_masked": 0, "value_supervised": 0,
+            })
+            bucket["updates"] += 1
+            bucket["exposures"] += len(ids)
+            bucket["policy_masked"] += int(policy_masked)
+            bucket["value_masked"] += int(value_masked)
+            bucket["value_supervised"] += int(value_used)
+            self.update_log.append({
+                "epoch": epoch, "update": self.updates, "batchSize": len(ids),
+                "sampleIds": ids, "policyMasked": int(policy_masked),
+                "valueMasked": int(value_masked), "valueSupervised": int(value_used),
+            })
+
+        def to_json(self, planned_train_rows: int, batch_size: int) -> Dict[str, Any]:
+            return {
+                "schema": "v11_optimizer_consumption_1",
+                "measured": True,
+                "method": "accumulated only after a successful optimizer.step()",
+                "plannedTrainRows": planned_train_rows,
+                "batchSize": batch_size,
+                "updates": self.updates,
+                "maxExampleExposures": self.updates * batch_size,
+                "totalExposures": self.total_exposures,
+                "optimizedUniqueSamples": len(self.unique_sample_ids),
+                "plannedButNeverOptimized": max(0, planned_train_rows - len(self.unique_sample_ids)),
+                "policyMaskedExposures": self.policy_masked,
+                "valueSupervisedExposures": self.value_supervised,
+                "valueMaskedExposures": self.value_masked,
+                "perEpoch": {str(k): v for k, v in sorted(self.per_epoch.items())},
+            }
+
     class SpatialDataset(Dataset):
         def __init__(self, jsonl_path: str):
             self.samples = []
@@ -59,6 +121,12 @@ else:
                         "teacherQ": s.get("teacherQ"),
                         "equivalenceGroups": s.get("equivalenceGroups"),
                         "teacherSoftTargets": s.get("teacherSoftTargets"),
+                        # V11/T11-03: supervision masks. Defaults keep older datasets
+                        # (which have no mask fields) behaviourally identical.
+                        "policyLossMask": s.get("policyLossMask", True),
+                        "valueLossMask": s.get("valueLossMask", s.get("valueTarget") is not None),
+                        "stateHash": s.get("stateHash"),
+                        "encoderSchema": s.get("encoderSchema"),
                     })
 
             print(f"Loaded {len(self.samples)} spatial samples from {jsonl_path}")
@@ -106,6 +174,13 @@ else:
         value_weight: float = 0.5,
         is_train: bool = True,
         max_steps: int | None = None,
+        *,
+        epoch: int = 1,
+        # V11/T11-03: hard cap on optimizer steps for the WHOLE run, distinct from
+        # `max_steps`, which resets every epoch.
+        global_update_limit: int | None = None,
+        updates_before_epoch: int = 0,
+        recorder: "ConsumptionRecorder | None" = None,
         loss_mode: str = "ce",
         teacher_temperature: float = 1.0,
         soft_weight: float = 0.5,
@@ -129,7 +204,13 @@ else:
         with torch.set_grad_enabled(is_train):
             for batch in dataloader:
                 if is_train and optimizer:
+                    # V11/T11-03: the global cap is checked against the *measured*
+                    # update count, so it holds across epoch boundaries.
+                    if global_update_limit is not None and (updates_before_epoch + steps_run) >= global_update_limit:
+                        break
                     optimizer.zero_grad()
+                masked_policy_samples = 0
+                masked_value_samples = 0
 
                 spatial_t = batch["spatial_tensor"].to(device)  # [B, 24, 20, 20]
                 global_f = batch["global_features"].to(device)  # [B, G]
@@ -213,6 +294,12 @@ else:
                             loss_terms.append(float(equiv_weight) * loss_equiv)
 
                     loss_step = torch.stack(loss_terms).sum()
+                    # V11/T11-03: an explicit policy mask. A row without a
+                    # trustworthy teacher label contributes no policy gradient,
+                    # even when it carries a real value target.
+                    if not bool(batch["policy_loss_mask"][b]):
+                        loss_step = loss_step * 0.0
+                        masked_policy_samples += 1
                     batch_pol_loss = batch_pol_loss + loss_step
 
                     pred_top = torch.argmax(logits, dim=-1).item()
@@ -224,7 +311,14 @@ else:
 
                 # Value Loss (masked for None targets)
                 val_targets_raw = batch["value_target"]
-                valid_val_mask = [vt is not None for vt in val_targets_raw]
+                valid_val_mask = [
+                    vt is not None and bool(batch["value_loss_mask"][i])
+                    for i, vt in enumerate(val_targets_raw)
+                ]
+                masked_value_samples += sum(
+                    1 for i, vt in enumerate(val_targets_raw)
+                    if vt is not None and not bool(batch["value_loss_mask"][i])
+                )
                 if any(valid_val_mask):
                     val_t = torch.tensor(
                         [vt for vt in val_targets_raw if vt is not None],
@@ -247,14 +341,28 @@ else:
                             raise RuntimeError(f"Non-finite gradient in {name} during backpropagation!")
                     optimizer.step()
                     steps_run += 1
+                    if recorder is not None:
+                        recorder.record_update(
+                            epoch=epoch, samples=batch["sample_ids"],
+                            policy_masked=masked_policy_samples,
+                            value_masked=masked_value_samples,
+                            value_used=int(sum(1 for m in valid_val_mask if m)),
+                        )
+                    # V11/T11-03: accumulate THIS (already optimized) batch before
+                    # any break, so the last step is not silently dropped.
+                    total_loss += loss.item()
+                    total_pol_loss += batch_pol_loss.item()
+                    total_val_loss += batch_val_loss.item()
                     if max_steps is not None and steps_run >= max_steps:
+                        break
+                    if global_update_limit is not None and (updates_before_epoch + steps_run) >= global_update_limit:
                         break
 
                 total_loss += loss.item()
                 total_pol_loss += batch_pol_loss.item()
                 total_val_loss += batch_val_loss.item()
 
-        if is_train and max_steps is not None:
+        if is_train and (max_steps is not None or global_update_limit is not None):
             n = max(1, steps_run)
         else:
             n = max(1, len(dataloader))
@@ -279,7 +387,14 @@ else:
             "value_target": [s["value_target"] for s in batch],
             "teacherQ": [s.get("teacherQ") for s in batch],
             "equivalenceGroups": [s.get("equivalenceGroups") for s in batch],
-            "teacherSoftTargets": [s.get("teacherSoftTargets") for s in batch]
+            "teacherSoftTargets": [s.get("teacherSoftTargets") for s in batch],
+            # V11/T11-03: identity and supervision masks travel with the batch so
+            # consumption can be attributed to individual samples.
+            "sample_ids": [s.get("sampleId") for s in batch],
+            "policy_loss_mask": [bool(s.get("policyLossMask", True)) for s in batch],
+            "value_loss_mask": [
+                bool(s.get("valueLossMask", s.get("value_target") is not None)) for s in batch
+            ],
         }
 
 
@@ -295,6 +410,9 @@ else:
         parser.add_argument("--out-metrics", type=str, default=None, help="Output path for metrics JSON (defaults to model-specific metrics file)")
         parser.add_argument("--value-weight", type=float, default=0.0, help="Weight for value head loss (default: 0.0 for policy-only)")
         parser.add_argument("--max-steps", type=int, default=None, help="Maximum training optimizer steps per epoch (equal-work A/B/C controls)")
+        parser.add_argument("--global-update-limit", type=int, default=None, help="V11/T11-03: hard cap on optimizer steps for the whole run (distinct from --max-steps, which is per epoch)")
+        parser.add_argument("--planned-manifest", type=str, default=None, help="V11/T11-03: output path for the PRE-training plan (index split). Not evidence of consumption.")
+        parser.add_argument("--optimized-manifest", type=str, default=None, help="V11/T11-03: output path for the POST-training measured consumption ledger.")
         parser.add_argument("--consumed-manifest", type=str, default=None, help="Optional explicit path for consumed sample manifest")
         parser.add_argument("--deploy-to-src", action="store_true", default=False, help="Explicitly deploy to src/game/ai/models/ (default: False)")
         parser.add_argument("--seed", type=int, default=42, help="Random seed")
@@ -333,19 +451,27 @@ else:
             train_roots = set(manifest_data.get("trainRootFamilies", []))
             val_roots = set(manifest_data.get("valRootFamilies", []))
             test_roots = set(manifest_data.get("testRootFamilies", []))
+            unknown_roots = set()
             for idx, sample in enumerate(full_dataset.samples):
                 r_id = sample.get("rootFamilyId")
                 if r_id in test_roots:
                     continue
                 if r_id in val_roots:
                     val_indices.append(idx)
-                else:
+                elif r_id in train_roots:
                     train_indices.append(idx)
+                else:
+                    unknown_roots.add(str(r_id))
+            if unknown_roots:
+                raise ValueError(
+                    f"{len(unknown_roots)} rootFamilyId value(s) are not in the split manifest "
+                    f"({sorted(unknown_roots)[:5]}). Refusing to default unknown roots into train."
+                )
             if len(val_indices) == 0 and len(train_indices) > 1:
-                val_target = max(1, int(len(train_indices) * args.val_split))
-                val_indices = train_indices[-val_target:]
-                train_indices = train_indices[:-val_target]
-                print(f"[Manifest Split Warning] Manifest yielded 0 validation samples. Allocated {len(val_indices)} samples to validation to ensure non-empty validation partition.")
+                raise ValueError(
+                    "Manifest split produced 0 validation samples. V11/T11-03 refuses to "
+                    "silently carve the tail rows out of train as a validation set."
+                )
             print(f"[Manifest Split] Applied unified split_manifest: Train = {len(train_indices)} samples ({len(train_roots)} roots) | Validation = {len(val_indices)} samples ({len(val_roots)} roots)\n")
         else:
             # Grouped split by episodeId / rootFamilyId to prevent leakage across state frames
@@ -381,6 +507,41 @@ else:
         val_data = torch.utils.data.Subset(full_dataset, val_indices)
         total_roots = (len(train_roots) + len(val_roots)) if (args.split_manifest and os.path.exists(args.split_manifest)) else len(group_keys)
         print(f"Final Partition: Train = {len(train_data)} samples | Validation = {len(val_data)} samples (Grouped by {total_roots} roots)\n")
+
+        # V11/T11-03: the PLAN. Written before training, explicitly not evidence.
+        if args.planned_manifest:
+            os.makedirs(os.path.dirname(os.path.abspath(args.planned_manifest)), exist_ok=True)
+            with open(args.planned_manifest, "w", encoding="utf-8") as f:
+                json.dump({
+                    "schema": "v11_planned_manifest_1",
+                    "measured": False,
+                    "warning": "Pre-training plan (index split). It does NOT prove which samples were optimized.",
+                    "train_sample_count": len(train_indices),
+                    "val_sample_count": len(val_indices),
+                    "batch_size": args.batch_size,
+                    "train_sample_ids": [full_dataset.samples[i].get("sampleId") for i in train_indices if full_dataset.samples[i].get("sampleId")],
+                    "val_sample_ids": [full_dataset.samples[i].get("sampleId") for i in val_indices if full_dataset.samples[i].get("sampleId")],
+                }, f, indent=2)
+            print(f"[Planned Manifest] {len(train_indices)} planned train rows -> {args.planned_manifest}")
+
+        # V11/T11-03: duplicate sampleId with a conflicting stateHash is a data
+        # integrity failure, not something to average over.
+        seen_sample_ids: Dict[str, Any] = {}
+        for idx in train_indices:
+            sample = full_dataset.samples[idx]
+            sid = sample.get("sampleId")
+            if sid is None:
+                continue
+            shash = sample.get("stateHash")
+            if sid in seen_sample_ids:
+                prev = seen_sample_ids[sid]
+                if shash is not None and prev is not None and shash != prev:
+                    raise ValueError(
+                        f"duplicate sampleId {sid!r} maps to two different stateHash "
+                        f"values ({prev} vs {shash}); refusing to train on ambiguous identity"
+                    )
+            else:
+                seen_sample_ids[sid] = shash
 
         if args.consumed_manifest:
             train_ids = [str(full_dataset.samples[i].get("sampleId")) for i in train_indices if full_dataset.samples[i].get("sampleId") is not None]
@@ -432,10 +593,13 @@ else:
 
         print(f"Starting scaled training for {args.epochs} epochs (value_weight={args.value_weight})...\n")
         history = []
+        consumption = ConsumptionRecorder()
         for epoch in range(1, args.epochs + 1):
             train_loss, train_pol, train_acc = run_epoch(
                 model, train_loader, optimizer, device, value_weight=args.value_weight, is_train=True, max_steps=args.max_steps,
-                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight
+                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight,
+                epoch=epoch, global_update_limit=args.global_update_limit,
+                updates_before_epoch=consumption.updates, recorder=consumption,
             )
             val_loss, val_pol, val_acc = run_epoch(
                 model, val_loader, None, device, value_weight=args.value_weight, is_train=False,
@@ -503,19 +667,28 @@ else:
                 "history": history
             }, f, indent=2)
 
-        consumed_manifest_file = args.consumed_manifest or os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "consumed_samples_manifest.json")
+        consumption_json = consumption.to_json(len(train_data), args.batch_size)
+        consumption_json.update({
+            "dataset": os.path.abspath(args.dataset),
+            "epochs": args.epochs,
+            "maxStepsPerEpoch": args.max_steps,
+            "globalUpdateLimit": args.global_update_limit,
+            "plannedValRows": len(val_data),
+            "optimizedSampleIds": sorted(consumption.unique_sample_ids),
+        })
+        consumed_manifest_file = args.optimized_manifest or os.path.join(
+            os.path.dirname(os.path.abspath(args.out_model)), "optimized_samples_manifest.json")
+        os.makedirs(os.path.dirname(os.path.abspath(consumed_manifest_file)), exist_ok=True)
         with open(consumed_manifest_file, "w", encoding="utf-8") as f:
-            json.dump({
-                "model_version": args.model_version,
-                "num_blocks": args.num_blocks,
-                "dataset": args.dataset,
-                "train_sample_count": len(train_data),
-                "val_sample_count": len(val_data),
-                "train_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in train_indices if full_dataset.samples[idx].get("sampleId")],
-                "val_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")],
-                "valSampleIds": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")],
-                "maxSteps": args.max_steps
-            }, f, indent=2)
+            json.dump(consumption_json, f, indent=2)
+        ledger_file = os.path.join(os.path.dirname(os.path.abspath(consumed_manifest_file)), "optimizer_update_ledger.jsonl")
+        with open(ledger_file, "w", encoding="utf-8") as f:
+            for entry in consumption.update_log:
+                f.write(json.dumps(entry) + "\n")
+        print("[Measured consumption] updates=" + str(consumption.updates) +
+              " exposures=" + str(consumption.total_exposures) +
+              " uniqueOptimized=" + str(len(consumption.unique_sample_ids)) + "/" + str(len(train_data)) +
+              " plannedNeverOptimized=" + str(consumption_json["plannedButNeverOptimized"]))
 
         print(f"\n=======================================================")
         print(f"[Training Complete] Best Validation Accuracy: {best_val_acc * 100:.2f}% (Epoch {best_epoch})")

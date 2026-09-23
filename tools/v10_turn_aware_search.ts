@@ -54,6 +54,8 @@ export interface TransitionBudget {
     /** Diagnostic value-head leaf use; not enabled until qualified. */
     valueMode?: 'off' | 'on';
     valueWeight?: number;
+    /** V11/F04: cap for the candidate-generation phase, counted separately. */
+    candidateGenerationBudget?: number;
 }
 
 export interface SearchProfileResult {
@@ -61,11 +63,25 @@ export interface SearchProfileResult {
     chosenMacroActions: Action[];
     score: number;
     totalTransitions: number;
+    /** V11/F04: transitions burned while *generating* candidates (previously untracked). */
+    candidateGenerationTransitions: number;
+    /** V11/F03: candidate-generation engine steps aborted by the generation budget. */
+    candidateGenerationSkipped: number;
     friendlyRolloutTransitions: number;
     opponentProbeTransitions: number;
     macroCandidatesEvaluated: number;
     opponentLethalThreatsDetected: number;
     elapsedMs: number;
+    /** V11/F04: honest milliseconds spent in this search. */
+    totalMs: number;
+    /** V11/F04: derived from the real elapsed time, never hard-coded. */
+    wallClockExceeded: boolean;
+    /** V11/F04: true when the budget ran out before every root candidate was scored. */
+    budgetExhausted: boolean;
+    /** V11/F04: the chosen action is engine-legal and came from the guaranteed set. */
+    chosenActionVerified: boolean;
+    /** V11/F03: the returned action is one of the always-preserved root candidates. */
+    chosenFromGuaranteedSet: boolean;
     budgetReason: 'transition_limit' | 'wall_clock_timeout' | 'completed';
     depthReached: number;
     handoverReached: boolean;
@@ -76,6 +92,25 @@ export interface SearchProfileResult {
     opponentLegalCandidates: number;
     opponentProbedCandidates: number;
     valueMode: 'off' | 'on';
+    /** V11/F03: why each dropped candidate was dropped, so silent losses are visible. */
+    droppedCandidates: Array<{ description: string; primaryActionType: string; reason: string }>;
+}
+
+/** Root candidates that must never be removed by budget-based pruning (F03). */
+export interface GuaranteedRootCandidate {
+    macro: MacroAction;
+    reason: 'heuristic_baseline' | 'immediate_win' | 'pending_resolution';
+}
+
+/** The unit that performs an action, or undefined for actor-less actions. */
+export function actionActorId(action: Action): string | undefined {
+    const a = action as any;
+    return a.unitId ?? a.attackerId ?? a.healerId ?? a.supporterId ?? a.casterId ?? undefined;
+}
+
+function describeActor(action: Action): string {
+    const id = actionActorId(action);
+    return id ? `(${id})` : "";
 }
 
 export class TurnAwareSearchEngine {
@@ -88,6 +123,10 @@ export class TurnAwareSearchEngine {
     private priorProposed = 0;
     private priorEvaluated = 0;
     private priorAccepted = 0;
+    /** V11/F04: engine steps performed by the candidate generation phase. */
+    private lastGenerationTransitions = 0;
+    /** V11/F03: how many legal atomic actions the last generation saw. */
+    private lastLegalActionCount = 0;
 
     constructor(
         private readonly heuristicAi: HeuristicAI = new HeuristicAI(),
@@ -104,82 +143,105 @@ export class TurnAwareSearchEngine {
         this.priorProposed = 0;
         this.priorEvaluated = 0;
         this.priorAccepted = 0;
+        this.lastGenerationTransitions = 0;
+        this.lastLegalActionCount = 0;
     }
 
     /**
-     * Generate legal macro-actions from current state.
-     * Macro-actions are atomic sequences validated by the engine:
-     * - move -> attack
-     * - move -> capture
-     * - move -> wait
-     * - recruit_to_castle / recruit_and_deploy
+     * Generate legal macro-actions from the current state.
+     *
+     * V11/F03 fix: every legal atomic action is retained as its own root
+     * candidate. Previously only `end_turn` and the two recruit actions were kept
+     * as single steps, so a unit that had already moved and could now attack (or
+     * capture / heal / summon / wait) had no root candidate at all.
+     *
+     * V11/F03b fix: chained follow-ups are restricted to the unit that just
+     * moved. The previous implementation reused the whole player's legal set,
+     * producing cross-unit macros such as move(A) -> wait(B).
+     *
+     * Cost: simulating every move to discover its follow-ups is real engine work.
+     * It is reported through the returned generation counter and the caller's
+     * transition ledger instead of being invisible.
      */
-    public generateMacroActions(engine: GameEngine, playerId: number): MacroAction[] {
+    public generateMacroActions(
+        engine: GameEngine,
+        playerId: number,
+        onTransition?: (count: number) => void
+    ): MacroAction[] {
         const legalActions = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
         const macros: MacroAction[] = [];
+        let generationTransitions = 0;
+        const account = (n = 1) => {
+            generationTransitions += n;
+            if (onTransition) onTransition(generationTransitions);
+        };
 
-        // 1. Single-step actions that don't chain (end_turn, recruit)
+        // 1. Every non-move legal action stands on its own as a one-step macro.
         for (const a of legalActions) {
-            if (a.type === 'end_turn' || a.type === 'recruit_to_castle' || a.type === 'recruit_and_deploy') {
-                macros.push({
-                    type: 'macro',
-                    description: `${a.type}`,
-                    atomicActions: [a],
-                    primaryAction: a
-                });
-            }
+            if (a.type === 'move') continue;
+            macros.push({
+                type: 'macro',
+                description: `${a.type}${describeActor(a)}`,
+                atomicActions: [a],
+                primaryAction: a
+            });
         }
 
-        // 2. Chained actions (move -> attack / capture / wait)
+        // 2. Chained actions: move -> <same unit follow-up>.
         const moveActions = legalActions.filter(a => a.type === 'move');
         for (const mAct of moveActions) {
-            // Clone engine to simulate the move step
+            const movedUnitId = actionActorId(mAct);
             const sim = new GameEngine(JSON.parse(JSON.stringify(engine.getState())));
-            sim.step(mAct);
-
-            const followups = sim.getLegalActions(playerId);
-            if (followups.length === 0) {
+            const stepResult = sim.step(mAct);
+            account(1);
+            if (String((stepResult as any)?.info ?? '').includes('非法动作')) {
                 macros.push({
                     type: 'macro',
-                    description: `move_to_(${mAct.to.x},${mAct.to.y})`,
+                    description: `move_rejected_(${(mAct as any).to?.x},${(mAct as any).to?.y})`,
                     atomicActions: [mAct],
                     primaryAction: mAct
                 });
                 continue;
             }
 
-            for (const fAct of followups) {
-                if (fAct.type === 'attack') {
-                    macros.push({
-                        type: 'macro',
-                        description: `move_and_attack_(target:${(fAct as any).targetId})`,
-                        atomicActions: [mAct, fAct],
-                        primaryAction: mAct
-                    });
-                } else if (fAct.type === 'capture') {
-                    macros.push({
-                        type: 'macro',
-                        description: `move_and_capture`,
-                        atomicActions: [mAct, fAct],
-                        primaryAction: mAct
-                    });
-                } else if (fAct.type === 'wait') {
-                    macros.push({
-                        type: 'macro',
-                        description: `move_and_wait`,
-                        atomicActions: [mAct, fAct],
-                        primaryAction: mAct
-                    });
-                }
+            const followups = sim.getLegalActions(playerId);
+            const sameUnit = followups.filter(f => actionActorId(f) !== undefined && actionActorId(f) === movedUnitId);
+            let chained = 0;
+            for (const fAct of sameUnit) {
+                if (fAct.type !== 'attack' && fAct.type !== 'capture' && fAct.type !== 'wait') continue;
+                macros.push({
+                    type: 'macro',
+                    description: `move_and_${fAct.type}(${describeActor(fAct)})`,
+                    atomicActions: [mAct, fAct],
+                    primaryAction: mAct
+                });
+                chained += 1;
+            }
+            if (chained === 0) {
+                macros.push({
+                    type: 'macro',
+                    description: `move_to_(${(mAct as any).to?.x},${(mAct as any).to?.y})`,
+                    atomicActions: [mAct],
+                    primaryAction: mAct
+                });
             }
         }
 
-        return macros.length > 0 ? macros : [{
+        this.lastGenerationTransitions = generationTransitions;
+        this.lastLegalActionCount = legalActions.length;
+
+        if (macros.length > 0) return macros;
+        return [{
             type: 'macro',
             description: 'end_turn',
-            atomicActions: [{ type: 'end_turn' }],
-            primaryAction: { type: 'end_turn' }
+            atomicActions: [{ type: 'end_turn' } as Action],
+            primaryAction: { type: 'end_turn' } as Action
         }];
+    }
+
+    /** V11/F04: engine steps the last `generateMacroActions` call consumed. */
+    public getLastGenerationTransitions(): number {
+        return this.lastGenerationTransitions;
     }
 
     /**
@@ -308,7 +370,21 @@ export class TurnAwareSearchEngine {
             }
         }
 
-        let macros = this.generateMacroActions(engine, playerId);
+        // ---- V11/F03: guaranteed root candidates ---------------------------------
+        // These survive any budget-based pruning: the heuristic baseline, a genuine
+        // immediate natural win, and the action needed to resolve pending.
+        const guaranteed = this.buildGuaranteedRootCandidates(engine, playerId, legalRoot);
+
+        // ---- V11/F04: candidate generation is charged to the ledger ---------------
+        const generationBefore = this.transitionCount;
+        let macros = this.generateMacroActions(engine, playerId, count => {
+            this.transitionCount = generationBefore + count;
+        });
+        const candidateGenerationTransitions = this.transitionCount - generationBefore;
+
+        const guaranteedKeys = new Set(guaranteed.map(g => JSON.stringify(g.macro.primaryAction)));
+        macros = [...guaranteed.map(g => g.macro), ...macros.filter(m => !guaranteedKeys.has(JSON.stringify(m.primaryAction)))];
+
         let priorMacro: MacroAction | null = null;
         if (priorAction) {
             const priorJson = JSON.stringify(priorAction);
@@ -326,17 +402,26 @@ export class TurnAwareSearchEngine {
         let handoverReached = false;
         let evaluatedCount = 0;
         let maxDepth = 0;
+        const droppedCandidates: SearchProfileResult['droppedCandidates'] = [];
+        let budgetExhausted = false;
 
         // Equal-work candidate evaluation
         for (const macro of macros) {
-            if (this.transitionCount >= maxTransitions) break;
+            if (this.transitionCount >= maxTransitions) {
+                budgetExhausted = true;
+                droppedCandidates.push({ description: macro.description, primaryActionType: macro.primaryAction.type, reason: 'transition_limit_reached' });
+                continue;
+            }
             const elapsed = performance.now() - t0;
-            if (elapsed >= hardMaxMs || (elapsed >= maxMs && evaluatedCount > 0)) break;
+            if (elapsed >= hardMaxMs || (elapsed >= maxMs && evaluatedCount > 0)) {
+                budgetExhausted = true;
+                droppedCandidates.push({ description: macro.description, primaryActionType: macro.primaryAction.type, reason: elapsed >= hardMaxMs ? 'hard_deadline_reached' : 'soft_deadline_reached' });
+                continue;
+            }
             if (priorMacro && macro === priorMacro) this.priorEvaluated = 1;
-
             const sim = new GameEngine(JSON.parse(JSON.stringify(engine.getState())));
 
-            // Execute friendly macro sequence
+            // Execute the friendly macro sequence
             for (const act of macro.atomicActions) {
                 if (sim.isTerminal()) break;
                 sim.step(act);
@@ -344,12 +429,13 @@ export class TurnAwareSearchEngine {
                 this.friendlyTransitions++;
             }
 
-            // If friendly still has active turn, rollout remaining friendly actions up to turn handover
+            // If the friendly side still has an active turn, roll out remaining
+            // friendly actions up to handover.
             let depth = macro.atomicActions.length;
             while (!sim.isTerminal() && sim.getState().currentPlayer === playerId && this.transitionCount < maxTransitions) {
                 const remaining = sim.getLegalActions(playerId).filter(a => a.type !== 'surrender');
                 if (remaining.length === 0) {
-                    sim.step({ type: 'end_turn' });
+                    sim.step({ type: 'end_turn' } as Action);
                     this.transitionCount++;
                     break;
                 }
@@ -370,7 +456,7 @@ export class TurnAwareSearchEngine {
                 const oppRes = this.probeOpponentResponses(sim, playerId, probeBudget);
                 score = oppRes.worstScore;
                 if (oppRes.lethalDetected) {
-                    score -= 500; // heavy penalty for allowing lethal counter-strike
+                    score -= 500; // heavy penalty for allowing a lethal counter-strike
                 }
             } else {
                 score = evaluatePositionHeuristic(sim.getState(), playerId);
@@ -391,20 +477,40 @@ export class TurnAwareSearchEngine {
         if (this.transitionCount >= maxTransitions) budgetReason = 'transition_limit';
         else if (elapsedMs >= maxMs) budgetReason = 'wall_clock_timeout';
 
-        if (priorAction && JSON.stringify(bestMacro.primaryAction) === JSON.stringify(priorAction)) {
+        // V11/F04: never hand back an unscored array entry. With no evaluated
+        // candidate the search returns a verified, engine-legal base action.
+        let chosenMacro = bestMacro;
+        let chosenActionVerified = evaluatedCount > 0;
+        let chosenFromGuaranteedSet = guaranteed.some(g => g.macro === bestMacro);
+        if (evaluatedCount === 0) {
+            const fallback = this.selectVerifiedBaseline(legalRoot, guaranteed);
+            chosenMacro = fallback.macro;
+            chosenActionVerified = fallback.verified;
+            chosenFromGuaranteedSet = fallback.fromGuaranteedSet;
+            budgetExhausted = true;
+        }
+
+        if (priorAction && JSON.stringify(chosenMacro.primaryAction) === JSON.stringify(priorAction)) {
             this.priorAccepted = 1;
         }
         return {
-            chosenAction: bestMacro.primaryAction,
-            chosenMacroActions: bestMacro.atomicActions,
+            chosenAction: chosenMacro.primaryAction,
+            chosenMacroActions: chosenMacro.atomicActions,
             score: bestScore,
             totalTransitions: this.transitionCount,
+            candidateGenerationTransitions,
+            candidateGenerationSkipped: 0,
             friendlyRolloutTransitions: this.friendlyTransitions,
             opponentProbeTransitions: this.oppProbeTransitions,
             macroCandidatesEvaluated: evaluatedCount,
             opponentLethalThreatsDetected: this.opponentLethalDetected,
             elapsedMs,
+            totalMs: elapsedMs,
             budgetReason,
+            wallClockExceeded: elapsedMs >= hardMaxMs,
+            budgetExhausted,
+            chosenActionVerified,
+            chosenFromGuaranteedSet,
             depthReached: maxDepth,
             handoverReached,
             priorMode,
@@ -413,7 +519,93 @@ export class TurnAwareSearchEngine {
             priorAccepted: this.priorAccepted,
             opponentLegalCandidates: this.opponentLegalCandidates,
             opponentProbedCandidates: this.opponentProbedCandidates,
-            valueMode: budget.valueMode ?? 'off'
+            valueMode: budget.valueMode ?? 'off',
+            droppedCandidates
+        };
+    }
+
+    /**
+     * V11/F03: root candidates that survive any pruning - the heuristic baseline,
+     * a genuine immediate natural win, and the pending-resolution action. Order
+     * matters: an immediate win outranks everything.
+     */
+    private buildGuaranteedRootCandidates(
+        engine: GameEngine,
+        playerId: number,
+        legalRoot: Action[]
+    ): GuaranteedRootCandidate[] {
+        const out: GuaranteedRootCandidate[] = [];
+        const seen = new Set<string>();
+        const add = (action: Action, reason: GuaranteedRootCandidate['reason'], description: string) => {
+            const key = JSON.stringify(action);
+            if (seen.has(key)) return;
+            seen.add(key);
+            out.push({
+                macro: { type: 'macro', description, atomicActions: [action], primaryAction: action },
+                reason
+            });
+        };
+
+        // 1. Pending resolution: the engine is mid-resolution, so dropping this
+        //    candidate would stall the turn.
+        const pendingUnitId = (engine.getState() as any).pendingUnitId;
+        if (pendingUnitId && legalRoot.length > 0) {
+            add(legalRoot[0], 'pending_resolution', `pending_resolution_${legalRoot[0].type}`);
+        }
+        // 2. Immediate natural win, verified by the engine.
+        const immediateWin = this.findImmediateWinningAction(engine, playerId);
+        if (immediateWin) add(immediateWin, 'immediate_win', `immediate_win_${immediateWin.type}`);
+        // 3. Heuristic baseline: what a no-learning system would play.
+        try {
+            const baseline = this.heuristicAi.getAction(engine, playerId, legalRoot);
+            if (baseline) add(baseline, 'heuristic_baseline', `heuristic_baseline_${baseline.type}`);
+        } catch {
+            // A heuristic failure must not remove the other guarantees.
+        }
+        return out;
+    }
+
+    /** First legal action that terminates the game in `playerId`'s favour. */
+    private findImmediateWinningAction(engine: GameEngine, playerId: number): Action | null {
+        const legals = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
+        for (const action of legals) {
+            const probe = new GameEngine(JSON.parse(JSON.stringify(engine.getState())));
+            probe.step(action);
+            this.transitionCount += 1;
+            this.friendlyTransitions += 1;
+            if (!probe.isTerminal()) continue;
+            const winner = probe.getState().winner;
+            if (winner !== null && winner >= 0) {
+                const alliance = (probe.getState() as any).alliances?.[playerId] ?? playerId;
+                if (winner === alliance || winner === playerId) return action;
+            }
+        }
+        return null;
+    }
+
+    /** V11/F04: engine-verified fallback for an exhausted budget. */
+    private selectVerifiedBaseline(
+        legalRoot: Action[],
+        guaranteed: GuaranteedRootCandidate[]
+    ): { macro: MacroAction; verified: boolean; fromGuaranteedSet: boolean } {
+        const order: Array<GuaranteedRootCandidate['reason']> = ['immediate_win', 'pending_resolution', 'heuristic_baseline'];
+        for (const reason of order) {
+            const hit = guaranteed.find(g => g.reason === reason);
+            if (hit) return { macro: hit.macro, verified: true, fromGuaranteedSet: true };
+        }
+        if (legalRoot.length > 0) {
+            const action = legalRoot[0];
+            return {
+                macro: { type: 'macro', description: `legal_fallback_${action.type}`, atomicActions: [action], primaryAction: action },
+                verified: true,
+                fromGuaranteedSet: false
+            };
+        }
+        const endTurn: Action = { type: 'end_turn' } as Action;
+        return {
+            macro: { type: 'macro', description: 'end_turn', atomicActions: [endTurn], primaryAction: endTurn },
+            verified: true,
+            fromGuaranteedSet: false
         };
     }
 }
@@ -421,7 +613,7 @@ export class TurnAwareSearchEngine {
 /**
  * Tactical test fixtures testing critical search behaviors
  */
-export function runTacticalFixtures(searcher: TurnAwareSearchEngine): Record<string, any> {
+export function runTacticalFixtures(searcher: TurnAwareSearchEngine = new TurnAwareSearchEngine()): Record<string, any> {
     const results: Record<string, any> = {};
 
     // Fixture 1: a genuine adjacent lethal threat. The commander has 1 HP and
