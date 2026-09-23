@@ -22,7 +22,7 @@ import {
     SpatialResNetWeights
 } from './spatial_conv_net';
 import { predictSpatialAction } from './shared_spatial_policy';
-import { getPolicyRegistryEntry } from './models/model_registry';
+import { getPolicyRegistryEntry, isValueHeadQualified } from './models/model_registry';
 
 export type SupportedSpatialPolicy =
     | 'spatial_v2_experimental'
@@ -175,7 +175,9 @@ export function getSpatialAiActionSync(
             status: 'OK',
             latencyMs: e2eMs,
             e2eMs,
-            source: `${registryEntry?.title ?? requestedPolicy} (V:${predResult.value.toFixed(2)})`,
+            source: isValueHeadQualified(requestedPolicy)
+                ? `${registryEntry?.title ?? requestedPolicy} (V:${predResult.value.toFixed(2)})`
+                : `${registryEntry?.title ?? requestedPolicy} (V:unqualified)`,
             requestedPolicy,
             actualPolicy: requestedPolicy,
             checkpointSha256: checkpointSha,

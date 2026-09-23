@@ -1,0 +1,77 @@
+{
+  "task": "T10-04",
+  "title": "Turn-Aware Search Fixture & Prior Instrumentation (v10 fix 01)",
+  "executedAt": "2026-09-23T01:12:04.253Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "realFixtureResults": {
+    "fixture_1_lethal_depth_defense": {
+      "description": "Friendly 1HP commander adjacent to a strong enemy; probe must detect lethal response",
+      "chosenAction": "recruit_to_castle",
+      "transitions": 103,
+      "oppProbes": 76,
+      "opponentLegalCandidates": 84,
+      "opponentProbedCandidates": 10,
+      "lethalDetected": 11,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_2_multi_unit_handover": {
+      "description": "Friendly multi-unit turn rolls out to genuine opponent handover",
+      "transitions": 149,
+      "friendlyTransitions": 49,
+      "depthReached": 8,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_3_equal_work_transition_scan": {
+      "64": {
+        "budgetLimit": 64,
+        "transitionsUsed": 64,
+        "elapsedMs": 95.7,
+        "candidatesEvaluated": 5,
+        "budgetReason": "transition_limit"
+      },
+      "256": {
+        "budgetLimit": 256,
+        "transitionsUsed": 256,
+        "elapsedMs": 305.7,
+        "candidatesEvaluated": 18,
+        "budgetReason": "transition_limit"
+      },
+      "1024": {
+        "budgetLimit": 1024,
+        "transitionsUsed": 434,
+        "elapsedMs": 526.8,
+        "candidatesEvaluated": 29,
+        "budgetReason": "completed"
+      }
+    },
+    "fixture_4_prior_mode_instrumentation": {
+      "off": {
+        "proposed": 0,
+        "evaluated": 0,
+        "accepted": 0
+      },
+      "shuffled": {
+        "proposed": 1,
+        "evaluated": 1,
+        "accepted": 0
+      },
+      "note": "real-prior mode additionally requires a predictor instance; the pipeline runner supplies one when available."
+    }
+  },
+  "matchComparison": {
+    "task": "T10-04",
+    "status": "NOT_RUN_FOR_MATCH_COMPARISON",
+    "reason": "Fixtures and prior instrumentation were executed, but the full paired old-search vs new-search 80-match comparison has not yet been run in this session.",
+    "priorModesInstrumented": [
+      "off",
+      "real",
+      "shuffled"
+    ]
+  },
+  "caveats": [
+    "Fixture pass conditions are now non-trivial for fixture 1 (adjacent lethal threat) but should still be expanded with rank>=9 and two-unit combo fixtures.",
+    "The match comparison is intentionally marked NOT_RUN rather than overclaimed."
+  ]
+}

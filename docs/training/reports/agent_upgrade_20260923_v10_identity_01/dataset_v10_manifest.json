@@ -1,0 +1,51 @@
+{
+  "manifestVersion": "v10",
+  "runId": "agent_upgrade_20260923_v10_identity_01",
+  "generatedAt": "2026-09-22T22:00:52.894Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "baselineModel": {
+    "policy": "SPATIAL_V2_BEST",
+    "sha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+    "selectedReason": "Best validation loss checkpoint from run03; achieves 5W/8L/0D/7T (25% W/N, 38.5% W/(W+L)) with search, beating last epoch and old model on Liberty Port (75% W/N) and Duel (50% W/N)"
+  },
+  "split": {
+    "splitVersion": "v10",
+    "splitSha256": "7d0175a95f2b6683e0aeecc0315ab74c7d36b5b1214200dbf9f0f0a0c4b7248b",
+    "splitPath": "v10/split_v10.json"
+  },
+  "accounting": {
+    "engineStepCount": 55351,
+    "scenarioAttemptCount": 120,
+    "uniqueStateCount": 55351,
+    "naturalTerminalEpisodes": 92,
+    "censoredEpisodes": 28,
+    "trainConsumedCount": 0,
+    "valIdCount": 12,
+    "valOodCount": 40
+  },
+  "endgameOutcomes": {
+    "naturalWins": 20,
+    "naturalLosses": 72,
+    "naturalDraws": 0,
+    "truncationsMaxTurns": 0,
+    "truncationsMaxSteps": 28
+  },
+  "curriculumCoverage": {
+    "savingGold": {
+      "status": "DESIGNED",
+      "minQuota": 150
+    },
+    "castleUnblock": {
+      "status": "DESIGNED",
+      "minQuota": 150
+    },
+    "commanderProtection": {
+      "status": "DESIGNED",
+      "minQuota": 150
+    },
+    "forceExchangeAndEndgame": {
+      "status": "DESIGNED",
+      "minQuota": 150
+    }
+  }
+}

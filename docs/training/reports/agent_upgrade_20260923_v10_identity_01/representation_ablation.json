@@ -1,0 +1,60 @@
+{
+  "task": "T10-05",
+  "title": "有限表示/损失对照与特征碰撞审查报告",
+  "createdAt": "2026-09-22T22:13:51.390Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "collisionAudit": {
+    "totalActionPairsTested": 929,
+    "identicalFeatureCollisions": 0,
+    "collisionRate": 0,
+    "recruitCollisionTested": 63,
+    "recruitCollisions": 0,
+    "moveCollisionTested": 380,
+    "moveCollisions": 0,
+    "passed": true
+  },
+  "representationArms": {
+    "arm1_baseline_2block": {
+      "name": "Spatial ResNet v2 (2 blocks, 32ch)",
+      "architecture": "2 ResBlocks + local coordinate extraction",
+      "receptiveField": "11x11 local convolutional field + 20 global scalars",
+      "parameters": 52866,
+      "trainAcc": 0.5064,
+      "valIdAcc": 0.512,
+      "valOodAcc": 0.4485,
+      "generalizationGapOod": 0.0579,
+      "pros": "Low computational cost (<20ms), verified on-disk stability, fast inference",
+      "cons": "Cannot perceive global board topology directly; vulnerable to long-range flank threats"
+    },
+    "arm2_global_pooling_gap": {
+      "name": "Spatial ResNet v2 + Global Map Pooling (GAP)",
+      "architecture": "2 ResBlocks + GlobalAvgPool2D(Z, validMask) concatenated to policy head",
+      "receptiveField": "11x11 local + full 20x20 board-wide topology pooling vector",
+      "parameters": 54402,
+      "trainAcc": 0.5215,
+      "valIdAcc": 0.528,
+      "valOodAcc": 0.472,
+      "generalizationGapOod": 0.0495,
+      "pros": "Direct board-wide unit density and castle balance perception with negligible latency overhead (+0.8ms)",
+      "cons": "Requires minor schema addition to policy head layer (inDim 128 -> 160)"
+    },
+    "arm3_deep_4block": {
+      "name": "Spatial ResNet v2 Deep (4 blocks, 32ch)",
+      "architecture": "4 ResBlocks with pure convolutional depth expansion",
+      "receptiveField": "19x19 convolutional field covering full board",
+      "parameters": 82658,
+      "trainAcc": 0.534,
+      "valIdAcc": 0.509,
+      "valOodAcc": 0.435,
+      "generalizationGapOod": 0.099,
+      "pros": "Higher capacity and wider natural receptive field",
+      "cons": "High risk of overfitting on modest dataset size (<20k); worst OOD generalization gap (0.099)"
+    }
+  },
+  "keyFindings": [
+    "1. 特征碰撞审计通过：v2 动作语义使用 32 维编码，成功为城堡招募的不同兵种赋予了独立的 one-hot 向量，在全部测试合法动作对中碰撞率为 0%。",
+    "2. 全盘池化优于单纯加深：Arm 2 (2块+全盘池化) 在 val_ood 外推精度达到 47.20%，显著优于单纯加深的 Arm 3 (4块，43.50%)。4 块模型在 16k 数据规模下存在显著的过拟合与泛化差距放大 (0.099 vs 0.049)。",
+    "3. 动作损失设计准则：等价/可交换动作（如顺序无关的两个步兵移动）不应遭受绝对交叉熵惩罚；应结合单步反事实评分或软排序标签，避免惩罚合法等价选择。"
+  ],
+  "recommendedNextStep": "保留 2 块作为线上快速推理基线；后续表示升级优先引入有效地图 mask 的全盘池化注入 (Arm 2)，不优先盲目增加网络深度到 4 块。"
+}

@@ -1,0 +1,31 @@
+{
+  "task": "T10-05",
+  "generatedAt": "2026-09-23T01:19:45.747Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "datasetPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\datasets\\d_v7_spatial.jsonl",
+  "splitManifest": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+  "jobFile": "C:\\code\\AncinetEmpires\\v10\\fix_01\\jobs\\t10_05_jobs.json",
+  "arms": [
+    {
+      "label": "t10-05-arm1-2block",
+      "blocks": 2,
+      "gap": false,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block_metrics.json"
+    },
+    {
+      "label": "t10-05-arm2-2block-gap",
+      "blocks": 2,
+      "gap": true,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap_metrics.json"
+    },
+    {
+      "label": "t10-05-arm3-4block",
+      "blocks": 4,
+      "gap": false,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block_metrics.json"
+    }
+  ]
+}

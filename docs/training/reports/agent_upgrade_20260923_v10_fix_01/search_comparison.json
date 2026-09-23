@@ -1,0 +1,66 @@
+{
+  "task": "T10-04",
+  "status": "DEV_20_MATCHES_PER_ARM",
+  "executedAt": "2026-09-23T01:54:07.821Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "protocol": {
+    "maps": [
+      "(2) Duel.aem",
+      "(2) Crossed swords.aem",
+      "(2) Icy Paths.aem",
+      "(2) Liberty Port.aem",
+      "(2) Mourningstar.aem"
+    ],
+    "seeds": [
+      42,
+      1337
+    ],
+    "matchesPerArm": 20,
+    "maxTransitions": 128
+  },
+  "results": {
+    "s00_search": {
+      "label": "S00_SEARCH",
+      "matches": 20,
+      "wins": 6,
+      "losses": 7,
+      "draws": 0,
+      "truncations": 7,
+      "naturalWinRate": 46.2,
+      "winRateAllMatches": 30,
+      "ci95All": [
+        14.5,
+        51.9
+      ],
+      "ci95Natural": [
+        23.2,
+        70.9
+      ],
+      "truncationRate": 35
+    },
+    "turn_aware_search": {
+      "label": "T10_TURN_SEARCH",
+      "matches": 20,
+      "wins": 0,
+      "losses": 6,
+      "draws": 0,
+      "truncations": 14,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        39
+      ],
+      "truncationRate": 70
+    }
+  },
+  "verdict": "Turn-aware search did not beat S00 in this 20-match development run; do not claim a search upgrade.",
+  "caveat": "This is 20 matches/arm, not the 80-match comparison specified by T10-04; treat as a smoke comparison only.",
+  "codeChangedAfterRun": true,
+  "requiresRerun": true,
+  "postRunFix": "T10_TURN_SEARCH now commits to the full validated macro sequence instead of executing only primaryAction; this comparison must be re-run before drawing final conclusions."
+}

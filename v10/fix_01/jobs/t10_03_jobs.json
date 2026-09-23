@@ -1,0 +1,85 @@
+{
+  "generatedAt": "2026-09-23T01:17:14.470Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "python": "C:\\Users\\SHIINA\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "jobs": [
+    {
+      "label": "t10-03-arm-b",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\datasets\\d_v10_fix_arm_b_control.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--max-steps",
+        "87",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_best.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_best.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_metrics.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json"
+      ]
+    },
+    {
+      "label": "t10-03-arm-c",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\datasets\\d_v10_fix_arm_c_dagger.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--max-steps",
+        "87",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_best.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_best.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_metrics.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_controlled_fix\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json"
+      ]
+    }
+  ]
+}

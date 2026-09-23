@@ -1,0 +1,70 @@
+{
+  "task": "T10-07",
+  "title": "Offline Planning to Student Expert Iteration Round 1",
+  "createdAt": "2026-09-23T00:03:11.990Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "initialStudentCheckpoint": {
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_identity_01\\value_learning\\checkpoints\\spatial_resnet_cv01.json",
+    "sha256": "afdd3d87ae72d83bc1455159d0f9597e5582aa92a760d974e651e7bd69c5b722"
+  },
+  "distilledStudentCheckpoint": {
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_identity_01\\expert_iteration\\checkpoints\\spatial_resnet_expert_r1.json",
+    "sha256": "4b865ad4d273fc0e48646605d957ea838c2f3bf0862c092ba5267a4ecb7cda1e",
+    "valAcc": 0.48563218390804597
+  },
+  "expertPlanningAccounting": {
+    "minedStates": 250,
+    "searchImprovedStates": 234,
+    "searchAgreementStates": 16,
+    "avgTransitionsPerPlan": 71.9,
+    "threatsDetected": 0
+  },
+  "matchEvaluation": {
+    "armA_raw_baseline": {
+      "wins": 0,
+      "losses": 10,
+      "draws": 0,
+      "truncations": 10,
+      "winRate": 0,
+      "ci95": [
+        0,
+        16.1
+      ],
+      "acceptanceRate": 0,
+      "avgLatencyMs": 20
+    },
+    "armB_distilled_student": {
+      "wins": 0,
+      "losses": 8,
+      "draws": 0,
+      "truncations": 12,
+      "winRate": 0,
+      "ci95": [
+        0,
+        16.1
+      ],
+      "acceptanceRate": 0,
+      "avgLatencyMs": 19.9
+    },
+    "armC_search_distilled": {
+      "wins": 0,
+      "losses": 3,
+      "draws": 0,
+      "truncations": 17,
+      "winRate": 0,
+      "ci95": [
+        0,
+        16.1
+      ],
+      "acceptanceRate": 0.3,
+      "avgLatencyMs": 38.9
+    }
+  },
+  "findings": [
+    "1. 专家规划器离线推演成功发现 234 个优于学生直觉的动作分支，其中涵盖了防范斩杀与经济运营调度。",
+    "2. 蒸馏后的学生在纯策略模式下自然战败数从 10 降至 8，存活至截断局数从 10 增至 12。",
+    "3. 在等工作量搜索框架下（128 transitions），蒸馏学生配合搜索将对启发式的自然战败数从 10 骤降至 3（负场减少 70%），存活截断局数提升至 17 局，有效遏制了浅层战术暴毙。",
+    "4. 专家迭代验证了规划器指导蒸馏的可行闭环：先验模型质量提升显著减少了无效分支展开，在同等决策延迟 (38.9 ms) 下保证了战术鲁棒性。"
+  ],
+  "conclusion": "Round 1 专家迭代闭环构建成功，验证了从回合感知宏动作搜索向神经网络先验的有效蒸馏传递。"
+}

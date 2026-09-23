@@ -1,0 +1,65 @@
+{
+  "task": "T10-05",
+  "title": "有限表示/损失对照与特征碰撞审查报告 (v10 fix 01)",
+  "executedAt": "2026-09-23T01:23:57.850Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "collisionAudit": {
+    "totalActionPairsTested": 929,
+    "identicalFeatureCollisions": 0,
+    "collisionRate": 0,
+    "recruitCollisionTested": 63,
+    "recruitCollisions": 0,
+    "moveCollisionTested": 380,
+    "moveCollisions": 0,
+    "passed": true
+  },
+  "representationArms": {
+    "t10-05-arm1-2block": {
+      "blocks": 2,
+      "globalPolicyPool": false,
+      "checkpointSha256": "05e9a093f65b7c289b0d52407ad73e185f163a9747f0b89dac0b60b9f842df03",
+      "trainAcc": 0.5375533557351739,
+      "pythonValAcc": 0.4862068965517241,
+      "valIdAcc": 31.25,
+      "valIdSamples": 192,
+      "valOodAcc": 29.5,
+      "valOodSamples": 400
+    },
+    "t10-05-arm2-2block-gap": {
+      "blocks": 2,
+      "globalPolicyPool": true,
+      "checkpointSha256": "b90daeb811bb926d911448bdc1975db9a2c104c3d53d28e8652d47027cbfab63",
+      "trainAcc": 0.5399146308237217,
+      "pythonValAcc": 0.4877394636015326,
+      "valIdAcc": 30.73,
+      "valIdSamples": 192,
+      "valOodAcc": 29.5,
+      "valOodSamples": 400
+    },
+    "t10-05-arm3-4block": {
+      "blocks": 4,
+      "globalPolicyPool": false,
+      "checkpointSha256": "d83d4e28cad35fe76197cc754b5760cad9d2e3753b7c28df68adb3b323cd09e5",
+      "trainAcc": 0.5361910816456271,
+      "pythonValAcc": 0.4871647509578544,
+      "valIdAcc": 30.21,
+      "valIdSamples": 192,
+      "valOodAcc": 29.75,
+      "valOodSamples": 400
+    }
+  },
+  "evaluationProtocol": {
+    "dataset": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\d_v10_value_dataset.jsonl",
+    "splitManifest": "C:\\code\\AncinetEmpires\\v10\\fix_01\\split_v10.json",
+    "maxSamplesPerPartition": 400,
+    "metric": "policy top-1 accuracy"
+  },
+  "keyFindings": [
+    "Arm1 2-block: val_id=31.25%, val_ood=29.5%.",
+    "Arm2 2-block+GAP: val_id=30.73%, val_ood=29.5%.",
+    "Arm3 4-block: val_id=30.21%, val_ood=29.75%.",
+    "GAP Arm2 did not beat deeper Arm3 on this OOD sample; no architecture winner is declared.",
+    "Equivalence/soft-ranking loss and teacherQ are not yet implemented; do not claim them as done."
+  ],
+  "recommendedNextStep": "Keep 2-block as production inference baseline until a representation change wins with multiple seeds and an independent confirmation set."
+}

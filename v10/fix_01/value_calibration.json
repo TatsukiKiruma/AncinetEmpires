@@ -1,0 +1,597 @@
+{
+  "task": "T10-06",
+  "title": "Natural Terminal Value Calibration Report (v10 fix 01)",
+  "executedAt": "2026-09-23T03:09:59.346Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "splitManifest": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+  "datasetAccounting": {
+    "totalValueSamplesExtracted": 4888,
+    "naturalOutcomeSamples": 3983,
+    "censoredOutcomeSamples": 905,
+    "evaluationSamples": 2242
+  },
+  "calibrationComparison": {
+    "arm1_policy_only": {
+      "cv": 0,
+      "sha256": "f35d5ed212102ae9b7dc91307805d760144dd1fe209f536387e616af77d5892e",
+      "evaluatedSamples": 2242,
+      "naturalSamples": 1899,
+      "censoredSamples": 343,
+      "overallMse": 1.0734,
+      "pearsonCorrelation": 0.0291,
+      "brierScore": 0.2683,
+      "ece": 0.2296,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 1899,
+          "meanPredictedProb": 0.4555,
+          "empiricalWinRate": 0.6851,
+          "binError": 0.2296
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.7,
+          "empiricalWinRate": 0,
+          "binError": 0.7
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ],
+      "stageBreakdown": {
+        "OPENING": {
+          "count": 643,
+          "mse": 1.0211,
+          "brier": 0.2553,
+          "meanPred": 0.4556,
+          "actualWinRate": 0.5381
+        },
+        "MIDGAME": {
+          "count": 795,
+          "mse": 1.0731,
+          "brier": 0.2683,
+          "meanPred": 0.4554,
+          "actualWinRate": 0.6855
+        },
+        "ENDGAME": {
+          "count": 461,
+          "mse": 1.1468,
+          "brier": 0.2867,
+          "meanPred": 0.4556,
+          "actualWinRate": 0.8894
+        }
+      },
+      "mapBreakdown": {
+        "Duel": {
+          "count": 766,
+          "mse": 1.0659,
+          "actualWinRate": 0.671
+        },
+        "Liberty Port": {
+          "count": 667,
+          "mse": 1.0865,
+          "actualWinRate": 0.6942
+        },
+        "Crossed Swords": {
+          "count": 114,
+          "mse": 1.0777,
+          "actualWinRate": 0.7368
+        },
+        "Icy Paths": {
+          "count": 192,
+          "mse": 1.0799,
+          "actualWinRate": 0.7396
+        },
+        "Mourningstar": {
+          "count": 160,
+          "mse": 1.0435,
+          "actualWinRate": 0.6125
+        }
+      },
+      "seatBreakdown": {
+        "Seat 0": {
+          "count": 1007,
+          "mse": 1.0666,
+          "actualWinRate": 0.6703
+        },
+        "Seat 1": {
+          "count": 892,
+          "mse": 1.0811,
+          "actualWinRate": 0.7018
+        }
+      },
+      "collectionPolicyBreakdown": {
+        "HEURISTIC": {
+          "count": 96,
+          "mse": 1.0709,
+          "pearson": 0.1271,
+          "actualWinRate": 0.6771
+        },
+        "SPATIAL_V2_OLD": {
+          "count": 128,
+          "mse": 1.042,
+          "pearson": -0.516,
+          "actualWinRate": 0.5703
+        },
+        "SPATIAL_V2_BEST": {
+          "count": 1248,
+          "mse": 1.0742,
+          "pearson": 0.069,
+          "actualWinRate": 0.6907
+        },
+        "SPATIAL_V2_LAST": {
+          "count": 96,
+          "mse": 1.0647,
+          "pearson": -0.0144,
+          "actualWinRate": 0.6563
+        },
+        "S00_SEARCH": {
+          "count": 103,
+          "mse": 1.0961,
+          "pearson": -0.1353,
+          "actualWinRate": 0.7476
+        },
+        "S10_SEARCH_BEST": {
+          "count": 96,
+          "mse": 1.0882,
+          "pearson": 0.286,
+          "actualWinRate": 0.7292
+        },
+        "T10_TURN_SEARCH": {
+          "count": 125,
+          "mse": 1.0811,
+          "pearson": -0.0798,
+          "actualWinRate": 0.704
+        },
+        "T10_TURN_SEARCH_VALUE": {
+          "count": 7,
+          "mse": 0.9851,
+          "pearson": -0.1667,
+          "actualWinRate": 0.4286
+        }
+      },
+      "winnerBreakdown": {
+        "Seat 1": {
+          "count": 958,
+          "mse": 1.0653,
+          "actualWinRate": 0.6534
+        },
+        "Seat 0": {
+          "count": 941,
+          "mse": 1.0816,
+          "actualWinRate": 0.7173
+        }
+      }
+    },
+    "arm2_value_weight_01": {
+      "cv": 0.1,
+      "sha256": "882e5021cd71840eab6af6bcdff576f793bd3e9d41a8c57431240f8899fc65ad",
+      "evaluatedSamples": 2242,
+      "naturalSamples": 1899,
+      "censoredSamples": 343,
+      "overallMse": 0.8656,
+      "pearsonCorrelation": 0.0556,
+      "brierScore": 0.2164,
+      "ece": 0.033,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.5,
+          "empiricalWinRate": 0,
+          "binError": 0.5
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 1899,
+          "meanPredictedProb": 0.7181,
+          "empiricalWinRate": 0.6851,
+          "binError": 0.033
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ],
+      "stageBreakdown": {
+        "OPENING": {
+          "count": 643,
+          "mse": 1.1236,
+          "brier": 0.2809,
+          "meanPred": 0.7176,
+          "actualWinRate": 0.5381
+        },
+        "MIDGAME": {
+          "count": 795,
+          "mse": 0.8654,
+          "brier": 0.2164,
+          "meanPred": 0.7184,
+          "actualWinRate": 0.6855
+        },
+        "ENDGAME": {
+          "count": 461,
+          "mse": 0.506,
+          "brier": 0.1265,
+          "meanPred": 0.7183,
+          "actualWinRate": 0.8894
+        }
+      },
+      "mapBreakdown": {
+        "Duel": {
+          "count": 766,
+          "mse": 0.8889,
+          "actualWinRate": 0.671
+        },
+        "Liberty Port": {
+          "count": 667,
+          "mse": 0.8532,
+          "actualWinRate": 0.6942
+        },
+        "Crossed Swords": {
+          "count": 114,
+          "mse": 0.7766,
+          "actualWinRate": 0.7368
+        },
+        "Icy Paths": {
+          "count": 192,
+          "mse": 0.7677,
+          "actualWinRate": 0.7396
+        },
+        "Mourningstar": {
+          "count": 160,
+          "mse": 0.9864,
+          "actualWinRate": 0.6125
+        }
+      },
+      "seatBreakdown": {
+        "Seat 0": {
+          "count": 1007,
+          "mse": 0.8939,
+          "actualWinRate": 0.6703
+        },
+        "Seat 1": {
+          "count": 892,
+          "mse": 0.8336,
+          "actualWinRate": 0.7018
+        }
+      },
+      "collectionPolicyBreakdown": {
+        "HEURISTIC": {
+          "count": 96,
+          "mse": 0.8839,
+          "pearson": -0.1465,
+          "actualWinRate": 0.6771
+        },
+        "SPATIAL_V2_OLD": {
+          "count": 128,
+          "mse": 1.054,
+          "pearson": 0.3693,
+          "actualWinRate": 0.5703
+        },
+        "SPATIAL_V2_BEST": {
+          "count": 1248,
+          "mse": 0.8565,
+          "pearson": 0.0436,
+          "actualWinRate": 0.6907
+        },
+        "SPATIAL_V2_LAST": {
+          "count": 96,
+          "mse": 0.9157,
+          "pearson": -0.005,
+          "actualWinRate": 0.6563
+        },
+        "S00_SEARCH": {
+          "count": 103,
+          "mse": 0.7632,
+          "pearson": -0.1104,
+          "actualWinRate": 0.7476
+        },
+        "S10_SEARCH_BEST": {
+          "count": 96,
+          "mse": 0.7957,
+          "pearson": -0.1652,
+          "actualWinRate": 0.7292
+        },
+        "T10_TURN_SEARCH": {
+          "count": 125,
+          "mse": 0.8245,
+          "pearson": 0.27,
+          "actualWinRate": 0.704
+        },
+        "T10_TURN_SEARCH_VALUE": {
+          "count": 7,
+          "mse": 1.3065,
+          "pearson": 0.1667,
+          "actualWinRate": 0.4286
+        }
+      },
+      "winnerBreakdown": {
+        "Seat 1": {
+          "count": 958,
+          "mse": 0.9191,
+          "actualWinRate": 0.6534
+        },
+        "Seat 0": {
+          "count": 941,
+          "mse": 0.811,
+          "actualWinRate": 0.7173
+        }
+      }
+    },
+    "arm3_value_weight_025": {
+      "cv": 0.25,
+      "sha256": "a9215279a8a8aa47c27b4a19a66a07eaf80100b39994058a3591eb906801f8b7",
+      "evaluatedSamples": 2242,
+      "naturalSamples": 1899,
+      "censoredSamples": 343,
+      "overallMse": 0.8666,
+      "pearsonCorrelation": 0.0556,
+      "brierScore": 0.2166,
+      "ece": 0.0363,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.5,
+          "empiricalWinRate": 0,
+          "binError": 0.5
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 1899,
+          "meanPredictedProb": 0.7214,
+          "empiricalWinRate": 0.6851,
+          "binError": 0.0363
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ],
+      "stageBreakdown": {
+        "OPENING": {
+          "count": 643,
+          "mse": 1.1283,
+          "brier": 0.2821,
+          "meanPred": 0.721,
+          "actualWinRate": 0.5381
+        },
+        "MIDGAME": {
+          "count": 795,
+          "mse": 0.8664,
+          "brier": 0.2166,
+          "meanPred": 0.7217,
+          "actualWinRate": 0.6855
+        },
+        "ENDGAME": {
+          "count": 461,
+          "mse": 0.5018,
+          "brier": 0.1255,
+          "meanPred": 0.7216,
+          "actualWinRate": 0.8894
+        }
+      },
+      "mapBreakdown": {
+        "Duel": {
+          "count": 766,
+          "mse": 0.8903,
+          "actualWinRate": 0.671
+        },
+        "Liberty Port": {
+          "count": 667,
+          "mse": 0.8537,
+          "actualWinRate": 0.6942
+        },
+        "Crossed Swords": {
+          "count": 114,
+          "mse": 0.7764,
+          "actualWinRate": 0.7368
+        },
+        "Icy Paths": {
+          "count": 192,
+          "mse": 0.7679,
+          "actualWinRate": 0.7396
+        },
+        "Mourningstar": {
+          "count": 160,
+          "mse": 0.9894,
+          "actualWinRate": 0.6125
+        }
+      },
+      "seatBreakdown": {
+        "Seat 0": {
+          "count": 1007,
+          "mse": 0.895,
+          "actualWinRate": 0.6703
+        },
+        "Seat 1": {
+          "count": 892,
+          "mse": 0.8345,
+          "actualWinRate": 0.7018
+        }
+      },
+      "collectionPolicyBreakdown": {
+        "HEURISTIC": {
+          "count": 96,
+          "mse": 0.8846,
+          "pearson": -0.1467,
+          "actualWinRate": 0.6771
+        },
+        "SPATIAL_V2_OLD": {
+          "count": 128,
+          "mse": 1.0584,
+          "pearson": 0.3919,
+          "actualWinRate": 0.5703
+        },
+        "SPATIAL_V2_BEST": {
+          "count": 1248,
+          "mse": 0.8573,
+          "pearson": 0.043,
+          "actualWinRate": 0.6907
+        },
+        "SPATIAL_V2_LAST": {
+          "count": 96,
+          "mse": 0.9173,
+          "pearson": -0.0041,
+          "actualWinRate": 0.6563
+        },
+        "S00_SEARCH": {
+          "count": 103,
+          "mse": 0.7623,
+          "pearson": -0.1097,
+          "actualWinRate": 0.7476
+        },
+        "S10_SEARCH_BEST": {
+          "count": 96,
+          "mse": 0.7954,
+          "pearson": -0.1827,
+          "actualWinRate": 0.7292
+        },
+        "T10_TURN_SEARCH": {
+          "count": 125,
+          "mse": 0.8255,
+          "pearson": 0.2701,
+          "actualWinRate": 0.704
+        },
+        "T10_TURN_SEARCH_VALUE": {
+          "count": 7,
+          "mse": 1.3142,
+          "pearson": 0.1667,
+          "actualWinRate": 0.4286
+        }
+      },
+      "winnerBreakdown": {
+        "Seat 1": {
+          "count": 958,
+          "mse": 0.9207,
+          "actualWinRate": 0.6534
+        },
+        "Seat 0": {
+          "count": 941,
+          "mse": 0.8115,
+          "actualWinRate": 0.7173
+        }
+      }
+    }
+  },
+  "qualificationAudit": {
+    "valueHeadQualified": false,
+    "recommendedForDownstream": null,
+    "statusReason": "Value head did not meet pre-registered thresholds (pearson > 0.25, MSE < 0.65, ECE < 0.30); valueHeadQualified must remain false and downstream must not use V.",
+    "productionPolicyImpact": "UI must not label V output as a confirmed win-rate while valueHeadQualified is false."
+  }
+}

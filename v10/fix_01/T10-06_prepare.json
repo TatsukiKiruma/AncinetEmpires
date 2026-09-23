@@ -1,0 +1,41 @@
+{
+  "task": "T10-06",
+  "generatedAt": "2026-09-23T02:58:10.544Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "datasetPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\d_v10_value_dataset.jsonl",
+  "splitManifestPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+  "jobFile": "C:\\code\\AncinetEmpires\\v10\\fix_01\\jobs\\t10_06_jobs.json",
+  "datasetAccounting": {
+    "trainCount": 18877,
+    "valIdCount": 548,
+    "valOodCount": 1694,
+    "baseCount": 16231,
+    "appendedCount": 4888
+  },
+  "valueSamples": 4888,
+  "naturalSamples": 3983,
+  "censoredSamples": 905,
+  "arms": [
+    {
+      "label": "t10-06-arm1-policy-only",
+      "cv": 0,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv0.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv0_metrics.json",
+      "consumed": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv0_consumed_samples_manifest.json"
+    },
+    {
+      "label": "t10-06-arm2-value-01",
+      "cv": 0.1,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv01.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv01_metrics.json",
+      "consumed": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv01_consumed_samples_manifest.json"
+    },
+    {
+      "label": "t10-06-arm3-value-025",
+      "cv": 0.25,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv025.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv025_metrics.json",
+      "consumed": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv025_consumed_samples_manifest.json"
+    }
+  ]
+}

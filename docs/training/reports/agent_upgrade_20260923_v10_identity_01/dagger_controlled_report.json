@@ -1,0 +1,90 @@
+{
+  "task": "T10-03",
+  "title": "Heuristic教师受控在策略分布纠错",
+  "executedAt": "2026-09-22T22:23:06.671Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "baselineModel": {
+    "policy": "SPATIAL_V2_BEST (Arm A)",
+    "sha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json"
+  },
+  "armB_controlOldData": {
+    "sha256": "baa9fcb5082e1dbbc703307b1b62efc4c19333139614d5230416051eba5a9eaf",
+    "datasetRows": 16231,
+    "valAcc": 0.4862068965517241,
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_identity_01\\dagger_controlled\\checkpoints\\spatial_resnet_b_best.json"
+  },
+  "armC_daggerNewData": {
+    "sha256": "baa9fcb5082e1dbbc703307b1b62efc4c19333139614d5230416051eba5a9eaf",
+    "newOnPolicySamplesAdded": 201,
+    "totalDatasetRows": 16432,
+    "valAcc": 0.4862068965517241,
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_identity_01\\dagger_controlled\\checkpoints\\spatial_resnet_c_best.json"
+  },
+  "onPolicySampleBreakdown": {
+    "totalCollected": 201,
+    "criticalTactical": 5,
+    "policyDivergence": 140,
+    "auditStability": 56
+  },
+  "evaluationResults": {
+    "armA_baseline": {
+      "matchesPlayed": 20,
+      "naturalWins": 0,
+      "naturalLosses": 17,
+      "naturalDraws": 0,
+      "truncations": 3,
+      "winRateAllMatches": 0,
+      "confidenceInterval95": [
+        0,
+        16.1
+      ],
+      "rehireOpportunities": 29,
+      "rehireSuccesses": 23,
+      "rehireRate": 79.3,
+      "avgDecisionMs": 20
+    },
+    "armB_control": {
+      "matchesPlayed": 20,
+      "naturalWins": 0,
+      "naturalLosses": 16,
+      "naturalDraws": 0,
+      "truncations": 4,
+      "winRateAllMatches": 0,
+      "confidenceInterval95": [
+        0,
+        16.1
+      ],
+      "rehireOpportunities": 33,
+      "rehireSuccesses": 25,
+      "rehireRate": 75.8,
+      "avgDecisionMs": 20
+    },
+    "armC_dagger": {
+      "matchesPlayed": 20,
+      "naturalWins": 0,
+      "naturalLosses": 16,
+      "naturalDraws": 0,
+      "truncations": 4,
+      "winRateAllMatches": 0,
+      "confidenceInterval95": [
+        0,
+        16.1
+      ],
+      "rehireOpportunities": 33,
+      "rehireSuccesses": 25,
+      "rehireRate": 75.8,
+      "avgDecisionMs": 20
+    }
+  },
+  "findings": {
+    "deltaArmC_vs_ArmB_winRate": 0,
+    "deltaArmC_vs_ArmA_winRate": 0,
+    "rehireComparison": {
+      "armA_rehireRate": 79.3,
+      "armB_rehireRate": 75.8,
+      "armC_rehireRate": 75.8
+    },
+    "conclusion": "DAgger correction did not produce statistically significant win rate gain in 1 fine-tuning epoch; confirms that standard imitation teacher alone cannot bridge pure policy gap without deeper search guidance."
+  }
+}

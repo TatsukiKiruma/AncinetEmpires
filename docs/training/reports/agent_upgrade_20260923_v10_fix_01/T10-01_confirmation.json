@@ -1,0 +1,121 @@
+{
+  "task": "T10-01-confirmation",
+  "generatedAt": "2026-09-23T02:45:38.628Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "seedSet": [
+    9001,
+    9002,
+    9003,
+    9004
+  ],
+  "setupVariants": [
+    {
+      "initialGold": 300,
+      "unitLimit": 30,
+      "levelCap": 3
+    },
+    {
+      "initialGold": 400,
+      "unitLimit": 40,
+      "levelCap": 4
+    },
+    {
+      "initialGold": 500,
+      "unitLimit": 50,
+      "levelCap": 5
+    },
+    {
+      "initialGold": 600,
+      "unitLimit": 60,
+      "levelCap": 6
+    },
+    {
+      "initialGold": 700,
+      "unitLimit": 70,
+      "levelCap": 7
+    }
+  ],
+  "stats": {
+    "SPATIAL_V2_BEST": {
+      "label": "SPATIAL_V2_BEST",
+      "matches": 40,
+      "wins": 0,
+      "losses": 33,
+      "draws": 0,
+      "truncations": 7,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95Natural": [
+        0,
+        10.4
+      ],
+      "ci95All": [
+        0,
+        8.8
+      ],
+      "truncationRate": 17.5
+    },
+    "SPATIAL_V2_OLD": {
+      "label": "SPATIAL_V2_OLD",
+      "matches": 40,
+      "wins": 5,
+      "losses": 29,
+      "draws": 0,
+      "truncations": 6,
+      "naturalWinRate": 14.7,
+      "winRateAllMatches": 12.5,
+      "ci95Natural": [
+        6.4,
+        30.1
+      ],
+      "ci95All": [
+        5.5,
+        26.1
+      ],
+      "truncationRate": 15
+    },
+    "S00_SEARCH": {
+      "label": "S00_SEARCH",
+      "matches": 22,
+      "wins": 7,
+      "losses": 6,
+      "draws": 0,
+      "truncations": 9,
+      "naturalWinRate": 53.8,
+      "winRateAllMatches": 31.8,
+      "ci95Natural": [
+        29.1,
+        76.8
+      ],
+      "ci95All": [
+        16.4,
+        52.7
+      ],
+      "truncationRate": 40.9
+    },
+    "S10_SEARCH_BEST": {
+      "label": "S10_SEARCH_BEST",
+      "matches": 20,
+      "wins": 5,
+      "losses": 4,
+      "draws": 0,
+      "truncations": 11,
+      "naturalWinRate": 55.6,
+      "winRateAllMatches": 25,
+      "ci95Natural": [
+        26.7,
+        81.1
+      ],
+      "ci95All": [
+        11.2,
+        46.9
+      ],
+      "truncationRate": 55
+    }
+  },
+  "conclusions": {
+    "purePolicy": "NO confirmed pure-policy improvement: SPATIAL_V2_BEST is not above the old model.",
+    "search": "INCONCLUSIVE: S10 point-estimate 55.6% vs S00 53.8%, but samples are 20 vs 22 matches with 41-55% truncation; do not claim a search improvement.",
+    "searchSampleNote": "Search arms were stopped early; pure-policy arms completed 40 matches per arm."
+  }
+}

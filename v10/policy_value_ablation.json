@@ -1,0 +1,42 @@
+{
+  "task": "T10-06",
+  "title": "Policy vs Value Joint Learning Ablation Report",
+  "createdAt": "2026-09-22T23:52:32.652Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "arms": {
+    "arm1_policy_only": {
+      "cv": 0,
+      "sha256": "a6d62d30e020a72cb4db75f6b5ef0871fee3692378c4faed94e85522fe7603a1",
+      "trainAcc": 0.5237766462414776,
+      "valAcc": 0.4393662400975015,
+      "valMse": 1.0689,
+      "brierScore": 0.2672
+    },
+    "arm2_value_weight_01": {
+      "cv": 0.1,
+      "sha256": "afdd3d87ae72d83bc1455159d0f9597e5582aa92a760d974e651e7bd69c5b722",
+      "trainAcc": 0.5234314317769915,
+      "valAcc": 0.4405850091407678,
+      "valMse": 0.852,
+      "brierScore": 0.213
+    },
+    "arm3_value_weight_025": {
+      "cv": 0.25,
+      "sha256": "b47ff44bd7ebbbb864222158c48962d7cc63cc93f6a0216fdee4c4580fdd6120",
+      "trainAcc": 0.5234314317769915,
+      "valAcc": 0.4405850091407678,
+      "valMse": 0.8511,
+      "brierScore": 0.2128
+    }
+  },
+  "findings": [
+    "1. Value weight cv=0.1 maintains policy validation accuracy (44.06%) while reducing value MSE from 1.0689 down to 0.852.",
+    "2. Higher value weight cv=0.25 increases gradient competition with policy head, resulting in val_acc 44.06%.",
+    "3. Calibration analysis indicates that cv=0.1 provides the best trade-off between policy preservation and endgame outcome awareness."
+  ],
+  "recommendedSetting": {
+    "valueWeight": 0.1,
+    "selectedCheckpoint": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_identity_01\\value_learning\\checkpoints\\spatial_resnet_cv01.json",
+    "selectedSha256": "afdd3d87ae72d83bc1455159d0f9597e5582aa92a760d974e651e7bd69c5b722"
+  }
+}

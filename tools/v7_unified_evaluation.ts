@@ -38,6 +38,10 @@ import { predictSpatialAction } from '../src/game/ai/shared_spatial_policy';
 import { loadDualHeadModelFromJson, predictDecision, DualHeadNet } from './skirmish_dual_head_net';
 import { encodeGameState, encodeGameActionV2 } from './skirmish_network_features';
 import { runBoundedSearch } from './v7_heuristic_bounded_search';
+import { TurnAwareSearchEngine } from './v10_turn_aware_search';
+import { createApkSkirmishGameState } from '../src/game/apk_skirmish';
+import { parseAppApkSkirmishMap } from '../src/game/apk_skirmish_map_assets';
+import type { ApkSkirmishSetupSelection } from '../src/game/apk_skirmish';
 import { getBehavioralStateHash } from './v7_training_pipeline';
 
 const RUN_ID = 'agent_upgrade_20260921_v7_01';
@@ -99,7 +103,20 @@ export const BENCHMARK_MAPS = [
     { name: '(2) Mourningstar.aem', label: 'Mourningstar' }
 ];
 
-export type PolicyType = 'HEURISTIC' | 'NET_A' | 'SPATIAL_V2' | 'SPATIAL_DAGGER' | 'S00_SEARCH' | 'S10_SPATIAL_SEARCH';
+export type PolicyType =
+    | 'HEURISTIC'
+    | 'NET_A'
+    | 'SPATIAL_V2'
+    | 'SPATIAL_DAGGER'
+    | 'S00_SEARCH'
+    | 'S10_SPATIAL_SEARCH'
+    | 'SPATIAL_V2_OLD'
+    | 'SPATIAL_V2_BEST'
+    | 'SPATIAL_V2_LAST'
+    | 'S10_SEARCH_BEST'
+    | 'S10_SEARCH_OLD'
+    | 'T10_TURN_SEARCH'
+    | 'T10_TURN_SEARCH_VALUE';
 
 export interface MatchOutcome {
     matchId: string;
@@ -265,12 +282,14 @@ function getSha256(content: string): string {
 }
 
 export class PolicyAgent {
+    private pendingT10MacroActions: Action[] = [];
     constructor(
         public readonly type: PolicyType,
         private readonly spatialPredictor?: SpatialResNetPredictor,
         private readonly netAModel?: DualHeadNet,
         private heuristicAi: HeuristicAI = new HeuristicAI(),
-        public readonly checkpointSha256?: string
+        public readonly checkpointSha256?: string,
+        private readonly turnAwareSearcher?: TurnAwareSearchEngine
     ) {}
 
     public setRng(rng: () => number): void {
@@ -316,6 +335,9 @@ export class PolicyAgent {
                 return { action: legal[bestIdx], ms: performance.now() - t0 };
             }
             case 'SPATIAL_V2':
+            case 'SPATIAL_V2_OLD':
+            case 'SPATIAL_V2_BEST':
+            case 'SPATIAL_V2_LAST':
             case 'SPATIAL_DAGGER': {
                 if (!this.spatialPredictor) {
                     throw new Error(`MODEL_LOAD_ERROR: Spatial predictor is not loaded for ${this.type} (cannot silently fall back to legal[0])`);
@@ -344,9 +366,44 @@ export class PolicyAgent {
                     shallowEvaluations: res.shallowEvaluations
                 };
             }
-            case 'S10_SPATIAL_SEARCH': {
+            case 'T10_TURN_SEARCH':
+            case 'T10_TURN_SEARCH_VALUE': {
+                if (!this.turnAwareSearcher) {
+                    throw new Error('MODEL_LOAD_ERROR: TurnAwareSearchEngine is not attached to T10_TURN_SEARCH policy');
+                }
+                // T10-04 macro actions are sequences; execute the remaining
+                // validated actions before searching again. Without this, the
+                // actual game action diverges from the sequence that was scored.
+                if (this.pendingT10MacroActions.length > 0) {
+                    const next = this.pendingT10MacroActions.shift()!;
+                    const legalNow = engine.getLegalActions(playerId).filter(a => a.type !== 'surrender');
+                    if (legalNow.some(a => JSON.stringify(a) === JSON.stringify(next))) {
+                        return { action: next, ms: performance.now() - t0 };
+                    }
+                    this.pendingT10MacroActions = [];
+                }
+                const res = this.turnAwareSearcher.search(engine, playerId, {
+                    maxTransitions: 128,
+                    maxMs: protocol.searchBudgetSoftMs,
+                    hardMaxMs: protocol.searchBudgetHardMs,
+                    priorMode: (process.env.V10_T04_PRIOR_MODE as any) ?? 'off',
+                    valueMode: this.type === 'T10_TURN_SEARCH_VALUE' ? 'on' : 'off',
+                    valueWeight: Number(process.env.V10_VALUE_SEARCH_WEIGHT || 0.5)
+                });
+                this.pendingT10MacroActions = res.chosenMacroActions.slice(1);
+                return {
+                    action: res.chosenAction,
+                    ms: performance.now() - t0,
+                    candidatesEvaluated: res.macroCandidatesEvaluated,
+                    budgetReason: res.budgetReason,
+                    wallClockExceeded: false
+                };
+            }
+            case 'S10_SPATIAL_SEARCH':
+            case 'S10_SEARCH_BEST':
+            case 'S10_SEARCH_OLD': {
                 if (!this.spatialPredictor) {
-                    throw new Error('MODEL_LOAD_ERROR: Spatial predictor is not loaded for S10_SPATIAL_SEARCH (cannot silently degrade to S00)');
+                    throw new Error(`MODEL_LOAD_ERROR: Spatial predictor is not loaded for ${this.type} (cannot silently degrade to S00)`);
                 }
                 const res = runBoundedSearch(engine, playerId, {
                     budget: {
@@ -381,10 +438,13 @@ export function runBenchmarkMatch(
     maxTurns: number = 50,
     maxAtomicSteps: number = 1000,
     directories?: EvaluationDirectories,
-    protocol: BenchmarkProtocol = { ...DEFAULT_BENCHMARK_PROTOCOL, maxTurns, maxAtomicSteps }
+    protocol: BenchmarkProtocol = { ...DEFAULT_BENCHMARK_PROTOCOL, maxTurns, maxAtomicSteps },
+    setup?: ApkSkirmishSetupSelection
 ): MatchOutcome {
     const matchId = `match_${candidatePolicy.type}_seat${candidateSeat}_${mapName.replace(/[^a-zA-Z0-9]/g, '_')}_s${seed}`;
-    const state = createAppApkSkirmishGameState(mapName, 'SD');
+    const state = setup
+        ? createApkSkirmishGameState(parseAppApkSkirmishMap(mapName), { mode: 'SD', mapName, setup })
+        : createAppApkSkirmishGameState(mapName, 'SD');
     (state as any).mapName = mapName;
     const initialStateHash = getBehavioralStateHash(state, candidateSeat);
     const rulesHash = getSha256(JSON.stringify(state.rules));
@@ -596,7 +656,16 @@ export function runBenchmarkMatch(
         ? Number((recoveryCompletedCount / recoveryWindowCount * 100).toFixed(1))
         : null;
 
-    const encoderVersion = (candidatePolicy.type === 'SPATIAL_V2' || candidatePolicy.type === 'SPATIAL_DAGGER' || candidatePolicy.type === 'S10_SPATIAL_SEARCH')
+    const encoderVersion = (
+        candidatePolicy.type === 'SPATIAL_V2' ||
+        candidatePolicy.type === 'SPATIAL_V2_OLD' ||
+        candidatePolicy.type === 'SPATIAL_V2_BEST' ||
+        candidatePolicy.type === 'SPATIAL_V2_LAST' ||
+        candidatePolicy.type === 'SPATIAL_DAGGER' ||
+        candidatePolicy.type === 'S10_SPATIAL_SEARCH' ||
+        candidatePolicy.type === 'S10_SEARCH_BEST' ||
+        candidatePolicy.type === 'S10_SEARCH_OLD'
+    )
         ? 'v2'
         : (candidatePolicy.type === 'NET_A' ? 'dense' : 'heuristic');
 
@@ -658,6 +727,9 @@ export async function runFullV7BenchmarkSuite(options: {
     maxAtomicSteps?: number;
     reportPath?: string;
     directories?: EvaluationDirectories;
+    checkpointMap?: Partial<Record<PolicyType, string>>;
+    /** Optional true opening variants keyed by seed/map. */
+    setupForSeed?: (seed: number, mapName: string) => ApkSkirmishSetupSelection | undefined;
     /** Search/protocol knobs; defaults reproduce the historical 20-node / 200ms / 900ms protocol. */
     protocol?: Partial<BenchmarkProtocol>;
 }): Promise<{
@@ -691,6 +763,7 @@ export async function runFullV7BenchmarkSuite(options: {
 
     const defaultReportName = runId === 'agent_upgrade_20260921_v7_01' ? 'corrected_v7_rerun.json' : 'v8_clean_benchmark.json';
     const reportPath = options.reportPath ?? path.join(reportDir, defaultReportName);
+    mkdirSync(path.dirname(reportPath), { recursive: true });
 
     // Load available models and compute SHA-256
     let spatialPredictor: SpatialResNetPredictor | undefined;
@@ -760,7 +833,37 @@ export async function runFullV7BenchmarkSuite(options: {
         let loadErrorForPolicy: string | undefined;
         let terminationForMissing: MatchOutcome['terminationReason'] = 'NOT_RUN';
 
-        if (pType === 'SPATIAL_V2' || pType === 'S10_SPATIAL_SEARCH') {
+        const explicitModelPath = options.checkpointMap?.[pType];
+        if (explicitModelPath) {
+            const resolvedPath = path.resolve(explicitModelPath);
+            if (!existsSync(resolvedPath)) {
+                isModelAvailable = false;
+                loadErrorForPolicy = `Explicit model file not found: ${explicitModelPath}`;
+                terminationForMissing = 'NOT_RUN';
+            } else {
+                try {
+                    const mJson = readFileSync(resolvedPath, 'utf8');
+                    sha256ForAgent = getSha256(mJson);
+                    const parsed = JSON.parse(mJson);
+                    if (!parsed || (!parsed.stem && !parsed.weights && !parsed.layers)) {
+                        throw new Error(`Invalid checkpoint schema in ${explicitModelPath}: missing stem or layers`);
+                    }
+                    predictorForAgent = new SpatialResNetPredictor(loadSpatialResNetFromJson(mJson));
+                } catch (e: any) {
+                    isModelAvailable = false;
+                    loadErrorForPolicy = `Failed to load explicit model ${explicitModelPath}: ${e?.message ?? e}`;
+                    terminationForMissing = 'MODEL_LOAD_ERROR';
+                }
+            }
+        } else if (
+            pType === 'SPATIAL_V2' ||
+            pType === 'SPATIAL_V2_OLD' ||
+            pType === 'SPATIAL_V2_BEST' ||
+            pType === 'SPATIAL_V2_LAST' ||
+            pType === 'S10_SPATIAL_SEARCH' ||
+            pType === 'S10_SEARCH_BEST' ||
+            pType === 'S10_SEARCH_OLD'
+        ) {
             predictorForAgent = spatialPredictor;
             sha256ForAgent = spatialSha256;
             if (!predictorForAgent) {
@@ -809,7 +912,16 @@ export async function runFullV7BenchmarkSuite(options: {
                             candidatePolicy: pType,
                             actualPolicy: 'NOT_RUN',
                             checkpointSha256: sha256ForAgent,
-                            encoderVersion: (pType === 'SPATIAL_V2' || pType === 'SPATIAL_DAGGER' || pType === 'S10_SPATIAL_SEARCH') ? 'v2' : (pType === 'NET_A' ? 'dense' : 'heuristic'),
+                            encoderVersion: (
+                                pType === 'SPATIAL_V2' ||
+                                pType === 'SPATIAL_V2_OLD' ||
+                                pType === 'SPATIAL_V2_BEST' ||
+                                pType === 'SPATIAL_V2_LAST' ||
+                                pType === 'SPATIAL_DAGGER' ||
+                                pType === 'S10_SPATIAL_SEARCH' ||
+                                pType === 'S10_SEARCH_BEST' ||
+                                pType === 'S10_SEARCH_OLD'
+                            ) ? 'v2' : (pType === 'NET_A' ? 'dense' : 'heuristic'),
                             fallbackCount: 0,
                             rulesSummary: 'SD (Apk Skirmish)',
                             provenance,
@@ -849,12 +961,13 @@ export async function runFullV7BenchmarkSuite(options: {
                 }
             }
         } else {
-            const agent = new PolicyAgent(pType, predictorForAgent, netAForAgent, new HeuristicAI(), sha256ForAgent);
+            const turnAwareSearcher = (pType === 'T10_TURN_SEARCH' || pType === 'T10_TURN_SEARCH_VALUE') ? new TurnAwareSearchEngine(new HeuristicAI(), predictorForAgent) : undefined;
+            const agent = new PolicyAgent(pType, predictorForAgent, netAForAgent, new HeuristicAI(), sha256ForAgent, turnAwareSearcher);
 
             for (const map of maps) {
                 for (const seat of [0, 1] as const) {
                     for (const seed of seeds) {
-                        const outcome = runBenchmarkMatch(map.name, agent, seat, seed, maxTurns, maxAtomicSteps, options.directories, protocol);
+                        const outcome = runBenchmarkMatch(map.name, agent, seat, seed, maxTurns, maxAtomicSteps, options.directories, protocol, options.setupForSeed?.(seed, map.name));
                         pOutcomes.push(outcome);
                         outcomes.push(outcome);
 
@@ -967,7 +1080,7 @@ export async function runFullV7BenchmarkSuite(options: {
     };
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun = process.env.V7_ALLOW_DIRECT_RUN === '1' && process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectRun) {
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
         console.log('Usage: npx tsx tools/v7_unified_evaluation.ts [--dry-run] [--quick] [--maps N]');

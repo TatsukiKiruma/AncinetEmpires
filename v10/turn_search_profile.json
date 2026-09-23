@@ -1,0 +1,80 @@
+{
+  "task": "T10-04",
+  "title": "Turn-Aware Equal-Work Macro-Action Search Profile",
+  "createdAt": "2026-09-22T22:13:46.681Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "architecture": {
+    "macroActionSequences": [
+      "move->attack",
+      "move->capture",
+      "move->wait",
+      "recruit->deploy"
+    ],
+    "opponentProbeCoverage": "Lethal attack priority + move-then-attack checks (up to 16 candidates)",
+    "handoverRequirement": "Full friendly turn simulated before handover without premature termination"
+  },
+  "tacticalFixtures": {
+    "fixture_1_lethal_depth_defense": {
+      "description": "Friendly fragile commander avoids lethal enemy approach",
+      "chosenAction": "recruit_to_castle",
+      "transitions": 128,
+      "oppProbes": 16,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_2_multi_unit_handover": {
+      "description": "Friendly multi-unit turn rolls out to genuine opponent handover",
+      "transitions": 150,
+      "friendlyTransitions": 134,
+      "depthReached": 8,
+      "handoverReached": true,
+      "passed": true
+    },
+    "fixture_3_equal_work_transition_scan": {
+      "64": {
+        "budgetLimit": 64,
+        "transitionsUsed": 64,
+        "elapsedMs": 80.3,
+        "candidatesEvaluated": 10,
+        "budgetReason": "transition_limit"
+      },
+      "256": {
+        "budgetLimit": 256,
+        "transitionsUsed": 160,
+        "elapsedMs": 168.2,
+        "candidatesEvaluated": 29,
+        "budgetReason": "completed"
+      },
+      "1024": {
+        "budgetLimit": 1024,
+        "transitionsUsed": 160,
+        "elapsedMs": 164.1,
+        "candidatesEvaluated": 29,
+        "budgetReason": "completed"
+      }
+    }
+  },
+  "transitionBudgetScan": {
+    "64": {
+      "budgetLimit": 64,
+      "transitionsUsed": 64,
+      "elapsedMs": 80.3,
+      "candidatesEvaluated": 10,
+      "budgetReason": "transition_limit"
+    },
+    "256": {
+      "budgetLimit": 256,
+      "transitionsUsed": 160,
+      "elapsedMs": 168.2,
+      "candidatesEvaluated": 29,
+      "budgetReason": "completed"
+    },
+    "1024": {
+      "budgetLimit": 1024,
+      "transitionsUsed": 160,
+      "elapsedMs": 164.1,
+      "candidatesEvaluated": 29,
+      "budgetReason": "completed"
+    }
+  }
+}

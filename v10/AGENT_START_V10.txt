@@ -1,0 +1,5 @@
+请阅读同目录 AncinetEmpires_V10_Review_and_Training_Plan.md 与 tasks_v10.json。
+审查基准为 path-b-spatial-ai 的 88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037。开始时确认当前HEAD并保留用户现有改动；不得覆盖或重写历史工件，不改游戏规则，不切换默认AI，不自动push，不产生费用。
+首批必须完成T10-01：评测run03的新best SHA f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153和last SHA cce536bd705871e0d5606725c9dc5950fadd2e937cee2545e4d72b4210f7e6f0，与旧模型/Heuristic/S00做冻结协议开发比较。缺模型明确NOT_RUN，禁止用旧权重代替新权重。
+同时可设计T10-02分区和终局采集；不要为无关历史报告细节停住训练主线。先选定新模型基线，再做一次有“仅继续训练”对照的Heuristic DAgger。普通模仿教师无需先超过Heuristic；更强搜索教师是后续超越基线的路线。
+首批不启动盲30k扩量、所有架构实验或大规模自博弈。每个结论必须对应真实对局/轨迹、实际消费数据与SHA；没有提升如实报告。

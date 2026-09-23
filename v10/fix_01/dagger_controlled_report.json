@@ -1,0 +1,153 @@
+{
+  "task": "T10-03",
+  "title": "Heuristic教师受控在策略分布纠错 (v10 fix 01)",
+  "executedAt": "2026-09-23T02:41:31.535Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "baseModel": {
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+    "sha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153"
+  },
+  "dataPipeline": {
+    "matches": 256,
+    "maxStepsPerMatch": 400,
+    "samplesCollected": 3980,
+    "sampleBreakdown": {
+      "critical": 131,
+      "divergence": 2269,
+      "audit": 1580
+    },
+    "newSampleRepeat": 1,
+    "baseRows": 16231,
+    "armCRows": 20211,
+    "maxTrainSteps": 87
+  },
+  "consumptionAudit": {
+    "newSampleIds": 3980,
+    "missingNewSampleIds": 0,
+    "consumedNewIds": 3980,
+    "armBManifest": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json",
+    "armCManifest": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json",
+    "armBTrainSamples": 11011,
+    "armCTrainSamples": 14991,
+    "invariantPassed": true
+  },
+  "armB_controlOldData": {
+    "sha256": "05e9a093f65b7c289b0d52407ad73e185f163a9747f0b89dac0b60b9f842df03",
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_best.json",
+    "metrics": {
+      "model_version": "spatial-resnet-v2",
+      "num_blocks": 2,
+      "dataset": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_b_control.jsonl",
+      "value_weight": 0,
+      "loss_mode": "ce",
+      "teacher_temperature": 1,
+      "soft_weight": 0.5,
+      "equiv_weight": 0.5,
+      "seed": 42,
+      "best_val_acc": 0.4862068965517241,
+      "best_epoch": 1,
+      "train_samples": 11011,
+      "val_samples": 5220,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.5713316668039081,
+          "train_acc": 0.5375533557351739,
+          "val_loss": 1.8405018230763877,
+          "val_acc": 0.4862068965517241
+        }
+      ]
+    }
+  },
+  "armC_daggerNewData": {
+    "sha256": "6252e0affc32238f5fb3dfb7a1e6f7b981f6c55e842dbb4b3bc459ea188a8c65",
+    "path": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_best.json",
+    "metrics": {
+      "model_version": "spatial-resnet-v2",
+      "num_blocks": 2,
+      "dataset": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_c_dagger.jsonl",
+      "value_weight": 0,
+      "loss_mode": "ce",
+      "teacher_temperature": 1,
+      "soft_weight": 0.5,
+      "equiv_weight": 0.5,
+      "seed": 42,
+      "best_val_acc": 0.4879310344827586,
+      "best_epoch": 1,
+      "train_samples": 14991,
+      "val_samples": 5220,
+      "history": [
+        {
+          "epoch": 1,
+          "train_loss": 1.6785890206523326,
+          "train_acc": 0.5060165229885057,
+          "val_loss": 1.787745442332291,
+          "val_acc": 0.4879310344827586
+        }
+      ]
+    }
+  },
+  "evaluationResults": {
+    "armA_baseline": {
+      "label": "SPATIAL_V2_BEST",
+      "matches": 20,
+      "wins": 0,
+      "losses": 17,
+      "draws": 0,
+      "truncations": 3,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        18.4
+      ],
+      "truncationRate": 15
+    },
+    "armB_control": {
+      "label": "SPATIAL_V2_OLD",
+      "matches": 20,
+      "wins": 0,
+      "losses": 16,
+      "draws": 0,
+      "truncations": 4,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        19.4
+      ],
+      "truncationRate": 20
+    },
+    "armC_dagger": {
+      "label": "SPATIAL_V2_LAST",
+      "matches": 20,
+      "wins": 0,
+      "losses": 20,
+      "draws": 0,
+      "truncations": 0,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        16.1
+      ],
+      "truncationRate": 0
+    }
+  },
+  "findings": {
+    "deltaArmC_vs_ArmB_naturalWinRate": 0,
+    "verdict": "C did not improve over B on natural terminals under equal optimizer steps. Report as no verified gain."
+  }
+}

@@ -56,6 +56,9 @@ else:
                         "value_target": s.get("valueTarget"),
                         "episodeId": s.get("episodeId"),
                         "rootFamilyId": s.get("rootFamilyId"),
+                        "teacherQ": s.get("teacherQ"),
+                        "equivalenceGroups": s.get("equivalenceGroups"),
+                        "teacherSoftTargets": s.get("teacherSoftTargets"),
                     })
 
             print(f"Loaded {len(self.samples)} spatial samples from {jsonl_path}")
@@ -101,7 +104,12 @@ else:
         optimizer: optim.Optimizer | None,
         device: torch.device,
         value_weight: float = 0.5,
-        is_train: bool = True
+        is_train: bool = True,
+        max_steps: int | None = None,
+        loss_mode: str = "ce",
+        teacher_temperature: float = 1.0,
+        soft_weight: float = 0.5,
+        equiv_weight: float = 0.5
     ) -> Tuple[float, float, float]:
         if is_train:
             model.train()
@@ -113,6 +121,7 @@ else:
         total_val_loss = 0.0
         correct_actions = 0
         total_actions = 0
+        steps_run = 0
 
         ce_loss_fn = nn.CrossEntropyLoss()
         mse_loss_fn = nn.MSELoss()
@@ -137,6 +146,8 @@ else:
                 # Forward Trunk & Value
                 z = model.forward_trunk(spatial_t)  # [B, 32, 20, 20]
                 val_pred = model.forward_value(z, global_f_val).squeeze(-1)  # [B]
+                global_policy_pool = bool(getattr(model, "global_policy_pool", False))
+                gap = torch.mean(z, dim=[2, 3]) if global_policy_pool else None
 
                 batch_size = spatial_t.size(0)
                 batch_pol_loss = torch.tensor(0.0, device=device)
@@ -165,7 +176,12 @@ else:
                     if is_v2:
                         glob_expanded = glob_b.unsqueeze(0).expand(K, -1)
                         cand_feats = torch.cat([v_act, v_land, v_tgt, sem_tensor, glob_expanded], dim=-1)
+                        if global_policy_pool:
+                            gap_expanded = gap[b].unsqueeze(0).expand(K, -1)
+                            cand_feats = torch.cat([cand_feats, gap_expanded], dim=-1)
                     else:
+                        if global_policy_pool:
+                            raise ValueError("global_policy_pool is only supported for spatial-resnet-v2")
                         sem_24 = sem_tensor[:, :24]
                         cand_feats = torch.cat([v_act, v_land, v_tgt, sem_24], dim=-1)
 
@@ -173,7 +189,30 @@ else:
                     logits = model.forward_action_logits(cand_tensor)  # [1, K]
 
                     target_tensor = torch.tensor([target_i], dtype=torch.long, device=device)
-                    loss_step = ce_loss_fn(logits, target_tensor)
+                    loss_terms = [ce_loss_fn(logits, target_tensor)]
+
+                    # Soft ranking loss from trusted teacher scores. teacherQ is
+                    # deliberately NOT treated as a value target.
+                    teacher_q = batch.get("teacherQ", [None] * batch_size)[b] if isinstance(batch.get("teacherQ", None), list) else None
+                    if loss_mode in ("soft", "soft+equiv") and teacher_q is not None:
+                        q = torch.tensor(teacher_q, dtype=torch.float32, device=device)[:K]
+                        if q.numel() == K:
+                            temp = max(1e-6, float(teacher_temperature))
+                            soft_target = torch.softmax(q / temp, dim=-1).unsqueeze(0)
+                            loss_soft = -(soft_target * torch.log_softmax(logits, dim=-1)).sum()
+                            loss_terms.append(float(soft_weight) * loss_soft)
+
+                    # Equivalence-aware group loss: any candidate in the target
+                    # action's equivalent group is an acceptable label.
+                    groups = batch.get("equivalenceGroups", [None] * batch_size)[b] if isinstance(batch.get("equivalenceGroups", None), list) else None
+                    if loss_mode in ("equiv", "soft+equiv") and groups is not None and target_i < len(groups):
+                        group = groups[target_i]
+                        if group is not None and len(group) > 1:
+                            group_t = torch.tensor(group, dtype=torch.long, device=device)
+                            loss_equiv = (torch.logsumexp(logits, dim=-1) - torch.logsumexp(logits[0, group_t], dim=-1)).sum()
+                            loss_terms.append(float(equiv_weight) * loss_equiv)
+
+                    loss_step = torch.stack(loss_terms).sum()
                     batch_pol_loss = batch_pol_loss + loss_step
 
                     pred_top = torch.argmax(logits, dim=-1).item()
@@ -207,12 +246,18 @@ else:
                         if param.grad is not None and not torch.all(torch.isfinite(param.grad)):
                             raise RuntimeError(f"Non-finite gradient in {name} during backpropagation!")
                     optimizer.step()
+                    steps_run += 1
+                    if max_steps is not None and steps_run >= max_steps:
+                        break
 
                 total_loss += loss.item()
                 total_pol_loss += batch_pol_loss.item()
                 total_val_loss += batch_val_loss.item()
 
-        n = max(1, len(dataloader))
+        if is_train and max_steps is not None:
+            n = max(1, steps_run)
+        else:
+            n = max(1, len(dataloader))
         acc = correct_actions / max(1, total_actions)
         return total_loss / n, total_pol_loss / n, acc
 
@@ -231,7 +276,10 @@ else:
             "global_features": global_f,
             "candidates": [s["candidates"] for s in batch],
             "target_idx": [s["target_idx"] for s in batch],
-            "value_target": [s["value_target"] for s in batch]
+            "value_target": [s["value_target"] for s in batch],
+            "teacherQ": [s.get("teacherQ") for s in batch],
+            "equivalenceGroups": [s.get("equivalenceGroups") for s in batch],
+            "teacherSoftTargets": [s.get("teacherSoftTargets") for s in batch]
         }
 
 
@@ -246,13 +294,20 @@ else:
         parser.add_argument("--out-last-model", type=str, default=None, help="Output JSON checkpoint for last epoch (defaults to out-model with _last suffix)")
         parser.add_argument("--out-metrics", type=str, default=None, help="Output path for metrics JSON (defaults to model-specific metrics file)")
         parser.add_argument("--value-weight", type=float, default=0.0, help="Weight for value head loss (default: 0.0 for policy-only)")
+        parser.add_argument("--max-steps", type=int, default=None, help="Maximum training optimizer steps per epoch (equal-work A/B/C controls)")
+        parser.add_argument("--consumed-manifest", type=str, default=None, help="Optional explicit path for consumed sample manifest")
         parser.add_argument("--deploy-to-src", action="store_true", default=False, help="Explicitly deploy to src/game/ai/models/ (default: False)")
         parser.add_argument("--seed", type=int, default=42, help="Random seed")
         parser.add_argument("--model-version", type=str, default="spatial-resnet-v2", choices=["spatial-resnet-v1", "spatial-resnet-v2"])
         parser.add_argument("--num-blocks", type=int, default=2, choices=[2, 4], help="Number of ResNet trunk blocks (2 or 4)")
+        parser.add_argument("--global-policy-pool", action="store_true", default=False, help="Append board-wide GAP vector to the policy head (Arm 2)")
+        parser.add_argument("--loss-mode", type=str, default="ce", choices=["ce", "soft", "equiv", "soft+equiv"], help="Policy loss mode; soft/equiv require teacherQ/equivalenceGroups")
+        parser.add_argument("--teacher-temperature", type=float, default=1.0, help="Temperature for teacherQ soft ranking")
+        parser.add_argument("--soft-weight", type=float, default=0.5, help="Weight for soft ranking loss")
+        parser.add_argument("--equiv-weight", type=float, default=0.5, help="Weight for equivalence-group loss")
         parser.add_argument("--split-manifest", type=str, default=None, help="Path to unified split_manifest.json")
         parser.add_argument("--init-checkpoint", type=str, default=None, help="Path to initial JSON checkpoint to warm-start from")
-        parser.add_argument("--consumed-manifest", type=str, default=None, help="Path to export consumed samples manifest JSON")
+
         args = parser.parse_args()
 
         torch.manual_seed(args.seed)
@@ -277,8 +332,11 @@ else:
                 manifest_data = json.load(f)
             train_roots = set(manifest_data.get("trainRootFamilies", []))
             val_roots = set(manifest_data.get("valRootFamilies", []))
+            test_roots = set(manifest_data.get("testRootFamilies", []))
             for idx, sample in enumerate(full_dataset.samples):
                 r_id = sample.get("rootFamilyId")
+                if r_id in test_roots:
+                    continue
                 if r_id in val_roots:
                     val_indices.append(idx)
                 else:
@@ -359,7 +417,8 @@ else:
             global_dim=global_dim,
             action_semantic_dim=action_semantic_dim,
             version=args.model_version,
-            num_blocks=args.num_blocks
+            num_blocks=args.num_blocks,
+            global_policy_pool=args.global_policy_pool
         ).to(device)
 
         if args.init_checkpoint and os.path.exists(args.init_checkpoint):
@@ -375,10 +434,12 @@ else:
         history = []
         for epoch in range(1, args.epochs + 1):
             train_loss, train_pol, train_acc = run_epoch(
-                model, train_loader, optimizer, device, value_weight=args.value_weight, is_train=True
+                model, train_loader, optimizer, device, value_weight=args.value_weight, is_train=True, max_steps=args.max_steps,
+                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight
             )
             val_loss, val_pol, val_acc = run_epoch(
-                model, val_loader, None, device, value_weight=args.value_weight, is_train=False
+                model, val_loader, None, device, value_weight=args.value_weight, is_train=False,
+                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight
             )
             scheduler.step()
 
@@ -430,6 +491,10 @@ else:
                 "num_blocks": args.num_blocks,
                 "dataset": args.dataset,
                 "value_weight": args.value_weight,
+                "loss_mode": args.loss_mode,
+                "teacher_temperature": args.teacher_temperature,
+                "soft_weight": args.soft_weight,
+                "equiv_weight": args.equiv_weight,
                 "seed": args.seed,
                 "best_val_acc": best_val_acc,
                 "best_epoch": best_epoch,
@@ -438,7 +503,7 @@ else:
                 "history": history
             }, f, indent=2)
 
-        consumed_manifest_file = os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "consumed_samples_manifest.json")
+        consumed_manifest_file = args.consumed_manifest or os.path.join(os.path.dirname(os.path.abspath(args.out_model)), "consumed_samples_manifest.json")
         with open(consumed_manifest_file, "w", encoding="utf-8") as f:
             json.dump({
                 "model_version": args.model_version,
@@ -447,7 +512,9 @@ else:
                 "train_sample_count": len(train_data),
                 "val_sample_count": len(val_data),
                 "train_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in train_indices if full_dataset.samples[idx].get("sampleId")],
-                "val_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")]
+                "val_sample_ids": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")],
+                "valSampleIds": [full_dataset.samples[idx].get("sampleId") for idx in val_indices if full_dataset.samples[idx].get("sampleId")],
+                "maxSteps": args.max_steps
             }, f, indent=2)
 
         print(f"\n=======================================================")

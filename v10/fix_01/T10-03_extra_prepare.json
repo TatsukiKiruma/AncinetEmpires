@@ -1,0 +1,134 @@
+{
+  "task": "T10-03-extra",
+  "generatedAt": "2026-09-23T02:29:40.234Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "chunkFiles": [
+    "chunk_1000_64.json",
+    "chunk_1064_64.json",
+    "chunk_1128_64.json",
+    "chunk_1192_64.json"
+  ],
+  "rawSamples": 8101,
+  "uniqueSamples": 3980,
+  "cap": 4000,
+  "matches": 256,
+  "maxSteps": 400,
+  "samplesCollected": 3980,
+  "sampleBreakdown": {
+    "critical": 131,
+    "divergence": 2269,
+    "audit": 1580
+  },
+  "stats": {
+    "critical": 131,
+    "divergence": 2269,
+    "audit": 1580
+  },
+  "datasets": {
+    "armBPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_b_control.jsonl",
+    "armCPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_c_dagger.jsonl",
+    "newSampleCount": 3980,
+    "newSampleRepeat": 1,
+    "baseRows": 16231,
+    "armBRows": 16231,
+    "armCRows": 20211,
+    "expectedNewRowFraction": 0.19692246796299046
+  },
+  "maxTrainSteps": 87,
+  "baseModelPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+  "baseModelSha": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+  "baseSplitPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\split_manifest.json",
+  "models": {
+    "b": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_best.json",
+    "c": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_best.json"
+  },
+  "metrics": {
+    "b": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_metrics.json",
+    "c": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_metrics.json"
+  },
+  "consumed": {
+    "b": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json",
+    "c": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json"
+  },
+  "newSampleIdsFile": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\new_sample_ids.json",
+  "jobs": [
+    {
+      "label": "t10-03-extra-b",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_b_control.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--max-steps",
+        "87",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_best.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_best.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_metrics.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_b_consumed_samples_manifest.json"
+      ]
+    },
+    {
+      "label": "t10-03-extra-c",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\datasets\\d_v10_fix_arm_c_dagger.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--max-steps",
+        "87",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_best.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_best.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_metrics.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\dagger_extra\\checkpoints\\spatial_resnet_c_consumed_samples_manifest.json"
+      ]
+    }
+  ]
+}

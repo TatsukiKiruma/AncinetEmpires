@@ -1,0 +1,14 @@
+{
+  "task": "T10-08",
+  "title": "Browser E2E acceptance",
+  "executedAt": "2026-09-23T03:11:04.291Z",
+  "status": "NOT_RUN",
+  "reason": "Offline candidate gates did not pass; starting browser deployment acceptance would imply a release that is not justified.",
+  "requiredChecks": [
+    "new SHA loads",
+    "cold/warm start",
+    "long turn",
+    "cancel/restart/map change",
+    "timeout fallback including fallback timing"
+  ]
+}

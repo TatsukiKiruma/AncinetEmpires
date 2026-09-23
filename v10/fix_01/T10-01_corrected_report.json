@@ -1,0 +1,138 @@
+{
+  "task": "T10-01",
+  "source": "v10/new_checkpoint_benchmark.json",
+  "correctedAt": "2026-09-23T00:55:33.925Z",
+  "goal": "verified playing strength improvement, not documentation volume",
+  "purePolicyFinding": {
+    "oldModel": {
+      "label": "SPATIAL_V2_OLD (pure policy)",
+      "matches": 20,
+      "wins": 2,
+      "losses": 13,
+      "draws": 0,
+      "truncations": 5,
+      "naturalWinRate": 13.3,
+      "winRateAllMatches": 10,
+      "ci95All": [
+        2.8,
+        30.1
+      ],
+      "ci95Natural": [
+        3.7,
+        37.9
+      ],
+      "truncationRate": 25
+    },
+    "newBest": {
+      "label": "SPATIAL_V2_BEST (pure policy)",
+      "matches": 20,
+      "wins": 0,
+      "losses": 17,
+      "draws": 0,
+      "truncations": 3,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        18.4
+      ],
+      "truncationRate": 15
+    },
+    "newLast": {
+      "label": "SPATIAL_V2_LAST (pure policy)",
+      "matches": 20,
+      "wins": 0,
+      "losses": 18,
+      "draws": 0,
+      "truncations": 2,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "ci95Natural": [
+        0,
+        17.6
+      ],
+      "truncationRate": 10
+    },
+    "netBestMinusOldNaturalWinRate": "-13.3",
+    "verdict": "NO verified pure-policy improvement: new best is not better than the old model on natural terminals"
+  },
+  "searchFinding": {
+    "s00": {
+      "label": "S00_SEARCH",
+      "matches": 20,
+      "wins": 7,
+      "losses": 10,
+      "draws": 0,
+      "truncations": 3,
+      "naturalWinRate": 41.2,
+      "winRateAllMatches": 35,
+      "ci95All": [
+        18.1,
+        56.7
+      ],
+      "ci95Natural": [
+        21.6,
+        64
+      ],
+      "truncationRate": 15
+    },
+    "s10": {
+      "label": "S10_SEARCH_BEST",
+      "matches": 20,
+      "wins": 5,
+      "losses": 8,
+      "draws": 0,
+      "truncations": 7,
+      "naturalWinRate": 38.5,
+      "winRateAllMatches": 25,
+      "ci95All": [
+        11.2,
+        46.9
+      ],
+      "ci95Natural": [
+        17.7,
+        64.5
+      ],
+      "truncationRate": 35
+    },
+    "heuristic": {
+      "label": "HEURISTIC",
+      "matches": 20,
+      "wins": 6,
+      "losses": 6,
+      "draws": 0,
+      "truncations": 8,
+      "naturalWinRate": 50,
+      "winRateAllMatches": 30,
+      "ci95All": [
+        14.5,
+        51.9
+      ],
+      "ci95Natural": [
+        25.4,
+        74.6
+      ],
+      "truncationRate": 40
+    },
+    "verdict": "NO verified search improvement: S10(new best + search) does not beat S00 on natural terminals"
+  },
+  "baselineRecommendation": {
+    "strengthBaselineForComparisons": "S00_SEARCH or HEURISTIC",
+    "reason": "The new best checkpoint is weak as a pure policy. S00/Heuristic remain the strength references until a trained student beats them in a frozen protocol.",
+    "studentInitForLearningLine": "SPATIAL_V2_BEST",
+    "studentInitReason": "The learning line needs a neural student; this does not imply it is already a strength upgrade."
+  },
+  "caveats": [
+    "20 matches per arm is a development sample, not a confirmation set.",
+    "S10 truncation rate is high; W/(W+L) ignores truncations and must be read with truncationRate.",
+    "seeds only change policy/heuristic RNG; they do not create different initial positions."
+  ]
+}

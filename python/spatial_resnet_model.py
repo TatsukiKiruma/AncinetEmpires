@@ -37,7 +37,8 @@ if TORCH_AVAILABLE:
             global_dim: int = 20,
             action_semantic_dim: int = 32,
             version: str = "spatial-resnet-v2",
-            num_blocks: int = 2
+            num_blocks: int = 2,
+            global_policy_pool: bool = False
         ):
             super().__init__()
             self.spatial_channels = spatial_channels
@@ -46,6 +47,7 @@ if TORCH_AVAILABLE:
             self.action_semantic_dim = action_semantic_dim
             self.version = version
             self.num_blocks = num_blocks
+            self.global_policy_pool = bool(global_policy_pool)
 
             # 1. Stem
             self.stem = nn.Conv2d(spatial_channels, trunk_channels, kernel_size=3, padding=1)
@@ -68,6 +70,8 @@ if TORCH_AVAILABLE:
             # V2: 3 x trunk (96) + action_semantics (32) + globals (20) = 148
             # V1: 3 x trunk (96) + action_semantics (24) = 120
             pol_in_dim = trunk_channels * 3 + action_semantic_dim + (global_dim if version == "spatial-resnet-v2" else 0)
+            if self.global_policy_pool:
+                pol_in_dim += trunk_channels
             self.pol_dense1 = nn.Linear(pol_in_dim, 48)
             self.pol_dense2 = nn.Linear(48, 1)
 
@@ -112,6 +116,7 @@ def export_model_to_ts_json(model: Any, output_file: str) -> None:
     state_dict = model.state_dict()
     version = getattr(model, "version", "spatial-resnet-v2")
     num_blocks = getattr(model, "num_blocks", 2)
+    global_policy_pool = bool(getattr(model, "global_policy_pool", False))
     val_in_dim = model.val_dense1.in_features
     pol_in_dim = model.pol_dense1.in_features
 
@@ -140,7 +145,8 @@ def export_model_to_ts_json(model: Any, output_file: str) -> None:
     data = {
         "version": version,
         "numBlocks": num_blocks,
-        "architectureId": f"spatial_resnet_32ch_{num_blocks}res",
+        "architectureId": f"spatial_resnet_32ch_{num_blocks}res" + ("_gappool" if global_policy_pool else ""),
+        "globalPolicyPool": global_policy_pool,
         "stem": export_conv("stem", 24, 32),
         "res1_1": export_conv("res_blocks.0.conv1", 32, 32),
         "res1_2": export_conv("res_blocks.0.conv2", 32, 32),
@@ -190,10 +196,34 @@ def load_model_from_ts_json(model: Any, json_file: str) -> None:
         b_raw = layer_dict.get("biases")
         if w_raw is None or b_raw is None:
             raise ValueError(f"Missing weights or biases for {name}")
-        w = torch.tensor(w_raw, dtype=torch.float32).reshape(layer.weight.shape)
-        b = torch.tensor(b_raw, dtype=torch.float32).reshape(layer.bias.shape)
-        layer.weight.data.copy_(w)
-        layer.bias.data.copy_(b)
+        w = torch.tensor(w_raw, dtype=torch.float32)
+        b = torch.tensor(b_raw, dtype=torch.float32)
+        target = layer.weight
+        if w.numel() == target.numel():
+            layer.weight.data.copy_(w.reshape(target.shape))
+        elif target.dim() == 2 and w.numel() % target.shape[0] == 0:
+            checkpoint_in_dim = w.numel() // target.shape[0]
+            if checkpoint_in_dim < target.shape[1]:
+                # Warm-start an architecture extension (e.g. Arm 2 global-policy GAP).
+                # Existing input columns are copied; the newly added columns keep
+                # their fresh PyTorch initialization and are learned from scratch.
+                old_w = w.reshape(target.shape[0], checkpoint_in_dim)
+                layer.weight.data[:, :checkpoint_in_dim].copy_(old_w)
+                print(f"[Warm-Start] {name}: copied {checkpoint_in_dim} input dims, {target.shape[1] - checkpoint_in_dim} new dims initialized")
+            else:
+                raise ValueError(
+                    f"Shape mismatch for {name}: checkpoint {tuple(w.shape)} vs model {tuple(target.shape)}"
+                )
+        else:
+            raise ValueError(
+                f"Shape mismatch for {name}: checkpoint {tuple(w.shape)} vs model {tuple(target.shape)}"
+            )
+        if b.numel() == layer.bias.numel():
+            layer.bias.data.copy_(b.reshape(layer.bias.shape))
+        else:
+            raise ValueError(
+                f"Bias shape mismatch for {name}: checkpoint {tuple(b.shape)} vs model {tuple(layer.bias.shape)}"
+            )
 
     load_conv(model.stem, data["stem"], "stem")
     load_conv(model.res_blocks[0].conv1, data["res1_1"], "res1_1")

@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-09-23T03:10:44.771Z",
+  "tasks": {
+    "t1001": {
+      "purePolicy": "NO confirmed pure-policy improvement: SPATIAL_V2_BEST is not above the old model.",
+      "search": "INCONCLUSIVE: S10 point-estimate 55.6% vs S00 53.8%, but samples are 20 vs 22 matches with 41-55% truncation; do not claim a search improvement.",
+      "searchSampleNote": "Search arms were stopped early; pure-policy arms completed 40 matches per arm."
+    },
+    "t1004": "Turn-aware search did not beat S00 on this formal development run.",
+    "t1003": {
+      "deltaArmC_vs_ArmB_naturalWinRate": 0,
+      "verdict": "C did not improve over B on natural terminals under equal optimizer steps. Report as no verified gain."
+    },
+    "t1005": {
+      "t10-05-loss-ce": {
+        "lossMode": "ce",
+        "softWeight": 0,
+        "equivWeight": 0,
+        "checkpointSha256": "2af40ab5fb7d5b99770d3db568bc9cf51453e518164b38996a162134793c39cb",
+        "heldOutSamples": 1216,
+        "top1Accuracy": 46.88,
+        "equivalenceGroupAccuracy": 46.88,
+        "meanTeacherRegret": 290.1595
+      },
+      "t10-05-loss-soft-equiv": {
+        "lossMode": "soft+equiv",
+        "softWeight": 0.5,
+        "equivWeight": 0.5,
+        "checkpointSha256": "8caa7ed17c6d5bb4422dca0a3f1924e4dc6236cffb834dc9ab580713c7d710c9",
+        "heldOutSamples": 1216,
+        "top1Accuracy": 45.39,
+        "equivalenceGroupAccuracy": 45.39,
+        "meanTeacherRegret": 243.5707
+      }
+    },
+    "t1006": {
+      "valueCalibration": {
+        "valueHeadQualified": false,
+        "recommendedForDownstream": null,
+        "statusReason": "Value head did not meet pre-registered thresholds (pearson > 0.25, MSE < 0.65, ECE < 0.30); valueHeadQualified must remain false and downstream must not use V.",
+        "productionPolicyImpact": "UI must not label V output as a confirmed win-rate while valueHeadQualified is false."
+      },
+      "searchValue": "Value-in-search did not beat search-off in this diagnostic run; keep value out of production search."
+    }
+  }
+}

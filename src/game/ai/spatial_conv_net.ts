@@ -55,7 +55,7 @@ export interface DenseLayerWeights {
 
 export interface SpatialResNetWeights {
     version: 'spatial-resnet-v1' | 'spatial-resnet-v2';
-    architectureId: 'spatial_resnet_32ch_2res' | 'spatial_resnet_32ch_4res';
+    architectureId: 'spatial_resnet_32ch_2res' | 'spatial_resnet_32ch_4res' | 'spatial_resnet_32ch_2res_gappool' | 'spatial_resnet_32ch_4res_gappool';
     numBlocks?: number;
     stem: ConvLayerWeights;
     res1_1: ConvLayerWeights;
@@ -70,6 +70,8 @@ export interface SpatialResNetWeights {
     valDense2: DenseLayerWeights;
     polDense1: DenseLayerWeights;
     polDense2: DenseLayerWeights;
+    /** Arm 2: append GAP(Z) to each candidate's policy feature vector. */
+    globalPolicyPool?: boolean;
 }
 
 export interface SpatialInferenceResult {
@@ -293,6 +295,7 @@ export class SpatialResNetPredictor {
     private bufRes2_1: Float32Array;
     private bufZ: Float32Array;
     private numBlocks: number;
+    public readonly globalPolicyPool: boolean;
     private bufRes2_2: Float32Array;
     private bufRes3_1?: Float32Array;
     private bufRes3_2?: Float32Array;
@@ -309,6 +312,10 @@ export class SpatialResNetPredictor {
         this.weights = weights;
         this.isV2 = weights.version === 'spatial-resnet-v2' || weights.polDense1.inDim > 120;
         this.numBlocks = weights.numBlocks ?? (weights.res3_1 ? 4 : 2);
+        this.globalPolicyPool = weights.globalPolicyPool === true;
+        if (this.globalPolicyPool && !this.isV2) {
+            throw new Error('globalPolicyPool is only supported for spatial-resnet-v2 checkpoints');
+        }
         const HW = SPATIAL_TENSOR_MAX_H * SPATIAL_TENSOR_MAX_W;
         this.bufStem = new Float32Array(32 * HW);
         this.bufRes1_1 = new Float32Array(32 * HW);
@@ -451,6 +458,18 @@ export class SpatialResNetPredictor {
         denseForward(this.bufValOut, this.bufValH, this.weights.valDense2, 'tanh');
         const value = this.bufValOut[0];
 
+        // Arm 2: board-wide GAP is state-level, so write it once after the
+        // candidate-local 96/action/global slots for every candidate.
+        let policyGapOffset = -1;
+        if (this.globalPolicyPool) {
+            policyGapOffset = this.isV2
+                ? 96 + ACTION_SEMANTIC_DIM_V2 + GLOBAL_FEATURE_DIM_V2
+                : 96 + ACTION_SEMANTIC_DIM_V1;
+            for (let i = 0; i < 32; i += 1) {
+                this.bufPolIn[policyGapOffset + i] = this.bufGap[i];
+            }
+        }
+
         // 5. Policy Scorer 前向 (评估全部合法候选动作)
         const logits: number[] = [];
         for (const act of candidateActions) {
@@ -551,7 +570,8 @@ export function exportSpatialResNetToJson(weights: SpatialResNetWeights): string
         valDense1: serializeLayer(weights.valDense1),
         valDense2: serializeLayer(weights.valDense2),
         polDense1: serializeLayer(weights.polDense1),
-        polDense2: serializeLayer(weights.polDense2)
+        polDense2: serializeLayer(weights.polDense2),
+        globalPolicyPool: weights.globalPolicyPool === true
     };
     if (weights.res3_1 && weights.res3_2 && weights.res4_1 && weights.res4_2) {
         obj.res3_1 = serializeLayer(weights.res3_1);
@@ -606,6 +626,7 @@ export function loadSpatialResNetFromJson(jsonStr: string): SpatialResNetWeights
         version: raw.version,
         numBlocks,
         architectureId,
+        globalPolicyPool: raw.globalPolicyPool === true,
         stem: deserializeConv(raw.stem, 'stem'),
         res1_1: deserializeConv(raw.res1_1, 'res1_1'),
         res1_2: deserializeConv(raw.res1_2, 'res1_2'),

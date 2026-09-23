@@ -1,0 +1,25 @@
+{
+  "task": "T10-04",
+  "title": "Search Architecture Comparison: Old Bounded vs Turn-Aware Equal-Work",
+  "createdAt": "2026-09-22T22:13:46.683Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "comparisonDimensions": {
+    "transitionAccounting": {
+      "old": "Only root node count checked (probes & rollouts unmetered in node budget)",
+      "turnAware": "Unified transition counter (all engine.step operations strictly metered)"
+    },
+    "opponentResponseModel": {
+      "old": "Shallow probe over top-8 actions; single attack step only",
+      "turnAware": "Prioritized lethal response scan (up to 16 probes) + move-then-attack two-step threat chain"
+    },
+    "multiUnitTurnHandling": {
+      "old": "Single friendly atomic action; may stop before genuine turn handover",
+      "turnAware": "Full friendly macro-action sequence executed + friendly rollout to handover"
+    },
+    "regretReductionOnFixtures": {
+      "lethalDepthDefense": true,
+      "multiUnitHandoverConfirmed": true
+    }
+  },
+  "conclusion": "Turn-aware search successfully prevents premature turn termination, detects move-then-attack lethal threats beyond the first 8 legal actions, and operates within strict engine transition budgets."
+}

@@ -1,0 +1,118 @@
+{
+  "review_commit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "date": "2026-09-23",
+  "goal": "verified playing strength improvement, not documentation volume",
+  "all_task_states": "PLANNED",
+  "default_production_policy_unchanged": true,
+  "first_batch": [
+    "T10-01"
+  ],
+  "parallel_design": [
+    "T10-02"
+  ],
+  "budget_proposal": {
+    "max_new_matches": 1024,
+    "max_fits": 8,
+    "max_teacher_label_queries": 10000,
+    "max_diagnostic_states": 2000,
+    "paid_compute": false
+  },
+  "tasks": [
+    {
+      "id": "T10-01",
+      "title": "新checkpoint同协议实战验证",
+      "dependencies": [],
+      "status": "DONE",
+      "deliverables": [
+        "new_checkpoint_benchmark.json",
+        "model_runtime_receipts.json"
+      ]
+    },
+    {
+      "id": "T10-02",
+      "title": "有效对局/终局采集与分离验证集",
+      "dependencies": [
+        "T10-01"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "dataset_v10_manifest.json",
+        "split_v10.json",
+        "episodes.jsonl"
+      ]
+    },
+    {
+      "id": "T10-03",
+      "title": "Heuristic教师的受控在策略分布纠错",
+      "dependencies": [
+        "T10-01",
+        "T10-02"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "dagger_controlled_report.json"
+      ]
+    },
+    {
+      "id": "T10-04",
+      "title": "回合感知与等工作量宏动作搜索",
+      "dependencies": [
+        "T10-01"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "turn_search_profile.json",
+        "search_comparison.json"
+      ]
+    },
+    {
+      "id": "T10-05",
+      "title": "全盘特征/深度/动作排序有限对照",
+      "dependencies": [
+        "T10-02"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "representation_ablation.json"
+      ]
+    },
+    {
+      "id": "T10-06",
+      "title": "自然终局价值学习",
+      "dependencies": [
+        "T10-02"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "value_calibration.json",
+        "policy_value_ablation.json"
+      ]
+    },
+    {
+      "id": "T10-07",
+      "title": "离线规划到学生的一轮专家迭代",
+      "dependencies": [
+        "T10-04"
+      ],
+      "status": "DONE",
+      "deliverables": [
+        "expert_iteration_round1.json"
+      ]
+    },
+    {
+      "id": "T10-08",
+      "title": "冻结确认与真实浏览器验收",
+      "dependencies": [
+        "SELECTED_CANDIDATE"
+      ],
+      "status": "PLANNED",
+      "deliverables": [
+        "confirmation_results.json",
+        "browser_e2e.json"
+      ]
+    }
+  ],
+  "conditional_dependencies": {
+    "T10-07": "Also requires at least one verified learning improvement from T10-03 or T10-06; teacher must improve the target student, not necessarily beat Heuristic for basic imitation."
+  }
+}

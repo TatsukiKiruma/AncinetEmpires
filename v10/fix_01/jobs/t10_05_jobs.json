@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-09-23T01:19:45.746Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "python": "C:\\Users\\SHIINA\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+  "jobs": [
+    {
+      "label": "t10-05-arm1-2block",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\datasets\\d_v7_spatial.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm1-2block_metrics.json"
+      ]
+    },
+    {
+      "label": "t10-05-arm2-2block-gap",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\datasets\\d_v7_spatial.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "2",
+        "--global-policy-pool",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm2-2block-gap_metrics.json"
+      ]
+    },
+    {
+      "label": "t10-05-arm3-4block",
+      "script": "python/train_spatial_resnet.py",
+      "args": [
+        "--dataset",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\datasets\\d_v7_spatial.jsonl",
+        "--init-checkpoint",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260922_v9_identity_03\\checkpoints\\spatial_resnet\\d10_best.json",
+        "--split-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\datasets\\v10_value_split_manifest.json",
+        "--epochs",
+        "1",
+        "--batch-size",
+        "128",
+        "--lr",
+        "0.0005",
+        "--value-weight",
+        "0.0",
+        "--seed",
+        "42",
+        "--model-version",
+        "spatial-resnet-v2",
+        "--num-blocks",
+        "4",
+        "--out-model",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block.json",
+        "--out-metrics",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block_metrics.json",
+        "--consumed-manifest",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block_consumed_samples_manifest.json"
+      ],
+      "outputs": [
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block.json",
+        "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\representation_fix\\checkpoints\\t10-05-arm3-4block_metrics.json"
+      ]
+    }
+  ]
+}

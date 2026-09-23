@@ -1,0 +1,73 @@
+{
+  "generatedAt": "2026-09-22T21:12:20.475Z",
+  "runId": "agent_upgrade_20260923_v10_identity_01",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "policies": {
+    "HEURISTIC": {
+      "policy": "HEURISTIC",
+      "type": "non-neural",
+      "checkpointPath": null,
+      "verifiedSha256": null,
+      "expectedSha256": null,
+      "shaMatch": true,
+      "status": "AVAILABLE"
+    },
+    "SPATIAL_V2_OLD": {
+      "policy": "SPATIAL_V2_OLD",
+      "type": "neural",
+      "checkpointPath": "src/game/ai/models/spatial_resnet_v2_checkpoint.json",
+      "verifiedSha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "expectedSha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "shaMatch": true,
+      "status": "AVAILABLE",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 52866
+    },
+    "SPATIAL_V2_BEST": {
+      "policy": "SPATIAL_V2_BEST",
+      "type": "neural",
+      "checkpointPath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_best.json",
+      "verifiedSha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+      "expectedSha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+      "shaMatch": true,
+      "status": "AVAILABLE",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 52866
+    },
+    "SPATIAL_V2_LAST": {
+      "policy": "SPATIAL_V2_LAST",
+      "type": "neural",
+      "checkpointPath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_last.json",
+      "verifiedSha256": "cce536bd705871e0d5606725c9dc5950fadd2e937cee2545e4d72b4210f7e6f0",
+      "expectedSha256": "cce536bd705871e0d5606725c9dc5950fadd2e937cee2545e4d72b4210f7e6f0",
+      "shaMatch": true,
+      "status": "AVAILABLE",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 52866
+    },
+    "S00_SEARCH": {
+      "policy": "S00_SEARCH",
+      "type": "non-neural",
+      "checkpointPath": null,
+      "verifiedSha256": null,
+      "expectedSha256": null,
+      "shaMatch": true,
+      "status": "AVAILABLE"
+    },
+    "S10_SEARCH_BEST": {
+      "policy": "S10_SEARCH_BEST",
+      "type": "neural",
+      "checkpointPath": "training_runs/agent_upgrade_20260922_v9_identity_03/checkpoints/spatial_resnet/d10_best.json",
+      "verifiedSha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+      "expectedSha256": "f4c8f14b5953cb6e26a32d3ec3ff4cf8f5294e62e0b35c7b3e39d918bd315153",
+      "shaMatch": true,
+      "status": "AVAILABLE",
+      "architecture": "spatial-resnet-v2 (2 blocks, 32ch)",
+      "encoderVersion": "v2",
+      "parametersCount": 52866
+    }
+  }
+}

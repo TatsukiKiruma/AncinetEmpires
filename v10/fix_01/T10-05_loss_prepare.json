@@ -1,0 +1,30 @@
+{
+  "task": "T10-05-loss",
+  "generatedAt": "2026-09-23T02:23:23.692Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "datasetPath": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\d_v10_teacher.jsonl",
+  "splitManifest": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\teacher_split_manifest.json",
+  "jobs": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10_05_loss_jobs.json",
+  "arms": [
+    {
+      "label": "t10-05-loss-ce",
+      "lossMode": "ce",
+      "teacherTemperature": 1,
+      "softWeight": 0,
+      "equivWeight": 0,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-ce.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-ce_metrics.json",
+      "consumed": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-ce_consumed_samples_manifest.json"
+    },
+    {
+      "label": "t10-05-loss-soft-equiv",
+      "lossMode": "soft+equiv",
+      "teacherTemperature": 1,
+      "softWeight": 0.5,
+      "equivWeight": 0.5,
+      "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-soft-equiv.json",
+      "metrics": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-soft-equiv_metrics.json",
+      "consumed": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\teacher_loss\\t10-05-loss-soft-equiv_consumed_samples_manifest.json"
+    }
+  ]
+}

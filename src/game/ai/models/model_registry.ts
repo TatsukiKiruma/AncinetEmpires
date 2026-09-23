@@ -79,3 +79,12 @@ export function getPolicyCheckpointSha(policyId: string): string | undefined {
 export function getPolicyEncoderVersion(policyId: string): string {
     return MODEL_REGISTRY.policies[policyId]?.checkpoint?.encoderVersion ?? 'heuristic';
 }
+
+/**
+ * Gate for any UI or search consumer of a network value head.
+ * Until a checkpoint has passed the calibration thresholds, V must not be
+ * displayed as a win-rate and must not be used as a search value estimate.
+ */
+export function isValueHeadQualified(policyId: string): boolean {
+    return MODEL_REGISTRY.policies[policyId]?.checkpoint?.valueHeadQualified === true;
+}

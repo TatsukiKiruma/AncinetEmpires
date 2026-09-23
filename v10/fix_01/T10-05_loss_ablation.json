@@ -1,0 +1,36 @@
+{
+  "task": "T10-05-loss",
+  "executedAt": "2026-09-23T02:28:01.062Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "datasetAccounting": {
+    "totalTeacherSamples": 2560,
+    "heldOutSamples": 1216
+  },
+  "results": {
+    "t10-05-loss-ce": {
+      "lossMode": "ce",
+      "softWeight": 0,
+      "equivWeight": 0,
+      "checkpointSha256": "2af40ab5fb7d5b99770d3db568bc9cf51453e518164b38996a162134793c39cb",
+      "heldOutSamples": 1216,
+      "top1Accuracy": 46.88,
+      "equivalenceGroupAccuracy": 46.88,
+      "meanTeacherRegret": 290.1595
+    },
+    "t10-05-loss-soft-equiv": {
+      "lossMode": "soft+equiv",
+      "softWeight": 0.5,
+      "equivWeight": 0.5,
+      "checkpointSha256": "8caa7ed17c6d5bb4422dca0a3f1924e4dc6236cffb834dc9ab580713c7d710c9",
+      "heldOutSamples": 1216,
+      "top1Accuracy": 45.39,
+      "equivalenceGroupAccuracy": 45.39,
+      "meanTeacherRegret": 243.5707
+    }
+  },
+  "findings": [
+    "CE: top1=46.88%, groupAccuracy=46.88%, regret=290.1595.",
+    "soft+equiv: top1=45.39%, groupAccuracy=45.39%, regret=243.5707.",
+    "Mixed result: soft+equiv improves teacher-regret ranking (243.57 vs 290.16) but lowers held-out top-1 accuracy (45.39% vs 46.88%); no adoption without a second seed and playout validation."
+  ]
+}

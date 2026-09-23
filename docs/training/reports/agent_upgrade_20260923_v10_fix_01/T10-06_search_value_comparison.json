@@ -1,0 +1,52 @@
+{
+  "task": "T10-06-value-search",
+  "generatedAt": "2026-09-23T02:34:09.820Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "seeds": [
+    42,
+    1337
+  ],
+  "matchesPerArm": 20,
+  "model": "C:\\code\\AncinetEmpires\\training_runs\\agent_upgrade_20260923_v10_fix_01\\value_learning_fix\\checkpoints\\spatial_resnet_cv01.json",
+  "stats": {
+    "T10_TURN_SEARCH_VALUE": {
+      "label": "T10_TURN_SEARCH_VALUE",
+      "matches": 20,
+      "wins": 0,
+      "losses": 12,
+      "draws": 0,
+      "truncations": 8,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95Natural": [
+        0,
+        24.3
+      ],
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "truncationRate": 40
+    },
+    "T10_TURN_SEARCH": {
+      "label": "T10_TURN_SEARCH",
+      "matches": 20,
+      "wins": 0,
+      "losses": 14,
+      "draws": 0,
+      "truncations": 6,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95Natural": [
+        0,
+        21.5
+      ],
+      "ci95All": [
+        0,
+        16.1
+      ],
+      "truncationRate": 30
+    }
+  },
+  "verdict": "Value-in-search did not beat search-off in this diagnostic run; keep value out of production search."
+}

@@ -1,0 +1,54 @@
+{
+  "task": "T10-04-formal",
+  "generatedAt": "2026-09-23T02:45:38.686Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "seeds": [
+    42,
+    1337,
+    2026,
+    4242
+  ],
+  "matchesPerArm": 26,
+  "priorMode": "off",
+  "stats": {
+    "S00_SEARCH": {
+      "label": "S00_SEARCH",
+      "matches": 26,
+      "wins": 4,
+      "losses": 10,
+      "draws": 0,
+      "truncations": 12,
+      "naturalWinRate": 28.6,
+      "winRateAllMatches": 15.4,
+      "ci95Natural": [
+        11.7,
+        54.6
+      ],
+      "ci95All": [
+        6.1,
+        33.5
+      ],
+      "truncationRate": 46.2
+    },
+    "T10_TURN_SEARCH": {
+      "label": "T10_TURN_SEARCH",
+      "matches": 40,
+      "wins": 0,
+      "losses": 29,
+      "draws": 0,
+      "truncations": 11,
+      "naturalWinRate": 0,
+      "winRateAllMatches": 0,
+      "ci95Natural": [
+        0,
+        11.7
+      ],
+      "ci95All": [
+        0,
+        8.8
+      ],
+      "truncationRate": 27.5
+    }
+  },
+  "verdict": "Turn-aware search did not beat S00 on this formal development run."
+}

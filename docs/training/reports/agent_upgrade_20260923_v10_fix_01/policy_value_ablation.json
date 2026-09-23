@@ -1,0 +1,42 @@
+{
+  "task": "T10-06",
+  "title": "Policy vs Value Joint Learning Ablation Report (v10 fix 01)",
+  "executedAt": "2026-09-23T03:09:59.352Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "arms": {
+    "arm1_policy_only": {
+      "cv": 0,
+      "sha256": "f35d5ed212102ae9b7dc91307805d760144dd1fe209f536387e616af77d5892e",
+      "valAcc": 0.42924149021709995,
+      "valMse": 1.0734,
+      "brierScore": 0.2683,
+      "pearson": 0.0291,
+      "ece": 0.2296
+    },
+    "arm2_value_weight_01": {
+      "cv": 0.1,
+      "sha256": "882e5021cd71840eab6af6bcdff576f793bd3e9d41a8c57431240f8899fc65ad",
+      "valAcc": 0.42964352720450283,
+      "valMse": 0.8656,
+      "brierScore": 0.2164,
+      "pearson": 0.0556,
+      "ece": 0.033
+    },
+    "arm3_value_weight_025": {
+      "cv": 0.25,
+      "sha256": "a9215279a8a8aa47c27b4a19a66a07eaf80100b39994058a3591eb906801f8b7",
+      "valAcc": 0.4291074778879657,
+      "valMse": 0.8666,
+      "brierScore": 0.2166,
+      "pearson": 0.0556,
+      "ece": 0.0363
+    }
+  },
+  "findings": [
+    "Policy-only val_acc=42.92%; value MSE=1.0734.",
+    "cv=0.1 val_acc=42.96%; value MSE=0.8656; pearson=0.0556; ECE=0.0330.",
+    "cv=0.25 val_acc=42.91%; value MSE=0.8666; pearson=0.0556; ECE=0.0363.",
+    "No value head passed qualification; do not use V in UI or search, and do not use this value model as the expert-iteration initial student."
+  ],
+  "recommendedSetting": null
+}

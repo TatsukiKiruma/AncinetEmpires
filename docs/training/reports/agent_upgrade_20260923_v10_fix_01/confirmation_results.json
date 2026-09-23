@@ -1,0 +1,18 @@
+{
+  "task": "T10-08",
+  "title": "冻结确认与真实浏览器验收",
+  "executedAt": "2026-09-23T03:11:04.290Z",
+  "runId": "agent_upgrade_20260923_v10_fix_01",
+  "status": "NOT_RUN",
+  "reasons": [
+    "No qualified value head (option not required for deployment, but cannot claim value-based strength).",
+    "No frozen candidate has passed the P0 gates and no 400-match confirmation run has been executed."
+  ],
+  "requiredBeforeRun": [
+    "P0 correctness fixes complete and reports marked with their true status.",
+    "A candidate is frozen by a pre-registered rule after T10-01/T10-03/T10-06.",
+    "Test roots used by the frozen protocol have not been used in training or model selection.",
+    "400-match paired confirmation budget is available."
+  ],
+  "defaultProductionPolicyUnchanged": true
+}

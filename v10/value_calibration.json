@@ -1,0 +1,338 @@
+{
+  "task": "T10-06",
+  "title": "Natural Terminal Value Calibration Report",
+  "createdAt": "2026-09-22T23:52:32.651Z",
+  "reviewBenchmarkCommit": "88a1ccc8f3e158fedd8ddc5b2f00e41c8ebfb037",
+  "datasetAccounting": {
+    "totalValueSamplesExtracted": 1920,
+    "naturalOutcomeSamples": 1472,
+    "censoredOutcomeSamples": 448,
+    "evaluationSamples": 1344
+  },
+  "calibrationComparison": {
+    "arm1_policy_only": {
+      "cv": 0,
+      "sha256": "a6d62d30e020a72cb4db75f6b5ef0871fee3692378c4faed94e85522fe7603a1",
+      "overallMse": 1.0689,
+      "pearsonCorrelation": -0.0416,
+      "brierScore": 0.2672,
+      "ece": 0.2325,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 1040,
+          "meanPredictedProb": 0.4599,
+          "empiricalWinRate": 0.6923,
+          "binError": 0.2325
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.7,
+          "empiricalWinRate": 0,
+          "binError": 0.7
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ]
+    },
+    "arm2_value_weight_01": {
+      "cv": 0.1,
+      "sha256": "afdd3d87ae72d83bc1455159d0f9597e5582aa92a760d974e651e7bd69c5b722",
+      "overallMse": 0.852,
+      "pearsonCorrelation": 0.0647,
+      "brierScore": 0.213,
+      "ece": 0.0229,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.5,
+          "empiricalWinRate": 0,
+          "binError": 0.5
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 1040,
+          "meanPredictedProb": 0.6694,
+          "empiricalWinRate": 0.6923,
+          "binError": 0.0229
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ],
+      "stageBreakdown": {
+        "OPENING": {
+          "count": 345,
+          "mse": 1.0482,
+          "brier": 0.262,
+          "meanPred": 0.669,
+          "actualWinRate": 0.5507
+        },
+        "MIDGAME": {
+          "count": 445,
+          "mse": 0.8452,
+          "brier": 0.2113,
+          "meanPred": 0.6696,
+          "actualWinRate": 0.6966
+        },
+        "ENDGAME": {
+          "count": 250,
+          "mse": 0.5936,
+          "brier": 0.1484,
+          "meanPred": 0.6697,
+          "actualWinRate": 0.88
+        }
+      },
+      "mapBreakdown": {
+        "Crossed Swords": {
+          "count": 144,
+          "mse": 0.7947,
+          "actualWinRate": 0.7292
+        },
+        "Mourningstar": {
+          "count": 192,
+          "mse": 0.8823,
+          "actualWinRate": 0.6719
+        },
+        "Icy Paths": {
+          "count": 80,
+          "mse": 0.7646,
+          "actualWinRate": 0.75
+        },
+        "Duel": {
+          "count": 352,
+          "mse": 0.8999,
+          "actualWinRate": 0.6591
+        },
+        "Liberty Port": {
+          "count": 272,
+          "mse": 0.8247,
+          "actualWinRate": 0.7132
+        }
+      },
+      "seatBreakdown": {
+        "Seat 0": {
+          "count": 540,
+          "mse": 0.9177,
+          "actualWinRate": 0.6481
+        },
+        "Seat 1": {
+          "count": 500,
+          "mse": 0.7811,
+          "actualWinRate": 0.74
+        }
+      }
+    },
+    "arm3_value_weight_025": {
+      "cv": 0.25,
+      "sha256": "b47ff44bd7ebbbb864222158c48962d7cc63cc93f6a0216fdee4c4580fdd6120",
+      "overallMse": 0.8511,
+      "pearsonCorrelation": 0.065,
+      "brierScore": 0.2128,
+      "ece": 0.0158,
+      "bins": [
+        {
+          "binIndex": 0,
+          "range": [
+            0,
+            0.2
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.1,
+          "empiricalWinRate": 0,
+          "binError": 0.1
+        },
+        {
+          "binIndex": 1,
+          "range": [
+            0.2,
+            0.4
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.3,
+          "empiricalWinRate": 0,
+          "binError": 0.3
+        },
+        {
+          "binIndex": 2,
+          "range": [
+            0.4,
+            0.6
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.5,
+          "empiricalWinRate": 0,
+          "binError": 0.5
+        },
+        {
+          "binIndex": 3,
+          "range": [
+            0.6,
+            0.8
+          ],
+          "sampleCount": 1040,
+          "meanPredictedProb": 0.6765,
+          "empiricalWinRate": 0.6923,
+          "binError": 0.0158
+        },
+        {
+          "binIndex": 4,
+          "range": [
+            0.8,
+            1
+          ],
+          "sampleCount": 0,
+          "meanPredictedProb": 0.9,
+          "empiricalWinRate": 0,
+          "binError": 0.9
+        }
+      ],
+      "stageBreakdown": {
+        "OPENING": {
+          "count": 345,
+          "mse": 1.0547,
+          "brier": 0.2637,
+          "meanPred": 0.6761,
+          "actualWinRate": 0.5507
+        },
+        "MIDGAME": {
+          "count": 445,
+          "mse": 0.8441,
+          "brier": 0.211,
+          "meanPred": 0.6767,
+          "actualWinRate": 0.6966
+        },
+        "ENDGAME": {
+          "count": 250,
+          "mse": 0.5825,
+          "brier": 0.1456,
+          "meanPred": 0.6768,
+          "actualWinRate": 0.88
+        }
+      },
+      "mapBreakdown": {
+        "Crossed Swords": {
+          "count": 144,
+          "mse": 0.7927,
+          "actualWinRate": 0.7292
+        },
+        "Mourningstar": {
+          "count": 192,
+          "mse": 0.8818,
+          "actualWinRate": 0.6719
+        },
+        "Icy Paths": {
+          "count": 80,
+          "mse": 0.7619,
+          "actualWinRate": 0.75
+        },
+        "Duel": {
+          "count": 352,
+          "mse": 0.9003,
+          "actualWinRate": 0.6591
+        },
+        "Liberty Port": {
+          "count": 272,
+          "mse": 0.8228,
+          "actualWinRate": 0.7132
+        }
+      },
+      "seatBreakdown": {
+        "Seat 0": {
+          "count": 540,
+          "mse": 0.9183,
+          "actualWinRate": 0.6481
+        },
+        "Seat 1": {
+          "count": 500,
+          "mse": 0.7785,
+          "actualWinRate": 0.74
+        }
+      }
+    }
+  },
+  "qualificationAudit": {
+    "valueHeadQualified": false,
+    "statusReason": "Value head did not meet strict qualification threshold (pearson > 0.25 & MSE < 0.65); registry valueHeadQualified must remain false in production.",
+    "productionPolicyImpact": "UI must NOT label V output as confirmed win-rate until qualification is verified in 200+ match benchmark."
+  }
+}

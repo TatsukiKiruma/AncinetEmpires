@@ -994,7 +994,7 @@ export async function trainV7NetAControl(
     return { checkpointPath, metricsPath };
 }
 
-const isDirectRun = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun = process.env.V7_ALLOW_DIRECT_RUN === '1' && process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectRun) {
     if (process.argv.includes('--help') || process.argv.includes('-h')) {
         console.log('Usage: npx tsx tools/v7_training_pipeline.ts [--dry-run] [--tiny] [--limit N] [--epochs N]');
