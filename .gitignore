@@ -40,3 +40,8 @@ docs/training/reports/**/closure_02_changes.patch
 #   v12/out/spatial/diag_30k_with_roots.jsonl
 # Kept on disk for reproduction, deliberately not committed.
 v12/out/spatial/diag_30k_with_roots.jsonl
+
+# Git bundle used to move these commits to a machine that can reach the remote
+# (this sandbox cannot complete any TLS handshake, so `git push` is impossible here).
+# Transfer artifact, never source.
+*.bundle
