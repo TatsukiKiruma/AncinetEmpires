@@ -32,6 +32,71 @@ export type SupportedSpatialPolicy =
 const predictorCache = new Map<string, SpatialResNetPredictor>();
 
 /**
+ * V13/T13-02: identity of the weights actually executing.
+ *
+ * Before this existed, `setDefaultSpatialWeights` replaced the cached predictor but
+ * `getSpatialAiActionSync` kept reporting `checkpointSha256` from the STATIC registry
+ * (`getPolicyRegistryEntry(...).checkpoint.sha256`). Telemetry therefore described a
+ * weight file that was not the one making decisions - a provenance defect, not a
+ * loading defect. Callers that inject weights must now also declare their identity.
+ */
+export interface SpatialPredictorIdentity {
+    policyId: string;
+    checkpointPath: string | null;
+    /** Real SHA-256 of the loaded bytes. Never a Git blob ID. */
+    checkpointSha256: string | null;
+    /** How this identity was established. */
+    source: 'static_registry' | 'direct_file_load' | 'injected_weights';
+}
+
+const predictorIdentity = new Map<string, SpatialPredictorIdentity>();
+
+/**
+ * Load weights from bytes and register them as the predictor AND the identity for
+ * `policy`. This is the entry point evaluation harnesses should use.
+ */
+export function setSpatialPredictorIdentity(params: {
+    policyId: SupportedSpatialPolicy;
+    predictor?: SpatialResNetPredictor;
+    weights?: SpatialResNetWeights;
+    checkpointPath: string | null;
+    checkpointSha256: string | null;
+    source: SpatialPredictorIdentity['source'];
+}): SpatialResNetPredictor {
+    const predictor = params.predictor
+        ?? new SpatialResNetPredictor(params.weights as SpatialResNetWeights);
+    predictorCache.set(params.policyId, predictor);
+    predictorIdentity.set(params.policyId, {
+        policyId: params.policyId,
+        checkpointPath: params.checkpointPath,
+        checkpointSha256: params.checkpointSha256,
+        source: params.source,
+    });
+    return predictor;
+}
+
+/**
+ * Identity of the weights currently registered for `policy`.
+ *
+ * Falls back to the static registry ONLY when no injection has happened, and labels
+ * that fallback as `static_registry` so a consumer can tell the two apart.
+ */
+export function getSpatialPredictorIdentity(
+    policy: SupportedSpatialPolicy
+): SpatialPredictorIdentity | null {
+    const injected = predictorIdentity.get(policy);
+    if (injected) return injected;
+    if (!predictorCache.has(policy)) return null;
+    const entry = getPolicyRegistryEntry(policy);
+    return {
+        policyId: policy,
+        checkpointPath: entry?.checkpoint?.relativePath ?? null,
+        checkpointSha256: entry?.checkpoint?.sha256 ?? null,
+        source: 'static_registry',
+    };
+}
+
+/**
  * 严格加载并缓存空间预测器。正式模式绝不回退至随机初始化权重。
  */
 export function getSpatialPredictor(
@@ -120,7 +185,11 @@ export function getSpatialAiActionSync(
     const deadlineMs = options.deadlineMs ?? 1000;
     const requestedPolicy = options.policy ?? 'spatial_v2_experimental';
     const registryEntry = getPolicyRegistryEntry(requestedPolicy);
-    const checkpointSha = registryEntry?.checkpoint?.sha256;
+    // V13/T13-02: report the identity of the weights that are actually registered,
+    // not the static registry entry, so an injected checkpoint cannot be described
+    // by the default model's hash.
+    const identity = getSpatialPredictorIdentity(requestedPolicy);
+    const checkpointSha = identity?.checkpointSha256 ?? registryEntry?.checkpoint?.sha256;
 
     // 检查取消信号
     if (options.signal?.aborted) {
