@@ -32,6 +32,18 @@ if not TORCH_AVAILABLE:
 else:
     from spatial_resnet_model import SpatialResNet, export_model_to_ts_json, load_model_from_ts_json
 
+    def _sha256_file(path: str, chunk: int = 1 << 20) -> str:
+        """V13/T13-00: real file digest. Never report a Git blob ID as a SHA-256."""
+        import hashlib
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            while True:
+                block = fh.read(chunk)
+                if not block:
+                    break
+                h.update(block)
+        return h.hexdigest()
+
     class ConsumptionRecorder:
         """
         V11/T11-03: measured optimizer consumption.
@@ -103,11 +115,39 @@ else:
                     if not line:
                         continue
                     s = json.loads(line)
+                    # V13/T13-01: non-finite labels are refused rather than silently
+                    # propagated into the loss.
+                    raw_value = s.get("valueTarget")
+                    if raw_value is not None:
+                        try:
+                            fv = float(raw_value)
+                        except (TypeError, ValueError):
+                            raise ValueError(
+                                f"non-numeric valueTarget {raw_value!r} in sample {s.get('sampleId')!r}"
+                            )
+                        if not np.isfinite(fv):
+                            raise ValueError(
+                                f"non-finite valueTarget {raw_value!r} in sample {s.get('sampleId')!r}"
+                            )
+                        s["valueTarget"] = fv
                     cand_actions = s.get("candidateActions", [])
                     for c in cand_actions:
                         sem_raw = c.get("semantics", [])
                         sem_padded = sem_raw[:32] + [0.0] * max(0, 32 - len(sem_raw))
                         c["semantics_padded"] = np.array(sem_padded, dtype=np.float32)
+
+                    # V13/T13-01: an explicit mask that contradicts the target used to
+                    # produce a batch where the prediction filter and the target filter
+                    # disagreed. Refuse the dataset instead of broadcasting silently.
+                    if "valueLossMask" in s:
+                        explicit = bool(s.get("valueLossMask"))
+                        has_target = s.get("valueTarget") is not None
+                        if explicit != has_target:
+                            raise ValueError(
+                                f"sample {s.get('sampleId')!r}: valueLossMask={explicit} contradicts "
+                                f"valueTarget={s.get('valueTarget')!r}. V13/T13-01 requires the value "
+                                "mask and the value target to describe the same rows."
+                            )
 
                     self.samples.append({
                         "sampleId": s.get("sampleId"),
@@ -123,6 +163,11 @@ else:
                         "teacherSoftTargets": s.get("teacherSoftTargets"),
                         # V11/T11-03: supervision masks. Defaults keep older datasets
                         # (which have no mask fields) behaviourally identical.
+                        #
+                        # V13/T13-01: the default for valueLossMask is now derived from the
+                        # SAME predicate the loss uses for the target, so prediction and
+                        # target filtering can never disagree. Datasets that carry an
+                        # explicit valueLossMask that contradicts valueTarget are refused.
                         "policyLossMask": s.get("policyLossMask", True),
                         "valueLossMask": s.get("valueLossMask", s.get("valueTarget") is not None),
                         "stateHash": s.get("stateHash"),
@@ -184,7 +229,8 @@ else:
         loss_mode: str = "ce",
         teacher_temperature: float = 1.0,
         soft_weight: float = 0.5,
-        equiv_weight: float = 0.5
+        equiv_weight: float = 0.5,
+        legacy_bug_repro: bool = False
     ) -> Tuple[float, float, float]:
         if is_train:
             model.train()
@@ -197,6 +243,7 @@ else:
         correct_actions = 0
         total_actions = 0
         steps_run = 0
+        batches_accumulated = 0
 
         ce_loss_fn = nn.CrossEntropyLoss()
         mse_loss_fn = nn.MSELoss()
@@ -303,15 +350,26 @@ else:
                     batch_pol_loss = batch_pol_loss + loss_step
 
                     pred_top = torch.argmax(logits, dim=-1).item()
-                    if pred_top == target_i:
-                        correct_actions += 1
-                    total_actions += 1
+                    # V13/T13-01: accuracy is a policy metric, so a row whose policy
+                    # label is masked must not be scored. Previously an all-masked run
+                    # still reported a non-zero accuracy, which read as "learning".
+                    if bool(batch["policy_loss_mask"][b]):
+                        if pred_top == target_i:
+                            correct_actions += 1
+                        total_actions += 1
 
                 batch_pol_loss = batch_pol_loss / max(1, batch_size)
 
                 # Value Loss (masked for None targets)
+                #
+                # V13/T13-01: the prediction filter and the target filter used to be
+                # different predicates ("not None AND mask" vs "not None"). On a batch
+                # that mixes a masked row with an unmasked one, torch then broadcast the
+                # prediction across the target axis and silently produced a wrong loss and
+                # a reversed gradient sign. Both sides now use ONE index set and the
+                # shapes are asserted equal.
                 val_targets_raw = batch["value_target"]
-                valid_val_mask = [
+                value_valid = [
                     vt is not None and bool(batch["value_loss_mask"][i])
                     for i, vt in enumerate(val_targets_raw)
                 ]
@@ -319,19 +377,35 @@ else:
                     1 for i, vt in enumerate(val_targets_raw)
                     if vt is not None and not bool(batch["value_loss_mask"][i])
                 )
-                if any(valid_val_mask):
-                    val_t = torch.tensor(
-                        [vt for vt in val_targets_raw if vt is not None],
-                        dtype=torch.float32,
-                        device=device
-                    )
-                    val_p = val_pred[torch.tensor(valid_val_mask, device=device)]
+                if any(value_valid):
+                    valid_t = torch.tensor(value_valid, device=device)
+                    if legacy_bug_repro:
+                        # Pre-V13 behaviour, kept only for the failing-regression test.
+                        val_t = torch.tensor(
+                            [vt for vt in val_targets_raw if vt is not None],
+                            dtype=torch.float32, device=device,
+                        )
+                        val_p = val_pred[valid_t]
+                    else:
+                        val_t = torch.tensor(
+                            [vt for i, vt in enumerate(val_targets_raw)
+                             if vt is not None and value_valid[i]],
+                            dtype=torch.float32, device=device,
+                        )
+                        val_p = val_pred[valid_t]
+                    if val_p.shape != val_t.shape:
+                        raise RuntimeError(
+                            f"value mask mismatch: {val_p.shape[0]} prediction(s) vs "
+                            f"{val_t.shape[0]} target(s) for the same batch. V13/T13-01 "
+                            "requires identical index sets; refusing to broadcast."
+                        )
                     batch_val_loss = mse_loss_fn(val_p, val_t)
                 else:
                     batch_val_loss = torch.tensor(0.0, device=device)
 
                 loss = batch_pol_loss + value_weight * batch_val_loss
 
+                stop_after_this_batch = False
                 if is_train and optimizer:
                     if not torch.isfinite(loss):
                         raise RuntimeError(f"Non-finite loss encountered: {loss.item()}")
@@ -346,26 +420,52 @@ else:
                             epoch=epoch, samples=batch["sample_ids"],
                             policy_masked=masked_policy_samples,
                             value_masked=masked_value_samples,
-                            value_used=int(sum(1 for m in valid_val_mask if m)),
+                            value_used=int(sum(1 for m in value_valid if m)),
                         )
-                    # V11/T11-03: accumulate THIS (already optimized) batch before
-                    # any break, so the last step is not silently dropped.
+                    if legacy_bug_repro:
+                        # Pre-V13 accounting: accumulation site #1 of 2, inside the
+                        # optimizer-success block.
+                        total_loss += loss.item()
+                        total_pol_loss += batch_pol_loss.item()
+                        total_val_loss += batch_val_loss.item()
+                    if max_steps is not None and steps_run >= max_steps:
+                        stop_after_this_batch = True
+                    if global_update_limit is not None and (updates_before_epoch + steps_run) >= global_update_limit:
+                        stop_after_this_batch = True
+
+                # V13/T13-01: ONE accumulation site per batch, and it runs before the
+                # early exit so the last (already optimized) batch is never dropped.
+                if not legacy_bug_repro:
                     total_loss += loss.item()
                     total_pol_loss += batch_pol_loss.item()
                     total_val_loss += batch_val_loss.item()
-                    if max_steps is not None and steps_run >= max_steps:
-                        break
-                    if global_update_limit is not None and (updates_before_epoch + steps_run) >= global_update_limit:
-                        break
+                else:
+                    # Pre-V13 accounting: accumulation site #2 of 2, the common footer.
+                    # It is deliberately skipped when the cap fires on the final batch,
+                    # because the original `break` sat between the two sites.
+                    if not stop_after_this_batch:
+                        total_loss += loss.item()
+                        total_pol_loss += batch_pol_loss.item()
+                        total_val_loss += batch_val_loss.item()
+                batches_accumulated += 1
 
-                total_loss += loss.item()
-                total_pol_loss += batch_pol_loss.item()
-                total_val_loss += batch_val_loss.item()
+                if stop_after_this_batch:
+                    break
 
-        if is_train and (max_steps is not None or global_update_limit is not None):
-            n = max(1, steps_run)
+        # V13/T13-01: normalise by the number of batches actually accumulated, not by
+        # len(dataloader) (which was wrong whenever an early break fired) and not by
+        # steps_run alone (which dropped the last batch of a capped run).
+        #
+        # The legacy branch reproduces the pre-V13 denominator exactly, including its
+        # `steps_run` / `len(dataloader)` split, so the regression test compares the
+        # old accounting against the new one rather than two variants of the new one.
+        if legacy_bug_repro:
+            if is_train and (max_steps is not None or global_update_limit is not None):
+                n = max(1, steps_run)
+            else:
+                n = max(1, len(dataloader))
         else:
-            n = max(1, len(dataloader))
+            n = max(1, batches_accumulated)
         acc = correct_actions / max(1, total_actions)
         return total_loss / n, total_pol_loss / n, acc
 
@@ -415,7 +515,22 @@ else:
         parser.add_argument("--optimized-manifest", type=str, default=None, help="V11/T11-03: output path for the POST-training measured consumption ledger.")
         parser.add_argument("--consumed-manifest", type=str, default=None, help="Optional explicit path for consumed sample manifest")
         parser.add_argument("--deploy-to-src", action="store_true", default=False, help="Explicitly deploy to src/game/ai/models/ (default: False)")
-        parser.add_argument("--seed", type=int, default=42, help="Random seed")
+        # V13/T13-01: the three random streams used to share one --seed, so three
+        # "seeds" were never three initialisations on a fixed validation set.
+        # --seed is kept as a legacy fallback for all three.
+        parser.add_argument("--seed", type=int, default=42, help="Legacy seed; used as the default value for --model-seed, --split-seed and --data-order-seed")
+        parser.add_argument("--model-seed", type=int, default=None, help="Seed for network init, dropout-free determinism and torch.manual_seed")
+        parser.add_argument("--split-seed", type=int, default=None, help="Seed for the grouped train/val partition. Ignored when --split-manifest is given.")
+        parser.add_argument("--data-order-seed", type=int, default=None, help="Seed for the training DataLoader shuffle order")
+        parser.add_argument("--allow-legacy-grouping", action="store_true", default=False,
+                            help="V13/T13-01: permit the legacy f'ep_{idx//60}' grouping key when a row has no "
+                                 "rootFamilyId/episodeId. Diagnostic only; the run is watermarked in metrics.")
+        parser.add_argument("--resume-state", type=str, default=None, help="V13/T13-01: torch training-state file (model+optimizer+scheduler+epoch) to resume from")
+        parser.add_argument("--out-state", type=str, default=None, help="V13/T13-01: where to write the resumable training state (defaults to out-model with .state.pt suffix)")
+        parser.add_argument("--legacy-bug-repro", action="store_true", default=False,
+                            help="V13/T13-01: re-enable the pre-V13 loss double-count and mismatched value-mask "
+                                 "filters. Used ONLY by the regression test that proves the old code was wrong; "
+                                 "never set this for a real run.")
         parser.add_argument("--model-version", type=str, default="spatial-resnet-v2", choices=["spatial-resnet-v1", "spatial-resnet-v2"])
         parser.add_argument("--num-blocks", type=int, default=2, choices=[2, 4], help="Number of ResNet trunk blocks (2 or 4)")
         parser.add_argument("--global-policy-pool", action="store_true", default=False, help="Append board-wide GAP vector to the policy head (Arm 2)")
@@ -428,13 +543,25 @@ else:
 
         args = parser.parse_args()
 
-        torch.manual_seed(args.seed)
+        # V13/T13-01: separate the three random streams. Legacy --seed remains the
+        # fallback so historical commands keep working, but each stream can now be
+        # pinned independently and the effective values are recorded in the metrics.
+        model_seed = args.model_seed if args.model_seed is not None else args.seed
+        split_seed = args.split_seed if args.split_seed is not None else args.seed
+        data_order_seed = args.data_order_seed if args.data_order_seed is not None else args.seed
+        if args.legacy_bug_repro:
+            print("[!] LEGACY BUG REPRODUCTION MODE: the pre-V13 loss double-count and the "
+                  "mismatched value-mask filters are re-enabled. This output is NOT a "
+                  "valid training result.")
+
+        torch.manual_seed(model_seed)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"=======================================================")
         print(f"[Path B Training] Spatial ResNet Scaled PyTorch Engine ({args.model_version}, {args.num_blocks} blocks)")
         print(f"Device: {device} (CPU Threads: {torch.get_num_threads()})")
         print(f"Dataset: {args.dataset}")
         print(f"Blocks: {args.num_blocks} | Batch Size: {args.batch_size} | Epochs: {args.epochs} | LR: {args.lr}")
+        print(f"Seeds: model={model_seed} split={split_seed} dataOrder={data_order_seed}")
         if args.split_manifest:
             print(f"Split Manifest: {args.split_manifest}")
         print(f"=======================================================\n")
@@ -444,16 +571,52 @@ else:
 
         val_indices: List[int] = []
         train_indices: List[int] = []
+        # V13/T13-01: provenance of the partition actually applied, recorded in metrics.
+        split_provenance: Dict[str, Any] = {
+            "mode": None,
+            "manifestPath": None,
+            "manifestSha256": None,
+            "splitSeed": None,
+            "legacyGroupingUsed": False,
+            "legacyGroupRows": 0,
+            "watermark": None,
+        }
 
-        if args.split_manifest and os.path.exists(args.split_manifest):
+        if args.split_manifest:
+            # V13/T13-01: an explicit manifest that does not exist used to fall back to
+            # the internal grouped split, so a run could silently use a different
+            # partition than the one it claimed. Fail closed.
+            if not os.path.exists(args.split_manifest):
+                raise FileNotFoundError(
+                    f"--split-manifest was given but does not exist: {args.split_manifest!r}. "
+                    "V13/T13-01 refuses to silently substitute a different partition."
+                )
             with open(args.split_manifest, "r", encoding="utf-8") as f:
                 manifest_data = json.load(f)
             train_roots = set(manifest_data.get("trainRootFamilies", []))
             val_roots = set(manifest_data.get("valRootFamilies", []))
             test_roots = set(manifest_data.get("testRootFamilies", []))
+
+            # V13/T13-01: reject overlapping root families across the three partitions.
+            for left, right, left_name, right_name in (
+                (train_roots, val_roots, "train", "val"),
+                (train_roots, test_roots, "train", "test"),
+                (val_roots, test_roots, "val", "test"),
+            ):
+                overlap = left & right
+                if overlap:
+                    raise ValueError(
+                        f"Split manifest has {len(overlap)} root famil(y/ies) in both {left_name} "
+                        f"and {right_name}: {sorted(overlap)[:5]}. Leakage is refused."
+                    )
+
             unknown_roots = set()
+            missing_identity = set()
             for idx, sample in enumerate(full_dataset.samples):
                 r_id = sample.get("rootFamilyId")
+                if r_id is None:
+                    missing_identity.add(str(sample.get("sampleId")))
+                    continue
                 if r_id in test_roots:
                     continue
                 if r_id in val_roots:
@@ -462,6 +625,12 @@ else:
                     train_indices.append(idx)
                 else:
                     unknown_roots.add(str(r_id))
+            if missing_identity:
+                raise ValueError(
+                    f"{len(missing_identity)} row(s) carry no rootFamilyId, so they cannot be "
+                    f"assigned to a manifest partition (e.g. {sorted(missing_identity)[:3]}). "
+                    "V13/T13-01 refuses to guess."
+                )
             if unknown_roots:
                 raise ValueError(
                     f"{len(unknown_roots)} rootFamilyId value(s) are not in the split manifest "
@@ -472,19 +641,38 @@ else:
                     "Manifest split produced 0 validation samples. V11/T11-03 refuses to "
                     "silently carve the tail rows out of train as a validation set."
                 )
+            split_provenance.update({
+                "mode": "manifest",
+                "manifestPath": os.path.abspath(args.split_manifest),
+                "manifestSha256": _sha256_file(args.split_manifest),
+            })
             print(f"[Manifest Split] Applied unified split_manifest: Train = {len(train_indices)} samples ({len(train_roots)} roots) | Validation = {len(val_indices)} samples ({len(val_roots)} roots)\n")
         else:
             # Grouped split by episodeId / rootFamilyId to prevent leakage across state frames
             episode_groups: Dict[str, List[int]] = {}
+            legacy_rows = 0
             for idx, sample in enumerate(full_dataset.samples):
-                ep_id = sample.get("rootFamilyId") or sample.get("episodeId") or f"ep_{idx // 60}"
+                ep_id = sample.get("rootFamilyId") or sample.get("episodeId")
+                if not ep_id:
+                    # V13/T13-01: this fallback manufactured 811 pseudo-groups out of 48,714
+                    # rows and leaked 95.48% of samples across the train/val boundary on the
+                    # v2 pool. It is now opt-in and watermarked.
+                    if not args.allow_legacy_grouping:
+                        raise ValueError(
+                            f"Row {idx} (sampleId={sample.get('sampleId')!r}) has neither rootFamilyId "
+                            "nor episodeId. The legacy f'ep_{idx//60}' grouping key is diagnostic-only "
+                            "and would let train/val leak. Pass --allow-legacy-grouping to run it anyway "
+                            "(the run will be watermarked)."
+                        )
+                    legacy_rows += 1
+                    ep_id = f"ep_{idx // 60}"
                 if ep_id not in episode_groups:
                     episode_groups[ep_id] = []
                 episode_groups[ep_id].append(idx)
 
             group_keys = sorted(list(episode_groups.keys()))
             import random
-            rng = random.Random(args.seed)
+            rng = random.Random(split_seed)
             rng.shuffle(group_keys)
 
             val_target_count = max(1, int(total_len * args.val_split))
@@ -497,15 +685,33 @@ else:
                     cur_val_count += len(idxs)
                 else:
                     train_indices.extend(idxs)
+            split_provenance.update({
+                "mode": "internal_grouped_split",
+                "splitSeed": split_seed,
+                "legacyGroupingUsed": legacy_rows > 0,
+                "legacyGroupRows": legacy_rows,
+            })
+            if legacy_rows:
+                split_provenance["watermark"] = (
+                    "LEGACY_GROUPING: rows without root/episode identity were grouped by a "
+                    "row-index proxy. Do not treat the resulting validation split as clean."
+                )
+                print(f"[!] {split_provenance['watermark']} ({legacy_rows} rows affected)")
 
         if len(train_indices) == 0:
-            raise ValueError(f"Partition error: train set is empty with {total_len} samples.")
+            raise ValueError(
+                f"Partition error: train set is empty with {total_len} samples "
+                f"({len(val_indices)} assigned to val). Refusing to train on nothing."
+            )
         if len(val_indices) == 0:
             raise ValueError(f"Partition error: validation set is empty with {total_len} samples.")
 
         train_data = torch.utils.data.Subset(full_dataset, train_indices)
         val_data = torch.utils.data.Subset(full_dataset, val_indices)
-        total_roots = (len(train_roots) + len(val_roots)) if (args.split_manifest and os.path.exists(args.split_manifest)) else len(group_keys)
+        if split_provenance["mode"] == "manifest":
+            total_roots = len(train_roots) + len(val_roots)
+        else:
+            total_roots = len(group_keys)
         print(f"Final Partition: Train = {len(train_data)} samples | Validation = {len(val_data)} samples (Grouped by {total_roots} roots)\n")
 
         # V11/T11-03: the PLAN. Written before training, explicitly not evidence.
@@ -551,6 +757,17 @@ else:
             if len(val_ids) == 0:
                 raise ValueError(f"consumed_manifest error: val_sample_ids is empty for {len(val_indices)} val samples!")
             consumed_info = {
+                # V13/T13-01: this file is written BEFORE the first optimizer step, so it
+                # can never be evidence of consumption. V10's pipeline validated DAgger
+                # coverage against it, which was a closed loop that could not fail.
+                "schema": "v13_planned_split_1",
+                "measured": False,
+                "isConsumptionEvidence": False,
+                "warning": "PLANNED index split written before training. It does NOT prove "
+                           "which samples were optimized. Consumption evidence comes from "
+                           "<out-model>.optimized_samples_manifest.json and "
+                           "optimizer_update_ledger.jsonl, which are written after "
+                           "successful optimizer.step() calls only.",
                 "model_version": args.model_version,
                 "num_blocks": args.num_blocks,
                 "dataset": os.path.abspath(args.dataset),
@@ -564,10 +781,23 @@ else:
             os.makedirs(os.path.dirname(os.path.abspath(args.consumed_manifest)), exist_ok=True)
             with open(args.consumed_manifest, "w", encoding="utf-8") as f:
                 json.dump(consumed_info, f, indent=2)
-            print(f"[Consumed Manifest] Exported {len(train_ids)} train and {len(val_ids)} val sample IDs to: {args.consumed_manifest}\n")
+            print(f"[Planned Split] (NOT consumption evidence) wrote {len(train_ids)} train and "
+                  f"{len(val_ids)} val sample IDs to: {args.consumed_manifest}\n")
 
-        train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True, collate_fn=collate_samples)
-        val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False, collate_fn=collate_samples)
+        # V13/T13-01: shuffle order is its own stream, so two runs can share a model
+        # seed and a split while differing only in batch order.
+        #
+        # drop_last=False is explicit: torch's default already keeps the partial
+        # batch, but the pre-V13 normaliser divided by len(dataloader) while the loop
+        # could break early, so the two disagreed. Making the batch count explicit
+        # keeps `batches_accumulated` the single source of truth for the mean.
+        _order_gen = torch.Generator()
+        _order_gen.manual_seed(int(data_order_seed))
+        train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True,
+                                  collate_fn=collate_samples, generator=_order_gen,
+                                  drop_last=False)
+        val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False,
+                                collate_fn=collate_samples, drop_last=False)
 
         global_dim = 20 if args.model_version == "spatial-resnet-v2" else 16
         action_semantic_dim = 32 if args.model_version == "spatial-resnet-v2" else 24
@@ -582,8 +812,22 @@ else:
             global_policy_pool=args.global_policy_pool
         ).to(device)
 
-        if args.init_checkpoint and os.path.exists(args.init_checkpoint):
+        # V13/T13-01: an explicitly named init checkpoint that does not exist used to
+        # be a silent "train from scratch instead". Fail closed.
+        if args.init_checkpoint:
+            if not os.path.exists(args.init_checkpoint):
+                raise FileNotFoundError(
+                    f"--init-checkpoint was given but does not exist: {args.init_checkpoint!r}. "
+                    "V13/T13-01 refuses to silently train from scratch instead."
+                )
             load_model_from_ts_json(model, args.init_checkpoint)
+            print(f"[Init] Warm-started from {args.init_checkpoint} "
+                  f"(sha256={_sha256_file(args.init_checkpoint)})")
+        if args.resume_state:
+            if not os.path.exists(args.resume_state):
+                raise FileNotFoundError(
+                    f"--resume-state was given but does not exist: {args.resume_state!r}"
+                )
 
         optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
         scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
@@ -591,19 +835,35 @@ else:
         best_val_acc = -1.0
         best_epoch = 0
 
+        start_epoch = 1
+        if args.resume_state:
+            state = torch.load(args.resume_state, map_location=device, weights_only=False)
+            model.load_state_dict(state["model"])
+            optimizer.load_state_dict(state["optimizer"])
+            scheduler.load_state_dict(state["scheduler"])
+            start_epoch = int(state.get("epoch", 0)) + 1
+            best_val_acc = float(state.get("best_val_acc", -1.0))
+            best_epoch = int(state.get("best_epoch", 0))
+            torch.set_rng_state(state["torch_rng"].cpu() if hasattr(state["torch_rng"], "cpu")
+                                else state["torch_rng"])
+            print(f"[Resume] resumed at epoch {start_epoch} from {args.resume_state} "
+                  f"(best_val_acc={best_val_acc:.4f} @ epoch {best_epoch})")
+
         print(f"Starting scaled training for {args.epochs} epochs (value_weight={args.value_weight})...\n")
         history = []
         consumption = ConsumptionRecorder()
-        for epoch in range(1, args.epochs + 1):
+        for epoch in range(start_epoch, args.epochs + 1):
             train_loss, train_pol, train_acc = run_epoch(
                 model, train_loader, optimizer, device, value_weight=args.value_weight, is_train=True, max_steps=args.max_steps,
                 loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight,
                 epoch=epoch, global_update_limit=args.global_update_limit,
                 updates_before_epoch=consumption.updates, recorder=consumption,
+                legacy_bug_repro=args.legacy_bug_repro,
             )
             val_loss, val_pol, val_acc = run_epoch(
                 model, val_loader, None, device, value_weight=args.value_weight, is_train=False,
-                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight
+                loss_mode=args.loss_mode, teacher_temperature=args.teacher_temperature, soft_weight=args.soft_weight, equiv_weight=args.equiv_weight,
+                legacy_bug_repro=args.legacy_bug_repro,
             )
             scheduler.step()
 
@@ -630,6 +890,29 @@ else:
                 export_model_to_ts_json(model, last_model_path)
                 print(f"Exported final epoch checkpoint to: {last_model_path}")
 
+            # V13/T13-01: a resumable training state (model + optimizer + scheduler +
+            # RNG + progress) is managed separately from the JSON deployment weights.
+            # Written atomically so an evaluator can never read a half-written state.
+            state_path = args.out_state
+            if not state_path:
+                base, _ = os.path.splitext(args.out_model)
+                state_path = f"{base}.state.pt"
+            os.makedirs(os.path.dirname(os.path.abspath(state_path)), exist_ok=True)
+            _tmp_state = f"{state_path}.tmp"
+            torch.save({
+                "schema": "v13_train_state_1",
+                "epoch": epoch,
+                "model": model.state_dict(),
+                "optimizer": optimizer.state_dict(),
+                "scheduler": scheduler.state_dict(),
+                "torch_rng": torch.get_rng_state(),
+                "best_val_acc": best_val_acc,
+                "best_epoch": best_epoch,
+                "updates": consumption.updates,
+                "seeds": {"model": model_seed, "split": split_seed, "dataOrder": data_order_seed},
+            }, _tmp_state)
+            os.replace(_tmp_state, state_path)
+
             best_mark = " [*BEST]" if is_best else ""
             print(
                 f"[Epoch {epoch:02d}/{args.epochs:02d}] "
@@ -649,23 +932,45 @@ else:
             base, _ = os.path.splitext(args.out_model)
             metrics_file = f"{base}_metrics.json"
         os.makedirs(os.path.dirname(os.path.abspath(metrics_file)), exist_ok=True)
-        with open(metrics_file, "w", encoding="utf-8") as f:
-            json.dump({
-                "model_version": args.model_version,
-                "num_blocks": args.num_blocks,
-                "dataset": args.dataset,
-                "value_weight": args.value_weight,
-                "loss_mode": args.loss_mode,
-                "teacher_temperature": args.teacher_temperature,
-                "soft_weight": args.soft_weight,
-                "equiv_weight": args.equiv_weight,
-                "seed": args.seed,
-                "best_val_acc": best_val_acc,
-                "best_epoch": best_epoch,
-                "train_samples": len(train_data),
-                "val_samples": len(val_data),
-                "history": history
-            }, f, indent=2)
+        metrics_payload = {
+            "schema": "v13_spatial_train_metrics_1",
+            "model_version": args.model_version,
+            "num_blocks": args.num_blocks,
+            "global_policy_pool": bool(args.global_policy_pool),
+            "dataset": args.dataset,
+            "datasetSha256": _sha256_file(args.dataset) if os.path.exists(args.dataset) else None,
+            "initCheckpoint": os.path.abspath(args.init_checkpoint) if args.init_checkpoint else None,
+            "initCheckpointSha256": (_sha256_file(args.init_checkpoint)
+                                     if args.init_checkpoint and os.path.exists(args.init_checkpoint) else None),
+            "value_weight": args.value_weight,
+            "loss_mode": args.loss_mode,
+            "teacher_temperature": args.teacher_temperature,
+            "soft_weight": args.soft_weight,
+            "equiv_weight": args.equiv_weight,
+            # V13/T13-01: the three streams are reported separately. `seed` is kept for
+            # readers of the historic schema and equals the model seed.
+            "seed": model_seed,
+            "seeds": {"model": model_seed, "split": split_seed, "dataOrder": data_order_seed},
+            "split": split_provenance,
+            "lossAccounting": {
+                "mode": "legacy_bug_repro" if args.legacy_bug_repro else "v13_fixed",
+                "note": "train_loss/val_loss are single-counted means over accumulated batches"
+                        if not args.legacy_bug_repro else
+                        "LEGACY BUG REPRODUCTION: train_loss is inflated by double accumulation",
+            },
+            "best_val_acc": best_val_acc,
+            "best_epoch": best_epoch,
+            "train_samples": len(train_data),
+            "val_samples": len(val_data),
+            "epochsRequested": args.epochs,
+            "epochsCompleted": len(history),
+            "optimizerUpdates": consumption.updates,
+            "history": history,
+        }
+        _tmp_metrics = f"{metrics_file}.tmp"
+        with open(_tmp_metrics, "w", encoding="utf-8") as f:
+            json.dump(metrics_payload, f, indent=2)
+        os.replace(_tmp_metrics, metrics_file)
 
         consumption_json = consumption.to_json(len(train_data), args.batch_size)
         consumption_json.update({
@@ -681,7 +986,19 @@ else:
         os.makedirs(os.path.dirname(os.path.abspath(consumed_manifest_file)), exist_ok=True)
         with open(consumed_manifest_file, "w", encoding="utf-8") as f:
             json.dump(consumption_json, f, indent=2)
-        ledger_file = os.path.join(os.path.dirname(os.path.abspath(consumed_manifest_file)), "optimizer_update_ledger.jsonl")
+        # V13/T13-07: the ledger used to be named after its DIRECTORY, so two runs sharing
+        # an output directory silently overwrote each other's consumption evidence - which
+        # is exactly what happened during the first pass of T13-07. Name it after the
+        # out-model instead, so each run gets its own file by default, and keep the
+        # overwrite guard as a second line of defence against an explicit path collision.
+        _stem = os.path.splitext(os.path.basename(args.out_model))[0]
+        ledger_file = os.path.join(os.path.dirname(os.path.abspath(args.out_model)),
+                                   f"{_stem}.optimizer_update_ledger.jsonl")
+        if os.path.exists(ledger_file):
+            raise FileExistsError(
+                f"refusing to overwrite an existing optimizer ledger: {ledger_file!r}. "
+                "Give this run its own --out-model path."
+            )
         with open(ledger_file, "w", encoding="utf-8") as f:
             for entry in consumption.update_log:
                 f.write(json.dumps(entry) + "\n")
