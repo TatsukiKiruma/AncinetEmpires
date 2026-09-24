@@ -45,3 +45,19 @@ v12/out/spatial/diag_30k_with_roots.jsonl
 # (this sandbox cannot complete any TLS handshake, so `git push` is impossible here).
 # Transfer artifact, never source.
 *.bundle
+
+# --- V13 generated heavy artifacts ------------------------------------------------
+# Data pools and pilot datasets are reproducible and far too large for git: the v3.1 pool
+# alone is 893 MB and exceeds GitHub's 100 MB per-file hard limit. Kept on disk for
+# reproduction, deliberately not committed. Manifests, splits, metrics, ledgers, reports and
+# evaluation results ARE committed - those are the evidence.
+v13/out/**/*.state.pt
+v13/out/**/pool_v31.jsonl
+v13/out/**/pool_v31_subset.jsonl
+v13/out/**/pool_v3.jsonl
+v13/out/**/data_v3_*/pool_v3.jsonl
+v13/out/**/data_v3_*/train.jsonl
+v13/out/**/data_v3_*/val.jsonl
+v13/out/**/teacher_provenance_by_row.txt
+
+
