@@ -1,0 +1,60 @@
+{
+  "schema": "v13_round5_status_1",
+  "runId": "v13_20260924_t13",
+  "round": "5 - gap closure and package rebuild",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "statusVocabulary": ["DONE", "FAILED", "BLOCKED", "DEFERRED", "INCONCLUSIVE", "BUDGET_EXHAUSTED"],
+  "gapsClosed": [
+    {
+      "gap": "T13-05 extension candidates unmeasured",
+      "status": "DONE",
+      "evidence": ["T13-05/existing_checkpoint_matrix.jsonl", "T13-05/existing_checkpoint_summary.md",
+                   "T13-05/duel_v2_honest_s42_last.json", "T13-05/duel_budget_s1337.json",
+                   "T13-05/duel_budget_s2026.json", "T13-05/duel_budget_s2026_last.json",
+                   "T13-05/duel_diag_grouped_s42.json"],
+      "notes": "All 8 checkpoints measured on Duel under one protocol. diag_grouped_s42 delta -0.25 is the strongest network reading in the project and still loses. The three old-pool seeds all score 0/4 (-0.50) and are therefore indistinguishable on this arena. v2_honest_s42_last ties v2_honest_s42 best. budget_s2026 and _last are byte-identical and score identically, confirmed rather than inferred."
+    },
+    {
+      "gap": "T13-06 tactical suite covered only 4 of 8 named patterns",
+      "status": "DONE",
+      "evidence": ["v13/tools/tactical_core.ts", "v13/tools/tactical_suite_extended.ts",
+                   "T13-06/teacher_tactical_suite.json", "T13-06/teacher_budget_comparison.jsonl",
+                   "T13-06/teacher_invariance_tests.json", "T13-06/tactical_suite_extended.json"],
+      "notes": "All eight patterns now covered: IMMEDIATE_CAPTURE, LETHAL_ATTACK, OWN_COMMANDER_THREAT, MIN_RANGE_PRESSURE, CASTLE_PENDING, END_TURN_TIMING, MULTIPLAYER_NEXT_ACTOR_THREAT, MOVE_THEN_ATTACK. IMMEDIATE_CAPTURE reconfirmed at 17.6% kernel vs 100% heuristic over 200 decisions. MULTIPLAYER_NEXT_ACTOR_THREAT 61.7% vs 71.6%; OWN_COMMANDER_THREAT 54.8% vs 66.1%. Three patterns (LETHAL_ATTACK, MIN_RANGE_PRESSURE, FORCED_END_TURN) are too rare on this map to rate and that is stated rather than papered over. The shared kernel and detectors moved into tactical_core.ts so both suites cannot drift."
+    },
+    {
+      "gap": "10 taskbook-named artifacts and the T13-10 package structure missing",
+      "status": "DONE",
+      "evidence": ["T13-10/package_manifest.json", "v13/tools/make_missing_artifacts.py",
+                   "v13/tools/build_delivery_package.py"],
+      "notes": "All 24 taskbook-named deliverables now present. Every generated artifact carries derivedFrom with the source path and SHA-256, so its lineage is checkable rather than asserted. The T13-10 package has protocol_and_splits/ (4), tests/ (7), data_manifests/ (9), training_runs/ (17), match_results/ (9), failure_replays/ (11) plus the four top-level files and package_manifest.json; 64 files, zero missing sources."
+    }
+  ],
+  "honestResiduals": [
+    "tiny_fit_metrics.json is recorded as BUDGET_EXHAUSTED, not DONE: the taskbook's 128-state ~99% equivalent-action tiny-fit was NOT performed. The candidate-collision check and the B0 train-accuracy curve cover the same diagnostic intent on real data, and the artifact says so explicitly.",
+    "outcome_repair_report.json records that NO censored root was repaired: 7 roots still have valueTarget null and no label was guessed.",
+    "teacher_invariance_tests.json records the required RNG contract as NOT implemented; order dependence was not demonstrated (0/204) but the contract is unmet.",
+    "Three tactical patterns are too rare on the measured map to rate.",
+    "The matrix scan was restricted to T13-05/T13-07 after a first version counted package copies and the fault-injection calibration as measurements, inflating it from 14 to 24 records. That defect is fixed and recorded."
+  ],
+  "gates": {
+    "G0_traceable": "PASS",
+    "G1_numeric_and_contract": "PASS",
+    "G2_evaluation_valid": "PASS",
+    "G3_learning_useful": "PARTIAL",
+    "G4_release": "NOT_MET"
+  },
+  "productionImpact": "none - model_registry.json unmodified, defaultProductionPolicy still \"heuristic\", no source changes this round",
+  "tasks": [
+    {"id": "T13-00", "status": "DONE"}, {"id": "T13-01", "status": "DONE"},
+    {"id": "T13-02", "status": "DONE"}, {"id": "T13-03", "status": "DONE"},
+    {"id": "T13-04", "status": "DONE", "residual": "tiny-fit diagnostic not performed (BUDGET_EXHAUSTED)"},
+    {"id": "T13-05", "status": "DONE"}, {"id": "T13-06", "status": "DONE"},
+    {"id": "T13-07", "status": "DONE", "residual": "B1/B3 arms not run"},
+    {"id": "T13-07-B2", "status": "FAILED", "reason": "teacher fails a tactical test the heuristic passes perfectly"},
+    {"id": "T13-08", "status": "BLOCKED", "reason": "no qualified teacher exists"},
+    {"id": "T13-09", "status": "DEFERRED", "reason": "30 independent natural terminations is not enough"},
+    {"id": "T13-10", "status": "DEFERRED", "reason": "no candidate beat the heuristic, so there is nothing to freeze or release"}
+  ],
+  "verdict": "The taskbook's DONE-able work is complete with the residuals above recorded. The three tasks that remain open (T13-08, T13-09, T13-10) are blocked by facts about the project, not by budget: there is no qualified teacher, no candidate stronger than the heuristic, and not enough independent natural terminations."
+}

@@ -1,0 +1,139 @@
+{
+  "schema": "v13_candidate_contract_1",
+  "generatedAt": "2026-09-24T01:29:11.277Z",
+  "poolPath": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+  "statesMeasured": 48714,
+  "routes": {
+    "teacher": {
+      "where": "v12/out/labels/label_quality_v2.json",
+      "candidateCap": 6,
+      "topK": 10,
+      "measuredLegalActionMedianAtThoseDecisions": 31,
+      "measuredLegalActionMaxAtThoseDecisions": 444,
+      "source": "label_quality_v2.json config.maxCandidates / candidateBreadth.legalActions"
+    },
+    "training": {
+      "where": "tools/convert_archive_to_spatial.ts:232,406-424",
+      "candidateCap": 48,
+      "policy": "seed a Set with the teacher action and commander-recruit actions, then fill from the ORIGINAL legal-action prefix",
+      "stores": "coordinate features, not actionCode"
+    },
+    "inference": {
+      "where": "src/game/ai/shared_spatial_policy.ts:56",
+      "candidateCap": null,
+      "policy": "encode and score EVERY legal action (minus surrender), then argmax"
+    }
+  },
+  "proposedSharedSelector": {
+    "version": "shared-selector-v1",
+    "labelDependent": false,
+    "preserveFirstTypes": [
+      "attack",
+      "capture",
+      "recruit_to_castle",
+      "recruit_and_deploy",
+      "game_over"
+    ],
+    "note": "pure function of the legal action list; safe to use identically on both sides of the pipeline because it never reads the label"
+  },
+  "distributions": {
+    "legalActionsPerState": {
+      "min": 1,
+      "p10": 6,
+      "median": 39,
+      "p90": 253,
+      "max": 756,
+      "mean": 91.75
+    },
+    "storedCandidatesPerState": {
+      "min": 1,
+      "p10": 6,
+      "median": 39,
+      "p90": 48,
+      "max": 48,
+      "mean": 31.5755
+    }
+  },
+  "truncation": {
+    "statesWhereTrainingCapFires": 22276,
+    "fractionOfStates": 0.457281
+  },
+  "teacherRecall": {
+    "measuredAgainstStoredCandidates": 1,
+    "measuredAgainstSharedSelector": 0.752699,
+    "measuredAgainstInferenceAllLegal": 1,
+    "note": "the stored-candidate figure is inflated by the converter forcing the teacher action in; the shared-selector figure is the honest one"
+  },
+  "labelIntegrity": {
+    "labelDecodeFailures": 0,
+    "targetIndexOutOfRange": 0,
+    "singleCandidateStates": 23
+  },
+  "keptVsDroppedByType": {
+    "attack": {
+      "legalOccurrences": 101236,
+      "keptWhenTruncated": 68661,
+      "droppedWhenTruncated": 574
+    },
+    "capture": {
+      "legalOccurrences": 1847,
+      "keptWhenTruncated": 1497,
+      "droppedWhenTruncated": 0
+    },
+    "destroy_town": {
+      "legalOccurrences": 4481,
+      "keptWhenTruncated": 402,
+      "droppedWhenTruncated": 3446
+    },
+    "end_turn": {
+      "legalOccurrences": 48522,
+      "keptWhenTruncated": 0,
+      "droppedWhenTruncated": 22275
+    },
+    "heal": {
+      "legalOccurrences": 16912,
+      "keptWhenTruncated": 1536,
+      "droppedWhenTruncated": 14945
+    },
+    "move": {
+      "legalOccurrences": 3369930,
+      "keptWhenTruncated": 668522,
+      "droppedWhenTruncated": 2587376
+    },
+    "post_attack_move": {
+      "legalOccurrences": 13134,
+      "keptWhenTruncated": 4657,
+      "droppedWhenTruncated": 2309
+    },
+    "recruit_to_castle": {
+      "legalOccurrences": 293583,
+      "keptWhenTruncated": 206908,
+      "droppedWhenTruncated": 12144
+    },
+    "repair": {
+      "legalOccurrences": 1014,
+      "keptWhenTruncated": 265,
+      "droppedWhenTruncated": 534
+    },
+    "summon": {
+      "legalOccurrences": 409,
+      "keptWhenTruncated": 98,
+      "droppedWhenTruncated": 240
+    },
+    "support": {
+      "legalOccurrences": 329,
+      "keptWhenTruncated": 0,
+      "droppedWhenTruncated": 327
+    },
+    "surrender": {
+      "legalOccurrences": 48522,
+      "keptWhenTruncated": 186,
+      "droppedWhenTruncated": 22089
+    },
+    "wait": {
+      "legalOccurrences": 569590,
+      "keptWhenTruncated": 116516,
+      "droppedWhenTruncated": 265079
+    }
+  }
+}

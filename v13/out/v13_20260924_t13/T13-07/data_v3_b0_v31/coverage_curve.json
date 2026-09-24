@@ -1,0 +1,124 @@
+{
+  "schema": "v13_coverage_curve_1",
+  "pool": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0_v31\\pool_v31.jsonl",
+  "ordering": "engine legal order (v3.1)",
+  "rows": 22226,
+  "legalActionsPerState": {
+    "min": 1,
+    "median": 31,
+    "p90": 245,
+    "max": 620,
+    "mean": 85.417
+  },
+  "teacherPositionInEngineOrder": {
+    "atIndex0": 3124,
+    "atIndex0Fraction": 0.140556,
+    "topPositions": [
+      [
+        0,
+        3124
+      ],
+      [
+        1,
+        1528
+      ],
+      [
+        2,
+        1093
+      ],
+      [
+        3,
+        970
+      ],
+      [
+        4,
+        785
+      ],
+      [
+        5,
+        682
+      ],
+      [
+        6,
+        673
+      ],
+      [
+        7,
+        531
+      ]
+    ]
+  },
+  "curve": [
+    {
+      "cap": 6,
+      "recallLegalPrefix": 0.368127,
+      "recallPriorityFirst": 0.428282,
+      "priorityGain": 0.060155
+    },
+    {
+      "cap": 16,
+      "recallLegalPrefix": 0.563484,
+      "recallPriorityFirst": 0.61671,
+      "priorityGain": 0.053226
+    },
+    {
+      "cap": 32,
+      "recallLegalPrefix": 0.686718,
+      "recallPriorityFirst": 0.729866,
+      "priorityGain": 0.043148
+    },
+    {
+      "cap": 48,
+      "recallLegalPrefix": 0.748808,
+      "recallPriorityFirst": 0.787546,
+      "priorityGain": 0.038738
+    },
+    {
+      "cap": 64,
+      "recallLegalPrefix": 0.794925,
+      "recallPriorityFirst": 0.827454,
+      "priorityGain": 0.032529
+    },
+    {
+      "cap": 96,
+      "recallLegalPrefix": 0.861199,
+      "recallPriorityFirst": 0.883695,
+      "priorityGain": 0.022496
+    },
+    {
+      "cap": 128,
+      "recallLegalPrefix": 0.902322,
+      "recallPriorityFirst": 0.918429,
+      "priorityGain": 0.016107
+    },
+    {
+      "cap": 256,
+      "recallLegalPrefix": 0.978899,
+      "recallPriorityFirst": 0.983623,
+      "priorityGain": 0.004724
+    },
+    {
+      "cap": 512,
+      "recallLegalPrefix": 0.99991,
+      "recallPriorityFirst": 0.99991,
+      "priorityGain": 0.0
+    },
+    {
+      "cap": 1024,
+      "recallLegalPrefix": 1.0,
+      "recallPriorityFirst": 1.0,
+      "priorityGain": 0.0
+    }
+  ],
+  "priorityTypes": [
+    "capture",
+    "attack",
+    "recruit_to_castle",
+    "recruit_and_deploy",
+    "heal",
+    "support",
+    "destroy_town",
+    "summon"
+  ],
+  "note": "recall is measured BEFORE any forced insertion of the teacher action; a selector that inspects the label has recall 1.0 by construction and that number must never be reported as coverage"
+}

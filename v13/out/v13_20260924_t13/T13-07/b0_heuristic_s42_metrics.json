@@ -1,0 +1,99 @@
+{
+  "schema": "v13_spatial_train_metrics_1",
+  "model_version": "spatial-resnet-v2",
+  "num_blocks": 2,
+  "global_policy_pool": false,
+  "dataset": "v13/out/v13_20260924_t13/T13-07/data_v3_b0/pool_v3.jsonl",
+  "datasetSha256": "96301e4af66571df83afa6c52b4b4ac3c65bae1c79eaf6a9b5f86230f05e4cd9",
+  "initCheckpoint": null,
+  "initCheckpointSha256": null,
+  "value_weight": 0.0,
+  "loss_mode": "ce",
+  "teacher_temperature": 1.0,
+  "soft_weight": 0.5,
+  "equiv_weight": 0.5,
+  "seed": 42,
+  "seeds": {
+    "model": 42,
+    "split": 42,
+    "dataOrder": 42
+  },
+  "split": {
+    "mode": "manifest",
+    "manifestPath": "C:\\code\\AncinetEmpires\\v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0\\split_manifest.json",
+    "manifestSha256": "f8afd0d407af5d140ccf28b4c7ffdb22626512507919e5704fe2fe9bad3afca5",
+    "splitSeed": null,
+    "legacyGroupingUsed": false,
+    "legacyGroupRows": 0,
+    "watermark": null
+  },
+  "lossAccounting": {
+    "mode": "v13_fixed",
+    "note": "train_loss/val_loss are single-counted means over accumulated batches"
+  },
+  "best_val_acc": 0.4129979035639413,
+  "best_epoch": 7,
+  "train_samples": 1962,
+  "val_samples": 477,
+  "epochsRequested": 8,
+  "epochsCompleted": 8,
+  "optimizerUpdates": 496,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 3.452467107003735,
+      "train_acc": 0.1946992864424057,
+      "val_loss": 3.085925817489624,
+      "val_acc": 0.27044025157232704
+    },
+    {
+      "epoch": 2,
+      "train_loss": 2.924571671793538,
+      "train_acc": 0.3103975535168196,
+      "val_loss": 2.860392141342163,
+      "val_acc": 0.31446540880503143
+    },
+    {
+      "epoch": 3,
+      "train_loss": 2.598948609444403,
+      "train_acc": 0.3577981651376147,
+      "val_loss": 2.7328949133555094,
+      "val_acc": 0.31027253668763105
+    },
+    {
+      "epoch": 4,
+      "train_loss": 2.3612104577402913,
+      "train_acc": 0.42201834862385323,
+      "val_loss": 2.491569169362386,
+      "val_acc": 0.36058700209643607
+    },
+    {
+      "epoch": 5,
+      "train_loss": 2.1397912521516123,
+      "train_acc": 0.4658511722731906,
+      "val_loss": 2.410816224416097,
+      "val_acc": 0.3752620545073375
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.9627071580579203,
+      "train_acc": 0.5061162079510704,
+      "val_loss": 2.2893444538116454,
+      "val_acc": 0.4025157232704403
+    },
+    {
+      "epoch": 7,
+      "train_loss": 1.8435137656427198,
+      "train_acc": 0.536697247706422,
+      "val_loss": 2.250596610705058,
+      "val_acc": 0.4129979035639413
+    },
+    {
+      "epoch": 8,
+      "train_loss": 1.7909602311349684,
+      "train_acc": 0.5428134556574924,
+      "val_loss": 2.247576371828715,
+      "val_acc": 0.40670859538784065
+    }
+  ]
+}

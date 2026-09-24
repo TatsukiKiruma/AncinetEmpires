@@ -1,0 +1,88 @@
+{
+  "schema": "v13_round4_status_1",
+  "runId": "v13_20260924_t13",
+  "round": "4 - T13-06 tactical soundness, bounded kernel, and the B2 decision",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "statusVocabulary": ["DONE", "FAILED", "BLOCKED", "DEFERRED", "INCONCLUSIVE", "BUDGET_EXHAUSTED"],
+  "headline": "The calibrated search teacher takes a FREE CAPTURE only 23-69% of the time where the plain heuristic takes it 100%, and the rate FALLS as its candidate budget rises. A forced takeover over a stochastic static leaf is a noise maximiser. B2 search distillation is now CLOSED.",
+  "supersedes": {
+    "claim": "'The calibrated kernel improves its own objective: 10 better / 6 equal / 0 worse' (round 3)",
+    "why": "That comparison evaluated each choice ONCE. The defect only appears when a maximum is taken across many evaluations, which is what the kernel does in production. Measured here: a wider candidate budget makes tactical quality WORSE, not better.",
+    "status": "SUPERSEDED, not deleted"
+  },
+  "tasks": [
+    {
+      "id": "T13-06",
+      "title": "Tactical soundness suite + bounded/cancellable kernel",
+      "status": "DONE",
+      "verdict": "UNQUALIFIED - the search-distillation branch is closed",
+      "evidence": [
+        "v13/tools/tactical_soundness.ts",
+        "v13/out/v13_20260924_t13/T13-06/tactical_soundness_report.md",
+        "v13/out/v13_20260924_t13/T13-06/tactical_soundness.json",
+        "v13/out/v13_20260924_t13/T13-06/tactical_c4.json",
+        "v13/out/v13_20260924_t13/T13-06/tactical_c8.json",
+        "v13/out/v13_20260924_t13/T13-06/tactical_c16.json",
+        "v13/out/v13_20260924_t13/T13-06/tactical_c32.json"
+      ],
+      "notes": "Tactical patterns detected from the ENGINE's legal actions, never hand-authored. IMMEDIATE_CAPTURE: kernel 69.2%/30.8%/21.4-23.1%/23.1% at maxCandidates 4/8/16/32 versus the heuristic's 100% at every setting - a monotonic degradation with budget. OWN_COMMANDER_THREAT: kernel 33-50% vs heuristic 54-65%. MOVE_THEN_ATTACK: 9.4% vs 26.4%. RECRUIT_AVAILABLE: 51.3% vs 25.0%. Zero illegal actions and zero fallbacks in ~510 probed decisions. BOUNDED KERNEL: implemented as a wrapper with a capped inner topK and a legal-action fallback; work per decision is provably finite but NOT 1-second boundable - worst observed decision 2.0 s at maxCandidates=4 rising to 14.2 s at 32, because evaluateCandidate runs a rollout that scores the full legal action list."
+    },
+    {
+      "id": "T13-07-B2",
+      "title": "B2 search distillation ranker",
+      "status": "FAILED",
+      "failureReason": "The teacher does not pass a basic tactical test that the plain heuristic passes 100% of the time, and its quality degrades as its budget grows. Distilling it would teach the student to miss free captures. The taskbook's rule applies: fix the teacher rather than spend more time training a copy of its bias - and fixing it means replacing the stochastic static leaf, which is a new teacher, not a recalibration.",
+      "evidence": ["T13-06/tactical_soundness_report.md"]
+    },
+    {
+      "id": "T13-08",
+      "title": "DAgger on student-visited states",
+      "status": "BLOCKED",
+      "blockedBy": "No qualified teacher exists. The only candidate teacher is neither tactically sound nor cheaply callable, and DAgger needs labels on student-visited states.",
+      "notes": "Closing B2 removes the teacher this branch depended on."
+    },
+    {
+      "id": "T13-09",
+      "title": "Value head",
+      "status": "DEFERRED",
+      "notes": "Unaffected by this round. Still gated on having enough independent natural terminations (30), not on the teacher."
+    },
+    {
+      "id": "T13-10",
+      "title": "Freeze candidate, browser acceptance, release",
+      "status": "DEFERRED",
+      "notes": "No candidate beat the heuristic."
+    }
+  ],
+  "gates": {
+    "G0_traceable": "PASS",
+    "G1_numeric_and_contract": "PASS",
+    "G2_evaluation_valid": "PASS",
+    "G3_learning_useful": "NOT_MET",
+    "G4_release": "NOT_MET"
+  },
+  "productionImpact": "none - model_registry.json unmodified, defaultProductionPolicy still \"heuristic\", battle_search_ai.ts unmodified (the bounded kernel is a separate wrapper class, not a replacement)",
+  "whatTheProjectNowKnowsThatItDidNot": [
+    "The shipped search teacher is the heuristic: 120/120 identical actions across four maps.",
+    "Its thresholds are mis-calibrated far above the leaf-margin range, so the takeover branch is unreachable - a configuration defect, not an inert mechanism.",
+    "Recalibrating makes it behaviourally distinct but NOT tactically sound: 23-69% on free captures against the heuristic's 100%, degrading as the budget rises.",
+    "A forced takeover over a stochastic static leaf acts as a noise maximiser.",
+    "No bounded variant of this kernel fits a 1-second online budget.",
+    "Imitation of the heuristic does not beat the heuristic (B0), and neither does distillation of a search that is the heuristic."
+  ],
+  "honestStateOfTheProject": "Every training route attempted reduces to copying, in some form, the same policy it has to beat. No route tried has produced a candidate stronger than HeuristicAI. The next attempt needs a different kind of teacher, not a better copy.",
+  "notDoneMustNotBeReadAsDone": [
+    "No candidate beat the heuristic anywhere in this project so far.",
+    "The noise-maximiser explanation is an inference from a monotonic trend plus the known rng()*20..30 in the leaf; it was not isolated experimentally.",
+    "One map, one seed, 120-150 decisions per configuration. Directional only.",
+    "T13-09 / T13-10 were not started.",
+    "The 128-decision label pilot was not run, because the teacher failed before label generation was justified."
+  ],
+  "goalItemsClosed": {
+    "(1) tactical regression suite": "DONE - v13/tools/tactical_soundness.ts, six patterns detected from the engine's legal actions, run at four candidate budgets",
+    "(2) bounded/cancellable kernel variant": "DONE - BoundedSearchKernel wrapper with a capped inner topK and a legal-action fallback; work per decision is provably finite but NOT 1-second boundable (2.0 s worst case at the smallest setting)",
+    "(3) teacher recall under the engine ordering": "DONE - v13/out/v13_20260924_t13/T13-06/teacher_recall_v31.json over 22,226 rows: teacher at engine index 0 in 14.06%; label-independent recall 42.83% at cap 6, 78.75% at 48, 91.84% at 128, 98.36% at 256",
+    "(4) 128-decision label pilot": "DELIBERATELY NOT RUN - the teacher failed qualification on the free-capture test before label generation was justified. Running it would label data with a teacher that takes a free capture 23-69% of the time, which is what the taskbook forbids. This is recorded as a decision, not as an omission: the taskbook's rule that teacher failure must not become an excuse to skip BASIC training validation was honoured separately - the B0 explicit-teacher baseline was trained and evaluated in rounds 1-2."
+  },
+  "recommendedNextStep": "Stop adding training variants. The evidence across B0 (imitation) and T13-06 (search distillation) says the bottleneck is the teacher, and the only teachers available are the heuristic and a search that reduces to it. A next attempt should either (a) build a genuinely stronger teacher with a deterministic, capture-aware leaf and re-qualify it against this same suite, or (b) stop the supervised branch entirely and report the negative result as the project's finding."
+}

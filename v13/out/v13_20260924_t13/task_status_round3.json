@@ -1,0 +1,76 @@
+{
+  "schema": "v13_round3_status_1",
+  "runId": "v13_20260924_t13",
+  "round": "3 - T13-06 search teacher qualification",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "statusVocabulary": ["DONE", "FAILED", "BLOCKED", "DEFERRED", "INCONCLUSIVE", "BUDGET_EXHAUSTED"],
+  "headline": "The search teacher, as shipped, IS the heuristic: 120/120 identical actions across four maps and zero takeovers. Its thresholds are mis-calibrated far above the leaf-margin range, not its mechanism. Recalibrated it differs in 71% of decisions and never worsens its own objective, but it cannot run as an online policy at all.",
+  "tasks": [
+    {
+      "id": "T13-06",
+      "title": "Make the search proxy a testable teacher",
+      "status": "DONE",
+      "verdict": "UNQUALIFIED as shipped; QUALIFIED as an OFFLINE label source after calibration; UNQUALIFIED as an online policy",
+      "evidence": [
+        "v13/tools/teacher_kernel_probe.ts",
+        "v13/tools/teacher_agreement.ts",
+        "v13/tools/teacher_signal_probe.ts",
+        "v13/tools/teacher_leaf_gain.ts",
+        "v13/tools/eval_search_teacher.ts",
+        "v13/out/v13_20260924_t13/T13-06/teacher_qualification.md",
+        "v13/out/v13_20260924_t13/T13-06/teacher_kernel_contract.json",
+        "v13/out/v13_20260924_t13/T13-06/teacher_agreement.json",
+        "v13/out/v13_20260924_t13/T13-06/teacher_signal_probe.json",
+        "v13/out/v13_20260924_t13/T13-06/teacher_leaf_gain.json",
+        "v13/out/v13_20260924_t13/T13-06/eval_search_teacher.json"
+      ],
+      "notes": "Shipped config agrees with a plain HeuristicAI on 120/120 decisions over four maps, always via FALLBACK_TO_HEURISTIC; median leaf margin 0-75 against a 1,200 takeover threshold, so the takeover branch is unreachable. Forcing takeover changes the action in 17/24 decisions, so this is a threshold defect, not a dead mechanism. Calibrated (topK 64, forced takeover), the paired leaf comparison on 16 decisions is 10 better / 6 equal / 0 worse. In natural games every seat arm hit the 300 s wall clock after <200 steps while the mirror finished the map in 2,079 steps, with a 50.3% takeover rate. So it can label offline data but cannot be a 1-second online policy. NOT BUILT: the tactical regression set, a bounded/cancellable kernel variant, and the 128-decision label pilot."
+    },
+    {
+      "id": "T13-07-B2",
+      "title": "B2 search distillation ranker",
+      "status": "BLOCKED",
+      "blockedBy": "T13-06 tactical soundness was not established. The calibrated kernel improves its OWN leaf objective but no evidence shows it does not blunder, and a leaf proxy is explicitly not a win-rate result. Generating labels for B2 before that check would distil an unqualified teacher.",
+      "notes": "The branch is now better motivated than before (the shipped teacher was worth nothing; the calibrated one at least differs), so B2 should follow the tactical suite rather than replace it."
+    },
+    {
+      "id": "T13-08",
+      "title": "DAgger on student-visited states",
+      "status": "DEFERRED",
+      "notes": "Still gated on a teacher that can be called cheaply. The kernel costs ~0.66-6 s per decision, and DAgger needs labels on student-visited states, so a bounded kernel variant is a prerequisite."
+    },
+    {
+      "id": "T13-09",
+      "title": "Value head",
+      "status": "DEFERRED",
+      "notes": "Still 30 independent natural terminations; unchanged by this round."
+    },
+    {
+      "id": "T13-10",
+      "title": "Freeze candidate, browser acceptance, release",
+      "status": "DEFERRED",
+      "notes": "No candidate beat the heuristic."
+    }
+  ],
+  "gates": {
+    "G0_traceable": "PASS",
+    "G1_numeric_and_contract": "PASS",
+    "G2_evaluation_valid": "PASS",
+    "G3_learning_useful": "PARTIAL",
+    "G4_release": "NOT_MET"
+  },
+  "productionImpact": "none - model_registry.json unmodified, defaultProductionPolicy still \"heuristic\", battle_search_ai.ts unmodified (the calibrated config is recorded as a configuration under test, not committed)",
+  "notDoneMustNotBeReadAsDone": [
+    "The tactical regression set does not exist, so the teacher's tactical soundness is UNKNOWN.",
+    "No win-rate claim is made for the calibrated teacher; every natural arm timed out.",
+    "The calibrated configuration is NOT committed to source.",
+    "B2 / B3 / T13-08 / T13-09 / T13-10 were not started.",
+    "The 128-decision label pilot was not run."
+  ],
+  "nextStepsInOrder": [
+    "Build the tactical regression set from real endgame states and run it against the calibrated kernel.",
+    "Implement a bounded, cancellable kernel variant with a legal-action fallback and re-time it.",
+    "Re-measure teacher recall under the engine candidate ordering.",
+    "Run the 128-decision label pilot, check label quality, then decide on B2."
+  ]
+}

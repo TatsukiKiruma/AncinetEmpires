@@ -1,0 +1,96 @@
+{
+  "schema": "v13_round2_status_1",
+  "runId": "v13_20260924_t13",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "round": "2 - ordering fix and B0 rerun",
+  "reviewBaseline": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "deltaSinceReview": "none",
+  "statusVocabulary": ["DONE", "FAILED", "BLOCKED", "DEFERRED", "INCONCLUSIVE", "BUDGET_EXHAUSTED"],
+  "headline": {
+    "verdict": "The ordering defect was real and was hiding a learnable task. Fixing it made the task learnable and did NOT produce playing strength.",
+    "offline": "B0 on engine-ordered data: 31.88% / 32.21% / 29.79% validation top-1 against a 1.45% per-state chance baseline and a 2.58% majority-class prior - about 22x chance.",
+    "online": "0 natural wins in 10 decided arms across three model seeds on 3-player Midway; the all-heuristic mirror won 6/18.",
+    "ruling": "(a) ordering defect CONFIRMED as the cause of the earlier below-prior result; (b) 'the imitation objective is unlearnable' REFUTED for this dataset."
+  },
+  "tasks": [
+    {
+      "id": "T13-04",
+      "title": "Candidate and encoding contract",
+      "status": "DONE",
+      "evidence": [
+        "v13/tools/reencode_v31.ts",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/reencode_v31_report.json",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/coverage_curve.json",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/candidate_collision.json",
+        "v13/tools/coverage_curve.py",
+        "v13/tools/candidate_collision.py"
+      ],
+      "notes": "PARITY ACHIEVED AND EXACT: the repository's TypeScript encoder rebuilt the tensor and global features for 26,785 rows from the source archive and matched the Python-produced pool values with 0 mismatching rows and max absolute difference 0. The rebuilt GameState is therefore a faithful reconstruction. COVERAGE CURVE RE-MEASURED under engine ordering over 22,226 rows: the teacher sits at engine index 0 in 14.06% of rows; recall is 42.83% at cap 6 (the label tool's budget), 78.75% at cap 48 (the old training cap) and 98.36% at cap 256, using a label-independent priority-first selector. A 48-cap therefore discarded ~21% of teacher decisions and cannot be repaired by a better heuristic. COLLISION CHECK: 0 of 3,181 label rows share their feature vector with another candidate (508/764,105 duplicate candidates = 0.0665%), so the 31% ceiling is task difficulty, not ambiguous inputs. STILL NOT DONE: the 128-state diagnostic set, the feature-collision fixtures for the 11x11 receptive field and aggregate-enemy encoding, the ~99% tiny-fit run, and an explicit refusal for maps larger than 20x20."
+    },
+    {
+      "id": "T13-07",
+      "title": "B0 explicit-heuristic-teacher baseline on engine-ordered data",
+      "status": "DONE",
+      "evidence": [
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/dataset_v31_subset_manifest.json",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/runs/s42/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/runs/s1337/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0_v31/runs/s2026/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/eval_b0v31_s42_midway.json",
+        "v13/out/v13_20260924_t13/T13-07/eval_b0v31_s1337_midway.json",
+        "v13/out/v13_20260924_t13/T13-07/eval_b0v31_s2026_midway.json",
+        "v13/out/v13_20260924_t13/T13-07/pilot_training_report_v31.md"
+      ],
+      "notes": "Same 16 train roots / 4 val roots, same per-root cap, same minLegal and phase window, same 3,000-update cap, same three model seeds as the first B0 run. Only the candidate ordering and the state provenance changed. 640 updates and 20,480 exposures per seed, uniqueOptimized 2560/2560, plannedNeverOptimized 0. Validation top-1 31.88%/32.21%/29.79% against a 1.45% per-state chance and 2.58% majority prior (~22x chance). Game evaluation on 3-player Midway: 0 natural wins in 10 decided arms, mirror 6/18, delta -0.5/-0.5/-1.0, and WALL_TIMEOUT rose from 3/18 (v3.0) to 8/18 (v3.1). The offline gain did not transfer."
+    },
+    {
+      "id": "T13-06",
+      "title": "Make the search proxy a testable teacher",
+      "status": "DEFERRED",
+      "notes": "Still not started, and now better motivated than before: the B0 result argues that copying HeuristicAI - which is also the opponent - cannot beat it, so the next training attempt should distil a STRONGER teacher rather than a copy. Its V12 17/20 remains PROVISIONAL and was not used as a certificate."
+    },
+    {
+      "id": "T13-08",
+      "title": "DAgger on student-visited states",
+      "status": "DEFERRED",
+      "notes": "Depends on a teacher worth querying, i.e. T13-06."
+    },
+    {
+      "id": "T13-09",
+      "title": "Value head",
+      "status": "DEFERRED",
+      "notes": "30 independent natural terminations is not enough."
+    },
+    {
+      "id": "T13-10",
+      "title": "Freeze candidate, browser acceptance, release",
+      "status": "DEFERRED",
+      "notes": "No candidate beat the heuristic."
+    }
+  ],
+  "gates": {
+    "G0_traceable": "PASS",
+    "G1_numeric_and_contract": "PASS",
+    "G2_evaluation_valid": "PASS",
+    "G3_learning_useful": "PARTIAL",
+    "G4_release": "NOT_MET"
+  },
+  "g3Detail": {
+    "requirement": "at least one explicit-teacher real training completed AND a usable held-out action metric",
+    "trainingCompleted": true,
+    "heldOutMetricUsable": true,
+    "metric": "31.88%/32.21%/29.79% top-1 vs 1.45% per-state chance",
+    "but": "the metric is now valid as a policy metric and still did not produce a candidate that beats the heuristic, so G3 is PARTIAL: learning is demonstrated offline, usefulness is not demonstrated online."
+  },
+  "productionImpact": "none - model_registry.json unmodified, defaultProductionPolicy still \"heuristic\"",
+  "notDoneMustNotBeReadAsDone": [
+    "No candidate beat the heuristic anywhere. The v3.1 models won 0 of 10 decided arms.",
+    "31% top-1 is not playing strength; it means two of three decisions still differ from the teacher.",
+    "Teacher recall under the new ordering IS measured (78.75% at cap 48, 98.36% at 256) but the ~99% tiny-fit diagnostic was not run.",
+    "B1 / B2 / B3 and T13-06 / 08 / 09 / 10 were not started.",
+    "Only two maps and two seeds were ever evaluated; no cross-map claim is licensed.",
+    "The 4-player map remains unmeasured; its one attempt is BUDGET_EXHAUSTED.",
+    "The 7 censored roots were not repaired."
+  ],
+  "whatChangedTheRecommendation": "The first B0 run implied 'fix the ordering, then retrain'. This run implies 'the ordering is fixed and imitation still loses to its own teacher'. HeuristicAI is both the teacher and the opponent, so a 31%-faithful copy of it is a noisy version of it, and noisy versions lose. The next training attempt should therefore target a stronger teacher (T13-06) rather than a higher-fidelity copy."
+}

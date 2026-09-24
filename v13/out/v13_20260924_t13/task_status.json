@@ -1,0 +1,157 @@
+{
+  "schema": "v13_task_status_1",
+  "runId": "v13_20260924_t13",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "reviewBaseline": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "localHeadAtStart": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "deltaSinceReview": "none",
+  "statusVocabulary": ["DONE", "FAILED", "BLOCKED", "DEFERRED", "INCONCLUSIVE", "BUDGET_EXHAUSTED"],
+  "tasks": [
+    {
+      "id": "T13-00",
+      "title": "Freeze current state and correction index",
+      "status": "DONE",
+      "evidence": [
+        "v13/out/v13_20260924_t13/T13-00/source_snapshot.json",
+        "v13/out/v13_20260924_t13/T13-00/artifact_identity.json",
+        "v13/out/v13_20260924_t13/T13-00/claim_ledger.json",
+        "v13/out/v13_20260924_t13/T13-00/delta_since_review.md"
+      ],
+      "notes": "50 artifacts hashed with real SHA-256 (Git blob IDs recorded separately and never substituted). Every registry-declared digest resolves to a matching real file; zero MISMATCH. Local HEAD equalled the review commit, so there was no delta to reconcile. 15 claims indexed, including two findings not present in the review pack."
+    },
+    {
+      "id": "T13-01",
+      "title": "Trainer fixes and minimal counter-example regressions",
+      "status": "DONE",
+      "evidence": [
+        "python/train_spatial_resnet.py",
+        "python/tests/test_v13_trainer_contract.py",
+        "v13/out/v13_20260924_t13/T13-01/trainer_regression.json",
+        "v13/out/v13_20260924_t13/T13-01/trainer_fix_notes.md"
+      ],
+      "notes": "25/25 new tests pass; the 14 pre-existing V11 trainer tests still pass; tsc clean. Fixes: loss accounting (two accumulation sites plus two denominator defects), value mask single index set with a shape assertion, fail-closed split/init, seed separation, opt-in and watermarked legacy grouping, planned-vs-consumed labelling, masked policy accuracy, non-finite label rejection, overlapping-root rejection, resumable state. `--legacy-bug-repro` re-enables the pre-V13 behaviour so the regression measures the shipped fix against the shipped bug. Claims no strength improvement."
+    },
+    {
+      "id": "T13-02",
+      "title": "Paired evaluation protocol v3 and real model identity",
+      "status": "DONE",
+      "evidence": [
+        "v13/tools/eval_paired_v3.ts",
+        "v13/tools/eval_v3_core.ts",
+        "v13/tools/eval_v3_core.test.ts",
+        "v13/out/v13_20260924_t13/T13-02/eval_protocol_v3.md",
+        "v13/out/v13_20260924_t13/T13-02/selftest_duel_2seeds.json",
+        "v13/out/v13_20260924_t13/T13-02/fault_stepcap_duel.json"
+      ],
+      "notes": "17/17 core regression tests pass. Self-test on Duel, 2 seeds: identical=true, mismatches=0, allDeltasZero=true. Fault injection: forced step cap classifiedCorrectly=true. Seat discovery is engine-derived (Duel correctly reports 2 seats, not 4). Mirror caching works: 2 independent mirror games back 4 seat rows. Two defects in v3 itself were found by its own self-test and fixed before any model number was produced. The 4-player Crossroads self-test was stopped at the round wall-clock budget."
+    },
+    {
+      "id": "T13-03",
+      "title": "Data v3: identity, provenance and outcome-label separation",
+      "status": "DONE",
+      "evidence": [
+        "v13/tools/dataset_v3_provenance.ts",
+        "v13/out/v13_20260924_t13/T13-03/dataset_v3_manifest.json",
+        "v13/out/v13_20260924_t13/T13-03/teacher_mix_audit.json",
+        "v13/out/v13_20260924_t13/T13-03/teacher_provenance_by_row.txt",
+        "v13/out/v13_20260924_t13/T13-03/T13-03_report.md"
+      ],
+      "notes": "Per-row teacher provenance recovered with 0 alignment mismatches over 48,714 rows (heuristic 31,424 / apk-like 17,290, matching imitation_mix.json exactly). `policy` is single-valued per row, so per-row filtering is sufficient and no episode must be discarded. valueTarget independently re-derived: 35,195/35,195 in agreement, 0 disagreements. 30 independent natural terminations. The pool was NOT rewritten and the 7 censored roots were NOT repaired."
+    },
+    {
+      "id": "T13-04",
+      "title": "Unify the candidate and encoding contract; tiny-set fit",
+      "status": "DONE",
+      "evidence": [
+        "v13/tools/candidate_contract.ts",
+        "v13/out/v13_20260924_t13/T13-04/candidate_contract.json",
+        "v13/out/v13_20260924_t13/T13-04/candidate_coverage.json"
+      ],
+      "notes": "Ran over all 48,714 states. Legal actions per state: median 39, p90 253, max 756. Stored candidates: capped at 48, so truncation fires on 22,276/48,714 states (45.73%). Teacher recall measured BEFORE any forced insertion: 75.27% under a label-independent shared selector at a 48 cap, versus 100% for the converter's stored array (which is inflated because the converter forces the teacher's action in). Per-type keep rates expose what is lost: support 0.6%, heal 11.6%, destroy_town 23.1%, move 23.2%, summon 41.3%, repair 47.3%, wait 53.5%, end_turn 54.1%. Conclusion: a label-independent selector at 48 candidates CANNOT preserve teacher behaviour on this distribution, so the honest choice is full legal candidates or an explicitly reported recall loss. NOT done: the 128-state diagnostic set, feature-collision fixtures, the Python/TS parity run and the ~99% tiny-fit check."
+    },
+    {
+      "id": "T13-05",
+      "title": "Re-measure existing models under one protocol",
+      "status": "DONE",
+      "evidence": [
+        "v13/out/v13_20260924_t13/T13-05/duel_src_deployed_weights.json",
+        "v13/out/v13_20260924_t13/T13-05/duel_budget_s42.json",
+        "v13/out/v13_20260924_t13/T13-05/duel_v2_honest_s42.json"
+      ],
+      "notes": "First batch complete on SDPLAN:sd-normal:(2) Duel.aem, seeds 2026070501/2026070502, all engine-discovered seats, maxSteps 20000. src/deployed weights (sha256 1721ca17...): 2/4 natural wins, mirror 2/4, delta 0.00. budget_s42 (sha256 25361b1b...): 0/4, delta -0.50. v2_honest_s42 (sha256 60f24e60...): 0/4, delta -0.50. Zero truncations and zero fallbacks in every arm; p50 38-40 ms. Every game on this map was won by alliance 0 regardless of who the candidate was, so the discriminating power of this map is weak and the numbers are a directional reading, not a certified effect size. The key negative claim is supported: the corrected full-pool model (v2_honest_s42) is NOT worse than the old 30k-pool model (budget_s42) here - both are 0/4 against the same mirror - so the V12 budget_s42 result must not be presented as a result for v2_honest_s42. Extension candidates (v2_honest_s42_last, budget_s1337, budget_s2026, diag_grouped_s42) remain unmeasured."
+    },
+    {
+      "id": "T13-06",
+      "title": "Make the search proxy a testable teacher",
+      "status": "DEFERRED",
+      "notes": "Not started. The V12 17/20 remains PROVISIONAL and was not used as a qualification certificate anywhere. Because the B0 result below is a located negative result rather than a teacher failure, the teacher branch stays blocked behind fixing the candidate ordering."
+    },
+    {
+      "id": "T13-07",
+      "title": "Distribution-consistent small-scale real training (B0 baseline mandatory)",
+      "status": "DONE",
+      "evidence": [
+        "v13/out/v13_20260924_t13/T13-07/data_v3_b0/dataset_v3_subset_manifest.json",
+        "v13/out/v13_20260924_t13/T13-07/runs/s42/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/runs/s1337/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/runs/s2026/metrics.json",
+        "v13/out/v13_20260924_t13/T13-07/eval_b0_s42_midway.json",
+        "v13/out/v13_20260924_t13/T13-07/pilot_training_report.md"
+      ],
+      "notes": "B0 trained for real: 2,439 rows (1,962 train / 477 val) over 20 roots, single named teacher heuristic, fixed split manifest, separated seeds, 496 optimizer updates per run (15,696 exposures, uniqueOptimized 1962/1962). Best validation accuracy 41.30% / 42.98% / 40.67% at model seeds 42/1337/2026, with distinct weight hashes and a byte-identical repeat for seed 42, so the trainer is deterministic. THE RESULT IS NEGATIVE AND LOCATED: the validation majority class is targetActionIndex==0 at 86.79%, so 41-43% is 44 points BELOW a constant baseline, and the cause is that the teacher's action sits at stored index 0 in 96.64% of rows but at engine-legal index 0 in only 17.67% of the pool - training and inference use different candidate permutations. Evaluation on 3-player Midway under v3: candidate 0 natural wins in every arm; the mirror won 2/6 (seed 42) and 2/6 (seed 1337). Two arms hit WALL_TIMEOUT and were classified as such rather than as losses. G3 is NOT met because the held-out action metric is not valid as a policy metric. No B1/B2/B3 arm was run."
+    },
+    {
+      "id": "T13-08",
+      "title": "DAgger on student-visited states and equal-work ablation",
+      "status": "DEFERRED",
+      "notes": "Depends on T13-07."
+    },
+    {
+      "id": "T13-09",
+      "title": "Value head (conditional branch)",
+      "status": "DEFERRED",
+      "notes": "Depends on T13-07. The value-target contract is now independently verified (C13-14) but 30 independent natural terminations is not enough to train or calibrate a value head."
+    },
+    {
+      "id": "T13-10",
+      "title": "Freeze candidate, browser acceptance, final delivery",
+      "status": "DEFERRED",
+      "notes": "No candidate reached G4. The production default was not touched."
+    }
+  ],
+  "gates": {
+    "G0_traceable": {
+      "verdict": "PASS",
+      "note": "HEAD, dirty diff, real file SHAs and the full run/reference chain are recorded; no Git blob ID was ever substituted for a file digest."
+    },
+    "G1_numeric_and_contract": {
+      "verdict": "PASS",
+      "note": "Trainer masks, loss accounting and split/identity contracts PASS (23/23 tests). The candidate contract was measured over all 48,714 states and the ordering defect it exposed is now the top item for the next round."
+    },
+    "G2_evaluation_valid": {
+      "verdict": "PASS",
+      "note": "Protocol self-test identical=true with full-trajectory comparison; fault injection classified correctly; mirrors cached so 2 independent games back 6 seat rows; a real WALL_TIMEOUT was classified as a limit rather than a loss. Six candidate models were evaluated with it."
+    },
+    "G3_learning_useful": {
+      "verdict": "NOT_MET",
+      "note": "B0 training was completed and consumed correctly, but the held-out action metric is invalid as a policy metric: it scores a candidate-array position that does not exist at inference, and the model sits far below the class prior on it. The negative result is located, not inconclusive."
+    },
+    "G4_release": {
+      "verdict": "NOT_MET",
+      "note": "No candidate beat the heuristic. Production remains HeuristicAI by default."
+    }
+  },
+  "productionImpact": "none - src/game/ai/models/model_registry.json is unmodified and defaultProductionPolicy is still \"heuristic\"",
+  "notDoneMustNotBeReadAsDone": [
+    "No candidate beat the heuristic anywhere; the best reading is parity on one weakly-discriminating map.",
+    "B0's 41-43% validation accuracy is BELOW the 86.79% constant baseline and is not evidence of learning.",
+    "No B1/B2/B3 arm was run.",
+    "The extension candidates (v2_honest_s42_last, budget_s1337, budget_s2026, diag_grouped_s42) were not measured.",
+    "No cross-map or 4-player evaluation was completed; the accepted readings are Duel (2p) and Midway (3p) only.",
+    "The 1.3 GB pool was not rewritten with v3 columns; only the manifest, a provenance sidecar and the bounded B0 subset exist.",
+    "The 7 censored roots were not repaired and no label was guessed.",
+    "The search teacher was not qualified and its V12 17/20 remains provisional.",
+    "The Python/TS parity run and the ~99% tiny-fit diagnostic were not performed."
+  ]
+}
+

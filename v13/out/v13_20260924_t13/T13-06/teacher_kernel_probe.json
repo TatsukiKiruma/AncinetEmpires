@@ -1,0 +1,179 @@
+{
+  "schema": "v13_teacher_kernel_probe_1",
+  "generatedAt": "2026-09-24T12:59:47.518Z",
+  "scenario": {
+    "plan": "sd-normal",
+    "map": "(2) Duel.aem",
+    "seed": 2026070501,
+    "seat": 0,
+    "subject": 0,
+    "players": [
+      0,
+      1
+    ]
+  },
+  "kernelConfig": {
+    "topK": 10,
+    "oppProbeK": 6,
+    "friendlyRolloutSteps": 3,
+    "configSeed": 2026070501
+  },
+  "decisionsProbed": 4,
+  "checks": {
+    "determinism": {
+      "description": "same state + same candidate + same config, two fresh kernels",
+      "actionsCompared": 170,
+      "mismatches": 0,
+      "verdict": "DETERMINISTIC on the canonical evaluation order"
+    },
+    "orderDependence": {
+      "description": "the taskbook requires the seed to come from hash(stateHash, actionCode, rolloutReplicate, kernelVersion); this measures what happens instead when the stream is a shared stateful RNG",
+      "actionsCompared": 204,
+      "actionsWithChangedValue": 0,
+      "fractionChanged": 0,
+      "maxAbsDeltaObserved": 0,
+      "verdict": "ORDER-INDEPENDENT"
+    },
+    "actionCodeAlignment": "all comparisons align on the action's own encodeAction code, never on array index",
+    "budgetSemantics": {
+      "decisionsWhereBiggerBudgetChangedTheAction": 0,
+      "decisionsProbed": 4,
+      "note": "the kernel scores at most topK candidates, expands at most friendlyRolloutSteps friendly atomic actions and probes at most oppProbeK opposing replies; whether that reaches a full turn is reported per decision in records[]"
+    },
+    "cost": {
+      "totalEvaluations": 340,
+      "totalMs": 4236,
+      "msPerCandidateEvaluation": 12.459
+    }
+  },
+  "records": [
+    {
+      "decision": 0,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 26,
+      "permutationResults": [
+        {
+          "permutation": 0,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 1,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 2,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        }
+      ],
+      "determinismMismatchesThisDecision": 0,
+      "smallBudgetAction": "move:apk_u1:4,6",
+      "bigBudgetAction": "move:apk_u1:4,6",
+      "budgetChangedAction": false,
+      "leafValueRange": {
+        "min": -325,
+        "max": 464
+      },
+      "distinctLeafValues": 9
+    },
+    {
+      "decision": 1,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 10,
+      "permutationResults": [
+        {
+          "permutation": 0,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 1,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 2,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        }
+      ],
+      "determinismMismatchesThisDecision": 0,
+      "smallBudgetAction": "capture:apk_u1",
+      "bigBudgetAction": "capture:apk_u1",
+      "budgetChangedAction": false,
+      "leafValueRange": {
+        "min": -245,
+        "max": 483
+      },
+      "distinctLeafValues": 8
+    },
+    {
+      "decision": 2,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 8,
+      "permutationResults": [
+        {
+          "permutation": 0,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 1,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 2,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        }
+      ],
+      "determinismMismatchesThisDecision": 0,
+      "smallBudgetAction": "recruit_to_castle:mermaid:4,4",
+      "bigBudgetAction": "recruit_to_castle:mermaid:4,4",
+      "budgetChangedAction": false,
+      "leafValueRange": {
+        "min": -100,
+        "max": 690
+      },
+      "distinctLeafValues": 7
+    },
+    {
+      "decision": 3,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 24,
+      "permutationResults": [
+        {
+          "permutation": 0,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 1,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        },
+        {
+          "permutation": 2,
+          "actionsWithChangedValue": 0,
+          "maxAbsDelta": 0
+        }
+      ],
+      "determinismMismatchesThisDecision": 0,
+      "smallBudgetAction": "move:u_2:6,4",
+      "bigBudgetAction": "move:u_2:6,4",
+      "budgetChangedAction": false,
+      "leafValueRange": {
+        "min": 260,
+        "max": 360
+      },
+      "distinctLeafValues": 9
+    }
+  ]
+}

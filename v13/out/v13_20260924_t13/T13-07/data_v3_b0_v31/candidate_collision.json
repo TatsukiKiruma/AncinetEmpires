@@ -1,0 +1,33 @@
+{
+  "schema": "v13_candidate_collision_1",
+  "pool": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0_v31\\pool_v31_subset.jsonl",
+  "poolSha256": "6f9fe51678434befc67415ed5df90d15dbcf4833f7d6c5d549ceb453c36f1f0a",
+  "states": 3181,
+  "totalCandidates": 764105,
+  "meanCandidatesPerState": 240.209,
+  "statesWithAnyIdenticalFeatureVector": 129,
+  "fractionStatesWithCollision": 0.040553,
+  "duplicateCandidatesTotal": 508,
+  "duplicateCandidateFraction": 0.000665,
+  "labelRows": {
+    "labelFeatureVectorIsUniqueInItsState": 3181,
+    "labelFeatureVectorMatchesAtLeastOneOtherCandidate": 0,
+    "labelCollisionFraction": 0.0
+  },
+  "largestIdenticalGroupObserved": 4,
+  "examples": [
+    {
+      "sampleId": "v31_3543dfa863fd33028a16c30a",
+      "candidateCount": 212,
+      "distinctFeatureVectors": 210,
+      "largestIdenticalGroup": 2
+    },
+    {
+      "sampleId": "v31_66446f9834af1c405f8e1f0c",
+      "candidateCount": 405,
+      "distinctFeatureVectors": 377,
+      "largestIdenticalGroup": 4
+    }
+  ],
+  "interpretation": "A row whose label shares its exact feature vector with another candidate cannot be fitted by a single-label objective, because the network sees identical inputs for two different indices. Any accuracy ceiling must be reported together with this number."
+}

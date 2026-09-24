@@ -1,0 +1,24 @@
+{
+  "schema": "v13_python_ts_parity_1",
+  "derivedFrom": [
+    {
+      "path": "T13-07/data_v3_b0_v31/reencode_v31_report.json",
+      "exists": true,
+      "sha256": "289d2156227d5099b05a68d01891c88a8d5b528e71c5eaac0a02e092ae3bfea0"
+    }
+  ],
+  "method": "the repository's TypeScript encoder re-encoded each source observation and the result was compared against the pool tensors, which were produced by the Python-side conversion pipeline and are consumed by the Python trainer",
+  "rowsCompared": 26785,
+  "tensorMismatchingRows": 0,
+  "maxAbsTensorDiff": 0,
+  "globalMismatchingRows": 0,
+  "maxAbsGlobalDiff": 0,
+  "tolerance": 1e-06,
+  "firstMismatch": [],
+  "sideEffect": "the exact match also proves the rebuilt GameState is a faithful reconstruction of the archived observation, because a wrong state would produce different tensors",
+  "notCompared": [
+    "action logits and value head outputs across languages (no TS-side forward pass was run)",
+    "candidate permutation invariance of the encoder (the encoder is per-candidate and order-free by construction, but this was not separately tested)"
+  ],
+  "verdict": "EXACT_MATCH - the TypeScript encoder reproduces the pool tensors bit-for-bit within 1e-6, so the rebuilt candidate features are on the same numeric footing"
+}

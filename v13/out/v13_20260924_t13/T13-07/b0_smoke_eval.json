@@ -1,0 +1,206 @@
+{
+  "schema": "v13_paired_seat_eval_3",
+  "generatedAt": "2026-09-24T01:41:51.814Z",
+  "runId": "v13_20260924_t13",
+  "codeCommit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "candidate": "v13/out/v13_20260924_t13/T13-07/b0_heuristic_s42_best.json",
+  "candidateIsModel": true,
+  "checkpointSha256": "29f12678aedf80e0797c4866483f8a9c260c2460e5d73a5343330a3b508624e5",
+  "identityProvenance": {
+    "source": "direct_file_load",
+    "path": "v13/out/v13_20260924_t13/T13-07/b0_heuristic_s42_best.json",
+    "sha256": "29f12678aedf80e0797c4866483f8a9c260c2460e5d73a5343330a3b508624e5",
+    "note": "this digest is computed from the bytes passed to loadSpatialResNetFromJson; it is NOT read back from the static registry"
+  },
+  "protocol": {
+    "schema": "v13_eval_protocol_3",
+    "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem",
+    "seeds": [
+      2026070501
+    ],
+    "seats": [
+      0
+    ],
+    "allSeats": [
+      0,
+      1,
+      2
+    ],
+    "alliancesBySeat": {
+      "0": 0,
+      "1": 1,
+      "2": 2
+    },
+    "maxSteps": 20000,
+    "maxPlies": null,
+    "wallTimeoutMs": 900000,
+    "arms": "CANDIDATE (candidate at `seat`, heuristic elsewhere) vs MIRROR (heuristic at every seat)",
+    "mirrorPolicy": "one cached mirror per (scenario, seed, maxSteps); seats share it by mirrorId",
+    "rng": "per-seat deterministic stream mulberry(hash(seed, seat)); identical across arms; never Math.random",
+    "pairedBy": "(seed, seat); the only difference between arms is who occupies `seat`",
+    "fallbackPolicy": "allowInteractiveFallback=false; fallbacks are counted and reported, never absorbed",
+    "outcomeTaxonomy": [
+      "NATURAL_WIN",
+      "NATURAL_LOSS",
+      "NATURAL_DRAW",
+      "STEP_LIMIT",
+      "PLY_LIMIT",
+      "WALL_TIMEOUT",
+      "CANCELLED",
+      "POLICY_ERROR",
+      "ENGINE_ERROR"
+    ],
+    "drawSemantics": "winner===-1 is a natural draw, NOT a truncation (D13-07)",
+    "winnerSemantics": "state.winner is an ALLIANCE id; candidate win/loss is an alliance comparison"
+  },
+  "accounting": {
+    "plannedSeatArms": 1,
+    "executedSeatArms": 1,
+    "independentMirrorGames": 1,
+    "mirrorRowsReferencingAMirror": 1,
+    "independenceWarning": "seat arms within one seed share a single mirror game; independentMirrorGames (not the row count) is the number of independent all-heuristic observations",
+    "naturalFinishedSeatArms": 1,
+    "undecidedSeatArms": 0,
+    "errorSeatArms": 0
+  },
+  "outcomeTally": {
+    "candidate": {
+      "NATURAL_LOSS": 1
+    },
+    "mirrorRaw": {
+      "NATURAL_LOSS": 1
+    },
+    "mirrorViewedFromEachSeat": {
+      "NATURAL_LOSS": 1
+    }
+  },
+  "perSeat": {
+    "P0": {
+      "plannedGames": 1,
+      "naturalGames": 1,
+      "naturalWins": 0,
+      "naturalLosses": 1,
+      "naturalDraws": 0,
+      "undecided": 0,
+      "errors": 0,
+      "naturalWinRate": 0,
+      "winRateLowerBoundAllUndecidedLose": 0,
+      "winRateUpperBoundAllUndecidedWin": 0,
+      "candidateFallbacks": 0,
+      "candidateDeadlineMisses": 0,
+      "candidateP50Ms": 24,
+      "candidateP95Ms": 44,
+      "mirrorWinRate": 0
+    }
+  },
+  "overall": {
+    "games": 1,
+    "candidateWins": 0,
+    "candidateNaturalWinRate": 0,
+    "candidateWinRateLowerBoundAllUndecidedLose": 0,
+    "candidateWinRateUpperBoundAllUndecidedWin": 0,
+    "mirrorSeatWins": 0,
+    "deltaOverNaturalGames": 0
+  },
+  "rows": [
+    {
+      "seed": 2026070501,
+      "seat": 0,
+      "candidateAllianceId": 0,
+      "mirrorAllianceId": 0,
+      "mirrorId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#seed=2026070501#maxSteps=20000",
+      "candidate": {
+        "runId": "v13_20260924_t13",
+        "codeCommit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+        "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem",
+        "mapHash": null,
+        "baseRootId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#seed=2026070501",
+        "seed": 2026070501,
+        "maxSteps": 20000,
+        "maxPlies": null,
+        "candidateSeat": 0,
+        "mirrorId": null,
+        "requestedPolicyId": "spatial_v2_experimental",
+        "actualPolicyId": "spatial_v2_experimental",
+        "checkpointSha256": "29f12678aedf80e0797c4866483f8a9c260c2460e5d73a5343330a3b508624e5",
+        "encoderSchema": "spatial-v2/24x20x20+g20",
+        "candidateSchema": "candidate-6field/v1",
+        "outcomeKind": "NATURAL_LOSS",
+        "winnerPlayerId": 2,
+        "winnerAllianceId": 2,
+        "candidateAllianceId": 0,
+        "viewedSeat": 0,
+        "arm": "CANDIDATE",
+        "steps": 2750,
+        "plies": 144,
+        "turns": 48,
+        "fallbackCount": 0,
+        "deadlineMissCount": 0,
+        "engineTransitions": 2750,
+        "candidateDecisions": 345,
+        "latencyMs": {
+          "p50": 24,
+          "p95": 44,
+          "p99": 46,
+          "max": 54
+        },
+        "trajectoryDigest": "0eeab9afe8d953b002cbd71e9c52cefff0f0ce7edfb1638c7a759f41d65a41fa",
+        "actionDigest": "11c8e2e4142f4c894cc5c3ab45daf6ef809a8ec686890fa892ffce876b4ab80a",
+        "error": null,
+        "wallMs": 162623
+      },
+      "mirror": {
+        "runId": "v13_20260924_t13",
+        "codeCommit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+        "scenarioId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem",
+        "mapHash": null,
+        "baseRootId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#seed=2026070501",
+        "seed": 2026070501,
+        "maxSteps": 20000,
+        "maxPlies": null,
+        "candidateSeat": null,
+        "mirrorId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#seed=2026070501#maxSteps=20000",
+        "requestedPolicyId": "heuristic",
+        "actualPolicyId": "heuristic",
+        "checkpointSha256": null,
+        "encoderSchema": "spatial-v2/24x20x20+g20",
+        "candidateSchema": "candidate-6field/v1",
+        "outcomeKind": "NATURAL_LOSS",
+        "winnerPlayerId": 1,
+        "winnerAllianceId": 1,
+        "candidateAllianceId": null,
+        "viewedSeat": null,
+        "arm": "MIRROR",
+        "steps": 2079,
+        "plies": 116,
+        "turns": 39,
+        "fallbackCount": 0,
+        "deadlineMissCount": 0,
+        "engineTransitions": 2079,
+        "candidateDecisions": 0,
+        "latencyMs": {
+          "p50": null,
+          "p95": null,
+          "p99": null,
+          "max": null
+        },
+        "trajectoryDigest": "71f07f70f6a448cb79607542754541089e5d64a2ab011a0375d9636dcf30d3ad",
+        "actionDigest": "f29ce907dffe6788e3576b34eeeb2fc94a9f716b1fc32789fdf40bfa8870339c",
+        "error": null,
+        "wallMs": 156028
+      },
+      "mirrorView": {
+        "viewedSeat": 0,
+        "viewedAllianceId": 0,
+        "outcomeKind": "NATURAL_LOSS",
+        "won": false
+      },
+      "delta": 0
+    }
+  ],
+  "caveats": [
+    "This is a development reading, not a confirmation experiment.",
+    "Undecided games are reported as bounds, never as losses.",
+    "A delta over one seat arm is noise; report the independent-root count."
+  ]
+}

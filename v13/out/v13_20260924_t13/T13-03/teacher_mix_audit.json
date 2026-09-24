@@ -1,0 +1,577 @@
+{
+  "schema": "v13_teacher_mix_audit_1",
+  "generatedAt": "2026-09-24T01:18:59.473Z",
+  "poolSha256": "7cadc0d1ce9769eff50ff0b77285f4cdce4ff308681515980979218d81f6d0f9",
+  "sourceSha256": "9751a612f59427bd6f34bd7f6968ce5b3ac8afa368a4634825112bd30e37aa8d",
+  "totalRows": 48714,
+  "policyTally": {
+    "apk-like": 17290,
+    "heuristic": 31424
+  },
+  "policyShare": {
+    "apk-like": 0.354929,
+    "heuristic": 0.645071
+  },
+  "isPolicySingleValuedPerRow": true,
+  "rootsContainingMoreThanOnePolicy": 37,
+  "rootCount": 37,
+  "mixingIsBetweenRowsNotWithinRows": true,
+  "interpretation": "Every ROW has exactly one behaviour policy, but many ROOTS contain rows from more than one policy. Per-row filtering or per-row relabelling is therefore sufficient; discarding whole episodes is not required.",
+  "roots": [
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2",
+      "rows": 2964,
+      "policies": {
+        "apk-like": 439,
+        "heuristic": 2525
+      },
+      "mapName": "(3) Midway.aem",
+      "seeds": [
+        2026687507
+      ],
+      "nonNullValue": 2964,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-normal:(4) Crossroads.aem#2026070503#0",
+      "rows": 2800,
+      "policies": {
+        "apk-like": 2316,
+        "heuristic": 484
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026070503
+      ],
+      "nonNullValue": 0,
+      "nullValue": 2800,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-high-gold:(4) Crossroads.aem#2026270501#0",
+      "rows": 2800,
+      "policies": {
+        "apk-like": 2228,
+        "heuristic": 572
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026270501
+      ],
+      "nonNullValue": 0,
+      "nullValue": 2800,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-high-unit-limit:(4) Crossroads.aem#2026470505#0",
+      "rows": 2800,
+      "policies": {
+        "apk-like": 2419,
+        "heuristic": 381
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026470505
+      ],
+      "nonNullValue": 0,
+      "nullValue": 2800,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-4p-normal-extra:(4) Crossroads.aem#2026870501#1",
+      "rows": 2800,
+      "policies": {
+        "apk-like": 2357,
+        "heuristic": 443
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026870501
+      ],
+      "nonNullValue": 0,
+      "nullValue": 2800,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18",
+      "rows": 2690,
+      "policies": {
+        "apk-like": 372,
+        "heuristic": 2318
+      },
+      "mapName": "(3) Midway.aem",
+      "seeds": [
+        2026587505
+      ],
+      "nonNullValue": 2690,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170501#0",
+      "rows": 2593,
+      "policies": {
+        "apk-like": 315,
+        "heuristic": 2278
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026170501
+      ],
+      "nonNullValue": 2593,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17",
+      "rows": 2533,
+      "policies": {
+        "heuristic": 2451,
+        "apk-like": 82
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026571510
+      ],
+      "nonNullValue": 2533,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0",
+      "rows": 2501,
+      "policies": {
+        "apk-like": 357,
+        "heuristic": 2144
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026571501
+      ],
+      "nonNullValue": 2501,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370503#2",
+      "rows": 1813,
+      "policies": {
+        "apk-like": 1348,
+        "heuristic": 465
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026370503
+      ],
+      "nonNullValue": 0,
+      "nullValue": 1813,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6",
+      "rows": 1807,
+      "policies": {
+        "apk-like": 350,
+        "heuristic": 1457
+      },
+      "mapName": "(3) Midway.aem",
+      "seeds": [
+        2026687503
+      ],
+      "nonNullValue": 1807,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1",
+      "rows": 1461,
+      "policies": {
+        "heuristic": 1096,
+        "apk-like": 365
+      },
+      "mapName": "(3) classic 2.aem",
+      "seeds": [
+        2026683504
+      ],
+      "nonNullValue": 1461,
+      "nullValue": 0,
+      "sourceWinnerAfter": 0
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8",
+      "rows": 1411,
+      "policies": {
+        "apk-like": 209,
+        "heuristic": 1202
+      },
+      "mapName": "(3) Midway.aem",
+      "seeds": [
+        2026787503
+      ],
+      "nonNullValue": 1411,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10",
+      "rows": 1402,
+      "policies": {
+        "apk-like": 242,
+        "heuristic": 1160
+      },
+      "mapName": "(3) classic 2.aem",
+      "seeds": [
+        2026783513
+      ],
+      "nonNullValue": 1402,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7",
+      "rows": 1351,
+      "policies": {
+        "apk-like": 414,
+        "heuristic": 937
+      },
+      "mapName": "(3) classic 2.aem",
+      "seeds": [
+        2026683501
+      ],
+      "nonNullValue": 1351,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3",
+      "rows": 1319,
+      "policies": {
+        "apk-like": 225,
+        "heuristic": 1094
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026689501
+      ],
+      "nonNullValue": 1319,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787505#14",
+      "rows": 1113,
+      "policies": {
+        "apk-like": 192,
+        "heuristic": 921
+      },
+      "mapName": "(3) Midway.aem",
+      "seeds": [
+        2026787505
+      ],
+      "nonNullValue": 1113,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0",
+      "rows": 999,
+      "policies": {
+        "apk-like": 263,
+        "heuristic": 736
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026671509
+      ],
+      "nonNullValue": 999,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-low-unit-limit:(4) Crossroads.aem#2026370501#0",
+      "rows": 987,
+      "policies": {
+        "apk-like": 198,
+        "heuristic": 789
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026370501
+      ],
+      "nonNullValue": 987,
+      "nullValue": 0,
+      "sourceWinnerAfter": 3
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15",
+      "rows": 828,
+      "policies": {
+        "apk-like": 111,
+        "heuristic": 717
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026789511
+      ],
+      "nonNullValue": 828,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11",
+      "rows": 812,
+      "policies": {
+        "heuristic": 725,
+        "apk-like": 87
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026771504
+      ],
+      "nonNullValue": 812,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5",
+      "rows": 801,
+      "policies": {
+        "apk-like": 214,
+        "heuristic": 587
+      },
+      "mapName": "(3) classic 2.aem",
+      "seeds": [
+        2026683505
+      ],
+      "nonNullValue": 801,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789513#12",
+      "rows": 786,
+      "policies": {
+        "apk-like": 106,
+        "heuristic": 680
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026789513
+      ],
+      "nonNullValue": 786,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19",
+      "rows": 770,
+      "policies": {
+        "apk-like": 231,
+        "heuristic": 539
+      },
+      "mapName": "(3) classic 2.aem",
+      "seeds": [
+        2026583539
+      ],
+      "nonNullValue": 770,
+      "nullValue": 0,
+      "sourceWinnerAfter": 2
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9",
+      "rows": 736,
+      "policies": {
+        "apk-like": 110,
+        "heuristic": 626
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026789509
+      ],
+      "nonNullValue": 736,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16",
+      "rows": 718,
+      "policies": {
+        "heuristic": 632,
+        "apk-like": 86
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026589534
+      ],
+      "nonNullValue": 718,
+      "nullValue": 0,
+      "sourceWinnerAfter": 0
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4",
+      "rows": 715,
+      "policies": {
+        "apk-like": 233,
+        "heuristic": 482
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026671515
+      ],
+      "nonNullValue": 715,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170502#1",
+      "rows": 709,
+      "policies": {
+        "heuristic": 659,
+        "apk-like": 50
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027170502
+      ],
+      "nonNullValue": 709,
+      "nullValue": 0,
+      "sourceWinnerAfter": 0
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13",
+      "rows": 668,
+      "policies": {
+        "apk-like": 105,
+        "heuristic": 563
+      },
+      "mapName": "(3) Glu.aem",
+      "seeds": [
+        2026789507
+      ],
+      "nonNullValue": 668,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070502#1",
+      "rows": 528,
+      "policies": {
+        "heuristic": 189,
+        "apk-like": 339
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027070502
+      ],
+      "nonNullValue": 528,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070501#4",
+      "rows": 465,
+      "policies": {
+        "apk-like": 202,
+        "heuristic": 263
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027070501
+      ],
+      "nonNullValue": 465,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-medium-advantage-endgame:(4) Crossroads.aem#2027170504#0",
+      "rows": 413,
+      "policies": {
+        "heuristic": 364,
+        "apk-like": 49
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027170504
+      ],
+      "nonNullValue": 413,
+      "nullValue": 0,
+      "sourceWinnerAfter": 0
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070503#2",
+      "rows": 396,
+      "policies": {
+        "apk-like": 151,
+        "heuristic": 245
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027070503
+      ],
+      "nonNullValue": 396,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070504#0",
+      "rows": 376,
+      "policies": {
+        "heuristic": 142,
+        "apk-like": 234
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027070504
+      ],
+      "nonNullValue": 376,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-small-advantage-endgame:(4) Crossroads.aem#2027070505#3",
+      "rows": 343,
+      "policies": {
+        "apk-like": 118,
+        "heuristic": 225
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2027070505
+      ],
+      "nonNullValue": 343,
+      "nullValue": 0,
+      "sourceWinnerAfter": 1
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1",
+      "rows": 299,
+      "policies": {
+        "heuristic": 235,
+        "apk-like": 64
+      },
+      "mapName": "(3) Frozen fields.aem",
+      "seeds": [
+        2026571502
+      ],
+      "nonNullValue": 0,
+      "nullValue": 299,
+      "sourceWinnerAfter": null
+    },
+    {
+      "rootFamilyId": "SDPLAN:sd-low-gold:(4) Crossroads.aem#2026170502#1",
+      "rows": 207,
+      "policies": {
+        "heuristic": 98,
+        "apk-like": 109
+      },
+      "mapName": "(4) Crossroads.aem",
+      "seeds": [
+        2026170502
+      ],
+      "nonNullValue": 0,
+      "nullValue": 207,
+      "sourceWinnerAfter": null
+    }
+  ]
+}

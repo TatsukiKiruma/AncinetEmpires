@@ -1,0 +1,234 @@
+{
+  "schema": "v13_teacher_leaf_gain_1",
+  "generatedAt": "2026-09-24T13:02:58.591Z",
+  "status": "DONE",
+  "scenario": {
+    "plan": "sd-normal",
+    "map": "(2) Duel.aem",
+    "seed": 2026070501,
+    "seat": 0,
+    "subject": 0,
+    "players": [
+      0,
+      1
+    ]
+  },
+  "config": {
+    "topK": 64,
+    "oppProbeK": 6,
+    "friendlyRolloutSteps": 3,
+    "takeoverThreshold": 0,
+    "vetoMargin": 0,
+    "dangerLine": null,
+    "searchSeed": 2026070501
+  },
+  "decisionsProbed": 16,
+  "pairedLeafOutcome": {
+    "searchBetter": 10,
+    "equal": 6,
+    "searchWorse": 0
+  },
+  "leafGain": {
+    "min": 0,
+    "p25": 0,
+    "median": 75,
+    "p75": 300,
+    "max": 582
+  },
+  "wallClockMs": 10633,
+  "boundary": "PROXY ONLY. Both leaves come from evaluatePositionHeuristic via the same bounded rollout, so this shows the kernel improves its own objective, NOT that it wins more games. A win-rate claim requires paired natural games.",
+  "rows": [
+    {
+      "decision": 0,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 26,
+      "searchAction": "move:apk_u1:4,6",
+      "heuristicAction": "move:apk_u1:4,6",
+      "sameAction": true,
+      "leafOfSearchChoice": 464,
+      "leafOfHeuristicChoice": 464,
+      "gain": 0
+    },
+    {
+      "decision": 1,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 10,
+      "searchAction": "recruit_to_castle:archer:4,4",
+      "heuristicAction": "capture:apk_u1",
+      "sameAction": false,
+      "leafOfSearchChoice": 483,
+      "leafOfHeuristicChoice": 360,
+      "gain": 123
+    },
+    {
+      "decision": 2,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 8,
+      "searchAction": "recruit_to_castle:soldier:4,4",
+      "heuristicAction": "recruit_to_castle:mermaid:4,4",
+      "sameAction": false,
+      "leafOfSearchChoice": 690,
+      "leafOfHeuristicChoice": 360,
+      "gain": 330
+    },
+    {
+      "decision": 3,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 24,
+      "searchAction": "move:u_2:6,4",
+      "heuristicAction": "move:u_2:6,4",
+      "sameAction": true,
+      "leafOfSearchChoice": 360,
+      "leafOfHeuristicChoice": 360,
+      "gain": 0
+    },
+    {
+      "decision": 4,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 3,
+      "searchAction": "repair:u_2",
+      "heuristicAction": "repair:u_2",
+      "sameAction": true,
+      "leafOfSearchChoice": 360,
+      "leafOfHeuristicChoice": 360,
+      "gain": 0
+    },
+    {
+      "decision": 5,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 27,
+      "searchAction": "recruit_to_castle:berserker:8,8",
+      "heuristicAction": "move:apk_u0:8,4",
+      "sameAction": false,
+      "leafOfSearchChoice": 779,
+      "leafOfHeuristicChoice": 197,
+      "gain": 582
+    },
+    {
+      "decision": 6,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 14,
+      "searchAction": "recruit_to_castle:dark_mage:8,8",
+      "heuristicAction": "capture:apk_u0",
+      "sameAction": false,
+      "leafOfSearchChoice": 595,
+      "leafOfHeuristicChoice": 342,
+      "gain": 253
+    },
+    {
+      "decision": 7,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 12,
+      "searchAction": "recruit_to_castle:dark_mage:8,8",
+      "heuristicAction": "recruit_to_castle:mermaid:8,8",
+      "sameAction": false,
+      "leafOfSearchChoice": 975,
+      "leafOfHeuristicChoice": 722,
+      "gain": 253
+    },
+    {
+      "decision": 8,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 25,
+      "searchAction": "move:u_3:5,7",
+      "heuristicAction": "move:u_3:8,6",
+      "sameAction": false,
+      "leafOfSearchChoice": 833,
+      "leafOfHeuristicChoice": 810,
+      "gain": 23
+    },
+    {
+      "decision": 9,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 3,
+      "searchAction": "capture:u_3",
+      "heuristicAction": "capture:u_3",
+      "sameAction": true,
+      "leafOfSearchChoice": 630,
+      "leafOfHeuristicChoice": 630,
+      "gain": 0
+    },
+    {
+      "decision": 10,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 8,
+      "searchAction": "recruit_to_castle:soldier:8,8",
+      "heuristicAction": "recruit_to_castle:mermaid:8,8",
+      "sameAction": false,
+      "leafOfSearchChoice": 1185,
+      "leafOfHeuristicChoice": 630,
+      "gain": 555
+    },
+    {
+      "decision": 11,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 24,
+      "searchAction": "move:u_4:6,8",
+      "heuristicAction": "move:u_4:6,8",
+      "sameAction": true,
+      "leafOfSearchChoice": 630,
+      "leafOfHeuristicChoice": 630,
+      "gain": 0
+    },
+    {
+      "decision": 12,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 3,
+      "searchAction": "capture:u_4",
+      "heuristicAction": "capture:u_4",
+      "sameAction": true,
+      "leafOfSearchChoice": 630,
+      "leafOfHeuristicChoice": 630,
+      "gain": 0
+    },
+    {
+      "decision": 13,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 51,
+      "searchAction": "recruit_to_castle:dark_mage:4,4",
+      "heuristicAction": "move:apk_u1:4,8",
+      "sameAction": false,
+      "leafOfSearchChoice": 158,
+      "leafOfHeuristicChoice": 83,
+      "gain": 75
+    },
+    {
+      "decision": 14,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 36,
+      "searchAction": "recruit_to_castle:dark_mage:4,4",
+      "heuristicAction": "capture:apk_u1",
+      "sameAction": false,
+      "leafOfSearchChoice": 370,
+      "leafOfHeuristicChoice": 295,
+      "gain": 75
+    },
+    {
+      "decision": 15,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 34,
+      "searchAction": "recruit_to_castle:soldier:4,4",
+      "heuristicAction": "capture:u_2",
+      "sameAction": false,
+      "leafOfSearchChoice": 197,
+      "leafOfHeuristicChoice": -103,
+      "gain": 300
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "v13_teacher_invariance_tests_1",
+  "derivedFrom": [
+    {
+      "path": "T13-06/teacher_kernel_probe.json",
+      "exists": true,
+      "sha256": "4db34efcc6dc39a9588acf1b7e86bc007fc397b59bb0f7ab25c260aea2618d42"
+    },
+    {
+      "path": "T13-06/teacher_signal_probe.json",
+      "exists": true,
+      "sha256": "28165a958639dabe0abf4c0aba1a1ce75cb972803f68935b9d4fbc5c499273b9"
+    }
+  ],
+  "determinism": {
+    "description": "same state + same candidate + same config, two fresh kernels",
+    "actionsCompared": 170,
+    "mismatches": 0,
+    "verdict": "DETERMINISTIC on the canonical evaluation order"
+  },
+  "orderDependence": {
+    "description": "the taskbook requires the seed to come from hash(stateHash, actionCode, rolloutReplicate, kernelVersion); this measures what happens instead when the stream is a shared stateful RNG",
+    "actionsCompared": 204,
+    "actionsWithChangedValue": 0,
+    "fractionChanged": 0,
+    "maxAbsDeltaObserved": 0,
+    "verdict": "ORDER-INDEPENDENT"
+  },
+  "actionCodeAlignment": "all comparisons align on the action's own encodeAction code, never on array index",
+  "rngContract": {
+    "requiredByTaskbook": "hash(stateHash, actionCode, rolloutReplicate, kernelVersion)",
+    "implemented": false,
+    "currentBehaviour": "the kernel reuses one stateful HeuristicAI whose rng advances across calls, so a candidate's leaf could in principle depend on how many candidates were evaluated before it",
+    "measuredEffect": "0 of 204 compared values changed under permutation, so no effect was DEMONSTRATED at this sample size; the contract remains unimplemented",
+    "probeCaveat": "an earlier version of this probe rebuilt the kernel per permutation, which reset the stream and produced a vacuous zero; that defect is fixed and recorded rather than hidden"
+  },
+  "budgetSemantics": {
+    "forcedTakeoverEqualsDefaultThreshold": 7,
+    "forcedTakeoverEqualsHeuristic": 7,
+    "widerTopK64ForcedTakeoverEqualsHeuristic": 7,
+    "widerTopK64DiffersFromForcedTopK10": 4
+  },
+  "budgetSemanticsInterpretation": {
+    "thresholdProblemIf": "forcedTakeoverDiffersFromHeuristic is materially above zero, i.e. the leaves do carry a signal and only the shipped threshold hides it",
+    "signalProblemIf": "forcedTakeoverEqualsHeuristic == decisionsProbed, i.e. even when the kernel is forced to take its best leaf it returns the heuristic action, so no threshold setting can make this a distinct teacher",
+    "widerTopKProbe": "topK 64 with forced takeover tests whether the signal is merely outside the 10 pre-ranked candidates"
+  },
+  "verdict": "PROVISIONAL - deterministic on the canonical order; no order dependence demonstrated, but the required RNG contract is not implemented"
+}

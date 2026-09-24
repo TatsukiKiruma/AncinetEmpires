@@ -1,0 +1,40 @@
+{
+  "schema": "v13_encoding_collision_cases_1",
+  "derivedFrom": [
+    {
+      "path": "T13-07/data_v3_b0_v31/candidate_collision.json",
+      "exists": true,
+      "sha256": "926109fbe8ad6f53564c1236e8e8031ab950f7da43f26597b5d861c22387b559"
+    }
+  ],
+  "question": "do two candidates in one state encode to the same feature vector? If they do, a single-label target is partly unlearnable and any accuracy ceiling must be reported with this number",
+  "statesScanned": 3181,
+  "totalCandidates": 764105,
+  "meanCandidatesPerState": 240.209,
+  "statesWithAnyIdenticalFeatureVector": 129,
+  "fractionStatesWithCollision": 0.040553,
+  "duplicateCandidateFraction": 0.000665,
+  "largestIdenticalGroupObserved": 4,
+  "labelRowsWhoseFeatureVectorMatchesAnotherCandidate": 0,
+  "worstCases": [
+    {
+      "sampleId": "v31_3543dfa863fd33028a16c30a",
+      "candidateCount": 212,
+      "distinctFeatureVectors": 210,
+      "largestIdenticalGroup": 2
+    },
+    {
+      "sampleId": "v31_66446f9834af1c405f8e1f0c",
+      "candidateCount": 405,
+      "distinctFeatureVectors": 377,
+      "largestIdenticalGroup": 4
+    }
+  ],
+  "verdict": "NO_LABEL_AMBIGUITY - the 31% top-1 ceiling measured on this data is task difficulty, not ill-posedness",
+  "featureKeyUsed": "actorCoord | landingCoord | targetCoord | 32-value semantics vector",
+  "notCovered": [
+    "the 11x11 receptive field of the trunk (a feature-collision fixture for distant board features was not built)",
+    "the aggregate-enemy encoding (all hostile players are merged into shared channels)",
+    "maps larger than 20x20, which the encoder does not explicitly refuse"
+  ]
+}

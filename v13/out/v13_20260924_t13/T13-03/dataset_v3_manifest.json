@@ -1,0 +1,81 @@
+{
+  "schema": "v13_dataset_v3_manifest_1",
+  "generatedAt": "2026-09-24T01:18:59.473Z",
+  "pool": {
+    "path": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+    "sha256": "7cadc0d1ce9769eff50ff0b77285f4cdce4ff308681515980979218d81f6d0f9",
+    "bytes": 1325414145,
+    "rows": 48714
+  },
+  "source": {
+    "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+    "sha256": "9751a612f59427bd6f34bd7f6968ce5b3ac8afa368a4634825112bd30e37aa8d",
+    "bytes": 7270203411
+  },
+  "rowAlignment": {
+    "method": "positional lockstep; both files are written in the same order by tools/convert_archive_to_spatial.ts",
+    "checkedFields": [
+      "step",
+      "turn",
+      "playerId"
+    ],
+    "mismatches": 0,
+    "unalignedSourceRows": 0,
+    "sourceRowsBeyondPool": 0,
+    "mismatchExamples": [],
+    "verdict": "ALIGNED - per-row teacher provenance can be recovered by position"
+  },
+  "identityColumnsRecovered": {
+    "behaviorPolicyId": "from source row `policy` field",
+    "labelTeacherId": "equal to behaviorPolicyId for every row in this pool: the label is the action that policy actually took",
+    "baseRootId": "rootFamilyId (equal to episodeId on every row, verified in T12-04)",
+    "sourceArchive": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+    "note": "the converted pool on disk does NOT carry these columns; this manifest records what a v3 materialisation must add"
+  },
+  "valueTargetAudit": {
+    "nonNull": 35195,
+    "null": 13519,
+    "agreesWithSourceWinner": 35195,
+    "disagreesWithSourceWinner": 0,
+    "disagreeExamples": [],
+    "sourceOutcomeShape": {
+      "rowsWithOutcomeDone": 30,
+      "rowsWithPerRowNonNullWinnerAfter": 30,
+      "note": "outcome.winnerAfter is populated ONLY on an episode terminal step, so the converter broadcasts each episode's last non-null value to all of its rows; the value audit above is therefore episode-level, not row-level"
+    },
+    "allianceSemantics": "observation.rules.alliances is {} on this archive, so a player is its own alliance (src/game/rule_config.ts:168 falls back to the player id)",
+    "distinctRootsWithDeclaredWinner": 30,
+    "totalRoots": 37,
+    "independentNaturalTerminations": 30
+  },
+  "lineage": {
+    "distinctRootFamilies": 37,
+    "mapCount": 5,
+    "policyByMap": {
+      "(4) Crossroads.aem": {
+        "apk-like": 12433,
+        "heuristic": 7597
+      },
+      "(3) Frozen fields.aem": {
+        "apk-like": 1086,
+        "heuristic": 6773
+      },
+      "(3) classic 2.aem": {
+        "heuristic": 4319,
+        "apk-like": 1466
+      },
+      "(3) Midway.aem": {
+        "apk-like": 1562,
+        "heuristic": 8423
+      },
+      "(3) Glu.aem": {
+        "apk-like": 743,
+        "heuristic": 4312
+      }
+    },
+    "actionCodePresenceInSource": {
+      "present": 48714,
+      "missing": 0
+    }
+  }
+}

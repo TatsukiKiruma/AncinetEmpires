@@ -1,0 +1,1352 @@
+{
+  "schema": "v13_tactical_soundness_1",
+  "generatedAt": "2026-09-24T13:28:52.895Z",
+  "scenario": {
+    "plan": "sd-normal",
+    "map": "(3) Midway.aem",
+    "seed": 2026070501,
+    "seat": 0,
+    "subject": 0,
+    "players": [
+      0,
+      1,
+      2
+    ]
+  },
+  "boundedKernel": {
+    "maxCandidates": 8,
+    "budgetMsDeclared": 250,
+    "decisions": 120,
+    "fallbacksUsed": 0,
+    "maxObservedDecisionMs": 4014,
+    "boundEnforcedBy": "capping the inner topK to maxCandidates, so the work per decision is provably finite; the declared budgetMs is a reporting threshold, not an interrupt, because BattleSearchAI cannot be interrupted mid-call"
+  },
+  "decisionsProbed": 120,
+  "illegalKernelActions": 0,
+  "patternSummary": {
+    "RECRUIT_AVAILABLE": {
+      "decisions": 62,
+      "kernelTookTheTacticalAction": 25,
+      "kernelDeferred": 37,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 16,
+      "kernelRate": 0.4032258064516129,
+      "heuristicRate": 0.25806451612903225
+    },
+    "IMMEDIATE_CAPTURE": {
+      "decisions": 13,
+      "kernelTookTheTacticalAction": 4,
+      "kernelDeferred": 9,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 13,
+      "kernelRate": 0.3076923076923077,
+      "heuristicRate": 1
+    },
+    "MOVE_THEN_ATTACK": {
+      "decisions": 36,
+      "kernelTookTheTacticalAction": 4,
+      "kernelDeferred": 32,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 7,
+      "kernelRate": 0.1111111111111111,
+      "heuristicRate": 0.19444444444444445
+    },
+    "OWN_COMMANDER_THREAT": {
+      "decisions": 24,
+      "kernelTookTheTacticalAction": 8,
+      "kernelDeferred": 16,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 13,
+      "kernelRate": 0.3333333333333333,
+      "heuristicRate": 0.5416666666666666
+    }
+  },
+  "boundary": [
+    "DEFERRED is not automatically wrong: a different move may be better. The heuristic is given identical treatment so the two rates are comparable.",
+    "Patterns are detected from the engine legal actions, never asserted by hand.",
+    "One map, one seed. No cross-map claim."
+  ],
+  "rows": [
+    {
+      "decision": 0,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 25,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:apk_u1:3,9",
+      "heuristicAction": "move:apk_u1:2,7",
+      "kernelElapsedMs": 124
+    },
+    {
+      "decision": 1,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 9,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:soldier:1,10",
+      "heuristicAction": "recruit_to_castle:mermaid:1,10",
+      "kernelElapsedMs": 87
+    },
+    {
+      "decision": 3,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 4,
+      "patterns": [
+        "IMMEDIATE_CAPTURE"
+      ],
+      "kernelAction": "capture:u_3",
+      "heuristicAction": "capture:u_3",
+      "kernelElapsedMs": 18
+    },
+    {
+      "decision": 4,
+      "turn": 1,
+      "playerId": 0,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:apk_u1",
+      "heuristicAction": "wait:apk_u1",
+      "kernelElapsedMs": 9
+    },
+    {
+      "decision": 5,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 27,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:apk_u0:12,11",
+      "heuristicAction": "move:apk_u0:14,7",
+      "kernelElapsedMs": 108
+    },
+    {
+      "decision": 6,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 11,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:15,10",
+      "heuristicAction": "recruit_to_castle:mermaid:15,10",
+      "kernelElapsedMs": 77
+    },
+    {
+      "decision": 8,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 4,
+      "patterns": [
+        "IMMEDIATE_CAPTURE"
+      ],
+      "kernelAction": "capture:u_4",
+      "heuristicAction": "capture:u_4",
+      "kernelElapsedMs": 28
+    },
+    {
+      "decision": 9,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 7,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:15,10",
+      "heuristicAction": "recruit_to_castle:slime:15,10",
+      "kernelElapsedMs": 69
+    },
+    {
+      "decision": 11,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 3,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:apk_u0",
+      "heuristicAction": "wait:u_5",
+      "kernelElapsedMs": 14
+    },
+    {
+      "decision": 12,
+      "turn": 1,
+      "playerId": 1,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:apk_u0",
+      "heuristicAction": "wait:apk_u0",
+      "kernelElapsedMs": 7
+    },
+    {
+      "decision": 13,
+      "turn": 1,
+      "playerId": 2,
+      "legalCount": 30,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:apk_u2:8,0",
+      "heuristicAction": "move:apk_u2:10,2",
+      "kernelElapsedMs": 117
+    },
+    {
+      "decision": 14,
+      "turn": 1,
+      "playerId": 2,
+      "legalCount": 12,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:paladin:8,1",
+      "heuristicAction": "capture:apk_u2",
+      "kernelElapsedMs": 133
+    },
+    {
+      "decision": 15,
+      "turn": 1,
+      "playerId": 2,
+      "legalCount": 10,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:8,1",
+      "heuristicAction": "recruit_to_castle:witch:8,1",
+      "kernelElapsedMs": 89
+    },
+    {
+      "decision": 17,
+      "turn": 1,
+      "playerId": 2,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_6",
+      "heuristicAction": "wait:u_6",
+      "kernelElapsedMs": 10
+    },
+    {
+      "decision": 18,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 56,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:apk_u1:2,4",
+      "heuristicAction": "move:apk_u1:2,4",
+      "kernelElapsedMs": 198
+    },
+    {
+      "decision": 19,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 40,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_3:5,8",
+      "heuristicAction": "capture:apk_u1",
+      "kernelElapsedMs": 213
+    },
+    {
+      "decision": 20,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 45,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_3:5,8",
+      "heuristicAction": "move:u_3:4,9",
+      "kernelElapsedMs": 170
+    },
+    {
+      "decision": 21,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 16,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:archer:2,4",
+      "heuristicAction": "recruit_to_castle:dark_mage:2,4",
+      "kernelElapsedMs": 106
+    },
+    {
+      "decision": 23,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 1,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_7",
+      "heuristicAction": "wait:u_7",
+      "kernelElapsedMs": 0
+    },
+    {
+      "decision": 24,
+      "turn": 2,
+      "playerId": 0,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_3",
+      "heuristicAction": "wait:u_3",
+      "kernelElapsedMs": 10
+    },
+    {
+      "decision": 25,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 58,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:apk_u0:14,4",
+      "heuristicAction": "move:apk_u0:14,4",
+      "kernelElapsedMs": 411
+    },
+    {
+      "decision": 26,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 40,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_4:11,9",
+      "heuristicAction": "capture:apk_u0",
+      "kernelElapsedMs": 320
+    },
+    {
+      "decision": 27,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 41,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_4:13,9",
+      "heuristicAction": "move:u_4:13,9",
+      "kernelElapsedMs": 365
+    },
+    {
+      "decision": 28,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 24,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:14,4",
+      "heuristicAction": "capture:u_4",
+      "kernelElapsedMs": 376
+    },
+    {
+      "decision": 29,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 22,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_5:7,10",
+      "heuristicAction": "move:u_5:7,10",
+      "kernelElapsedMs": 319
+    },
+    {
+      "decision": 30,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 8,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:14,4",
+      "heuristicAction": "recruit_to_castle:mermaid:14,4",
+      "kernelElapsedMs": 206
+    },
+    {
+      "decision": 31,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 34,
+      "patterns": [
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_8:12,3",
+      "heuristicAction": "move:u_8:13,2",
+      "kernelElapsedMs": 133
+    },
+    {
+      "decision": 32,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 3,
+      "patterns": [
+        "IMMEDIATE_CAPTURE"
+      ],
+      "kernelAction": "attack:u_8:u_6",
+      "heuristicAction": "capture:u_8",
+      "kernelElapsedMs": 32
+    },
+    {
+      "decision": 33,
+      "turn": 2,
+      "playerId": 1,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_5",
+      "heuristicAction": "wait:u_5",
+      "kernelElapsedMs": 10
+    },
+    {
+      "decision": 34,
+      "turn": 2,
+      "playerId": 2,
+      "legalCount": 37,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_6:14,3",
+      "heuristicAction": "move:u_6:14,3",
+      "kernelElapsedMs": 782
+    },
+    {
+      "decision": 35,
+      "turn": 2,
+      "playerId": 2,
+      "legalCount": 23,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:8,1",
+      "heuristicAction": "move:apk_u2:8,0",
+      "kernelElapsedMs": 442
+    },
+    {
+      "decision": 36,
+      "turn": 2,
+      "playerId": 2,
+      "legalCount": 11,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:mermaid:8,1",
+      "heuristicAction": "capture:apk_u2",
+      "kernelElapsedMs": 427
+    },
+    {
+      "decision": 37,
+      "turn": 2,
+      "playerId": 2,
+      "legalCount": 9,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "attack:u_6:u_8",
+      "heuristicAction": "recruit_to_castle:ghost:8,1",
+      "kernelElapsedMs": 384
+    },
+    {
+      "decision": 40,
+      "turn": 2,
+      "playerId": 2,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_9",
+      "heuristicAction": "wait:u_9",
+      "kernelElapsedMs": 20
+    },
+    {
+      "decision": 41,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 79,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_7:5,1",
+      "heuristicAction": "move:apk_u1:3,1",
+      "kernelElapsedMs": 914
+    },
+    {
+      "decision": 42,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 64,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "recruit_to_castle:dark_mage:2,4",
+      "heuristicAction": "move:u_7:5,1",
+      "kernelElapsedMs": 792
+    },
+    {
+      "decision": 43,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 50,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "recruit_to_castle:dark_mage:2,4",
+      "heuristicAction": "recruit_to_castle:ghost:1,10",
+      "kernelElapsedMs": 546
+    },
+    {
+      "decision": 44,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 58,
+      "patterns": [
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_10:5,10",
+      "heuristicAction": "move:u_10:5,10",
+      "kernelElapsedMs": 260
+    },
+    {
+      "decision": 45,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 36,
+      "patterns": [
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_3:7,8",
+      "heuristicAction": "move:u_3:5,9",
+      "kernelElapsedMs": 75
+    },
+    {
+      "decision": 46,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 5,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_10",
+      "heuristicAction": "wait:u_10",
+      "kernelElapsedMs": 57
+    },
+    {
+      "decision": 47,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 4,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_3",
+      "heuristicAction": "wait:u_3",
+      "kernelElapsedMs": 28
+    },
+    {
+      "decision": 48,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 3,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_7",
+      "heuristicAction": "wait:u_7",
+      "kernelElapsedMs": 25
+    },
+    {
+      "decision": 49,
+      "turn": 3,
+      "playerId": 0,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:apk_u1",
+      "heuristicAction": "wait:apk_u1",
+      "kernelElapsedMs": 20
+    },
+    {
+      "decision": 50,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 100,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "attack:apk_u0:u_6",
+      "heuristicAction": "attack:apk_u0:u_6",
+      "kernelElapsedMs": 1688
+    },
+    {
+      "decision": 51,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 89,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_4:12,6",
+      "heuristicAction": "move:u_4:13,6",
+      "kernelElapsedMs": 946
+    },
+    {
+      "decision": 52,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 59,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_8:10,1",
+      "heuristicAction": "capture:u_4",
+      "kernelElapsedMs": 648
+    },
+    {
+      "decision": 53,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 57,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_8:10,1",
+      "heuristicAction": "move:u_8:10,3",
+      "kernelElapsedMs": 531
+    },
+    {
+      "decision": 54,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 31,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "recruit_to_castle:paladin:14,4",
+      "heuristicAction": "move:u_5:10,10",
+      "kernelElapsedMs": 364
+    },
+    {
+      "decision": 55,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 22,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:witch:14,4",
+      "heuristicAction": "recruit_to_castle:archer:15,10",
+      "kernelElapsedMs": 179
+    },
+    {
+      "decision": 58,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 3,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_5",
+      "heuristicAction": "wait:u_5",
+      "kernelElapsedMs": 44
+    },
+    {
+      "decision": 59,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_11",
+      "heuristicAction": "wait:u_11",
+      "kernelElapsedMs": 31
+    },
+    {
+      "decision": 60,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 3,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:soldier:14,4",
+      "heuristicAction": "recruit_to_castle:soldier:15,10",
+      "kernelElapsedMs": 47
+    },
+    {
+      "decision": 62,
+      "turn": 3,
+      "playerId": 1,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_12",
+      "heuristicAction": "wait:u_12",
+      "kernelElapsedMs": 17
+    },
+    {
+      "decision": 63,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 59,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:apk_u2:8,1",
+      "heuristicAction": "move:apk_u2:10,2",
+      "kernelElapsedMs": 1389
+    },
+    {
+      "decision": 64,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 46,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:ghost:8,1",
+      "heuristicAction": "capture:apk_u2",
+      "kernelElapsedMs": 1432
+    },
+    {
+      "decision": 65,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 43,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:ghost:8,1",
+      "heuristicAction": "move:u_9:13,4",
+      "kernelElapsedMs": 1092
+    },
+    {
+      "decision": 66,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 10,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:water_elemental:8,1",
+      "heuristicAction": "recruit_to_castle:dark_mage:8,1",
+      "kernelElapsedMs": 434
+    },
+    {
+      "decision": 67,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 20,
+      "patterns": [
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "move:u_13:8,3",
+      "heuristicAction": "move:u_13:11,1",
+      "kernelElapsedMs": 176
+    },
+    {
+      "decision": 68,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 4,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "end_turn",
+      "heuristicAction": "attack:u_9:apk_u0",
+      "kernelElapsedMs": 54
+    },
+    {
+      "decision": 69,
+      "turn": 3,
+      "playerId": 2,
+      "legalCount": 2,
+      "patterns": [
+        "OWN_COMMANDER_THREAT",
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_13",
+      "heuristicAction": "wait:u_13",
+      "kernelElapsedMs": 20
+    },
+    {
+      "decision": 70,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 117,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:apk_u1:6,2",
+      "heuristicAction": "move:apk_u1:6,2",
+      "kernelElapsedMs": 1547
+    },
+    {
+      "decision": 71,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 103,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_10:8,9",
+      "heuristicAction": "capture:apk_u1",
+      "kernelElapsedMs": 1328
+    },
+    {
+      "decision": 72,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 101,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_7:8,2",
+      "heuristicAction": "move:u_7:8,2",
+      "kernelElapsedMs": 994
+    },
+    {
+      "decision": 73,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 85,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_10:9,10",
+      "heuristicAction": "move:u_10:9,10",
+      "kernelElapsedMs": 829
+    },
+    {
+      "decision": 74,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 57,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:witch:2,4",
+      "heuristicAction": "move:u_3:9,9",
+      "kernelElapsedMs": 485
+    },
+    {
+      "decision": 75,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 25,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:witch:2,4",
+      "heuristicAction": "recruit_to_castle:witch:1,10",
+      "kernelElapsedMs": 225
+    },
+    {
+      "decision": 80,
+      "turn": 4,
+      "playerId": 0,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_14",
+      "heuristicAction": "wait:u_14",
+      "kernelElapsedMs": 25
+    },
+    {
+      "decision": 81,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 139,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "move:u_11:15,4",
+      "heuristicAction": "attack:u_4:u_9",
+      "kernelElapsedMs": 2785
+    },
+    {
+      "decision": 82,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 123,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_8:9,5",
+      "heuristicAction": "move:u_5:13,9",
+      "kernelElapsedMs": 1755
+    },
+    {
+      "decision": 83,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 110,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_4:11,4",
+      "heuristicAction": "move:u_8:7,3",
+      "kernelElapsedMs": 1181
+    },
+    {
+      "decision": 84,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 85,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_4:11,4",
+      "heuristicAction": "move:u_4:10,6",
+      "kernelElapsedMs": 922
+    },
+    {
+      "decision": 85,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 58,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "recruit_to_castle:paladin:14,4",
+      "heuristicAction": "move:u_11:13,6",
+      "kernelElapsedMs": 573
+    },
+    {
+      "decision": 86,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 42,
+      "patterns": [
+        "RECRUIT_AVAILABLE"
+      ],
+      "kernelAction": "move:u_12:15,11",
+      "heuristicAction": "recruit_to_castle:paladin:15,10",
+      "kernelElapsedMs": 439
+    },
+    {
+      "decision": 91,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 5,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_5",
+      "heuristicAction": "wait:u_5",
+      "kernelElapsedMs": 63
+    },
+    {
+      "decision": 92,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 4,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_4",
+      "heuristicAction": "wait:u_4",
+      "kernelElapsedMs": 36
+    },
+    {
+      "decision": 93,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 3,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_11",
+      "heuristicAction": "wait:u_11",
+      "kernelElapsedMs": 28
+    },
+    {
+      "decision": 94,
+      "turn": 4,
+      "playerId": 1,
+      "legalCount": 2,
+      "patterns": [
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_12",
+      "heuristicAction": "wait:u_12",
+      "kernelElapsedMs": 15
+    },
+    {
+      "decision": 95,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 37,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:apk_u2:8,1",
+      "heuristicAction": "move:apk_u2:8,1",
+      "kernelElapsedMs": 85
+    },
+    {
+      "decision": 96,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 25,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "wait:apk_u2",
+      "heuristicAction": "wait:apk_u2",
+      "kernelElapsedMs": 54
+    },
+    {
+      "decision": 97,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 24,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:slime:8,1",
+      "heuristicAction": "move:u_13:7,1",
+      "kernelElapsedMs": 502
+    },
+    {
+      "decision": 98,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 10,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:slime:8,1",
+      "heuristicAction": "recruit_to_castle:archer:8,1",
+      "kernelElapsedMs": 394
+    },
+    {
+      "decision": 99,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 18,
+      "patterns": [
+        "MOVE_THEN_ATTACK",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "move:u_16:10,2",
+      "heuristicAction": "move:u_16:6,0",
+      "kernelElapsedMs": 163
+    },
+    {
+      "decision": 100,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 2,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "attack:u_16:apk_u1",
+      "heuristicAction": "attack:u_16:apk_u1",
+      "kernelElapsedMs": 33
+    },
+    {
+      "decision": 101,
+      "turn": 4,
+      "playerId": 2,
+      "legalCount": 5,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "attack:u_13:u_8",
+      "heuristicAction": "attack:u_13:apk_u1",
+      "kernelElapsedMs": 55
+    },
+    {
+      "decision": 102,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 116,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_14:6,10",
+      "heuristicAction": "move:u_3:9,5",
+      "kernelElapsedMs": 2579
+    },
+    {
+      "decision": 103,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 86,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "capture:u_3",
+      "heuristicAction": "capture:u_3",
+      "kernelElapsedMs": 1805
+    },
+    {
+      "decision": 104,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 83,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_14:4,11",
+      "heuristicAction": "move:u_10:9,6",
+      "kernelElapsedMs": 1512
+    },
+    {
+      "decision": 105,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 53,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_14:4,11",
+      "heuristicAction": "move:u_7:9,2",
+      "kernelElapsedMs": 983
+    },
+    {
+      "decision": 106,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 45,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_14:4,11",
+      "heuristicAction": "move:u_14:6,10",
+      "kernelElapsedMs": 872
+    },
+    {
+      "decision": 107,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 29,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:apk_u1:4,1",
+      "heuristicAction": "move:apk_u1:8,2",
+      "kernelElapsedMs": 799
+    },
+    {
+      "decision": 108,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 21,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:slime:2,4",
+      "heuristicAction": "recruit_to_castle:ghost:2,4",
+      "kernelElapsedMs": 359
+    },
+    {
+      "decision": 109,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 44,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "move:u_17:3,2",
+      "heuristicAction": "move:u_17:6,4",
+      "kernelElapsedMs": 277
+    },
+    {
+      "decision": 110,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 8,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "wait:u_17",
+      "heuristicAction": "attack:u_7:apk_u2",
+      "kernelElapsedMs": 174
+    },
+    {
+      "decision": 111,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 6,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "wait:u_17",
+      "heuristicAction": "attack:u_10:u_4",
+      "kernelElapsedMs": 85
+    },
+    {
+      "decision": 112,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 4,
+      "patterns": [
+        "OWN_COMMANDER_THREAT",
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_17",
+      "heuristicAction": "wait:apk_u1",
+      "kernelElapsedMs": 96
+    },
+    {
+      "decision": 113,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 3,
+      "patterns": [
+        "OWN_COMMANDER_THREAT",
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_17",
+      "heuristicAction": "wait:u_17",
+      "kernelElapsedMs": 66
+    },
+    {
+      "decision": 114,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 4,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "recruit_to_castle:soldier:2,4",
+      "heuristicAction": "recruit_to_castle:soldier:2,4",
+      "kernelElapsedMs": 88
+    },
+    {
+      "decision": 115,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 19,
+      "patterns": [
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "move:u_18:3,2",
+      "heuristicAction": "move:u_18:3,2",
+      "kernelElapsedMs": 164
+    },
+    {
+      "decision": 116,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 4,
+      "patterns": [
+        "IMMEDIATE_CAPTURE",
+        "OWN_COMMANDER_THREAT"
+      ],
+      "kernelAction": "capture:u_18",
+      "heuristicAction": "capture:u_18",
+      "kernelElapsedMs": 63
+    },
+    {
+      "decision": 117,
+      "turn": 5,
+      "playerId": 0,
+      "legalCount": 2,
+      "patterns": [
+        "OWN_COMMANDER_THREAT",
+        "FORCED_END_TURN"
+      ],
+      "kernelAction": "wait:u_14",
+      "heuristicAction": "wait:u_14",
+      "kernelElapsedMs": 22
+    },
+    {
+      "decision": 118,
+      "turn": 5,
+      "playerId": 1,
+      "legalCount": 168,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:u_8:7,2",
+      "heuristicAction": "heal:u_15:u_5",
+      "kernelElapsedMs": 4014
+    },
+    {
+      "decision": 119,
+      "turn": 5,
+      "playerId": 1,
+      "legalCount": 147,
+      "patterns": [
+        "RECRUIT_AVAILABLE",
+        "MOVE_THEN_ATTACK"
+      ],
+      "kernelAction": "move:apk_u0:15,2",
+      "heuristicAction": "move:u_8:6,2",
+      "kernelElapsedMs": 3173
+    }
+  ]
+}

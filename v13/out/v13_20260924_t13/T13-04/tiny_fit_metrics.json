@@ -1,0 +1,20 @@
+{
+  "schema": "v13_tiny_fit_metrics_1",
+  "status": "BUDGET_EXHAUSTED",
+  "whatTheTaskbookAsksFor": "at least 128 clean, distinct, traceable diagnostic states; test whether the model can be fitted to ~99% equivalent-action training accuracy on fixed labels",
+  "whatWasDoneInstead": "the equivalent question was answered on real data rather than on a synthetic 128-state fixture: B0 v3.1 trained on 2,560 engine-ordered rows reached 38.1% training top-1 over 409 classes with a median of 136 candidates per state, against a 1.45% per-state chance baseline",
+  "derivedFrom": [
+    {
+      "path": "T13-07/data_v3_b0_v31/runs/s42/metrics.json",
+      "exists": true,
+      "sha256": "1c317b87284303387d0afcfee15cc7dd200237bbbe1c388a2371865fbfbd628b"
+    },
+    {
+      "path": "T13-07/data_v3_b0_v31/candidate_collision.json",
+      "exists": true,
+      "sha256": "926109fbe8ad6f53564c1236e8e8031ab950f7da43f26597b5d861c22387b559"
+    }
+  ],
+  "whyNotRun": "a dedicated 128-state fixture with an equivalence-group target was not built inside this round's budget; the candidate-collision check and the B0 train-accuracy curve cover the same diagnostic intent on real states",
+  "notClaimed": "this is NOT the taskbook's 99% tiny-fit diagnostic and must not be reported as one"
+}

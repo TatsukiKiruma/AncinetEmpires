@@ -1,0 +1,77 @@
+{
+  "schema": "v13_candidate_coverage_1",
+  "generatedAt": "2026-09-24T01:29:11.277Z",
+  "statesMeasured": 48714,
+  "teacherRecallSharedSelector": 0.752699,
+  "teacherRecallStored": 1,
+  "perType": {
+    "attack": {
+      "legalOccurrences": 101236,
+      "keptWhenTruncated": 68661,
+      "droppedWhenTruncated": 574
+    },
+    "capture": {
+      "legalOccurrences": 1847,
+      "keptWhenTruncated": 1497,
+      "droppedWhenTruncated": 0
+    },
+    "destroy_town": {
+      "legalOccurrences": 4481,
+      "keptWhenTruncated": 402,
+      "droppedWhenTruncated": 3446
+    },
+    "end_turn": {
+      "legalOccurrences": 48522,
+      "keptWhenTruncated": 0,
+      "droppedWhenTruncated": 22275
+    },
+    "heal": {
+      "legalOccurrences": 16912,
+      "keptWhenTruncated": 1536,
+      "droppedWhenTruncated": 14945
+    },
+    "move": {
+      "legalOccurrences": 3369930,
+      "keptWhenTruncated": 668522,
+      "droppedWhenTruncated": 2587376
+    },
+    "post_attack_move": {
+      "legalOccurrences": 13134,
+      "keptWhenTruncated": 4657,
+      "droppedWhenTruncated": 2309
+    },
+    "recruit_to_castle": {
+      "legalOccurrences": 293583,
+      "keptWhenTruncated": 206908,
+      "droppedWhenTruncated": 12144
+    },
+    "repair": {
+      "legalOccurrences": 1014,
+      "keptWhenTruncated": 265,
+      "droppedWhenTruncated": 534
+    },
+    "summon": {
+      "legalOccurrences": 409,
+      "keptWhenTruncated": 98,
+      "droppedWhenTruncated": 240
+    },
+    "support": {
+      "legalOccurrences": 329,
+      "keptWhenTruncated": 0,
+      "droppedWhenTruncated": 327
+    },
+    "surrender": {
+      "legalOccurrences": 48522,
+      "keptWhenTruncated": 186,
+      "droppedWhenTruncated": 22089
+    },
+    "wait": {
+      "legalOccurrences": 569590,
+      "keptWhenTruncated": 116516,
+      "droppedWhenTruncated": 265079
+    }
+  },
+  "unsupportedModes": [
+    "Maps larger than 20x20 are not represented by the 24x20x20 encoder; the encoder does not currently refuse them, which T13-04 flags as a silent-clip risk."
+  ]
+}

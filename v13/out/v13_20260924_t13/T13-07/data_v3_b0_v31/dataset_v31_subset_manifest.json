@@ -1,0 +1,103 @@
+{
+  "schema": "v13_dataset_subset_manifest_1",
+  "variant": "v3.1 - candidates in engine legal order",
+  "config": {
+    "comment": "T13-07 B0 pilot subset. 14 train roots + 4 val roots, one named teacher (heuristic), full candidate sets, mid-episode phase window biased toward broad action spaces.",
+    "pool": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+    "source": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+    "provenanceFile": "v13/out/v13_20260924_t13/T13-03/teacher_provenance_by_row.txt",
+    "archiveId": "agent_upgrade_20260919_01/baseline_dataset",
+    "outDir": "v13/out/v13_20260924_t13/T13-07/data_v3_b0",
+    "labelTeacherId": "heuristic",
+    "perRootRowCap": 160,
+    "minLegalActions": 8,
+    "phaseLo": 0.1,
+    "phaseHi": 0.9,
+    "trainRootFamilies": [
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1",
+      "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10",
+      "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15",
+      "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2",
+      "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8"
+    ],
+    "valRootFamilies": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13"
+    ],
+    "splitRiskNote": "Validation roots are whole episodes drawn from the SAME maps and scenarios as the training roots, so the partition is independent by root family but not by map or scenario. Any result must be reported as leave-one-root-out within a fixed map set, not as cross-map generalisation."
+  },
+  "rows": {
+    "train": 2560,
+    "val": 621,
+    "total": 3181
+  },
+  "roots": {
+    "train": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8",
+      "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17",
+      "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16",
+      "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18",
+      "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19"
+    ],
+    "val": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1"
+    ]
+  },
+  "files": {
+    "pool": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0_v31\\pool_v31_subset.jsonl",
+      "sha256": "6f9fe51678434befc67415ed5df90d15dbcf4833f7d6c5d549ceb453c36f1f0a"
+    },
+    "split": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0_v31\\split_manifest.json",
+      "sha256": "8bfac98d22b24ce551af8c3238f6068fcaacbf48ff1bc624571db75a3043d210"
+    }
+  },
+  "orderingDelta": {
+    "rowsWhereTeacherWasAtOldIndex0": 36,
+    "fraction": 0.011317,
+    "note": "in v3.1 the target index is the position in the ENGINE LEGAL order, which is also the order inference uses"
+  },
+  "comparability": {
+    "vs": "v13/out/v13_20260924_t13/T13-07/data_v3_b0 (first B0 run)",
+    "heldIdentical": [
+      "train/val roots",
+      "per-root cap",
+      "minLegalActions",
+      "phase window",
+      "selection rule",
+      "row count target"
+    ],
+    "changedDeliberately": [
+      "candidate ordering",
+      "state/tensor provenance (re-encoded by the TypeScript encoder instead of copied from the pool)"
+    ]
+  }
+}

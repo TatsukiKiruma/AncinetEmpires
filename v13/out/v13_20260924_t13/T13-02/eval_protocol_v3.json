@@ -1,0 +1,69 @@
+{
+  "schema": "v13_eval_protocol_3",
+  "derivedFrom": [
+    {
+      "path": "T13-02/selftest_duel_2seeds.json",
+      "exists": true,
+      "sha256": "7f2c651ab453b9960bb292d87844fa2b69e627f8bf6d42e61a334d90be67a83a"
+    }
+  ],
+  "note": "The protocol block of eval_paired_v3, extracted from a run that used it. The harness source is v13/tools/eval_paired_v3.ts and the pure core is v13/tools/eval_v3_core.ts.",
+  "protocol": {
+    "schema": "v13_eval_protocol_3",
+    "scenarioId": "SDPLAN:sd-normal:(2) Duel.aem",
+    "seeds": [
+      2026070501,
+      2026070502
+    ],
+    "seats": [
+      0,
+      1
+    ],
+    "allSeats": [
+      0,
+      1
+    ],
+    "alliancesBySeat": {
+      "0": 0,
+      "1": 1
+    },
+    "maxSteps": 20000,
+    "maxPlies": null,
+    "wallTimeoutMs": 900000,
+    "arms": "CANDIDATE (candidate at `seat`, heuristic elsewhere) vs MIRROR (heuristic at every seat)",
+    "mirrorPolicy": "one cached mirror per (scenario, seed, maxSteps); seats share it by mirrorId",
+    "rng": "per-seat deterministic stream mulberry(hash(seed, seat)); identical across arms; never Math.random",
+    "pairedBy": "(seed, seat); the only difference between arms is who occupies `seat`",
+    "fallbackPolicy": "allowInteractiveFallback=false; fallbacks are counted and reported, never absorbed",
+    "outcomeTaxonomy": [
+      "NATURAL_WIN",
+      "NATURAL_LOSS",
+      "NATURAL_DRAW",
+      "STEP_LIMIT",
+      "PLY_LIMIT",
+      "WALL_TIMEOUT",
+      "CANCELLED",
+      "POLICY_ERROR",
+      "ENGINE_ERROR"
+    ],
+    "drawSemantics": "winner===-1 is a natural draw, NOT a truncation (D13-07)",
+    "winnerSemantics": "state.winner is an ALLIANCE id; candidate win/loss is an alliance comparison"
+  },
+  "harness": {
+    "entryPoint": "v13/tools/eval_paired_v3.ts",
+    "core": "v13/tools/eval_v3_core.ts",
+    "coreTests": "v13/tools/eval_v3_core.test.ts",
+    "runner": "node --openssl-legacy-provider v12/tools/run-tool.mjs v13/tools/eval_paired_v3.ts",
+    "atomicWrite": "results are written to <out>.tmp then renamed",
+    "perGameRecordSchema": "v13 C3 fields, emitted as <out>.games.jsonl"
+  },
+  "fixedDefects": [
+    "telemetry SHA came from the static registry while injected weights executed",
+    "the identical mirror was replayed once per seat and counted as independent observations",
+    "capped = winner === null reported a natural draw (winner === -1) as a truncation",
+    "truncated games were dropped instead of reported with bounds",
+    "the self-test only compared delta === 0",
+    "state.winner is an alliance id but was compared to a seat index",
+    "seats were hard-coded 0..3"
+  ]
+}
