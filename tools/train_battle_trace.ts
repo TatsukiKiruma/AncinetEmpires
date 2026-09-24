@@ -5,6 +5,7 @@ import { createAppApkSkirmishGameState } from '../src/game/apk_skirmish_map_asse
 import type { GameState } from '../src/game/types';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { BattleSearchAI } from '../src/game/ai/battle_search_ai';
+import { LearnedDuelAI } from '../src/game/ai/learned_duel_ai';
 import { getUnitCost } from '../src/game/rule_config';
 import { UNIT_CONFIGS } from '../src/game/constants';
 import { getTileTerrainKey } from '../src/game/terrain_rules';
@@ -53,7 +54,13 @@ const p0kind = arg('--p0', 'new');
 const p1kind = arg('--p1', 'heuristic');
 const hBase = seed + gameIdx * 100003;
 const swap = process.argv.includes('--swap');
-const newAI = new BattleSearchAI(hBase + 777, { topK: 6, oppDepth: 3, friendlyRolloutSteps: 1, takeoverThreshold: 350, vetoMargin: 300, dangerLine: -800 });
+const botMode = arg('--bot', 'battle');
+const coverK = Number(arg('--coverK', '8'));
+const newAI = botMode === 'policy'
+  ? new LearnedDuelAI(undefined, { mode: 'policy', coverK })
+  : botMode === 'vsearch'
+    ? new LearnedDuelAI(undefined, { mode: 'value-search', topK: 6, replyProbeMax: 3, coverK })
+    : new BattleSearchAI(hBase + 777, { topK: 6, oppDepth: 3, friendlyRolloutSteps: 1, takeoverThreshold: 350, vetoMargin: 300, dangerLine: -800 });
 const heuH = new HeuristicAI(mulberry(hBase + (swap ? 1000 : 999)));
 const heuA = new HeuristicAI(mulberry(hBase + (swap ? 999 : 1000)));
 const engine = new GameEngine(MAPS[mapKey]());
@@ -79,4 +86,4 @@ while (engine.getState().winner === null && steps < 600 * 80 && engine.getState(
   steps++;
 }
 console.log(`END winner=P${engine.getState().winner} turns=${engine.getState().turn} steps=${steps}`);
-console.log('newAI stats', JSON.stringify(newAI.getStats()));
+console.log('newAI stats', JSON.stringify((newAI as unknown as { getStats?: () => unknown }).getStats?.() ?? 'n/a'));

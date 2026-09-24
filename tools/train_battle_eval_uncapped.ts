@@ -15,6 +15,8 @@ import { createAppApkSkirmishGameState } from '../src/game/apk_skirmish_map_asse
 import type { GameState } from '../src/game/types';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { BattleSearchAI } from '../src/game/ai/battle_search_ai';
+import { LearnedDuelAI } from '../src/game/ai/learned_duel_ai';
+import { learnedModelTag, learnedSeatModelTag } from '../src/game/ai/learned_duel_net';
 
 function gitHead(): string {
   try {
@@ -64,13 +66,13 @@ function parseArg(name: string, fallback: number): number {
   return v;
 }
 
-function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; topK: number; oppK: number; rollout: number; takeover: number; veto: number; danger: number; searchStart: number; newGoesFirst: boolean; makeState: () => GameState }): {
+function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; topK: number; oppK: number; rollout: number; takeover: number; veto: number; danger: number; searchStart: number; bot: string; newGoesFirst: boolean; makeState: () => GameState }): {
   winner: number | null; winnerPolicy: string | null; turns: number; steps: number; ms: number; capped: boolean; stats: string;
 } {
   const engine = new GameEngine(opts.makeState());
   const hSeedBase = opts.seed + opts.gameIndex * 100003;
   // 新模型执 P0 还是 P1 交替；heuristic 用独立 rng 流
-  const newAI = new BattleSearchAI(hSeedBase + 777, {
+  const battleAI = new BattleSearchAI(hSeedBase + 777, {
     topK: opts.topK,
     oppDepth: opts.oppK,
     friendlyRolloutSteps: opts.rollout,
@@ -79,6 +81,13 @@ function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; t
     dangerLine: opts.danger,
     searchStartTurn: opts.searchStart
   });
+  const coverK = parseArg('--coverK', 8);
+  const learnedPolicy = new LearnedDuelAI(undefined, { mode: 'policy', coverK });
+  const learnedSearch = new LearnedDuelAI(undefined, { mode: 'value-search', topK: opts.topK, replyProbeMax: opts.oppK, coverK });
+  const learnedBeam = new LearnedDuelAI(undefined, { mode: 'beam', beamW: opts.topK, oppW: Math.min(3, opts.oppK), coverK: 0 });
+  void learnedBeam;
+  const newAI = opts.bot === 'policy' ? learnedPolicy : opts.bot === 'vsearch' ? learnedSearch : opts.bot === 'beam' ? learnedBeam : battleAI;
+  const newName = opts.bot === 'policy' ? 'learned-policy' : opts.bot === 'vsearch' ? 'learned-vsearch' : opts.bot === 'beam' ? 'learned-beam' : 'battle';
   const heuAI = new HeuristicAI(mulberry(hSeedBase + 999));
   // 给新模型不同对局不同 rng：BattleSearchAI 内部 heuristic 抖动用派生流
   const policyOf = (pid: number): string => {
@@ -103,8 +112,10 @@ function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; t
   } else if (st.winner === -1) {
     winnerPolicy = 'draw';
   }
-  const s = newAI.getStats();
-  const stats = `dec=${s.decisions} urg=${s.urgentHits} win=${s.forcedWins} take=${s.takeovers} veto=${s.vetos} follow=${s.follows}`;
+  const maybeStats = (newAI as unknown as { getStats?: () => { decisions: number; urgentHits: number; forcedWins: number; takeovers: number; vetos: number; follows: number } }).getStats;
+  const stats = typeof maybeStats === 'function'
+    ? (() => { const s = maybeStats.call(newAI); return `dec=${s.decisions} urg=${s.urgentHits} win=${s.forcedWins} take=${s.takeovers} veto=${s.vetos} follow=${s.follows}`; })()
+    : `bot=${newName}`;
   return { winner: st.winner, winnerPolicy, turns: st.turn, steps, ms: Date.now() - t0, capped, stats };
 }
 
@@ -119,6 +130,8 @@ async function main() {
   const veto = parseArg('--veto', 300);
   const danger = parseArg('--danger', -800);
   const searchStart = parseArg('--searchStart', 1);
+  const botRaw = parseStringArg('--bot', 'battle').toLowerCase();
+  const bot = botRaw === 'policy' || botRaw === 'vsearch' || botRaw === 'beam' ? botRaw : 'battle';
   const onlyRaw = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] ?? '' : '';
   const only = onlyRaw.split(',').map(x => Number(x.trim())).filter(x => Number.isInteger(x) && x >= 1);
   const indices = only.length > 0 ? only.map(x => x - 1) : Array.from({ length: games }, (_, i) => i);
@@ -128,12 +141,15 @@ async function main() {
   let heuWins = 0;
   let draws = 0;
   const outFile = parseStringArg('--out', '');
-  console.log(`评估配置: games=${indices.length} seed=${seed} safety=${safety} topK=${topK} oppDepth=${oppK} rollout=${rollout} takeover=${takeover} veto=${veto} danger=${danger} searchStart=${searchStart} 地图=${mapEntry.label}无封顶`);
+  const modelTag = bot === 'battle'
+    ? 'battle-search'
+    : `learned-${learnedModelTag()}+seat[${learnedSeatModelTag(0)}/${learnedSeatModelTag(1)}]`;
+  console.log(`评估配置: bot=${bot}(${modelTag}) games=${indices.length} seed=${seed} safety=${safety} topK=${topK} oppDepth=${oppK} rollout=${rollout} takeover=${takeover} veto=${veto} danger=${danger} searchStart=${searchStart} 地图=${mapEntry.label}无封顶`);
   const records: Array<Record<string, unknown>> = [];
   for (const i of indices) {
     // 交替先后手：偶数局新模型先手(P0)，奇数局后手(P1)
     const newGoesFirst = i % 2 === 0;
-    const r = playOne({ gameIndex: i, seed, safetyTurns: safety, topK, oppK, rollout, takeover, veto, danger, searchStart, newGoesFirst, makeState: mapEntry.make });
+    const r = playOne({ gameIndex: i, seed, safetyTurns: safety, topK, oppK, rollout, takeover, veto, danger, searchStart, bot, newGoesFirst, makeState: mapEntry.make });
     if (r.winnerPolicy === 'new') newWins++;
     else if (r.winnerPolicy === 'heuristic') heuWins++;
     else draws++;
@@ -160,11 +176,11 @@ async function main() {
       version: 1,
       generatedAt: new Date().toISOString(),
       gitHead: gitHead(),
-      model: 'BattleSearchAI',
+      model: bot === 'policy' ? `LearnedDuelAI/policy/seat[${learnedSeatModelTag(0)}/${learnedSeatModelTag(1)}]` : bot === 'vsearch' ? `LearnedDuelAI/value-search/seat[${learnedSeatModelTag(0)}/${learnedSeatModelTag(1)}]` : bot === 'beam' ? `LearnedDuelAI/beam/seat[${learnedSeatModelTag(0)}/${learnedSeatModelTag(1)}]` : 'BattleSearchAI',
       opponent: 'HeuristicAI',
       config: {
         map: mapKey, mapLabel: mapEntry.label, seed, safetyTurns: safety,
-        topK, oppDepth: oppK, rollout, takeover, veto, danger, searchStart,
+        topK, oppDepth: oppK, rollout, takeover, veto, danger, searchStart, bot,
         uncapped: true
       },
       summary: { games: indices.length, newWins, heuWins, draws },

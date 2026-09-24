@@ -1,0 +1,87 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-24T03:32:09.431Z",
+  "gitHead": "32da8a67d5d8cceb8684c3c5db869dd3e48fa379",
+  "model": "LearnedDuelAI/policy/v11",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "peak",
+    "mapLabel": "(2) Peak Island.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 8,
+    "oppDepth": 6,
+    "rollout": 3,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "bot": "policy",
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 2,
+    "heuWins": 2,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 12,
+      "steps": 281,
+      "ms": 9404,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 13,
+      "steps": 302,
+      "ms": 12782,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 11,
+      "steps": 260,
+      "ms": 9979,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 1,
+      "winnerPolicy": "new",
+      "turns": 13,
+      "steps": 302,
+      "ms": 12416,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    }
+  ]
+}

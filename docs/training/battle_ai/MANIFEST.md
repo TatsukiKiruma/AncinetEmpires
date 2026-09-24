@@ -1,7 +1,11 @@
 # Battle AI 训练存档（train/battle-ai-100pct）
 
-对手：HeuristicAI（`src/game/ai/heuristic_ai.ts`）。评估：无封顶回合（safety 600，从未触发，全部自然终局），
-交替先后手，固定种子可复现。评估脚本：`tools/train_battle_eval_uncapped.ts`（支持 `--out` 自动存档，含 git HEAD）。
+对手：HeuristicAI（`src/game/ai/heuristic_ai.ts`）。评估：无封顶回合（safety 600，偶发截断/马拉松），
+交替先后手，固定种子可复现。评估脚本：`tools/train_battle_eval_uncapped.ts`（支持 `--out` 自动存档，含 git HEAD；
+`--bot battle|policy|vsearch|beam`，`--map` 单图，5图×4局=20局）。
+
+> 命名注意：battle v11（搜索型教师，16/20）与 learned v11（学习型，5/20）是两条路线的不同版本，
+> 仅编号巧合。下文分开记载。
 
 ## 模型版本（搜索型 AI，无神经网络权重；“模型”= 代码 + 参数快照）
 
@@ -47,7 +51,68 @@ HEAD（含 v7）提交后即为精确可复现态，后续运行一律用 `--out
 
 ## 工具
 
-- `tools/train_battle_eval_uncapped.ts`：主评估（--map duel|liberty|peak --games --seed --safety --topK --oppK(深度) --rollout --takeover --veto --danger --searchStart --only --out）
+- `tools/train_battle_eval_uncapped.ts`：主评估（--map duel|liberty|peak|icy|crossing|mourning|swords|swamp --games --seed --safety --bot battle|policy|vsearch|beam --topK --oppK --coverK --only --out）
 - `tools/train_battle_mirror2.ts`：heuristic 内战基线（--map --games --seed --swap）
-- `tools/train_battle_trace.ts`：单局逐回合流程追踪（--map --seed --game --p0 new|heuristic --swap；--actions --from N 打印动作）
+- `tools/train_battle_trace.ts`：单局逐回合流程追踪（--map --seed --game --p0 new|heuristic --p1 new|heuristic --bot battle|policy|vsearch --coverK；--actions --from N 打印动作；--swap）
 - `tools/train_battle_mapdump.ts`：地图 ASCII 布局打印
+- `tools/learn_duel_export.ts`：蒸馏/DAgger/自博弈数据导出（--maps --seeds --colors --mirror/--dagger/--selfplay --thin --safety --out）
+- `tools/learn_duel_relabel.ts`：旧数据行动方视角重标注（新导出已内置 outcomeActing，仅用于存量校验）
+- `tools/learn_duel_diagnose.ts`：单局复现 + teacher 重标注一致率 + teacher 自 agreement（标签噪声上限）
+- `tools/learn_duel_headcheck.ts`：policy 排名 / cover 召回 / value 偏好三指标
+- `tools/learn_duel_extra_features.ts`：14→19 维关系事实特征（导出与推理共用）
+- `python/learn_duel_train.py`：policy（listwise BC）+ value（BCE+pairwise）训练（--policy-in --value-in --pairs-in --hidden --depth --act-dim --tag --policy-all --seat）
+- `python/learn_duel_diag.py`：训练集动作分布 + 已训模型 train/val top1
+
+---
+
+# 学习型路线（LearnedDuelAI：监督蒸馏 policy + 结局回归 value + DAgger + 自博弈）
+
+推理入口：`src/game/ai/learned_duel_ai.ts`（policy / value-search / beam 三模式）+
+`src/game/ai/learned_duel_net.ts`（纯 TS MLP 前向 + 分色选网）。
+当前生效权重：`src/game/ai/models/learned_duel_v1.json`（active slot，内容为 v12 单网）、
+`learned_duel_p0/p1.json`（分色网：v14 policy + v6 value 注入）。
+
+## 学习型版本（`models/learned_duel_*.json`，tag 即版本）
+
+| 版本 | 结构/数据 | 训练指标 | 5×4 policy 套件 | 说明 |
+|---|---|---|---|---|
+| v1 | 128h/45维/胜局过滤 | top1 0.42 | mourning 0/1（冒烟） | 首个蒸馏模型，极快（2-3秒/局）但崩 |
+| v2 | 256h/全量决策 | top1 0.41 | mourning 0/4 | 全量决策未涨 |
+| v3 | +dagger R1（v2学生） | top1 0.40 | mourning 0/4 | 一致率0.36→0.52，value 校准修复，但胜率不动 |
+| v4 | +pairwise value | pairAcc 0.99（训练集过拟合） | mourning 0/4 | 诚实 holdout 前的虚假信号 |
+| v5 | pair 降权0.3+holdout | top1 0.44/MSE0.005/诚实pairAcc 0.85 | mourning 0/4 | 指标健康，胜率不动 |
+| v6 | 1024h + wait 降权 | top1 0.38 | — | wait 降权有害，revert |
+| v7 | 1024h + 回合加权 | top1 0.42/T1 一致率 0.67 | mourning 0/4 | 开局学会双招，但整局仍输 |
+| v8 | **59维（+14关系事实）** | top1 **0.56** | — | 表示修复实锤（0.44→0.56） |
+| v9 | +dagger R4（v8学生） | top1 0.47/对 0.89 | mourning 0/4 | headcheck 双头齐跳但胜率不动 |
+| v10 | +类型加权（招募×3/攻击×2.5） | top1 0.44 | mourning 0/4 | 招募意愿恢复但单位太贵/堵城 |
+| v11 | +dagger R5 数据 | top1 0.43 | **5/20**（peak2 icy2 crossing0 mourning1 liberty0） | 首个非零总分 |
+| v12 | +落后×3/结局加权 | top1 **0.48** | 4/20（liberty2 peak1 crossing1） | P0 0→3/10 但 P1 5→1/10 |
+| v13 | 3层512h | train 0.50/val 0.43 | 3/20（crossing2 mourning1） | 加深过拟合，回归 |
+| v14 | **分色 P0/P1-net** | P0-net 0.39 / P1-net 0.44 | 3/20（liberty1 mourning2） | P0 数据本身更难；分色未质变 |
+
+vsearch / beam 在 v6–v14 多轮 mourning 4 局中全部 0/4（value 动作级 7–16/25，撑不起 rerank/搜索）。
+
+## 学习型对局数据（`matches/learned*_4.json`，--out schema，含模型 tag）
+
+v11：liberty 0/4（+1 安全截断 600 回合马拉松）、peak 2/4、icy 2/4、crossing 0/4（g3 打 341 回合）、mourning 1/4。
+v12：liberty 2/4（P0 双胜！）、peak 1/4、icy 0/4、crossing 1/4、mourning 0/4。
+v13：liberty 0/4、peak 0/4、icy 0/4、crossing 2/4、mourning 1/4。
+v14（分色）：liberty 1/4、peak 0/4、icy 0/4、crossing 0/4（g2 打 513 回合）、mourning 2/4（P1 双胜）。
+
+## 训练原始数据（`training_runs/learn_duel/`，gitignored，约 200MB，可复现）
+
+teacher64_*.jsonl（5图×4局，battle 教师示范，64维）、dagger64_*.jsonl+.pairs.jsonl（v10 学生态 teacher 重标注+价值对）、
+mirror_01*.jsonl（heuristic 内战价值数据）、selfplay_*.jsonl（v14 学生自博弈 40 局，**未用于训练**，颜色偏见故封存）、
+archive45/ / archive59/（旧维度数据留档）。
+复现命令见本节工具；value 数据与动作维度无关可跨版本复用，policy 数据须与 act-dim 一致。
+
+## 套件天花板分析（重要）
+
+- battle v11（16/20）输的 4 局：icy g1（P0,T56）、g2（P1,T40）、g3（P0,T43）、crossing g1（P0,T22）。
+- icy-P0：battle 跨种子（1001/3001）0/4、teacher 0/2、learned 全版本 0/N——**从未被任何 AI 赢过**，
+  两个必败点（g1/g3）使本套件理论上限为 **18/20**。
+- crossing-P0（g1）：teacher 在 3002 赢过，可学；learned 各版本 0/3，待攻。
+- icy g2（P1）：battle 输、learned v11/v13 赢过——learned 已证明能拿 battle 拿不到的分。
+- 结论：19/20 要求赢下 icy-P0 双局，按现有证据不可达；18/20 要求横扫其余（battle 已证 12/12 liberty/peak/mourning
+  可横扫 + crossing g1 + icy g2/g4）。learned 当前 5/20，差 13 局，主差在 P0 横扫能力。
