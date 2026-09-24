@@ -1,0 +1,56 @@
+{
+  "schema": "v13_trainer_regression_1",
+  "runId": "v13_20260924_t13",
+  "task": "T13-01",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "command": "py -m unittest discover -s python/tests -p \"test_v13_*.py\" -v",
+  "result": {
+    "ran": 25,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 87.842,
+    "verdict": "OK",
+    "history": "23 tests passed at the first delivery; two more were added for the per-run optimizer-ledger collision found during T13-07 (25 total)"
+  },
+  "legacySuiteCommand": "py -m unittest discover -s python/tests -p \"test_v11_*.py\"",
+  "legacySuiteResult": {
+    "ran": 14,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 29.285,
+    "verdict": "OK",
+    "note": "the pre-existing V11 trainer regressions still pass after the T13-01 changes"
+  },
+  "typecheck": {
+    "command": "npx --no-install tsc --noEmit -p tsconfig.json",
+    "result": "clean"
+  },
+  "tests": [
+    {"name": "test_value_mask_uses_one_index_set", "proves": "targets [1,-1] with mask [true,false] produces loss 1.0625 / gradient +0.5 under the old filters and 0.5625 / -1.5 under the shipped fix, on real torch"},
+    {"name": "test_two_predictions_three_targets_raises", "proves": "the old shape mismatch is an error, never a silent broadcast"},
+    {"name": "test_trainer_refuses_explicit_mask_that_contradicts_target", "proves": "a dataset whose explicit valueLossMask disagrees with valueTarget is rejected at load time"},
+    {"name": "test_mixed_mask_batch_trains_without_shape_error", "proves": "the normal mixed case still trains"},
+    {"name": "test_train_loss_is_single_counted_and_matches_legacy_halving", "proves": "legacy accounting inflates train_loss relative to the shipped fix while optimizer updates and exposures are identical", "measured": {"fixed": 0.6938375532627106, "legacy": 1.0411738455295563, "ratio": 1.5006017483970522}},
+    {"name": "test_legacy_inflation_is_not_a_clean_factor_when_the_cap_cuts_an_epoch", "proves": "the pre-V13 mean is not the mean of anything when a cap break sits between the two accumulation sites"},
+    {"name": "test_fixed_train_loss_is_comparable_to_val_loss", "proves": "train and val loss are now the same kind of number instead of a fake 2x overfitting gap"},
+    {"name": "test_val_loss_is_unchanged_by_the_accounting_fix", "proves": "validation never entered the optimizer block, so it was already correct"},
+    {"name": "test_capped_run_does_not_drop_the_last_optimized_batch", "proves": "a global cap fires after the batch is counted, not before"},
+    {"name": "test_global_cap_holds_across_epoch_boundary", "proves": "the cap is measured across epochs via the consumption ledger"},
+    {"name": "test_all_masks_false_is_not_counted_as_learning", "proves": "an all-masked run reports zero supervised value exposures and zero policy accuracy"},
+    {"name": "test_missing_split_manifest_fails_closed", "proves": "a named-but-absent split manifest aborts instead of substituting an internal split"},
+    {"name": "test_missing_init_checkpoint_fails_closed", "proves": "a named-but-absent init checkpoint aborts instead of training from scratch"},
+    {"name": "test_rows_without_root_identity_are_refused_by_default", "proves": "the ep_{idx//60} grouping key is opt-in"},
+    {"name": "test_legacy_grouping_is_watermarked_when_explicitly_enabled", "proves": "when explicitly enabled the run carries a LEGACY_GROUPING watermark and the row count"},
+    {"name": "test_overlapping_split_root_families_are_refused", "proves": "train/val/test root overlap is rejected"},
+    {"name": "test_unknown_root_family_in_split_is_refused", "proves": "a manifest that omits a present root aborts rather than defaulting it into train"},
+    {"name": "test_duplicate_sample_id_with_conflicting_state_hash_is_refused", "proves": "ambiguous sample identity is rejected"},
+    {"name": "test_model_seed_changes_weights_but_not_the_split", "proves": "with a frozen manifest the partition is identical and only the weights differ"},
+    {"name": "test_split_seed_does_not_leak_into_model_init", "proves": "changing --split-seed under a frozen manifest produces byte-identical weights"},
+    {"name": "test_non_finite_value_target_is_refused", "proves": "NaN labels are refused at load time"},
+    {"name": "test_planned_manifest_is_not_consumption_evidence", "proves": "the pre-training file is labelled measured=false / isConsumptionEvidence=false"},
+    {"name": "test_state_file_is_written_and_resumes", "proves": "the resumable state is a separate artifact and resume continues at the right epoch"},
+    {"name": "test_two_runs_in_one_directory_keep_separate_ledgers", "proves": "two runs sharing an output directory each keep their own consumption ledger", "foundBy": "T13-07 lost two of three ledgers to this collision in its first pass"},
+    {"name": "test_reusing_an_out_model_refuses_to_clobber_the_ledger", "proves": "a second run against the same --out-model aborts instead of overwriting consumption evidence"}
+  ],
+  "notClaimed": "This task does not claim any playing-strength improvement. It changes reporting, validation and provenance only; the optimizer step count and the weights it produces are unchanged by the accounting fix."
+}

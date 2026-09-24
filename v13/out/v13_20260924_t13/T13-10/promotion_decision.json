@@ -1,0 +1,51 @@
+{
+  "schema": "v13_promotion_decision_1",
+  "runId": "v13_20260924_t13",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "round": "5 - gap closure and package rebuild",
+  "decision": "NO_PROMOTION",
+  "decisionReason": "All 8 existing checkpoints and all 6 trained B0 arms have now been measured under one protocol. The best result anywhere is parity on a map that cannot separate policies (delta 0.00), and the strongest network reading is delta -0.25 on that same map. Nothing beat HeuristicAI. G4 is not met.",
+  "productionDefaultUnchanged": true,
+  "productionDefault": "heuristic",
+  "registryModified": false,
+  "matrixPath": "v13/out/v13_20260924_t13/T13-05/existing_checkpoint_matrix.jsonl",
+  "evaluatedCandidates": [
+    {"candidate": "src/game/ai/models/spatial_resnet_v2_checkpoint.json", "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92", "arena": "(2) Duel.aem", "naturalWins": 2, "seatArms": 4, "delta": 0.0},
+    {"candidate": "v12/models/diag_grouped_s42.json", "sha256": "73c7223912b2e59eafaef25c7eddb0298d401a8e40cd5f4afa5ec40bdfd438d2", "arena": "(2) Duel.aem", "naturalWins": 1, "seatArms": 4, "delta": -0.25, "note": "strongest network reading in the project; still below the heuristic"},
+    {"candidate": "v12/models/budget_s42.json", "sha256": "25361b1bfc4581d89239b0ae0f4f338ceaae08c9f59581d758afc3345ceae15c", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5},
+    {"candidate": "v12/models/budget_s1337.json", "sha256": "abe95e30367708f0924086932072237fb4eb6e407685ae1eeacfa261da19e021", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5},
+    {"candidate": "v12/models/budget_s2026.json", "sha256": "c71dd12710ead5e196b8a0092912f4eb1b3cd4a925f2323ed120a82c32125809", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5},
+    {"candidate": "v12/models/budget_s2026_last.json", "sha256": "c71dd12710ead5e196b8a0092912f4eb1b3cd4a925f2323ed120a82c32125809", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5, "note": "byte-identical to budget_s2026.json; confirmed to score identically, so that run supplies one artifact, not two"},
+    {"candidate": "v12/models/v2_honest_s42.json", "sha256": "60f24e60918502e540f0cfc0f3ae6a70a4ff2ad13ad90744027c44371aa9784c", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5},
+    {"candidate": "v12/models/v2_honest_s42_last.json", "sha256": "88e875acd733a25475957e96762ab19c87053a714a8b6e42035c05bbb543af37", "arena": "(2) Duel.aem", "naturalWins": 0, "seatArms": 4, "delta": -0.5, "note": "identical score to the best checkpoint, so continued training neither helped nor hurt measurably"},
+    {"candidate": "T13-07/runs/s42/best.json", "sha256": "29f12678aedf80e0797c4866483f8a9c260c2460e5d73a5343330a3b508624e5", "arena": "(3) Midway.aem", "variant": "B0 v3.0", "naturalWins": 0, "seatArms": 6, "delta": -0.333},
+    {"candidate": "T13-07/runs/s1337/best.json", "sha256": "c7d63940555c9ac86e60aeedf206e5ed074b3f0599756a6fb24aedd5b34f3d26", "arena": "(3) Midway.aem", "variant": "B0 v3.0", "naturalWins": 0, "seatArms": 6, "delta": -0.5},
+    {"candidate": "T13-07/runs/s2026/best.json", "sha256": "93b6cc4aeaa5b032483b94e18fa15b70f54da4ab1c725f68b642337341523c65", "arena": "(3) Midway.aem", "variant": "B0 v3.0", "naturalWins": 0, "seatArms": 6, "delta": -0.4},
+    {"candidate": "T13-07/data_v3_b0_v31/runs/s42/best.json", "sha256": "402b5a3ec13fafc29ebd26f9dcf5bb85833cca7dd6658a57c94c565c59199291", "arena": "(3) Midway.aem", "variant": "B0 v3.1", "valTop1": 0.3188, "naturalWins": 0, "seatArms": 6, "delta": -0.5},
+    {"candidate": "T13-07/data_v3_b0_v31/runs/s1337/best.json", "sha256": "e6a8a9b9e3ecfb577f6da902eae7b07a094ea4eac4084742947b4e6dcc4fb185", "arena": "(3) Midway.aem", "variant": "B0 v3.1", "valTop1": 0.3221, "naturalWins": 0, "seatArms": 6, "delta": -0.5},
+    {"candidate": "T13-07/data_v3_b0_v31/runs/s2026/best.json", "sha256": "678bd1944cca8f7f6379f56273260c4f563a7c52d177cc19e5aa777cfb461495", "arena": "(3) Midway.aem", "variant": "B0 v3.1", "valTop1": 0.2979, "naturalWins": 0, "seatArms": 6, "delta": -1.0}
+  ],
+  "gates": {
+    "G0_traceable": "PASS",
+    "G1_numeric_and_contract": "PASS",
+    "G2_evaluation_valid": "PASS",
+    "G3_learning_useful": "PARTIAL",
+    "G4_release": "NOT_MET"
+  },
+  "whatWasLearned": {
+    "candidateCoverage": "ALL measuresable candidates are now measured. No candidate beat the heuristic; the best is parity on a weakly-discriminating map.",
+    "oldPoolSeedsIndistinguishable": "budget_s42, budget_s1337 and budget_s2026 all score exactly 0/4 with delta -0.50, so the three old-pool training seeds cannot be separated on this arena.",
+    "correctedPoolEqualsOldPool": "v2_honest_s42 scores the same as budget_s42, so the V12 negative result neither transfers to nor is refuted by the corrected full-pool model.",
+    "bestNetworkReading": "diag_grouped_s42 at delta -0.25 is the strongest network result in the project and still loses to the heuristic.",
+    "orderingDefect": "Confirmed and quantified: teacher at stored candidate index 0 in 96.64% of rows vs engine-legal index 0 in 14.06-17.67%. Fixing it made the task learnable (22x chance) without producing strength.",
+    "teacherRoutesClosed": "The heuristic is the teacher; the search that was supposed to be stronger IS the heuristic as shipped (120/120 identical), and recalibrated it misses free captures that the heuristic never misses."
+  },
+  "recommendedNextStep": "Decide the programme direction rather than adding another training variant. Every route so far reduces to copying the policy it must beat. Option (a): build a genuinely stronger teacher with a deterministic, capture-aware leaf and re-qualify it against v13/tools/teacher_tactical_suite.json. Option (b): stop the supervised branch and deliver the located negative results as the finding.",
+  "explicitlyNotClaimed": [
+    "Any playing-strength improvement",
+    "That diag_grouped_s42 is strong - delta -0.25 on one weakly-discriminating map is not strength",
+    "That the search teacher is qualified, at any configuration",
+    "Cross-map or 4-player generalisation",
+    "That the 99% tiny-fit diagnostic was performed - it was not"
+  ]
+}

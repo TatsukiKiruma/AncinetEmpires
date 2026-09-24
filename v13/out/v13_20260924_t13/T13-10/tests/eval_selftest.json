@@ -1,0 +1,72 @@
+{
+  "schema": "v13_eval_selftest_1",
+  "derivedFrom": [
+    {
+      "path": "T13-02/selftest_duel_2seeds.json",
+      "exists": true,
+      "sha256": "7f2c651ab453b9960bb292d87844fa2b69e627f8bf6d42e61a334d90be67a83a"
+    },
+    {
+      "path": "T13-02/fault_stepcap_duel.json",
+      "exists": true,
+      "sha256": "685ba100d082683925d822b3be9c3b48a047d6dc40a8bb948a8ce17adecc41a4"
+    }
+  ],
+  "runs": [
+    {
+      "name": "duel_2seeds_self_test",
+      "command": "eval_paired_v3.ts --candidate heuristic --scenario \"SDPLAN:sd-normal:(2) Duel.aem\" --seeds 2026070501,2026070502 --max-steps 20000 --selftest",
+      "seeds": [
+        2026070501,
+        2026070502
+      ],
+      "seats": [
+        0,
+        1
+      ],
+      "selfTest": {
+        "expectation": "with --candidate heuristic both arms run the same policy on the same streams; winner, steps, plies, turns and full trajectory digest must be identical, and the mirror verdict re-derived for the candidate seat must equal the candidate verdict",
+        "comparedFields": [
+          "winnerAllianceId",
+          "steps",
+          "plies",
+          "turns",
+          "trajectoryDigest",
+          "actionDigest",
+          "outcomeKind(viewed for the candidate seat)"
+        ],
+        "mismatches": [],
+        "identical": true,
+        "allDeltasZero": true
+      },
+      "accounting": {
+        "plannedSeatArms": 4,
+        "executedSeatArms": 4,
+        "independentMirrorGames": 2,
+        "mirrorRowsReferencingAMirror": 4,
+        "independenceWarning": "seat arms within one seed share a single mirror game; independentMirrorGames (not the row count) is the number of independent all-heuristic observations",
+        "naturalFinishedSeatArms": 4,
+        "undecidedSeatArms": 0,
+        "errorSeatArms": 0
+      }
+    },
+    {
+      "name": "fault_injection_step_cap",
+      "command": "eval_paired_v3.ts --candidate heuristic --fault-inject step-cap",
+      "faultInjection": {
+        "kind": "step-cap",
+        "expectation": "a forced step cap must surface as STEP_LIMIT, never as NATURAL_LOSS",
+        "observed": {
+          "STEP_LIMIT": 2
+        },
+        "classifiedCorrectly": true
+      }
+    }
+  ],
+  "protocolDefectsFoundByThisSelfTest": [
+    "the mirror arm ran with a null viewer, so classifyOutcome scored it NATURAL_LOSS purely because that branch requires a non-null perspective",
+    "the self-test originally skipped playing mirrors under --candidate heuristic, which made the comparison vacuous"
+  ],
+  "verdict": "PASS",
+  "environmentNote": "vitest cannot run in this sandbox (esbuild spawns a child process, denied with EPERM); TypeScript tests run through the repository's own in-process runner instead"
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "v13_search_teacher_eval_1",
+  "generatedAt": "2026-09-24T13:22:21.833Z",
+  "scenarioId": "SDPLAN:sd-normal:(3) Midway.aem",
+  "seeds": [
+    2026070501
+  ],
+  "seats": [
+    0,
+    1,
+    2
+  ],
+  "calibratedKernel": {
+    "topK": 64,
+    "oppProbeK": 8,
+    "friendlyRolloutSteps": 4,
+    "takeoverThreshold": 0,
+    "vetoMargin": 0,
+    "dangerLine": null
+  },
+  "accounting": {
+    "plannedSeatArms": 3,
+    "executedSeatArms": 3,
+    "independentMirrorGames": 1,
+    "naturalSeatArms": 0,
+    "undecidedSeatArms": 3,
+    "errorSeatArms": 0
+  },
+  "takeoverInstrumentation": {
+    "searchDecisions": 175,
+    "decisionsWhereSearchDifferedFromHeuristic": 88,
+    "fraction": 0.5028571428571429
+  },
+  "result": {
+    "searchNaturalWins": 0,
+    "naturalSeatArms": 0,
+    "mirrorSeatWins": 0,
+    "deltaOverNaturalArms": null
+  },
+  "rows": [
+    {
+      "seed": 2026070501,
+      "seat": 0,
+      "seatAlliance": 0,
+      "mirrorOutcome": "NATURAL_LOSS",
+      "search": {
+        "outcomeKind": "WALL_TIMEOUT",
+        "winnerAllianceId": null,
+        "steps": 185,
+        "turns": 7,
+        "plies": 19,
+        "decisions": 70,
+        "takeoverCount": 32,
+        "error": null,
+        "wallMs": 317897
+      },
+      "mirrorWonThisSeat": false,
+      "delta": 0
+    },
+    {
+      "seed": 2026070501,
+      "seat": 1,
+      "seatAlliance": 1,
+      "mirrorOutcome": "NATURAL_LOSS",
+      "search": {
+        "outcomeKind": "WALL_TIMEOUT",
+        "winnerAllianceId": null,
+        "steps": 161,
+        "turns": 6,
+        "plies": 17,
+        "decisions": 57,
+        "takeoverCount": 30,
+        "error": null,
+        "wallMs": 311624
+      },
+      "mirrorWonThisSeat": false,
+      "delta": 0
+    },
+    {
+      "seed": 2026070501,
+      "seat": 2,
+      "seatAlliance": 2,
+      "mirrorOutcome": "NATURAL_LOSS",
+      "search": {
+        "outcomeKind": "WALL_TIMEOUT",
+        "winnerAllianceId": null,
+        "steps": 174,
+        "turns": 6,
+        "plies": 18,
+        "decisions": 48,
+        "takeoverCount": 26,
+        "error": null,
+        "wallMs": 316277
+      },
+      "mirrorWonThisSeat": false,
+      "delta": 0
+    }
+  ],
+  "boundary": "Development reading. One map, one seed block, seat arms share a single mirror per seed. Undecided arms are reported, not counted as losses. No cross-map claim."
+}

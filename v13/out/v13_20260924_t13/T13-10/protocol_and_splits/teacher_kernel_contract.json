@@ -1,0 +1,94 @@
+{
+  "schema": "v13_teacher_kernel_contract_1",
+  "runId": "v13_20260924_t13",
+  "task": "T13-06",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "verdict": "UNQUALIFIED_AS_SHIPPED__QUALIFIED_OFFLINE_AFTER_CALIBRATION__UNQUALIFIED_ONLINE",
+  "shippedConfig": {
+    "source": "src/game/ai/battle_search_ai.ts:61-66",
+    "topK": 10,
+    "oppProbeK": 6,
+    "friendlyRolloutSteps": 3,
+    "takeoverThreshold": 1200,
+    "vetoMargin": 800,
+    "dangerLine": -1500,
+    "measuredLeafMarginMedianRange": [0, 75],
+    "measuredLeafMarginMax": 613,
+    "consequence": "the takeover branch is unreachable in practice: the leaf margin never approaches 1200"
+  },
+  "calibratedConfig": {
+    "topK": 64,
+    "oppProbeK": 8,
+    "friendlyRolloutSteps": 4,
+    "takeoverThreshold": 0,
+    "vetoMargin": 0,
+    "dangerLine": "POSITIVE_INFINITY (always take the best leaf)",
+    "status": "NOT COMMITTED TO SOURCE - recorded here as the configuration under test"
+  },
+  "measurements": {
+    "agreementWithPlainHeuristic": {
+      "maps": ["(2) Duel.aem", "(3) Midway.aem", "(3) Frozen fields.aem", "(4) Crossroads.aem"],
+      "decisions": 120,
+      "agreed": 120,
+      "rate": 1.0,
+      "branchesTaken": {"FALLBACK_TO_HEURISTIC": 120},
+      "evidence": ["T13-06/teacher_agreement.json", "T13-06/agreement__2__Duel_aem.json",
+                   "T13-06/agreement__3__Midway_aem.json", "T13-06/agreement__3__Frozen_fields_aem.json",
+                   "T13-06/agreement__4__Crossroads_aem.json"]
+    },
+    "thresholdVsSignal": {
+      "decisions": 24,
+      "forcedTakeoverEqualsDefaultThreshold": 7,
+      "forcedTakeoverEqualsHeuristic": 7,
+      "topK64ForcedEqualsHeuristic": 7,
+      "topK64ForcedDiffersFromTopK10Forced": 4,
+      "conclusion": "THRESHOLD problem, not a signal problem: forcing takeover changes the action in 17/24 decisions",
+      "evidence": ["T13-06/teacher_signal_probe.json"]
+    },
+    "pairedLeafGain": {
+      "proxyOnly": true,
+      "metric": "leaf(calibrated search choice) - leaf(heuristic choice), same state, same evaluator, fresh kernels",
+      "decisions": 16,
+      "better": 10,
+      "equal": 6,
+      "worse": 0,
+      "gainMin": 0,
+      "gainP25": 0,
+      "gainMedian": 75,
+      "gainP75": 300,
+      "gainMax": 582,
+      "evidence": ["T13-06/teacher_leaf_gain.json"]
+    },
+    "naturalGames": {
+      "scenario": "SDPLAN:sd-normal:(3) Midway.aem",
+      "seeds": [2026070501],
+      "seats": [0, 1, 2],
+      "seatArms": 3,
+      "naturalArms": 0,
+      "wallTimeouts": 3,
+      "stepsReached": [185, 161, 174],
+      "mirrorSteps": 2079,
+      "takeoverRate": 0.5028571428571429,
+      "conclusion": "the calibrated kernel cannot act as a 1-second online policy: every arm hit the 300 s wall clock",
+      "evidence": ["T13-06/eval_search_teacher.json"]
+    }
+  },
+  "actionCodeAlignment": "every comparison in every probe aligns on the action's own encodeAction code, never on array index",
+  "rngContract": {
+    "requiredByTaskbook": "hash(stateHash, actionCode, rolloutReplicate, kernelVersion)",
+    "currentImplementation": "the kernel reuses one stateful HeuristicAI whose rng advances across calls",
+    "measuredEffect": "order-dependence probe returned 0/204 changed values, so no impact was DEMONSTRATED; the contract is still unimplemented and should be adopted before labels are trusted across a candidate reorder",
+    "probeCaveat": "an earlier version of the probe rebuilt the kernel per permutation, which reset the stream and produced a vacuous 0; that is fixed and the limitation is recorded rather than hidden"
+  },
+  "whatThisLicenses": [
+    "The B2 search-distillation branch may stay OPEN, but only as an OFFLINE label source.",
+    "No online use of this kernel in the 1-second deployment path.",
+    "No strength claim: neither the V12 17/20 nor anything measured here supports one."
+  ],
+  "whatIsStillMissing": [
+    "Tactical regression set (immediate win, commander rescue, move-then-attack, min-range, castle/pending, recruit vs economy, end-turn timing, multi-player next-actor threat) - NOT BUILT.",
+    "A bounded, cancellable kernel version with a legal fallback for natural-game evaluation.",
+    "Teacher recall re-measured against the new candidate ordering (T13-04's 78.75% at cap 48 used the old order).",
+    "The 128-decision label pilot with a quality check before the 2,048 cap is approached."
+  ]
+}

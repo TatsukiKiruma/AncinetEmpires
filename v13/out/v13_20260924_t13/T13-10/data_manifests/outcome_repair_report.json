@@ -1,0 +1,26 @@
+{
+  "schema": "v13_outcome_repair_report_1",
+  "derivedFrom": [
+    {
+      "path": "T13-03/dataset_v3_manifest.json",
+      "exists": true,
+      "sha256": "03638284ded3d5b15cfe66d7136c4c3274d0d6fb3403975a4b668d8bdfdf5be5"
+    }
+  ],
+  "censoredRoots": {
+    "rootsWithoutTerminalWinner": 7,
+    "rootsWithTerminalWinner": 30,
+    "totalRoots": 37
+  },
+  "labelIntegrity": {
+    "rowsWithNonNullValueTarget": 35195,
+    "rowsWithNullValueTarget": 13519,
+    "rowsAgreeingWithSourceTerminalWinner": 35195,
+    "rowsDisagreeingWithSourceTerminalWinner": 0,
+    "disagreeExamples": []
+  },
+  "repairAction": "NONE PERFORMED",
+  "repairRationale": "T13-03 permits repairing an absent terminal label only through a trusted episode summary or replay evidence. The 7 censored roots have no such evidence available in this run, so their rows keep valueTarget = null and valueLossMask = false. No label was guessed and adjudicatedWinner was never substituted for naturalWinner.",
+  "upstreamFinding": "v12/out/spatial/T12-04_dataset_report.json and the V12 follow-up report both attribute the missing labels to the upstream export (baseline_dataset.jsonl carries winnerAfter for only 30 of 37 episodes), not to the converter; the converter's derivation was independently confirmed correct here (35,195/35,195 agree).",
+  "verdict": "CONFIRMED_CORRECT_BUT_INCOMPLETE - the labels that exist are right; 7 roots remain censored and were not repaired"
+}

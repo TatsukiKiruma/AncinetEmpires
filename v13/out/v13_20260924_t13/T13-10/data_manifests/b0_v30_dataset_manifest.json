@@ -1,0 +1,130 @@
+{
+  "schema": "v13_dataset_subset_manifest_1",
+  "config": {
+    "comment": "T13-07 B0 pilot subset. 14 train roots + 4 val roots, one named teacher (heuristic), full candidate sets, mid-episode phase window biased toward broad action spaces.",
+    "pool": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+    "source": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+    "provenanceFile": "v13/out/v13_20260924_t13/T13-03/teacher_provenance_by_row.txt",
+    "archiveId": "agent_upgrade_20260919_01/baseline_dataset",
+    "outDir": "v13/out/v13_20260924_t13/T13-07/data_v3_b0",
+    "labelTeacherId": "heuristic",
+    "perRootRowCap": 160,
+    "minLegalActions": 8,
+    "phaseLo": 0.1,
+    "phaseHi": 0.9,
+    "trainRootFamilies": [
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1",
+      "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10",
+      "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15",
+      "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2",
+      "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8"
+    ],
+    "valRootFamilies": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13"
+    ],
+    "splitRiskNote": "Validation roots are whole episodes drawn from the SAME maps and scenarios as the training roots, so the partition is independent by root family but not by map or scenario. Any result must be reported as leave-one-root-out within a fixed map set, not as cross-map generalisation."
+  },
+  "rows": {
+    "train": 1962,
+    "val": 477,
+    "total": 2439
+  },
+  "roots": {
+    "train": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6",
+      "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8",
+      "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17",
+      "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16",
+      "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18",
+      "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19"
+    ],
+    "val": [
+      "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4",
+      "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7",
+      "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13",
+      "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1"
+    ]
+  },
+  "policyTallyOfWrittenRows": {
+    "heuristic": 2439
+  },
+  "policyTallyBeforeTeacherFilter": {
+    "heuristic": 2439,
+    "apk-like": 761
+  },
+  "perRootRowsOfWrittenRows": {
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571501#0": 122,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571502#1": 124,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671509#0": 129,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683504#1": 72,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687507#2": 95,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Glu.aem#2026689501#3": 142,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Frozen fields.aem#2026671515#4": 126,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683505#5": 122,
+    "SDPLAN:sd-3p-high-gold-extra:(3) Midway.aem#2026687503#6": 78,
+    "SDPLAN:sd-3p-high-gold-extra:(3) classic 2.aem#2026683501#7": 76,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Midway.aem#2026787503#8": 123,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789509#9": 158,
+    "SDPLAN:sd-3p-low-unit-extra:(3) classic 2.aem#2026783513#10": 117,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Frozen fields.aem#2026771504#11": 159,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789507#13": 151,
+    "SDPLAN:sd-3p-low-unit-extra:(3) Glu.aem#2026789511#15": 155,
+    "SDPLAN:sd-3p-normal-extra:(3) Glu.aem#2026589534#16": 148,
+    "SDPLAN:sd-3p-normal-extra:(3) Frozen fields.aem#2026571510#17": 160,
+    "SDPLAN:sd-3p-normal-extra:(3) Midway.aem#2026587505#18": 81,
+    "SDPLAN:sd-3p-normal-extra:(3) classic 2.aem#2026583539#19": 101
+  },
+  "files": {
+    "pool": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0\\pool_v3.jsonl",
+      "sha256": "96301e4af66571df83afa6c52b4b4ac3c65bae1c79eaf6a9b5f86230f05e4cd9"
+    },
+    "train": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0\\train.jsonl",
+      "sha256": "da14e9611e8cdc4de287e83ed957aaf0c5cfeca86cd4234209b82d442b48ea89"
+    },
+    "val": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0\\val.jsonl",
+      "sha256": "dae35fc178909ce66f3bb251e4707891b9848f670203fa582cbd26c9f2053965"
+    },
+    "splitManifest": {
+      "path": "v13\\out\\v13_20260924_t13\\T13-07\\data_v3_b0\\split_manifest.json",
+      "sha256": "f8afd0d407af5d140ccf28b4c7ffdb22626512507919e5704fe2fe9bad3afca5"
+    }
+  },
+  "provenance": {
+    "labelTeacherId": "heuristic",
+    "behaviorPolicyId": "per row, recovered by positional alignment (T13-03)",
+    "sampleIdRule": "sha256(archiveId, episodeId, step, subjectPlayer, schemaVersion)[:24]",
+    "stateProvenance": "spatialTensor and candidate features are copied from the converted pool, which T13-03 verified is positionally aligned with the source archive; no state was re-synthesised"
+  },
+  "boundaries": [
+    "This is a SUBSET of already-converted states, not a new independent sample of games.",
+    "Rows are chosen by action-space breadth within a mid-episode phase window, so the subset is deliberately biased toward broad decisions; it is a pilot, not a representative sample of the pool.",
+    "valueLossMask equals (valueTarget is not None) by construction, so the value loss can never disagree with its mask (see T13-01)."
+  ]
+}

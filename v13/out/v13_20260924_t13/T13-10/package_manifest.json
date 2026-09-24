@@ -1,0 +1,413 @@
+{
+  "schema": "v13_delivery_package_1",
+  "runId": "v13_20260924_t13",
+  "builtBy": "v13/tools/build_delivery_package.py",
+  "structure": {
+    "final_summary.md": "round-by-round summary and the seven taskbook questions",
+    "task_status.json": "authoritative per-task status",
+    "source_snapshot.json": "HEAD, dirty diff, environment",
+    "artifact_identity.json": "real SHA-256 for every artifact",
+    "protocol_and_splits/": "evaluation protocol, teacher kernel contract, frozen splits",
+    "tests/": "regression and self-test evidence",
+    "data_manifests/": "dataset identity, provenance, candidate contract, parity",
+    "training_runs/": "B0 metrics, consumption ledgers, reports (v3.0 and v3.1)",
+    "match_results/": "checkpoint matrix, paired results, search-teacher evaluation",
+    "failure_replays/": "the negative results and the evidence that locates them"
+  },
+  "copied": [
+    {
+      "from": "final_summary.md",
+      "to": "final_summary.md",
+      "sha256": "d1453b5f236955c920eee19ffc24bb0222b2c866dfc95c28ddd3383678e02dd7",
+      "bytes": 12101
+    },
+    {
+      "from": "task_status.json",
+      "to": "task_status.json",
+      "sha256": "1d469eb092ecc35e652b9fb0e30dbafa918a4964c0f737b3aafa0449af238726",
+      "bytes": 11796
+    },
+    {
+      "from": "promotion_decision.json",
+      "to": "promotion_decision.json",
+      "sha256": "1765fb4af1e6c18d4e582da810200fc65e41360520f38e8713bf30c811430fc5",
+      "bytes": 6241
+    },
+    {
+      "from": "reproduction_commands.md",
+      "to": "reproduction_commands.md",
+      "sha256": "229acc50eb5e7200d16385454ef467a496d9a31b4ee615b82f664b00cb7a4d40",
+      "bytes": 5574
+    },
+    {
+      "from": "T13-00\\source_snapshot.json",
+      "to": "source_snapshot.json",
+      "sha256": "c283c2b6a92652ac1a7be8982f56a8320eac3b0c7eb9f59dff29d9e364c5db45",
+      "bytes": 1342
+    },
+    {
+      "from": "T13-00\\artifact_identity.json",
+      "to": "artifact_identity.json",
+      "sha256": "9bc627a3ba3429fee474d0ddbd352801c8593913f7bf0444f906465ad714e7d7",
+      "bytes": 43488
+    },
+    {
+      "from": "T13-00\\claim_ledger.json",
+      "to": "claim_ledger.json",
+      "sha256": "0b9d20872672b100be9dcdde6b863a2f2882859e63f33ff96cc5c58dad6ccefe",
+      "bytes": 17535
+    },
+    {
+      "from": "T13-07\\data_v3_b0\\split_manifest.json",
+      "to": "protocol_and_splits\\b0_v30_split_manifest.json",
+      "sha256": "f8afd0d407af5d140ccf28b4c7ffdb22626512507919e5704fe2fe9bad3afca5",
+      "bytes": 1503
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\split_manifest.json",
+      "to": "protocol_and_splits\\b0_v31_split_manifest.json",
+      "sha256": "8bfac98d22b24ce551af8c3238f6068fcaacbf48ff1bc624571db75a3043d210",
+      "bytes": 1504
+    },
+    {
+      "from": "T13-02\\eval_protocol_v3.json",
+      "to": "protocol_and_splits\\eval_protocol_v3.json",
+      "sha256": "b8849bb3d0c69e5b704b02f84d7f35f0df3d03a05ac530870f07ee7514d64454",
+      "bytes": 2690
+    },
+    {
+      "from": "T13-06\\teacher_kernel_contract.json",
+      "to": "protocol_and_splits\\teacher_kernel_contract.json",
+      "sha256": "0f1c0a7d9322e0556e496e6fd5fa777b7a01a3409ac45b3fae468e641bef2ce4",
+      "bytes": 4383
+    },
+    {
+      "from": "T13-01\\trainer_regression.json",
+      "to": "tests\\trainer_regression.json",
+      "sha256": "b28099d740c4b2f75cdeefb9bd69012a57885ff5ca7585a4eee518359f710984",
+      "bytes": 5204
+    },
+    {
+      "from": "T13-02\\eval_selftest.json",
+      "to": "tests\\eval_selftest.json",
+      "sha256": "2841a39a26322e7a8e31b9bf7ffc53943c664fec1576fce6f00b92c72964e7b3",
+      "bytes": 2793
+    },
+    {
+      "from": "T13-02\\checkpoint_identity_selftest.json",
+      "to": "tests\\checkpoint_identity_selftest.json",
+      "sha256": "ab3749e10c84d3127d768615794c9e9c06d5c1ca139f7809fc379ef5b42164d9",
+      "bytes": 1591
+    },
+    {
+      "from": "T13-06\\teacher_invariance_tests.json",
+      "to": "tests\\teacher_invariance_tests.json",
+      "sha256": "0fad6ee69caa7e98f4d917d17cf9d4614ba1083b4e7186f81f32ec14cf8b576f",
+      "bytes": 2786
+    },
+    {
+      "from": "T13-06\\teacher_tactical_suite.json",
+      "to": "tests\\teacher_tactical_suite.json",
+      "sha256": "6b0eb0f347b1373c476ddaecb8852ec26649555f7ec101a7cb5a77ba258f7614",
+      "bytes": 5930
+    },
+    {
+      "from": "T13-04\\python_ts_parity.json",
+      "to": "tests\\python_ts_parity.json",
+      "sha256": "f634b5127611770a6df4eb4a19e5dcf984ed3827d2610a0b6c35a0501d2e0b32",
+      "bytes": 1312
+    },
+    {
+      "from": "T13-04\\encoding_collision_cases.json",
+      "to": "tests\\encoding_collision_cases.json",
+      "sha256": "df37994d806cd51d45fc49f0ba2c57e6a1a2e424e85c4f20e0edb69afa6d6669",
+      "bytes": 1672
+    },
+    {
+      "from": "T13-03\\dataset_v3_manifest.json",
+      "to": "data_manifests\\dataset_v3_manifest.json",
+      "sha256": "03638284ded3d5b15cfe66d7136c4c3274d0d6fb3403975a4b668d8bdfdf5be5",
+      "bytes": 2896
+    },
+    {
+      "from": "T13-03\\teacher_mix_audit.json",
+      "to": "data_manifests\\teacher_mix_audit.json",
+      "sha256": "61d4002344421e48e8e8e724dafec20f718c2462dedced3c22767947cb673af4",
+      "bytes": 14029
+    },
+    {
+      "from": "T13-03\\outcome_repair_report.json",
+      "to": "data_manifests\\outcome_repair_report.json",
+      "sha256": "16f67e07dc01c43276b666aeab25f46afb7175b1496050f41fc319f3febf035e",
+      "bytes": 1468
+    },
+    {
+      "from": "T13-03\\lineage_split_check.json",
+      "to": "data_manifests\\lineage_split_check.json",
+      "sha256": "3ce3922af4f14e93de57106375f54a0e0e55ec61ff3aa9f9d025888f37e89e70",
+      "bytes": 2817
+    },
+    {
+      "from": "T13-07\\data_v3_b0\\dataset_v3_subset_manifest.json",
+      "to": "data_manifests\\b0_v30_dataset_manifest.json",
+      "sha256": "219676ad3fca9272489312f5c76ccf90611e990a6fe577f7cedf6e67af3476f3",
+      "bytes": 7289
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\dataset_v31_subset_manifest.json",
+      "to": "data_manifests\\b0_v31_dataset_manifest.json",
+      "sha256": "922a8ad765952cd5df1260046ffef81b6a00845c33034f58a8b1e8760122516e",
+      "bytes": 5159
+    },
+    {
+      "from": "T13-04\\candidate_contract.json",
+      "to": "data_manifests\\candidate_contract.json",
+      "sha256": "606c78d13029c92a1a95cde9c1295f6953bf60d7342c65d85f619d4957d11b67",
+      "bytes": 3923
+    },
+    {
+      "from": "T13-04\\candidate_coverage.json",
+      "to": "data_manifests\\candidate_coverage.json",
+      "sha256": "6c98cb380372a7c7685248455fab88463541e871edb1da01f73acac4a9d41b62",
+      "bytes": 2029
+    },
+    {
+      "from": "T13-04\\tiny_fit_metrics.json",
+      "to": "data_manifests\\tiny_fit_metrics.json",
+      "sha256": "4a6c51d49743e5f54c4e19501c3f22ce4ed3e57a492da4c346443123ad991fcd",
+      "bytes": 1298
+    },
+    {
+      "from": "T13-07\\runs\\s42\\metrics.json",
+      "to": "training_runs\\b0_v30_s42_metrics.json",
+      "sha256": "72f266542547a044dc9022476f0fd9c4540bbce5949d2f252cdf2161951c23a4",
+      "bytes": 2811
+    },
+    {
+      "from": "T13-07\\runs\\s42\\optimized.json",
+      "to": "training_runs\\b0_v30_s42_optimized.json",
+      "sha256": "b3c9b2c26c5ae04b617b21bf85f6601148d8483f55d9407fc764935cf6a54933",
+      "bytes": 72550
+    },
+    {
+      "from": "T13-07\\runs\\s42\\optimizer_update_ledger.jsonl",
+      "to": "training_runs\\b0_v30_s42_ledger.jsonl",
+      "sha256": "587c6fce1bb028fd715ecff659e0e0b8ad3526f1ce74d5e380bd9a85aad9a544",
+      "bytes": 546484
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s42\\metrics.json",
+      "to": "training_runs\\b0_v31_s42_metrics.json",
+      "sha256": "1c317b87284303387d0afcfee15cc7dd200237bbbe1c388a2371865fbfbd628b",
+      "bytes": 2762
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s42\\optimized.json",
+      "to": "training_runs\\b0_v31_s42_optimized.json",
+      "sha256": "ba4987190cd5940069e8d737dbc26ce893d15b241e5e1038dc555b46752fbf6b",
+      "bytes": 96650
+    },
+    {
+      "from": "T13-07\\runs\\s1337\\metrics.json",
+      "to": "training_runs\\b0_v30_s1337_metrics.json",
+      "sha256": "4adceb52ba8843896cf1202a6b0c7b7655b46d80cf2590fbaa32de62e4a98c25",
+      "bytes": 2820
+    },
+    {
+      "from": "T13-07\\runs\\s1337\\optimized.json",
+      "to": "training_runs\\b0_v30_s1337_optimized.json",
+      "sha256": "b3c9b2c26c5ae04b617b21bf85f6601148d8483f55d9407fc764935cf6a54933",
+      "bytes": 72550
+    },
+    {
+      "from": "T13-07\\runs\\s1337\\optimizer_update_ledger.jsonl",
+      "to": "training_runs\\b0_v30_s1337_ledger.jsonl",
+      "sha256": "1fdc275d63662bd03f9a86ac470b17b3b4dffe17c4c7b92108cc44dab739f970",
+      "bytes": 546484
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s1337\\metrics.json",
+      "to": "training_runs\\b0_v31_s1337_metrics.json",
+      "sha256": "adc0cf93dca964bba3e607939b7fa349ad41677c3d31e32a759b64084c60d15c",
+      "bytes": 2762
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s1337\\optimized.json",
+      "to": "training_runs\\b0_v31_s1337_optimized.json",
+      "sha256": "ba4987190cd5940069e8d737dbc26ce893d15b241e5e1038dc555b46752fbf6b",
+      "bytes": 96650
+    },
+    {
+      "from": "T13-07\\runs\\s2026\\metrics.json",
+      "to": "training_runs\\b0_v30_s2026_metrics.json",
+      "sha256": "0a9e3af9c30d7b13819e039038dac344bf7ecbd446e84513414536b1b57f3a5d",
+      "bytes": 2820
+    },
+    {
+      "from": "T13-07\\runs\\s2026\\optimized.json",
+      "to": "training_runs\\b0_v30_s2026_optimized.json",
+      "sha256": "b3c9b2c26c5ae04b617b21bf85f6601148d8483f55d9407fc764935cf6a54933",
+      "bytes": 72550
+    },
+    {
+      "from": "T13-07\\runs\\s2026\\optimizer_update_ledger.jsonl",
+      "to": "training_runs\\b0_v30_s2026_ledger.jsonl",
+      "sha256": "1f7782a351b022ddf72866df8fb223ccce4d9251d5763bccd67a83d0ef48bc1f",
+      "bytes": 546484
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s2026\\metrics.json",
+      "to": "training_runs\\b0_v31_s2026_metrics.json",
+      "sha256": "931bfd9c2d1695985a6199e8390236a174208b61a6c9a006ca777dc9e9900db2",
+      "bytes": 2772
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\runs\\s2026\\optimized.json",
+      "to": "training_runs\\b0_v31_s2026_optimized.json",
+      "sha256": "ba4987190cd5940069e8d737dbc26ce893d15b241e5e1038dc555b46752fbf6b",
+      "bytes": 96650
+    },
+    {
+      "from": "T13-07\\pilot_training_report.md",
+      "to": "training_runs\\pilot_training_report.md",
+      "sha256": "663d9a1d3049dd763df2c1395a6678a97b307ce37b2d2645b17b782a3ae28e3b",
+      "bytes": 7570
+    },
+    {
+      "from": "T13-07\\pilot_training_report_v31.md",
+      "to": "training_runs\\pilot_training_report_v31.md",
+      "sha256": "095b9df8decc7c3d15ca837dd25f637c426cf7591348a2ed5126953f01e675ab",
+      "bytes": 8723
+    },
+    {
+      "from": "T13-05\\existing_checkpoint_matrix.jsonl",
+      "to": "match_results\\existing_checkpoint_matrix.jsonl",
+      "sha256": "28099152c57ea2062d72a9a9a7264456ff0bb3314b81ec34922b55fc7ba24542",
+      "bytes": 9263
+    },
+    {
+      "from": "T13-05\\existing_checkpoint_summary.md",
+      "to": "match_results\\existing_checkpoint_summary.md",
+      "sha256": "5c0e3f2983965602198255e87f8f351cef98e515dc98f7d28e94d5d7e7799a06",
+      "bytes": 3372
+    },
+    {
+      "from": "T13-06\\eval_search_teacher.json",
+      "to": "match_results\\eval_search_teacher.json",
+      "sha256": "f9d9ec865401deeab30b79563ce99c8410b08125b59b529957dea551fcf8c600",
+      "bytes": 2348
+    },
+    {
+      "from": "T13-07\\eval_b0_s1337_midway.json",
+      "to": "match_results\\eval_b0_s1337_midway.json",
+      "sha256": "4093c6b7785f9c381d2e8978a3a3b95c118d1a1abaa65d7bdeff5a75969fa4f8",
+      "bytes": 24598
+    },
+    {
+      "from": "T13-07\\eval_b0_s2026_midway.json",
+      "to": "match_results\\eval_b0_s2026_midway.json",
+      "sha256": "76b95fe4ea923f67ead7272766c554064c0b4dd11ae7ada7b2364f23363f9016",
+      "bytes": 24583
+    },
+    {
+      "from": "T13-07\\eval_b0_s42_midway.json",
+      "to": "match_results\\eval_b0_s42_midway.json",
+      "sha256": "2c5baa1f1ab0f63e1abb1f17426ed07624754c058528485fe6bf94a2aa52858a",
+      "bytes": 24550
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\eval_b0v31_s1337_midway.json",
+      "to": "match_results\\eval_b0v31_s1337_midway.json",
+      "sha256": "fe1d98d4256e0711913d8d9bb531fc538f3e57c49356adbdf7643bf75519d890",
+      "bytes": 24610
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\eval_b0v31_s2026_midway.json",
+      "to": "match_results\\eval_b0v31_s2026_midway.json",
+      "sha256": "700dc153306f2a05caffc1f47ebc88ee5142c9d4a7bf86a0980072b7bd9cc78d",
+      "bytes": 24618
+    },
+    {
+      "from": "T13-07\\data_v3_b0_v31\\eval_b0v31_s42_midway.json",
+      "to": "match_results\\eval_b0v31_s42_midway.json",
+      "sha256": "97e2b2678c329a6a7729ec6957b93baf283295102230e73bb453e942bff5d6ec",
+      "bytes": 24597
+    },
+    {
+      "from": "T13-06\\teacher_qualification.md",
+      "to": "failure_replays\\teacher_qualification.md",
+      "sha256": "975a91ddd6e717ab2d43e0598e96c87a8483623c14a376ac12f5cffb0848d8cc",
+      "bytes": 6110
+    },
+    {
+      "from": "T13-06\\tactical_soundness_report.md",
+      "to": "failure_replays\\tactical_soundness_report.md",
+      "sha256": "37dab8ea6043c1d9d196b453b361e0e4b4aa63017e6ec96c3cc2e0dbd7bc0e01",
+      "bytes": 5779
+    },
+    {
+      "from": "T13-06\\teacher_signal_probe.json",
+      "to": "failure_replays\\teacher_signal_probe.json",
+      "sha256": "28165a958639dabe0abf4c0aba1a1ce75cb972803f68935b9d4fbc5c499273b9",
+      "bytes": 10424
+    },
+    {
+      "from": "T13-06\\teacher_leaf_gain.json",
+      "to": "failure_replays\\teacher_leaf_gain.json",
+      "sha256": "add47bcaeb3e469e334dee261e4a8d7688c82d5d9f06acbf459d218aa7b81902",
+      "bytes": 5782
+    },
+    {
+      "from": "T13-06\\teacher_agreement.json",
+      "to": "failure_replays\\teacher_agreement.json",
+      "sha256": "c5ab51360de64182200e12b200e665161638db78cde3fd056f50c2c341e65fe5",
+      "bytes": 13534
+    },
+    {
+      "from": "T13-06\\tactical_c4.json",
+      "to": "failure_replays\\tactical_c4.json",
+      "sha256": "f0c088046096c00138ef38632914280b45227f1a36480248dca744db387ecbd0",
+      "bytes": 31147
+    },
+    {
+      "from": "T13-06\\tactical_c16.json",
+      "to": "failure_replays\\tactical_c16.json",
+      "sha256": "f5a9e5151cdfb17b244bb9309b8b9d88da7c11c3e3e6a3816c6e064b3a1f0dbd",
+      "bytes": 31337
+    },
+    {
+      "from": "T13-06\\tactical_c32.json",
+      "to": "failure_replays\\tactical_c32.json",
+      "sha256": "89ed411400f2f824824a436ecbdb679331d4010d6c8d46f7ad77065d94d2b318",
+      "bytes": 31450
+    },
+    {
+      "from": "T13-02\\fault_stepcap_duel.json",
+      "to": "failure_replays\\fault_stepcap_duel.json",
+      "sha256": "685ba100d082683925d822b3be9c3b48a047d6dc40a8bb948a8ce17adecc41a4",
+      "bytes": 9459
+    },
+    {
+      "from": "T13-03\\T13-03_report.md",
+      "to": "failure_replays\\T13-03_report.md",
+      "sha256": "d8e38debfb6a278ce460de7b6b1751789571b38b79cb43991e2097fe8b33d186",
+      "bytes": 4752
+    },
+    {
+      "from": "T13-01\\trainer_fix_notes.md",
+      "to": "failure_replays\\trainer_fix_notes.md",
+      "sha256": "e7df83cf3c8a814037c92f7f39af54d68d6c9133b261dcd0b641be7d46f65bd0",
+      "bytes": 7589
+    }
+  ],
+  "missingSources": [],
+  "matrixRecords": 14,
+  "counts": {
+    "protocol_and_splits": 4,
+    "tests": 7,
+    "data_manifests": 9,
+    "training_runs": 17,
+    "match_results": 9,
+    "failure_replays": 11
+  }
+}

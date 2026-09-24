@@ -1,0 +1,234 @@
+{
+  "schema": "v13_teacher_tactical_suite_1",
+  "derivedFrom": [
+    {
+      "path": "T13-06/tactical_suite_extended.json",
+      "exists": true,
+      "sha256": "a16643294eedc185ae8922b01b7e9ce85779b89927589709a5f555ea6cece41f"
+    },
+    {
+      "path": "T13-06/tactical_soundness.json",
+      "exists": true,
+      "sha256": "7467829ea64bc573050de9b4574e014a357a25a4b7f090bf71ef174f2a7c3a96"
+    }
+  ],
+  "scenario": {
+    "plan": "sd-normal",
+    "map": "(3) Midway.aem",
+    "seed": 2026070501,
+    "seat": 0,
+    "subject": 0,
+    "players": [
+      0,
+      1,
+      2
+    ]
+  },
+  "boundedKernel": {
+    "maxCandidates": 16,
+    "decisions": 200,
+    "fallbacksUsed": 0,
+    "maxObservedDecisionMs": 17167
+  },
+  "decisionsProbed": 200,
+  "illegalKernelActions": 0,
+  "patternsCovered": [
+    "IMMEDIATE_CAPTURE",
+    "LETHAL_ATTACK",
+    "OWN_COMMANDER_THREAT",
+    "MIN_RANGE_PRESSURE",
+    "CASTLE_PENDING",
+    "END_TURN_TIMING",
+    "MULTIPLAYER_NEXT_ACTOR_THREAT"
+  ],
+  "summary": {
+    "CASTLE_PENDING": {
+      "decisions": 63,
+      "kernelTookTheTacticalAction": 0,
+      "kernelDeferred": 63,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 0,
+      "kernelRate": 0,
+      "heuristicRate": 0
+    },
+    "END_TURN_TIMING": {
+      "decisions": 8,
+      "kernelTookTheTacticalAction": 0,
+      "kernelDeferred": 8,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 0,
+      "kernelRate": 0,
+      "heuristicRate": 0
+    },
+    "IMMEDIATE_CAPTURE": {
+      "decisions": 17,
+      "kernelTookTheTacticalAction": 3,
+      "kernelDeferred": 14,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 17,
+      "kernelRate": 0.17647058823529413,
+      "heuristicRate": 1
+    },
+    "MULTIPLAYER_NEXT_ACTOR_THREAT": {
+      "decisions": 81,
+      "kernelTookTheTacticalAction": 50,
+      "kernelDeferred": 31,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 58,
+      "kernelRate": 0.6172839506172839,
+      "heuristicRate": 0.7160493827160493
+    },
+    "OWN_COMMANDER_THREAT": {
+      "decisions": 62,
+      "kernelTookTheTacticalAction": 34,
+      "kernelDeferred": 28,
+      "kernelIllegal": 0,
+      "heuristicTookTheTacticalAction": 41,
+      "kernelRate": 0.5483870967741935,
+      "heuristicRate": 0.6612903225806451
+    }
+  },
+  "decidingPattern": "IMMEDIATE_CAPTURE: the heuristic takes a free capture 100% of the time and the calibrated kernel takes it 17.6-23.1%, with the rate falling as the candidate budget rises",
+  "failureReplays": [
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 1
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 2
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 2
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 2
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 2
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 2
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 3
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 3
+    },
+    {
+      "pattern": "OWN_COMMANDER_THREAT",
+      "detail": null,
+      "turn": 3
+    },
+    {
+      "pattern": "OWN_COMMANDER_THREAT",
+      "detail": null,
+      "turn": 3
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 4
+    },
+    {
+      "pattern": "MULTIPLAYER_NEXT_ACTOR_THREAT",
+      "detail": {
+        "nextPlayer": 1,
+        "theirUnitId": "u_5",
+        "myUnitId": "u_10",
+        "distance": 1,
+        "reach": 1
+      },
+      "turn": 4
+    },
+    {
+      "pattern": "MULTIPLAYER_NEXT_ACTOR_THREAT",
+      "detail": {
+        "nextPlayer": 2,
+        "theirUnitId": "apk_u2",
+        "myUnitId": "u_8",
+        "distance": 1,
+        "reach": 1
+      },
+      "turn": 4
+    },
+    {
+      "pattern": "MULTIPLAYER_NEXT_ACTOR_THREAT",
+      "detail": {
+        "nextPlayer": 0,
+        "theirUnitId": "u_7",
+        "myUnitId": "apk_u2",
+        "distance": 1,
+        "reach": 1
+      },
+      "turn": 4
+    },
+    {
+      "pattern": "OWN_COMMANDER_THREAT",
+      "detail": null,
+      "turn": 4
+    },
+    {
+      "pattern": "IMMEDIATE_CAPTURE",
+      "detail": null,
+      "turn": 5
+    },
+    {
+      "pattern": "MULTIPLAYER_NEXT_ACTOR_THREAT",
+      "detail": {
+        "nextPlayer": 1,
+        "theirUnitId": "u_4",
+        "myUnitId": "u_10",
+        "distance": 1,
+        "reach": 1
+      },
+      "turn": 5
+    },
+    {
+      "pattern": "OWN_COMMANDER_THREAT",
+      "detail": null,
+      "turn": 5
+    },
+    {
+      "pattern": "MULTIPLAYER_NEXT_ACTOR_THREAT",
+      "detail": {
+        "nextPlayer": 1,
+        "theirUnitId": "u_4",
+        "myUnitId": "u_10",
+        "distance": 1,
+        "reach": 1
+      },
+      "turn": 5
+    },
+    {
+      "pattern": "OWN_COMMANDER_THREAT",
+      "detail": null,
+      "turn": 5
+    }
+  ],
+  "notCovered": [
+    "minimum-range counterattack: present in only a few decisions on this map, so the sample is too small to rate",
+    "lethal-attack and forced-end-turn patterns: recorded by the original suite but too rare on this map to rate"
+  ],
+  "boundary": [
+    "Every pattern is derived from the engine state and legal actions; none is hand-authored.",
+    "DEFERRED is not automatically wrong: a different move may be better. The heuristic is given identical treatment so the two rates are comparable.",
+    "One map, one seed. Directional."
+  ],
+  "verdict": "UNQUALIFIED - the teacher fails a tactical test the heuristic passes perfectly"
+}

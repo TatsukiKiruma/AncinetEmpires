@@ -1,0 +1,34 @@
+{
+  "schema": "v13_source_snapshot_1",
+  "runId": "v13_20260924_t13",
+  "reviewBaseline": {
+    "commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+    "branch": "path-b-spatial-ai"
+  },
+  "local": {
+    "commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+    "branch": "train/battle-ai-20260923",
+    "headEqualsReviewCommit": true,
+    "headReachableFromReviewBranch": true,
+    "statusPorcelain": [
+      "?? v13/"
+    ],
+    "dirtyDiffVsReviewCommitSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "dirtyDiffVsReviewCommitBytes": 0,
+    "dirtyDiffNote": "Untracked paths do not appear in a git diff; the porcelain list above is the authoritative record of untracked work."
+  },
+  "environment": {
+    "python": "3.12.10",
+    "pythonExecutable": "C:\\Users\\SHIINA\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+    "platform": "Windows-11-10.0.26340-SP0",
+    "processor": "AMD64 Family 26 Model 68 Stepping 0, AuthenticAMD",
+    "cpuCount": 16,
+    "node": "v22.18.0",
+    "torch": "2.14.0+cpu",
+    "torchCudaAvailable": false,
+    "torchThreads": 8,
+    "numpy": "2.2.6"
+  },
+  "uncommittedWritesByThisTask": "All V13 outputs are new files under v13/ only; no tracked file is modified by T13-00.",
+  "generatedAt": "2026-09-24T00:48:56.449964+00:00"
+}
