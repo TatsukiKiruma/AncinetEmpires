@@ -1,0 +1,87 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-24T12:02:29.706Z",
+  "gitHead": "a70e208b833632fc213308020cf1f2ec64b104ac",
+  "model": "LearnedDuelAI/policy/seat[v15p0/v16]",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "liberty",
+    "mapLabel": "(2) Liberty Port.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 8,
+    "oppDepth": 6,
+    "rollout": 3,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "bot": "policy",
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 2,
+    "heuWins": 2,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 20,
+      "steps": 607,
+      "ms": 22698,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 0,
+      "winnerPolicy": "heuristic",
+      "turns": 29,
+      "steps": 1145,
+      "ms": 26003,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 0,
+      "winnerPolicy": "new",
+      "turns": 26,
+      "steps": 882,
+      "ms": 26629,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 0,
+      "winnerPolicy": "heuristic",
+      "turns": 50,
+      "steps": 2626,
+      "ms": 56121,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    }
+  ]
+}

@@ -57,9 +57,9 @@ const swap = process.argv.includes('--swap');
 const botMode = arg('--bot', 'battle');
 const coverK = Number(arg('--coverK', '8'));
 const newAI = botMode === 'policy'
-  ? new LearnedDuelAI(undefined, { mode: 'policy', coverK })
+  ? new LearnedDuelAI(undefined, { mode: 'policy', coverK, seed: hBase + 778 })
   : botMode === 'vsearch'
-    ? new LearnedDuelAI(undefined, { mode: 'value-search', topK: 6, replyProbeMax: 3, coverK })
+    ? new LearnedDuelAI(undefined, { mode: 'value-search', topK: 6, replyProbeMax: 3, coverK, seed: hBase + 778 })
     : new BattleSearchAI(hBase + 777, { topK: 6, oppDepth: 3, friendlyRolloutSteps: 1, takeoverThreshold: 350, vetoMargin: 300, dangerLine: -800 });
 const heuH = new HeuristicAI(mulberry(hBase + (swap ? 1000 : 999)));
 const heuA = new HeuristicAI(mulberry(hBase + (swap ? 999 : 1000)));

@@ -1,0 +1,87 @@
+{
+  "kind": "battle_ai_eval",
+  "version": 1,
+  "generatedAt": "2026-09-24T12:02:08.055Z",
+  "gitHead": "a70e208b833632fc213308020cf1f2ec64b104ac",
+  "model": "LearnedDuelAI/policy/seat[v15p0/v16]",
+  "opponent": "HeuristicAI",
+  "config": {
+    "map": "crossing",
+    "mapLabel": "(2) The Crossing.aem",
+    "seed": 1001,
+    "safetyTurns": 600,
+    "topK": 8,
+    "oppDepth": 6,
+    "rollout": 3,
+    "takeover": 350,
+    "veto": 300,
+    "danger": -800,
+    "searchStart": 1,
+    "bot": "policy",
+    "uncapped": true
+  },
+  "summary": {
+    "games": 4,
+    "newWins": 0,
+    "heuWins": 4,
+    "draws": 0
+  },
+  "records": [
+    {
+      "game": 1,
+      "gameIndex": 0,
+      "seed": 1001,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 18,
+      "steps": 519,
+      "ms": 15601,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 2,
+      "gameIndex": 1,
+      "seed": 101004,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 0,
+      "winnerPolicy": "heuristic",
+      "turns": 19,
+      "steps": 554,
+      "ms": 16155,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 3,
+      "gameIndex": 2,
+      "seed": 201007,
+      "newGoesFirst": true,
+      "firstPolicy": "new",
+      "winner": 1,
+      "winnerPolicy": "heuristic",
+      "turns": 17,
+      "steps": 474,
+      "ms": 13877,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    },
+    {
+      "game": 4,
+      "gameIndex": 3,
+      "seed": 301010,
+      "newGoesFirst": false,
+      "firstPolicy": "heuristic",
+      "winner": 0,
+      "winnerPolicy": "heuristic",
+      "turns": 54,
+      "steps": 2637,
+      "ms": 63683,
+      "capped": false,
+      "newStats": "bot=learned-policy"
+    }
+  ]
+}

@@ -99,14 +99,16 @@ def scaler_fit(X):
     return mean, std
 
 
-def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth):
+def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth, flat_outcomes=False, win_only=False):
     # 默认只用获胜对局的 teacher 决策；--policy-all 则用全部 teacher 决策（含失败对局，保证 Icy 等弱图有表示）
     def usable(s):
         if s.get('policy') not in ('battle', 'dagger', 'selfplay') or not s.get('cands'):
             return False
         if not s['cands'] or len(s['cands'][0]) != act_dim:
             return False
-        return True if use_all else s.get('outcomeActing') == 1
+        if win_only and s.get('outcomeActing') != 1:
+            return False
+        return True if (use_all or win_only) else s.get('outcomeActing') == 1
     tr = [s for s in train if usable(s)]
     va = [s for s in val if usable(s)]
     print(f'[policy] train={len(tr)} val={len(va)} hidden={hidden} use_all={use_all}', flush=True)
@@ -136,12 +138,14 @@ def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth
     # 类型加权（cost-sensitive）：招募/攻击/capture 在标签中只占 10%/6%/3%，
     # 无加权时 net 学会 base rate（从不主动爆兵打架，mourning T5 坐拥350金零招募教训）；
     # wait/end 则因过产（55% vs teacher 32%）略微降权。
+    # v19 生产节律：mid-game 停产是系统性死因（crossing/mourning T5-T6 零招募接崩盘），
+    # 把生产/战斗动作权重拉满，让 net 在任何有钱有城时都倾向爆兵打架。
     TYPE_W = {
-        'recruit_to_castle': 3.0, 'recruit_and_deploy': 3.0,
-        'attack': 2.5, 'capture': 2.0, 'heal': 2.0, 'support': 2.0,
+        'recruit_to_castle': 8.0, 'recruit_and_deploy': 8.0,
+        'attack': 4.0, 'capture': 3.0, 'heal': 2.0, 'support': 2.0,
         'summon': 2.0, 'repair': 2.0, 'destroy_town': 2.0,
         'move': 1.0, 'post_attack_move': 1.0,
-        'wait': 0.7, 'end_turn': 0.7,
+        'wait': 0.5, 'end_turn': 0.5,
     }
 
     def behind_w(s):
@@ -161,6 +165,9 @@ def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth
         # 回报加权（reward-weighted regression，RL 式信号）：
         # 胜局决策学 2 遍，负局只学 0.25 遍（保留 Icy 等弱图表示但不模仿失败）。
         # 自博弈样本对比更强（胜×3/负×0.1）：on-policy 的赢法大力强化，输法几乎不学。
+        # --flat-outcomes：P1 干净配方（结局加权害 P1：v12/v16 消融，一律 1.0）。
+        if flat_outcomes:
+            return 1.0
         oc = s.get('outcomeActing')
         if s.get('policy') == 'selfplay':
             if oc == 1:
@@ -301,6 +308,10 @@ def main():
     ap.add_argument('--tag', default='v2')
     ap.add_argument('--policy-all', action='store_true',
                     help='policy 用全部 teacher 决策（含失败对局），否则只用获胜对局')
+    ap.add_argument('--flat-outcomes', action='store_true',
+                    help='关闭结局加权（P1-net 干净配方：结局加权害 P1，见 v11 vs v12 消融）')
+    ap.add_argument('--win-only', action='store_true',
+                    help='只学胜局决策（R7 教训：学输棋补救=学怪态；输棋信号只进 value，不进 policy）')
     ap.add_argument('--pairs-in', default='',
                     help='value_pair jsonl，逗号分隔；为空则不做 pairwise')
     args = ap.parse_args()
@@ -317,7 +328,7 @@ def main():
     ptr, pva = split_games(pol_samples)
     vtr, vva = split_games(val_samples)
 
-    pmodel, pmean, pstd = train_policy(ptr, pva, args.epochs_policy, args.lr_policy, device, args.hidden, args.policy_all, args.act_dim, args.depth)
+    pmodel, pmean, pstd = train_policy(ptr, pva, args.epochs_policy, args.lr_policy, device, args.hidden, args.policy_all, args.act_dim, args.depth, args.flat_outcomes, args.win_only)
     pacc = eval_policy(pmodel, pva, pmean, pstd, device)
     all_pairs = load_pairs(args.pairs_in.split(',')) if args.pairs_in else []
     # pair 按对局分组做 holdout（与 split_games 同种子，保证诚实 valPairAcc）

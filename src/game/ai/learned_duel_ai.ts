@@ -26,6 +26,18 @@ export interface LearnedDuelOptions {
   beamW?: number;
   /** beam 搜索：对手束宽 */
   oppW?: number;
+  /** 内部 heuristic 抖动种子；不传则用 Math.random（自博弈多样性），评测必须传（可复现） */
+  seed?: number;
+}
+
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 export class LearnedDuelAI {
@@ -43,7 +55,7 @@ export class LearnedDuelAI {
     this.overrideNet = net ?? null;
     // 默认使用分色模型（P0-net/P1-net 按行动座位选择）；显式传 net 或 seatNets:false 则用单模型
     this.useSeatNets = (net === undefined) && (options?.seatNets !== false);
-    this.heuristic = new HeuristicAI();
+    this.heuristic = new HeuristicAI(options?.seed !== undefined ? mulberry32(options.seed) : Math.random);
     this.mode = options?.mode ?? 'value-search';
     this.topK = options?.topK ?? 8;
     this.replyProbeMax = options?.replyProbeMax ?? 6;

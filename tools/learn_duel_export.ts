@@ -173,8 +173,8 @@ async function main() {
         // DAgger：学生（当前 learned policy）执 teacher 色，heuristic 执另一色；
         // 学生访问态赛后由 teacher 重标注。
         // 自博弈：学生双方互弈（seat nets 自动按座位选网），记录双方自己动作+结局（on-policy RL 数据）。
-        const student = dagger || selfplay ? new LearnedDuelAI(undefined, { mode: 'policy' }) : null;
-        const studentB = selfplay ? new LearnedDuelAI(undefined, { mode: 'policy' }) : null;
+        const student = dagger || selfplay ? new LearnedDuelAI(undefined, { mode: 'policy', seed: hBase + 778 }) : null;
+        const studentB = selfplay ? new LearnedDuelAI(undefined, { mode: 'policy', seed: hBase + 779 }) : null;
         const heuA = new HeuristicAI(mulberry(hBase + 999));
         const heuB = new HeuristicAI(mulberry(hBase + 1000));
         const scorer = new HeuristicAI(mulberry(hBase + 4242));

@@ -16,6 +16,7 @@ import type { GameState } from '../src/game/types';
 import { HeuristicAI } from '../src/game/ai/heuristic_ai';
 import { BattleSearchAI } from '../src/game/ai/battle_search_ai';
 import { LearnedDuelAI } from '../src/game/ai/learned_duel_ai';
+import { LearnedMctsAI } from '../src/game/ai/learned_mcts_ai';
 import { learnedModelTag, learnedSeatModelTag } from '../src/game/ai/learned_duel_net';
 
 function gitHead(): string {
@@ -82,12 +83,14 @@ function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; t
     searchStartTurn: opts.searchStart
   });
   const coverK = parseArg('--coverK', 8);
-  const learnedPolicy = new LearnedDuelAI(undefined, { mode: 'policy', coverK });
-  const learnedSearch = new LearnedDuelAI(undefined, { mode: 'value-search', topK: opts.topK, replyProbeMax: opts.oppK, coverK });
-  const learnedBeam = new LearnedDuelAI(undefined, { mode: 'beam', beamW: opts.topK, oppW: Math.min(3, opts.oppK), coverK: 0 });
-  void learnedBeam;
-  const newAI = opts.bot === 'policy' ? learnedPolicy : opts.bot === 'vsearch' ? learnedSearch : opts.bot === 'beam' ? learnedBeam : battleAI;
-  const newName = opts.bot === 'policy' ? 'learned-policy' : opts.bot === 'vsearch' ? 'learned-vsearch' : opts.bot === 'beam' ? 'learned-beam' : 'battle';
+  const botSeed = hSeedBase + (opts.bot === 'policy' ? 111 : opts.bot === 'vsearch' ? 222 : opts.bot === 'beam' ? 333 : 444);
+  const learnedPolicy = new LearnedDuelAI(undefined, { mode: 'policy', coverK, seed: botSeed });
+  const learnedSearch = new LearnedDuelAI(undefined, { mode: 'value-search', topK: opts.topK, replyProbeMax: opts.oppK, coverK, seed: botSeed });
+  const learnedBeam = new LearnedDuelAI(undefined, { mode: 'beam', beamW: opts.topK, oppW: Math.min(3, opts.oppK), coverK: 0, seed: botSeed });
+  const sims = parseArg('--sims', 16);
+  const learnedMcts = new LearnedMctsAI(hSeedBase + 555, { sims, cPuct: 1.2, maxBranch: 8 });
+  const newAI = opts.bot === 'policy' ? learnedPolicy : opts.bot === 'vsearch' ? learnedSearch : opts.bot === 'beam' ? learnedBeam : opts.bot === 'mcts' ? learnedMcts : battleAI;
+  const newName = opts.bot === 'policy' ? 'learned-policy' : opts.bot === 'vsearch' ? 'learned-vsearch' : opts.bot === 'beam' ? 'learned-beam' : opts.bot === 'mcts' ? `learned-mcts${sims}` : 'battle';
   const heuAI = new HeuristicAI(mulberry(hSeedBase + 999));
   // 给新模型不同对局不同 rng：BattleSearchAI 内部 heuristic 抖动用派生流
   const policyOf = (pid: number): string => {
@@ -131,7 +134,7 @@ async function main() {
   const danger = parseArg('--danger', -800);
   const searchStart = parseArg('--searchStart', 1);
   const botRaw = parseStringArg('--bot', 'battle').toLowerCase();
-  const bot = botRaw === 'policy' || botRaw === 'vsearch' || botRaw === 'beam' ? botRaw : 'battle';
+  const bot = botRaw === 'policy' || botRaw === 'vsearch' || botRaw === 'beam' || botRaw === 'mcts' ? botRaw : 'battle';
   const onlyRaw = process.argv.includes('--only') ? process.argv[process.argv.indexOf('--only') + 1] ?? '' : '';
   const only = onlyRaw.split(',').map(x => Number(x.trim())).filter(x => Number.isInteger(x) && x >= 1);
   const indices = only.length > 0 ? only.map(x => x - 1) : Array.from({ length: games }, (_, i) => i);
