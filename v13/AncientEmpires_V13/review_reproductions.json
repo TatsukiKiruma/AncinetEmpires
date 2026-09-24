@@ -1,0 +1,57 @@
+{
+  "reviewed_commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "execution_scope": "ISOLATED_EXPRESSION_REPRODUCTION_NOT_REPOSITORY_TESTS",
+  "source": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/python/train_spatial_resnet.py#L185-L375",
+  "loss_accounting": {
+    "batch_losses": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "correct_mean": 2.0,
+    "current_mean_without_cap_break": 4.0,
+    "current_mean_with_last_batch_cap_break": 3.0,
+    "scope": "Metric accounting only; the source calls backward/step once per batch."
+  },
+  "value_mask": {
+    "torch_version": "2.10.0+cpu",
+    "targets": [
+      1.0,
+      -1.0
+    ],
+    "value_loss_mask": [
+      true,
+      false
+    ],
+    "predictions": [
+      0.25,
+      0.75
+    ],
+    "old_loss": 1.0625,
+    "fixed_loss": 0.5625,
+    "old_gradient": [
+      0.5,
+      0.0
+    ],
+    "fixed_gradient": [
+      -1.5,
+      0.0
+    ],
+    "broadcast_warnings": [
+      "Using a target size (torch.Size([2])) that is different to the input size (torch.Size([1])). This will likely lead to incorrect results due to broadcasting. Please ensure they have the same size."
+    ],
+    "two_predictions_three_targets_error": "The size of tensor a (2) must match the size of tensor b (3) at non-singleton dimension 0",
+    "scope": "Mixed non-null targets with different masks; this does not show that V12 budget runs used such batches."
+  },
+  "mirror_counting": {
+    "constructed_from_report_protocol": true,
+    "mirror_row_count": 8,
+    "unique_mirror_configurations": 2,
+    "independence_warning": "Seat replacements share a seed/root block; repeated all-heuristic mirrors are not independent games.",
+    "duel_report_arithmetic": {
+      "p1_wins": 15,
+      "games": 18,
+      "rate": 0.8333333333333334
+    }
+  }
+}

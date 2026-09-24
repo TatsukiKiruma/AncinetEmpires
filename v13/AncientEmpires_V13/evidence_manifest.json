@@ -1,0 +1,169 @@
+{
+  "review_date": "2026-09-24",
+  "repository": "TatsukiKiruma/AncinetEmpires",
+  "branch": "path-b-spatial-ai",
+  "reviewed_commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+  "head_commit_time_utc": "2026-09-23T23:41:50Z",
+  "method": "GitHub connector source/artifact audit + isolated local expression reproductions",
+  "not_performed": [
+    "Full repository checkout (container DNS failure)",
+    "Repository test suite",
+    "Game matches",
+    "Model training",
+    "Remote write/push/deployment"
+  ],
+  "sources": [
+    {
+      "id": "S01",
+      "title": "V12 执行报告",
+      "path": "v12/V12_EXECUTION_REPORT.md",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/V12_EXECUTION_REPORT.md",
+      "note": "历史执行方自报；与后续更正一起读取，不能把已撤回结论当成现状"
+    },
+    {
+      "id": "S02",
+      "title": "V12 后续报告",
+      "path": "v12/V12_FOLLOWUP_REPORT.md",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/V12_FOLLOWUP_REPORT.md",
+      "note": "含配对评测、数据分析及历史协议审计；本审查对其中若干推断提出更正"
+    },
+    {
+      "id": "S03",
+      "title": "预算模型 seed42 原始训练指标",
+      "path": "v12/out/training/budget_s42_metrics.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/out/training/budget_s42_metrics.json",
+      "note": "30k 数据、policy-only、CE、best_val_acc=0.442"
+    },
+    {
+      "id": "S04",
+      "title": "修正全量池 seed42 原始训练指标",
+      "path": "v12/out/spatial/v2_honest_s42_metrics.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/out/spatial/v2_honest_s42_metrics.json",
+      "note": "48,714 行；43,219 train、5,495 val；best_val_acc=0.4280254777"
+    },
+    {
+      "id": "S05",
+      "title": "最新配对评测原始结果",
+      "path": "v12/out/protocol_v2/paired_budget_s42.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/out/protocol_v2/paired_budget_s42.json",
+      "note": "被测权重为 budget_s42；一图、两 seed、四座位"
+    },
+    {
+      "id": "S06",
+      "title": "配对评测实现",
+      "path": "v12/tools/eval_paired_seats.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/tools/eval_paired_seats.ts#L80-L275",
+      "note": "镜像重复、结果分类、仅胜负 delta 的自检和未记录真实权重摘要"
+    },
+    {
+      "id": "S07",
+      "title": "训练器：损失及掩码",
+      "path": "python/train_spatial_resnet.py",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/python/train_spatial_resnet.py#L185-L390",
+      "note": "训练 loss 重复累计；value target/prediction 掩码不一致"
+    },
+    {
+      "id": "S08",
+      "title": "训练器：配置、切分及工件",
+      "path": "python/train_spatial_resnet.py",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/python/train_spatial_resnet.py#L395-L610",
+      "note": "默认 policy-only；split 与初始化共用 seed；缺失路径回退；旧 consumed 清单在训练前写入"
+    },
+    {
+      "id": "S09",
+      "title": "训练器：数据读取",
+      "path": "python/train_spatial_resnet.py",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/python/train_spatial_resnet.py#L99-L142",
+      "note": "一次性载入数据；未保留行为策略/标签教师身份"
+    },
+    {
+      "id": "S10",
+      "title": "转换器：候选及样本导出",
+      "path": "tools/convert_archive_to_spatial.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/tools/convert_archive_to_spatial.ts#L230-L490",
+      "note": "默认48候选，教师强制保留，序号型sampleId，未输出actionCode/教师身份/stateHash"
+    },
+    {
+      "id": "S11",
+      "title": "共享推理：全部合法候选",
+      "path": "src/game/ai/shared_spatial_policy.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/src/game/ai/shared_spatial_policy.ts",
+      "note": "合法候选全部编码并参与 argmax"
+    },
+    {
+      "id": "S12",
+      "title": "适配器：权重与遥测",
+      "path": "src/game/ai/spatial_neural_adapter.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/src/game/ai/spatial_neural_adapter.ts",
+      "note": "注入权重只改cache，SHA来自静态registry；同步deadline仅事后标记"
+    },
+    {
+      "id": "S13",
+      "title": "生产及实验模型注册表",
+      "path": "src/game/ai/models/model_registry.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/src/game/ai/models/model_registry.json#L1-L120",
+      "note": "默认heuristic；注册实验模型仍是7,832状态的早期版本"
+    },
+    {
+      "id": "S14",
+      "title": "模型结构",
+      "path": "python/spatial_resnet_model.py",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/python/spatial_resnet_model.py#L18-L111",
+      "note": "32通道、默认2残差块、坐标池化；已有可选全局policy GAP"
+    },
+    {
+      "id": "S15",
+      "title": "棋盘与动作编码",
+      "path": "src/game/ai/spatial_tensor_encoder.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/src/game/ai/spatial_tensor_encoder.ts",
+      "note": "24x20x20；敌方聚合、粗兵种、简化威胁、动作语义等"
+    },
+    {
+      "id": "S16",
+      "title": "BattleSearchAI",
+      "path": "src/game/ai/battle_search_ai.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/src/game/ai/battle_search_ai.ts",
+      "note": "topK10/opp6/friendly3；同回合提前叶估值；可变RNG；无硬时间预算"
+    },
+    {
+      "id": "S17",
+      "title": "连续标签生成器",
+      "path": "v12/tools/search_labels.ts",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/tools/search_labels.ts#L255-L420",
+      "note": "fresh per-candidate RNG但按index播种；默认标签候选6，与运行策略不同"
+    },
+    {
+      "id": "S18",
+      "title": "标签质量原始指标",
+      "path": "v12/out/labels/label_quality_v2.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/v12/out/labels/label_quality_v2.json#L1-L64",
+      "note": "256决策、234非退化、156优于baseline、108个不同best-minus-baseline值"
+    },
+    {
+      "id": "S19",
+      "title": "项目脚本与依赖",
+      "path": "package.json",
+      "url": "https://github.com/TatsukiKiruma/AncinetEmpires/blob/b8c0c24312a551a3cf20802f820e3f1edf798395/package.json",
+      "note": "lint/test/build及Node地图工具启动方式"
+    }
+  ],
+  "observed_checkpoint_git_blobs": {
+    "v12/models/budget_s42.json": "779f0750aa6dce3bf7adcc64c7d005abb903b4d4",
+    "v12/models/budget_s1337.json": "6d55aa9ffb93ab14c25f4072d8d657a9f0896a27",
+    "v12/models/budget_s2026.json": "4015d9f228f461d0131f11eab69b5501e575c883",
+    "v12/models/diag_grouped_s42.json": "7bdeaf58d048ab93b9628522779a71315f4707d6",
+    "v12/models/v2_honest_s42.json": "cfe02f9f33295345a27d4cfbeccc7cd1f04c373a",
+    "v12/models/v2_honest_s42_last.json": "7fad7feb3fe5a16f32e6659a814d66667f7e20fc"
+  },
+  "hash_warning": "Git blob IDs are NOT file SHA-256. The executing agent must compute actual local artifact SHA-256.",
+  "external_primary_sources": [
+    {
+      "title": "Ross, Gordon & Bagnell (2011), A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning",
+      "url": "https://proceedings.mlr.press/v15/ross11a.html"
+    },
+    {
+      "title": "Anthony, Tian & Barber (2017), Thinking Fast and Slow with Deep Learning and Tree Search",
+      "url": "https://arxiv.org/abs/1705.08439"
+    }
+  ]
+}

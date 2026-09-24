@@ -1,0 +1,1207 @@
+{
+  "schema": "v13_artifact_identity_1",
+  "runId": "v13_20260924_t13",
+  "generatedAt": "2026-09-24T00:48:56.449964+00:00",
+  "hashMethod": "sha256 of file bytes, streamed; Git blob IDs recorded separately and never substituted for a file digest",
+  "reviewBaseline": {
+    "commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+    "branch": "path-b-spatial-ai"
+  },
+  "groups": {
+    "sources": [
+      {
+        "path": "python/train_spatial_resnet.py",
+        "exists": true,
+        "bytes": 37939,
+        "sha256": "0645e51c5b86184c8e2f954c5655b47bf0e2c6dc4077fe63f69b11ea623e6163",
+        "gitBlobId": "7cf23f4acb4b38047a44ee437f506c94602dd324",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "python/spatial_resnet_model.py",
+        "exists": true,
+        "bytes": 10375,
+        "sha256": "8acec5e9cbb48af04b0e056c0c51254cbfe4ba14823c17dd18c2900485be04f9",
+        "gitBlobId": "967ba995d425c9ed4de021e67ed1c1cc16e3fedc",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "python/verify_parity.py",
+        "exists": true,
+        "bytes": 5350,
+        "sha256": "7a84dba2ceb19e46b6298076563b23354f3cd2e7bd6d65de5f8891dc18873aca",
+        "gitBlobId": "9eacdfb7d17990691e950178b8796c1508b7b81b",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "tools/convert_archive_to_spatial.ts",
+        "exists": true,
+        "bytes": 26909,
+        "sha256": "88b8afc93c101394b1deea859bf2c9197d5dd10f906817a1b220336f753305f1",
+        "gitBlobId": "8cf16edc7f7d82ca9e062605a14989251a2a539d",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "tools/skirmish_model_registry.ts",
+        "exists": true,
+        "bytes": 3513,
+        "sha256": "f270ab4443792a191e55e6d7b19e0919661f341bbe82192102efc55daf7fb22d",
+        "gitBlobId": "91763e70bcf5eecdc1084b2fa609610c7a3a5f82",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/shared_spatial_policy.ts",
+        "exists": true,
+        "bytes": 2679,
+        "sha256": "ec7b64bfdfc212284d26486b163ab6afe4e26f4c3851e79fac80d39d70846819",
+        "gitBlobId": "19d6d814eb565acdc2bb3eb0c84c307b3553d4ae",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/spatial_neural_adapter.ts",
+        "exists": true,
+        "bytes": 8536,
+        "sha256": "173e632e128a4835f660f10c36a674ecb9691c865a7103b021a3ae53308b181e",
+        "gitBlobId": "48205d9f8cd7f11af7f0ba6941cc661b70a75437",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/spatial_conv_net.ts",
+        "exists": true,
+        "bytes": 26111,
+        "sha256": "cdbaa9d08862a6a8e5263e0dc87e24bd76cfe8880daf628d2f7baddbabbb891f",
+        "gitBlobId": "ebed5e65804bf1fb60d075e0925e12a0003aae03",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/spatial_tensor_encoder.ts",
+        "exists": true,
+        "bytes": 15870,
+        "sha256": "b09461d0fc2808c218b2ebc063b46eb5313db81019100f0776c197ca2abba3a2",
+        "gitBlobId": "3e73707060759959ea13d0b7206d3e206a2cfb4d",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/battle_search_ai.ts",
+        "exists": true,
+        "bytes": 8275,
+        "sha256": "4274566e0907de72eb848d6770122d72637d6a9aae2c240672ad22171b9d0f41",
+        "gitBlobId": "a820e3807427e780fbb782344730fefe2c3a2951",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/heuristic_ai.ts",
+        "exists": true,
+        "bytes": 35622,
+        "sha256": "304d6e6b67d60d4363c02e377630c16eaa36d28d2b2bcf387193e60db39eb94e",
+        "gitBlobId": "3cc4cb69615b22e154c1fdba4ea8f78ac0dc494b",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/apk_like_ai.ts",
+        "exists": true,
+        "bytes": 6584,
+        "sha256": "98756bd917e8dc308aa0cb61c38d29e7af286884864bdb23b6d789f81b496929",
+        "gitBlobId": "e33d3c1bf8c3d9e220f90636e0bffb7fa0ba33e0",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "src/game/ai/models/model_registry.json",
+        "exists": true,
+        "bytes": 7931,
+        "sha256": "84363376e8399e135ba0f1fb35b4b7b7ec25f7abc3e34894a8c9e16a7b912b02",
+        "gitBlobId": "8cb9f9b2081f0991638a4c8ade63fd7d1ac2d8d8",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "defaultProductionPolicy",
+          "policies",
+          "registryVersion",
+          "updatedAt"
+        ]
+      },
+      {
+        "path": "src/game/ai/models/model_registry.ts",
+        "exists": true,
+        "bytes": 2715,
+        "sha256": "923edecc660045a9381ff5907db65465a216682889ba73c94564da4049960683",
+        "gitBlobId": "5552e5aeac9f115b5ee94fd59f455e88b9a922dd",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "v12/tools/eval_paired_seats.ts",
+        "exists": true,
+        "bytes": 12465,
+        "sha256": "aafaa51fa1d843cc6a0487df77749d9e8b1103b3992ff6b4d17b7bf63156913a",
+        "gitBlobId": "7e9e1780f570818704237ec6bc888f9d9a1f301e",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "v12/tools/search_labels.ts",
+        "exists": true,
+        "bytes": 57421,
+        "sha256": "c7d1f790ea205e4d9a47e278fcabe6a5e3eefe84c374062fac2dfd422881f1a9",
+        "gitBlobId": "07d1d4bc90105f9c732a10a651bf93707fde5f3f",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "v12/tools/run-tool.mjs",
+        "exists": true,
+        "bytes": 3460,
+        "sha256": "46aa3dc00adf5bb017cfd8f5d0dfe82e36930b96c280f14bfec20c118392bf81",
+        "gitBlobId": "c9ecf0efea557ce3f44c20688426968d5961f1aa",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "package.json",
+        "exists": true,
+        "bytes": 4325,
+        "sha256": "5facecaacc866c63b5ff3e01ed57a46e7e16e8a7643bdb263fd84e6db9e12887",
+        "gitBlobId": "6d70306bf5b950a6eb013bdea38c5d79b6440bf2",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "dependencies",
+          "devDependencies",
+          "name",
+          "private",
+          "scripts",
+          "type",
+          "version"
+        ]
+      }
+    ],
+    "weights": [
+      {
+        "path": "src/game/ai/models/spatial_resnet_v2_checkpoint.json",
+        "exists": true,
+        "bytes": 1530711,
+        "sha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+        "gitBlobId": "1b39f4469d29d29f443e133b9b78a8a1e461e38b",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "src/game/ai/models/spatial_resnet_checkpoint.json",
+        "exists": true,
+        "bytes": 1482555,
+        "sha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+        "gitBlobId": "af6ab1644cb174796919704473d9db94ef9e01c4",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v1",
+          "topLevelKeys": [
+            "architectureId",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "src/game/ai/models/spatial_resnet_dagger_checkpoint.json",
+        "exists": true,
+        "bytes": 1530091,
+        "sha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+        "gitBlobId": "74ae3319aaa311de5d8c9dc53e37137247b88d34",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "src/game/ai/models/net_b_checkpoint.json",
+        "exists": true,
+        "bytes": 4432505,
+        "sha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+        "gitBlobId": "490d0983b12f72be2e0299b026e5938d34730e31",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "checkpointHeader": {
+          "topLevelKeys": [
+            "actionEncoderVersion",
+            "architectureId",
+            "isStandardizationFolded",
+            "kind",
+            "meta",
+            "parameterCount",
+            "schemaVersion",
+            "spec",
+            "stateEncoderVersion",
+            "weights"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s42.json",
+        "exists": true,
+        "bytes": 1523965,
+        "sha256": "25361b1bfc4581d89239b0ae0f4f338ceaae08c9f59581d758afc3345ceae15c",
+        "gitBlobId": "779f0750aa6dce3bf7adcc64c7d005abb903b4d4",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s42_last.json",
+        "exists": true,
+        "bytes": 1523428,
+        "sha256": "e70febc438bdadb938148def2c5ca823129a857b7dd3368ec20e698e23ff3e0a",
+        "gitBlobId": "335073d8dcb949f717ba6d9e0fd4100e1bd24706",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s1337.json",
+        "exists": true,
+        "bytes": 1523085,
+        "sha256": "abe95e30367708f0924086932072237fb4eb6e407685ae1eeacfa261da19e021",
+        "gitBlobId": "6d55aa9ffb93ab14c25f4072d8d657a9f0896a27",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s1337_last.json",
+        "exists": true,
+        "bytes": 1522255,
+        "sha256": "d6215e78a58bdab030bea8b1cc0f1755d97bea3fbc872ae70e2107cb4dec027b",
+        "gitBlobId": "5623da842914800543f98c2399ba584a2f36268d",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s2026.json",
+        "exists": true,
+        "bytes": 1523024,
+        "sha256": "c71dd12710ead5e196b8a0092912f4eb1b3cd4a925f2323ed120a82c32125809",
+        "gitBlobId": "4015d9f228f461d0131f11eab69b5501e575c883",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/budget_s2026_last.json",
+        "exists": true,
+        "bytes": 1523024,
+        "sha256": "c71dd12710ead5e196b8a0092912f4eb1b3cd4a925f2323ed120a82c32125809",
+        "gitBlobId": "4015d9f228f461d0131f11eab69b5501e575c883",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/v2_honest_s42.json",
+        "exists": true,
+        "bytes": 1520847,
+        "sha256": "60f24e60918502e540f0cfc0f3ae6a70a4ff2ad13ad90744027c44371aa9784c",
+        "gitBlobId": "cfe02f9f33295345a27d4cfbeccc7cd1f04c373a",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/v2_honest_s42_last.json",
+        "exists": true,
+        "bytes": 1520167,
+        "sha256": "88e875acd733a25475957e96762ab19c87053a714a8b6e42035c05bbb543af37",
+        "gitBlobId": "7fad7feb3fe5a16f32e6659a814d66667f7e20fc",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/diag_grouped_s42.json",
+        "exists": true,
+        "bytes": 1523831,
+        "sha256": "73c7223912b2e59eafaef25c7eddb0298d401a8e40cd5f4afa5ec40bdfd438d2",
+        "gitBlobId": "7bdeaf58d048ab93b9628522779a71315f4707d6",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      },
+      {
+        "path": "v12/models/diag_grouped_s42_last.json",
+        "exists": true,
+        "bytes": 1523464,
+        "sha256": "b888a3363cd4583025045a9d9aa2c8a3aa77415481a8f66e25dbe594cbc6d580",
+        "gitBlobId": "61c31cbf2c0c185966f29621edc660904a5967f2",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "architectureId",
+          "globalPolicyPool",
+          "numBlocks",
+          "polDense1",
+          "polDense2",
+          "res1_1",
+          "res1_2",
+          "res2_1",
+          "res2_2",
+          "stem",
+          "valDense1",
+          "valDense2",
+          "version"
+        ],
+        "checkpointHeader": {
+          "version": "spatial-resnet-v2",
+          "topLevelKeys": [
+            "architectureId",
+            "globalPolicyPool",
+            "numBlocks",
+            "polDense1",
+            "polDense2",
+            "res1_1",
+            "res1_2",
+            "res2_1",
+            "res2_2",
+            "stem",
+            "valDense1",
+            "valDense2",
+            "version"
+          ]
+        }
+      }
+    ],
+    "data": [
+      {
+        "path": "training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+        "exists": true,
+        "bytes": 1325414145,
+        "sha256": "7cadc0d1ce9769eff50ff0b77285f4cdce4ff308681515980979218d81f6d0f9",
+        "gitBlobId": "HEAD:training_runs/spatial_dataset/spatial_v2_full_pool.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl",
+        "exists": true,
+        "bytes": 772843109,
+        "sha256": "88a1f4c2ea1e32a7df18dac81f0dedf4eab714225f7bf925b243396e99169850",
+        "gitBlobId": "HEAD:training_runs/spatial_dataset/spatial_train_scaled_30k.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "training_runs/spatial_dataset/spatial_train_25ep.jsonl",
+        "exists": true,
+        "bytes": 43171210,
+        "sha256": "c9a531f75a69428f6e2bbe96923ea5a93514d5aa7471d01bbb4acad1b1866827",
+        "gitBlobId": "HEAD:training_runs/spatial_dataset/spatial_train_25ep.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "training_runs/spatial_dataset/spatial_pilot_01.jsonl",
+        "exists": true,
+        "bytes": 8628599,
+        "sha256": "1a381d08961f43e576ab2d059ccb4e881243a73c8d3d7557b6fed766b1dcd2ca",
+        "gitBlobId": "HEAD:training_runs/spatial_dataset/spatial_pilot_01.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+        "exists": true,
+        "bytes": 7270203411,
+        "sha256": "9751a612f59427bd6f34bd7f6968ce5b3ac8afa368a4634825112bd30e37aa8d",
+        "gitBlobId": "HEAD:training_runs/agent_upgrade_20260919_01/baseline_dataset/baseline_dataset.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+        "exists": true,
+        "bytes": 20385,
+        "sha256": "c855d126d76c534ecfba960360d507685bcaf9bb14f37f73c45ecd5d56b04a0e",
+        "gitBlobId": "HEAD:training_runs/agent_upgrade_v11_b2_main/episodes.jsonl",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      }
+    ],
+    "v12_evidence": [
+      {
+        "path": "v12/V12_EXECUTION_REPORT.md",
+        "exists": true,
+        "bytes": 38409,
+        "sha256": "45ef133e38195867148f06886b8e8cf9a2adeb72574d73cf5d8d4168a75e3a32",
+        "gitBlobId": "d1a027b8547b1401b533e5438c681b0c585a4723",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "v12/V12_FOLLOWUP_REPORT.md",
+        "exists": true,
+        "bytes": 14532,
+        "sha256": "76153c18c6b82d15d36e8185fd3bd6164300f177fbf33b391340198e7cf998ff",
+        "gitBlobId": "227c4e368fd8ab5f8172e3fcd67c3f8f76bbdcca",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused."
+      },
+      {
+        "path": "v12/out/training/budget_s42_metrics.json",
+        "exists": true,
+        "bytes": 1870,
+        "sha256": "9aa862896ffcbcc7220cf29289785b77d385cc4af17cca0afb759e87bbb794fc",
+        "gitBlobId": "1daa1c97e1fede30e263792e8bf2677ffb2784bc",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "best_epoch",
+          "best_val_acc",
+          "dataset",
+          "equiv_weight",
+          "history",
+          "loss_mode",
+          "model_version",
+          "num_blocks",
+          "seed",
+          "soft_weight",
+          "teacher_temperature",
+          "train_samples",
+          "val_samples",
+          "value_weight"
+        ]
+      },
+      {
+        "path": "v12/out/training/budget_s1337_metrics.json",
+        "exists": true,
+        "bytes": 1901,
+        "sha256": "5f31b0026e2dbe63303eb73950f677a159e3b8a562ad5f306ae469e5a4b7574a",
+        "gitBlobId": "26e4e84763ac6e73a872ad1c9bc38e425352b114",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "best_epoch",
+          "best_val_acc",
+          "dataset",
+          "equiv_weight",
+          "history",
+          "loss_mode",
+          "model_version",
+          "num_blocks",
+          "seed",
+          "soft_weight",
+          "teacher_temperature",
+          "train_samples",
+          "val_samples",
+          "value_weight"
+        ]
+      },
+      {
+        "path": "v12/out/training/budget_s2026_metrics.json",
+        "exists": true,
+        "bytes": 1890,
+        "sha256": "19dacd63fba89bbc45223737ef3a1d51777cfbc6684e5dba8d7dd98dd815d820",
+        "gitBlobId": "1c15201855eeae5bb9c6fbd7af68d5ef9df9510b",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "best_epoch",
+          "best_val_acc",
+          "dataset",
+          "equiv_weight",
+          "history",
+          "loss_mode",
+          "model_version",
+          "num_blocks",
+          "seed",
+          "soft_weight",
+          "teacher_temperature",
+          "train_samples",
+          "val_samples",
+          "value_weight"
+        ]
+      },
+      {
+        "path": "v12/out/spatial/v2_honest_s42_metrics.json",
+        "exists": true,
+        "bytes": 1934,
+        "sha256": "32d834002376d29d1d3ada6495536909eaae9ecebc30356d1f84003d63fe9f25",
+        "gitBlobId": "3e44b3cb0e87cc41fa9df69a3707b0910ee479ea",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "best_epoch",
+          "best_val_acc",
+          "dataset",
+          "equiv_weight",
+          "history",
+          "loss_mode",
+          "model_version",
+          "num_blocks",
+          "seed",
+          "soft_weight",
+          "teacher_temperature",
+          "train_samples",
+          "val_samples",
+          "value_weight"
+        ]
+      },
+      {
+        "path": "v12/out/spatial/T12-04_dataset_report.json",
+        "exists": true,
+        "bytes": 2683,
+        "sha256": "91a273dc6a320ff54b8a66e18f612f7ce2d8fbce6909b5fc136d0b0ea6d05c06",
+        "gitBlobId": "5b774f677ec3b3553f573302e4d06de3877e94ed",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "dataset",
+          "datasetBytes",
+          "datasetBytesGiB",
+          "episodeIdentity",
+          "episodeSizeSamples",
+          "freeFields",
+          "generatedAtUtc",
+          "headline",
+          "independentValueVerification",
+          "sourcePool",
+          "structuralChecks",
+          "totals",
+          "valueTarget"
+        ]
+      },
+      {
+        "path": "v12/out/spatial/T12-04_split_check.json",
+        "exists": true,
+        "bytes": 2205,
+        "sha256": "498860078e63e4f5d355bb35c20582e814205cefbd0b044fe24ab6824091624f",
+        "gitBlobId": "4d936ba8760be69e1445210569d583d0bbc6f9d3",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "dataset",
+          "generatedAtUtc",
+          "headline",
+          "legacyGroupingSimulation",
+          "passed",
+          "realSplit",
+          "realTrainerCrossCheck",
+          "replicatedCode",
+          "samplesMissingRootFamilyIdAndEpisodeId",
+          "totalSamples"
+        ]
+      },
+      {
+        "path": "v12/out/protocol_v2/paired_budget_s42.json",
+        "exists": true,
+        "bytes": 6962,
+        "sha256": "3ba314e9f7fe7bd335bf4f6e9b6920f64b646896be54a5fc946b2115661378f3",
+        "gitBlobId": "bf7367ca78153f24dad0dfd79041a28b33e23d97",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "candidate",
+          "candidateIsModel",
+          "caveats",
+          "generatedAt",
+          "mirrorWinBySeat",
+          "overall",
+          "perSeat",
+          "protocol",
+          "rows",
+          "schema",
+          "selfTest"
+        ]
+      },
+      {
+        "path": "v12/out/labels/label_quality_v2.json",
+        "exists": true,
+        "bytes": 21337,
+        "sha256": "94ab45f9cb585b5397f7ba168420711d201312b87d93bc829b1d041a393b05f7",
+        "gitBlobId": "3ce453f5ac9920cdb942523c017908aa9b89be8c",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "branchMix",
+          "byMap",
+          "byRootFamily",
+          "candidateBreadth",
+          "comparisonToPreviousBatch",
+          "config",
+          "cost",
+          "effectSize",
+          "generatedAt",
+          "invocation",
+          "labelQualityMix",
+          "provenance",
+          "sameFooting",
+          "sample",
+          "schema",
+          "tag",
+          "verificationBoundary",
+          "yield"
+        ]
+      },
+      {
+        "path": "v12/out/archive_value/imitation_mix.json",
+        "exists": true,
+        "bytes": 13621,
+        "sha256": "41c84ad692f841ccda26d9449c3ad915fdbcb81e66676fbf0064a006d379a444",
+        "gitBlobId": "c3f8876fd8359a592e88580e338da987d82c16cd",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "C1_action_type_by_policy",
+          "C2_teacher_divergence",
+          "C3_corpus_mix",
+          "C3b_cost_of_one_head_on_the_union",
+          "C4_recruit_vs_attack_conditional_on_legality",
+          "C5_outcome_conditioned_filtering",
+          "C6_episode_rows_full",
+          "C7_episode_key_check",
+          "source"
+        ]
+      },
+      {
+        "path": "v12/out/freeze/evidence_manifest.json",
+        "exists": true,
+        "bytes": 788,
+        "sha256": "da5b81649aaf092cdfd0ebfe1c71afcd7102e498752035c7222c94fe5cb4a52c",
+        "gitBlobId": "7b37b8144a9af58217e8e3f063575e983984077e",
+        "gitBlobNote": "Git blob ID is NOT a file SHA-256; both are recorded so the two can never be confused.",
+        "topLevelKeys": [
+          "files",
+          "frozenSourceRoot",
+          "generatedAt",
+          "headMatchesReviewCommit",
+          "note",
+          "reviewCommit",
+          "schema"
+        ]
+      }
+    ]
+  },
+  "modelRegistry": {
+    "defaultProductionPolicy": "heuristic",
+    "updatedAt": "2026-09-22T07:58:35+08:00",
+    "registryVersion": "v9",
+    "policies": {
+      "heuristic": {
+        "title": "Heuristic AI (原生启发式)",
+        "isProductionDefault": true,
+        "isExperimental": false,
+        "qualification": "PRODUCTION_DEFAULT",
+        "checkpointRelativePath": null,
+        "registrySha256": null,
+        "encoderVersion": null,
+        "valueHeadQualified": null
+      },
+      "spatial_v2_experimental": {
+        "title": "Spatial ResNet v2 (实验性 7.8k 基础模型)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "QUALIFIED_DEV_BASELINE",
+        "checkpointRelativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+        "registrySha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+        "encoderVersion": "v2",
+        "valueHeadQualified": false
+      },
+      "spatial_dagger_experimental": {
+        "title": "Spatial ResNet v2 DAgger (实验性纠错模型)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "QUALIFIED_DEV_DAGGER",
+        "checkpointRelativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+        "registrySha256": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+        "encoderVersion": "v2",
+        "valueHeadQualified": false
+      },
+      "spatial_resnet_v1": {
+        "title": "Spatial ResNet v1 (历史内置 24维语义)",
+        "isProductionDefault": false,
+        "isExperimental": false,
+        "qualification": "LEGACY_V1_BUILTIN",
+        "checkpointRelativePath": "src/game/ai/models/spatial_resnet_checkpoint.json",
+        "registrySha256": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+        "encoderVersion": "v1",
+        "valueHeadQualified": false
+      },
+      "s00_search": {
+        "title": "S00 Bounded Search (启发式 Rollout)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "DEV_SEARCH_BASELINE",
+        "checkpointRelativePath": null,
+        "registrySha256": null,
+        "encoderVersion": null,
+        "valueHeadQualified": null
+      },
+      "s10_spatial_search": {
+        "title": "S10 Spatial Search (残差先验搜索)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "DEV_SPATIAL_SEARCH",
+        "checkpointRelativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+        "registrySha256": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+        "encoderVersion": "v2",
+        "valueHeadQualified": false
+      },
+      "spatial_v2_smoke_100": {
+        "title": "Spatial ResNet v2 Smoke (100样本冒烟对照)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "SMOKE_CONTROL_ONLY",
+        "checkpointRelativePath": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+        "registrySha256": "43c0d74841453b5ddf20f1cbcb8d6d56297bfff953a8240e37f8c21bebba876b",
+        "encoderVersion": "v2",
+        "valueHeadQualified": false
+      },
+      "net_a": {
+        "title": "NET_A (Dense Dual Head 45维)",
+        "isProductionDefault": false,
+        "isExperimental": true,
+        "qualification": "DEV_CONTROL_NET_A",
+        "checkpointRelativePath": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/net_a/net_a_checkpoint.json",
+        "registrySha256": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+        "encoderVersion": "dense-45",
+        "valueHeadQualified": null
+      },
+      "net_b_s10": {
+        "title": "NET_B S10 (内置旧密集网络搜索)",
+        "isProductionDefault": false,
+        "isExperimental": false,
+        "qualification": "FRONTEND_NET_B",
+        "checkpointRelativePath": "src/game/ai/models/net_b_checkpoint.json",
+        "registrySha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+        "encoderVersion": "dense-45",
+        "valueHeadQualified": null
+      },
+      "net_b_1ply": {
+        "title": "NET_B 1-ply (内置旧密集网络快速预测)",
+        "isProductionDefault": false,
+        "isExperimental": false,
+        "qualification": "FRONTEND_NET_B",
+        "checkpointRelativePath": "src/game/ai/models/net_b_checkpoint.json",
+        "registrySha256": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+        "encoderVersion": "dense-45",
+        "valueHeadQualified": null
+      },
+      "random": {
+        "title": "Random AI (完全随机)",
+        "isProductionDefault": false,
+        "isExperimental": false,
+        "qualification": "BASELINE_RANDOM",
+        "checkpointRelativePath": null,
+        "registrySha256": null,
+        "encoderVersion": null,
+        "valueHeadQualified": null
+      }
+    }
+  },
+  "registryShaCrossCheck": [
+    {
+      "policyId": "heuristic",
+      "declared": null,
+      "file": null,
+      "status": "NO_REGISTERED_CHECKPOINT"
+    },
+    {
+      "policyId": "spatial_v2_experimental",
+      "declared": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "actual": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "file": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "spatial_dagger_experimental",
+      "declared": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+      "actual": "efec05c0e16a707689f651b59262b41db30601fa3ce6b567ed9fc17c117fbf9b",
+      "file": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet_dagger/spatial_resnet_dagger_best.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "spatial_resnet_v1",
+      "declared": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+      "actual": "a6a88b206924e64dead18900183bb09aa75ad9fa73e0421d5cbd885a19e9577f",
+      "file": "src/game/ai/models/spatial_resnet_checkpoint.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "s00_search",
+      "declared": null,
+      "file": null,
+      "status": "NO_REGISTERED_CHECKPOINT"
+    },
+    {
+      "policyId": "s10_spatial_search",
+      "declared": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "actual": "1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92",
+      "file": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "spatial_v2_smoke_100",
+      "declared": "43c0d74841453b5ddf20f1cbcb8d6d56297bfff953a8240e37f8c21bebba876b",
+      "actual": "43c0d74841453b5ddf20f1cbcb8d6d56297bfff953a8240e37f8c21bebba876b",
+      "file": "training_runs/agent_upgrade_20260921_v7_01/checkpoints/spatial_resnet/spatial_resnet_v2_best.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "net_a",
+      "declared": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+      "actual": "ededeb349a252d75c8dd66d40a29dcae8d0716669911285c39da870bebfc4edf",
+      "file": "training_runs/agent_upgrade_20260921_v8_final_01/checkpoints/net_a/net_a_checkpoint.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "net_b_s10",
+      "declared": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+      "actual": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+      "file": "src/game/ai/models/net_b_checkpoint.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "net_b_1ply",
+      "declared": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+      "actual": "4839e4c79c861245bf8e50c4f1dd0fdc284a85f1e97a25a9f00c99c691a888b2",
+      "file": "src/game/ai/models/net_b_checkpoint.json",
+      "status": "MATCH"
+    },
+    {
+      "policyId": "random",
+      "declared": null,
+      "file": null,
+      "status": "NO_REGISTERED_CHECKPOINT"
+    }
+  ]
+}

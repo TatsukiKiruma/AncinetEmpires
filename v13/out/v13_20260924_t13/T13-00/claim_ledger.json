@@ -1,0 +1,154 @@
+{
+  "schema": "v13_claim_ledger_1",
+  "runId": "v13_20260924_t13",
+  "generatedAt": "2026-09-24T00:00:00Z",
+  "purpose": "Correction index for claims inherited from the V12 reports. The V12 reports themselves are NOT modified or overwritten; this file is additive.",
+  "reviewBaseline": {
+    "commit": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+    "branch": "path-b-spatial-ai",
+    "localHeadAtStart": "b8c0c24312a551a3cf20802f820e3f1edf798395",
+    "localHeadEqualsReviewCommit": true,
+    "deltaSinceReview": "none - the working tree was clean apart from the untracked v13/ review pack"
+  },
+  "statusVocabulary": ["CONFIRMED", "REFUTED_AS_STATED", "PARTIALLY_CORRECT", "UNVERIFIABLE", "ALREADY_FIXED", "SUPERSEDED"],
+  "claims": [
+    {
+      "id": "C13-01",
+      "statement": "The all-heuristic mirror won P2 8/8, therefore P2 is the only seat that can win on this map.",
+      "source": "v12/V12_FOLLOWUP_REPORT.md lines 32, 37-39 and v12/out/protocol_v2/paired_budget_s42.json (mirrorWinBySeat.P2 = 8)",
+      "verdict": "REFUTED_AS_STATED",
+      "reason": "The number is an artifact of counting, not of play. v12/tools/eval_paired_seats.ts:167-181 plays ONE mirror per (seed, seat) and pushes one row per seat, giving 8 rows; but the mirror arm never reads `seat` (line 172-174 passes candidateSeat: null), so within one seed all four mirror rows are the identical game. The result file confirms it: both seed blocks report mirror winner = 2 with identical steps (2975 for seed 2026070501, 4577 for seed 2026070502). Distinct mirror games in the artifact = 2, not 8.",
+      "independentObservations": 2,
+      "rowsBuiltFromThoseObservations": 8,
+      "whatSurvives": "In both seeds the all-heuristic mirror was won by P2, and the candidate lost both games it played at P2 (winner flipped to P0). A local negative reading at P2 on this map, n=2.",
+      "newEvidenceRequired": "A protocol that caches one mirror per (scenario, seed) and reports independentMirrorGames separately from row count, plus more seeds."
+    },
+    {
+      "id": "C13-02",
+      "statement": "H(label | episode, player) = 0, so there is no value signal and a value head must not be trained.",
+      "source": "v12/V12_FOLLOWUP_REPORT.md lines 80-85",
+      "verdict": "PARTIALLY_CORRECT",
+      "reason": "The INFERENCE is invalid but the DECISION happens to be supported by other evidence in the same report. Broadcasting one terminal return across a player's trajectory necessarily produces identical labels within that trajectory; that is the normal form of Monte-Carlo supervision and says nothing about cross-episode learnability. However the same report shows (rootFamilyId, playerId) alone predicts the label at 1.000000 accuracy, i.e. the pool carries episode identity rather than board-state signal, and the best constant predictor already sits at 0.802074.",
+      "whatSurvives": "Do not train a value head on THIS pool. That conclusion must be argued from the identity/constant baselines, not from zero entropy.",
+      "newEvidenceRequired": "Held-out-root comparison of constant predictor, pre-game configuration predictor and full board value, with calibrated Brier/MSE. That is T13-09 and stays deferred in this round."
+    },
+    {
+      "id": "C13-03",
+      "statement": "Because two behaviour policies are interleaved inside the same episodes, no single teacher can be imitated.",
+      "source": "v12/V12_FOLLOWUP_REPORT.md lines 87-96",
+      "verdict": "REFUTED_AS_STATED",
+      "reason": "Interleaving blocks imitating a teacher only if the per-row source is unavailable. v12/out/archive_value/imitation_mix.json measures 31,424 heuristic rows vs 17,290 apk-like rows and reports a conditional behaviour difference (recruit-when-legal 644/5556 vs 0/6815), which means the per-row behaviour identity IS recoverable from the source rows. Discarding whole episodes is not required; filtering by row, or relabelling the same legal states with a named teacher, both work.",
+      "confirmedByV13": "The converted spatial pool does NOT currently carry behaviorPolicyId or labelTeacherId (v12/out/spatial/T12-04_dataset_report.json keySignatures lists 11 keys, none of them teacher identity). That absence is the real defect, and T13-03 addresses it.",
+      "v13Measurement": "T13-03 recovered the per-row policy by positional alignment with zero mismatches across 48,714 rows: heuristic 31,424 / apk-like 17,290, byte-identical to the tally in imitation_mix.json. Crucially, `policy` is SINGLE-VALUED on every row; the mixing is between rows inside a root (37/37 roots are mixed), not within a row. Per-row filtering is therefore sufficient and no episode needs to be discarded.",
+      "newEvidenceRequired": "Per-row teacher provenance restored in the converted dataset, then a single-teacher CE baseline. T13-03 produced the provenance column (v13/out/v13_20260924_t13/T13-03/teacher_provenance_by_row.txt) and the manifest; the single-teacher CE baseline is T13-07 and was NOT completed in this round."
+    },
+    {
+      "id": "C13-04",
+      "statement": "Scaling to 48k rows did not improve accuracy, therefore more data does not help.",
+      "source": "v12/V12_EXECUTION_REPORT.md and V12_FOLLOWUP_REPORT.md",
+      "verdict": "REFUTED_AS_STATED",
+      "reason": "The two runs do not share a validation set. budget_s42_metrics.json reports train_samples 27000 / val_samples 3000 from the old 30k pool; v2_honest_s42_metrics.json reports 43219 / 5495 from the full pool. Additionally the seed controlled both the network initialisation and the grouped partition (python/train_spatial_resnet.py:431 torch.manual_seed(args.seed) and the internal split RNG), so the two accuracies are not a learning curve on a fixed distribution.",
+      "whatSurvives": "44.20% vs 42.80% is not evidence either way about data scale.",
+      "newEvidenceRequired": "A frozen split manifest plus equal update budgets across sample sizes. T13-01 now separates --split-seed from --model-seed and fails closed on a missing manifest, which makes such a comparison meaningful."
+    },
+    {
+      "id": "C13-05",
+      "statement": "BattleSearchAI is stronger than the heuristic: 17/20.",
+      "source": "v12/V12_EXECUTION_REPORT.md lines 24, 231-235",
+      "verdict": "UNVERIFIABLE",
+      "reason": "No raw game artifacts exist - only console output. The protocol layer plausibly survives (alternating seats cap a pure seat effect at 10/20, so 17/20 is not explained by seat bias), but per-seat and per-game records were never saved, so the number cannot be re-derived. V12's own follow-up report says the same.",
+      "whatSurvives": "PROVISIONAL at best. It may not be cited as a teacher qualification certificate, which is exactly what T13-06 forbids.",
+      "newEvidenceRequired": "Re-run with the v3 protocol and store per-game records. Not attempted in this round."
+    },
+    {
+      "id": "C13-06",
+      "statement": "Training keeps at most 48 candidate actions while inference scores every legal action.",
+      "source": "V13_REVIEW.md section 3.1; tools/convert_archive_to_spatial.ts and src/game/ai/shared_spatial_policy.ts",
+      "verdict": "CONFIRMED",
+      "reason": "tools/convert_archive_to_spatial.ts:232 defaults maxCandidatesPerState to 48 and :406-424 builds the truncated list by seeding a Set with the teacher action and commander-recruit actions, then filling from the original legal-action prefix. src/game/ai/shared_spatial_policy.ts:56 maps over ALL legalActions and scores every one. The two sets are therefore different tasks.",
+      "v13Addition": "There is a THIRD budget the review did not name: the search teacher evaluates only 6 candidates (v12/out/labels/label_quality_v2.json config.maxCandidates = 6, topK = 10) while the legal-action count at those very decision points has median 31 and max 444 (candidateBreadth.legalActions). So the pipeline has three different candidate contracts: teacher 6, training 48, inference all.",
+      "newEvidenceRequired": "A shared, label-independent candidate selector used by training and inference, plus measured teacher recall BEFORE any forced insertion. T13-04."
+    },
+    {
+      "id": "C13-07",
+      "statement": "run_epoch accumulates the training loss twice.",
+      "source": "V13_REVIEW.md D13-01; python/train_spatial_resnet.py",
+      "verdict": "CONFIRMED",
+      "reason": "Pre-fix the accumulation existed inside the `if is_train and optimizer:` block and again in the common footer after it. The gradient was unaffected: backward/step ran once per batch in both cases.",
+      "v13Addition": "The same code also normalised by `len(dataloader)` or `steps_run`, neither of which equals the number of accumulated batches when a cap break fires. A third, independent defect was found while fixing it: torch DataLoader drops a partial trailing batch while `len(dataloader)` still counts it, so a 16-row split with batch 8 produced one real batch but a denominator of two, halving the reported mean again. All three are fixed in T13-01 and covered by regression tests.",
+      "measured": "With 32 rows split 16/16, batch 8, max-steps 2: fixed train_loss 0.6938375533, pre-V13 accounting 1.0411738455 (this machine)."
+    },
+    {
+      "id": "C13-08",
+      "statement": "The value prediction filter and the value target filter use different predicates, so a mixed-mask batch can broadcast silently.",
+      "source": "V13_REVIEW.md D13-02; python/train_spatial_resnet.py",
+      "verdict": "CONFIRMED",
+      "reason": "The prediction set was built from `not None AND mask` while the target list was built from `not None` only. Reproduced here on torch 2.14.0+cpu: targets [1.0,-1.0] with mask [true,false] and predictions [0.25,0.75] gives loss 1.0625 and gradient +0.5 instead of the correct 0.5625 and -1.5.",
+      "boundary": "The V13 review correctly refused to claim this trained the existing models. V13 adds the missing check the review asked for: the converter never emits a valueLossMask field at all (tools/convert_archive_to_spatial.ts:457-469) and the loader defaulted the mask to `valueTarget is not None` (python/train_spatial_resnet.py:127), so mask and target were the same predicate by construction on every existing dataset, and both V12 metrics files report value_weight = 0.0. The defect was therefore INERT on all historical runs and becomes live the moment an explicit mask field is added - which is exactly what T13-03's schema asks for.",
+      "verdictDetail": "The review's decision to classify this as a must-fix defect is upheld, but its stated reason (an active corruption risk) is not what made it dangerous; the correct reason is that the planned schema change would have armed it."
+    },
+    {
+      "id": "C13-09",
+      "statement": "The registry advertises which model the UI runs.",
+      "source": "V13_REVIEW.md section 2; src/game/ai/models/model_registry.json",
+      "verdict": "CONFIRMED",
+      "reason": "defaultProductionPolicy is \"heuristic\". spatial_v2_experimental declares sha256 1721ca177ec729457b7dde0676573c3312bd0b96331ea9b29ddbb902b635af92 and the file src/game/ai/models/spatial_resnet_v2_checkpoint.json hashes to exactly that value (verified by real file digest in artifact_identity.json). Every declared registry digest resolves to a real file with a matching hash; there are no MISMATCH entries.",
+      "newEvidenceRequired": "None for the registry itself. What is still unknown is which policy a given user session actually requests, which is a UI question, not a registry question."
+    },
+    {
+      "id": "C13-10",
+      "statement": "Telemetry can describe a weight file that is not executing.",
+      "source": "V13_REVIEW.md D13-05; src/game/ai/spatial_neural_adapter.ts",
+      "verdict": "CONFIRMED",
+      "reason": "Pre-fix, `getSpatialAiActionSync` read `checkpointSha256` from `getPolicyRegistryEntry(requestedPolicy)` while `options.predictor` could replace the executing predictor.",
+      "v13Fix": "The adapter now keeps a separate predictor-identity map (setSpatialPredictorIdentity / getSpatialPredictorIdentity) and the telemetry reads the identity of the registered weights, labelling the provenance as direct_file_load, injected_weights or static_registry. The v3 evaluation harness loads by file and passes the real SHA-256. Covered by checkpoint_identity_selftest.json."
+    },
+    {
+      "id": "C13-11",
+      "statement": "A missing --split-manifest or --init-checkpoint silently changes the experiment.",
+      "source": "V13_REVIEW.md D13-03; python/train_spatial_resnet.py",
+      "verdict": "CONFIRMED",
+      "reason": "Pre-fix, `if args.split_manifest and os.path.exists(...)` fell through to the internal grouped split, and `if args.init_checkpoint and os.path.exists(...)` fell through to training from scratch. Neither printed a warning.",
+      "v13Addition": "The internal fallback grouping key was `f'ep_{idx // 60}'`, which manufactures pseudo-episodes out of row order. v12/out/spatial/T12-04_split_check.json measures what that costs: 811 pseudo-groups, a train/val root overlap of 33 and 46512 samples (95.48%) inside leaked episodes. The v2 run did not hit this because every row carries rootFamilyId, so the fallback is a latent trap rather than a realised one - but it is now opt-in and watermarked."
+    },
+    {
+      "id": "C13-12",
+      "statement": "The three training seeds are three initialisations on one fixed validation set.",
+      "source": "V13_REVIEW.md D13-04",
+      "verdict": "CONFIRMED",
+      "reason": "Pre-fix, `--seed` fed both `torch.manual_seed` and the grouped-split RNG. T13-01 splits this into --model-seed, --split-seed and --data-order-seed, with --seed retained as the legacy fallback for all three."
+    },
+    {
+      "id": "C13-13",
+      "statement": "budget_s2026 best and last checkpoints are different models.",
+      "source": "Discovered by V13 while freezing artifact identity; not present in the V12 reports or the V13 review.",
+      "verdict": "REFUTED_AS_STATED",
+      "reason": "v12/models/budget_s2026.json and v12/models/budget_s2026_last.json have byte-identical SHA-256 (c71dd12710ead5e1...). Every other run in the matrix has distinct best/last hashes (budget_s42, budget_s1337, v2_honest_s42, diag_grouped_s42). The metrics file reports best_epoch 7, so the epoch-7 export and the epoch-8 export are the same bytes, which means at most one of the two exports reflects the epoch the metrics describe.",
+      "impact": "Any argument that uses budget_s2026 as an independent draw from the training distribution is weakened: its best and last artifacts are one file. It does not affect the first-batch evaluation candidates (src weights, budget_s42, v2_honest_s42).",
+      "newEvidenceRequired": "Either re-export from the original run state (unavailable) or drop seed 2026 from the extension matrix with this note attached."
+    }
+    {
+      "id": "C13-14",
+      "statement": "The converted pool's valueTarget broadcasts the episode's terminal winner to every row.",
+      "source": "v12/out/spatial/T12-04_dataset_report.json independentValueVerification",
+      "verdict": "CONFIRMED",
+      "reason": "T13-03 re-derived it end to end from the 7.27 GB source archive: 35,195 non-null valueTarget rows, 35,195 in agreement with the subject player's alliance against the episode's last non-null outcome.winnerAfter, 0 disagreements. observation.rules.alliances is {} on this archive, so a player is its own alliance (src/game/rule_config.ts:168).",
+      "methodologicalNote": "A first version of the T13-03 audit compared each row's valueTarget against THAT ROW's winnerAfter and reported 35,165 disagreements. That was a tool bug, not a data defect: outcome.winnerAfter is populated only on an episode's terminal step (rows 1-6 of the first episode all carry null). The correction is recorded because the wrong number would have been a serious false finding, and the tool now reports rowsWithPerRowNonNullWinnerAfter so the property is demonstrated rather than assumed."
+    },
+    {
+      "id": "C13-15",
+      "statement": "budget_s2026 best/last identity, and the mirror-arm perspective in the new v3 protocol.",
+      "source": "Discovered while executing T13-02/T13-03; not in any prior report.",
+      "verdict": "CONFIRMED",
+      "reason": "Two defects were found in the NEW v3 protocol by its own self-test, and both are fixed before any model evaluation is reported: (a) the mirror arm ran with a null viewer, so classifyOutcome scored it NATURAL_LOSS purely because that branch requires a non-null perspective - the mirror is now stored uncalibrated and re-derived per seat; (b) the self-test originally skipped playing mirrors under --candidate heuristic, which made the comparison vacuous. An earlier attempt to self-test the mirror on the 4-player Crossroads map was also stopped after exceeding the round's wall-clock budget, which is why the accepted self-test runs on Duel (2 seats, ~350 steps).",
+      "impact": "Neither defect reached a reported strength number: the self-test that caught them is the gate before T13-05, and T13-05 never ran."
+    }
+  ],
+  "inheritedInferencesExplicitlyNotReused": [
+    "P2 mirror 8/8 as eight independent observations (C13-01)",
+    "H(label|episode,player)=0 disqualifies value learning (C13-02)",
+    "Interleaved teachers make per-row imitation impossible (C13-03)",
+    "A changing validation set licenses a data-scale conclusion (C13-04)",
+    "BattleSearchAI 17/20 as a verified strength result (C13-05)"
+  ]
+}
