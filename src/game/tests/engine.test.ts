@@ -20,7 +20,7 @@ import { HeuristicAI } from '../ai/heuristic_ai';
 import { ruleSetIncomeCastle, ruleSetIncomeCommanderBase, ruleSetIncomeCommanderGrowth, ruleSetIncomeVillage, ruleSetLevelCap, ruleSetPrices, ruleSetUnitPrice } from '../apk_rule';
 import { checkCastle, checkCommander, checkGameOver, checkPlayerTeam, checkTeamDestroyed, checkVillage, countCastle, countUnit, countVillage, getAliveAlliances, getBoolean, getCommander, getCurrentTeam, getDistance as getStageDistance, getInteger, getTileTeam, getUnit, getUnits, putBoolean, putInteger, syncChangeGold, syncDestroyTeam, syncDisableTeam, syncGameOver, syncOverrideMov, syncRestoreTeam, syncSetAlliance, syncSetCommander, syncSetCurrentTeam, syncSetGold, syncSetGoldForTeam, syncSetRecruitUnits, syncSetRecruitUnitsForTeam, syncSetUnitCode, syncSetUnitHead, syncSetUnitHeadWithCode, syncSetUnitLevel, syncSetUnitLimit, syncSetUnitLimitForTeam, syncSetUnitStatic, syncSetUnitStaticWithCode, syncSetUnitStatus, syncSetUnitTargeted, syncSetUnitTargetedWithCode } from '../apk_stage';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileMoveCost, getTileTerrainKey } from '../terrain_rules';
-import { getUnitCost } from '../rule_config';
+import { getTileIncome, getUnitCost } from '../rule_config';
 
 describe('GameEngine Rules', () => {
 
@@ -34,6 +34,44 @@ describe('GameEngine Rules', () => {
             (action.type === 'recruit_to_castle' || action.type === 'recruit_and_deploy')
             && action.unitClass === 'skeleton'
         ))).toBe(false);
+    });
+
+    it('新开对局先手方第一回合收入：默认不补发，显式opt-in按APK规则结算且clone不重复', () => {
+        const duel = createDefaultAppGameState();
+        const firstPid = duel.currentPlayer;
+
+        // 默认构造（中盘安全）：先手方只拿初始金币，不补发
+        const plain = new GameEngine(duel);
+        expect(plain.getState().players.find(p => p.id === firstPid)?.gold).toBe(300);
+
+        // 显式 opt-in：先手方拿到 初始金币 + 领地收入 + 指挥官收入（与引擎内部口径逐项对齐）
+        const booted = new GameEngine(duel, { applyInitialTurnStart: true });
+        const st = booted.getState();
+        let expectedIncome = 0;
+        for (const row of st.map.tiles) {
+            for (const tile of row) {
+                if (tile.ownerId === firstPid) expectedIncome += getTileIncome(st, tile);
+            }
+        }
+        const commander = st.units.find(u => u.ownerId === firstPid && u.unitClass === 'commander');
+        if (commander) {
+            expectedIncome += (st.rules?.incomeCommanderBase ?? 0)
+                + (commander.level ?? 0) * (st.rules?.incomeCommanderGrowth ?? 0);
+        }
+        expect(expectedIncome).toBeGreaterThan(0);
+        expect(st.players.find(p => p.id === firstPid)?.gold).toBe(300 + expectedIncome);
+        // 对手方不受影响
+        const otherPid = firstPid === 0 ? 1 : 0;
+        expect(st.players.find(p => p.id === otherPid)?.gold).toBe(300);
+
+        // clone（搜索/重标注走此路径）不得重复发放
+        expect(booted.clone().getState().players.find(p => p.id === firstPid)?.gold).toBe(300 + expectedIncome);
+
+        // env 两档：默认关（中盘进env安全），opt-in 开（新开对局）
+        const envOff = new AncientEmpiresEnv({ initialState: duel });
+        expect(envOff.reset().state.players.find(p => p.id === firstPid)?.gold).toBe(300);
+        const envOn = new AncientEmpiresEnv({ initialState: duel, applyInitialTurnStart: true });
+        expect(envOn.reset().state.players.find(p => p.id === firstPid)?.gold).toBe(300 + expectedIncome);
     });
 
     it('17类地形配置存在，数值正确', () => {

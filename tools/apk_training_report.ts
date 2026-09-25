@@ -502,7 +502,11 @@ function buildScenarioReportEntry(
 ): TrainingScenarioReportEntry {
     const manifestEntry = getApkSkirmishMapManifestEntry(scenario.mapName);
     const manifestMatched = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
-    const env = createApkSkirmishTrainingEnv(map, scenario, { maxPlies: 200 });
+    const env = createApkSkirmishTrainingEnv(map, scenario, {
+        maxPlies: 200,
+        // 新开对局冒烟：按 APK 规则结算先手方第一回合收入
+        applyInitialTurnStart: true
+    });
     const initialResult = env.reset();
     const observation = initialResult.observation;
     const metadata = observation.metadata;

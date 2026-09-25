@@ -38,7 +38,8 @@ export async function playAutoGame(
         onStep = delayOrOptions.onStep ?? legacyOnStep;
     }
 
-    const engine = new GameEngine(createDefaultAppGameState());
+    // 新开对局：先手方按 APK 规则结算第一回合收入
+    const engine = new GameEngine(createDefaultAppGameState(), { applyInitialTurnStart: true });
     const policies: Record<number, SupportedAiPolicy> = {
         0: p0Policy,
         1: p1Policy

@@ -124,6 +124,12 @@ function getGraveAt(state: GameState, x: number, y: number) {
   return state.graves?.find(grave => grave.pos.x === x && grave.pos.y === y);
 }
 
+/** 新开沙盒对局的初始局面：附带一次性的先手方第一回合收入结算（APK 规则）。 */
+function freshSandboxState(mapName: string): GameState {
+  const boot = new GameEngine(createAppApkSkirmishGameState(mapName), { applyInitialTurnStart: true });
+  return boot.getState();
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'auto' | 'sandbox'>('sandbox');
 
@@ -135,7 +141,7 @@ export default function App() {
 
   // --- 手动沙盒对抗状态 ---
   const [selectedSandboxMapName, setSelectedSandboxMapName] = useState(DEFAULT_APP_APK_MAP_NAME);
-  const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDefaultAppGameState());
+  const [sandboxGameState, setSandboxGameState] = useState<GameState>(() => freshSandboxState(DEFAULT_APP_APK_MAP_NAME));
   const [sandboxLogs, setSandboxLogs] = useState<string[]>([
     "[系统] 欢迎来到手动沙盒试炼场！默认载入 APK 官方 Duel 地图，可切换 20 张官方 skirmish 地图并手动操纵各阵营对战。"
   ]);
@@ -247,8 +253,10 @@ export default function App() {
     setHoveredTilePos(null);
   };
 
+  // 新开沙盒对局：经一次性的初始回合结算（先手方按 APK 规则拿第一回合收入），
+  // 之后每步的引擎都按中盘构造（不再补发），保证只结算一次。
   const handleResetSandbox = () => {
-    setSandboxGameState(createAppApkSkirmishGameState(selectedSandboxMapName));
+    setSandboxGameState(freshSandboxState(selectedSandboxMapName));
     resetSandboxSelections();
     if (duelRecordRef.current && duelRecordRef.current.actions.length > 0) {
       setSandboxLogs(prev => [...prev, `[录像] 沙盒已重置，之前录制的 ${duelRecordRef.current!.actions.length} 步已作废（导出窗口已过）。`]);
@@ -260,7 +268,7 @@ export default function App() {
 
   const handleChangeSandboxMap = (mapName: string) => {
     setSelectedSandboxMapName(mapName);
-    setSandboxGameState(createAppApkSkirmishGameState(mapName));
+    setSandboxGameState(freshSandboxState(mapName));
     resetSandboxSelections();
     if (duelRecordRef.current && duelRecordRef.current.actions.length > 0) {
       setSandboxLogs(prev => [...prev, `[录像] 地图已切换，之前录制的 ${duelRecordRef.current!.actions.length} 步已作废（导出窗口已过）。`]);

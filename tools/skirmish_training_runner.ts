@@ -130,6 +130,11 @@ export interface SkirmishEpisodeRecord {
     seed: number;
     maxPlies: number;
     maxSteps: number;
+    /**
+     * 记录时是否按 APK 规则为先手方结算了第一回合收入。
+     * 可选：老记录缺省视为 false（旧规则）；回放工厂按此戳重建环境，保证 hash 可复现。
+     */
+    initialTurnStartApplied?: boolean;
     initialObservationHash: string;
     initialLegalActionCount: number;
     fixedActionSpaceSize: number;
@@ -1104,6 +1109,11 @@ export function runSkirmishEpisode(options: {
     onProgress?: (progress: SkirmishEpisodeProgress) => void;
     stagnationPatienceTurns?: number;
     stagnationMinTurns?: number;
+    /**
+     * 传入 env 是否按 APK 规则结算了先手方第一回合收入（与 env 的 applyInitialTurnStart 一致）。
+     * 用于给对局记录打规则戳，回放时按戳重建；默认 false（兼容老调用）。
+     */
+    initialTurnStartApplied?: boolean;
 }): SkirmishEpisodeRecord {
     const {
         env,
@@ -1118,7 +1128,8 @@ export function runSkirmishEpisode(options: {
         progressIntervalTurns,
         onProgress,
         stagnationPatienceTurns = 24,
-        stagnationMinTurns = 40
+        stagnationMinTurns = 40,
+        initialTurnStartApplied = false
     } = options;
     let result = env.reset(seed);
     const initialObservationHash = hashJson(result.observation);
@@ -1295,6 +1306,7 @@ export function runSkirmishEpisode(options: {
         seed,
         maxPlies,
         maxSteps,
+        initialTurnStartApplied,
         initialObservationHash,
         initialLegalActionCount,
         fixedActionSpaceSize,
@@ -1614,7 +1626,9 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
 
         const env = createApkSkirmishTrainingEnv(map, scenario, {
             seed: job.seed,
-            maxPlies
+            maxPlies,
+            // 新开对局：先手方按 APK 规则结算第一回合收入
+            applyInitialTurnStart: true
         });
         const episode = runSkirmishEpisode({
             env,
@@ -1628,6 +1642,8 @@ export async function runSkirmishBaseline(options: SkirmishRunnerOptions): Promi
             maxPlies,
             maxSteps,
             policyFactory,
+            // 与上方 env 的 applyInitialTurnStart 保持一致（规则戳进记录）
+            initialTurnStartApplied: true,
             workerId: 1,
             jobId: job.jobId,
             progressIntervalSteps: options.progressIntervalSteps,
@@ -1778,7 +1794,9 @@ export async function runSkirmishWorker(data: SkirmishWorkerData = workerData as
         const maxSteps = resolveScenarioMaxSteps(data.options, maxPlies);
         const env = createApkSkirmishTrainingEnv(map, scenario, {
             seed: job.seed,
-            maxPlies
+            maxPlies,
+            // 新开对局：先手方按 APK 规则结算第一回合收入
+            applyInitialTurnStart: true
         });
         const episode = runSkirmishEpisode({
             env,
@@ -1792,6 +1810,8 @@ export async function runSkirmishWorker(data: SkirmishWorkerData = workerData as
             maxPlies,
             maxSteps,
             policyFactory,
+            // 与上方 env 的 applyInitialTurnStart 保持一致（规则戳进记录）
+            initialTurnStartApplied: true,
             workerId: data.workerId,
             jobId: job.jobId,
             progressIntervalSteps: data.options.progressIntervalSteps,

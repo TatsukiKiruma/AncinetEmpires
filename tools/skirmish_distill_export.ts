@@ -479,7 +479,9 @@ function createDefaultEnvFactory(unpackDir: string): SkirmishDistillEnvFactory {
             mapCache.set(scenario.resourcePath, map);
             return createApkSkirmishTrainingEnv(map, scenario, {
                 seed: episode.seed,
-                maxPlies: episode.maxPlies
+                maxPlies: episode.maxPlies,
+                // 回放必须跟随记录时的规则：老记录缺省按旧规则（无首回合收入）重建
+                applyInitialTurnStart: episode.initialTurnStartApplied ?? false
             });
         }
     };

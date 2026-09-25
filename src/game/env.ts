@@ -649,15 +649,22 @@ export class AncientEmpiresEnv {
   private seed: number;
   private maxPlies: number;
   private initialConfig?: GameState;
+  private applyInitialTurnStart: boolean;
 
   constructor(config?: {
     initialState?: GameState;
     seed?: number;
     maxPlies?: number;
+    /**
+     * 新开对局时是否为先手方结算第一回合收入（APK 规则：回合开始即结算，含首回合）。
+     * 默认 false：中盘状态进 env 不得补发收入；新开对局的调用方必须显式传 true。
+     */
+    applyInitialTurnStart?: boolean;
   }) {
     this.seed = config?.seed ?? 0;
     this.maxPlies = config?.maxPlies ?? 1000;
-    
+    this.applyInitialTurnStart = config?.applyInitialTurnStart ?? false;
+
     if (config?.initialState) {
         this.initialConfig = JSON.parse(JSON.stringify(config.initialState));
     }
@@ -677,7 +684,10 @@ export class AncientEmpiresEnv {
     if (!this.initialConfig) {
       throw new Error("AncientEmpiresEnv requires an initialState either in constructor or reset if unimplemented gen.");
     }
-    this.engine = new GameEngine(JSON.parse(JSON.stringify(this.initialConfig)));
+    this.engine = new GameEngine(
+        JSON.parse(JSON.stringify(this.initialConfig)),
+        { applyInitialTurnStart: this.applyInitialTurnStart }
+    );
     return this.buildStepResult(0, false, "Environment reset");
   }
 

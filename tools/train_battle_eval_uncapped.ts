@@ -70,7 +70,8 @@ function parseArg(name: string, fallback: number): number {
 function playOne(opts: { gameIndex: number; seed: number; safetyTurns: number; topK: number; oppK: number; rollout: number; takeover: number; veto: number; danger: number; searchStart: number; bot: string; newGoesFirst: boolean; makeState: () => GameState }): {
   winner: number | null; winnerPolicy: string | null; turns: number; steps: number; ms: number; capped: boolean; stats: string;
 } {
-  const engine = new GameEngine(opts.makeState());
+  // 新开对局：先手方按 APK 规则结算第一回合收入（makeState 均为新鲜 T1 局面）
+  const engine = new GameEngine(opts.makeState(), { applyInitialTurnStart: true });
   const hSeedBase = opts.seed + opts.gameIndex * 100003;
   // 新模型执 P0 还是 P1 交替；heuristic 用独立 rng 流
   const battleAI = new BattleSearchAI(hSeedBase + 777, {

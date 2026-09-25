@@ -63,7 +63,8 @@ const newAI = botMode === 'policy'
     : new BattleSearchAI(hBase + 777, { topK: 6, oppDepth: 3, friendlyRolloutSteps: 1, takeoverThreshold: 350, vetoMargin: 300, dangerLine: -800 });
 const heuH = new HeuristicAI(mulberry(hBase + (swap ? 1000 : 999)));
 const heuA = new HeuristicAI(mulberry(hBase + (swap ? 999 : 1000)));
-const engine = new GameEngine(MAPS[mapKey]());
+// 新开对局：先手方按 APK 规则结算第一回合收入
+const engine = new GameEngine(MAPS[mapKey](), { applyInitialTurnStart: true });
 let lastTurn = -1;
 console.log('turn cur P0army/P1army P0gold/P1gold P0terr(c/t)/P1terr units0/units1');
 let steps = 0;

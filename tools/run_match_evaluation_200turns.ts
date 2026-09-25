@@ -120,7 +120,8 @@ export function runMatch200Turns(
     maxTurns: number = 200
 ): MatchEvaluationReport {
     const state = createDemoState(getApkSkirmishRuleConfig('SD'));
-    const engine = new GameEngine(state);
+    // 新开对局：先手方按 APK 规则结算第一回合收入
+    const engine = new GameEngine(state, { applyInitialTurnStart: true });
     const heuristicAi = new HeuristicAI();
 
     const p0PolicyName = p0Type === 'spatial' ? 'Spatial_ResNet_v1' : 'HeuristicAI';

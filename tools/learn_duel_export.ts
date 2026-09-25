@@ -178,7 +178,8 @@ async function main() {
         const heuA = new HeuristicAI(mulberry(hBase + 999));
         const heuB = new HeuristicAI(mulberry(hBase + 1000));
         const scorer = new HeuristicAI(mulberry(hBase + 4242));
-        const engine = new GameEngine(MAP_TABLE[map]());
+        // 新开对局：先手方按 APK 规则结算第一回合收入（中盘 snap 重标注保持无 flag）
+        const engine = new GameEngine(MAP_TABLE[map](), { applyInitialTurnStart: true });
         const pending: PendingSample[] = [];
         const daggerRaw: Array<{ map: string; seed: number; turn: number; playerId: number; snap: GameState; legal: Action[] }> = [];
         let steps = 0;

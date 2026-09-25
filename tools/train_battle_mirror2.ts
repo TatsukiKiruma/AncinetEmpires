@@ -33,7 +33,8 @@ const seed = Number(arg('--seed', '1001'));
 const safety = 600;
 for (let i = 0; i < games; i++) {
   const t0 = Date.now();
-  const engine = new GameEngine(MAPS[mapKey]());
+  // 新开对局：先手方按 APK 规则结算第一回合收入
+  const engine = new GameEngine(MAPS[mapKey](), { applyInitialTurnStart: true });
   const swap = process.argv.includes('--swap');
   const hBase = seed + i * 100003;
   const ai0 = new HeuristicAI(mulberry(hBase + (swap ? 1000 : 999)));

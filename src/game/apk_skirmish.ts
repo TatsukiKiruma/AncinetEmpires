@@ -78,6 +78,8 @@ export interface CreateApkSkirmishTrainingGameStateOptions extends CreateApkSkir
 export interface CreateApkSkirmishTrainingEnvOptions extends CreateApkSkirmishTrainingGameStateOptions {
     seed?: number;
     maxPlies?: number;
+    /** 新开对局时是否为先手方结算第一回合收入（APK 规则）；默认 false，中盘状态禁用 */
+    applyInitialTurnStart?: boolean;
 }
 
 function mapApkUnitIds(apkUnitIds: readonly number[]): UnitClass[] {
@@ -307,12 +309,14 @@ export function createApkSkirmishTrainingEnv(
     const {
         seed,
         maxPlies,
+        applyInitialTurnStart,
         ...stateOptions
     } = options;
 
     return new AncientEmpiresEnv({
         initialState: createApkSkirmishTrainingGameState(map, scenarioInput, stateOptions),
         seed,
-        maxPlies
+        maxPlies,
+        applyInitialTurnStart
     });
 }
