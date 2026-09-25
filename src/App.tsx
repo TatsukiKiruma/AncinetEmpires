@@ -145,6 +145,15 @@ export default function App() {
   const [hoveredTilePos, setHoveredTilePos] = useState<Position | null>(null);
   const bottomSandboxRef = useRef<HTMLDivElement>(null);
 
+  // --- 人类对局录像（训练数据采集；ref 持有避免闭包过期） ---
+  const [recordCount, setRecordCount] = useState(0);
+  const duelRecordRef = useRef<{
+    mapName: string;
+    initialState: GameState;
+    actions: Array<{ playerId: number; action: Action; source: 'human' | 'ai' }>;
+    startedAt: string;
+  } | null>(null);
+
   // 滚动至最新日志
   useEffect(() => {
     bottomAutoRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -221,6 +230,10 @@ export default function App() {
     const currentEngine = new GameEngine(sandboxGameStateRef.current);
     const stepRes = currentEngine.step(res.action);
     setSandboxGameState(currentEngine.getState());
+    if (duelRecordRef.current && !stepRes.info.includes('非法')) {
+      duelRecordRef.current.actions.push({ playerId: cp, action: res.action, source: 'ai' });
+      setRecordCount(duelRecordRef.current.actions.length);
+    }
     resetSandboxSelections();
     const nodeInfo = res.nodesExpanded !== undefined ? ` (展开节点: ${res.nodesExpanded})` : '';
     setSandboxLogs(prev => [...prev, `[AI 行动] P${cp} [${res.source}] 执行 ${res.action.type} 耗时: ${res.latencyMs}ms${nodeInfo} - ${stepRes.info}`]);
@@ -237,6 +250,11 @@ export default function App() {
   const handleResetSandbox = () => {
     setSandboxGameState(createAppApkSkirmishGameState(selectedSandboxMapName));
     resetSandboxSelections();
+    if (duelRecordRef.current && duelRecordRef.current.actions.length > 0) {
+      setSandboxLogs(prev => [...prev, `[录像] 沙盒已重置，之前录制的 ${duelRecordRef.current!.actions.length} 步已作废（导出窗口已过）。`]);
+    }
+    duelRecordRef.current = null;
+    setRecordCount(0);
     setSandboxLogs(prev => [...prev, `[系统] 沙盒已重置为 ${selectedSandboxMapName}。`]);
   };
 
@@ -244,7 +262,52 @@ export default function App() {
     setSelectedSandboxMapName(mapName);
     setSandboxGameState(createAppApkSkirmishGameState(mapName));
     resetSandboxSelections();
+    if (duelRecordRef.current && duelRecordRef.current.actions.length > 0) {
+      setSandboxLogs(prev => [...prev, `[录像] 地图已切换，之前录制的 ${duelRecordRef.current!.actions.length} 步已作废（导出窗口已过）。`]);
+    }
+    duelRecordRef.current = null;
+    setRecordCount(0);
     setSandboxLogs(prev => [...prev, `[系统] 已切换 APK 地图：${mapName}`]);
+  };
+
+  const handleStartDuelRecord = () => {
+    duelRecordRef.current = {
+      mapName: selectedSandboxMapName,
+      initialState: JSON.parse(JSON.stringify(sandboxGameStateRef.current)) as GameState,
+      actions: [],
+      startedAt: new Date().toISOString()
+    };
+    setRecordCount(0);
+    setSandboxLogs(prev => [...prev, `[录像] 开始录制人类对局（地图 ${selectedSandboxMapName}，第 ${sandboxGameStateRef.current.turn} 回合起）。打完点“导出对局JSON”。中途不要点重置/切图、不要用加金调试。`]);
+  };
+
+  const handleExportDuelRecord = () => {
+    const rec = duelRecordRef.current;
+    if (!rec || rec.actions.length === 0) {
+      setSandboxLogs(prev => [...prev, `[录像] 没有可导出的录制（请先点“开始录制人类对局”并走子）。`]);
+      return;
+    }
+    const payload = {
+      kind: 'human_duel',
+      version: 1,
+      mapName: rec.mapName,
+      startedAt: rec.startedAt,
+      exportedAt: new Date().toISOString(),
+      initialState: rec.initialState,
+      actions: rec.actions,
+      finalState: sandboxGameStateRef.current,
+      winner: sandboxGameStateRef.current.winner
+    };
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `human_duel_${rec.mapName.replace(/[^A-Za-z0-9]+/g, '_')}_${rec.actions.length}steps.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setSandboxLogs(prev => [...prev, `[录像] 已导出 ${rec.actions.length} 步（胜者 P${sandboxGameStateRef.current.winner}），请把 JSON 文件发给训练端。`]);
   };
 
   const handleAddGold = (playerId: number, amount: number) => {
@@ -280,8 +343,13 @@ export default function App() {
       case 'end_turn': actionDesc = `回合结束：交替行动控制权`; break;
     }
 
+    const actingPlayer = sandboxGameState.currentPlayer;
     const result = engine.step(action);
     setSandboxGameState(result.state);
+    if (duelRecordRef.current && !result.info.includes('非法')) {
+      duelRecordRef.current.actions.push({ playerId: actingPlayer, action, source: 'human' });
+      setRecordCount(duelRecordRef.current.actions.length);
+    }
     setSelectedRecruitUnitClass(null);
     
     if (result.info) {
@@ -907,11 +975,25 @@ export default function App() {
               >
                 💡 启发式走一步
               </button>
-              <button 
+              <button
                 onClick={handleResetSandbox}
                 className="px-4 py-2 bg-[#2D1F2D] border border-purple-800 hover:border-purple-400 text-purple-400 text-xs font-bold transition-all rounded"
               >
                 🔄 重置沙盒
+              </button>
+              <button
+                onClick={handleStartDuelRecord}
+                className="px-4 py-2 bg-[#1d2b1d] border border-green-700 hover:border-green-400 text-green-300 text-xs font-bold transition-all rounded"
+                title="从当前局面开始录制人类对局（训练数据采集）"
+              >
+                🔴 开始录制人类对局{recordCount > 0 ? ` (已录 ${recordCount} 步)` : ''}
+              </button>
+              <button
+                onClick={handleExportDuelRecord}
+                className="px-4 py-2 bg-[#1d2431] border border-sky-700 hover:border-sky-400 text-sky-300 text-xs font-bold transition-all rounded"
+                title="导出已录制对局为 JSON（发给训练端）"
+              >
+                💾 导出对局JSON
               </button>
             </div>
 
