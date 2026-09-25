@@ -12,7 +12,7 @@ import {
   getAppApkSkirmishMapOptions
 } from './game/apk_skirmish_map_assets';
 import { runCancellableAiAction } from './game/ai/cancellable_ai_runner';
-import { type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
+import { getAiAction, type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
 
 const unitNameMap: Record<string, string> = {
   soldier: '兵',
@@ -243,6 +243,43 @@ export default function App() {
     resetSandboxSelections();
     const nodeInfo = res.nodesExpanded !== undefined ? ` (展开节点: ${res.nodesExpanded})` : '';
     setSandboxLogs(prev => [...prev, `[AI 行动] P${cp} [${res.source}] 执行 ${res.action.type} 耗时: ${res.latencyMs}ms${nodeInfo} - ${stepRes.info}`]);
+  };
+
+  // --- 沙盒 AI 代打整回合：当前方用指定策略走完本回合（含 end_turn 交权） ---
+  const handleAiTurnSandbox = (policy: SupportedAiPolicy) => {
+    const startPid = sandboxGameStateRef.current.currentPlayer;
+    const engine = new GameEngine(sandboxGameStateRef.current);
+    if (engine.isTerminal()) {
+      setSandboxLogs(prev => [...prev, `[AI 代打] 对局已终局（胜者 P${engine.getWinner()}），无需代打。`]);
+      return;
+    }
+    let steps = 0;
+    const cap = 400;
+    let lastInfo = '';
+    while (!engine.isTerminal() && engine.getState().currentPlayer === startPid && steps < cap) {
+      const pid = engine.getState().currentPlayer;
+      let action: Action;
+      try {
+        action = getAiAction(policy, engine, pid).action;
+      } catch (err) {
+        setSandboxLogs(prev => [...prev, `[AI 代打] P${pid} 决策异常，已中断：${err instanceof Error ? err.message : String(err)}`]);
+        break;
+      }
+      const stepRes = engine.step(action);
+      lastInfo = stepRes.info;
+      if (duelRecordRef.current && !stepRes.info.includes('非法')) {
+        duelRecordRef.current.actions.push({ playerId: pid, action, source: 'ai' });
+      }
+      steps++;
+    }
+    setSandboxGameState(engine.getState());
+    resetSandboxSelections();
+    if (duelRecordRef.current) setRecordCount(duelRecordRef.current.actions.length);
+    const endState = engine.getState();
+    const capped = steps >= cap && !engine.isTerminal() && endState.currentPlayer === startPid;
+    setSandboxLogs(prev => [...prev,
+      `[AI 代打] P${startPid} [${policy}] 走完本回合：${steps} 步${capped ? '（触400步上限被截断，如需继续请再点一次）' : ''}，现行动方 P${endState.currentPlayer}${endState.winner !== null ? `，终局胜者 P${endState.winner}` : ''} - ${lastInfo}`
+    ]);
   };
 
   // --- 沙盒模式控制 ---
@@ -976,12 +1013,19 @@ export default function App() {
               >
                 🤖 NET_B 走一步
               </button>
-              <button 
+              <button
                 onClick={() => handleAiStepSandbox('heuristic')}
                 className="px-4 py-2 bg-[#2a241b] border border-amber-700 hover:border-amber-400 text-amber-300 text-xs font-bold transition-all rounded shadow"
                 title="调用 原生启发式 进行当前玩家单步决策"
               >
                 💡 启发式走一步
+              </button>
+              <button
+                onClick={() => handleAiTurnSandbox('heuristic')}
+                className="px-4 py-2 bg-[#2a241b] border border-amber-700 hover:border-amber-400 text-amber-300 text-xs font-bold transition-all rounded shadow"
+                title="当前行动方用启发式走完整个回合（含结束回合交权）；再点一次则下一方也走完一回合"
+              >
+                ⏩ 启发式走完本回合
               </button>
               <button
                 onClick={handleResetSandbox}
