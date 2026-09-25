@@ -138,14 +138,13 @@ def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth
     # 类型加权（cost-sensitive）：招募/攻击/capture 在标签中只占 10%/6%/3%，
     # 无加权时 net 学会 base rate（从不主动爆兵打架，mourning T5 坐拥350金零招募教训）；
     # wait/end 则因过产（55% vs teacher 32%）略微降权。
-    # v19 生产节律：mid-game 停产是系统性死因（crossing/mourning T5-T6 零招募接崩盘），
-    # 把生产/战斗动作权重拉满，让 net 在任何有钱有城时都倾向爆兵打架。
+    # v20 回到验证过的温和权重（v19 极端权重已证伪；v15p0/v11 组合 8/20 即用此权重）。
     TYPE_W = {
-        'recruit_to_castle': 8.0, 'recruit_and_deploy': 8.0,
-        'attack': 4.0, 'capture': 3.0, 'heal': 2.0, 'support': 2.0,
+        'recruit_to_castle': 3.0, 'recruit_and_deploy': 3.0,
+        'attack': 2.5, 'capture': 2.0, 'heal': 2.0, 'support': 2.0,
         'summon': 2.0, 'repair': 2.0, 'destroy_town': 2.0,
         'move': 1.0, 'post_attack_move': 1.0,
-        'wait': 0.5, 'end_turn': 0.5,
+        'wait': 0.7, 'end_turn': 0.7,
     }
 
     def behind_w(s):
@@ -188,19 +187,30 @@ def train_policy(train, val, epochs, lr, device, hidden, use_all, act_dim, depth
         * outcome_w(s)
         for s in tr
     ])
+    # batch 前向：按样本块拼行一次前向（数学与逐样本等价，快一个量级；v20 数据 5 倍必需）
+    BATCH_SAMPLES = 256
     for ep in range(1, epochs + 1):
         model.train()
-        perm = torch.randperm(len(bounds))
+        perm = torch.randperm(len(bounds)).tolist()
         total_loss, total_n = 0.0, 0
-        for bi in perm.tolist():
-            a, b = bounds[bi]
-            scores = model(Xs[a:b])
-            loss = (torch.logsumexp(scores, dim=0) - scores[0]) * float(wts[bi])
+        for g in range(0, len(perm), BATCH_SAMPLES):
+            chunk = perm[g:g + BATCH_SAMPLES]
+            seg = [bounds[bi] for bi in chunk]
+            rows = torch.cat([Xs[a:b] for (a, b) in seg])
+            scores = model(rows)
+            loss = 0.0
+            off = 0
+            for (a, b), bi in zip(seg, chunk):
+                n = b - a
+                s = scores[off:off + n]
+                off += n
+                loss = loss + (torch.logsumexp(s, dim=0) - s[0]) * float(wts[bi])
+            loss = loss / len(chunk)
             opt.zero_grad()
             loss.backward()
             opt.step()
-            total_loss += loss.item()
-            total_n += 1
+            total_loss += loss.item() * len(chunk)
+            total_n += len(chunk)
         acc = eval_policy(model, va, mean, std, device)
         tracc = eval_policy(model, tr[:500], mean, std, device)
         print(f'[policy] epoch={ep} loss={total_loss / max(1, total_n):.4f} trainTop1sub={tracc:.4f} valTop1={acc:.4f}', flush=True)

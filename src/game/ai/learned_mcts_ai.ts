@@ -6,7 +6,7 @@
  * - 自博弈时根加 Dirichlet 噪声；评测时确定性（访问数 argmax）。
  * 目标：验证“搜索能否让弱网变强”（bootstrap），为专家迭代循环提供对弈器。
  */
-import type { Action } from '../types';
+import type { Action, GameState } from '../types';
 import { GameEngine } from '../engine';
 import { getDefaultLearnedDuelNet, getSeatLearnedDuelNet, type LearnedDuelNet } from './learned_duel_net';
 import { HeuristicAI } from './heuristic_ai';
@@ -24,6 +24,8 @@ export interface LearnedMctsOptions {
 
 interface MctsNode {
   sim: GameEngine;
+  /** 节点创建时缓存的状态快照（getState() 是深拷贝，每节点只调一次，热路径不再调）。 */
+  st: GameState;
   pid: number;
   children: Array<{
     action: Action;
@@ -100,11 +102,12 @@ export class LearnedMctsAI {
     if (urgent) return urgent;
 
     const rootPid = playerId;
-    const root: MctsNode = { sim: engine.clone(), pid: playerId, children: [], expanded: false };
+    const rootSim = engine.clone();
+    const root: MctsNode = { sim: rootSim, st: rootSim.getState(), pid: playerId, children: [], expanded: false };
     this.expand(root, true);
 
     for (let i = 0; i < this.sims; i++) {
-      this.simulate(root, rootPid, 64);
+      this.simulate(root, rootPid, 256);
     }
 
     let best = root.children[0];
@@ -122,10 +125,11 @@ export class LearnedMctsAI {
     if (pool.length <= 1) {
       return { actions: pool.length > 0 ? pool : [{ type: 'end_turn' }], visits: [1] };
     }
-    const root: MctsNode = { sim: engine.clone(), pid: playerId, children: [], expanded: false };
+    const rootSim = engine.clone();
+    const root: MctsNode = { sim: rootSim, st: rootSim.getState(), pid: playerId, children: [], expanded: false };
     this.expand(root, true);
     for (let i = 0; i < this.sims; i++) {
-      this.simulate(root, playerId, 64);
+      this.simulate(root, playerId, 256);
     }
     return { actions: root.children.map(c => c.action), visits: root.children.map(c => c.visits) };
   }
@@ -141,7 +145,7 @@ export class LearnedMctsAI {
     }
     if (legal.length === 0) return;
     const net = this.netFor(node.pid);
-    const scores = net.policyScores(node.sim.getState(), node.pid, legal);
+    const scores = net.policyScores(node.st, node.pid, legal);
     const order = legal.map((_, i) => i).sort((x, y) => scores[y] - scores[x]);
     const top = order.slice(0, Math.min(this.maxBranch, order.length));
     // 先验：softmax（温度 1）；根自博弈噪声在调用处混入
@@ -165,7 +169,7 @@ export class LearnedMctsAI {
   }
 
   private simulate(node: MctsNode, rootPid: number, depth: number): number {
-    const st = node.sim.getState();
+    const st = node.st;
     if (st.winner !== null) {
       const w = st.winner;
       return w === -1 ? 0.5 : (w === getAllianceId(st, rootPid) ? 1 : 0);
@@ -174,11 +178,13 @@ export class LearnedMctsAI {
     if (depth <= 0) {
       return this.netFor(rootPid).valueOf(st, rootPid);
     }
+    // 标准 MCTS：未展开节点展开后立即用 value 评估，不再深入（每 sim 至多扩展 1 节点）
     if (!node.expanded) {
       this.expand(node, false);
-      if (node.children.length === 0) {
-        return this.netFor(rootPid).valueOf(st, rootPid);
-      }
+      return this.netFor(rootPid).valueOf(st, rootPid);
+    }
+    if (node.children.length === 0) {
+      return this.netFor(rootPid).valueOf(st, rootPid);
     }
     const isMax = node.pid === rootPid;
     const total = node.children.reduce((a, c) => a + c.visits, 0);
@@ -200,7 +206,7 @@ export class LearnedMctsAI {
       } catch {
         return 0;
       }
-      best.child = { sim: childSim, pid: childSim.getState().currentPlayer, children: [], expanded: false };
+      best.child = { sim: childSim, st: childSim.getState(), pid: childSim.getState().currentPlayer, children: [], expanded: false };
     }
     const v = this.simulate(best.child, rootPid, depth - 1);
     best.visits += 1;
