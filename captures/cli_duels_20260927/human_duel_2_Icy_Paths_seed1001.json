@@ -1,0 +1,5740 @@
+{
+  "kind": "human_duel",
+  "version": 1,
+  "mapName": "(2) Icy Paths.aem",
+  "startedAt": "2026-09-26T20:12:14.654Z",
+  "exportedAt": "2026-09-26T20:28:18.735Z",
+  "controllers": {
+    "red": "Assistant manually selected actions through the CLI",
+    "blue": "HeuristicAI"
+  },
+  "initialState": {
+    "turn": 1,
+    "currentPlayer": 0,
+    "map": {
+      "width": 15,
+      "height": 15,
+      "tiles": [
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 5,
+            "apkTerrainRaw": 24575,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 4,
+            "apkTerrainRaw": 20479,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": 1,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 151553,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 23,
+            "apkTerrainRaw": 98303,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 32,
+            "apkTerrainRaw": 135167,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 12,
+            "apkTerrainRaw": 53247,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": null,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 155646,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 4,
+            "apkTerrainRaw": 20479,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 14,
+            "apkTerrainRaw": 61439,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": null,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 155646,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 5,
+            "apkTerrainRaw": 24575,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 0,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147456,
+            "apkOwnerCode": 0
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 25,
+            "apkTerrainRaw": 106495,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 151550,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 0,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147456,
+            "apkOwnerCode": 0
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": 0,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 151552,
+            "apkOwnerCode": 0
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 14,
+            "apkTerrainRaw": 61439,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 12,
+            "apkTerrainRaw": 53247,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ]
+      ]
+    },
+    "units": [
+      {
+        "id": "apk_u0",
+        "ownerId": 0,
+        "unitClass": "commander",
+        "pos": {
+          "x": 13,
+          "y": 13
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 0,
+        "apkUnitId": 9,
+        "apkUnitExtra": 0,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false,
+        "movementRemaining": 4
+      },
+      {
+        "id": "apk_u1",
+        "ownerId": 1,
+        "unitClass": "commander",
+        "pos": {
+          "x": 1,
+          "y": 1
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 0,
+        "apkUnitId": 9,
+        "apkUnitExtra": 0
+      }
+    ],
+    "players": [
+      {
+        "id": 0,
+        "gold": 550,
+        "isAlive": true,
+        "commanderDeathCount": 0
+      },
+      {
+        "id": 1,
+        "gold": 300,
+        "isAlive": true,
+        "commanderDeathCount": 0
+      }
+    ],
+    "winner": null,
+    "nextUnitId": 2,
+    "nextGraveId": 100,
+    "rules": {
+      "defeatOnNoUnitsAndNoCastles": true,
+      "initialGold": 300,
+      "incomeCommanderBase": 50,
+      "incomeCommanderGrowth": 25,
+      "levelCap": 3,
+      "unitLimit": 30,
+      "recruitableUnits": [
+        "commander",
+        "soldier",
+        "ghost",
+        "mermaid",
+        "archer",
+        "slime",
+        "dark_mage",
+        "water_elemental",
+        "paladin",
+        "witch",
+        "berserker",
+        "elf",
+        "wolf",
+        "ice_elemental",
+        "golem",
+        "druid",
+        "catapult",
+        "wolf_archer",
+        "dragon"
+      ],
+      "commanderRecruitBaseCost": 400,
+      "commanderRecruitCostGrowth": 100,
+      "allowSurrender": true,
+      "allowPendingRecruitEndTurn": true,
+      "allowPendingRecruitSurrender": true,
+      "commanderCastleRecruitUsesPending": true,
+      "defeatOnNoUnits": false
+    },
+    "metadata": {
+      "apkSkirmishMode": "SD",
+      "apkSkirmishSetupOptions": {
+        "initialGold": {
+          "default": 300,
+          "min": 0,
+          "max": 2000,
+          "step": 50
+        },
+        "unitLimit": {
+          "default": 30,
+          "min": 20,
+          "max": 100,
+          "step": 10
+        },
+        "levelCap": {
+          "default": 3,
+          "min": 0,
+          "max": 9,
+          "step": 1
+        },
+        "modes": {
+          "default": "SD",
+          "options": [
+            "SD",
+            "SO"
+          ],
+          "labels": {
+            "SD": "默认",
+            "SO": "原版"
+          }
+        }
+      },
+      "source": "apk_aem",
+      "recommendedGold": null,
+      "apkTailTemplate": "zero_suffix_58",
+      "apkApproximateTerrainIds": [],
+      "apkApproximateTileCount": 0,
+      "apkUnmappedTerrainIds": [],
+      "apkUnmappedTileCount": 0,
+      "apkMapName": "(2) Icy Paths.aem",
+      "apkVersion": "aer-release-4.2.5.1",
+      "apkSha256": "51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B",
+      "apkResourcePath": "assets/maps/(2) Icy Paths.aem"
+    }
+  },
+  "actions": [
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "dark_mage",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_2"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "archer",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 12,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_3"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 2,
+          "y": 4
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 5,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 4,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "soldier",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 11,
+          "y": 9
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 7,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_2"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 8,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u0"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 9,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_3"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "wait",
+        "unitId": "u_7"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 2,
+          "y": 7
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 8,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 4,
+          "y": 5
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "slime",
+        "castlePos": {
+          "x": 1,
+          "y": 1
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_5"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 10,
+          "y": 8
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "dark_mage",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 12,
+          "y": 10
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_2",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 7,
+          "y": 9
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 6,
+          "y": 7
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 8,
+          "y": 3
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 2,
+          "y": 6
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "slime",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_10"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_5",
+        "targetId": "u_2"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_2",
+        "targetId": "u_5"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_3",
+        "targetId": "u_5"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u0",
+        "to": {
+          "x": 8,
+          "y": 7
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 8,
+          "y": 10
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 9,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_5",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_5"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 6,
+          "y": 9
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 3,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 3,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "paladin",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 3,
+          "y": 9
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_12",
+        "targetId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "apk_u0"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_10",
+        "targetId": "u_3"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_2",
+        "targetId": "u_5"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_3",
+        "targetId": "u_5"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u0",
+        "targetId": "u_8"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 6,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "capture",
+        "unitId": "u_11"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "dark_mage",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 11,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_7",
+        "to": {
+          "x": 8,
+          "y": 8
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_8"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_12",
+        "targetId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 11,
+          "y": 6
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 3,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_10",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_10",
+        "targetId": "apk_u0"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "apk_u0"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_3"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 8,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_2",
+        "targetId": "u_10"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_10"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_9",
+        "to": {
+          "x": 7,
+          "y": 9
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_9",
+        "targetId": "u_10"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_11",
+        "to": {
+          "x": 7,
+          "y": 10
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_11",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 7,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 9,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_12",
+        "targetId": "u_14"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 6,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ice_elemental",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 9,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_16",
+        "to": {
+          "x": 4,
+          "y": 9
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 4,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_2"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "u_2"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_11"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "apk_u1",
+        "targetId": "u_11"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_16",
+        "targetId": "u_9"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_8"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_9",
+        "targetId": "u_8"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_3",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_3",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 7,
+          "y": 10
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_13",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_15",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_15",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "dark_mage",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "end_turn"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_12",
+        "targetId": "u_16"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 9,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 4,
+          "y": 12
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_16",
+        "to": {
+          "x": 6,
+          "y": 9
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_16",
+        "targetId": "u_3"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 8,
+          "y": 6
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 6,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_4",
+        "targetId": "u_17"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_13"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_15"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_8"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_6"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_15",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_13",
+        "to": {
+          "x": 6,
+          "y": 11
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_13",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_17",
+        "to": {
+          "x": 7,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_17",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_9",
+        "targetId": "u_14"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_7",
+        "targetId": "u_8"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_19",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_19",
+        "targetId": "u_4"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "apk_u1",
+        "to": {
+          "x": 6,
+          "y": 13
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "apk_u1"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_16",
+        "targetId": "u_15"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_4",
+        "to": {
+          "x": 11,
+          "y": 13
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "capture",
+        "unitId": "u_4"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_12",
+        "to": {
+          "x": 6,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "heal",
+        "healerId": "u_12",
+        "targetId": "u_16"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_6",
+        "to": {
+          "x": 6,
+          "y": 12
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_6",
+        "targetId": "u_17"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_18",
+        "to": {
+          "x": 7,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_14",
+        "to": {
+          "x": 9,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "elf",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_20",
+        "to": {
+          "x": 4,
+          "y": 11
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_8",
+        "to": {
+          "x": 7,
+          "y": 8
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_20",
+        "targetId": "u_13"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_18",
+        "targetId": "u_13"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "ghost",
+        "castlePos": {
+          "x": 1,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "move",
+        "unitId": "u_21",
+        "to": {
+          "x": 5,
+          "y": 10
+        }
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_14",
+        "targetId": "u_19"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_8",
+        "targetId": "u_9"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 1,
+      "action": {
+        "type": "wait",
+        "unitId": "u_21"
+      },
+      "source": "ai"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_19",
+        "to": {
+          "x": 7,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_19",
+        "targetId": "apk_u1"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "recruit_to_castle",
+        "unitClass": "mermaid",
+        "castlePos": {
+          "x": 13,
+          "y": 13
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "move",
+        "unitId": "u_22",
+        "to": {
+          "x": 10,
+          "y": 12
+        }
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "attack",
+        "attackerId": "u_22",
+        "targetId": "u_4"
+      },
+      "source": "human"
+    },
+    {
+      "playerId": 0,
+      "action": {
+        "type": "surrender"
+      },
+      "source": "human"
+    }
+  ],
+  "finalState": {
+    "turn": 9,
+    "currentPlayer": 1,
+    "map": {
+      "width": 15,
+      "height": 15,
+      "tiles": [
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 5,
+            "apkTerrainRaw": 24575,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 4,
+            "apkTerrainRaw": 20479,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": 1,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 151553,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 23,
+            "apkTerrainRaw": 98303,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 32,
+            "apkTerrainRaw": 135167,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 12,
+            "apkTerrainRaw": 53247,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": null,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 155646,
+            "apkOwnerCode": 254
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 4,
+            "apkTerrainRaw": 20479,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 14,
+            "apkTerrainRaw": 61439,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 26,
+            "apkTerrainRaw": 110591,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 24,
+            "apkTerrainRaw": 102399,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": 1,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 151553,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 8,
+            "apkTerrainRaw": 36863,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 7,
+            "apkTerrainRaw": 32767,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 5,
+            "apkTerrainRaw": 24575,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 29,
+            "apkTerrainRaw": 122879,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 6,
+            "apkTerrainRaw": 28671,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": null,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147711,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 25,
+            "apkTerrainRaw": 106495,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 17,
+            "ownerId": null,
+            "apkTerrainId": 28,
+            "apkTerrainRaw": 118783,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 22,
+            "apkTerrainRaw": 94207,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 11,
+            "apkTerrainRaw": 49151,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 9,
+            "apkTerrainRaw": 40959,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 9,
+            "ownerId": 1,
+            "apkTerrainId": 36,
+            "apkTerrainRaw": 147457,
+            "apkOwnerCode": 1
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 10,
+            "ownerId": null,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 151807,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          }
+        ],
+        [
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 0,
+            "apkTerrainRaw": 4095,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 10,
+            "apkTerrainRaw": 45055,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 13,
+            "apkTerrainRaw": 57343,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 15,
+            "apkTerrainRaw": 65535,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 7,
+            "ownerId": null,
+            "apkTerrainId": 16,
+            "apkTerrainRaw": 69631,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 14,
+            "apkTerrainRaw": 61439,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 12,
+            "apkTerrainRaw": 53247,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 3,
+            "apkTerrainRaw": 16383,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 4,
+            "ownerId": null,
+            "apkTerrainId": 19,
+            "apkTerrainRaw": 81919,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 21,
+            "apkTerrainRaw": 90111,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 1,
+            "ownerId": null,
+            "apkTerrainId": 18,
+            "apkTerrainRaw": 77823,
+            "apkOwnerCode": 255
+          },
+          {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255
+          }
+        ]
+      ]
+    },
+    "units": [
+      {
+        "id": "apk_u1",
+        "ownerId": 1,
+        "unitClass": "commander",
+        "pos": {
+          "x": 6,
+          "y": 13
+        },
+        "hp": 39,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 60,
+        "apkUnitId": 9,
+        "apkUnitExtra": 0,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false,
+        "movementRemaining": 4
+      },
+      {
+        "id": "u_4",
+        "ownerId": 1,
+        "unitClass": "mermaid",
+        "pos": {
+          "x": 11,
+          "y": 13
+        },
+        "hp": 55,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 60,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_6",
+        "ownerId": 1,
+        "unitClass": "soldier",
+        "pos": {
+          "x": 6,
+          "y": 12
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 60,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_8",
+        "ownerId": 1,
+        "unitClass": "slime",
+        "pos": {
+          "x": 7,
+          "y": 8
+        },
+        "hp": 105,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 1,
+        "exp": 190,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false,
+        "status": {
+          "type": "blinded",
+          "remainingTurns": 0
+        }
+      },
+      {
+        "id": "u_12",
+        "ownerId": 1,
+        "unitClass": "paladin",
+        "pos": {
+          "x": 6,
+          "y": 8
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 1,
+        "exp": 150,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_14",
+        "ownerId": 1,
+        "unitClass": "ice_elemental",
+        "pos": {
+          "x": 9,
+          "y": 11
+        },
+        "hp": 110,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 1,
+        "exp": 120,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_16",
+        "ownerId": 1,
+        "unitClass": "ice_elemental",
+        "pos": {
+          "x": 6,
+          "y": 9
+        },
+        "hp": 110,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 1,
+        "exp": 150,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_18",
+        "ownerId": 1,
+        "unitClass": "elf",
+        "pos": {
+          "x": 7,
+          "y": 11
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 90,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_20",
+        "ownerId": 1,
+        "unitClass": "elf",
+        "pos": {
+          "x": 4,
+          "y": 11
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 30,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      },
+      {
+        "id": "u_21",
+        "ownerId": 1,
+        "unitClass": "ghost",
+        "pos": {
+          "x": 5,
+          "y": 10
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "hasMoved": false,
+        "hasActed": false,
+        "level": 0,
+        "exp": 0,
+        "apkPendingRecruitSource": "empty_castle",
+        "movementRemaining": 4,
+        "hasBeenHealedThisTurn": false,
+        "hasBeenSupportedThisTurn": false,
+        "hasPostAttackMoved": false
+      }
+    ],
+    "players": [
+      {
+        "id": 0,
+        "gold": 0,
+        "isAlive": false,
+        "commanderDeathCount": 1,
+        "commanderReserveLevel": 0,
+        "commanderReserveExp": 50
+      },
+      {
+        "id": 1,
+        "gold": 700,
+        "isAlive": true,
+        "commanderDeathCount": 0
+      }
+    ],
+    "winner": 1,
+    "nextUnitId": 23,
+    "nextGraveId": 108,
+    "rules": {
+      "defeatOnNoUnitsAndNoCastles": true,
+      "initialGold": 300,
+      "incomeCommanderBase": 50,
+      "incomeCommanderGrowth": 25,
+      "levelCap": 3,
+      "unitLimit": 30,
+      "recruitableUnits": [
+        "commander",
+        "soldier",
+        "ghost",
+        "mermaid",
+        "archer",
+        "slime",
+        "dark_mage",
+        "water_elemental",
+        "paladin",
+        "witch",
+        "berserker",
+        "elf",
+        "wolf",
+        "ice_elemental",
+        "golem",
+        "druid",
+        "catapult",
+        "wolf_archer",
+        "dragon"
+      ],
+      "commanderRecruitBaseCost": 400,
+      "commanderRecruitCostGrowth": 100,
+      "allowSurrender": true,
+      "allowPendingRecruitEndTurn": true,
+      "allowPendingRecruitSurrender": true,
+      "commanderCastleRecruitUsesPending": true,
+      "defeatOnNoUnits": false
+    },
+    "metadata": {
+      "apkSkirmishMode": "SD",
+      "apkSkirmishSetupOptions": {
+        "initialGold": {
+          "default": 300,
+          "min": 0,
+          "max": 2000,
+          "step": 50
+        },
+        "unitLimit": {
+          "default": 30,
+          "min": 20,
+          "max": 100,
+          "step": 10
+        },
+        "levelCap": {
+          "default": 3,
+          "min": 0,
+          "max": 9,
+          "step": 1
+        },
+        "modes": {
+          "default": "SD",
+          "options": [
+            "SD",
+            "SO"
+          ],
+          "labels": {
+            "SD": "默认",
+            "SO": "原版"
+          }
+        }
+      },
+      "source": "apk_aem",
+      "recommendedGold": null,
+      "apkTailTemplate": "zero_suffix_58",
+      "apkApproximateTerrainIds": [],
+      "apkApproximateTileCount": 0,
+      "apkUnmappedTerrainIds": [],
+      "apkUnmappedTileCount": 0,
+      "apkMapName": "(2) Icy Paths.aem",
+      "apkVersion": "aer-release-4.2.5.1",
+      "apkSha256": "51B00185F300DD8899284AA91986AEE9A1CC73FA012262A0D9EEBC97FAD1AA7B",
+      "apkResourcePath": "assets/maps/(2) Icy Paths.aem"
+    },
+    "graves": [
+      {
+        "id": "g_106",
+        "pos": {
+          "x": 7,
+          "y": 12
+        },
+        "remainingTurns": 0,
+        "ownerId": 1
+      },
+      {
+        "id": "g_107",
+        "pos": {
+          "x": 6,
+          "y": 11
+        },
+        "remainingTurns": 0,
+        "ownerId": 1
+      }
+    ]
+  },
+  "winner": 1
+}
