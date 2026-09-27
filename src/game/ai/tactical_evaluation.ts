@@ -303,6 +303,18 @@ export class RuleTacticalEvaluator {
         const cost = getUnitCost(this.state, this.playerId, unitClass);
         if (cost === null) return -1000;
 
+        // Highest priority: re-spawn the commander if dead
+        const commanderAlive = this.ownUnits.some(u => isCommanderUnit(this.state, u));
+        if (!commanderAlive) {
+            const commanderCost = getUnitCost(this.state, this.playerId, 'commander') ?? 400;
+            const gold = this.state.players.find(p => p.id === this.playerId)?.gold ?? 0;
+            if (unitClass === 'commander') {
+                return 56000 + Math.max(0, 24 - (this.nearestObjectiveDistance(deployPos) ?? 0)) * 120;
+            } else if (gold >= commanderCost) {
+                return -48000; // Don't recruit non-commander if we can and must buy commander
+            }
+        }
+
         let score = 0;
         score += this.scoreRecruitSlotsAndEconomy(unitClass, cost);
         score += this.scoreRecruitRoleNeed(unitClass);
