@@ -1,0 +1,27 @@
+{
+  "timestamp": "2026-09-24T20:14:10.323Z",
+  "parityThreshold": 0.0001,
+  "allPassed": true,
+  "results": [
+    {
+      "modelPath": "C:\\code\\_v14_head\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\spatial_resnet\\spatial_resnet_v2_checkpoint.json",
+      "numBlocks": 2,
+      "architectureId": "spatial_resnet_32ch_2res",
+      "testedCandidatesCount": 26,
+      "maxTrunkZDiff": 0.000003814697265625,
+      "maxActionLogitsDiff": 0.000002384185791015625,
+      "bestIndexMatch": true,
+      "passed": true
+    },
+    {
+      "modelPath": "C:\\code\\_v14_head\\training_runs\\agent_upgrade_20260921_v6_01\\checkpoints\\spatial_resnet\\spatial_resnet_v2_4block_checkpoint.json",
+      "numBlocks": 4,
+      "architectureId": "spatial_resnet_32ch_4res",
+      "testedCandidatesCount": 26,
+      "maxTrunkZDiff": 0.000003814697265625,
+      "maxActionLogitsDiff": 0.000002384185791015625,
+      "bestIndexMatch": true,
+      "passed": true
+    }
+  ]
+}
