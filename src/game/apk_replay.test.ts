@@ -75,6 +75,16 @@ describe('APK 回放解析与校验', () => {
         expect(strictResult.firstError).toBeNull();
         expect(strictResult.executedRecordCount).toBe(1);
         expect(strictResult.expandedActionCount).toBe(0);
+        expect(strictResult.evidence).toMatchObject({
+            validationBypassed: false, fullyConsumed: true, apkStateCompared: false,
+            skippedCount: 0, replacedCount: 1, ambiguousCount: 0
+        });
+        expect(strictResult.evidence.notices[0]).toMatchObject({ recordIndex: 0, kind: 'replaced' });
+        const losslessResult = validateApkReplay(state, [outOfRangeAttackRecord], {
+            rejectInformationLoss: true
+        });
+        expect(losslessResult.success).toBe(false);
+        expect(losslessResult.firstError).toContain('拒绝回放信息损失');
 
         const forcedResult = validateApkReplay(state, [outOfRangeAttackRecord], {
             forceExecuteReplayActions: true
@@ -188,6 +198,47 @@ describe('APK 回放解析与校验', () => {
         expect(forcedResult.success).toBe(true);
         expect(forcedResult.executedRecordCount).toBe(1);
         expect(forcedResult.expandedActionCount).toBe(0);
+        expect(forcedResult.evidence).toMatchObject({
+            validationBypassed: true, fullyConsumed: true, apkStateCompared: false,
+            skippedCount: 1, replacedCount: 0, ambiguousCount: 0
+        });
+        expect(forcedResult.evidence.notices[0]).toMatchObject({ recordIndex: 0, kind: 'skipped' });
+        const rejected = validateApkReplay(state, [emptySourceRecord], {
+            forceExecuteReplayActions: true, rejectInformationLoss: true
+        });
+        expect(rejected.success).toBe(false);
+        expect(rejected.evidence.fullyConsumed).toBe(false);
+    });
+
+    it('截断回放只表示前缀执行成功，完整验收拒绝截断', () => {
+        const records = [createApkReplayRecord({ eventType: 'GAME_START' })];
+        const partial = validateApkReplay(createDemoState(), records, { maxRecords: 0 });
+        expect(partial.success).toBe(true);
+        expect(partial.evidence.fullyConsumed).toBe(false);
+        const rejected = validateApkReplay(createDemoState(), records, {
+            maxRecords: 0, rejectInformationLoss: true
+        });
+        expect(rejected.success).toBe(false);
+        expect(rejected.firstError).toContain('完整消费');
+    });
+
+    it('招募部署坐标的歧义选择必须留下证据', () => {
+        const state = createDemoState({ commanderCastleRecruitUsesPending: false });
+        const recruit = createApkReplayRecord({
+            source: { x: 0, y: 0 }, recruitUnitId: 0, eventType: 'RECRUIT'
+        });
+        const result = validateApkReplay(state, [recruit], {
+            expansionOptions: { allowAmbiguousRecruitDeployFirstMatch: true }
+        });
+        expect(result.success).toBe(true);
+        expect(result.evidence.ambiguousCount).toBe(1);
+        expect(result.evidence.notices[0]).toMatchObject({ recordIndex: 0, kind: 'ambiguous' });
+        const rejected = validateApkReplay(state, [recruit], {
+            rejectInformationLoss: true,
+            expansionOptions: { allowAmbiguousRecruitDeployFirstMatch: true }
+        });
+        expect(rejected.success).toBe(false);
+        expect(rejected.expandedActionCount).toBe(0);
     });
 
     it('APK 强制执行模式按 UI 异常路径跳过当前金币不足的招募记录', () => {

@@ -82,7 +82,8 @@ export interface ApkSkirmishSetupOptions {
 }
 
 export interface GameMetadata {
-    source?: 'demo' | 'apk_aem'; // 状态来源，用于训练样本追踪
+    source?: 'demo' | 'apk_aem' | 'custom_skirmish'; // 状态来源，用于训练样本追踪
+    customSkirmishMapId?: string; // 项目试作地图 ID
     apkVersion?: string;         // APK 版本号，例如 aer-release-4.2.5.1
     apkSha256?: string;          // APK 文件 SHA256，用于锁定规则证据来源
     apkResourcePath?: string;    // APK 内资源路径，例如 assets/maps/(2) Duel.aem
@@ -215,6 +216,7 @@ export interface RuleConfig {
     terrainChildCombatBonus?: number; // APK C0611d.f1277f：地形之子攻防加成
     weakenedDefensePenalty?: number; // APK C0611d.f1266E：虚弱防御惩罚，远程时减半
     unitLimit?: number;              // 全局单位数量上限，队伍配置可覆盖
+    unitLimitUsesPopulation?: boolean; // APK 的单位上限按人口占用计算，零人口招募不受此上限限制
     populationLimit?: number;        // 全局人口上限，队伍配置可覆盖
     recruitableUnits?: UnitClass[];  // 全局允许招募单位列表，队伍配置可覆盖
     prices?: Partial<Record<UnitClass, number | null>>; // 单位价格覆盖，null 表示不可招募

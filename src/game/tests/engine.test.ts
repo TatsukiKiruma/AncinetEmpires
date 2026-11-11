@@ -27,7 +27,7 @@ describe('GameEngine Rules', () => {
     it('应用默认对局使用 APK SD skirmish 规则', () => {
         const state = createDefaultAppGameState();
 
-        expect(state.players.map(player => player.gold)).toEqual([300, 300]);
+        expect(state.players.map(player => player.gold)).toEqual([450, 300]);
         expect(state.rules).toEqual(getApkSkirmishRuleConfig('SD'));
         expect(getLegalActions(state, 0).some(action => action.type === 'surrender')).toBe(true);
         expect(getLegalActions(state, 0).some(action => (
@@ -57,7 +57,7 @@ describe('GameEngine Rules', () => {
     });
 
     it('APK 84 条 tile 原始规则表已归档并包含高可信映射', () => {
-        expect(APK_TERRAIN_RECORD_SIZE).toBe(40);
+        expect(APK_TERRAIN_RECORD_SIZE).toBeNull();
         expect(APK_TERRAIN_COUNT).toBe(84);
         expect(APK_TERRAIN_CONFIGS).toHaveLength(84);
 
@@ -74,7 +74,7 @@ describe('GameEngine Rules', () => {
         expect(village.linkedB).toBe(27);
         expect(castle.defenseBonus).toBe(15);
         expect(castle.healPerTurn).toBe(20);
-        expect(bridge.kind).toBe(1);
+        expect(bridge.kind).toBe(0);
         expect(bridge.moveCost).toBe(1);
 
         expect(mapKnownApkTerrainId(27)).toBe(8);
@@ -231,19 +231,23 @@ describe('GameEngine Rules', () => {
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'low_confidence_camp_semantics'],
                 terrainConfig: {
-                    id: 30,
-                    kind: 5,
-                    flagA: 1,
-                    variant: 0,
-                    linkedA: -1,
-                    defenseBonus: 10,
-                    healPerTurn: 20,
-                    moveCost: 1,
-                    flagB: 0,
-                    linkedB: -1,
-                    linkedC: -1,
-                    flagC: 0,
-                    tail: '0x00000000'
+                    "id": 30,
+                    "kind": 0,
+                    "isLand": true,
+                    "capturable": false,
+                    "flagA": 1,
+                    "variant": 0,
+                    "linkedA": -1,
+                    "defenseBonus": 10,
+                    "healPerTurn": 20,
+                    "moveCost": 1,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000008",
+                    "variants": [],
+                    "graphicsType": 8
                 },
                 projectRuleSemantics: {
                     projectTerrainKey: 'camp',
@@ -289,19 +293,23 @@ describe('GameEngine Rules', () => {
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
                 terrainConfig: {
-                    id: 31,
-                    kind: 8,
-                    flagA: 1,
-                    variant: 5,
-                    linkedA: -1,
-                    defenseBonus: 10,
-                    healPerTurn: 20,
-                    moveCost: 1,
-                    flagB: 0,
-                    linkedB: -1,
-                    linkedC: -1,
-                    flagC: 0,
-                    tail: '0x00000000'
+                    "id": 31,
+                    "kind": 5,
+                    "isLand": true,
+                    "capturable": false,
+                    "flagA": 1,
+                    "variant": 5,
+                    "linkedA": -1,
+                    "defenseBonus": 10,
+                    "healPerTurn": 20,
+                    "moveCost": 1,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000008",
+                    "variants": [],
+                    "graphicsType": 8
                 },
                 projectRuleSemantics: {
                     projectTerrainKey: 'temple',
@@ -348,19 +356,23 @@ describe('GameEngine Rules', () => {
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
                 terrainConfig: {
-                    id: 31,
-                    kind: 8,
-                    flagA: 1,
-                    variant: 5,
-                    linkedA: -1,
-                    defenseBonus: 10,
-                    healPerTurn: 20,
-                    moveCost: 1,
-                    flagB: 0,
-                    linkedB: -1,
-                    linkedC: -1,
-                    flagC: 0,
-                    tail: '0x00000000'
+                    "id": 31,
+                    "kind": 5,
+                    "isLand": true,
+                    "capturable": false,
+                    "flagA": 1,
+                    "variant": 5,
+                    "linkedA": -1,
+                    "defenseBonus": 10,
+                    "healPerTurn": 20,
+                    "moveCost": 1,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000008",
+                    "variants": [],
+                    "graphicsType": 8
                 },
                 projectRuleSemantics: {
                     projectTerrainKey: 'temple',
@@ -409,19 +421,23 @@ describe('GameEngine Rules', () => {
                 confidence: 'approximate',
                 evidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
                 terrainConfig: {
-                    id: 31,
-                    kind: 8,
-                    flagA: 1,
-                    variant: 5,
-                    linkedA: -1,
-                    defenseBonus: 10,
-                    healPerTurn: 20,
-                    moveCost: 1,
-                    flagB: 0,
-                    linkedB: -1,
-                    linkedC: -1,
-                    flagC: 0,
-                    tail: '0x00000000'
+                    "id": 31,
+                    "kind": 5,
+                    "isLand": true,
+                    "capturable": false,
+                    "flagA": 1,
+                    "variant": 5,
+                    "linkedA": -1,
+                    "defenseBonus": 10,
+                    "healPerTurn": 20,
+                    "moveCost": 1,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000008",
+                    "variants": [],
+                    "graphicsType": 8
                 },
                 projectRuleSemantics: {
                     projectTerrainKey: 'temple',
@@ -761,7 +777,7 @@ describe('GameEngine Rules', () => {
             sdCommanderCostState.players[0].commanderDeathCount = deathCount;
             return getUnitCost(sdCommanderCostState, 0, 'commander');
         })).toEqual([400, 500, 600]);
-        expect(getUnitCost(createDemoState(getApkSkirmishRuleConfig('SO')), 0, 'commander')).toBeNull();
+        expect(getUnitCost(createDemoState(getApkSkirmishRuleConfig('SO')), 0, 'commander')).toBe(400);
 
         const mutableScenario = getApkSkirmishTrainingScenarios({ modes: ['SO'] })[0];
         mutableScenario.rules.recruitableUnits!.push('commander');
@@ -1324,7 +1340,7 @@ describe('GameEngine Rules', () => {
         ]);
         expect(getApkSkirmishRuleConfig('SD').allowSurrender).toBe(true);
         expect(getApkSkirmishRuleConfig('SO').allowSurrender).toBe(true);
-        expect(getApkSkirmishRuleConfig('SO').commanderRecruitBaseCost).toBeNull();
+        expect(getApkSkirmishRuleConfig('SO').commanderRecruitBaseCost).toBe(400);
         expect(getApkSkirmishRuleConfig('SO').recruitableUnits).toEqual([
             'soldier',
             'archer',
@@ -1386,7 +1402,7 @@ describe('GameEngine Rules', () => {
                 levelCap: 9
             }
         });
-        expect(configuredSkirmishState.players.map(player => player.gold)).toEqual([450, 450]);
+        expect(configuredSkirmishState.players.map(player => player.gold)).toEqual([600, 450]);
         expect(configuredSkirmishState.rules).toEqual(expect.objectContaining({
             initialGold: 450,
             unitLimit: 40,
@@ -1572,9 +1588,9 @@ describe('GameEngine Rules', () => {
             exp: 0
         }];
 
-        expect(getTileMoveCost(state.map.tiles[0][1])).toBe(16777215);
+        expect(getTileMoveCost(state.map.tiles[0][1])).toBe(3);
         expect(getTileHealPerTurn(state.map.tiles[0][1])).toBe(0);
-        expect(getReachablePositions(state, 'u_apk_move')).toEqual([{ x: 0, y: 0 }]);
+        expect(getReachablePositions(state, 'u_apk_move')).toEqual([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }]);
 
         const apkHighDefenseTile = { terrainId: 6 as const, ownerId: null, apkTerrainId: 33 };
         expect(getTileDefenseBonus(apkHighDefenseTile)).toBe(20);
@@ -1606,23 +1622,27 @@ describe('GameEngine Rules', () => {
             terrainTags: expect.arrayContaining(['water']),
             apkTerrainId: 0,
             apkTerrainConfig: {
-                id: 0,
-                kind: 0,
-                flagA: 0,
-                variant: -1,
-                linkedA: 0,
-                defenseBonus: 0,
-                healPerTurn: 3,
-                moveCost: 16777215,
-                flagB: 255,
-                linkedB: -1,
-                linkedC: 0,
-                flagC: 0,
-                tail: '0x00000001'
-            },
+                    "id": 0,
+                    "kind": 0,
+                    "isLand": false,
+                    "capturable": false,
+                    "flagA": 0,
+                    "variant": 0,
+                    "linkedA": -1,
+                    "defenseBonus": 0,
+                    "healPerTurn": 0,
+                    "moveCost": 3,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000001",
+                    "variants": [],
+                    "graphicsType": 1
+                },
             apkTerrainMappingConfidence: 'atlas',
             apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'skirmish_map_context'],
-            moveCost: 16777215,
+            moveCost: 3,
             defenseBonus: 0,
             healPerTurn: 0
         }));
@@ -1634,20 +1654,24 @@ describe('GameEngine Rules', () => {
             terrainTags: expect.arrayContaining(['temple', 'healing', 'cleanse']),
             apkTerrainId: 31,
             apkTerrainConfig: {
-                id: 31,
-                kind: 8,
-                flagA: 1,
-                variant: 5,
-                linkedA: -1,
-                defenseBonus: 10,
-                healPerTurn: 20,
-                moveCost: 1,
-                flagB: 0,
-                linkedB: -1,
-                linkedC: -1,
-                flagC: 0,
-                tail: '0x00000000'
-            },
+                    "id": 31,
+                    "kind": 5,
+                    "isLand": true,
+                    "capturable": false,
+                    "flagA": 1,
+                    "variant": 5,
+                    "linkedA": -1,
+                    "defenseBonus": 10,
+                    "healPerTurn": 20,
+                    "moveCost": 1,
+                    "flagB": 0,
+                    "linkedB": -1,
+                    "linkedC": -1,
+                    "flagC": 0,
+                    "tail": "0x00000008",
+                    "variants": [],
+                    "graphicsType": 8
+                },
             apkTerrainMappingConfidence: 'approximate',
             apkTerrainMappingEvidence: ['data_bin_values', 'texture_atlas', 'language_table_temple_description', 'low_confidence_temple_semantics'],
             moveCost: 1,
@@ -1693,7 +1717,7 @@ describe('GameEngine Rules', () => {
         expect(isForestTerrain(apkForestTileAsRoad)).toBe(true);
         expect(isMountainTerrain(apkMountainTileAsRoad)).toBe(true);
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'water_elemental' }, apkWaterTileAsRoad)).toBe(1);
-        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf' }, apkWaterTileAsRoad)).toBe(2);
+        expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf' }, apkWaterTileAsRoad)).toBe(4);
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'wolf_archer' }, apkForestTileAsRoad)).toBe(1);
         expect(getMoveCostForUnit(state, { ...state.units[0], unitClass: 'golem' }, apkMountainTileAsRoad)).toBe(1);
         const apkBridgeTile = {
@@ -1771,7 +1795,9 @@ describe('GameEngine Rules', () => {
             tileApkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas'],
             tileApkTerrainConfig: {
                 id: 37,
-                kind: 6,
+                kind: 3,
+                isLand: true,
+                capturable: true,
                 flagA: 1,
                 variant: 3,
                 linkedA: 0,
@@ -1782,7 +1808,9 @@ describe('GameEngine Rules', () => {
                 linkedB: -1,
                 linkedC: -1,
                 flagC: 0,
-                tail: '0x00000000'
+                tail: '0x00000007',
+                variants: [],
+                graphicsType: 7
             },
             tileDefenseBonus: 15,
             tileHealPerTurn: 20,
@@ -1798,6 +1826,8 @@ describe('GameEngine Rules', () => {
             apkTerrainMappingEvidence: ['data_bin_values', 'language_table_building_description', 'texture_atlas']
         }));
         apkSemanticObservation.tiles.find(tile => tile.x === 2 && tile.y === 0)!.apkTerrainMappingEvidence!.push('mutated');
+        apkSemanticObservation.tiles.find(tile => tile.x === 2 && tile.y === 0)!.apkTerrainConfig!.variants!.push(999);
+        expect(getApkTerrainConfig(37)!.variants).toEqual([]);
         expect(new AncientEmpiresEnv({ initialState: apkSemanticState }).getObservation().tiles.find(tile => tile.x === 2 && tile.y === 0)!.apkTerrainMappingEvidence).toEqual([
             'data_bin_values',
             'language_table_building_description',
@@ -1818,10 +1848,10 @@ describe('GameEngine Rules', () => {
             apkOwnerCode: 1
         };
         apkDestroyState.units[0].unitClass = 'catapult';
-        apkDestroyState.units[0].pos = { x: 0, y: 0 };
+        apkDestroyState.units[0].pos = { x: 3, y: 0 };
         const apkDestroyEngine = new GameEngine(apkDestroyState);
         expect(apkDestroyEngine.getLegalActions(0).some(action => action.type === 'destroy_town' && action.unitId === 'u1')).toBe(true);
-        apkDestroyEngine.step({ type: 'destroy_town', unitId: 'u1' });
+        apkDestroyEngine.step({ type: 'destroy_town', unitId: 'u1', target: { x: 0, y: 0 } });
         const destroyedTile = apkDestroyEngine.getState().map.tiles[0][0];
         expect(destroyedTile).toEqual(expect.objectContaining({
             terrainId: 8,
@@ -2351,14 +2381,14 @@ describe('GameEngine Rules', () => {
         expect(isForestTerrain(3)).toBe(false); 
     });
 
-    it('能力测试: 大地之子陆地移动消耗 1，水地形移动消耗 2', () => {
+    it('能力测试: 大地之子陆地消耗 1，水地形为基础消耗加 1', () => {
         const state = createDemoState();
         const unit = { ...state.units[0], unitClass: 'berserker' }; 
         
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 1, ownerId: null } as any)).toBe(1);
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 3, ownerId: null } as any)).toBe(1);
         
-        expect(getMoveCostForUnit(state, unit as any, { terrainId: 2, ownerId: null } as any)).toBe(2);
+        expect(getMoveCostForUnit(state, unit as any, { terrainId: 2, ownerId: null } as any)).toBe(4);
         expect(getMoveCostForUnit(state, unit as any, { terrainId: 17, ownerId: null } as any)).toBe(2);
     });
 
@@ -3495,19 +3525,19 @@ describe('GameEngine Rules', () => {
             catapult.unitClass = 'catapult'; // destroyer
             catapult.pos = { x: 1, y: 1 };
 
-            // 设当前格为城镇
-            state.map.tiles[1][1].terrainId = 9; // town
-            state.map.tiles[1][1].ownerId = null;
+            // 射程内设置无人村庄，原地毁村不合法。
+            state.map.tiles[1][4].terrainId = 9;
+            state.map.tiles[1][4].ownerId = null;
 
             const actions = getLegalActions(state, 0);
-            const destroyAct = actions.find(a => a.type === 'destroy_town' && a.unitId === catapult.id);
+            const destroyAct = actions.find(a => a.type === 'destroy_town' && a.unitId === catapult.id && a.target?.x === 4 && a.target?.y === 1);
             expect(destroyAct).toBeDefined();
 
             const engine = new GameEngine(state);
             engine.step(destroyAct!);
 
             const finalState = engine.getState();
-            expect(finalState.map.tiles[1][1].terrainId).toBe(8); // 变为损坏城镇 (8)
+            expect(finalState.map.tiles[1][4].terrainId).toBe(8); // 变为损坏城镇 (8)
         });
 
         it('5.11 攻击光环附加鼓舞状态，且不覆盖已有状态', () => {
@@ -4147,11 +4177,11 @@ describe('GameEngine Rules', () => {
             catapult.level = 0;
             catapult.pos = { x: 1, y: 1 };
 
-            state.map.tiles[1][1].terrainId = 9; // town
-            state.map.tiles[1][1].ownerId = null;
+            state.map.tiles[1][4].terrainId = 9; // 射程内无人村庄
+            state.map.tiles[1][4].ownerId = null;
 
             const engine = new GameEngine(state);
-            engine.step({ type: 'destroy_town', unitId: catapult.id });
+            engine.step({ type: 'destroy_town', unitId: catapult.id, target: { x: 4, y: 1 } });
 
             const resCatapult = engine.getState().units.find(u => u.id === catapult.id)!;
             expect(resCatapult.exp).toBe(30);
@@ -4437,7 +4467,7 @@ describe('GameEngine Rules', () => {
             expect(resSoldier.exp).toBe(610);
         });
 
-        it('6.18b 达到等级上限后仍累计经验但不继续升级', () => {
+        it('6.18b 达到等级上限后不再增加正经验', () => {
             const state = createDemoState();
             state.rules = { levelCap: 1 };
 
@@ -4448,7 +4478,7 @@ describe('GameEngine Rules', () => {
 
             expect(addExp(soldier, 30, state.rules?.levelCap)).toBe(false);
             expect(soldier.level).toBe(1);
-            expect(soldier.exp).toBe(630);
+            expect(soldier.exp).toBe(600);
         });
 
         it('6.18 RuleConfig 可以扩展到 APK 内部 9 级范围', () => {
@@ -4804,6 +4834,7 @@ describe('GameEngine Rules', () => {
             expect(engine.getState().players[1].commanderReserveExp).toBe(350);
             expect(engine.getState().units.some(u => u.ownerId === 1 && u.unitClass === 'commander')).toBe(false);
 
+            engine.step({ type: 'post_attack_move', unitId: attacker.id, to: { ...attacker.pos } });
             engine.step({ type: 'end_turn' });
             const nextTurnState = engine.getState();
             expect(nextTurnState.currentPlayer).toBe(1);
@@ -4948,7 +4979,7 @@ describe('GameEngine Rules', () => {
             expect(finalState.players[0].commanderDeathCount).toBe(1);
             expect(finalState.players[0].isAlive).toBe(false);
             expect(finalState.winner).toBe(1);
-            expect(finalState.units.some(u => u.id === 'u1')).toBe(true);
+            expect(finalState.units.some(u => u.id === 'u1')).toBe(false);
         });
 
         it('配置开启后失去最后城堡会淘汰玩家', () => {
@@ -5007,7 +5038,7 @@ describe('GameEngine Rules', () => {
             expect(actions.some(a => a.type === 'attack' && a.attackerId === unit.id && a.targetId === ally.id)).toBe(false);
         });
 
-        it('联盟配置不阻止接管同盟方建筑，但不能重复占领己方建筑', () => {
+        it('联盟配置阻止接管同盟方建筑，也不能重复占领己方建筑', () => {
             const state = createDemoState({
                 alliances: { 0: 7, 1: 7 }
             });
@@ -5016,11 +5047,12 @@ describe('GameEngine Rules', () => {
             state.map.tiles[3][3] = { terrainId: 9, ownerId: 1 };
 
             const alliedCapture = getLegalActions(state, 0).find(action => action.type === 'capture' && action.unitId === unit.id);
-            expect(alliedCapture).toBeDefined();
+            expect(alliedCapture).toBeUndefined();
 
             const engine = new GameEngine(state);
-            engine.step(alliedCapture!);
-            expect(engine.getState().map.tiles[3][3].ownerId).toBe(0);
+            const result = engine.step({ type: 'capture', unitId: unit.id });
+            expect(result.info).toContain('非法动作');
+            expect(engine.getState().map.tiles[3][3].ownerId).toBe(1);
 
             const ownState = createDemoState({
                 alliances: { 0: 7, 1: 7 }
@@ -5376,8 +5408,8 @@ describe('GameEngine Rules', () => {
             const state = createOverrideState();
             expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 2 && pos.y === 0)).toBe(false);
 
-            expect(syncOverrideMov(state, ' carrier ', 2, 1)).toBe(true);
-            expect(state.units[0].apkMoveOverrides).toEqual({ 2: 1 });
+            expect(syncOverrideMov(state, ' carrier ', 0, 1)).toBe(true);
+            expect(state.units[0].apkMoveOverrides).toEqual({ 0: 1 });
             expect(getReachablePositions(state, 'u_carrier')).toEqual([
                 { x: 0, y: 0 },
                 { x: 1, y: 0 },
@@ -5389,7 +5421,7 @@ describe('GameEngine Rules', () => {
 
             const kindState = createOverrideState();
             expect(syncOverrideMov(kindState, 'carrier', 1, 1)).toBe(true);
-            expect(getReachablePositions(kindState, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(true);
+            expect(getReachablePositions(kindState, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(false);
 
             const kindPriorityState = createOverrideState();
             kindPriorityState.map.tiles[0] = kindPriorityState.map.tiles[0].map(tile => ({
@@ -5408,7 +5440,7 @@ describe('GameEngine Rules', () => {
             expect(syncOverrideMov(state, 'carrier', 2, 0)).toBe(false);
         });
 
-        it('APK Stage SyncOverrideMov 可以在无 APK 原始 tile 时按项目 terrainId 兜底', () => {
+        it('APK Stage SyncOverrideMov 不对缺少 APK 类别的自定义地形猜测索引', () => {
             const state = createDemoState();
             state.map.width = 5;
             state.map.height = 1;
@@ -5432,7 +5464,9 @@ describe('GameEngine Rules', () => {
             expect(syncSetUnitCode(state, { x: 0, y: 0 }, 'carrier')).toBe(true);
             expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 2 && pos.y === 0)).toBe(false);
             expect(syncOverrideMov(state, 'carrier', 2, 1)).toBe(true);
-            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(true);
+            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(false);
+            expect(syncOverrideMov(state, 'carrier', 0, 1)).toBe(true);
+            expect(getReachablePositions(state, 'u_carrier').some(pos => pos.x === 4 && pos.y === 0)).toBe(false);
         });
 
         it('APK Stage 查询适配器可以检查指挥官、队伍摧毁和强制终局', () => {
@@ -5777,6 +5811,7 @@ describe('GameEngine Rules', () => {
                 alliances: { 0: 5, 1: 5 },
                 disabledTeams: [1],
                 unitLimit: 6,
+                unitLimitUsesPopulation: false,
                 populationLimit: 8,
                 recruitableUnits: ['soldier', 'dragon'],
                 prices: { archer: 130, dragon: 800 },
@@ -5810,6 +5845,7 @@ describe('GameEngine Rules', () => {
                 incomeCommanderGrowth: 30,
                 levelCap: 5,
                 unitLimit: 6,
+                unitLimitUsesPopulation: false,
                 populationLimit: 8,
                 recruitableUnits: ['soldier', 'dragon'],
                 priceOverrides: { archer: 130, dragon: 800 },
@@ -5947,7 +5983,7 @@ describe('GameEngine Rules', () => {
                 'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
                 'capture:<unitId>',
                 'repair:<unitId>',
-                'destroy_town:<unitId>[:<x>,<y>]',
+                'destroy_town:<unitId>:<x>,<y>',
                 'wait:<unitId>',
                 'surrender',
                 'end_turn'
@@ -5972,7 +6008,6 @@ describe('GameEngine Rules', () => {
                 { type: 'recruit_and_deploy', unitClass: 'archer', castlePos: { x: 1, y: 1 }, to: { x: 2, y: 1 } },
                 { type: 'capture', unitId: 'u1' },
                 { type: 'repair', unitId: 'u1' },
-                { type: 'destroy_town', unitId: 'u1' },
                 { type: 'destroy_town', unitId: 'u1', target: { x: 2, y: 3 } },
                 { type: 'wait', unitId: 'u1' },
                 { type: 'surrender' },

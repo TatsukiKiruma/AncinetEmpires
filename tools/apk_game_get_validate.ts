@@ -41,6 +41,7 @@ const ROOM_TYPES = ['PUBLIC', 'PRIVATE'] as const;
 const ROOM_STATUSES = ['OPEN', 'STARTED', 'CLOSED'] as const;
 
 interface CliOptions {
+    rejectInformationLoss?: boolean;
     inputs: string[];
     rootDir: string;
     outPath: string | null;
@@ -225,6 +226,7 @@ interface ValidationReportItem {
         status: string | null;
     };
     validation: {
+        evidence?: ApkReplayValidationResult['evidence'];
         success: boolean | null;
         executedRecordCount: number | null;
         expandedActionCount: number | null;
@@ -281,6 +283,7 @@ interface BatchValidationReport {
         allowAmbiguousRecruit: boolean;
         strictTerrain: boolean;
         forceExecuteReplayActions: boolean;
+        rejectInformationLoss: boolean;
     };
     totals: {
         files: number;
@@ -413,6 +416,7 @@ function decodeModifiedUtf8(bytes: Uint8Array): string {
 
 function parseArgs(argv: string[]): CliOptions {
     const options: CliOptions = {
+        rejectInformationLoss: false,
         inputs: [],
         rootDir: path.resolve('captures', 'mitm_replay'),
         outPath: null,
@@ -459,6 +463,8 @@ function parseArgs(argv: string[]): CliOptions {
             options.allowAmbiguousRecruit = true;
         } else if (arg === '--strict-terrain') {
             options.strictTerrain = true;
+        } else if (arg === '--reject-information-loss') {
+            options.rejectInformationLoss = true;
         } else if (arg === '--force-apk-replay-execution') {
             options.forceExecuteReplayActions = true;
         } else if (arg === '--help' || arg === '-h') {
@@ -515,6 +521,7 @@ function printUsage(): void {
   --force-apk-replay-execution    按 APK 回放器强制执行记录，不要求动作存在于项目合法动作集合
   --no-dedupe                     不按响应 SHA256 跳过重复回放
   --strict-terrain                遇到未映射 APK 地形时直接失败
+  --reject-information-loss       拒绝跳过、替换、歧义推断及未完整消费的回放
   --json                          同时在控制台输出 JSON`);
 }
 
@@ -933,19 +940,24 @@ function buildTiles(map: EmbeddedMapData, strictTerrain: boolean, terrainDefinit
     };
 }
 
-function createUnits(importedUnits: ImportedUnitRecord[]): Unit[] {
+function createUnits(importedUnits: ImportedUnitRecord[], definitions: readonly Pick<EmbeddedUnitDefinition, 'apkUnitId' | 'baseMaxHp' | 'maxHpGrowth'>[]): Unit[] {
     return importedUnits.map((unit, index) => {
         if (!unit.unitClass) {
             throw new Error(`嵌入地图单位 ${index} 使用未知 APK 单位 ID: ${unit.apkUnitId}`);
         }
         const initialLevel = clampLevel(unit.level);
+        const definition = definitions.find(entry => entry.apkUnitId === unit.apkUnitId);
+        if (!definition) throw new Error(`嵌入地图单位 ${index} 缺少 APK 单位定义: ${unit.apkUnitId}`);
+        // APK C0600q.m4333c：创建时生命值为基础生命加等级成长，不能统一初始化为 100。
+        const initialHp = definition.baseMaxHp + definition.maxHpGrowth * initialLevel;
         return {
             id: `apk_remote_u${index}`,
             ownerId: unit.teamId,
             unitClass: unit.unitClass,
             pos: { x: unit.x, y: unit.y },
-            hp: 100,
-            maxHp: 100,
+            hp: initialHp,
+            // 项目 maxHp 保存基础上限，getEffectiveStats 会另加等级成长。
+            maxHp: definition.baseMaxHp,
             hasMoved: false,
             hasActed: false,
             level: initialLevel,
@@ -1059,11 +1071,11 @@ function getUnitAt(units: readonly Unit[], pos: Position): Unit | null {
 }
 
 function inferInitialCurrentPlayer(state: GameState, records: readonly ApkReplayActionRecord[]): number {
-    let leadingNextTurns = 0;
+    const leadingTurnEvents: ('NEXT_TURN' | 'SURRENDER')[] = [];
     for (const record of records) {
         if (record.eventType === 'GAME_START') continue;
-        if (record.eventType === 'NEXT_TURN') {
-            leadingNextTurns += 1;
+        if (record.eventType === 'NEXT_TURN' || record.eventType === 'SURRENDER') {
+            leadingTurnEvents.push(record.eventType);
             continue;
         }
 
@@ -1084,10 +1096,32 @@ function inferInitialCurrentPlayer(state: GameState, records: readonly ApkReplay
         if (firstActorOwner !== null) {
             const turnPlayers = getTurnPlayerIds(state);
             if (turnPlayers.length === 0) return firstActorOwner;
-            const actorIndex = turnPlayers.indexOf(firstActorOwner);
-            if (actorIndex === -1) return firstActorOwner;
-            const initialIndex = (actorIndex - (leadingNextTurns % turnPlayers.length) + turnPlayers.length) % turnPlayers.length;
-            return turnPlayers[initialIndex];
+            if (!turnPlayers.includes(firstActorOwner)) return firstActorOwner;
+            // APK C0595l.m4431j 在投降销毁队伍后调用与 NEXT_TURN 相同的 m4441e。
+            // 枚举初始队伍并模拟前缀，后续轮转须跳过已经投降的队伍，不能只减事件数量。
+            const candidates = turnPlayers.filter(initialPlayer => {
+                let currentPlayer = initialPlayer;
+                const surrendered = new Set<number>();
+                for (const event of leadingTurnEvents) {
+                    if (event === 'SURRENDER') surrendered.add(currentPlayer);
+                    const currentIndex = turnPlayers.indexOf(currentPlayer);
+                    let nextPlayer: number | undefined;
+                    for (let offset = 1; offset <= turnPlayers.length; offset += 1) {
+                        const candidate = turnPlayers[(currentIndex + offset) % turnPlayers.length];
+                        if (!surrendered.has(candidate)) {
+                            nextPlayer = candidate;
+                            break;
+                        }
+                    }
+                    if (nextPlayer === undefined) return false;
+                    currentPlayer = nextPlayer;
+                }
+                return currentPlayer === firstActorOwner;
+            });
+            if (candidates.length !== 1) {
+                throw new Error(`无法唯一推断 APK 回放初始队伍：首个行动队伍 ${firstActorOwner}，候选 ${candidates.join(',')}`);
+            }
+            return candidates[0];
         }
     }
     return state.players[0]?.id ?? 0;
@@ -1102,7 +1136,7 @@ function createGameStateFromEmbeddedConfig(
     const importedUnits = parseImportedUnits(config.map);
     const activeTeamIds = collectActiveTeamIds(config, importedUnits);
     const { tiles, approximateTerrainIds, unmappedTerrainIds } = buildTiles(config.map, options.strictTerrain, config.terrainDefinitions);
-    const units = createUnits(importedUnits);
+    const units = createUnits(importedUnits, config.unitDefinitions);
     const { rules, defaultInitialGold, defaultUnitLimit, levelCap, disabledTeamIds, priceOverrides } = buildRuleConfig(config, activeTeamIds, options);
     const players: PlayerState[] = activeTeamIds.map(id => ({
         id,
@@ -1299,6 +1333,7 @@ function createItemFromParsed(parsed: ParsedRemoteReplay, result: ApkReplayValid
         },
         validation: {
             success: result.success,
+            evidence: result.evidence,
             executedRecordCount: result.executedRecordCount,
             expandedActionCount: result.expandedActionCount,
             firstError: result.firstError,
@@ -1479,6 +1514,7 @@ async function validateInput(inputPath: string, options: CliOptions): Promise<Va
             maxRecords: options.maxRecords,
             stopOnFirstError: true,
             forceExecuteReplayActions: options.forceExecuteReplayActions,
+            rejectInformationLoss: options.rejectInformationLoss,
             expansionOptions: {
                 allowAmbiguousRecruitDeployFirstMatch: options.allowAmbiguousRecruit
             }
@@ -1521,7 +1557,8 @@ async function validateBatch(options: CliOptions): Promise<BatchValidationReport
             dedupe: options.dedupe,
             allowAmbiguousRecruit: options.allowAmbiguousRecruit,
             strictTerrain: options.strictTerrain,
-            forceExecuteReplayActions: options.forceExecuteReplayActions
+            forceExecuteReplayActions: options.forceExecuteReplayActions,
+            rejectInformationLoss: options.rejectInformationLoss ?? false
         },
         totals: {
             files: items.length,
@@ -1640,7 +1677,8 @@ function renderItemDetails(item: ValidationReportItem): string {
     return [
         `### ${item.fileName}`,
         '',
-        `- 状态：${item.validation.success ? '通过' : '失败'}`,
+        `- 项目回放执行：${item.validation.success ? '配置范围内无执行错误' : '失败'}（未比较 APK 逐步状态，不能据此证明规则等价）`,
+        `- 执行证据：绕过合法性=${formatNullable(item.validation.evidence?.validationBypassed)}，完整消费=${formatNullable(item.validation.evidence?.fullyConsumed)}，跳过事件=${formatNullable(item.validation.evidence?.skippedCount)}，替换事件=${formatNullable(item.validation.evidence?.replacedCount)}，歧义推断=${formatNullable(item.validation.evidence?.ambiguousCount)}`,
         `- SHA256：\`${item.sha256}\``,
         `- 地图：${formatNullable(item.map.width)}x${formatNullable(item.map.height)}，scenario=${formatNullable(item.map.scenarioCode)}，campaignLike=${formatNullable(item.map.campaignLike)}，玩家=[${item.map.players.join(',')}]，初始单位=${formatNullable(item.map.unitCount)}，推荐金币=${formatNullable(item.map.recommendedGold)}`,
         `- 项目开局：currentPlayer=${formatNullable(item.state?.initialCurrentPlayer)}，activeTeams=[${item.state?.activeTeamIds.join(',') ?? ''}]，initialGold=${formatNullable(item.state?.defaultInitialGold)}，unitLimit=${formatNullable(item.state?.defaultUnitLimit)}，levelCap=${formatNullable(item.state?.levelCap)}`,
@@ -1692,6 +1730,9 @@ function renderMarkdownReport(report: BatchValidationReport): string {
         `- 招募歧义处理：${report.options.allowAmbiguousRecruit ? '允许选第一个合法部署点继续' : '严格模式，缺少部署坐标即失败'}`,
         `- APK 强制执行：${report.options.forceExecuteReplayActions ? '开启，跳过项目合法动作枚举' : '关闭，严格要求项目合法动作'}`,
         `- 地形处理：${report.options.strictTerrain ? '严格' : '未映射地形使用道路兜底并记录'}`,
+        `- 信息损失验收：${report.options.rejectInformationLoss ? '拒绝跳过、替换、推断及未完整消费' : '兼容执行，逐条记录跳过、替换和推断'}`,
+        '- 通过范围：仅表示所选配置下项目回放执行无错误；未比较 APK 逐步状态，不证明规则或终局状态等价。',
+        `- 事件损失统计：跳过=${report.items.reduce((sum, item) => sum + (item.validation.evidence?.skippedCount ?? 0), 0)}，替换=${report.items.reduce((sum, item) => sum + (item.validation.evidence?.replacedCount ?? 0), 0)}，歧义推断=${report.items.reduce((sum, item) => sum + (item.validation.evidence?.ambiguousCount ?? 0), 0)}`,
         `- 文件数：${report.totals.files}，唯一校验：${report.totals.uniqueFiles}，重复跳过：${report.totals.duplicates}，通过：${report.totals.passed}，失败：${report.totals.failed}，解析错误：${report.totals.parseErrors}`,
         '',
         ...renderFailureClassificationSummary(report),
@@ -1779,6 +1820,8 @@ if (isDirectRun) {
 }
 
 export {
+    createUnits,
+    inferInitialCurrentPlayer,
     createGameStateFromEmbeddedConfig,
     parseEmbeddedGameConfig,
     parseRemoteReplay,

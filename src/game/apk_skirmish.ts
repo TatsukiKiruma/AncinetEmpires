@@ -11,6 +11,7 @@ import {
 } from './apk_manifest';
 import { ApkAemMap, createGameStateFromApkAemMap, CreateGameStateFromApkAemMapOptions } from './apk_map';
 import { AncientEmpiresEnv } from './env';
+import { GameEngine } from './engine';
 import { mergeRuleConfig } from './rule_config';
 import { ApkSkirmishMode, ApkSkirmishSetupOptions, GameState, RuleConfig, UnitClass } from './types';
 
@@ -146,6 +147,7 @@ export function getApkSkirmishRuleConfig(
     const rules: RuleConfig = {
         initialGold: resolvedSetup.initialGold,
         unitLimit: resolvedSetup.unitLimit,
+        unitLimitUsesPopulation: true,
         levelCap: resolvedSetup.levelCap,
         incomeCommanderBase: 50,
         incomeCommanderGrowth: 25,
@@ -160,9 +162,8 @@ export function getApkSkirmishRuleConfig(
     };
 
     if (resolvedMode === 'SO') {
-        // SO/controller.js 的 OnGameStart 明确调用 SyncSetRecruitUnits(0..8)。
+        // SO/controller.js 只限制普通列表；原生 m4302g 另行允许指挥官重招募。
         rules.recruitableUnits = mapApkUnitIds(SO_RECRUITABLE_APK_UNIT_IDS);
-        rules.commanderRecruitBaseCost = null;
     } else {
         // SD/Default 模式经实机验证可招募指挥官和 18 个普通单位，不包含骷髅/水晶。
         rules.recruitableUnits = mapApkUnitIds(SD_RECRUITABLE_APK_UNIT_IDS);
@@ -247,18 +248,20 @@ function assertTrainingScenarioMatchesMap(
 export interface CreateApkSkirmishGameStateOptions extends CreateGameStateFromApkAemMapOptions {
     mode?: ApkSkirmishMode;
     setup?: ApkSkirmishSetupSelection;
+    // 新对局默认结算首名玩家的回合；仅需要原始地图配置的回放入口设为 false。
+    applyInitialTurnStart?: boolean;
 }
 
 export function createApkSkirmishGameState(
     map: ApkAemMap,
     options: CreateApkSkirmishGameStateOptions = {}
 ): GameState {
-    const { mode = 'SD', setup, rules: overrideRules, metadata: overrideMetadata, ...stateOptions } = options;
+    const { mode = 'SD', setup, rules: overrideRules, metadata: overrideMetadata, applyInitialTurnStart = true, ...stateOptions } = options;
     const modeRules = getApkSkirmishRuleConfig(mode, setup);
     const manifestEntry = stateOptions.mapName ? getApkSkirmishMapManifestEntry(stateOptions.mapName) : null;
     const isOfficialManifestMap = manifestEntry !== null && matchesApkSkirmishMapManifest(map, manifestEntry);
 
-    return createGameStateFromApkAemMap(map, {
+    const initialState = createGameStateFromApkAemMap(map, {
         ...stateOptions,
         apkVersion: stateOptions.apkVersion ?? (isOfficialManifestMap ? APK_RELEASE_VERSION : undefined),
         apkSha256: stateOptions.apkSha256 ?? (isOfficialManifestMap ? APK_RELEASE_SHA256 : undefined),
@@ -270,6 +273,10 @@ export function createApkSkirmishGameState(
             apkSkirmishSetupOptions: getApkSkirmishSetupOptions()
         }
     });
+    // 新对局在首名玩家行动前结算回合收入；恢复已有局面时由调用方跳过此步骤。
+    return applyInitialTurnStart
+        ? new GameEngine(initialState, { applyInitialTurnStart: true }).getState()
+        : initialState;
 }
 
 export function createApkSkirmishTrainingGameState(

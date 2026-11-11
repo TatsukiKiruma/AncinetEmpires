@@ -178,7 +178,9 @@ async function buildReport(options: CliOptions): Promise<ApkReplayReport> {
         mapEncrypted = mapRead.encrypted;
         const initialState = createApkSkirmishGameState(mapRead.map, {
             mode: options.mode,
-            mapName: options.mapName
+            mapName: options.mapName,
+            // 回放校验器会根据录像在首条动作前自行结算一次开局回合。
+            applyInitialTurnStart: false
         });
         validation = validateApkReplay(initialState, replay.actions, {
             maxRecords: options.maxRecords,

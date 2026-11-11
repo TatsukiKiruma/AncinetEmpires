@@ -7,6 +7,17 @@ function rewriteApkTerrainRaw(tile: Tile): void {
     tile.apkTerrainRaw = (tile.apkTerrainId << 12) | ownerCode;
 }
 
+function syncApkTerrainDefinition(tile: Tile): void {
+    if (tile.apkTerrainId === undefined) return;
+    // 转换建筑时同步导入器携带的语义，避免残留旧地形定义。
+    const config = getApkTerrainConfig(tile.apkTerrainId);
+    if (config) {
+        tile.apkTerrainKind = config.kind;
+        tile.apkTerrainIsLand = config.isLand ?? config.flagA !== 0;
+        tile.apkMoveCost = config.moveCost;
+    }
+}
+
 function getLinkedApkTerrainIdForProjectTerrain(apkTerrainId: number, terrainId: TerrainId): number | null {
     const config = getApkTerrainConfig(apkTerrainId);
     if (!config) return null;
@@ -42,9 +53,7 @@ export function tileHasTerrainTag(tile: Tile, tag: string): boolean {
 
 export function tileClearsNegativeStatusAtTurnStart(tile: Tile): boolean {
     if (tile.apkTerrainId !== undefined) {
-        const terrainKey = getTileTerrainKey(tile);
-        // APK data.bin 的 kind 不能完整表达神庙净化语义；t31 已由实机确认会清除负面状态。
-        return terrainKey === 'temple' || terrainKey === 'water_temple';
+        return (tile.apkTerrainKind ?? getApkTerrainConfig(tile.apkTerrainId)?.kind) === 5;
     }
     return tileHasTerrainTag(tile, 'cleanse');
 }
@@ -61,6 +70,7 @@ export function setTileTerrainForRules(tile: Tile, terrainId: TerrainId): void {
     const linkedApkTerrainId = getLinkedApkTerrainIdForProjectTerrain(tile.apkTerrainId, terrainId);
     if (linkedApkTerrainId !== null) {
         tile.apkTerrainId = linkedApkTerrainId;
+        syncApkTerrainDefinition(tile);
         rewriteApkTerrainRaw(tile);
         return;
     }
@@ -69,6 +79,9 @@ export function setTileTerrainForRules(tile: Tile, terrainId: TerrainId): void {
     delete tile.apkTerrainId;
     delete tile.apkTerrainRaw;
     delete tile.apkOwnerCode;
+    delete tile.apkTerrainKind;
+    delete tile.apkTerrainIsLand;
+    delete tile.apkMoveCost;
 }
 
 export function setTileOwnerForRules(tile: Tile, ownerId: number | null): void {
@@ -100,6 +113,7 @@ export function destroyTileForRules(tile: Tile): void {
         const destroyedApkTerrainId = getApkTerrainConfig(tile.apkTerrainId)?.linkedB ?? -1;
         if (destroyedApkTerrainId >= 0) {
             tile.apkTerrainId = destroyedApkTerrainId;
+            syncApkTerrainDefinition(tile);
             tile.terrainId = mapSkirmishApkTerrainId(destroyedApkTerrainId) ?? tile.terrainId;
             tile.ownerId = null;
             tile.apkOwnerCode = 0xff;
@@ -124,10 +138,6 @@ export function getTileDefenseBonus(tile: Tile): number {
 }
 
 export function getTileHealPerTurn(tile: Tile): number {
-    if (tile.apkTerrainId === 0 || tile.apkTerrainId === 1) {
-        // t0/t1 是 APK 水面边界特殊 tile；回放显示单位可站立时不触发 data.bin 中的 3 点普通回血。
-        return 0;
-    }
     return getApkTerrainValue(tile, 'healPerTurn')
         ?? getTileTerrainConfig(tile)?.healPerTurn
         ?? 0;

@@ -38,7 +38,7 @@ import {
     getApkScriptLiteralRuleConfig
 } from '../src/game/apk_script_manifest';
 import { UNIT_CONFIGS } from '../src/game/constants';
-import { getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
+import { getCurrentPopulation, getRuleConfig, getTileIncome, getUnitCost } from '../src/game/rule_config';
 import { getTileDefenseBonus, getTileHealPerTurn, getTileTerrainKey } from '../src/game/terrain_rules';
 import type { Action, GameState, StatusType, Unit, UnitClass } from '../src/game/types';
 import { parseDexKeyRuleMethodEvidence } from './apk_dex_report';
@@ -1042,6 +1042,7 @@ function buildCommanderAutoReviveActual() {
         unit.ownerId === 1 && unit.unitClass === 'commander'
     ));
 
+    engine.step({ type: 'post_attack_move', unitId: attacker.id, to: { ...attacker.pos } });
     engine.step({ type: 'end_turn' });
     const nextTurnState = engine.getState();
     const nextTurnActions = engine.getLegalActions(1);
@@ -1487,7 +1488,8 @@ function buildSetupApplicationActual() {
         levelCap: 3
     }));
     const occupiedPositions = new Set(unitLimitState.units.map(unit => `${unit.pos.x},${unit.pos.y}`));
-    for (let i = unitLimitState.units.filter(unit => unit.ownerId === 0).length; i < 20; i += 1) {
+    // APK 的上限是人口占用；开局指挥官不占人口，不能用实体数填满上限。
+    for (let i = getCurrentPopulation(unitLimitState, 0); i < 20; i += 1) {
         const pos = { x: i % unitLimitState.map.width, y: Math.floor(i / unitLimitState.map.width) + 1 };
         if (pos.y >= unitLimitState.map.height || occupiedPositions.has(`${pos.x},${pos.y}`)) continue;
         occupiedPositions.add(`${pos.x},${pos.y}`);
@@ -1761,11 +1763,11 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'so-recruitable-units',
-        'SO 默认可招募单位',
-        'SO/controller.js 字面量规则与项目映射',
+        'SO 普通招募列表及独立指挥官价格',
+        'SO/controller.js 普通列表；C0600q.m4302g 与 C0789f0.mo3077m 独立指挥官招募分支',
         {
             recruitableUnits: SO_RECRUITABLE_UNITS,
-            commanderRecruitBaseCost: null
+            commanderRecruitBaseCost: 400
         },
         {
             recruitableUnits: soRules.recruitableUnits,
@@ -1819,10 +1821,10 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         'OPENCODE 反编译确认的 t80/t83/t81/t82 地形语义',
         'data.bin 地形记录 + OPENCODE 语义表：t80 为非收入治疗建筑，t81/t82 为水面障碍，t83 为水中治疗平台，均不可占领/收入/招募',
         {
-            t80: { kind: 4, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
-            t81: { kind: 8, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
-            t82: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
-            t83: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
+            t80: { kind: 5, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
+            t81: { kind: 1, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t82: { kind: 1, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t83: { kind: 5, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
         },
         buildT80T83TerrainActual()
     );
@@ -1892,7 +1894,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         },
         commanderCastleNoDeployTarget: {
             canRecruitAndDeploy: false,
-            actionTypes: ['end_turn', 'recruit_to_castle', 'surrender', 'wait']
+            actionTypes: ['end_turn', 'surrender', 'wait']
         }
         },
         buildRecruitExecutionActual()
@@ -1901,12 +1903,12 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
     check(
         checks,
         'commander-recruit-availability',
-        'SD 指挥官不在场时可重招募，SO 不招募指挥官',
-        '用户 2026-06-30 实机确认',
+        'SD/SO 指挥官不在场时可重招募',
+        'APK C0600q.m4302g 与 C0789f0.mo3077m；普通列表不排除指挥官特殊分支',
         {
             sdWithAliveCommander: { canRecruitCommander: false },
             sdWithoutCommander: { canRecruitCommander: true },
-            soWithoutCommander: { canRecruitCommander: false }
+            soWithoutCommander: { canRecruitCommander: true }
         },
         buildCommanderRecruitAvailabilityActual()
     );
@@ -1918,7 +1920,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
         'data.bin 指挥官基础价格字段 + 用户 2026-07-01 实机确认每死一次 +100',
         {
             sdDeathCounts0To2: [400, 500, 600],
-            soDeathCounts0To2: [null, null, null]
+            soDeathCounts0To2: [400, 500, 600]
         },
         buildCommanderRecruitCostActual()
     );
@@ -2149,7 +2151,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             statusRoundTripCount: 4,
             terrainCount: 84,
             expectedTerrainCount: 84,
-            terrainRecordSize: 40,
+            terrainRecordSize: null,
             terrainMappingSummary: {
                 confirmed: 4,
                 atlas: 73,
@@ -2170,7 +2172,7 @@ export function buildApkSkirmishRuleReport(generatedAt = new Date().toISOString(
             rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
             unitLimitBlocksRecruit: true,
             levelAfterAtCapAttack: 1,
-            expAfterAtCapAttack: 630
+            expAfterAtCapAttack: 600
         },
         buildSetupApplicationActual()
     );

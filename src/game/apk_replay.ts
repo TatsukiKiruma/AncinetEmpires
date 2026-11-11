@@ -58,7 +58,13 @@ export interface ParsedApkReplayActions {
     remainingBytes: number;
 }
 
+export interface ApkReplayExpansionNotice {
+    kind: 'skipped' | 'replaced' | 'ambiguous';
+    reason: string;
+}
+
 export interface ApkReplayExpansionOptions {
+    onNotice?: (notice: ApkReplayExpansionNotice) => void;
     allowAmbiguousRecruitDeployFirstMatch?: boolean;
     allowMissingAttackTargetAsNoop?: boolean;
     allowMissingSourceAsNoop?: boolean;
@@ -72,6 +78,8 @@ export interface ApkReplayExpansionOptions {
 }
 
 export interface ApkReplayValidationOptions {
+    // 拒绝跳过、替换或坐标推断，并要求消费全部输入记录。
+    rejectInformationLoss?: boolean;
     maxRecords?: number;
     expansionOptions?: ApkReplayExpansionOptions;
     stopOnFirstError?: boolean;
@@ -133,7 +141,17 @@ export interface ApkReplayTileDiagnostic {
 }
 
 export interface ApkReplayValidationResult {
+    // 仅表示配置范围内的项目回放执行无错误，不表示与 APK 状态等价。
     success: boolean;
+    evidence: {
+        validationBypassed: boolean;
+        fullyConsumed: boolean;
+        apkStateCompared: false;
+        notices: (ApkReplayExpansionNotice & { recordIndex: number })[];
+        skippedCount: number;
+        replacedCount: number;
+        ambiguousCount: number;
+    };
     recordCount: number;
     executedRecordCount: number;
     expandedActionCount: number;
@@ -551,6 +569,7 @@ function expandRecruitRecord(
         return [deploys[0]];
     }
     if (deploys.length > 1) {
+        options.onNotice?.({ kind: 'ambiguous', reason: `招募缺少部署坐标，从 ${deploys.length} 个候选中推断或选择` });
         if (options.recruitDeployResolver) {
             return [options.recruitDeployResolver(record, deploys, state)];
         }
@@ -561,6 +580,7 @@ function expandRecruitRecord(
     }
 
     if (options.allowInvalidRecruitAsNoop) {
+        options.onNotice?.({ kind: 'skipped', reason: '当前项目状态没有合法招募动作，跳过招募' });
         return [];
     }
 
@@ -702,6 +722,7 @@ export function expandApkReplayRecordToProjectActions(
     const actor = findUnitAt(state, source);
     if (!actor) {
         if (options.allowMissingSourceAsNoop) {
+            options.onNotice?.({ kind: 'skipped', reason: '来源单位不存在，跳过整条记录' });
             return [];
         }
         throw new Error(`找不到来源单位: (${source.x}, ${source.y})`);
@@ -723,6 +744,7 @@ export function expandApkReplayRecordToProjectActions(
             const target = findUnitAt(targetResolutionState, targetPos);
             if (target) {
                 if (!canApplyApkAttackToUnit(targetResolutionState, eventActor, target)) {
+                    options.onNotice?.({ kind: 'replaced', reason: '攻击对象或射程无效，将攻击替换为无操作或移动待机' });
                     const shouldSkipPostMove = replaceInvalidAttackWithNoopActions(
                         actions,
                         state,
@@ -745,6 +767,7 @@ export function expandApkReplayRecordToProjectActions(
                 const targetTile = targetResolutionState.map.tiles[targetPos.y]?.[targetPos.x];
                 if (!targetTile || !isTileDestroyableForRules(targetTile)) {
                     if (options.skipInvalidEventAsNoop) {
+                        options.onNotice?.({ kind: 'skipped', reason: '目标地形不可破坏，跳过攻击事件' });
                         break;
                     }
                     getUnitAt(targetResolutionState, targetPos, '攻击目标');
@@ -755,6 +778,7 @@ export function expandApkReplayRecordToProjectActions(
             }
 
             if (options.skipInvalidEventAsNoop || options.allowMissingAttackTargetAsNoop) {
+                options.onNotice?.({ kind: 'skipped', reason: '缺少有效攻击目标，跳过攻击事件' });
                 break;
             }
 
@@ -774,12 +798,14 @@ export function expandApkReplayRecordToProjectActions(
             const target = findUnitAt(targetResolutionState, targetPos);
             if (!target) {
                 if (options.skipInvalidEventAsNoop) {
+                    options.onNotice?.({ kind: 'skipped', reason: '支援目标不存在，跳过支援事件' });
                     break;
                 }
                 getUnitAt(targetResolutionState, targetPos, '支援目标');
                 break;
             }
             if (options.skipInvalidEventAsNoop && !canApplyApkSupportEvent(targetResolutionState, eventActor, target)) {
+                options.onNotice?.({ kind: 'skipped', reason: '支援条件不满足，跳过支援事件' });
                 break;
             }
             actions.push({ type: 'support', supporterId: actor.id, targetId: target.id });
@@ -788,6 +814,7 @@ export function expandApkReplayRecordToProjectActions(
         case 'SUMMON': {
             const spawnPos = requirePosition(record.target, '召唤目标', record);
             if (options.skipInvalidEventAsNoop && !canApplyApkSummonEvent(targetResolutionState, eventActor, spawnPos)) {
+                options.onNotice?.({ kind: 'skipped', reason: '召唤条件不满足，跳过召唤事件' });
                 break;
             }
             const grave = getGraveAt(targetResolutionState, spawnPos);
@@ -797,6 +824,9 @@ export function expandApkReplayRecordToProjectActions(
         case 'OCCUPY': {
             const tile = state.map.tiles[moveTo.y]?.[moveTo.x];
             const shouldCapture = tile && (tile.ownerId === null || tile.ownerId !== actor.ownerId);
+            if (!shouldCapture) {
+                options.onNotice?.({ kind: 'replaced', reason: '占领事件被转换为待机' });
+            }
             actions.push(shouldCapture
                 ? { type: 'capture', unitId: actor.id }
                 : { type: 'wait', unitId: actor.id });
@@ -838,6 +868,16 @@ export function validateApkReplay(
     let firstError: string | null = null;
     let expandedActionCount = 0;
     let executedRecordCount = 0;
+    const notices: ApkReplayValidationResult['evidence']['notices'] = [];
+    const buildEvidence = (): ApkReplayValidationResult['evidence'] => ({
+        validationBypassed: options.forceExecuteReplayActions ?? false,
+        fullyConsumed: executedRecordCount === records.length && firstError === null,
+        apkStateCompared: false,
+        notices,
+        skippedCount: notices.filter(notice => notice.kind === 'skipped').length,
+        replacedCount: notices.filter(notice => notice.kind === 'replaced').length,
+        ambiguousCount: notices.filter(notice => notice.kind === 'ambiguous').length
+    });
 
     for (let recordIndex = 0; recordIndex < Math.min(records.length, maxRecords); recordIndex += 1) {
         const record = records[recordIndex];
@@ -848,6 +888,13 @@ export function validateApkReplay(
                 engine.getState(),
                 createRecordExpansionOptions(records, recordIndex, {
                     ...options.expansionOptions,
+                    onNotice: notice => {
+                        notices.push({ ...notice, recordIndex });
+                        options.expansionOptions?.onNotice?.(notice);
+                        if (options.rejectInformationLoss) {
+                            throw new Error(`拒绝回放信息损失：${notice.reason}`);
+                        }
+                    },
                     allowMissingSourceAsNoop: options.forceExecuteReplayActions
                         || options.expansionOptions?.allowMissingSourceAsNoop,
                     allowInvalidRecruitAsNoop: options.forceExecuteReplayActions
@@ -903,6 +950,7 @@ export function validateApkReplay(
             if (error && options.stopOnFirstError !== false) {
                 return {
                     success: false,
+                    evidence: buildEvidence(),
                     recordCount: records.length,
                     executedRecordCount,
                     expandedActionCount,
@@ -915,8 +963,12 @@ export function validateApkReplay(
         executedRecordCount += 1;
     }
 
+    if (options.rejectInformationLoss && executedRecordCount !== records.length) {
+        firstError ??= '严格验收要求完整消费全部回放记录';
+    }
     return {
         success: firstError === null,
+        evidence: buildEvidence(),
         recordCount: records.length,
         executedRecordCount,
         expandedActionCount,

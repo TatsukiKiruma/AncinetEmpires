@@ -1,5 +1,5 @@
 import { GameEngine } from './engine';
-import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass, LevelCap } from './types';
+import { Ability, ApkScriptState, GameMetadata, GameState, Action, StepResult, UnitClass, LevelCap, Position } from './types';
 import { getLegalActions } from './rules';
 import { AttackType, UNIT_CONFIGS } from './constants';
 import { getAllianceId, getCommanderUnit, getCurrentPopulation, getCurrentUnitCount, getRecruitableUnits, getRuleConfig, getTurnPlayerIds, getUnitCost, isCommanderUnit, isTeamEnabled } from './rule_config';
@@ -39,6 +39,10 @@ export interface ApkTerrainConfigSnapshot {
   linkedC: number;
   flagC: number;
   tail: string;
+  isLand?: boolean;
+  capturable?: boolean;
+  variants?: number[] | null;
+  graphicsType?: number;
 }
 
 export interface Observation {
@@ -59,6 +63,7 @@ export interface Observation {
     incomeCommanderGrowth: number;
     levelCap: LevelCap;
     unitLimit: number | null;
+    unitLimitUsesPopulation: boolean;
     populationLimit: number | null;
     recruitableUnits: UnitClass[] | null;
     priceOverrides: Partial<Record<UnitClass, number | null>>;
@@ -349,7 +354,11 @@ function buildApkTerrainConfigSnapshot(apkTerrainId: number | undefined): ApkTer
         linkedB: config.linkedB,
         linkedC: config.linkedC,
         flagC: config.flagC,
-        tail: config.tail
+        tail: config.tail,
+        isLand: config.isLand,
+        capturable: config.capturable,
+        variants: config.variants ? [...config.variants] : config.variants,
+        graphicsType: config.graphicsType
     };
 }
 
@@ -461,7 +470,7 @@ function getFixedActionBlock(
 }
 
 function getTileIndex(pos: { x: number; y: number }, width: number, height: number): number | null {
-    if (!Number.isInteger(pos.x) || !Number.isInteger(pos.y)) return null;
+    if (!pos || !Number.isInteger(pos.x) || !Number.isInteger(pos.y)) return null;
     if (pos.x < 0 || pos.y < 0 || pos.x >= width || pos.y >= height) return null;
     return pos.y * width + pos.x;
 }
@@ -593,8 +602,7 @@ export function encodeFixedActionIndex(
         }
         case 'destroy_town': {
             const sourceIndex = unitTileIndex(action.unitId);
-            const unit = state.units.find(u => u.id === action.unitId);
-            const targetIndex = tileIndex(action.target ?? unit?.pos);
+            const targetIndex = action.target ? tileIndex(action.target) : null;
             return sourceIndex === null || targetIndex === null
                 ? null
                 : block.offset + sourceIndex * descriptor.tileCount + targetIndex;
@@ -834,6 +842,7 @@ export class AncientEmpiresEnv {
               incomeCommanderGrowth: rules.incomeCommanderGrowth,
               levelCap: rules.levelCap,
               unitLimit: rules.unitLimit ?? null,
+              unitLimitUsesPopulation: rules.unitLimitUsesPopulation,
               populationLimit: rules.populationLimit ?? null,
               recruitableUnits: rules.recruitableUnits ? [...rules.recruitableUnits] : null,
               priceOverrides: { ...rules.prices },
@@ -1062,7 +1071,7 @@ export const ACTION_SPACE_SCHEMA = [
     'recruit_and_deploy:<unitClass>:<castleX>,<castleY>:<toX>,<toY>',
     'capture:<unitId>',
     'repair:<unitId>',
-    'destroy_town:<unitId>[:<x>,<y>]',
+    'destroy_town:<unitId>:<x>,<y>',
     'wait:<unitId>',
     'surrender',
     'end_turn'
@@ -1090,44 +1099,92 @@ export function encodeAction(action: Action): string {
     }
 }
 
+/**
+ * V14/T14-02：正式动作解码器（带输入格式校验）。
+ *
+ * 历史实现在 parts 缺失或坐标非数字时会静默产出 `{x: NaN, y: NaN}`，
+ * 使用方只能靠“动作不合法”间接发现问题。这里改为明确返回 null：
+ * 任何字段数量不对、坐标不是整数、或落点超出棋盘坐标系可表达范围的动作码都判为不可解码，
+ * 调用方必须把该行送入 quarantine，而不是当成“未知动作”继续训练。
+ */
 export function decodeAction(code: string): Action | null {
+    if (typeof code !== 'string' || code.length === 0) return null;
     const parts = code.split(':');
     const type = parts[0];
+    // 中文：坐标必须形如 "x,y" 且两个分量都是非负整数。
+    const parsePos = (token: string | undefined): Position | null => {
+        if (typeof token !== 'string') return null;
+        const pieces = token.split(',');
+        if (pieces.length !== 2) return null;
+        const x = Number(pieces[0]);
+        const y = Number(pieces[1]);
+        if (!Number.isInteger(x) || !Number.isInteger(y) || x < 0 || y < 0) return null;
+        return { x, y };
+    };
+    const isUnitClass = (token: string | undefined): token is UnitClass =>
+        typeof token === 'string' && Object.prototype.hasOwnProperty.call(UNIT_CONFIGS, token);
     switch (type) {
         case 'move': {
-            const [x, y] = parts[2].split(',').map(Number);
-            return { type: 'move', unitId: parts[1], to: { x, y } };
+            if (parts.length !== 3 || !parts[1]) return null;
+            const to = parsePos(parts[2]);
+            return to ? { type: 'move', unitId: parts[1], to } : null;
         }
         case 'post_attack_move': {
-            const [x, y] = parts[2].split(',').map(Number);
-            return { type: 'post_attack_move', unitId: parts[1], to: { x, y } };
+            if (parts.length !== 3 || !parts[1]) return null;
+            const to = parsePos(parts[2]);
+            return to ? { type: 'post_attack_move', unitId: parts[1], to } : null;
         }
-        case 'attack': return { type: 'attack', attackerId: parts[1], targetId: parts[2] };
-        case 'heal': return { type: 'heal', healerId: parts[1], targetId: parts[2] };
-        case 'support': return { type: 'support', supporterId: parts[1], targetId: parts[2] };
+        case 'attack': {
+            if (parts.length !== 3 || !parts[1] || !parts[2]) return null;
+            return { type: 'attack', attackerId: parts[1], targetId: parts[2] };
+        }
+        case 'heal': {
+            if (parts.length !== 3 || !parts[1] || !parts[2]) return null;
+            return { type: 'heal', healerId: parts[1], targetId: parts[2] };
+        }
+        case 'support': {
+            if (parts.length !== 3 || !parts[1] || !parts[2]) return null;
+            return { type: 'support', supporterId: parts[1], targetId: parts[2] };
+        }
         case 'summon': {
-            const [x, y] = parts[3].split(',').map(Number);
-            return { type: 'summon', summonerId: parts[1], graveId: parts[2], spawnPos: { x, y } };
+            if (parts.length !== 4 || !parts[1] || !parts[2]) return null;
+            const spawnPos = parsePos(parts[3]);
+            return spawnPos ? { type: 'summon', summonerId: parts[1], graveId: parts[2], spawnPos } : null;
         }
         case 'recruit_to_castle': {
-            const [cx, cy] = parts[2].split(',').map(Number);
-            return { type: 'recruit_to_castle', unitClass: parts[1] as any, castlePos: { x: cx, y: cy } };
+            if (parts.length !== 3 || !isUnitClass(parts[1])) return null;
+            const castlePos = parsePos(parts[2]);
+            return castlePos ? { type: 'recruit_to_castle', unitClass: parts[1], castlePos } : null;
         }
         case 'recruit_and_deploy': {
-            const [cx, cy] = parts[2].split(',').map(Number);
-            const [sx, sy] = parts[3].split(',').map(Number);
-            return { type: 'recruit_and_deploy', unitClass: parts[1] as any, castlePos: { x: cx, y: cy }, to: { x: sx, y: sy } };
+            if (parts.length !== 4 || !isUnitClass(parts[1])) return null;
+            const castlePos = parsePos(parts[2]);
+            const to = parsePos(parts[3]);
+            return castlePos && to
+                ? { type: 'recruit_and_deploy', unitClass: parts[1], castlePos, to }
+                : null;
         }
-        case 'capture': return { type: 'capture', unitId: parts[1] };
-        case 'repair': return { type: 'repair', unitId: parts[1] };
+        case 'capture': {
+            if (parts.length !== 2 || !parts[1]) return null;
+            return { type: 'capture', unitId: parts[1] };
+        }
+        case 'repair': {
+            if (parts.length !== 2 || !parts[1]) return null;
+            return { type: 'repair', unitId: parts[1] };
+        }
         case 'destroy_town': {
-            if (!parts[2]) return { type: 'destroy_town', unitId: parts[1] };
-            const [x, y] = parts[2].split(',').map(Number);
-            return { type: 'destroy_town', unitId: parts[1], target: { x, y } };
+            if (parts.length !== 3 || !parts[1]) return null;
+            const target = parsePos(parts[2]);
+            return target ? { type: 'destroy_town', unitId: parts[1], target } : null;
         }
-        case 'wait': return { type: 'wait', unitId: parts[1] };
-        case 'surrender': return { type: 'surrender' };
-        case 'end_turn': return { type: 'end_turn' };
+        case 'wait': {
+            if (parts.length !== 2 || !parts[1]) return null;
+            return { type: 'wait', unitId: parts[1] };
+        }
+        case 'surrender':
+            return parts.length === 1 ? { type: 'surrender' } : null;
+        case 'end_turn':
+            return parts.length === 1 ? { type: 'end_turn' } : null;
         default: return null;
     }
 }

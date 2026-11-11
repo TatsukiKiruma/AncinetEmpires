@@ -154,7 +154,7 @@ describe('APK skirmish rule report', () => {
             commanderRecruitBaseCost: 400
         }));
         expect(byId['so-recruitable-units'].actual).toEqual(expect.objectContaining({
-            commanderRecruitBaseCost: null
+            commanderRecruitBaseCost: 400
         }));
         expect(byId['recruit-economy'].actual).toEqual({
             sd: [
@@ -193,11 +193,11 @@ describe('APK skirmish rule report', () => {
         expect(byId['commander-recruit-availability'].actual).toEqual({
             sdWithAliveCommander: { canRecruitCommander: false },
             sdWithoutCommander: { canRecruitCommander: true },
-            soWithoutCommander: { canRecruitCommander: false }
+            soWithoutCommander: { canRecruitCommander: true }
         });
         expect(byId['commander-recruit-cost-profile'].actual).toEqual({
             sdDeathCounts0To2: [400, 500, 600],
-            soDeathCounts0To2: [null, null, null]
+            soDeathCounts0To2: [400, 500, 600]
         });
         expect(byId['commander-no-auto-revive'].actual).toEqual({
             afterDeath: {
@@ -316,10 +316,10 @@ describe('APK skirmish rule report', () => {
             secondSupportAvailableAfterTargetActsAgain: false
         });
         expect(byId['opencode-t80-t83-terrain-semantics'].actual).toEqual({
-            t80: { kind: 4, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
-            t81: { kind: 8, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
-            t82: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
-            t83: { kind: 3, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
+            t80: { kind: 5, flagA: 1, defenseBonus: 10, moveCost: 1, healPerTurn: 20, projectTerrainId: 12, terrainKey: 'temple', income: 0, actionTypes: [] },
+            t81: { kind: 1, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t82: { kind: 1, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 0, projectTerrainId: 2, terrainKey: 'deep_water', income: 0, actionTypes: [] },
+            t83: { kind: 5, flagA: 0, defenseBonus: 10, moveCost: 3, healPerTurn: 20, projectTerrainId: 16, terrainKey: 'water_temple', income: 0, actionTypes: [] }
         });
         expect(byId['language-rule-evidence'].actual).toEqual({
             langPath: 'APK/_analysis/unpack/assets/languages/en.lang',
@@ -368,7 +368,7 @@ describe('APK skirmish rule report', () => {
             statusRoundTripCount: 4,
             terrainCount: 84,
             expectedTerrainCount: 84,
-            terrainRecordSize: 40,
+            terrainRecordSize: null,
             terrainMappingSummary: {
                 confirmed: 4,
                 atlas: 73,
@@ -381,7 +381,7 @@ describe('APK skirmish rule report', () => {
             rules: { initialGold: 450, unitLimit: 20, levelCap: 1 },
             unitLimitBlocksRecruit: true,
             levelAfterAtCapAttack: 1,
-            expAfterAtCapAttack: 630
+            expAfterAtCapAttack: 600
         });
         expect(byId['training-observation-skirmish-rules'].actual).toEqual({
             rules: {
@@ -454,7 +454,7 @@ describe('APK skirmish rule report', () => {
             },
             commanderCastleNoDeployTarget: {
                 canRecruitAndDeploy: false,
-                actionTypes: ['end_turn', 'recruit_to_castle', 'surrender', 'wait']
+                actionTypes: ['end_turn', 'surrender', 'wait']
             }
         });
     });

@@ -916,7 +916,7 @@ function buildTileRuleActual() {
         createUnit('catapult', 0, 'catapult', 0, 0),
         createUnit('enemy', 1, 'soldier', 4, 4)
     ]);
-    villageState.map.tiles[0][0] = { terrainId: 9, ownerId: 1 };
+    villageState.map.tiles[0][3] = { terrainId: 9, ownerId: 1 };
     const destroyAction = getLegalActions(villageState, 0).find(action => action.type === 'destroy_town' && action.unitId === 'catapult');
     const destroyEngine = new GameEngine(villageState);
     if (destroyAction) {
@@ -930,8 +930,8 @@ function buildTileRuleActual() {
         repairedTerrainId: repairEngine.getState().map.tiles[0][0].terrainId,
         repairedOwnerId: repairEngine.getState().map.tiles[0][0].ownerId,
         villageCanBeDestroyed: destroyAction !== undefined,
-        destroyedVillageTerrainId: destroyEngine.getState().map.tiles[0][0].terrainId,
-        destroyedVillageOwnerId: destroyEngine.getState().map.tiles[0][0].ownerId
+        destroyedVillageTerrainId: destroyEngine.getState().map.tiles[0][3].terrainId,
+        destroyedVillageOwnerId: destroyEngine.getState().map.tiles[0][3].ownerId
     };
 }
 
@@ -1161,7 +1161,7 @@ function buildApkLanguageRuleReportFromEntries(
         'earth-child-movement',
         '大地之子陆地移动 1，水面和桥移动 2',
         'P_ABILITY3_DESCRIPTION_22',
-        { roadCost: 1, waterCost: 2, bridgeCost: 2 },
+        { roadCost: 1, waterCost: 4, bridgeCost: 2 },
         buildEarthChildActual()
     );
 

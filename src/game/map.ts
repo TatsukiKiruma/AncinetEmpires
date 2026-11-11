@@ -98,10 +98,10 @@ export function getReachablePositions(state: GameState, unitId: string, customMa
     return validPositions;
 }
 
-export function getMoveCostTo(state: GameState, unitId: string, to: Position): number {
+/** 单一不可变局面的全部移动代价，允许同初态的引擎克隆复用。 */
+export function getMovementCosts(state: GameState, unitId: string): Map<string, number> {
     const unit = state.units.find(u => u.id === unitId);
-    if (!unit) return 999;
-    if (unit.pos.x === to.x && unit.pos.y === to.y) return 0;
+    if (!unit) return new Map();
 
     const stats = getEffectiveStats(unit);
     let maxMove = stats.move;
@@ -159,7 +159,14 @@ export function getMoveCostTo(state: GameState, unitId: string, to: Position): n
             }
         }
     }
-    const cost = reachable.get(`${to.x},${to.y}`);
+    return reachable;
+}
+
+export function getMoveCostTo(state: GameState, unitId: string, to: Position): number {
+    const unit = state.units.find(u => u.id === unitId);
+    if (!unit) return 999;
+    if (unit.pos.x === to.x && unit.pos.y === to.y) return 0;
+    const cost = getMovementCosts(state, unitId).get(`${to.x},${to.y}`);
     return cost !== undefined ? cost : 999;
 }
 

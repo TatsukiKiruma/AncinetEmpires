@@ -14,6 +14,8 @@ import {
     type ApkTerrainConfig
 } from '../src/game/apk_terrain';
 import { decryptApkResourceBytes } from './apk_resource_crypto';
+import { parseApkTerrainConfigsFromDecryptedDataBin } from './apk_terrain_parser';
+export { parseApkTerrainRecord, parseApkTerrainConfigsFromDecryptedDataBin } from './apk_terrain_parser';
 
 interface CliOptions {
     unpackDir: string;
@@ -56,8 +58,8 @@ interface ApkTerrainReport {
     encryptedPayloadOffset: number;
     terrainCount: number;
     expectedTerrainCount: number;
-    recordSize: number;
-    expectedRecordSize: number;
+    recordSize: number | null;
+    expectedRecordSize: number | null;
     mismatches: TerrainMismatch[];
     defenseBonusDistribution: ValueDistribution[];
     healPerTurnDistribution: ValueDistribution[];
@@ -68,16 +70,14 @@ interface ApkTerrainReport {
 }
 
 const APK_DATA_BIN_MAGIC = 365703;
-const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack');
+const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack', 'assets');
 const DATA_BIN_ENCRYPTED_PAYLOAD_OFFSET = 17;
-const DATA_BIN_TERRAIN_COUNT_OFFSET = 8;
-const DATA_BIN_TERRAIN_RECORDS_OFFSET = 9;
 
 function printHelp() {
     console.log(`用法: npm run apk:terrain-report -- [选项]
 
 选项:
-  --unpack <dir>   APK 解包目录，默认 APK/_analysis/unpack
+  --unpack <dir>   包含 data.bin 的目录，默认 APK/_analysis/unpack/assets
   --json           输出 JSON
   --check          data.bin 地形记录和项目归档不一致时以非 0 退出
   --help           显示帮助
@@ -118,14 +118,6 @@ function bytesToHex(bytes: Uint8Array): string {
         .join(' ');
 }
 
-function tailHex(value: number): string {
-    return `0x${value.toString(16).padStart(8, '0')}`;
-}
-
-function readInt32BE(buffer: Buffer, offset: number): number {
-    return buffer.readInt32BE(offset);
-}
-
 function readUInt32BE(buffer: Buffer, offset: number): number {
     return buffer.readUInt32BE(offset);
 }
@@ -161,55 +153,6 @@ function parseApkDataBinEnvelope(data: Buffer): ApkDataBinEnvelope {
     };
 }
 
-export function parseApkTerrainRecord(buffer: Buffer, offset: number, id: number): ApkTerrainConfig {
-    if (offset + APK_TERRAIN_RECORD_SIZE > buffer.length) {
-        throw new Error(`APK 地形记录越界: id=${id}, offset=${offset}`);
-    }
-
-    return {
-        id,
-        kind: readInt32BE(buffer, offset),
-        flagA: buffer.readInt16BE(offset + 4),
-        variant: readInt32BE(buffer, offset + 6),
-        linkedA: readInt32BE(buffer, offset + 10),
-        defenseBonus: readInt32BE(buffer, offset + 14),
-        healPerTurn: readInt32BE(buffer, offset + 18),
-        moveCost: readInt32BE(buffer, offset + 22),
-        flagB: buffer[offset + 26],
-        linkedB: readInt32BE(buffer, offset + 27),
-        linkedC: readInt32BE(buffer, offset + 31),
-        flagC: buffer[offset + 35],
-        tail: tailHex(readUInt32BE(buffer, offset + 36))
-    };
-}
-
-export function parseApkTerrainConfigsFromDecryptedDataBin(decrypted: Buffer): ApkTerrainConfig[] {
-    if (decrypted.length < DATA_BIN_TERRAIN_RECORDS_OFFSET) {
-        throw new Error('解密后的 data.bin 文件过小');
-    }
-
-    const magic = readUInt32BE(decrypted, 0);
-    if (magic !== APK_DATA_BIN_MAGIC) {
-        throw new Error(`解密后的 data.bin magic 不匹配: ${magic}`);
-    }
-
-    const terrainCount = decrypted[DATA_BIN_TERRAIN_COUNT_OFFSET];
-    const requiredLength = DATA_BIN_TERRAIN_RECORDS_OFFSET + terrainCount * APK_TERRAIN_RECORD_SIZE;
-    if (requiredLength > decrypted.length) {
-        throw new Error(`解密后的 data.bin 地形表越界: count=${terrainCount}`);
-    }
-
-    const configs: ApkTerrainConfig[] = [];
-    for (let id = 0; id < terrainCount; id += 1) {
-        configs.push(parseApkTerrainRecord(
-            decrypted,
-            DATA_BIN_TERRAIN_RECORDS_OFFSET + id * APK_TERRAIN_RECORD_SIZE,
-            id
-        ));
-    }
-
-    return configs;
-}
 
 function stableStringify(value: unknown): string {
     if (Array.isArray(value)) {
@@ -373,7 +316,7 @@ function renderMarkdown(report: ApkTerrainReport): string {
         `- DES key/iv：\`${report.keyHex}\``,
         `- 加密 payload offset：${report.encryptedPayloadOffset}`,
         `- 地形记录：${report.terrainCount}/${report.expectedTerrainCount}`,
-        `- 记录长度：${report.recordSize}/${report.expectedRecordSize}`,
+        `- 记录长度：${report.recordSize ?? '变长（包含数组，不可使用固定跨度）'}`,
         `- 项目归档差异：${report.mismatches.length}`,
         `- skirmish 映射可信度：confirmed=${report.mappingSummary.confirmed}, atlas=${report.mappingSummary.atlas}, approximate=${report.mappingSummary.approximate}, unmapped=${report.mappingSummary.unmapped}`,
         '',

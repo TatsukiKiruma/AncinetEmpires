@@ -18,6 +18,7 @@ export const DEFAULT_RULE_CONFIG = {
     terrainChildCombatBonus: 10,
     weakenedDefensePenalty: 10,
     unitLimit: undefined,
+    unitLimitUsesPopulation: false,
     populationLimit: undefined,
     recruitableUnits: undefined,
     prices: {},
@@ -37,6 +38,24 @@ export const DEFAULT_RULE_CONFIG = {
     campaignEvents: [],
     teams: {}
 } satisfies Required<RuleConfig>;
+
+export type NumericRuleKey = 'incomeVillage' | 'incomeCastle' | 'incomeCommanderBase' | 'incomeCommanderGrowth'
+    | 'destroyerAttackBonus' | 'flyingWaterAttackBonus' | 'deathReaperAttackBonus' | 'inspiredAttackBonus'
+    | 'sharpshooterAttackBonus' | 'terrainChildCombatBonus' | 'weakenedDefensePenalty';
+
+/** 与完整对象展开保持相同的自有可枚举字段语义，不缓存可由脚本原位修改的规则。 */
+export function getNumericRule(state: GameState, key: NumericRuleKey): number {
+    return state.rules && Object.prototype.propertyIsEnumerable.call(state.rules, key)
+        ? state.rules[key] as number
+        : DEFAULT_RULE_CONFIG[key];
+}
+
+/** 标量字段保留完整展开的自有可枚举覆盖语义；不缓存脚本可原位修改的值。 */
+export function getScalarRule<K extends keyof RuleConfig>(state: GameState, key: K): Required<RuleConfig>[K] {
+    return state.rules && Object.prototype.propertyIsEnumerable.call(state.rules, key)
+        ? state.rules[key] as Required<RuleConfig>[K]
+        : DEFAULT_RULE_CONFIG[key] as Required<RuleConfig>[K];
+}
 
 export function getRuleConfig(state: GameState): Required<RuleConfig> {
     const rules = state.rules ?? {};
@@ -107,6 +126,7 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
     if (overrides.terrainChildCombatBonus !== undefined) merged.terrainChildCombatBonus = overrides.terrainChildCombatBonus;
     if (overrides.weakenedDefensePenalty !== undefined) merged.weakenedDefensePenalty = overrides.weakenedDefensePenalty;
     if (overrides.unitLimit !== undefined) merged.unitLimit = overrides.unitLimit;
+    if (overrides.unitLimitUsesPopulation !== undefined) merged.unitLimitUsesPopulation = overrides.unitLimitUsesPopulation;
     if (overrides.populationLimit !== undefined) merged.populationLimit = overrides.populationLimit;
     if (overrides.recruitableUnits !== undefined) merged.recruitableUnits = [...overrides.recruitableUnits];
     if (overrides.commanderRecruitBaseCost !== undefined) merged.commanderRecruitBaseCost = overrides.commanderRecruitBaseCost;
@@ -160,12 +180,12 @@ export function mergeRuleConfig(base: RuleConfig | undefined, overrides: RuleCon
 }
 
 export function getTeamRuleConfig(state: GameState, playerId: number): TeamRuleConfig {
-    return getRuleConfig(state).teams[playerId] ?? {};
+    return state.rules?.teams?.[playerId] ?? (DEFAULT_RULE_CONFIG.teams as Record<number, TeamRuleConfig>)[playerId] ?? {};
 }
 
 export function getAllianceId(state: GameState, playerId: number): number {
-    const rules = getRuleConfig(state);
-    return rules.alliances[playerId] ?? playerId;
+    // 热路径只读取联盟字段，避免每次距离/阻挡判断都复制整份规则及脚本。
+    return state.rules?.alliances?.[playerId] ?? (DEFAULT_RULE_CONFIG.alliances as Record<number, number>)[playerId] ?? playerId;
 }
 
 export function areAlliedPlayers(state: GameState, playerA: number, playerB: number): boolean {
@@ -181,7 +201,7 @@ export function isFriendlyOrNeutralOwner(state: GameState, playerId: number, own
 }
 
 export function isTeamEnabled(state: GameState, playerId: number): boolean {
-    return !getRuleConfig(state).disabledTeams.includes(playerId);
+    return !(state.rules?.disabledTeams ?? DEFAULT_RULE_CONFIG.disabledTeams).includes(playerId);
 }
 
 export function isActivePlayer(state: GameState, playerId: number): boolean {
@@ -199,7 +219,8 @@ export function getTurnPlayerIds(state: GameState): number[] {
 export function isCommanderUnit(state: GameState, unit: Unit, teamId?: number): boolean {
     if (teamId !== undefined && unit.ownerId !== teamId) return false;
 
-    const commanderUnitId = getRuleConfig(state).commanderUnitIds[unit.ownerId];
+    const commanderUnitId = state.rules?.commanderUnitIds?.[unit.ownerId]
+        ?? (DEFAULT_RULE_CONFIG.commanderUnitIds as Record<number, string>)[unit.ownerId];
     if (commanderUnitId !== undefined) {
         return unit.id === commanderUnitId;
     }
@@ -208,7 +229,8 @@ export function isCommanderUnit(state: GameState, unit: Unit, teamId?: number): 
 }
 
 export function getCommanderUnit(state: GameState, playerId: number): Unit | null {
-    const commanderUnitId = getRuleConfig(state).commanderUnitIds[playerId];
+    const commanderUnitId = state.rules?.commanderUnitIds?.[playerId]
+        ?? (DEFAULT_RULE_CONFIG.commanderUnitIds as Record<number, string>)[playerId];
     if (commanderUnitId !== undefined) {
         return state.units.find(unit => unit.id === commanderUnitId && unit.ownerId === playerId && unit.hp > 0) ?? null;
     }
@@ -228,14 +250,17 @@ export function applyInitialRuleConfig(state: GameState): GameState {
 }
 
 export function getUnitCost(state: GameState, playerId: number, unitClass: UnitClass): number | null {
-    const rules = getRuleConfig(state);
-    const priceOverride = rules.prices[unitClass];
+    // prices在完整对象中独立展开：只接受价格表的自有可枚举条目，null和undefined照旧保留。
+    const prices = state.rules?.prices, defaults = DEFAULT_RULE_CONFIG.prices as Partial<Record<UnitClass, number | null>>;
+    const priceOverride = prices && Object.prototype.propertyIsEnumerable.call(prices, unitClass)
+        ? prices[unitClass]
+        : defaults[unitClass];
 
     if (unitClass === 'commander') {
-        if (priceOverride === null || (priceOverride === undefined && rules.commanderRecruitBaseCost === null)) return null;
-        const baseCost = priceOverride ?? rules.commanderRecruitBaseCost;
+        if (priceOverride === null || (priceOverride === undefined && getScalarRule(state, 'commanderRecruitBaseCost') === null)) return null;
+        const baseCost = priceOverride ?? getScalarRule(state, 'commanderRecruitBaseCost');
         const deathCount = state.players.find(p => p.id === playerId)?.commanderDeathCount ?? 0;
-        return baseCost + deathCount * rules.commanderRecruitCostGrowth;
+        return baseCost + deathCount * getScalarRule(state, 'commanderRecruitCostGrowth');
     }
 
     if (priceOverride !== undefined) return priceOverride;
@@ -244,13 +269,18 @@ export function getUnitCost(state: GameState, playerId: number, unitClass: UnitC
 }
 
 export function getRecruitableUnits(state: GameState, playerId: number): UnitClass[] {
-    const rules = getRuleConfig(state);
     const teamRules = getTeamRuleConfig(state, playerId);
     const configuredUnits = teamRules.recruitableUnits
-        ?? rules.recruitableUnits
+        ?? getScalarRule(state, 'recruitableUnits')
         ?? (Object.keys(UNIT_CONFIGS) as UnitClass[]);
 
-    return [...new Set(configuredUnits)]
+    // APK m4302g 与招募界面 mo3077m 将指挥官作为普通招募列表之外的特殊分支。
+    // m4365a 为初始无指挥官的队伍建立储备，m4271m 在指挥官移除时保留储备。
+    // 在场或显式禁用价格时不增加该分支；普通列表中显式配置的条目照旧保留。
+    const units = getCommanderUnit(state, playerId) === null && getUnitCost(state, playerId, 'commander') !== null
+        ? ['commander' as UnitClass, ...configuredUnits]
+        : configuredUnits;
+    return [...new Set(units)]
         .filter(unitClass => getUnitCost(state, playerId, unitClass) !== null);
 }
 
@@ -280,14 +310,18 @@ export function canRecruitUnitClass(state: GameState, playerId: number, unitClas
     const recruitableUnits = getRecruitableUnits(state, playerId);
     if (!recruitableUnits.includes(unitClass)) return false;
 
-    const rules = getRuleConfig(state);
     const teamRules = getTeamRuleConfig(state, playerId);
-    const unitLimit = teamRules.unitLimit ?? rules.unitLimit;
-    if (unitLimit !== undefined && getCurrentUnitCount(state, playerId) >= unitLimit) {
-        return false;
+    const unitLimit = teamRules.unitLimit ?? getScalarRule(state, 'unitLimit');
+    if (unitLimit !== undefined) {
+        // APK C0600q.m4344b 使用累计人口加新单位人口；指挥官等零人口分支不受人口上限限制。
+        if (getScalarRule(state, 'unitLimitUsesPopulation')) {
+            if (unitConfig.population !== 0 && getCurrentPopulation(state, playerId) + unitConfig.population > unitLimit) return false;
+        } else if (getCurrentUnitCount(state, playerId) >= unitLimit) {
+            return false;
+        }
     }
 
-    const populationLimit = teamRules.populationLimit ?? rules.populationLimit;
+    const populationLimit = teamRules.populationLimit ?? getScalarRule(state, 'populationLimit');
     if (populationLimit !== undefined && getCurrentPopulation(state, playerId) + unitConfig.population > populationLimit) {
         return false;
     }
@@ -299,17 +333,15 @@ export function getTerrainIncome(state: GameState, terrainId: TerrainId): number
     const terrainConfig = TERRAIN_CONFIG[terrainId];
     if (!terrainConfig) return 0;
 
-    const rules = getRuleConfig(state);
-    if (terrainConfig.key === 'town') return rules.incomeVillage;
-    if (terrainConfig.key === 'castle') return rules.incomeCastle;
+    if (terrainConfig.key === 'town') return getNumericRule(state, 'incomeVillage');
+    if (terrainConfig.key === 'castle') return getNumericRule(state, 'incomeCastle');
 
     return terrainConfig.incomePerTurn || 0;
 }
 
 export function getTileIncome(state: GameState, tile: Tile): number {
-    const rules = getRuleConfig(state);
     const key = getTileTerrainKey(tile);
-    if (key === 'town') return rules.incomeVillage;
-    if (key === 'castle') return rules.incomeCastle;
+    if (key === 'town') return getNumericRule(state, 'incomeVillage');
+    if (key === 'castle') return getNumericRule(state, 'incomeCastle');
     return 0;
 }

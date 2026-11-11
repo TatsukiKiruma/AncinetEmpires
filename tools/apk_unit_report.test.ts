@@ -124,15 +124,16 @@ describe('APK data.bin 单位复核工具', () => {
     });
 
     it('从解密后的 data.bin 头部定位单位小节', () => {
-        const decrypted = Buffer.alloc(128);
+        const terrainBytes = Buffer.from('000000000000ffffffff00000000000000000000000300ffffffffffffffff00000000010000000200000001', 'hex');
+        const decrypted = Buffer.alloc(256);
         decrypted.writeUInt32BE(365703, 0);
-        decrypted[8] = 0;
-        const sectionOffset = 9;
-        decrypted.writeUInt32BE(8, sectionOffset);
-        decrypted.writeUInt32BE(365703, sectionOffset + 4);
-        decrypted.writeUInt32BE(0, sectionOffset + 8);
-        decrypted[sectionOffset + 12] = 1;
-        writeUnitRecord(decrypted, sectionOffset + 14, {
+        decrypted.writeInt32BE(1, 5);
+        terrainBytes.copy(decrypted, 9);
+        // t1 含一个变体，44 字节；不能按旧 40 字节跨度定位后续单位段。
+        const sectionOffset = 9 + terrainBytes.length;
+        decrypted.writeUInt32BE(365703, sectionOffset);
+        decrypted.writeInt32BE(1, sectionOffset + 5);
+        writeUnitRecord(decrypted, sectionOffset + 10, {
             cost: 250,
             population: 1,
             attackElement: 0,
@@ -157,7 +158,8 @@ describe('APK data.bin 单位复核工具', () => {
 
         const parsed = parseApkUnitRecordsFromDecryptedDataBin(decrypted);
         expect(parsed.sectionOffset).toBe(sectionOffset);
-        expect(parsed.sectionMarker).toBe(8);
+        expect(parsed.sectionMarker).toBe(0);
+        expect(parsed.recordsOffset).toBe(63);
         expect(parsed.sectionMagic).toBe(365703);
         expect(parsed.records).toEqual([
             expect.objectContaining({

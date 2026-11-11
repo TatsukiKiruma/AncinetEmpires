@@ -6,110 +6,26 @@ import {
     parseApkTerrainRecord
 } from './apk_terrain_report';
 
-function writeTerrainRecord(
-    buffer: Buffer,
-    offset: number,
-    values: {
-        kind: number;
-        flagA: number;
-        variant: number;
-        linkedA: number;
-        defenseBonus: number;
-        healPerTurn: number;
-        moveCost: number;
-        flagB: number;
-        linkedB: number;
-        linkedC: number;
-        flagC: number;
-        tail: number;
-    }
-) {
-    buffer.writeInt32BE(values.kind, offset);
-    buffer.writeInt16BE(values.flagA, offset + 4);
-    buffer.writeInt32BE(values.variant, offset + 6);
-    buffer.writeInt32BE(values.linkedA, offset + 10);
-    buffer.writeInt32BE(values.defenseBonus, offset + 14);
-    buffer.writeInt32BE(values.healPerTurn, offset + 18);
-    buffer.writeInt32BE(values.moveCost, offset + 22);
-    buffer[offset + 26] = values.flagB;
-    buffer.writeInt32BE(values.linkedB, offset + 27);
-    buffer.writeInt32BE(values.linkedC, offset + 31);
-    buffer[offset + 35] = values.flagC;
-    buffer.writeUInt32BE(values.tail, offset + 36);
-}
+// 直接取自 APK 解密字节；t1 的 variants=[2] 使记录从 40 变为 44 字节。
+const T0 = '000000000000ffffffff00000000000000000000000300ffffffffffffffff000000000000000001';
+const T1 = '000000000000ffffffff00000000000000000000000300ffffffffffffffff00000000010000000200000001';
+const T2 = '000000000000ffffffff00000000000000000000000300ffffffffffffffff000000000000000001';
 
 describe('APK data.bin 地形复核工具', () => {
-    it('解析单条 40 字节地形记录', () => {
-        const buffer = Buffer.alloc(40);
-        writeTerrainRecord(buffer, 0, {
-            kind: 8,
-            flagA: 1,
-            variant: 4,
-            linkedA: -1,
-            defenseBonus: 15,
-            healPerTurn: 20,
-            moveCost: 1,
-            flagB: 1,
-            linkedB: 27,
-            linkedC: -1,
-            flagC: 0,
-            tail: 0
+    it('逐字段解析 APK 字节及变长数组，不能固定跨度', () => {
+        expect(parseApkTerrainRecord(Buffer.from(T1, 'hex'), 0, 1)).toMatchObject({
+            id: 1, kind: 0, isLand: false, capturable: false, moveCost: 3, healPerTurn: 0,
+            variants: [2], graphicsType: 1, linkedA: -1, linkedB: -1, linkedC: -1
         });
-
-        expect(parseApkTerrainRecord(buffer, 0, 36)).toEqual({
-            id: 36,
-            kind: 8,
-            flagA: 1,
-            variant: 4,
-            linkedA: -1,
-            defenseBonus: 15,
-            healPerTurn: 20,
-            moveCost: 1,
-            flagB: 1,
-            linkedB: 27,
-            linkedC: -1,
-            flagC: 0,
-            tail: '0x00000000'
-        });
-    });
-
-    it('从解密后的 data.bin 头部解析地形表', () => {
-        const decrypted = Buffer.alloc(9 + 2 * 40);
-        decrypted.writeUInt32BE(365703, 0);
-        decrypted[8] = 2;
-        writeTerrainRecord(decrypted, 9, {
-            kind: 0,
-            flagA: 0,
-            variant: -1,
-            linkedA: 0,
-            defenseBonus: 0,
-            healPerTurn: 3,
-            moveCost: 16777215,
-            flagB: 255,
-            linkedB: -1,
-            linkedC: 0,
-            flagC: 0,
-            tail: 1
-        });
-        writeTerrainRecord(decrypted, 49, {
-            kind: 4,
-            flagA: 1,
-            variant: 5,
-            linkedA: -1,
-            defenseBonus: 10,
-            healPerTurn: 20,
-            moveCost: 1,
-            flagB: 0,
-            linkedB: -1,
-            linkedC: -1,
-            flagC: 0,
-            tail: 0
-        });
-
-        expect(parseApkTerrainConfigsFromDecryptedDataBin(decrypted)).toEqual([
-            expect.objectContaining({ id: 0, defenseBonus: 0, healPerTurn: 3, moveCost: 16777215, tail: '0x00000001' }),
-            expect.objectContaining({ id: 1, defenseBonus: 10, healPerTurn: 20, moveCost: 1, tail: '0x00000000' })
-        ]);
+        const data = Buffer.from('000594870000000003' + T0 + T1 + T2 + '000594870000000015', 'hex');
+        const rows = parseApkTerrainConfigsFromDecryptedDataBin(data);
+        expect(rows.map(row => [row.kind, row.moveCost, row.healPerTurn])).toEqual([[0, 3, 0], [0, 3, 0], [0, 3, 0]]);
+        expect(rows[1].variants).toEqual([2]);
+        expect(() => parseApkTerrainConfigsFromDecryptedDataBin(data.subarray(0, -1))).toThrow('边界');
+        const invalid = Buffer.from(data);
+        invalid.writeInt32BE(-1, 5);
+        expect(() => parseApkTerrainConfigsFromDecryptedDataBin(invalid)).toThrow('长度');
+        expect(() => parseApkTerrainRecord(Buffer.from(T1, 'hex').subarray(0, 40), 0, 1)).toThrow('越界');
     });
 
     it('统计地形数值分布', () => {

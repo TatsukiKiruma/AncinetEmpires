@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { APK_ABILITY_TYPE_TO_ID, APK_UNIT_ID_TO_CLASS } from '../src/game/apk_compat';
 import { APK_RELEASE_VERSION } from '../src/game/apk_manifest';
-import { APK_TERRAIN_RECORD_SIZE } from '../src/game/apk_terrain';
+import { parseApkTerrainSection } from './apk_terrain_parser';
 import { UNIT_CONFIGS } from '../src/game/units';
 import type { AttackType } from '../src/game/units';
 import type { UnitClass } from '../src/game/types';
@@ -91,11 +91,9 @@ interface ApkUnitReport {
 }
 
 const APK_DATA_BIN_MAGIC = 365703;
-const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack');
+const DEFAULT_UNPACK_DIR = path.resolve(process.cwd(), 'APK', '_analysis', 'unpack', 'assets');
 const DATA_BIN_ENCRYPTED_PAYLOAD_OFFSET = 17;
-const DATA_BIN_TERRAIN_COUNT_OFFSET = 8;
-const DATA_BIN_TERRAIN_RECORDS_OFFSET = 9;
-const UNIT_SECTION_HEADER_SIZE = 14;
+const UNIT_SECTION_HEADER_SIZE = 10;
 const APK_UNIT_RECORD_FIXED_INT_COUNT = 16;
 const APK_UNIT_COUNT = 21;
 
@@ -103,7 +101,7 @@ function printHelp() {
     console.log(`用法: npm run apk:unit-report -- [选项]
 
 选项:
-  --unpack <dir>   APK 解包目录，默认 APK/_analysis/unpack
+  --unpack <dir>   包含 data.bin 的目录，默认 APK/_analysis/unpack/assets
   --json           输出 JSON
   --check          data.bin 单位记录或项目单位配置不一致时以非 0 退出
   --help           显示帮助
@@ -183,12 +181,7 @@ function parseApkDataBinEnvelope(data: Buffer): ApkDataBinEnvelope {
 }
 
 function getUnitSectionOffset(decrypted: Buffer): number {
-    if (decrypted.length < DATA_BIN_TERRAIN_RECORDS_OFFSET) {
-        throw new Error('解密后的 data.bin 文件过小');
-    }
-
-    const terrainCount = decrypted[DATA_BIN_TERRAIN_COUNT_OFFSET];
-    return DATA_BIN_TERRAIN_RECORDS_OFFSET + terrainCount * APK_TERRAIN_RECORD_SIZE;
+    return parseApkTerrainSection(decrypted).endOffset;
 }
 
 function getAttackType(attackElement: number): AttackType {
@@ -277,9 +270,11 @@ export function parseApkUnitRecordsFromDecryptedDataBin(decrypted: Buffer): {
     }
 
     const sectionOffset = getUnitSectionOffset(decrypted);
-    const sectionMarker = readUInt32BE(decrypted, sectionOffset);
-    const sectionMagic = readUInt32BE(decrypted, sectionOffset + 4);
-    const unitCount = decrypted[sectionOffset + 12];
+    // 地形结束后直接是 magic、数组空标记和 32 位数量，不存在额外四字节 marker。
+    const sectionMagic = readUInt32BE(decrypted, sectionOffset);
+    const sectionMarker = decrypted[sectionOffset + 4];
+    const unitCount = readInt32BE(decrypted, sectionOffset + 5);
+    if (unitCount > APK_UNIT_COUNT || decrypted[sectionOffset + 9] !== 0) throw new Error('APK 单位数组数量或首对象空标记异常');
     let cursor = sectionOffset + UNIT_SECTION_HEADER_SIZE;
     const records: ApkUnitRecord[] = [];
 
@@ -490,7 +485,7 @@ function renderMarkdown(report: ApkUnitReport): string {
         `- decrypted magic：${report.decryptedMagic}`,
         `- DES key/iv：\`${report.keyHex}\``,
         `- 加密 payload offset：${report.encryptedPayloadOffset}`,
-        `- 单位 section marker：${report.unitSectionMarker}`,
+        `- 单位数组空标记：${report.unitSectionMarker}`,
         `- 单位 section magic：${report.unitSectionMagic}`,
         `- 单位记录：${report.unitCount}/${report.expectedUnitCount}`,
         `- 项目单位配置差异：${report.projectMismatches.length}`,

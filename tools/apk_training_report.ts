@@ -348,11 +348,15 @@ function hasMatchingRecruitEconomy(
 
     return (
         arraysEqual(observation.rules.recruitableUnits ?? [], expectedUnits)
-        && observation.players.every(player => (
-            arraysEqual(player.recruitableUnits, expectedUnits)
-            && expected.every(entry => player.recruitCosts[entry.unitClass] === expectedCosts[entry.unitClass])
-            && Object.keys(player.recruitCosts).length === expected.length
-        ))
+        && observation.players.every(player => {
+            // SO 普通列表不含指挥官，但无在场指挥官时原生界面会插入储备指挥官。
+            const hasSpecialCommander = mode === 'SO' && player.commanderUnitId === null;
+            const playerUnits = hasSpecialCommander ? ['commander', ...expectedUnits] : expectedUnits;
+            return arraysEqual(player.recruitableUnits, playerUnits)
+                && expected.every(entry => player.recruitCosts[entry.unitClass] === expectedCosts[entry.unitClass])
+                && (!hasSpecialCommander || player.recruitCosts.commander === 400)
+                && Object.keys(player.recruitCosts).length === playerUnits.length;
+        })
     );
 }
 
@@ -519,13 +523,12 @@ function buildScenarioReportEntry(
         observation.rules.commanderRecruitBaseCost,
         observation.rules.commanderRecruitCostGrowth
     );
-    const expectedCommanderRecruitCostProfile = scenario.mode === 'SD'
-        ? [400, 500, 600]
-        : [null, null, null];
-    const expectedInitialCommanderRecruitCost = scenario.mode === 'SD' ? 400 : null;
+    const expectedCommanderRecruitCostProfile = [400, 500, 600];
     const commanderRecruitRuleMatched = (
         sameCostProfile(commanderRecruitCostProfile, expectedCommanderRecruitCostProfile)
-        && commanderInitialRecruitCosts.every(cost => cost === expectedInitialCommanderRecruitCost)
+        && commanderInitialRecruitCosts.every((cost, index) => cost === (
+            scenario.mode === 'SD' || observation.players[index].commanderUnitId === null ? 400 : null
+        ))
     );
     const unverifiedApproximateTerrainIds = getUnverifiedSkirmishApproximateTerrainIds(
         scenario.terrainConfidence.approximateTerrainIds

@@ -1,4 +1,5 @@
 import { getEffectiveStats, getExpThresholdForLevel } from './abilities';
+import { destroyTeamForRules } from './team_cleanup';
 import { APK_STATUS_ID_TO_TYPE, APK_UNIT_ID_TO_CLASS } from './apk_compat';
 import { getDistance as getMapDistance } from './map';
 import { getAllianceId, getCommanderUnit, getTurnPlayerIds, isActivePlayer, isCommanderUnit } from './rule_config';
@@ -223,9 +224,7 @@ export function syncRestoreTeam(state: GameState, teamId: number): boolean {
 }
 
 export function syncDestroyTeam(state: GameState, teamId: number): boolean {
-    const player = state.players.find(entry => entry.id === teamId);
-    if (!player) return false;
-    player.isAlive = false;
+    if (!destroyTeamForRules(state, teamId)) return false;
     moveCurrentPlayerIfDisabled(state);
     return true;
 }

@@ -11,7 +11,7 @@ import {
 } from './types';
 import { UNIT_CONFIGS } from './constants';
 import { getEffectiveStats } from './abilities';
-import { getRuleConfig, isCommanderUnit } from './rule_config';
+import { DEFAULT_RULE_CONFIG, isCommanderUnit } from './rule_config';
 import {
     putBoolean,
     putInteger,
@@ -244,7 +244,11 @@ function applyEffect(state: GameState, effect: CampaignEventEffect): number {
 }
 
 export function applyCampaignEvents(state: GameState, runtimeEvent: CampaignRuntimeEvent): CampaignEventApplyResult {
-    const events: CampaignEventConfig[] = getRuleConfig(state).campaignEvents;
+    // 仍在执行前独立复制事件；只取本字段，无需为每个原子动作展开其他规则配置。
+    const configured = state.rules?.campaignEvents;
+    const events: CampaignEventConfig[] = configured
+        ? JSON.parse(JSON.stringify(configured))
+        : [...DEFAULT_RULE_CONFIG.campaignEvents];
     const result: CampaignEventApplyResult = {
         firedEventIds: [],
         effectCount: 0
