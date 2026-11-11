@@ -1,42 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { GameEngine } from './game/engine';
 import { createDefaultAppGameState } from './game/default_state';
 import { playAutoGame } from './game/ai/play';
 import { GameState, Action, Position, Unit, UnitClass } from './game/types';
 import { TERRAIN_CONFIG, UNIT_CONFIGS } from './game/constants';
-import { getLegalActions } from './game/rules';
+import { getLegalActions, calculateDamage } from './game/rules';
 import { getEffectiveStats } from './game/abilities';
-import {
-  DEFAULT_APP_APK_MAP_NAME,
-  createAppApkSkirmishGameState,
-  getAppApkSkirmishMapOptions
-} from './game/apk_skirmish_map_assets';
+import { getReachablePositions, getDistance } from './game/map';
+import { DEFAULT_APP_APK_MAP_NAME } from './game/apk_skirmish_map_assets';
+import { createAppSkirmishGameState, getAppSkirmishMapOptions } from './game/app_skirmish_maps';
 import { runCancellableAiAction } from './game/ai/cancellable_ai_runner';
 import { type SupportedAiPolicy, type AiActionResult } from './game/ai/neural_ai_adapter';
 
-const unitNameMap: Record<string, string> = {
-  soldier: '兵',
-  ghost: '幽',
-  mermaid: '鱼',
-  archer: '弓',
-  slime: '泥',
-  water_elemental: '水',
-  dark_mage: '黑',
-  witch: '巫',
-  paladin: '骑',
-  elf: '精',
-  berserker: '狂',
-  wolf: '狼',
-  golem: '石',
-  ice_elemental: '冰',
-  druid: '德',
-  catapult: '炮',
-  wolf_archer: '狼弓',
-  dragon: '龙',
-  commander: '帅',
-  skeleton: '骷',
-  crystal: '晶',
-};
+import { BattleTileArt } from './presentation/aer-map/BattleTileArt';
+import { createAerTileGrid } from './presentation/aer-map/tiles';
 
 // 状态对应的中文翻译
 const statusNameMap: Record<string, string> = {
@@ -46,7 +23,7 @@ const statusNameMap: Record<string, string> = {
   weakened: '虚弱'
 };
 
-const sandboxMapOptions = getAppApkSkirmishMapOptions();
+const sandboxMapOptions = getAppSkirmishMapOptions();
 
 const playerStyleMap: Record<number, {
   name: string;
@@ -55,28 +32,22 @@ const playerStyleMap: Record<number, {
   badgeClass: string;
   panelClass: string;
   buttonClass: string;
-  buildingClass: string;
-  unitClass: string;
 }> = {
   0: {
-    name: '红方',
-    marker: '■',
-    textClass: 'text-red-400',
-    badgeClass: 'bg-red-500 text-black',
-    panelClass: 'bg-[#1A1111] border-red-950/50',
-    buttonClass: 'bg-[#2E1A1A] text-red-400 hover:bg-red-950 border-red-900/40',
-    buildingClass: 'bg-red-900/50 text-red-300 border-red-800',
-    unitClass: 'bg-[#3C1313] border border-red-500 text-red-400'
-  },
-  1: {
     name: '蓝方',
     marker: '■',
     textClass: 'text-blue-400',
     badgeClass: 'bg-blue-400 text-black',
     panelClass: 'bg-[#10141D] border-blue-950/50',
     buttonClass: 'bg-[#1A2535] text-blue-400 hover:bg-blue-950 border-blue-900/40',
-    buildingClass: 'bg-blue-900/50 text-blue-300 border-blue-800',
-    unitClass: 'bg-[#141C31] border border-blue-400 text-blue-300'
+  },
+  1: {
+    name: '玫红方',
+    marker: '■',
+    textClass: 'text-pink-400',
+    badgeClass: 'bg-pink-500 text-black',
+    panelClass: 'bg-[#1A1111] border-pink-950/50',
+    buttonClass: 'bg-[#2E1A1A] text-pink-400 hover:bg-pink-950 border-pink-900/40',
   },
   2: {
     name: '绿方',
@@ -85,22 +56,17 @@ const playerStyleMap: Record<number, {
     badgeClass: 'bg-emerald-400 text-black',
     panelClass: 'bg-[#0E1B15] border-emerald-950/50',
     buttonClass: 'bg-[#123323] text-emerald-400 hover:bg-emerald-950 border-emerald-900/40',
-    buildingClass: 'bg-emerald-900/50 text-emerald-300 border-emerald-800',
-    unitClass: 'bg-[#102A1D] border border-emerald-400 text-emerald-300'
   },
   3: {
-    name: '黄方',
+    name: '深蓝方',
     marker: '■',
-    textClass: 'text-amber-400',
-    badgeClass: 'bg-amber-400 text-black',
-    panelClass: 'bg-[#1D170A] border-amber-950/50',
-    buttonClass: 'bg-[#34270E] text-amber-400 hover:bg-amber-950 border-amber-900/40',
-    buildingClass: 'bg-amber-900/50 text-amber-300 border-amber-800',
-    unitClass: 'bg-[#2D220E] border border-amber-400 text-amber-300'
+    textClass: 'text-indigo-400',
+    badgeClass: 'bg-indigo-400 text-black',
+    panelClass: 'bg-[#1D170A] border-indigo-950/50',
+    buttonClass: 'bg-[#34270E] text-indigo-400 hover:bg-indigo-950 border-indigo-900/40',
   }
 };
 
-const neutralBuildingClass = 'bg-zinc-800 text-zinc-400 border-zinc-700';
 const fallbackPlayerStyle = {
   name: '未知方',
   marker: '■',
@@ -108,8 +74,6 @@ const fallbackPlayerStyle = {
   badgeClass: 'bg-zinc-400 text-black',
   panelClass: 'bg-[#17171D] border-zinc-800',
   buttonClass: 'bg-[#22222A] text-zinc-300 hover:bg-zinc-800 border-zinc-700',
-  buildingClass: 'bg-zinc-800 text-zinc-300 border-zinc-700',
-  unitClass: 'bg-[#202026] border border-zinc-400 text-zinc-300'
 };
 
 function getPlayerStyle(playerId: number) {
@@ -137,13 +101,22 @@ export default function App() {
   const [selectedSandboxMapName, setSelectedSandboxMapName] = useState(DEFAULT_APP_APK_MAP_NAME);
   const [sandboxGameState, setSandboxGameState] = useState<GameState>(createDefaultAppGameState());
   const [sandboxLogs, setSandboxLogs] = useState<string[]>([
-    "[系统] 欢迎来到手动沙盒试炼场！默认载入 APK 官方 Duel 地图，可切换 20 张官方 skirmish 地图并手动操纵各阵营对战。"
+    "[系统] 欢迎来到手动沙盒试炼场！默认载入 APK 官方 Duel，可切换官方地图和试作地图，并手动操纵各阵营。"
   ]);
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [selectedCastlePos, setSelectedCastlePos] = useState<Position | null>(null);
   const [selectedRecruitUnitClass, setSelectedRecruitUnitClass] = useState<UnitClass | null>(null);
   const [hoveredTilePos, setHoveredTilePos] = useState<Position | null>(null);
+  // 撤销一步：仅在最后一次动作为纯移动（move）时可撤销；一旦执行攻击/治疗/支援/召唤/占领/待命等即清空。
+  // 纯 UI 层快照，不进入引擎与训练管线。
+  const [sandboxUndoSnapshot, setSandboxUndoSnapshot] = useState<{ state: GameState; unitId: string; from: Position; to: Position } | null>(null);
   const bottomSandboxRef = useRef<HTMLDivElement>(null);
+  const autoArt = useMemo(() => createAerTileGrid(autoGameState.map), [autoGameState.map]);
+  const isCustomMap = sandboxGameState.metadata?.source === 'custom_skirmish';
+  const sandboxArt = useMemo(
+    () => createAerTileGrid(sandboxGameState.map, isCustomMap),
+    [sandboxGameState.map, isCustomMap]
+  );
 
   // 滚动至最新日志
   useEffect(() => {
@@ -155,7 +128,7 @@ export default function App() {
   }, [sandboxLogs]);
 
   // --- 策略选择状态 ---
-  const [p0Policy, setP0Policy] = useState<SupportedAiPolicy>('heuristic');
+  const [p0Policy, setP0Policy] = useState<SupportedAiPolicy>('dual_v3_stage7_k1');
   const [p1Policy, setP1Policy] = useState<SupportedAiPolicy>('random');
   const [lastAiMeta, setLastAiMeta] = useState<AiActionResult | null>(null);
 
@@ -204,10 +177,10 @@ export default function App() {
       playerId: cp,
       stateVersion: requestVersion,
       getCurrentStateVersion: () => `${sandboxGameStateRef.current.turn}_${sandboxGameStateRef.current.currentPlayer}`,
-      allowInteractiveFallback: true
+      allowInteractiveFallback: policy !== 'dual_v3_stage7_k1'
     });
     setLastAiMeta(res);
-    if (res.status === 'CANCELLED' || res.status === 'STALE') {
+    if (res.status === 'CANCELLED' || res.status === 'STALE' || res.status === 'ERROR' || res.status === 'TIMEOUT') {
       setSandboxLogs(prev => [...prev, `[AI 提示] P${cp} 决策状态为 ${res.status} (${res.fallbackReason ?? ''})，未执行落子`]);
       return;
     }
@@ -222,6 +195,7 @@ export default function App() {
     const stepRes = currentEngine.step(res.action);
     setSandboxGameState(currentEngine.getState());
     resetSandboxSelections();
+    setSandboxUndoSnapshot(null);
     const nodeInfo = res.nodesExpanded !== undefined ? ` (展开节点: ${res.nodesExpanded})` : '';
     setSandboxLogs(prev => [...prev, `[AI 行动] P${cp} [${res.source}] 执行 ${res.action.type} 耗时: ${res.latencyMs}ms${nodeInfo} - ${stepRes.info}`]);
   };
@@ -235,16 +209,18 @@ export default function App() {
   };
 
   const handleResetSandbox = () => {
-    setSandboxGameState(createAppApkSkirmishGameState(selectedSandboxMapName));
+    setSandboxGameState(createAppSkirmishGameState(selectedSandboxMapName));
     resetSandboxSelections();
+    setSandboxUndoSnapshot(null);
     setSandboxLogs(prev => [...prev, `[系统] 沙盒已重置为 ${selectedSandboxMapName}。`]);
   };
 
   const handleChangeSandboxMap = (mapName: string) => {
     setSelectedSandboxMapName(mapName);
-    setSandboxGameState(createAppApkSkirmishGameState(mapName));
+    setSandboxGameState(createAppSkirmishGameState(mapName));
     resetSandboxSelections();
-    setSandboxLogs(prev => [...prev, `[系统] 已切换 APK 地图：${mapName}`]);
+    setSandboxUndoSnapshot(null);
+    setSandboxLogs(prev => [...prev, `[系统] 已切换地图：${sandboxMapOptions.find(option => option.name === mapName)?.label ?? mapName}`]);
   };
 
   const handleAddGold = (playerId: number, amount: number) => {
@@ -283,6 +259,23 @@ export default function App() {
     const result = engine.step(action);
     setSandboxGameState(result.state);
     setSelectedRecruitUnitClass(null);
+
+    // 撤销规则：只有纯 move 可被撤销，且一旦执行攻击/技能/待命/招募/结束回合即清空。
+    // APK 回放结构（source/moveTo/target 分离，见 apk_replay.ts）证明移动与攻击是两个独立事件，
+    // 因此“移动后撤销”只是 UI 快照还原，不改变引擎规则。
+    if (action.type === 'move') {
+      const movedUnit = sandboxGameState.units.find(u => u.id === action.unitId);
+      if (movedUnit) {
+        setSandboxUndoSnapshot({
+          state: JSON.parse(JSON.stringify(sandboxGameState)) as GameState,
+          unitId: action.unitId,
+          from: { ...movedUnit.pos },
+          to: { ...action.to }
+        });
+      }
+    } else {
+      setSandboxUndoSnapshot(null);
+    }
     
     if (result.info) {
       setSandboxLogs(prev => [...prev, `[动作] ${actionDesc} | ${result.info}`]);
@@ -295,6 +288,16 @@ export default function App() {
     if (!updatedSelectedUnit || updatedSelectedUnit.hasActed) {
       setSelectedUnitId(null);
     }
+  };
+
+  const handleUndoSandboxMove = () => {
+    if (!sandboxUndoSnapshot) return;
+    setSandboxGameState(sandboxUndoSnapshot.state);
+    setSelectedUnitId(sandboxUndoSnapshot.unitId);
+    setSelectedCastlePos(null);
+    setSelectedRecruitUnitClass(null);
+    setSandboxLogs(prev => [...prev, `[撤销] 已撤销单位 ${sandboxUndoSnapshot.unitId} 从 (${sandboxUndoSnapshot.to.x}, ${sandboxUndoSnapshot.to.y}) 回到 (${sandboxUndoSnapshot.from.x}, ${sandboxUndoSnapshot.from.y})。注意：执行攻击/治疗/支援等动作后不可再撤销。`]);
+    setSandboxUndoSnapshot(null);
   };
 
   // --- 沙盒合法动作快速读取 ---
@@ -317,6 +320,37 @@ export default function App() {
   const unitRepairAction = selectedUnitId ? sandboxLegalActions.find(a => a.type === 'repair' && a.unitId === selectedUnitId) : undefined;
   const unitDestroyAction = selectedUnitId ? sandboxLegalActions.find(a => a.type === 'destroy_town' && a.unitId === selectedUnitId) : undefined;
 
+  // 敌方（非当前行动方）单位预览：可移动范围 + 攻击范围（纯前端可视化，不产生合法动作）。
+  // APK 原版点击敌方会显示威胁范围；此处用同一套移动/射程公式计算。
+  const isSelectedEnemyUnit = Boolean(selectedUnit && selectedUnit.ownerId !== currentSandboxPlayer);
+  const enemyPreviewMoveKeys = new Set<string>();
+  const enemyPreviewAttackKeys = new Set<string>();
+  let enemyPreviewThreatTargets: Unit[] = [];
+  if (selectedUnit && isSelectedEnemyUnit) {
+    try {
+      const previewReachable = getReachablePositions(sandboxGameState, selectedUnit.id);
+      for (const pos of previewReachable) {
+        enemyPreviewMoveKeys.add(`${pos.x},${pos.y}`);
+      }
+      const previewStats = getEffectiveStats(selectedUnit);
+      if (previewStats.maxRange > 0) {
+        for (const from of previewReachable) {
+          for (let y = 0; y < sandboxGameState.map.height; y++) {
+            for (let x = 0; x < sandboxGameState.map.width; x++) {
+              const dist = Math.abs(from.x - x) + Math.abs(from.y - y);
+              if (dist >= previewStats.minRange && dist <= previewStats.maxRange) {
+                enemyPreviewAttackKeys.add(`${x},${y}`);
+              }
+            }
+          }
+        }
+      }
+      enemyPreviewThreatTargets = sandboxGameState.units.filter(u => enemyPreviewAttackKeys.has(`${u.pos.x},${u.pos.y}`));
+    } catch {
+      // 预览失败时保持空集，不影响主流程
+    }
+  }
+
   // 针对选中城堡位置的招募动作集合
   const castleRecruitsToCastle = selectedCastlePos 
     ? sandboxLegalActions.filter(a => a.type === 'recruit_to_castle' && a.castlePos.x === selectedCastlePos.x && a.castlePos.y === selectedCastlePos.y) 
@@ -331,30 +365,7 @@ export default function App() {
   const selectedSandboxMapOption = sandboxMapOptions.find(option => option.name === selectedSandboxMapName);
   const sandboxMaxDimension = Math.max(sandboxGameState.map.width, sandboxGameState.map.height);
   const sandboxTileSize = Math.max(28, Math.min(48, Math.floor(640 / sandboxMaxDimension)));
-  const sandboxUnitSize = Math.max(22, sandboxTileSize - 10);
   const sandboxTileStyle: React.CSSProperties = { width: sandboxTileSize, height: sandboxTileSize };
-  const sandboxUnitStyle: React.CSSProperties = { width: sandboxUnitSize, height: sandboxUnitSize };
-
-  // 获取格子对应的地形色彩
-  const getTerrainColor = (terrainId: number) => {
-    switch (terrainId) {
-      case 1: return 'bg-[#ECEFF4] text-black'; // snow
-      case 2: return 'bg-[#0E2136]'; // deep water
-      case 3: return 'bg-[#2D1C13]'; // mountain
-      case 4: return 'bg-[#1C2816]'; // hill
-      case 5: return 'bg-[#142A27]'; // island
-      case 6: return 'bg-[#191921]'; // road
-      case 7: return 'bg-[#0F2E14]'; // forest
-      case 8: return 'bg-[#402C1F] border-orange-900'; // damaged town
-      case 9: return 'bg-[#1C2C3D] border-blue-900'; // town
-      case 10: return 'bg-[#311111] border-red-900'; // castle
-      case 11: return 'bg-[#1A381C] border-emerald-950'; // camp
-      case 12: return 'bg-[#3F1B5C] border-purple-900'; // temple
-      case 13: return 'bg-[#253225]'; // special_1
-      case 16: return 'bg-[#1A255C] border-indigo-900'; // water temple
-      default: return 'bg-[#16161D]';
-    }
-  };
 
   const renderHoveredTilePanel = () => {
     if (!hoveredTilePos) {
@@ -559,14 +570,17 @@ export default function App() {
           <div className="flex-1 p-8 flex flex-col items-center justify-center border-r border-[#2C2C35] bg-[#09090B] overflow-y-auto">
             <div className="mb-4 flex flex-wrap items-center justify-center gap-3 bg-[#111116] border border-[#23232D] p-3 rounded text-xs w-full max-w-xl">
                 <div className="flex items-center space-x-2">
-                    <span className="font-bold text-red-500">P0 (红方):</span>
+                    <span className="font-bold text-blue-400">P0（蓝方）：</span>
                     <select 
                         value={p0Policy} 
                         onChange={e => setP0Policy(e.target.value as SupportedAiPolicy)}
                         disabled={autoIsRunning}
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-red-500"
                     >
-                        <option value="heuristic">Heuristic AI (原生启发式 - 默认)</option>
+                        <option value="dual_v3_stage7_k1">🏆 Stage 7 K1（冠军模型 - 默认）</option>
+                        <option value="heuristic">原生启发式</option>
+                        <option value="original_apk_like">Original APK AI (C1275a 源码移植 - 实验)</option>
+                        <option value="original_apk_like_hard">Original-APKlikeAI-Hard（APK 困难版）</option>
                         <option value="spatial_v2_experimental">⚡ [实验] Spatial ResNet v2 (7.8k 基础模型)</option>
                         <option value="spatial_dagger_experimental">⚡ [实验] Spatial DAgger v2 (纠错模型)</option>
                         <option value="s10_spatial_search">⚡ [实验] S10 Spatial Search (先验引导搜索)</option>
@@ -579,14 +593,17 @@ export default function App() {
                 </div>
                 <div className="w-px h-4 bg-[#2A2A35]"></div>
                 <div className="flex items-center space-x-2">
-                    <span className="font-bold text-blue-400">P1 (蓝方):</span>
+                    <span className="font-bold text-pink-400">P1（玫红方）：</span>
                     <select 
                         value={p1Policy} 
                         onChange={e => setP1Policy(e.target.value as SupportedAiPolicy)}
                         disabled={autoIsRunning}
                         className="bg-[#191922] border border-[#353545] text-gray-200 px-2 py-1 rounded text-xs focus:outline-none focus:border-blue-500"
                     >
-                        <option value="heuristic">Heuristic AI (原生启发式 - 默认)</option>
+                        <option value="dual_v3_stage7_k1">🏆 Stage 7 K1（冠军模型 - 默认）</option>
+                        <option value="heuristic">原生启发式</option>
+                        <option value="original_apk_like">Original APK AI (C1275a 源码移植 - 实验)</option>
+                        <option value="original_apk_like_hard">Original-APKlikeAI-Hard（APK 困难版）</option>
                         <option value="spatial_v2_experimental">⚡ [实验] Spatial ResNet v2 (7.8k 基础模型)</option>
                         <option value="spatial_dagger_experimental">⚡ [实验] Spatial DAgger v2 (纠错模型)</option>
                         <option value="s10_spatial_search">⚡ [实验] S10 Spatial Search (先验引导搜索)</option>
@@ -640,43 +657,24 @@ export default function App() {
                 </button>
             </div>
 
-            <div className="relative border border-[#2D2D35] bg-[#020202] p-3 flex flex-col space-y-1">
+            <div className="relative border border-[#2D2D35] bg-[#020202] p-3 flex flex-col">
               {autoGameState.map.tiles.map((row, y) => (
-                <div key={y} className="flex space-x-1">
+                <div key={y} className="flex">
                   {row.map((tile, x) => {
                     const u = autoGameState.units.find(u => u.pos.x === x && u.pos.y === y);
                     const grave = getGraveAt(autoGameState, x, y);
-                    const isBuilding = [8, 9, 10, 11, 12, 13, 16].includes(tile.terrainId);
-                    const terrainConf = TERRAIN_CONFIG[tile.terrainId];
+                    const terrainName = TERRAIN_CONFIG[tile.terrainId]?.name;
 
                     return (
                       <div 
                         key={`${x}-${y}`} 
                         onMouseEnter={() => setHoveredTilePos({ x, y })}
                         onMouseLeave={() => setHoveredTilePos(null)}
-                        className={`w-12 h-12 flex relative items-center justify-center border border-[#1e1e24] ${getTerrainColor(tile.terrainId)}`}
+                        className="w-12 h-12 shrink-0 relative"
+                        title={u ? UNIT_CONFIGS[u.unitClass].name + ' · ' + terrainName : terrainName}
                       >
-                        {!u && !isBuilding && !grave && <span className="text-[9px] text-[#ffffff1D]">{terrainConf?.name?.substring(0,3)}</span>}
-
-                        {grave && (
-                          <div
-                            className={`absolute z-[6] flex items-center justify-center border border-purple-300/50 bg-purple-950/70 text-purple-100 font-black shadow-sm pointer-events-none ${u ? 'bottom-0 right-0 w-4 h-4 text-[9px] rounded-sm' : 'inset-2 text-[13px] rounded'}`}
-                            title={`墓碑：剩余 ${grave.remainingTurns} 回合`}
-                          >
-                            碑
-                          </div>
-                        )}
-
-                        {isBuilding && (
-                          <div className={`absolute bottom-0 w-full text-[9px] text-center font-bold tracking-tighter border-t border-[#22222A] ${tile.ownerId === 0 ? 'bg-red-900/40 text-red-400 border-red-800' : tile.ownerId === 1 ? 'bg-blue-900/40 text-blue-400 border-blue-800' : 'bg-[#16161D] text-[#8E8E99]'}`}>
-                             {terrainConf?.name?.substring(0,2)}
-                          </div>
-                        )}
-                        {u && (
-                          <div className={`z-10 w-8 h-8 flex items-center justify-center font-bold text-[10px] rounded-sm ${u.ownerId === 0 ? 'bg-[#311111] border border-red-500 text-red-500' : 'bg-[#181D2D] border border-blue-400 text-blue-400'} ${u.hasActed ? 'opacity-40 animate-pulse' : ''}`}>
-                             {unitNameMap[u.unitClass] || '?'}
-                          </div>
-                        )}
+                        <BattleTileArt grid={autoArt} x={x} y={y} unit={u} grave={grave} />
+                        {grave && <span className="aer-grave-count" title={'墓碑：剩余 ' + grave.remainingTurns + ' 回合'}>{grave.remainingTurns}</span>}
                         {u && <div className="absolute top-0 right-0 z-20 text-[9px] font-bold bg-black text-[#A6E22E] px-[3px] border border-[#222228] scale-90">{u.hp}</div>}
                       </div>
                     );
@@ -687,12 +685,12 @@ export default function App() {
             
             <div className="mt-8 flex justify-around w-full max-w-md bg-[#111115] border border-[#2D2D35] p-4 text-xs uppercase text-[#8E8E99] rounded">
                 <div className="flex flex-col items-center">
-                    <strong className="text-red-500 mb-1">红方阵营 [P0]</strong>
+                    <strong className="text-blue-400 mb-1">蓝方阵营 [P0]</strong>
                     <span className="text-yellow-500">金币: {autoGameState.players[0].gold}</span>
                 </div>
                 <div className="w-px bg-[#2D2D35]"></div>
                 <div className="flex flex-col items-center">
-                    <strong className="text-blue-400 mb-1">蓝方阵营 [P1]</strong>
+                    <strong className="text-pink-400 mb-1">玫红方阵营 [P1]</strong>
                     <span className="text-yellow-500">金币: {autoGameState.players[1].gold}</span>
                 </div>
                 <div className="w-px bg-[#2D2D35]"></div>
@@ -752,7 +750,7 @@ export default function App() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <label className="text-gray-500 font-bold shrink-0" htmlFor="sandbox-map-select">APK 地图</label>
+                <label className="text-gray-500 font-bold shrink-0" htmlFor="sandbox-map-select">遭遇战地图</label>
                 <select
                   id="sandbox-map-select"
                   value={selectedSandboxMapName}
@@ -773,14 +771,13 @@ export default function App() {
 
             {/* 核心棋盘 */}
             <div className="w-full flex justify-center overflow-auto pb-1">
-            <div className="relative border border-[#262630] bg-[#020203] p-3 flex flex-col gap-1 shrink-0">
+            <div className="relative border border-[#262630] bg-[#020203] p-3 flex flex-col shrink-0">
               {sandboxGameState.map.tiles.map((row, y) => (
-                <div key={y} className="flex gap-1">
+                <div key={y} className="flex">
                   {row.map((tile, x) => {
                     const u = sandboxGameState.units.find(u => u.pos.x === x && u.pos.y === y);
                     const grave = getGraveAt(sandboxGameState, x, y);
-                    const isBuilding = [8, 9, 10, 11, 12, 13, 16].includes(tile.terrainId);
-                    const terrainConf = TERRAIN_CONFIG[tile.terrainId];
+                    const terrainName = TERRAIN_CONFIG[tile.terrainId]?.name;
 
                     // 1. 判断是否被选中的格子
                     const isSelectedGrid = selectedUnit && selectedUnit.pos.x === x && selectedUnit.pos.y === y;
@@ -797,22 +794,28 @@ export default function App() {
 
                     // 高亮类名的累加决定器
                     let overlayClass = '';
+                    const isEnemyMovePreview = isSelectedEnemyUnit && enemyPreviewMoveKeys.has(`${x},${y}`);
+                    const isEnemyAttackPreview = isSelectedEnemyUnit && enemyPreviewAttackKeys.has(`${x},${y}`);
                     if (isSelectedGrid || isSelectedCastleGrid) {
                       overlayClass = 'ring-2 ring-white z-20 scale-105';
                     } else if (canMoveTo) {
-                      overlayClass = 'ring-2 ring-yellow-400/80 cursor-pointer bg-yellow-500/10 z-10';
+                      overlayClass = 'ring-2 ring-yellow-400/80 cursor-pointer before:bg-yellow-500/10 z-10';
                     } else if (canDeployTo) {
-                      overlayClass = 'ring-2 ring-blue-400/80 cursor-pointer bg-blue-500/10 z-10';
+                      overlayClass = 'ring-2 ring-blue-400/80 cursor-pointer before:bg-blue-500/10 z-10';
                     } else if (canPostMoveTo) {
-                      overlayClass = 'ring-2 ring-cyan-400/80 cursor-pointer bg-cyan-500/10 z-10';
+                      overlayClass = 'ring-2 ring-cyan-400/80 cursor-pointer before:bg-cyan-500/10 z-10';
                     } else if (canAttackTarget) {
-                      overlayClass = 'ring-2 ring-red-500 cursor-pointer bg-red-500/20 z-10';
+                      overlayClass = 'ring-2 ring-red-500 cursor-pointer before:bg-red-500/20 z-10';
                     } else if (canHealTarget) {
-                      overlayClass = 'ring-2 ring-emerald-500 cursor-pointer bg-emerald-500/20 z-10';
+                      overlayClass = 'ring-2 ring-emerald-500 cursor-pointer before:bg-emerald-500/20 z-10';
                     } else if (canSupportTarget) {
-                      overlayClass = 'ring-2 ring-blue-500 cursor-pointer bg-blue-500/20 z-10';
+                      overlayClass = 'ring-2 ring-blue-500 cursor-pointer before:bg-blue-500/20 z-10';
                     } else if (canSummonTo) {
-                      overlayClass = 'ring-2 ring-purple-500 cursor-pointer bg-purple-500/20 z-10';
+                      overlayClass = 'ring-2 ring-purple-500 cursor-pointer before:bg-purple-500/20 z-10';
+                    } else if (isEnemyMovePreview) {
+                      overlayClass = 'ring-1 ring-sky-400/60 before:bg-sky-500/10 z-10';
+                    } else if (isEnemyAttackPreview) {
+                      overlayClass = 'ring-1 ring-red-400/40 before:bg-red-500/10 z-10';
                     }
 
                     return (
@@ -822,37 +825,11 @@ export default function App() {
                         onMouseEnter={() => setHoveredTilePos({ x, y })}
                         onMouseLeave={() => setHoveredTilePos(null)}
                         style={sandboxTileStyle}
-                        className={`flex relative items-center justify-center border border-[#1e1e25] cursor-pointer transition-all duration-150 ${getTerrainColor(tile.terrainId)} ${overlayClass}`}
+                        className={['aer-interactive-tile shrink-0 relative cursor-pointer transition-all duration-150', overlayClass].join(' ')}
+                        title={u ? UNIT_CONFIGS[u.unitClass].name + ' · ' + terrainName : terrainName}
                       >
-                        {/* 如果是空地，印一个微弱的地形名称做底 */}
-                        {!u && !isBuilding && !grave && <span className="text-[8px] text-[#ffffff20] select-none pointer-events-none">{terrainConf?.name?.substring(0,3)}</span>}
-
-                        {/* APK 墓碑格显示 */}
-                        {grave && (
-                          <div
-                            className={`absolute z-[6] flex items-center justify-center border border-purple-300/50 bg-purple-950/70 text-purple-100 font-black shadow-sm pointer-events-none select-none ${u ? 'bottom-0 right-0 w-4 h-4 text-[9px] rounded-sm' : 'inset-1.5 text-[13px] rounded'}`}
-                            title={`墓碑：剩余 ${grave.remainingTurns} 回合`}
-                          >
-                            碑
-                          </div>
-                        )}
-
-                        {/* 建筑据点底部标签 */}
-                        {isBuilding && (
-                          <div className={`absolute bottom-0 w-full text-[9px] text-center font-bold tracking-tighter border-t border-[#22222A] overflow-hidden select-none ${tile.ownerId === null ? neutralBuildingClass : getPlayerStyle(tile.ownerId).buildingClass}`}>
-                             {terrainConf?.name?.substring(0,2)}
-                          </div>
-                        )}
-
-                        {/* 棋子渲染 */}
-                        {u && (
-                          <div
-                            style={sandboxUnitStyle}
-                            className={`z-10 flex items-center justify-center font-bold text-[10px] rounded-md transition-opacity select-none ${getPlayerStyle(u.ownerId).unitClass} ${u.hasActed ? 'opacity-35 line-through' : ''}`}
-                          >
-                             {unitNameMap[u.unitClass] || '?'}
-                          </div>
-                        )}
+                        <BattleTileArt grid={sandboxArt} x={x} y={y} unit={u} grave={grave} />
+                        {grave && <span className="aer-grave-count" title={'墓碑：剩余 ' + grave.remainingTurns + ' 回合'}>{grave.remainingTurns}</span>}
 
                         {/* 特殊状态(Poisoned / Blinded / Weakened) 指示标贴 */}
                         {u && u.status && (
@@ -870,6 +847,8 @@ export default function App() {
                         {canAttackTarget && <span className="absolute text-[8px] text-red-500 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">击</span>}
                         {canHealTarget && <span className="absolute text-[8px] text-green-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">加</span>}
                         {canSummonTo && <span className="absolute text-[8px] text-purple-400 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">召</span>}
+                        {isEnemyMovePreview && !canMoveTo && <span className="absolute text-[8px] text-sky-300 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">移</span>}
+                        {isEnemyAttackPreview && !isEnemyMovePreview && !canAttackTarget && <span className="absolute text-[8px] text-red-300 font-bold top-0 left-0 bg-black/60 px-0.5 rounded pointer-events-none scale-75 transform origin-top-left">攻</span>}
                       </div>
                     );
                   })}
@@ -885,6 +864,26 @@ export default function App() {
                 className="px-5 py-2 bg-[#253225] border border-green-600 hover:border-green-400 text-green-400 text-xs font-bold uppercase transition-all rounded shadow"
               >
                 ⏩ 结束当前方回合 (End Turn)
+              </button>
+              <button
+                onClick={handleUndoSandboxMove}
+                disabled={!sandboxUndoSnapshot}
+                title={sandboxUndoSnapshot ? `可撤销：${sandboxUndoSnapshot.unitId} 回到 (${sandboxUndoSnapshot.from.x}, ${sandboxUndoSnapshot.from.y})；攻击/技能后不可撤销` : '仅在最后一步为纯移动时可撤销；攻击/技能后不可撤销'}
+                className={`px-4 py-2 text-xs font-bold transition-all rounded shadow border ${sandboxUndoSnapshot ? 'bg-[#2A2410] border-amber-600 hover:border-amber-400 text-amber-300' : 'bg-[#17171A] border-zinc-800 text-zinc-600 cursor-not-allowed'}`}
+              >
+                ↩️ 撤销一步{sandboxUndoSnapshot ? ` (${sandboxUndoSnapshot.unitId})` : ''}
+              </button>
+              <button
+                onClick={() => handleAiStepSandbox('dual_v3_stage7_k1')}
+                className="px-4 py-2 bg-[#2a241b] border border-amber-500 hover:border-amber-300 text-amber-200 text-xs font-bold transition-all rounded shadow"
+              >
+                🏆 Stage 7 K1 走一步
+              </button>
+              <button
+                onClick={() => handleAiStepSandbox('original_apk_like_hard')}
+                className="px-4 py-2 bg-[#2a241b] border border-amber-500 hover:border-amber-300 text-amber-200 text-xs font-bold transition-all rounded shadow"
+              >
+                ⚔️ APK Hard 走一步
               </button>
               <button 
                 onClick={() => handleAiStepSandbox('spatial_v2_experimental')}
@@ -906,6 +905,13 @@ export default function App() {
                 title="调用 原生启发式 进行当前玩家单步决策"
               >
                 💡 启发式走一步
+              </button>
+              <button
+                onClick={() => handleAiStepSandbox('original_apk_like')}
+                className="px-4 py-2 bg-[#242012] border border-yellow-700 hover:border-yellow-400 text-yellow-300 text-xs font-bold transition-all rounded shadow"
+                title="按 APK C1275a 反编译逻辑进行当前玩家单步决策（实验性源码移植）"
+              >
+                🏺 Original APK 走一步
               </button>
               <button 
                 onClick={handleResetSandbox}
@@ -994,6 +1000,105 @@ export default function App() {
                   {/* 核心非指向性操作按钮区 */}
                   <div className="pt-2 border-t border-[#2A2A34] space-y-1.5">
                     <div className="text-gray-500 text-[10px] mb-1 font-bold">可直接触发动作:</div>
+                    {isSelectedEnemyUnit ? (
+                      <div className="text-[11px] bg-sky-950/30 border border-sky-900/40 p-2 rounded space-y-1">
+                        <div className="text-sky-300 font-bold">👁️ 敌方视野预览（只读，不可操作）</div>
+                        <div className="text-zinc-400">可移动格数: <strong className="text-sky-300">{enemyPreviewMoveKeys.size}</strong>（含当前格）</div>
+                        <div className="text-zinc-400">攻击覆盖格数: <strong className="text-red-300">{enemyPreviewAttackKeys.size}</strong>（按当前射程 {getEffectiveStats(selectedUnit).minRange}-{getEffectiveStats(selectedUnit).maxRange} × 全部可达站位展开）</div>
+                        <div className="text-zinc-500 text-[10px]">蓝色“移”为其可走位，红色“攻”为其下一步可能打到的格子。威胁目标：{enemyPreviewThreatTargets.length > 0 ? enemyPreviewThreatTargets.map(t => `${UNIT_CONFIGS[t.unitClass]?.name}(${t.pos.x},${t.pos.y})`).join('、') : '无'}</div>
+                      </div>
+                    ) : (
+                    <>
+                    {/* 原地攻击：APK 移动与攻击是独立事件（source/moveTo/target 分离），站立不动直接攻击合法 */}
+                    {unitAttacks.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-red-400 text-[10px] font-bold">⚔️ 原地攻击（无需移动，直接点选目标）:</div>
+                        <div className="grid grid-cols-1 gap-1 max-h-[120px] overflow-y-auto pr-1">
+                          {unitAttacks.map((act, i) => {
+                            const atk = act as any;
+                            const target = sandboxGameState.units.find(u => u.id === atk.targetId);
+                            const dmg = target ? calculateDamage(sandboxGameState, selectedUnit.id, target.id) : 0;
+                            return (
+                              <button
+                                key={`atk_${i}`}
+                                onClick={() => executeSandboxAction(act)}
+                                className="py-1 px-2 bg-[#4A1515] hover:bg-red-700 border border-red-900/50 text-white rounded text-[10px] text-left transition-colors"
+                              >
+                                ⚔️ 攻击 [{getPlayerLabel(target?.ownerId ?? -1)}] {target ? UNIT_CONFIGS[target.unitClass]?.name : '?'} ({target?.pos.x}, {target?.pos.y}) HP:{target?.hp} 预计伤害:{dmg}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {/* 治疗：含圣骑士自疗（APK m4276k 允许 target==self），单独置顶提示 */}
+                    {unitHeals.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-emerald-400 text-[10px] font-bold">💚 治疗技能（可对自己释放）:</div>
+                        <div className="grid grid-cols-1 gap-1 max-h-[120px] overflow-y-auto pr-1">
+                          {unitHeals
+                            .slice()
+                            .sort((a, b) => {
+                              const aSelf = (a as any).targetId === selectedUnit.id ? -1 : 0;
+                              const bSelf = (b as any).targetId === selectedUnit.id ? -1 : 0;
+                              return aSelf - bSelf;
+                            })
+                            .map((act, i) => {
+                            const heal = act as any;
+                            const target = sandboxGameState.units.find(u => u.id === heal.targetId);
+                            const isSelf = heal.targetId === selectedUnit.id;
+                            return (
+                              <button
+                                key={`heal_${i}`}
+                                onClick={() => executeSandboxAction(act)}
+                                className={`py-1 px-2 border rounded text-[10px] text-left transition-colors ${isSelf ? 'bg-emerald-700 hover:bg-emerald-600 border-emerald-400 text-white font-bold' : 'bg-[#123323] hover:bg-emerald-800 border-emerald-900/50 text-emerald-200'}`}
+                              >
+                                {isSelf ? '💚 治疗自己' : `💚 治疗 ${target ? UNIT_CONFIGS[target.unitClass]?.name : '?'}`} ({target?.pos.x}, {target?.pos.y}) HP:{target?.hp}{isSelf && selectedUnit.unitClass === 'paladin' ? '（圣骑士自疗）' : ''}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {unitSupports.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-blue-400 text-[10px] font-bold">🛡️ 支援技能:</div>
+                        <div className="grid grid-cols-1 gap-1 max-h-[100px] overflow-y-auto pr-1">
+                          {unitSupports.map((act, i) => {
+                            const sup = act as any;
+                            const target = sandboxGameState.units.find(u => u.id === sup.targetId);
+                            return (
+                              <button
+                                key={`sup_${i}`}
+                                onClick={() => executeSandboxAction(act)}
+                                className="py-1 px-2 bg-[#1A2535] hover:bg-blue-800 border border-blue-900/50 text-blue-200 rounded text-[10px] text-left transition-colors"
+                              >
+                                🛡️ 支援 {target ? UNIT_CONFIGS[target.unitClass]?.name : '?'} ({target?.pos.x}, {target?.pos.y})
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {unitSummons.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="text-purple-400 text-[10px] font-bold">👻 召唤技能:</div>
+                        <div className="grid grid-cols-1 gap-1 max-h-[100px] overflow-y-auto pr-1">
+                          {unitSummons.map((act, i) => {
+                            const sum = act as any;
+                            return (
+                              <button
+                                key={`sum_${i}`}
+                                onClick={() => executeSandboxAction(act)}
+                                className="py-1 px-2 bg-[#2D1B36] hover:bg-purple-800 border border-purple-900/50 text-purple-200 rounded text-[10px] text-left transition-colors"
+                              >
+                                👻 在 ({sum.spawnPos.x}, {sum.spawnPos.y}) 唤醒骷髅
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       {/* 原地待命 */}
                       {unitWaitAction && (
@@ -1036,8 +1141,10 @@ export default function App() {
                       )}
                     </div>
                     
-                    {!unitWaitAction && !unitCaptureAction && !unitRepairAction && !unitDestroyAction && (
-                      <span className="text-[10px] text-gray-500 block italic">（请利用地图高亮指引对其他方格点击进行移动、袭击、支援或治疗治疗）</span>
+                    {!unitWaitAction && !unitCaptureAction && !unitRepairAction && !unitDestroyAction && unitAttacks.length === 0 && unitHeals.length === 0 && unitSupports.length === 0 && unitSummons.length === 0 && (
+                      <span className="text-[10px] text-gray-500 block italic">（请利用地图高亮指引对其他方格点击进行移动、袭击、支援或治疗）</span>
+                    )}
+                    </>
                     )}
                   </div>
                 </div>

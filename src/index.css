@@ -1,1 +1,37 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
+@source "./**/*.tsx";
+@source "../index.html";
+
+.aer-map-art,
+.aer-map-sprite {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+}
+
+.aer-map-sprite {
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+.aer-interactive-tile::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.aer-grave-count {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    pointer-events: none;
+    padding-inline: 2px;
+    background: rgb(0 0 0 / .75);
+    color: white;
+    font-size: 9px;
+    line-height: 1.1;
+}
