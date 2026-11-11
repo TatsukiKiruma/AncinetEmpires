@@ -1,30 +1,23 @@
 # 项目文档索引
 
-根目录只保留项目入口 `README.md`。其余文档按职责归档如下。
+- [Git 文件管理与本次整理验证](development/git-management.md)
 
-## 训练
+- [当前游戏规则](rules/README.md)
+- [开局收益与快照](rules/initial-turn-income.md)
+- [环境接口](environment/interface.md)
+- [双流 v2 观测与因子化动作契约](../src/ai_runtime/dual_v2/README.md)
+- [双流 v2 阶段 2 模型与权重合同](../src/ai_runtime/dual_v2/MODEL.md)
+- [开发验证](development/verification.md)
+- [APK 规则和回放证据](apk-analysis/APK_RULE_ALIGNMENT_HANDOFF.md)
+- [2026 年 10 月 13 日 APK 规则与训练环境审计](apk-analysis/APK_RULE_AUDIT_20261013.md)
+- [2026 年 10 月 13 日规则修复和交付范围](rules/apk-rule-fixes-20261013.md)
+- [真实回放审计后的四项修复与待定项复核](rules/apk-replay-fixes-20261013.md)
+- [敌城堡扣血修复与 dfe18a 前序追查](rules/apk-castle-fix-20261013.md)
+- [同格墓碑覆盖修复与原生对照](rules/apk-grave-fix-20261013.md)
+- [APK 原生 AI 与项目启发式基线](rules/apk-native-ai.md)
+- [OriginalApkLikeAI：C1275a 源码级移植说明](rules/original-apk-ai.md)
+- [Original-APKlikeAI-Hard：困难补丁规则、移植与 20 局评测](rules/original-apk-hard-ai.md)
 
-- [`training/CURRENT_TRAINING_STATUS.md`](training/CURRENT_TRAINING_STATUS.md)：本机训练产物、完整性结论和后继任务的唯一当前清单。
-- [`training/TRAINING_HANDOFF_GUIDE.md`](training/TRAINING_HANDOFF_GUIDE.md)：规则对齐后的训练交接流程。
-- [`training/SD_TRAINING_STRATEGY_HANDOFF.md`](training/SD_TRAINING_STRATEGY_HANDOFF.md)：2500 局 SD 训练方案、策略和命令参考。
-- [`training/远古帝国AI训练规则整理.md`](training/远古帝国AI训练规则整理.md)：AI 训练规则手册。
+`apk-analysis/` 保存 APK 专项分析；其中历史检查数量与待办应核对日期和现行代码，不能当作实时状态。`reference/` 保存本地原始参考资料，不作为自动交付内容。
 
-## APK 规则与反编译分析
-
-- [`apk-analysis/APK_RULE_ALIGNMENT_HANDOFF.md`](apk-analysis/APK_RULE_ALIGNMENT_HANDOFF.md)：APK 规则对齐和回放门槛的当前交接文档。
-- [`apk-analysis/APK规则分析-4.2.5.1.md`](apk-analysis/APK规则分析-4.2.5.1.md)：APK 4.2.5.1 规则总览。
-- [`apk-analysis/OPENCODE_APK_Project_Rules_Comparison.md`](apk-analysis/OPENCODE_APK_Project_Rules_Comparison.md)：APK 与项目规则对比入口。
-- 其余 GLM、OPENCODE 和专项分析统一保存在 `apk-analysis/`。
-
-## 项目背景
-
-- [`project/远古帝国AI训练项目上下文.md`](project/远古帝国AI训练项目上下文.md)：项目背景和历史上下文。
-- [`project/远古帝国1-6步开发修改Prompt.md`](project/远古帝国1-6步开发修改Prompt.md)：历史开发 Prompt。
-- [`project/plan.md`](project/plan.md)：原项目计划。
-
-## 参考与归档
-
-- `reference/`：表格等原始参考资料。
-- `archive/`：不再作为当前入口的历史文档。
-
-`training_runs/` 是本机大文件产物目录，已被 Git 忽略；不要把其中的 JSONL 当作仓库文档入口，也不要未经校验直接删除归档副本。
+既有训练策略、进度和报告的入口在 [训练工作区](../ai_training/README.md)。旧索引中不存在的训练交接与项目背景链接已移除。

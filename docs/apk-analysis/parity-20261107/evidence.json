@@ -1,0 +1,1252 @@
+{
+  "scope": "APK 4.2.5.1 默认 SD 与当前项目，规则及动作边界",
+  "apk": {
+    "path": "APK/aer-release-4.2.5.1.apk",
+    "sha256": "51b00185f300dd8899284aa91986aee9a1cc73fa012262a0d9eebc97fad1aa7b",
+    "members": {
+      "assets/data.bin": {
+        "archiveSha256": "b95d5c11a517c7fa301d2f7ba6fc81eb40837d57aba9094c77f6019b69a10af7",
+        "unpackedSha256": "b95d5c11a517c7fa301d2f7ba6fc81eb40837d57aba9094c77f6019b69a10af7"
+      },
+      "classes.dex": {
+        "archiveSha256": "fa676149d7a60e0a12027bd5e074577aee551fe462c024a78e98664998ac99c0",
+        "unpackedSha256": "fa676149d7a60e0a12027bd5e074577aee551fe462c024a78e98664998ac99c0"
+      }
+    }
+  },
+  "sourceSha256": {
+    "src/game/apk_skirmish.ts": "8ea44226d0a745f1c0bf726ec77fb9f7f80cd15ca75cd03cbed4f5a3676d8954",
+    "src/game/rules.ts": "78df9455410327c7559b6bcc43d861075a43630debff6b17aba6217bd7a8846a",
+    "src/game/engine.ts": "bc4d431e48a36f54bc21f8cee449d6f65f359f02efb96c67894b58e140a95ec4",
+    "src/game/env.ts": "929cf0d6766a238687d54138933c67ab6516d1cacc06073ec3854c9732c578cd",
+    "src/game/units.ts": "2180cc3af03c7f5f87ed99e50e280a6d86cfb78865a605042eeea17c4697da65",
+    "src/game/map.ts": "4351ceec3150553ac42b8db24906a7030606b3d2988ddce47f1dcc8e1359e351",
+    "src/game/abilities.ts": "fff491a568f51f04bdcea00c777d356652baf08f9bdeea6fee42222cffc69521",
+    "src/game/rule_config.ts": "cbedbd324ea628fe5ccc3d81ff9da2483deb147ca08150c6d718b1861802b1ef",
+    "src/game/terrain.ts": "76890d59314e7ea317f1708c3027f06096d1c82a58ee2cc7fcd95d23beba9303",
+    "src/game/apk_terrain.ts": "9cde0d0dbb04aac891523a05c28e6f6175b9a7a0f9dfc40592a6e252f1502809",
+    "src/game/terrain_rules.ts": "bad36062f2a08f7570fc8a5f086e20292324086cffb4103b3fcfa694779f3f98",
+    "src/game/team_cleanup.ts": "af2340100ee10114ded36a5930f513bdd674985d0fb590c64b22f4a70432665a",
+    "tools/apk_unit_report.ts": "78572384d22a8de4da5074bc3f120d7c5609c2d2dec7d7b1e0d2c77ff08f5823",
+    "tools/apk_terrain_report.ts": "a97cd3d44fa47aafd6b642947b23f772a5f11a9cabd2d52e3bfdf74dd25f293b",
+    "tools/apk_skirmish_rule_report.ts": "ebf21f22eb51816a9949fe6d85f6d262b24c3489ad0b66a3e4e6defa59f19f5a",
+    "tools/apk_dex_report.ts": "3e3babdd5062ef31cf9fc8a82583e27bf5a4d4bb8f6f2d3ac69f2be85df9e192",
+    "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java": "c1517aa400659dbc49026c1a7b5fbf4b1f2902f6e3b76c70b1a6386db829f331",
+    "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java": "724b9118299ff4bd1021c23c2453773ee8394de01b05796934fbf4f4e8fab4c5",
+    "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0580c.java": "126e1e26ac4875f2d9ad453e4aad044b7ee6f2b31693eefadfe4954e5c25757d"
+  },
+  "dexReferences": [
+    {
+      "string": "Cannot attack from (",
+      "methodIndex": 4422,
+      "codeOffset": 2052660,
+      "classDescriptor": "Lc/a/b/a/l;",
+      "name": "i",
+      "returnType": "V",
+      "parameterTypes": [
+        "I",
+        "I"
+      ]
+    },
+    {
+      "string": "Cannot end turn in state [",
+      "methodIndex": 4413,
+      "codeOffset": 2054156,
+      "classDescriptor": "Lc/a/b/a/l;",
+      "name": "e",
+      "returnType": "V",
+      "parameterTypes": []
+    },
+    {
+      "string": "Cannot recruit #",
+      "methodIndex": 4409,
+      "codeOffset": 2054704,
+      "classDescriptor": "Lc/a/b/a/l;",
+      "name": "c",
+      "returnType": "V",
+      "parameterTypes": [
+        "I",
+        "I",
+        "I"
+      ]
+    },
+    {
+      "string": "Cannot select in state [",
+      "methodIndex": 4396,
+      "codeOffset": 2055692,
+      "classDescriptor": "Lc/a/b/a/l;",
+      "name": "a",
+      "returnType": "V",
+      "parameterTypes": [
+        "I",
+        "I",
+        "Z"
+      ]
+    }
+  ],
+  "checks": {
+    "units": {
+      "count": 21,
+      "projectMismatches": [],
+      "intentionalDifferences": [
+        {
+          "unitId": 9,
+          "unitClass": "commander",
+          "field": "cost",
+          "apkValue": 400,
+          "projectValue": null,
+          "reason": "项目通过 RuleConfig.commanderRecruitBaseCost 表达指挥官重招募基础价格，UnitConfig.cost 保持 null 以避免普通招募路径直接购买。"
+        },
+        {
+          "unitId": 10,
+          "unitClass": "skeleton",
+          "field": "cost",
+          "apkValue": 0,
+          "projectValue": null,
+          "reason": "骷髅由召唤师从墓碑召唤，不作为普通城堡招募单位，UnitConfig.cost 保持 null。"
+        },
+        {
+          "unitId": 11,
+          "unitClass": "crystal",
+          "field": "cost",
+          "apkValue": 0,
+          "projectValue": null,
+          "reason": "水晶是战役目标占位，不作为普通城堡招募单位，UnitConfig.cost 保持 null。"
+        },
+        {
+          "unitId": 11,
+          "unitClass": "crystal",
+          "field": "move",
+          "apkValue": 4,
+          "projectValue": 0,
+          "reason": "data.bin 中水晶移动为 4，但项目按不可行动目标占位处理，战役脚本可通过 static/targeted/move override 控制。"
+        }
+      ]
+    },
+    "terrain": {
+      "count": 84,
+      "archiveMismatches": [],
+      "mappingSummary": {
+        "confirmed": 4,
+        "atlas": 73,
+        "approximate": 7,
+        "unmapped": 0
+      }
+    },
+    "skirmish": {
+      "count": 30,
+      "failed": 0,
+      "checks": [
+        {
+          "id": "setup-options",
+          "title": "遭遇战开局设置范围",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "setup-validation",
+          "title": "遭遇战开局设置校验",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "sd-recruitable-units",
+          "title": "SD 默认可招募单位",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "so-recruitable-units",
+          "title": "SO 普通招募列表及独立指挥官价格",
+          "status": "pass",
+          "source": "SO/controller.js 普通列表；C0600q.m4302g 与 C0789f0.mo3077m 独立指挥官招募分支"
+        },
+        {
+          "id": "recruit-economy",
+          "title": "SD/SO 默认招募费用和人口占用",
+          "status": "pass",
+          "source": "APK data.bin 单位 cost/population + 用户 2026-06-30 实机确认 SD 招募列表 + SO/controller.js 字面量招募列表"
+        },
+        {
+          "id": "t30-t31-recovery",
+          "title": "t30/t31 回血与清状态差异",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "t30-t31-terrain-semantics",
+          "title": "t30/t31 不占领/不收入/不招募",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "opencode-t80-t83-terrain-semantics",
+          "title": "OPENCODE 反编译确认的 t80/t83/t81/t82 地形语义",
+          "status": "pass",
+          "source": "data.bin 地形记录 + OPENCODE 语义表：t80 为非收入治疗建筑，t81/t82 为水面障碍，t83 为水中治疗平台，均不可占领/收入/招募"
+        },
+        {
+          "id": "terrain-defense-combat",
+          "title": "APK 地形防御参与战斗结算",
+          "status": "pass",
+          "source": "APK data.bin 地形 defenseBonus + 用户 2026-06-30 实机确认地形防御存在"
+        },
+        {
+          "id": "pending-recruit-menu",
+          "title": "招募 pending 与 stacked 菜单限制",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "recruit-execution-state",
+          "title": "招募动作执行后的 pending 来源、扣费和行动标记",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认 + GameEngine pending 状态"
+        },
+        {
+          "id": "commander-recruit-availability",
+          "title": "SD/SO 指挥官不在场时可重招募",
+          "status": "pass",
+          "source": "APK C0600q.m4302g 与 C0789f0.mo3077m；普通列表不排除指挥官特殊分支"
+        },
+        {
+          "id": "commander-recruit-cost-profile",
+          "title": "当前 SD/SO 指挥官重招募费用曲线",
+          "status": "pass",
+          "source": "data.bin 指挥官基础价格字段 + 用户 2026-07-01 实机确认每死一次 +100"
+        },
+        {
+          "id": "commander-no-auto-revive",
+          "title": "skirmish 指挥官死亡后不自动复活且重招募继承等级经验",
+          "status": "pass",
+          "source": "DEX revive 关键词分组 0 命中 + 用户 2026-07-01 实机确认 skirmish 只能城堡重招募且继承等级经验"
+        },
+        {
+          "id": "overheal-clipping",
+          "title": "治疗超上限后的回合开始裁剪行为",
+          "status": "pass",
+          "source": "APK 语言表确认治疗师可超上限 + 用户 2026-07-01 实机确认下一己方回合开始先裁剪到最大生命"
+        },
+        {
+          "id": "undead-overheal",
+          "title": "当前默认亡灵被动回血上限与行动后裁剪",
+          "status": "pass",
+          "source": "APK 语言表确认亡灵中毒/墓碑转回血 + 用户 2026-07-01 实机确认最多回复到生命上限；行动单位在 APK 行动后结算会裁剪到最大生命"
+        },
+        {
+          "id": "default-commander-income",
+          "title": "当前默认 skirmish 指挥官收入",
+          "status": "pass",
+          "source": "APK 语言表确认指挥官存活收入机制；DEX 规则数据构造器确认默认 base=50/growth=25；SD/SO controller 未显式覆盖收入"
+        },
+        {
+          "id": "default-training-terrain-risk",
+          "title": "默认 skirmish 训练地图不包含 t80/t81/t82/t83",
+          "status": "pass",
+          "source": "APK skirmish manifest + 已确认 t30/t31 approximate 放行策略"
+        },
+        {
+          "id": "training-scenario-terrain-gate",
+          "title": "默认 skirmish 训练场景不包含额外 approximate 地形",
+          "status": "pass",
+          "source": "getApkSkirmishTrainingScenarios + apk:training-report 未实测 approximate ID 计算逻辑"
+        },
+        {
+          "id": "dex-operation-order-evidence",
+          "title": "DEX 关键规则操作顺序证据",
+          "status": "pass",
+          "source": "classes.dex 关键方法字节码引用顺序；支援目标、反击风暴和攻击附加状态已进入 operation-order 门禁"
+        },
+        {
+          "id": "opencode-counter-status-semantics",
+          "title": "OPENCODE 反编译确认的反击射程与反击状态附加",
+          "status": "pass",
+          "source": "OPENCODE C0600q.m4287i / C0595l.m4469a：普通反击需距离 1 且在射程内；反击命中后同样调用攻击状态附加"
+        },
+        {
+          "id": "opencode-support-same-team-semantics",
+          "title": "OPENCODE 反编译确认的同队支援限制",
+          "status": "pass",
+          "source": "OPENCODE q.n(Unit,Unit)：支援目标必须已行动、未被支援、同队且等级不高于支援者；第二次支援被 hasBeenSupported 标记排除"
+        },
+        {
+          "id": "language-rule-evidence",
+          "title": "APK 文案支撑的能力和状态规则证据",
+          "status": "pass",
+          "source": "assets/languages/en.lang + apk:language-rule-report 28 项能力/状态/建筑地形行为检查"
+        },
+        {
+          "id": "script-rule-evidence",
+          "title": "APK 脚本规则配置证据",
+          "status": "pass",
+          "source": "已归档脚本 manifest + 7 项脚本规则/状态配置应用检查；完整 DES 解密由 apk:script-report 单独门禁"
+        },
+        {
+          "id": "data-bin-manifest-evidence",
+          "title": "APK data.bin 单位和地形归档证据",
+          "status": "pass",
+          "source": "已归档 data.bin 单位/能力/状态/地形 manifest；完整 DES 解密由 apk:unit-report 和 apk:terrain-report 单独门禁"
+        },
+        {
+          "id": "setup-applied-to-gameplay",
+          "title": "遭遇战开局设置实际进入训练状态并约束规则",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认的开局设置范围 + RuleConfig 行为"
+        },
+        {
+          "id": "training-observation-skirmish-rules",
+          "title": "训练 observation 暴露 skirmish 规则、费用、指挥官和 pending 状态",
+          "status": "pass",
+          "source": "AncientEmpiresEnv observation + APK skirmish RuleConfig"
+        },
+        {
+          "id": "surrender",
+          "title": "skirmish 投降结算",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "defeat-condition",
+          "title": "skirmish 淘汰条件",
+          "status": "pass",
+          "source": "SD/SO controller.js 与用户 2026-06-30 实机确认"
+        },
+        {
+          "id": "castle-intruder-damage",
+          "title": "敌军压己方城堡时回合开始扣血并跳过无操作队伍",
+          "status": "pass",
+          "source": "用户 2026-06-30 实机确认"
+        }
+      ]
+    }
+  },
+  "differences": {
+    "blockedRecruit": {
+      "nativeCode": [
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java",
+          "method": "m4344b",
+          "declarationLine": 698,
+          "hits": [
+            {
+              "line": 700,
+              "text": "if (m4296h(i2, i3) && m4302g(i, i4)) {"
+            },
+            {
+              "line": 709,
+              "text": "m4290i.f1314l = true;"
+            },
+            {
+              "line": 711,
+              "text": "m4338b(m4290i, false, this.f1210a);"
+            },
+            {
+              "line": 712,
+              "text": "return this.f1210a.f1433b.size() > 0;"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java",
+          "method": "m4349a",
+          "declarationLine": 135,
+          "hits": [
+            {
+              "line": 146,
+              "text": "if (z || m4329c(c0613f, i, i2)) {"
+            },
+            {
+              "line": 160,
+              "text": "if (z || m4261q(c0613f, m4207i)) {"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java",
+          "method": "m4329c",
+          "declarationLine": 815,
+          "hits": [
+            {
+              "line": 820,
+              "text": "return m4207i == null || m4265o(c0613f, m4207i);"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java",
+          "method": "m4261q",
+          "declarationLine": 224,
+          "hits": [
+            {
+              "line": 225,
+              "text": "return c0613f2 == null || !m4281j(c0613f, c0613f2) || (m4359a(c0613f, EnumC0614g.AIR_FORCE) && !m4359a(c0613f2, EnumC0614g.AIR_FORCE));"
+            },
+            {
+              "line": 225,
+              "text": "return c0613f2 == null || !m4281j(c0613f, c0613f2) || (m4359a(c0613f, EnumC0614g.AIR_FORCE) && !m4359a(c0613f2, EnumC0614g.AIR_FORCE));"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4445c",
+          "declarationLine": 646,
+          "hits": [
+            {
+              "line": 651,
+              "text": "if (!m4415t().m4344b(i, i2, i3)) {"
+            },
+            {
+              "line": 655,
+              "text": "throw new C0589h(EnumC0588g.EVENT, str);"
+            },
+            {
+              "line": 659,
+              "text": "m4415t().m4334c(i4, -m4415t().m4274l(i, i4));"
+            }
+          ]
+        }
+      ],
+      "project": {
+        "initial": {
+          "turn": 1,
+          "currentPlayer": 0,
+          "winner": null,
+          "map": {
+            "width": 3,
+            "height": 3,
+            "tiles": [
+              [
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                }
+              ],
+              [
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 10,
+                  "ownerId": 0
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                }
+              ],
+              [
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                }
+              ]
+            ]
+          },
+          "units": [
+            {
+              "id": "commander",
+              "unitClass": "commander",
+              "ownerId": 0,
+              "pos": {
+                "x": 1,
+                "y": 1
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy0",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 0,
+                "y": 1
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy1",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 1,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy2",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 1,
+                "y": 2
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy3",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 2,
+                "y": 1
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            }
+          ],
+          "players": [
+            {
+              "id": 0,
+              "gold": 600,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            },
+            {
+              "id": 1,
+              "gold": 600,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            }
+          ],
+          "rules": {
+            "initialGold": 300,
+            "unitLimit": 30,
+            "unitLimitUsesPopulation": true,
+            "levelCap": 3,
+            "incomeCommanderBase": 50,
+            "incomeCommanderGrowth": 25,
+            "allowSurrender": true,
+            "allowPendingRecruitEndTurn": true,
+            "allowPendingRecruitSurrender": true,
+            "commanderCastleRecruitUsesPending": true,
+            "defeatOnNoUnitsAndNoCastles": true,
+            "defeatOnNoUnits": false,
+            "commanderRecruitBaseCost": 400,
+            "commanderRecruitCostGrowth": 100,
+            "recruitableUnits": [
+              "commander",
+              "soldier",
+              "ghost",
+              "mermaid",
+              "archer",
+              "slime",
+              "dark_mage",
+              "water_elemental",
+              "paladin",
+              "witch",
+              "berserker",
+              "elf",
+              "wolf",
+              "ice_elemental",
+              "golem",
+              "druid",
+              "catapult",
+              "wolf_archer",
+              "dragon"
+            ]
+          }
+        },
+        "blockedAction": {
+          "action": {
+            "type": "recruit_to_castle",
+            "unitClass": "soldier",
+            "castlePos": {
+              "x": 1,
+              "y": 1
+            }
+          },
+          "code": "recruit_to_castle:soldier:1,1",
+          "fromRules": true,
+          "fromEngine": true,
+          "fixedIndex": 499,
+          "fromFixedMask": true
+        },
+        "goldBefore": 600,
+        "goldAfter": 450,
+        "pending": "u_100",
+        "onCastle": [
+          "commander",
+          "u_100"
+        ],
+        "movementDestinations": [],
+        "control": {
+          "removedUnit": "enemy3",
+          "openAction": {
+            "action": {
+              "type": "recruit_to_castle",
+              "unitClass": "soldier",
+              "castlePos": {
+                "x": 1,
+                "y": 1
+              }
+            },
+            "code": "recruit_to_castle:soldier:1,1",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 499,
+            "fromFixedMask": true
+          },
+          "exit": {
+            "action": {
+              "type": "move",
+              "unitId": "u_100",
+              "to": {
+                "x": 2,
+                "y": 1
+              }
+            },
+            "code": "move:u_100:2,1",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 41,
+            "fromFixedMask": true
+          }
+        }
+      }
+    },
+    "ownTileDestruction": {
+      "nativeCode": [
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4432i",
+          "declarationLine": 905,
+          "hits": [
+            {
+              "line": 916,
+              "text": "if (!m4415t().m4362a(m4423n, i, i2)) {"
+            },
+            {
+              "line": 923,
+              "text": "if (m4415t().m4278k(i, i2) == null) {"
+            },
+            {
+              "line": 924,
+              "text": "m4427l().m4504b(C0583d.m4534a(m4415t().m4284j(i, i2).f1375h, 4095, i, i2, EnumC0604c.DUST));"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0600q.java",
+          "method": "m4362a",
+          "declarationLine": 578,
+          "hits": [
+            {
+              "line": 579,
+              "text": "if (c0613f != null && this.f1214e.m4236a(i, i2) && m4313e(c0613f, i, i2)) {"
+            },
+            {
+              "line": 581,
+              "text": "return m4207i == null ? m4359a(c0613f, EnumC0614g.DESTROYER) && m4284j(i, i2).f1375h >= 0 : m4281j(c0613f, m4207i);"
+            },
+            {
+              "line": 581,
+              "text": "return m4207i == null ? m4359a(c0613f, EnumC0614g.DESTROYER) && m4284j(i, i2).f1375h >= 0 : m4281j(c0613f, m4207i);"
+            }
+          ]
+        }
+      ],
+      "nativeCatapultRange": [
+        3,
+        5
+      ],
+      "project": {
+        "initial": {
+          "turn": 1,
+          "currentPlayer": 0,
+          "winner": null,
+          "map": {
+            "width": 7,
+            "height": 1,
+            "tiles": [
+              [
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 9,
+                  "ownerId": 0
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 9,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 9,
+                  "ownerId": 1
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                }
+              ]
+            ]
+          },
+          "units": [
+            {
+              "id": "catapult",
+              "unitClass": "catapult",
+              "ownerId": 0,
+              "pos": {
+                "x": 1,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 5,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            }
+          ],
+          "players": [
+            {
+              "id": 0,
+              "gold": 0,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            },
+            {
+              "id": 1,
+              "gold": 0,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            }
+          ],
+          "rules": {
+            "initialGold": 300,
+            "unitLimit": 30,
+            "unitLimitUsesPopulation": true,
+            "levelCap": 3,
+            "incomeCommanderBase": 50,
+            "incomeCommanderGrowth": 25,
+            "allowSurrender": true,
+            "allowPendingRecruitEndTurn": true,
+            "allowPendingRecruitSurrender": true,
+            "commanderCastleRecruitUsesPending": true,
+            "defeatOnNoUnitsAndNoCastles": true,
+            "defeatOnNoUnits": false,
+            "commanderRecruitBaseCost": 400,
+            "commanderRecruitCostGrowth": 100,
+            "recruitableUnits": [
+              "commander",
+              "soldier",
+              "ghost",
+              "mermaid",
+              "archer",
+              "slime",
+              "dark_mage",
+              "water_elemental",
+              "paladin",
+              "witch",
+              "berserker",
+              "elf",
+              "wolf",
+              "ice_elemental",
+              "golem",
+              "druid",
+              "catapult",
+              "wolf_archer",
+              "dragon"
+            ]
+          }
+        },
+        "underAction": {
+          "action": {
+            "type": "destroy_town",
+            "unitId": "catapult"
+          },
+          "code": "destroy_town:catapult",
+          "fromRules": true,
+          "fromEngine": true,
+          "fixedIndex": 1492,
+          "fromFixedMask": true
+        },
+        "before": {
+          "terrainId": 9,
+          "ownerId": 0
+        },
+        "after": {
+          "terrainId": 8,
+          "ownerId": null
+        },
+        "control": {
+          "rangedAction": {
+            "action": {
+              "type": "destroy_town",
+              "unitId": "catapult",
+              "target": {
+                "x": 4,
+                "y": 0
+              }
+            },
+            "code": "destroy_town:catapult:4,0",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 1495,
+            "fromFixedMask": true
+          },
+          "rangedAfter": {
+            "terrainId": 8,
+            "ownerId": null
+          },
+          "occupiedAction": {
+            "action": {
+              "type": "destroy_town",
+              "unitId": "catapult",
+              "target": {
+                "x": 5,
+                "y": 0
+              }
+            },
+            "code": "destroy_town:catapult:5,0",
+            "fromRules": false,
+            "fromEngine": false,
+            "fixedIndex": 1496,
+            "fromFixedMask": false
+          }
+        }
+      }
+    },
+    "unfinishedCanto": {
+      "nativeCode": [
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4452b",
+          "declarationLine": 528,
+          "hits": [
+            {
+              "line": 533,
+              "text": "} else if (m4278k.f1308f > 0 && m4415t().m4359a(m4278k, EnumC0614g.ASSAULT_FORCE)) {"
+            },
+            {
+              "line": 533,
+              "text": "} else if (m4278k.f1308f > 0 && m4415t().m4359a(m4278k, EnumC0614g.ASSAULT_FORCE)) {"
+            },
+            {
+              "line": 534,
+              "text": "m4425m().m4572b();"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0580c.java",
+          "method": "m4572b",
+          "declarationLine": 350,
+          "hits": [
+            {
+              "line": 352,
+              "text": "m4571b(3);"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4460a",
+          "declarationLine": 437,
+          "hits": [
+            {
+              "line": 439,
+              "text": "if (m4416s().f1298a == 0 || m4416s().f1298a == 1) {"
+            },
+            {
+              "line": 442,
+              "text": "str = \"Cannot select in state [\" + m4416s().f1298a + \"]!\";"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4441e",
+          "declarationLine": 755,
+          "hits": [
+            {
+              "line": 757,
+              "text": "if (m4416s().f1298a == 0 || m4416s().f1298a == 1) {"
+            },
+            {
+              "line": 760,
+              "text": "str = \"Cannot end turn in state [\" + m4416s().f1298a + \"]!\";"
+            }
+          ]
+        },
+        {
+          "path": "APK/_analysis/jadx_output/java/p036c/p037a/p039b/p040a/C0595l.java",
+          "method": "m4428k",
+          "declarationLine": 981,
+          "hits": [
+            {
+              "line": 983,
+              "text": "if (m4416s().f1298a == 0 || m4416s().f1298a == 1 || m4416s().f1298a == 3) {"
+            }
+          ]
+        }
+      ],
+      "project": {
+        "initial": {
+          "turn": 1,
+          "currentPlayer": 0,
+          "winner": null,
+          "map": {
+            "width": 7,
+            "height": 1,
+            "tiles": [
+              [
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                },
+                {
+                  "terrainId": 6,
+                  "ownerId": null
+                }
+              ]
+            ]
+          },
+          "units": [
+            {
+              "id": "soldier",
+              "unitClass": "soldier",
+              "ownerId": 0,
+              "pos": {
+                "x": 0,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "dragon",
+              "unitClass": "dragon",
+              "ownerId": 0,
+              "pos": {
+                "x": 1,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            },
+            {
+              "id": "enemy",
+              "unitClass": "soldier",
+              "ownerId": 1,
+              "pos": {
+                "x": 3,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": false,
+              "hasActed": false,
+              "level": 0,
+              "exp": 0
+            }
+          ],
+          "players": [
+            {
+              "id": 0,
+              "gold": 0,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            },
+            {
+              "id": 1,
+              "gold": 0,
+              "isAlive": true,
+              "commanderDeathCount": 0
+            }
+          ],
+          "rules": {
+            "initialGold": 300,
+            "unitLimit": 30,
+            "unitLimitUsesPopulation": true,
+            "levelCap": 3,
+            "incomeCommanderBase": 50,
+            "incomeCommanderGrowth": 25,
+            "allowSurrender": true,
+            "allowPendingRecruitEndTurn": true,
+            "allowPendingRecruitSurrender": true,
+            "commanderCastleRecruitUsesPending": true,
+            "defeatOnNoUnitsAndNoCastles": true,
+            "defeatOnNoUnits": false,
+            "commanderRecruitBaseCost": 400,
+            "commanderRecruitCostGrowth": 100,
+            "recruitableUnits": [
+              "commander",
+              "soldier",
+              "ghost",
+              "mermaid",
+              "archer",
+              "slime",
+              "dark_mage",
+              "water_elemental",
+              "paladin",
+              "witch",
+              "berserker",
+              "elf",
+              "wolf",
+              "ice_elemental",
+              "golem",
+              "druid",
+              "catapult",
+              "wolf_archer",
+              "dragon"
+            ]
+          },
+          "graves": [
+            {
+              "id": "g1",
+              "pos": {
+                "x": 2,
+                "y": 0
+              },
+              "ownerId": 0,
+              "remainingTurns": 1
+            }
+          ]
+        },
+        "sequence": [
+          {
+            "type": "move",
+            "unitId": "dragon",
+            "to": {
+              "x": 2,
+              "y": 0
+            }
+          },
+          {
+            "type": "attack",
+            "attackerId": "dragon",
+            "targetId": "enemy"
+          }
+        ],
+        "actions": [
+          {
+            "action": {
+              "type": "wait",
+              "unitId": "soldier"
+            },
+            "code": "wait:soldier",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 1533,
+            "fromFixedMask": true
+          },
+          {
+            "action": {
+              "type": "end_turn"
+            },
+            "code": "end_turn",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 1541,
+            "fromFixedMask": true
+          },
+          {
+            "action": {
+              "type": "post_attack_move",
+              "unitId": "dragon",
+              "to": {
+                "x": 2,
+                "y": 0
+              }
+            },
+            "code": "post_attack_move:dragon:2,0",
+            "fromRules": true,
+            "fromEngine": true,
+            "fixedIndex": 65,
+            "fromFixedMask": true
+          }
+        ],
+        "branches": {
+          "afterAttack": {
+            "currentPlayer": 0,
+            "dragon": {
+              "id": "dragon",
+              "unitClass": "dragon",
+              "ownerId": 0,
+              "pos": {
+                "x": 2,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": true,
+              "hasActed": true,
+              "level": 0,
+              "exp": 30,
+              "movementRemaining": 5
+            },
+            "graveIds": [
+              "g1"
+            ]
+          },
+          "afterWaitOther": {
+            "currentPlayer": 0,
+            "dragon": {
+              "id": "dragon",
+              "unitClass": "dragon",
+              "ownerId": 0,
+              "pos": {
+                "x": 2,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": true,
+              "hasActed": true,
+              "level": 0,
+              "exp": 30,
+              "movementRemaining": 5
+            },
+            "graveIds": [
+              "g1"
+            ]
+          },
+          "afterEnd": {
+            "currentPlayer": 1,
+            "dragon": {
+              "id": "dragon",
+              "unitClass": "dragon",
+              "ownerId": 0,
+              "pos": {
+                "x": 2,
+                "y": 0
+              },
+              "hp": 100,
+              "maxHp": 100,
+              "hasMoved": true,
+              "hasActed": true,
+              "level": 0,
+              "exp": 30,
+              "movementRemaining": 5
+            },
+            "graveIds": [
+              "g1"
+            ]
+          },
+          "afterFinish": {
+            "currentPlayer": 0,
+            "dragon": {
+              "id": "dragon",
+              "unitClass": "dragon",
+              "ownerId": 0,
+              "pos": {
+                "x": 2,
+                "y": 0
+              },
+              "hp": 90,
+              "maxHp": 100,
+              "hasMoved": true,
+              "hasActed": true,
+              "level": 0,
+              "exp": 30,
+              "movementRemaining": 5,
+              "hasPostAttackMoved": true
+            },
+            "graveIds": []
+          }
+        }
+      }
+    },
+    "crystal": {
+      "apkUnitId": 11,
+      "apkBaseMove": 4,
+      "projectBaseMove": 0
+    }
+  }
+}

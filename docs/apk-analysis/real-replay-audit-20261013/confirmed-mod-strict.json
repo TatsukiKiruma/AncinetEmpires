@@ -1,0 +1,453 @@
+{
+  "generatedAt": "2026-10-13T01:00:54.514Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "offset": 0,
+    "limit": null,
+    "uniqueOffset": null,
+    "uniqueLimit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false,
+    "forceExecuteReplayActions": false,
+    "rejectInformationLoss": false
+  },
+  "totals": {
+    "files": 2,
+    "uniqueFiles": 2,
+    "duplicates": 0,
+    "parsed": 2,
+    "passed": 0,
+    "failed": 2,
+    "parseErrors": 0
+  },
+  "failureClassifications": [
+    {
+      "code": "strict_move_reachability_gap",
+      "label": "strict 移动可达性缺口",
+      "count": 2,
+      "items": [
+        {
+          "fileName": "game_get_20260704_132008_065.bin",
+          "recordIndex": 55,
+          "eventType": "STANDBY",
+          "actionCode": "move:u_13:4,6"
+        },
+        {
+          "fileName": "game_get_20260704_132050_078.bin",
+          "recordIndex": 51,
+          "eventType": "ATTACK",
+          "actionCode": "move:u_11:10,5"
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132008_065.bin",
+      "fileName": "game_get_20260704_132008_065.bin",
+      "sha256": "1269141a53135f4db64bcb35e1a8490431708306fd26a33e0a287f28a2361856",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 56392,
+      "decryptedBytes": 56386,
+      "gameObjectBytes": 56359,
+      "map": {
+        "width": 13,
+        "height": 13,
+        "scenarioCode": "SR",
+        "campaignLike": false,
+        "players": [
+          4,
+          1,
+          0,
+          5,
+          2,
+          3
+        ],
+        "terrainCount": 169,
+        "unitCount": 10,
+        "recommendedGold": 250
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 0,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 1182,
+        "eventCounts": {
+          "ATTACK": 396,
+          "GAME_START": 0,
+          "HEAL": 37,
+          "MOVE": 0,
+          "NEXT_TURN": 87,
+          "NONE": 168,
+          "OCCUPY": 22,
+          "RECRUIT": 0,
+          "REPAIR": 6,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 399,
+          "SUMMON": 26,
+          "SUPPORT": 40,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 56359
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "evidence": {
+          "validationBypassed": false,
+          "fullyConsumed": false,
+          "apkStateCompared": false,
+          "notices": [
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 37
+            }
+          ],
+          "skippedCount": 0,
+          "replacedCount": 1,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 55,
+        "expandedActionCount": 83,
+        "firstError": "非法动作：当前玩家无法执行该动作",
+        "firstErrorRecordIndex": 55,
+        "firstErrorRecordEvent": "STANDBY",
+        "firstErrorRecordSource": {
+          "x": 3,
+          "y": 3
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 4,
+          "y": 6
+        },
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 3,
+        "turnBefore": 2,
+        "legalActionCount": 24,
+        "info": "非法动作：当前玩家无法执行该动作",
+        "actionCode": "move:u_13:4,6",
+        "failureDiagnostic": {
+          "actor": {
+            "id": "u_13",
+            "ownerId": 3,
+            "unitClass": "soldier",
+            "pos": {
+              "x": 3,
+              "y": 3
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "target": null,
+          "moveDestinationOccupant": null,
+          "moveDestinationTile": {
+            "terrainId": 2,
+            "ownerId": null,
+            "apkTerrainId": 63,
+            "apkTerrainRaw": 262143,
+            "apkOwnerCode": 255,
+            "apkTerrainKind": 0,
+            "apkTerrainIsLand": false,
+            "apkMoveCost": 3
+          },
+          "sourceToTargetDistance": null,
+          "moveToTargetDistance": null
+        },
+        "failureClassification": {
+          "code": "strict_move_reachability_gap",
+          "label": "strict 移动可达性缺口",
+          "detail": "APK 记录要求移动到 (4,6)；项目没有生成对应合法移动动作；优先核实 APK 运行时脚本、SyncOverrideMov 或前序状态，而不是直接修改全局地形成本；terrainId=2, owner=-, apkTerrainId=63, apkKind=0, apkIsLand=false, apkMoveCost=3"
+        },
+        "finalTurn": 2,
+        "finalCurrentPlayer": 3,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132050_078.bin",
+      "fileName": "game_get_20260704_132050_078.bin",
+      "sha256": "72d58b04ba9f2e5d885e36a57d0dfaa608618916fa9d2cb38e2ece15d9312d4d",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 17280,
+      "decryptedBytes": 17275,
+      "gameObjectBytes": 17248,
+      "map": {
+        "width": 13,
+        "height": 13,
+        "scenarioCode": "SR",
+        "campaignLike": false,
+        "players": [
+          4,
+          1,
+          0,
+          5,
+          2,
+          3
+        ],
+        "terrainCount": 169,
+        "unitCount": 10,
+        "recommendedGold": 250
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 250,
+        "defaultUnitLimit": 100,
+        "levelCap": 9,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 250,
+        "eventCounts": {
+          "ATTACK": 35,
+          "GAME_START": 0,
+          "HEAL": 7,
+          "MOVE": 0,
+          "NEXT_TURN": 24,
+          "NONE": 58,
+          "OCCUPY": 4,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 119,
+          "SUMMON": 0,
+          "SUPPORT": 1,
+          "SURRENDER": 2
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 17248
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "evidence": {
+          "validationBypassed": false,
+          "fullyConsumed": false,
+          "apkStateCompared": false,
+          "notices": [
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 48
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 50
+            }
+          ],
+          "skippedCount": 0,
+          "replacedCount": 2,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 51,
+        "expandedActionCount": 76,
+        "firstError": "非法动作：当前玩家无法执行该动作",
+        "firstErrorRecordIndex": 51,
+        "firstErrorRecordEvent": "ATTACK",
+        "firstErrorRecordSource": {
+          "x": 11,
+          "y": 7
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 10,
+          "y": 5
+        },
+        "firstErrorRecordTarget": {
+          "x": 10,
+          "y": 4
+        },
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 1,
+        "turnBefore": 2,
+        "legalActionCount": 45,
+        "info": "非法动作：当前玩家无法执行该动作",
+        "actionCode": "move:u_11:10,5",
+        "failureDiagnostic": {
+          "actor": {
+            "id": "u_11",
+            "ownerId": 1,
+            "unitClass": "soldier",
+            "pos": {
+              "x": 11,
+              "y": 7
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "target": {
+            "id": "apk_remote_u1",
+            "ownerId": 4,
+            "unitClass": "ghost",
+            "pos": {
+              "x": 10,
+              "y": 4
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 0,
+            "hasMoved": true,
+            "hasActed": true,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "moveDestinationOccupant": null,
+          "moveDestinationTile": {
+            "terrainId": 3,
+            "ownerId": null,
+            "apkTerrainId": 17,
+            "apkTerrainRaw": 73727,
+            "apkOwnerCode": 255,
+            "apkTerrainKind": 1,
+            "apkTerrainIsLand": true,
+            "apkMoveCost": 3
+          },
+          "sourceToTargetDistance": 4,
+          "moveToTargetDistance": 1
+        },
+        "failureClassification": {
+          "code": "strict_move_reachability_gap",
+          "label": "strict 移动可达性缺口",
+          "detail": "APK 记录要求移动到 (10,5)；项目没有生成对应合法移动动作；优先核实 APK 运行时脚本、SyncOverrideMov 或前序状态，而不是直接修改全局地形成本；terrainId=3, owner=-, apkTerrainId=17, apkKind=1, apkIsLand=true, apkMoveCost=3"
+        },
+        "finalTurn": 2,
+        "finalCurrentPlayer": 1,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}

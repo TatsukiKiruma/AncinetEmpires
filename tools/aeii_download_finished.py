@@ -12,25 +12,58 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from mitm_aeii_token_capture import HOSTS, ROOT, load_helpers
+from aeii_phone_session import load_phone_session
+from aeii_download_history import verified_history, atomic_json
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument('--session', type=Path,
+                        help='本机会话文件；不会输出文件内的认证信息')
+    source.add_argument('--phone-serial', help='仅在内存中使用该 USB 手机的当前游戏会话')
+    parser.add_argument('--adb-path', type=Path, help='读取手机游戏会话时使用的 adb.exe')
+    parser.add_argument('--output', type=Path, help='本次独立输出目录；已有记录必须指定 --resume')
+    parser.add_argument('--history-root', type=Path, action='append', default=[], help='历史下载报告目录，可重复')
+    parser.add_argument('--resume', action='store_true', help='校验已保存文件后从第一页重新分页，跳过已核验对局')
     parser.add_argument('--allow-unverified-na', action='store_true', help='经用户授权，仅对北美服务放宽证书校验')
+    parser.add_argument('--allow-unverified-host', choices=sorted(HOSTS),
+                        help='经用户授权，仅对指定游戏域名放宽证书校验')
     args = parser.parse_args()
     helpers = load_helpers()
-    session = json.loads((ROOT / ".env.aeii-session.json").read_text(encoding="utf-8"))
+    if args.phone_serial:
+        if args.adb_path is None:
+            parser.error('--phone-serial 需要同时指定 --adb-path')
+        session = load_phone_session(args.adb_path, args.phone_serial)
+    else:
+        session = json.loads((args.session or ROOT / '.env.aeii-session.json').read_text(encoding="utf-8"))
     host, token = session["host"], session["token"]
     if host not in HOSTS or not token:
         raise ValueError("本机会话缺少有效服务地址或令牌")
-    output = ROOT / "captures" / "cloud" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    output = args.output or ROOT / "captures" / "cloud" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    if output.exists() and any(output.iterdir()) and not args.resume:
+        raise ValueError('输出目录非空；恢复本次下载须指定 --resume')
     output.mkdir(parents=True, exist_ok=True)
     report = {"host": host, "started_at": datetime.now(timezone.utc).isoformat(),
               "tls_verified": True, "complete": False, "pages": 0, "downloads": [], "errors": []}
+    report['session_source'] = 'usb_phone_memory_only' if args.phone_serial else 'local_session_file'
+    histories = sorted({p.resolve() for root in args.history_root for p in root.rglob('download_report.json')})
+    if args.resume and (output / 'download_report.json').is_file():
+        old_report = json.loads((output / 'download_report.json').read_text(encoding='utf-8'))
+        if old_report['host'] != host:
+            raise ValueError('恢复目录与当前服务器不一致')
+        # 每次尝试单独归档，失败记录不因恢复而消失。
+        atomic_json(output / ('attempt_' + datetime.now().strftime('%Y%m%d_%H%M%S_%f') + '.json'), old_report)
+        histories.append(output / 'download_report.json')
+    known = verified_history(histories, host)
+    report['history_reports'] = [str(p) for p in histories]
+    report['skipped_verified_history'] = []
+    report['attempt_id'] = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
     context = ssl.create_default_context()
-    if args.allow_unverified_na:
-        if host != 'ae-multiplayer-na.toyknight.net':
-            raise ValueError('证书例外仅适用于用户授权的北美服务')
+    if args.allow_unverified_na or args.allow_unverified_host:
+        allowed_host = args.allow_unverified_host or 'ae-multiplayer-na.toyknight.net'
+        if host != allowed_host or (args.allow_unverified_na and host != 'ae-multiplayer-na.toyknight.net'):
+            raise ValueError('当前会话服务器与明确授权的证书例外域名不一致')
         context.check_hostname = False
         context.verify_mode = ssl.CERT_NONE
         report['tls_verified'] = False
@@ -42,8 +75,7 @@ def main():
     opener = urllib.request.build_opener(urllib.request.HTTPSHandler(context=context), NoRedirect())
 
     def save_report():
-        (output / "download_report.json").write_text(
-            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+        atomic_json(output / 'download_report.json', report)
 
     def request(endpoint, payload):
         req = urllib.request.Request("https://" + host + endpoint, data=payload,
@@ -79,7 +111,7 @@ def main():
                 plain += helpers["write_nullable_string"](name) + value
             data, result = request("/api/game_list", helpers["encrypt_apk_payload"](plain))
             games = helpers["parse_c1260f_array"](result["s2"])
-            (output / f"list_{page:05d}.bin").write_bytes(data)
+            (output / f"list_{report['attempt_id']}_{page:05d}.bin").write_bytes(data)
             report["pages"] += 1
             if not games:
                 report["complete"] = not report["errors"]
@@ -94,6 +126,9 @@ def main():
                 if game["status"] != 2:
                     report['skipped_not_closed'] += 1
                     continue
+                if game_id in known:
+                    report['skipped_verified_history'].append(known[game_id])
+                    continue
                 time.sleep(0.5)
                 try:
                     body, details = request("/api/game_get", helpers["encode_game_get_request"](game_id, token))
@@ -103,10 +138,13 @@ def main():
                     report['errors'].append({'id': game_id, 'type': type(error).__name__})
                     save_report()
                     continue
-                filename = "game_get_" + hashlib.sha256(game_id.encode()).hexdigest()[:24] + ".bin"
+                # 来源ID与内容共同命名，崩溃后留下的孤立响应也不会被覆盖。
+                filename = "game_get_" + hashlib.sha256(game_id.encode()).hexdigest()[:24] + '_' + hashlib.sha256(body).hexdigest()[:24] + ".bin"
                 (output / filename).write_bytes(body)
                 report["downloads"].append({"id": game_id, "file": filename,
-                    "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body)})
+                    "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body),
+                    'completed_at': datetime.now(timezone.utc).isoformat(), 'page': page,
+                    'source': 'human-account-finished-game', 'host': host})
                 save_report()
             print("PAGE", page, "DOWNLOADED", len(report["downloads"]), flush=True)
             page += 1
@@ -122,6 +160,7 @@ def main():
         report["errors"].append(message)
         print("STOPPED", message, flush=True)
     finally:
+        report['finished_at'] = datetime.now(timezone.utc).isoformat()
         save_report()
         print("REPORT", output / "download_report.json", flush=True)
         print("DOWNLOADED", len(report["downloads"]), "COMPLETE", report["complete"], flush=True)

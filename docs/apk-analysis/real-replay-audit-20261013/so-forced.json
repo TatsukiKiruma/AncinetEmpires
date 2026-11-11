@@ -1,0 +1,1325 @@
+{
+  "generatedAt": "2026-10-13T01:00:20.371Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SO",
+    "maxRecords": 100000,
+    "offset": 0,
+    "limit": null,
+    "uniqueOffset": null,
+    "uniqueLimit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false,
+    "forceExecuteReplayActions": true,
+    "rejectInformationLoss": false
+  },
+  "totals": {
+    "files": 3,
+    "uniqueFiles": 3,
+    "duplicates": 0,
+    "parsed": 3,
+    "passed": 3,
+    "failed": 0,
+    "parseErrors": 0
+  },
+  "failureClassifications": [],
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\cloud\\20260918_053030\\game_get_6ac8d4bdeba6482546609f5a.bin",
+      "fileName": "game_get_6ac8d4bdeba6482546609f5a.bin",
+      "sha256": "9427e33c574a4ca371fadfc7a5977685b8fa06ad832dc6e8bfbed1bd0f69129e",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 6624,
+      "decryptedBytes": 6622,
+      "gameObjectBytes": 6595,
+      "map": {
+        "width": 15,
+        "height": 15,
+        "scenarioCode": "SO",
+        "campaignLike": false,
+        "players": [
+          0,
+          1
+        ],
+        "terrainCount": 225,
+        "unitCount": 2,
+        "recommendedGold": 300
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 20,
+        "levelCap": 3,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 2,
+        "eventCounts": {
+          "ATTACK": 0,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 0,
+          "NONE": 0,
+          "OCCUPY": 0,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 1,
+          "SUMMON": 0,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 6595
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "evidence": {
+          "validationBypassed": true,
+          "fullyConsumed": true,
+          "apkStateCompared": false,
+          "notices": [],
+          "skippedCount": 0,
+          "replacedCount": 0,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 2,
+        "expandedActionCount": 3,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "failureClassification": null,
+        "finalTurn": 1,
+        "finalCurrentPlayer": 1,
+        "finalWinner": 2
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_131454_041.bin",
+      "fileName": "game_get_20260704_131454_041.bin",
+      "sha256": "a0b823ff792100b6c5a257cd473398eec68bc0634c720f8c7db4767ae2cdb9f8",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 34400,
+      "decryptedBytes": 34392,
+      "gameObjectBytes": 34365,
+      "map": {
+        "width": 13,
+        "height": 19,
+        "scenarioCode": "SO",
+        "campaignLike": false,
+        "players": [
+          0,
+          1,
+          2
+        ],
+        "terrainCount": 247,
+        "unitCount": 3,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 30,
+        "levelCap": 3,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 660,
+        "eventCounts": {
+          "ATTACK": 344,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 83,
+          "NONE": 79,
+          "OCCUPY": 16,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 118,
+          "SUMMON": 20,
+          "SUPPORT": 0,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 34365
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "evidence": {
+          "validationBypassed": true,
+          "fullyConsumed": true,
+          "apkStateCompared": false,
+          "notices": [
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 180
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 181
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 203
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 229
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 235
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 236
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 238
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 255
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 264
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 269
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 270
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 274
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 275
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 297
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 309
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 311
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 312
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 313
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 317
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 318
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 320
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 324
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 325
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 326
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 327
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 332
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 334
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 335
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 336
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 337
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 343
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 346
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 347
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 348
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 349
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 350
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 351
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 352
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 355
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 362
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 363
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 364
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 369
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 372
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 373
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 374
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 375
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 376
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 378
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 379
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 387
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 390
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 393
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 397
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 398
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 399
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 400
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 402
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 404
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 405
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 406
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 410
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 412
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 413
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 416
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 419
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 424
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 425
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 426
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 429
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 430
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 432
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 437
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 438
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 439
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 441
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 443
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 445
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 447
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 448
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 450
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 451
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 454
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 455
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 457
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 463
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 470
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 472
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 473
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 475
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 476
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 478
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 481
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 482
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 483
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 484
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 487
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 490
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 491
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 493
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 494
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 495
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 499
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 500
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 501
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 505
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 506
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 508
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 514
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 516
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 519
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 520
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 522
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 523
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 525
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 526
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 527
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 534
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 536
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 537
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 540
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 541
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 543
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 545
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 546
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 548
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 549
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 551
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 553
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 554
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 556
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 557
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 558
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 560
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 565
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 568
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 569
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 570
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 575
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 576
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 579
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 580
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 581
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 587
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 588
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 591
+            },
+            {
+              "kind": "skipped",
+              "reason": "召唤条件不满足，跳过召唤事件",
+              "recordIndex": 592
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 594
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 595
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 597
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 598
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 599
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 601
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 608
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 610
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 611
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 613
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 614
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 615
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 618
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 622
+            },
+            {
+              "kind": "replaced",
+              "reason": "占领事件被转换为待机",
+              "recordIndex": 623
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 627
+            },
+            {
+              "kind": "replaced",
+              "reason": "占领事件被转换为待机",
+              "recordIndex": 629
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 631
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 632
+            },
+            {
+              "kind": "skipped",
+              "reason": "当前项目状态没有合法招募动作，跳过招募",
+              "recordIndex": 633
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 635
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 636
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 637
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 640
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 642
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 644
+            },
+            {
+              "kind": "skipped",
+              "reason": "缺少有效攻击目标，跳过攻击事件",
+              "recordIndex": 646
+            },
+            {
+              "kind": "replaced",
+              "reason": "攻击对象或射程无效，将攻击替换为无操作或移动待机",
+              "recordIndex": 651
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 655
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 656
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 657
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 658
+            },
+            {
+              "kind": "skipped",
+              "reason": "来源单位不存在，跳过整条记录",
+              "recordIndex": 659
+            }
+          ],
+          "skippedCount": 139,
+          "replacedCount": 41,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 660,
+        "expandedActionCount": 797,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "failureClassification": null,
+        "finalTurn": 28,
+        "finalCurrentPlayer": 2,
+        "finalWinner": null
+      },
+      "error": null
+    },
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\mitm_replay\\20260704_131004\\game_get_20260704_132207_088.bin",
+      "fileName": "game_get_20260704_132207_088.bin",
+      "sha256": "d59bd75aeb125231860b9aa57518bb58cf3b97c4821887c81548e9908dfd1e4b",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 12808,
+      "decryptedBytes": 12804,
+      "gameObjectBytes": 12777,
+      "map": {
+        "width": 9,
+        "height": 11,
+        "scenarioCode": "SO",
+        "campaignLike": false,
+        "players": [
+          1,
+          3
+        ],
+        "terrainCount": 99,
+        "unitCount": 2,
+        "recommendedGold": 250
+      },
+      "state": {
+        "activeTeamIds": [
+          1,
+          3
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 250,
+        "defaultUnitLimit": 30,
+        "levelCap": 3,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 1,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 159,
+        "eventCounts": {
+          "ATTACK": 51,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 19,
+          "NONE": 26,
+          "OCCUPY": 19,
+          "RECRUIT": 0,
+          "REPAIR": 3,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 37,
+          "SUMMON": 3,
+          "SUPPORT": 0,
+          "SURRENDER": 1
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 12777
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PUBLIC",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": true,
+        "evidence": {
+          "validationBypassed": true,
+          "fullyConsumed": true,
+          "apkStateCompared": false,
+          "notices": [],
+          "skippedCount": 0,
+          "replacedCount": 0,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 159,
+        "expandedActionCount": 264,
+        "firstError": null,
+        "firstErrorRecordIndex": null,
+        "firstErrorRecordEvent": null,
+        "firstErrorRecordSource": null,
+        "firstErrorRecordMoveTo": null,
+        "firstErrorRecordTarget": null,
+        "firstErrorRecordRecruitUnitId": null,
+        "currentPlayerBefore": null,
+        "turnBefore": null,
+        "legalActionCount": null,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": null,
+        "failureClassification": null,
+        "finalTurn": 11,
+        "finalCurrentPlayer": 1,
+        "finalWinner": 1
+      },
+      "error": null
+    }
+  ]
+}

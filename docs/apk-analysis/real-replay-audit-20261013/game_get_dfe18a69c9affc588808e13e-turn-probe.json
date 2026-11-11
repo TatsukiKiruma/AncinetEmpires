@@ -1,0 +1,111 @@
+{
+  "name": "game_get_dfe18a69c9affc588808e13e.bin",
+  "switches": [],
+  "success": false,
+  "records": 4563,
+  "executed": 4121,
+  "error": "非法动作：当前玩家无法执行该动作",
+  "firstErrorStep": {
+    "recordIndex": 4121,
+    "subActionIndex": 0,
+    "eventType": "ATTACK",
+    "action": {
+      "type": "move",
+      "unitId": "u_302",
+      "to": {
+        "x": 11,
+        "y": 12
+      }
+    },
+    "actionCode": "move:u_302:11,12",
+    "currentPlayerBefore": 5,
+    "turnBefore": 38,
+    "legalActionCount": 141,
+    "info": "非法动作：当前玩家无法执行该动作",
+    "done": false,
+    "error": "非法动作：当前玩家无法执行该动作",
+    "diagnostic": {
+      "actor": {
+        "id": "u_302",
+        "ownerId": 5,
+        "unitClass": "mermaid",
+        "pos": {
+          "x": 11,
+          "y": 11
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "level": 0,
+        "exp": 30,
+        "status": null,
+        "movementRemaining": 4,
+        "hasMoved": false,
+        "hasActed": false,
+        "minRange": 1,
+        "maxRange": 2
+      },
+      "target": {
+        "id": "u_78",
+        "ownerId": 1,
+        "unitClass": "paladin",
+        "pos": {
+          "x": 11,
+          "y": 14
+        },
+        "hp": 85,
+        "maxHp": 100,
+        "level": 4,
+        "exp": 1020,
+        "status": {
+          "type": "weakened",
+          "remainingTurns": 0
+        },
+        "movementRemaining": 1,
+        "hasMoved": true,
+        "hasActed": true,
+        "minRange": 1,
+        "maxRange": 1
+      },
+      "moveDestinationOccupant": {
+        "id": "u_317",
+        "ownerId": 3,
+        "unitClass": "mermaid",
+        "pos": {
+          "x": 11,
+          "y": 12
+        },
+        "hp": 20,
+        "maxHp": 100,
+        "level": 0,
+        "exp": 30,
+        "status": null,
+        "movementRemaining": 4,
+        "hasMoved": false,
+        "hasActed": false,
+        "minRange": 1,
+        "maxRange": 2
+      },
+      "moveDestinationTile": {
+        "terrainId": 2,
+        "ownerId": null,
+        "apkTerrainId": 4,
+        "apkTerrainRaw": 20479,
+        "apkOwnerCode": 255,
+        "apkTerrainKind": 0,
+        "apkTerrainIsLand": false,
+        "apkMoveCost": 3
+      },
+      "sourceToTargetDistance": 3,
+      "moveToTargetDistance": 2
+    }
+  },
+  "evidence": {
+    "validationBypassed": false,
+    "fullyConsumed": false,
+    "apkStateCompared": false,
+    "notices": [],
+    "skippedCount": 0,
+    "replacedCount": 0,
+    "ambiguousCount": 0
+  }
+}

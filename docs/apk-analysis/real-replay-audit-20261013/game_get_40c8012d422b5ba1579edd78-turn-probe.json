@@ -1,0 +1,295 @@
+{
+  "name": "game_get_40c8012d422b5ba1579edd78.bin",
+  "switches": [
+    {
+      "turn": 15,
+      "from": 4,
+      "to": 5,
+      "players": [
+        {
+          "id": 0,
+          "gold": 2225,
+          "isAlive": true,
+          "commanderDeathCount": 0
+        },
+        {
+          "id": 1,
+          "gold": 50,
+          "isAlive": true,
+          "commanderDeathCount": 0
+        },
+        {
+          "id": 2,
+          "gold": 0,
+          "isAlive": true,
+          "commanderDeathCount": 0
+        },
+        {
+          "id": 3,
+          "gold": 0,
+          "isAlive": true,
+          "commanderDeathCount": 1,
+          "commanderReserveLevel": 0,
+          "commanderReserveExp": 30
+        },
+        {
+          "id": 4,
+          "gold": 350,
+          "isAlive": false,
+          "commanderDeathCount": 1,
+          "commanderReserveLevel": 0,
+          "commanderReserveExp": 0
+        },
+        {
+          "id": 5,
+          "gold": 425,
+          "isAlive": true,
+          "commanderDeathCount": 0
+        }
+      ],
+      "unitsBefore": [
+        {
+          "id": "apk_remote_u1",
+          "ownerId": 5,
+          "unitClass": "archer",
+          "pos": {
+            "x": 13,
+            "y": 6
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 390,
+          "apkUnitId": 1,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 2
+        },
+        {
+          "id": "apk_remote_u2",
+          "ownerId": 5,
+          "unitClass": "paladin",
+          "pos": {
+            "x": 13,
+            "y": 5
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 420,
+          "apkUnitId": 12,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 0
+        },
+        {
+          "id": "apk_remote_u3",
+          "ownerId": 5,
+          "unitClass": "elf",
+          "pos": {
+            "x": 12,
+            "y": 5
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 540,
+          "apkUnitId": 4,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 2
+        },
+        {
+          "id": "apk_remote_u4",
+          "ownerId": 5,
+          "unitClass": "wolf",
+          "pos": {
+            "x": 12,
+            "y": 1
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 3,
+          "exp": 640,
+          "apkUnitId": 5,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": true,
+          "movementRemaining": 0
+        },
+        {
+          "id": "apk_remote_u15",
+          "ownerId": 5,
+          "unitClass": "dark_mage",
+          "pos": {
+            "x": 13,
+            "y": 9
+          },
+          "hp": 75,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 450,
+          "apkUnitId": 15,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 2
+        },
+        {
+          "id": "apk_remote_u16",
+          "ownerId": 5,
+          "unitClass": "commander",
+          "pos": {
+            "x": 11,
+            "y": 4
+          },
+          "hp": 90,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 3,
+          "exp": 610,
+          "apkUnitId": 9,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 3
+        },
+        {
+          "id": "apk_remote_u17",
+          "ownerId": 5,
+          "unitClass": "soldier",
+          "pos": {
+            "x": 12,
+            "y": 9
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 420,
+          "apkUnitId": 0,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 2
+        },
+        {
+          "id": "apk_remote_u18",
+          "ownerId": 5,
+          "unitClass": "ice_elemental",
+          "pos": {
+            "x": 11,
+            "y": 6
+          },
+          "hp": 120,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 2,
+          "exp": 540,
+          "apkUnitId": 17,
+          "apkUnitExtra": 0,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false,
+          "movementRemaining": 3
+        },
+        {
+          "id": "u_105",
+          "ownerId": 5,
+          "unitClass": "dragon",
+          "pos": {
+            "x": 13,
+            "y": 4
+          },
+          "hp": 111,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 1,
+          "exp": 130,
+          "apkPendingRecruitSource": "commander_castle",
+          "movementRemaining": 2,
+          "hasPostAttackMoved": true,
+          "hasBeenHealedThisTurn": true,
+          "hasBeenSupportedThisTurn": false
+        },
+        {
+          "id": "u_106",
+          "ownerId": 5,
+          "unitClass": "golem",
+          "pos": {
+            "x": 10,
+            "y": 3
+          },
+          "hp": 95,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 0,
+          "exp": 60,
+          "apkPendingRecruitSource": "commander_castle",
+          "movementRemaining": 4,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false
+        },
+        {
+          "id": "u_107",
+          "ownerId": 5,
+          "unitClass": "water_elemental",
+          "pos": {
+            "x": 11,
+            "y": 5
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "hasMoved": true,
+          "hasActed": true,
+          "level": 0,
+          "exp": 90,
+          "apkPendingRecruitSource": "commander_castle",
+          "movementRemaining": 2,
+          "hasBeenHealedThisTurn": false,
+          "hasBeenSupportedThisTurn": false,
+          "hasPostAttackMoved": false
+        }
+      ]
+    }
+  ],
+  "success": true,
+  "records": 1114,
+  "executed": 1114,
+  "error": null,
+  "evidence": {
+    "validationBypassed": false,
+    "fullyConsumed": true,
+    "apkStateCompared": false,
+    "notices": [],
+    "skippedCount": 0,
+    "replacedCount": 0,
+    "ambiguousCount": 0
+  }
+}

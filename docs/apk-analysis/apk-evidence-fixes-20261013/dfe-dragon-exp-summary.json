@@ -1,0 +1,233 @@
+[
+  {
+    "index": 3265,
+    "event": "NONE",
+    "action": {
+      "type": "recruit_to_castle",
+      "unitClass": "dragon",
+      "castlePos": {
+        "x": 12,
+        "y": 18
+      }
+    },
+    "before": null,
+    "after": {
+      "hp": 100,
+      "level": 0,
+      "exp": 0,
+      "pos": {
+        "x": 12,
+        "y": 18
+      }
+    },
+    "info": "招募单位进入待行动状态 at 12,18"
+  },
+  {
+    "index": 3266,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_225"
+    },
+    "before": {
+      "hp": 100,
+      "level": 0,
+      "exp": 0,
+      "pos": {
+        "x": 11,
+        "y": 17
+      }
+    },
+    "after": {
+      "hp": 100,
+      "level": 0,
+      "exp": 60,
+      "pos": {
+        "x": 11,
+        "y": 17
+      }
+    },
+    "info": "Unit u_292 attacked u_225 for 105 dmg. Unit(s) died."
+  },
+  {
+    "index": 3395,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_243"
+    },
+    "before": {
+      "hp": 100,
+      "level": 0,
+      "exp": 60,
+      "pos": {
+        "x": 14,
+        "y": 16
+      },
+      "status": {
+        "type": "inspired",
+        "remainingTurns": 0
+      }
+    },
+    "after": {
+      "hp": 100,
+      "level": 1,
+      "exp": 120,
+      "pos": {
+        "x": 14,
+        "y": 16
+      },
+      "status": {
+        "type": "inspired",
+        "remainingTurns": 0
+      }
+    },
+    "info": "Unit u_292 attacked u_243 for 120 dmg. Unit(s) died."
+  },
+  {
+    "index": 3531,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_264"
+    },
+    "before": {
+      "hp": 100,
+      "level": 1,
+      "exp": 120,
+      "pos": {
+        "x": 14,
+        "y": 15
+      }
+    },
+    "after": {
+      "hp": 100,
+      "level": 1,
+      "exp": 180,
+      "pos": {
+        "x": 14,
+        "y": 15
+      }
+    },
+    "info": "Unit u_292 attacked u_264 for 120 dmg. Unit(s) died."
+  },
+  {
+    "index": 3659,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_71"
+    },
+    "before": {
+      "hp": 170,
+      "level": 1,
+      "exp": 180,
+      "pos": {
+        "x": 13,
+        "y": 13
+      }
+    },
+    "after": {
+      "hp": 164,
+      "level": 1,
+      "exp": 210,
+      "pos": {
+        "x": 13,
+        "y": 13
+      }
+    },
+    "info": "Unit u_292 attacked u_71 for 76 dmg. Target counterattacked for 6 dmg."
+  },
+  {
+    "index": 3783,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_328"
+    },
+    "before": {
+      "hp": 100,
+      "level": 1,
+      "exp": 210,
+      "pos": {
+        "x": 13,
+        "y": 12
+      }
+    },
+    "after": {
+      "hp": 98,
+      "level": 1,
+      "exp": 240,
+      "pos": {
+        "x": 13,
+        "y": 12
+      },
+      "status": {
+        "type": "poisoned",
+        "remainingTicks": 2
+      }
+    },
+    "info": "Unit u_292 attacked u_328 for 90 dmg. Target counterattacked for 2 dmg."
+  },
+  {
+    "index": 3917,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_322"
+    },
+    "before": {
+      "hp": 100,
+      "level": 1,
+      "exp": 240,
+      "pos": {
+        "x": 14,
+        "y": 12
+      }
+    },
+    "after": {
+      "hp": 100,
+      "level": 2,
+      "exp": 300,
+      "pos": {
+        "x": 14,
+        "y": 12
+      }
+    },
+    "info": "Unit u_292 attacked u_322 for 120 dmg. Unit(s) died."
+  },
+  {
+    "index": 4037,
+    "event": "ATTACK",
+    "action": {
+      "type": "attack",
+      "attackerId": "u_292",
+      "targetId": "u_317"
+    },
+    "before": {
+      "hp": 100,
+      "level": 2,
+      "exp": 300,
+      "pos": {
+        "x": 13,
+        "y": 12
+      }
+    },
+    "after": {
+      "hp": 100,
+      "level": 2,
+      "exp": 330,
+      "pos": {
+        "x": 13,
+        "y": 12
+      }
+    },
+    "info": "Unit u_292 attacked u_317 for 90 dmg."
+  }
+]

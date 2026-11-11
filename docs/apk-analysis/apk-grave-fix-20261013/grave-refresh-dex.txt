@@ -1,0 +1,174 @@
+Lc/a/b/a/l; a (Ljava/util/Collection; I)Ljava/util/Set;
+new-instance v0, Ljava/util/HashSet;
+invoke-direct v0, Ljava/util/HashSet;-><init>()V
+invoke-interface v9, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+move-result-object v1
+invoke-interface v1, Ljava/util/Iterator;->hasNext()Z
+move-result v2
+if-eqz v2, +026h
+invoke-interface v1, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v2
+check-cast v2, Lc/a/b/a/y/d;
+iget v3, v2, Lc/a/b/a/y/d;->a I
+iget v4, v2, Lc/a/b/a/y/d;->b I
+invoke-direct v8, v3, v4, Lc/a/b/a/l;->o(I I)Lc/a/b/a/t/f;
+move-result-object v3
+invoke-direct v8, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+move-result-object v4
+iget v2, v2, Lc/a/b/a/y/d;->c I
+invoke-virtual v4, v3, v2, Lc/a/b/a/q;->b(Lc/a/b/a/t/f; I)I
+iget v2, v3, Lc/a/b/a/t/f;->e I
+if-gtz v2, -01fh
+new-instance v2, Lc/a/b/a/t/f;
+invoke-direct v2, v3, Lc/a/b/a/t/f;-><init>(Lc/a/b/a/t/f;)V
+invoke-interface v0, v2, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+goto -29h
+invoke-direct v8, Lc/a/b/a/l;->q()Z
+move-result v1
+const/4 v2, 1
+if-eqz v1, +03eh
+invoke-interface v9, Ljava/util/Collection;->size()I
+move-result v1
+new-array v1, v1, [I
+invoke-interface v9, Ljava/util/Collection;->size()I
+move-result v3
+new-array v3, v3, [Lc/a/b/a/t/f;
+const/4 v4, 0
+invoke-interface v9, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+move-result-object v9
+invoke-interface v9, Ljava/util/Iterator;->hasNext()Z
+move-result v5
+if-eqz v5, +020h
+invoke-interface v9, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v5
+check-cast v5, Lc/a/b/a/y/d;
+iget v6, v5, Lc/a/b/a/y/d;->c I
+aput v6, v1, v4
+invoke-direct v8, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+move-result-object v6
+iget v7, v5, Lc/a/b/a/y/d;->a I
+iget v5, v5, Lc/a/b/a/y/d;->b I
+invoke-virtual v6, v7, v5, Lc/a/b/a/q;->k(I I)Lc/a/b/a/t/f;
+move-result-object v5
+invoke-static v5, Lc/a/b/a/t/f;->a(Lc/a/b/a/t/f;)Lc/a/b/a/t/f;
+move-result-object v5
+aput-object v5, v3, v4
+add-int/2addr v4, v2
+goto -23h
+invoke-direct v8, Lc/a/b/a/l;->k()Lc/a/b/a/s/a;
+move-result-object v9
+invoke-virtual v9, v3, v1, Lc/a/b/a/s/a;->a([Lc/a/b/a/t/f; [I)V
+invoke-interface v0, Ljava/util/Set;->size()I
+move-result v9
+if-lez v9, +020h
+new-instance v9, Ljava/util/HashSet;
+invoke-direct v9, Ljava/util/HashSet;-><init>()V
+invoke-interface v0, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+move-result-object v1
+invoke-interface v1, Ljava/util/Iterator;->hasNext()Z
+move-result v3
+if-eqz v3, +00eh
+invoke-interface v1, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v3
+check-cast v3, Lc/a/b/a/t/f;
+iget-object v3, v3, Lc/a/b/a/t/f;->c Lc/a/b/a/y/c;
+invoke-interface v9, v3, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+goto -11h
+invoke-virtual v8, v9, v10, v2, Lc/a/b/a/l;->a(Ljava/util/Collection; I Z)V
+return-object v0
+Lc/a/b/a/l; a (Ljava/util/Collection; I Z)V
+new-instance v0, Ljava/util/HashSet;
+invoke-direct v0, Ljava/util/HashSet;-><init>()V
+new-instance v1, Ljava/util/HashSet;
+invoke-direct v1, Ljava/util/HashSet;-><init>()V
+invoke-interface v10, Ljava/util/Collection;->iterator()Ljava/util/Iterator;
+move-result-object v10
+invoke-interface v10, Ljava/util/Iterator;->hasNext()Z
+move-result v2
+if-eqz v2, +047h
+invoke-interface v10, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v2
+check-cast v2, Lc/a/b/a/y/c;
+invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+move-result-object v3
+iget v4, v2, Lc/a/b/a/y/c;->a I
+iget v5, v2, Lc/a/b/a/y/c;->b I
+invoke-virtual v3, v4, v5, v11, Lc/a/b/a/q;->d(I I I)Lc/a/b/a/t/f;
+move-result-object v3
+if-eqz v3, -018h
+if-eqz v12, +02ah
+invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+move-result-object v4
+invoke-virtual v4, v3, Lc/a/b/a/q;->f(Lc/a/b/a/t/f;)Z
+move-result v4
+if-nez v4, +020h
+invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+move-result-object v4
+sget-object v5, Lc/a/b/a/t/g;->j Lc/a/b/a/t/g;
+invoke-virtual v4, v3, v5, Lc/a/b/a/q;->a(Lc/a/b/a/t/f; Lc/a/b/a/t/g;)Z
+move-result v4
+if-nez v4, +014h
+invoke-direct v9, Lc/a/b/a/l;->r()Lc/a/b/a/t/b;
+move-result-object v4
+iget v5, v2, Lc/a/b/a/y/c;->a I
+iget v6, v2, Lc/a/b/a/y/c;->b I
+const/4 v7, 1
+invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+move-result-object v8
+iget v8, v8, Lc/a/b/a/t/a;->e I
+invoke-virtual v4, v5, v6, v7, v8, Lc/a/b/a/t/b;->a(I I I I)V
+invoke-interface v0, v3, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+invoke-interface v1, v2, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+goto -4ah
+invoke-direct v9, Lc/a/b/a/l;->q()Z
+move-result v10
+if-eqz v10, +014h
+invoke-direct v9, Lc/a/b/a/l;->k()Lc/a/b/a/s/a;
+move-result-object v10
+sget-object v11, Lc/a/b/a/s/c;->b Lc/a/b/a/s/c;
+invoke-virtual v10, v0, v11, Lc/a/b/a/s/a;->b(Ljava/util/Collection; Lc/a/b/a/s/c;)V
+invoke-direct v9, Lc/a/b/a/l;->k()Lc/a/b/a/s/a;
+move-result-object v10
+sget-object v11, Lc/a/b/a/s/c;->c Lc/a/b/a/s/c;
+invoke-virtual v10, v1, v11, Lc/a/b/a/s/a;->a(Ljava/util/Collection; Lc/a/b/a/s/c;)V
+invoke-interface v0, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+move-result-object v10
+invoke-interface v10, Ljava/util/Iterator;->hasNext()Z
+move-result v11
+if-eqz v11, +010h
+invoke-interface v10, Ljava/util/Iterator;->next()Ljava/lang/Object;
+move-result-object v11
+check-cast v11, Lc/a/b/a/t/f;
+invoke-direct v9, Lc/a/b/a/l;->o()Lc/a/b/a/p;
+move-result-object v12
+invoke-virtual v12, v11, Lc/a/b/a/p;->a(Lc/a/b/a/t/f;)V
+goto -13h
+return-void 
+Lc/a/b/a/t/b; a (I I I I)V
+const/4 v0, -1
+if-gez v7, +003h
+const/4 v7, -1
+invoke-virtual v4, v5, v6, Lc/a/b/a/t/b;->a(I I)Z
+move-result v1
+if-eqz v1, +02bh
+iget-object v1, v4, Lc/a/b/a/t/b;->d [[I
+aget-object v2, v1, v5
+aget v2, v2, v6
+shr-int/lit8 v2, v2, 12
+aget-object v1, v1, v5
+shl-int/lit8 v3, v7, 12
+or-int/2addr v8, v3
+aput v8, v1, v6
+if-ne v2, v0, +00dh
+if-ltz v7, +00bh
+iget-object v8, v4, Lc/a/b/a/t/b;->i Ljava/util/Set;
+invoke-virtual v4, v5, v6, Lc/a/b/a/t/b;->c(I I)Lc/a/b/a/y/c;
+move-result-object v1
+invoke-interface v8, v1, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+if-ltz v2, +00dh
+if-ne v7, v0, +00bh
+iget-object v7, v4, Lc/a/b/a/t/b;->i Ljava/util/Set;
+invoke-virtual v4, v5, v6, Lc/a/b/a/t/b;->c(I I)Lc/a/b/a/y/c;
+move-result-object v5
+invoke-interface v7, v5, Ljava/util/Set;->remove(Ljava/lang/Object;)Z
+return-void 

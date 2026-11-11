@@ -1,0 +1,158 @@
+{
+  "groups": {
+    "strict": {
+      "files": 112,
+      "parseErrors": 0,
+      "passed": 109,
+      "fullyConsumed": 109,
+      "passedWithoutNotices": 109,
+      "withNotices": 2,
+      "records": 184511,
+      "executedRecords": 182972,
+      "skippedNotices": 0,
+      "replacedNotices": 3,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 79,
+      "failures": [
+        {
+          "file": "game_get_20260704_132008_065.bin",
+          "record": 55,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:u_13:4,6"
+        },
+        {
+          "file": "game_get_20260704_132050_078.bin",
+          "record": 51,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:u_11:10,5"
+        },
+        {
+          "file": "game_get_20260704_132339_097.bin",
+          "record": 3008,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:u_267:5,2"
+        }
+      ],
+      "notices": 3
+    },
+    "forced": {
+      "files": 112,
+      "parseErrors": 0,
+      "passed": 112,
+      "fullyConsumed": 112,
+      "passedWithoutNotices": 110,
+      "withNotices": 2,
+      "records": 184511,
+      "executedRecords": 184511,
+      "skippedNotices": 152,
+      "replacedNotices": 292,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 80,
+      "failures": [],
+      "notices": 444
+    },
+    "cloud-strict": {
+      "files": 145,
+      "parseErrors": 0,
+      "passed": 140,
+      "fullyConsumed": 140,
+      "passedWithoutNotices": 140,
+      "withNotices": 0,
+      "records": 117333,
+      "executedRecords": 108974,
+      "skippedNotices": 0,
+      "replacedNotices": 0,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 42,
+      "failures": [
+        {
+          "file": "game_get_40c8012d422b5ba1579edd78.bin",
+          "record": 881,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:u_106:8,2"
+        },
+        {
+          "file": "game_get_65609867fac3f7d5fcb95e23.bin",
+          "record": 2,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:apk_remote_u5:16,0"
+        },
+        {
+          "file": "game_get_6efeed8bfd52d3428de39d32.bin",
+          "record": 7822,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "heal:u_56:u_76"
+        },
+        {
+          "file": "game_get_dfe18a69c9affc588808e13e.bin",
+          "record": 4121,
+          "error": "非法动作：当前玩家无法执行该动作",
+          "action": "move:u_302:11,12"
+        },
+        {
+          "file": "game_get_e9648915cc5f975129d3a4d3.bin",
+          "record": 35,
+          "error": "找不到攻击目标单位: (3, 0)",
+          "action": null
+        }
+      ],
+      "notices": 0
+    },
+    "cloud-forced": {
+      "files": 145,
+      "parseErrors": 0,
+      "passed": 145,
+      "fullyConsumed": 145,
+      "passedWithoutNotices": 141,
+      "withNotices": 4,
+      "records": 117333,
+      "executedRecords": 117333,
+      "skippedNotices": 3325,
+      "replacedNotices": 4,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 43,
+      "failures": [],
+      "notices": 3329
+    }
+  },
+  "full78": {
+    "strict": {
+      "files": 78,
+      "parseErrors": 0,
+      "passed": 78,
+      "fullyConsumed": 78,
+      "passedWithoutNotices": 78,
+      "withNotices": 0,
+      "records": 117884,
+      "executedRecords": 117884,
+      "skippedNotices": 0,
+      "replacedNotices": 0,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 78,
+      "failures": [],
+      "notices": []
+    },
+    "forced": {
+      "files": 78,
+      "parseErrors": 0,
+      "passed": 78,
+      "fullyConsumed": 78,
+      "passedWithoutNotices": 78,
+      "withNotices": 0,
+      "records": 117884,
+      "executedRecords": 117884,
+      "skippedNotices": 0,
+      "replacedNotices": 0,
+      "ambiguousNotices": 0,
+      "passedWithWinner": 78,
+      "failures": [],
+      "notices": []
+    },
+    "lossless": {
+      "tested": 78,
+      "passed": 78,
+      "failures": [],
+      "winnerChanged": []
+    }
+  }
+}

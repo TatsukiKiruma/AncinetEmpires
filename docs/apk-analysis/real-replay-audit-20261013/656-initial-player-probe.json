@@ -1,0 +1,240 @@
+[
+  {
+    "currentPlayer": 1,
+    "executed": 2,
+    "error": "非法动作：当前玩家无法执行该动作",
+    "evidence": {
+      "validationBypassed": false,
+      "fullyConsumed": false,
+      "apkStateCompared": false,
+      "notices": [],
+      "skippedCount": 0,
+      "replacedCount": 0,
+      "ambiguousCount": 0
+    },
+    "firstErrorStep": {
+      "recordIndex": 2,
+      "subActionIndex": 0,
+      "eventType": "OCCUPY",
+      "action": {
+        "type": "move",
+        "unitId": "apk_remote_u5",
+        "to": {
+          "x": 16,
+          "y": 0
+        }
+      },
+      "actionCode": "move:apk_remote_u5:16,0",
+      "currentPlayerBefore": 3,
+      "turnBefore": 1,
+      "legalActionCount": 62,
+      "info": "非法动作：当前玩家无法执行该动作",
+      "done": false,
+      "error": "非法动作：当前玩家无法执行该动作",
+      "diagnostic": {
+        "actor": {
+          "id": "apk_remote_u5",
+          "ownerId": 2,
+          "unitClass": "commander",
+          "pos": {
+            "x": 19,
+            "y": 0
+          },
+          "hp": 100,
+          "maxHp": 100,
+          "level": 0,
+          "exp": 0,
+          "status": null,
+          "movementRemaining": 4,
+          "hasMoved": false,
+          "hasActed": false,
+          "minRange": 1,
+          "maxRange": 1
+        },
+        "target": null,
+        "moveDestinationOccupant": null,
+        "moveDestinationTile": {
+          "terrainId": 10,
+          "ownerId": null,
+          "apkTerrainId": 37,
+          "apkTerrainRaw": 155646,
+          "apkOwnerCode": 254,
+          "apkTerrainKind": 3,
+          "apkTerrainIsLand": true,
+          "apkMoveCost": 1
+        },
+        "sourceToTargetDistance": null,
+        "moveToTargetDistance": null
+      }
+    },
+    "firstSteps": [
+      {
+        "recordIndex": 0,
+        "subActionIndex": 0,
+        "eventType": "SURRENDER",
+        "action": {
+          "type": "surrender"
+        },
+        "actionCode": "surrender",
+        "currentPlayerBefore": 1,
+        "turnBefore": 1,
+        "legalActionCount": 113,
+        "info": "Player 1 surrendered. Units removed and buildings neutralized. Turn passed to P2.",
+        "done": false,
+        "error": null
+      },
+      {
+        "recordIndex": 1,
+        "subActionIndex": 0,
+        "eventType": "NEXT_TURN",
+        "action": {
+          "type": "end_turn"
+        },
+        "actionCode": "end_turn",
+        "currentPlayerBefore": 2,
+        "turnBefore": 1,
+        "legalActionCount": 77,
+        "info": "Player 2 ended turn. Turn passed to P3.",
+        "done": false,
+        "error": null
+      },
+      {
+        "recordIndex": 2,
+        "subActionIndex": 0,
+        "eventType": "OCCUPY",
+        "action": {
+          "type": "move",
+          "unitId": "apk_remote_u5",
+          "to": {
+            "x": 16,
+            "y": 0
+          }
+        },
+        "actionCode": "move:apk_remote_u5:16,0",
+        "currentPlayerBefore": 3,
+        "turnBefore": 1,
+        "legalActionCount": 62,
+        "info": "非法动作：当前玩家无法执行该动作",
+        "done": false,
+        "error": "非法动作：当前玩家无法执行该动作",
+        "diagnostic": {
+          "actor": {
+            "id": "apk_remote_u5",
+            "ownerId": 2,
+            "unitClass": "commander",
+            "pos": {
+              "x": 19,
+              "y": 0
+            },
+            "hp": 100,
+            "maxHp": 100,
+            "level": 0,
+            "exp": 0,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "target": null,
+          "moveDestinationOccupant": null,
+          "moveDestinationTile": {
+            "terrainId": 10,
+            "ownerId": null,
+            "apkTerrainId": 37,
+            "apkTerrainRaw": 155646,
+            "apkOwnerCode": 254,
+            "apkTerrainKind": 3,
+            "apkTerrainIsLand": true,
+            "apkMoveCost": 1
+          },
+          "sourceToTargetDistance": null,
+          "moveToTargetDistance": null
+        }
+      }
+    ]
+  },
+  {
+    "currentPlayer": 0,
+    "executed": 200,
+    "error": null,
+    "evidence": {
+      "validationBypassed": false,
+      "fullyConsumed": false,
+      "apkStateCompared": false,
+      "notices": [],
+      "skippedCount": 0,
+      "replacedCount": 0,
+      "ambiguousCount": 0
+    },
+    "firstSteps": [
+      {
+        "recordIndex": 0,
+        "subActionIndex": 0,
+        "eventType": "SURRENDER",
+        "action": {
+          "type": "surrender"
+        },
+        "actionCode": "surrender",
+        "currentPlayerBefore": 0,
+        "turnBefore": 1,
+        "legalActionCount": 33,
+        "info": "Player 0 surrendered. Units removed and buildings neutralized. Turn passed to P1.",
+        "done": false,
+        "error": null
+      },
+      {
+        "recordIndex": 1,
+        "subActionIndex": 0,
+        "eventType": "NEXT_TURN",
+        "action": {
+          "type": "end_turn"
+        },
+        "actionCode": "end_turn",
+        "currentPlayerBefore": 1,
+        "turnBefore": 1,
+        "legalActionCount": 113,
+        "info": "Player 1 ended turn. Turn passed to P2.",
+        "done": false,
+        "error": null
+      },
+      {
+        "recordIndex": 2,
+        "subActionIndex": 0,
+        "eventType": "OCCUPY",
+        "action": {
+          "type": "move",
+          "unitId": "apk_remote_u5",
+          "to": {
+            "x": 16,
+            "y": 0
+          }
+        },
+        "actionCode": "move:apk_remote_u5:16,0",
+        "currentPlayerBefore": 2,
+        "turnBefore": 1,
+        "legalActionCount": 77,
+        "info": "Unit apk_remote_u5 moved to 16,0",
+        "done": false,
+        "error": null
+      },
+      {
+        "recordIndex": 2,
+        "subActionIndex": 1,
+        "eventType": "OCCUPY",
+        "action": {
+          "type": "capture",
+          "unitId": "apk_remote_u5"
+        },
+        "actionCode": "capture:apk_remote_u5",
+        "currentPlayerBefore": 2,
+        "turnBefore": 1,
+        "legalActionCount": 64,
+        "info": "Unit apk_remote_u5 captured terrain at 16,0",
+        "done": false,
+        "error": null
+      }
+    ]
+  }
+]

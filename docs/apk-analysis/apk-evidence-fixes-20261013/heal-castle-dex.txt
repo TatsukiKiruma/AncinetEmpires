@@ -1,0 +1,161 @@
+Lc/a/b/a/l; a ()V
+0000 invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+0006 move-result-object v0
+0008 iget v0, v0, Lc/a/b/a/t/a;->e I
+000c new-instance v1, Ljava/util/HashSet;
+0010 invoke-direct v1, Ljava/util/HashSet;-><init>()V
+0016 invoke-direct v9, Lc/a/b/a/l;->r()Lc/a/b/a/t/b;
+001c move-result-object v2
+001e iget-object v2, v2, Lc/a/b/a/t/b;->h Ljava/util/Set;
+0022 invoke-interface v2, Ljava/util/Set;->iterator()Ljava/util/Iterator;
+0028 move-result-object v2
+002a invoke-interface v2, Ljava/util/Iterator;->hasNext()Z
+0030 move-result v3
+0032 if-eqz v3, +0f1h
+0036 invoke-interface v2, Ljava/util/Iterator;->next()Ljava/lang/Object;
+003c move-result-object v3
+003e check-cast v3, Lc/a/b/a/y/c;
+0042 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0048 move-result-object v4
+004a invoke-virtual v4, v3, Lc/a/b/a/q;->b(Lc/a/b/a/y/c;)Lc/a/b/a/t/f;
+0050 move-result-object v4
+0052 iget v5, v4, Lc/a/b/a/t/f;->b I
+0056 const/4 v6, 0
+0058 if-ne v5, v0, +096h
+005c invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0062 move-result-object v5
+0064 invoke-virtual v5, v4, Lc/a/b/a/q;->v(Lc/a/b/a/t/f;)Lc/a/b/a/t/h;
+006a move-result-object v5
+006c iget-boolean v5, v5, Lc/a/b/a/t/h;->a Z
+0070 if-eqz v5, +01ch
+0074 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+007a move-result-object v5
+007c iget-object v7, v4, Lc/a/b/a/t/f;->c Lc/a/b/a/y/c;
+0080 invoke-virtual v5, v7, Lc/a/b/a/q;->a(Lc/a/b/a/y/c;)Lc/a/b/a/v/b;
+0086 move-result-object v5
+0088 iget v5, v5, Lc/a/b/a/v/b;->b I
+008c const/4 v7, 5
+008e if-ne v5, v7, +00dh
+0092 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0098 move-result-object v5
+009a sget-object v7, Lc/a/b/a/t/h;->b Lc/a/b/a/t/h;
+009e const/4 v8, 1
+00a0 invoke-virtual v5, v4, v7, v6, v8, Lc/a/b/a/q;->a(Lc/a/b/a/t/f; Lc/a/b/a/t/h; I Z)V
+00a6 goto +8h
+00a8 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+00ae move-result-object v5
+00b0 invoke-virtual v5, v4, Lc/a/b/a/q;->D(Lc/a/b/a/t/f;)V
+00b6 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+00bc move-result-object v5
+00be invoke-virtual v5, v4, Lc/a/b/a/q;->A(Lc/a/b/a/t/f;)V
+00c4 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+00ca move-result-object v5
+00cc invoke-virtual v5, v4, Lc/a/b/a/q;->b(Lc/a/b/a/t/f;)I
+00d2 move-result v5
+00d4 add-int/2addr v6, v5
+00d6 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+00dc move-result-object v5
+00de invoke-virtual v5, v4, Lc/a/b/a/q;->v(Lc/a/b/a/t/f;)Lc/a/b/a/t/h;
+00e4 move-result-object v5
+00e6 sget-object v7, Lc/a/b/a/t/h;->c Lc/a/b/a/t/h;
+00ea if-ne v5, v7, +021h
+00ee invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+00f4 move-result-object v5
+00f6 sget-object v7, Lc/a/b/a/t/g;->j Lc/a/b/a/t/g;
+00fa invoke-virtual v5, v4, v7, Lc/a/b/a/q;->a(Lc/a/b/a/t/f; Lc/a/b/a/t/g;)Z
+0100 move-result v5
+0102 if-eqz v5, +00ch
+0106 invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+010c move-result-object v5
+010e iget-object v5, v5, Lc/a/b/a/t/a;->c Lc/a/b/a/t/d;
+0112 iget v5, v5, Lc/a/b/a/t/d;->j I
+0116 add-int/2addr v6, v5
+0118 goto +ah
+011a invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+0120 move-result-object v5
+0122 iget-object v5, v5, Lc/a/b/a/t/a;->c Lc/a/b/a/t/d;
+0126 iget v5, v5, Lc/a/b/a/t/d;->j I
+012a neg-int v6, v5
+012c invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0132 move-result-object v5
+0134 invoke-virtual v5, v4, Lc/a/b/a/q;->y(Lc/a/b/a/t/f;)I
+013a move-result v5
+013c invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0142 move-result-object v7
+0144 sget-object v8, Lc/a/b/a/t/g;->r Lc/a/b/a/t/g;
+0148 invoke-virtual v7, v4, v8, Lc/a/b/a/q;->a(Lc/a/b/a/t/f; Lc/a/b/a/t/g;)Z
+014e move-result v7
+0150 if-eqz v7, +00fh
+0154 int-to-float v7, v5
+0156 invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+015c move-result-object v8
+015e iget-object v8, v8, Lc/a/b/a/t/a;->c Lc/a/b/a/t/d;
+0162 iget v8, v8, Lc/a/b/a/t/d;->D F
+0166 mul-float v7, v7, v8
+016a float-to-int v7, v7
+016c add-int/2addr v6, v7
+016e iget v7, v4, Lc/a/b/a/t/f;->e I
+0172 if-le v7, v5, +004h
+0176 sub-int/2addr v7, v5
+0178 sub-int/2addr v6, v7
+017a invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+0180 move-result-object v5
+0182 goto +35h
+0184 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+018a move-result-object v5
+018c iget-object v7, v4, Lc/a/b/a/t/f;->c Lc/a/b/a/y/c;
+0190 invoke-virtual v5, v7, Lc/a/b/a/q;->a(Lc/a/b/a/y/c;)Lc/a/b/a/v/b;
+0196 move-result-object v5
+0198 invoke-direct v9, Lc/a/b/a/l;->r()Lc/a/b/a/t/b;
+019e move-result-object v7
+01a0 iget-object v8, v4, Lc/a/b/a/t/f;->c Lc/a/b/a/y/c;
+01a4 invoke-virtual v7, v8, Lc/a/b/a/t/b;->b(Lc/a/b/a/y/c;)I
+01aa move-result v7
+01ac iget v5, v5, Lc/a/b/a/v/b;->b I
+01b0 const/4 v8, 3
+01b2 if-ne v5, v8, +021h
+01b6 if-ne v0, v7, +01fh
+01ba invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+01c0 move-result-object v5
+01c2 iget v8, v4, Lc/a/b/a/t/f;->b I
+01c6 invoke-virtual v5, v8, v7, Lc/a/b/a/q;->e(I I)Z
+01cc move-result v5
+01ce if-eqz v5, +013h
+01d2 invoke-direct v9, Lc/a/b/a/l;->t()Lc/a/b/a/q;
+01d8 move-result-object v5
+01da invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+01e0 move-result-object v6
+01e2 iget-object v6, v6, Lc/a/b/a/t/a;->c Lc/a/b/a/t/d;
+01e6 iget v6, v6, Lc/a/b/a/t/d;->i I
+01ea neg-int v6, v6
+01ec invoke-virtual v5, v4, v6, Lc/a/b/a/q;->f(Lc/a/b/a/t/f; I)I
+01f2 move-result v6
+01f4 if-eqz v6, -0e5h
+01f8 new-instance v4, Lc/a/b/a/y/d;
+01fc iget v5, v3, Lc/a/b/a/y/c;->a I
+0200 iget v3, v3, Lc/a/b/a/y/c;->b I
+0204 invoke-direct v4, v5, v3, v6, Lc/a/b/a/y/d;-><init>(I I I)V
+020a invoke-interface v1, v4, Ljava/util/Set;->add(Ljava/lang/Object;)Z
+0210 goto/16 -0f3h
+0214 invoke-interface v1, Ljava/util/Set;->size()I
+021a move-result v0
+021c if-lez v0, +006h
+0220 const/4 v0, -1
+0222 invoke-virtual v9, v1, v0, Lc/a/b/a/l;->a(Ljava/util/Collection; I)Ljava/util/Set;
+0228 invoke-direct v9, Lc/a/b/a/l;->o()Lc/a/b/a/p;
+022e move-result-object v0
+0230 invoke-direct v9, Lc/a/b/a/l;->p()Lc/a/b/a/t/a;
+0236 move-result-object v1
+0238 iget v1, v1, Lc/a/b/a/t/a;->f I
+023c invoke-virtual v0, v1, Lc/a/b/a/p;->b(I)V
+0242 return-void 
+Lc/a/b/a/q; f (Lc/a/b/a/t/f; I)I
+0000 iget v0, v4, Lc/a/b/a/t/f;->e I
+0004 invoke-virtual v3, v4, Lc/a/b/a/q;->y(Lc/a/b/a/t/f;)I
+000a move-result v1
+000c const/4 v2, 0
+000e invoke-static v0, v5, v2, v1, Lc/a/b/a/z/e;->a(I I I I)I
+0014 move-result v5
+0016 iget v4, v4, Lc/a/b/a/t/f;->e I
+001a sub-int/2addr v5, v4
+001c return v5

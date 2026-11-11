@@ -1,0 +1,241 @@
+{
+  "generatedAt": "2026-10-13T01:08:01.046Z",
+  "options": {
+    "rootDir": "C:\\code\\AncinetEmpires\\captures\\mitm_replay",
+    "mode": "SD",
+    "maxRecords": 100000,
+    "offset": 0,
+    "limit": null,
+    "uniqueOffset": null,
+    "uniqueLimit": null,
+    "dedupe": true,
+    "allowAmbiguousRecruit": true,
+    "strictTerrain": false,
+    "forceExecuteReplayActions": false,
+    "rejectInformationLoss": false
+  },
+  "totals": {
+    "files": 1,
+    "uniqueFiles": 1,
+    "duplicates": 0,
+    "parsed": 1,
+    "passed": 0,
+    "failed": 1,
+    "parseErrors": 0
+  },
+  "failureClassifications": [
+    {
+      "code": "unknown",
+      "label": "未分类 strict 分歧",
+      "count": 1,
+      "items": [
+        {
+          "fileName": "game_get_e9648915cc5f975129d3a4d3.bin",
+          "recordIndex": 35,
+          "eventType": "ATTACK",
+          "actionCode": null
+        }
+      ]
+    }
+  ],
+  "items": [
+    {
+      "inputPath": "C:\\code\\AncinetEmpires\\captures\\cloud\\20260918_053030\\game_get_e9648915cc5f975129d3a4d3.bin",
+      "fileName": "game_get_e9648915cc5f975129d3a4d3.bin",
+      "sha256": "12dfedfd50d0856144c45a6d050ffc710c914d6c16b709998c46651cd12145dc",
+      "duplicateOf": null,
+      "skipped": false,
+      "encrypted": true,
+      "rawBytes": 8776,
+      "decryptedBytes": 8773,
+      "gameObjectBytes": 8746,
+      "map": {
+        "width": 9,
+        "height": 9,
+        "scenarioCode": "SD",
+        "campaignLike": false,
+        "players": [
+          0,
+          1,
+          2
+        ],
+        "terrainCount": 81,
+        "unitCount": 15,
+        "recommendedGold": -1
+      },
+      "state": {
+        "activeTeamIds": [
+          0,
+          1,
+          2
+        ],
+        "disabledTeamIds": [],
+        "defaultInitialGold": 300,
+        "defaultUnitLimit": 30,
+        "levelCap": 3,
+        "approximateTerrainIds": [],
+        "unmappedTerrainIds": [],
+        "initialCurrentPlayer": 0,
+        "priceOverrides": {
+          "soldier": 150,
+          "archer": 250,
+          "water_elemental": 300,
+          "witch": 400,
+          "elf": 500,
+          "wolf": 600,
+          "golem": 600,
+          "catapult": 800,
+          "dragon": 1000,
+          "commander": 400,
+          "paladin": 400,
+          "berserker": 500,
+          "ghost": 200,
+          "dark_mage": 300,
+          "wolf_archer": 800,
+          "ice_elemental": 600,
+          "slime": 250,
+          "mermaid": 200,
+          "druid": 600
+        }
+      },
+      "actions": {
+        "count": 60,
+        "eventCounts": {
+          "ATTACK": 49,
+          "GAME_START": 0,
+          "HEAL": 0,
+          "MOVE": 0,
+          "NEXT_TURN": 11,
+          "NONE": 0,
+          "OCCUPY": 0,
+          "RECRUIT": 0,
+          "REPAIR": 0,
+          "REVERSE": 0,
+          "SELECT": 0,
+          "STANDBY": 0,
+          "SUMMON": 0,
+          "SUPPORT": 0,
+          "SURRENDER": 0
+        },
+        "remainingBytes": 0
+      },
+      "diagnostics": {
+        "topFields": [
+          "g"
+        ],
+        "topFieldSummaries": [
+          {
+            "key": "g",
+            "type": 5,
+            "typeName": "object-bytes",
+            "valueLength": 8746
+          }
+        ],
+        "topRemainingBytes": 0,
+        "hasOnlyGameObjectField": true,
+        "gameObjectBytesConsumedByReplayArray": true,
+        "currentStep": 0,
+        "replaySplitIndex": 0,
+        "roomType": "PRIVATE",
+        "status": "CLOSED"
+      },
+      "validation": {
+        "success": false,
+        "evidence": {
+          "validationBypassed": false,
+          "fullyConsumed": false,
+          "apkStateCompared": false,
+          "notices": [],
+          "skippedCount": 0,
+          "replacedCount": 0,
+          "ambiguousCount": 0
+        },
+        "executedRecordCount": 35,
+        "expandedActionCount": 35,
+        "firstError": "找不到攻击目标单位: (3, 0)",
+        "firstErrorRecordIndex": 35,
+        "firstErrorRecordEvent": "ATTACK",
+        "firstErrorRecordSource": {
+          "x": 2,
+          "y": 0
+        },
+        "firstErrorRecordMoveTo": {
+          "x": 2,
+          "y": 0
+        },
+        "firstErrorRecordTarget": {
+          "x": 3,
+          "y": 0
+        },
+        "firstErrorRecordRecruitUnitId": -1,
+        "currentPlayerBefore": 1,
+        "turnBefore": 3,
+        "legalActionCount": 121,
+        "info": null,
+        "actionCode": null,
+        "failureDiagnostic": {
+          "actor": {
+            "id": "apk_remote_u13",
+            "ownerId": 1,
+            "unitClass": "slime",
+            "pos": {
+              "x": 2,
+              "y": 0
+            },
+            "hp": 120,
+            "maxHp": 120,
+            "level": 4,
+            "exp": 1000,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "target": null,
+          "moveDestinationOccupant": {
+            "id": "apk_remote_u13",
+            "ownerId": 1,
+            "unitClass": "slime",
+            "pos": {
+              "x": 2,
+              "y": 0
+            },
+            "hp": 120,
+            "maxHp": 120,
+            "level": 4,
+            "exp": 1000,
+            "status": null,
+            "movementRemaining": 4,
+            "hasMoved": false,
+            "hasActed": false,
+            "minRange": 1,
+            "maxRange": 1
+          },
+          "moveDestinationTile": {
+            "terrainId": 6,
+            "ownerId": null,
+            "apkTerrainId": 20,
+            "apkTerrainRaw": 86015,
+            "apkOwnerCode": 255,
+            "apkTerrainKind": 0,
+            "apkTerrainIsLand": true,
+            "apkMoveCost": 1
+          },
+          "sourceToTargetDistance": 1,
+          "moveToTargetDistance": 1
+        },
+        "failureClassification": {
+          "code": "unknown",
+          "label": "未分类 strict 分歧",
+          "detail": "需要继续按首个 record 查看回放记录和 APK 反编译证据。"
+        },
+        "finalTurn": 3,
+        "finalCurrentPlayer": 1,
+        "finalWinner": null
+      },
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,805 @@
+{
+  "device": "c2357770",
+  "package": "net.toyknight.aeii.android",
+  "version": "4.2.5.1",
+  "width": 1080,
+  "height": 2248,
+  "density": 440,
+  "rotation": 0,
+  "calibrated_date": "2026-10-15",
+  "origin": "左上角",
+  "controls": [
+    {
+      "state": "桌面游戏页",
+      "name": "游戏文件夹",
+      "x": 540,
+      "y": 800,
+      "evidence": "workflow-desktop.png",
+      "note": "仅适用于截图中的桌面第二页；批量流程优先使用包名启动。"
+    },
+    {
+      "state": "游戏文件夹",
+      "name": "Ancient Empires 图标",
+      "x": 540,
+      "y": 1075,
+      "evidence": "workflow-games-folder.png",
+      "note": ""
+    },
+    {
+      "state": "主菜单",
+      "name": "战役",
+      "x": 540,
+      "y": 806,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "遭遇战",
+      "x": 540,
+      "y": 905,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "多人游戏",
+      "x": 540,
+      "y": 1005,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "读取游戏",
+      "x": 540,
+      "y": 1103,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "工具箱",
+      "x": 540,
+      "y": 1202,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "我的账号",
+      "x": 540,
+      "y": 1301,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "帮助",
+      "x": 540,
+      "y": 1400,
+      "evidence": "workflow-main-menu.png",
+      "note": "采集只使用遭遇战，其余入口仅记录位置。"
+    },
+    {
+      "state": "主菜单",
+      "name": "应用设置",
+      "x": 1010,
+      "y": 2040,
+      "evidence": "workflow-main-menu.png",
+      "note": ""
+    },
+    {
+      "state": "应用设置",
+      "name": "服务器地区左箭头",
+      "x": 261,
+      "y": 763,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "服务器地区右箭头",
+      "x": 816,
+      "y": 763,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "玩家伤害减免左箭头",
+      "x": 261,
+      "y": 956,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "玩家伤害减免右箭头",
+      "x": 816,
+      "y": 956,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "音乐左箭头",
+      "x": 261,
+      "y": 1150,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "音乐右箭头",
+      "x": 816,
+      "y": 1150,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "左手偏好模式",
+      "x": 261,
+      "y": 1274,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "跳过AI动画",
+      "x": 261,
+      "y": 1398,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "横屏模式",
+      "x": 261,
+      "y": 1518,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "应用设置",
+      "name": "确认应用设置",
+      "x": 70,
+      "y": 2040,
+      "evidence": "workflow-return-main.png",
+      "note": "仅记录现有位置；采集不调整服务器、伤害减免或屏幕方向。跳过AI动画当前已勾选。"
+    },
+    {
+      "state": "对局配置",
+      "name": "选择地图",
+      "x": 540,
+      "y": 1635,
+      "evidence": "workflow-config-three.png",
+      "note": ""
+    },
+    {
+      "state": "对局配置",
+      "name": "预览",
+      "x": 190,
+      "y": 1635,
+      "evidence": "workflow-config-three.png",
+      "note": ""
+    },
+    {
+      "state": "对局配置",
+      "name": "对局设置",
+      "x": 890,
+      "y": 1635,
+      "evidence": "workflow-config-three.png",
+      "note": ""
+    },
+    {
+      "state": "对局配置",
+      "name": "开始对局",
+      "x": 70,
+      "y": 2040,
+      "evidence": "computer2.png",
+      "note": "所有启用阵营均为电脑后才允许点击。"
+    },
+    {
+      "state": "对局配置",
+      "name": "返回",
+      "x": 1010,
+      "y": 2040,
+      "evidence": "workflow-config-three.png",
+      "note": "与主菜单的设置按钮同坐标，必须先确认当前弹窗。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第1行玩家类型左箭头",
+      "x": 278,
+      "y": 775,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第1行玩家类型右箭头",
+      "x": 620,
+      "y": 775,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第1行同盟左箭头",
+      "x": 764,
+      "y": 775,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第1行同盟右箭头",
+      "x": 995,
+      "y": 775,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第2行玩家类型左箭头",
+      "x": 278,
+      "y": 925,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第2行玩家类型右箭头",
+      "x": 620,
+      "y": 925,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第2行同盟左箭头",
+      "x": 764,
+      "y": 925,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第2行同盟右箭头",
+      "x": 995,
+      "y": 925,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第3行玩家类型左箭头",
+      "x": 278,
+      "y": 1073,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第3行玩家类型右箭头",
+      "x": 620,
+      "y": 1073,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第3行同盟左箭头",
+      "x": 764,
+      "y": 1073,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局配置",
+      "name": "第3行同盟右箭头",
+      "x": 995,
+      "y": 1073,
+      "evidence": "workflow-config-three.png",
+      "note": "行号是可见行，不等于阵营ID；类型顺序：无→玩家→电脑。"
+    },
+    {
+      "state": "对局设置",
+      "name": "起始金币左箭头",
+      "x": 531,
+      "y": 940,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "起始金币右箭头",
+      "x": 872,
+      "y": 940,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "单位上限左箭头",
+      "x": 531,
+      "y": 1048,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "单位上限右箭头",
+      "x": 872,
+      "y": 1048,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "等级上限左箭头",
+      "x": 531,
+      "y": 1158,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "等级上限右箭头",
+      "x": 872,
+      "y": 1158,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "模式左箭头",
+      "x": 531,
+      "y": 1263,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "模式右箭头",
+      "x": 872,
+      "y": 1263,
+      "evidence": "settings.png",
+      "note": ""
+    },
+    {
+      "state": "对局设置",
+      "name": "确认设置",
+      "x": 70,
+      "y": 2040,
+      "evidence": "settings.png",
+      "note": "默认300金币、30单位、3级、默认模式；不要盲改。"
+    },
+    {
+      "state": "地图列表",
+      "name": "确认选中地图",
+      "x": 70,
+      "y": 2040,
+      "evidence": "workflow-map-top.png",
+      "note": ""
+    },
+    {
+      "state": "地图列表",
+      "name": "返回",
+      "x": 1010,
+      "y": 2040,
+      "evidence": "workflow-map-top.png",
+      "note": ""
+    },
+    {
+      "state": "地图列表",
+      "name": "地图来源左箭头",
+      "x": 85,
+      "y": 1620,
+      "evidence": "workflow-map-top.png",
+      "note": ""
+    },
+    {
+      "state": "地图列表",
+      "name": "地图来源右箭头",
+      "x": 640,
+      "y": 1620,
+      "evidence": "workflow-map-top.png",
+      "note": ""
+    },
+    {
+      "state": "地图列表",
+      "name": "操作菜单",
+      "x": 875,
+      "y": 1620,
+      "evidence": "workflow-map-top.png",
+      "note": ""
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Crossroads",
+      "x": 400,
+      "y": 715,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Frozen fields",
+      "x": 400,
+      "y": 825,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Icy Paths",
+      "x": 400,
+      "y": 935,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Liberty Port",
+      "x": 400,
+      "y": 1045,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Mourningstar",
+      "x": 400,
+      "y": 1154,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Peak Island",
+      "x": 400,
+      "y": 1264,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Shadowlands",
+      "x": 400,
+      "y": 1373,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "地图列表顶部首屏",
+      "name": "Solitude",
+      "x": 400,
+      "y": 1483,
+      "evidence": "workflow-map-top.png",
+      "note": "仅在列表位于顶部且顺序未变时使用；后台直接使用地图资产文件名。"
+    },
+    {
+      "state": "战斗小结",
+      "name": "主菜单",
+      "x": 300,
+      "y": 1635,
+      "evidence": "g02-final.png",
+      "note": "只在已确认自然终局的战斗小结使用。"
+    },
+    {
+      "state": "战斗小结",
+      "name": "再来一局",
+      "x": 770,
+      "y": 1635,
+      "evidence": "g02-final.png",
+      "note": "只在已确认自然终局的战斗小结使用。"
+    }
+  ],
+  "regions": [
+    {
+      "state": "主菜单",
+      "name": "版本号",
+      "rect": [
+        450,
+        2010,
+        640,
+        2090
+      ],
+      "evidence": "workflow-main-menu.png"
+    },
+    {
+      "state": "地图列表",
+      "name": "可见地图列表",
+      "rect": [
+        30,
+        658,
+        1050,
+        1555
+      ],
+      "evidence": "workflow-map-top.png"
+    },
+    {
+      "state": "对局配置",
+      "name": "玩家类型文案，第1行",
+      "rect": [
+        385,
+        730,
+        535,
+        817
+      ],
+      "evidence": "workflow-config-three.png"
+    },
+    {
+      "state": "对局配置",
+      "name": "玩家类型文案，第2行",
+      "rect": [
+        385,
+        878,
+        535,
+        965
+      ],
+      "evidence": "workflow-config-three.png"
+    },
+    {
+      "state": "对局配置",
+      "name": "玩家类型文案，第3行",
+      "rect": [
+        385,
+        1025,
+        535,
+        1112
+      ],
+      "evidence": "workflow-config-three.png"
+    },
+    {
+      "state": "对局设置",
+      "name": "金币值",
+      "rect": [
+        650,
+        895,
+        760,
+        985
+      ],
+      "evidence": "settings.png"
+    },
+    {
+      "state": "对局设置",
+      "name": "单位上限值",
+      "rect": [
+        650,
+        1003,
+        760,
+        1093
+      ],
+      "evidence": "settings.png"
+    },
+    {
+      "state": "对局设置",
+      "name": "等级上限值",
+      "rect": [
+        650,
+        1113,
+        760,
+        1203
+      ],
+      "evidence": "settings.png"
+    },
+    {
+      "state": "对局设置",
+      "name": "模式文案",
+      "rect": [
+        640,
+        1218,
+        775,
+        1308
+      ],
+      "evidence": "settings.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "血量",
+      "rect": [
+        145,
+        133,
+        420,
+        219
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "攻击",
+      "rect": [
+        145,
+        245,
+        420,
+        325
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "防御",
+      "rect": [
+        145,
+        355,
+        420,
+        437
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "经验",
+      "rect": [
+        700,
+        133,
+        945,
+        219
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "等级",
+      "rect": [
+        700,
+        245,
+        945,
+        325
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "移动力",
+      "rect": [
+        700,
+        355,
+        945,
+        437
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "地图显示区域",
+      "rect": [
+        0,
+        464,
+        1080,
+        2010
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "金币",
+      "rect": [
+        240,
+        2018,
+        455,
+        2115
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "单位数量与上限",
+      "rect": [
+        545,
+        2018,
+        770,
+        2115
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "游戏局面",
+      "name": "回合",
+      "rect": [
+        900,
+        2018,
+        1050,
+        2115
+      ],
+      "evidence": "g02-start.png"
+    },
+    {
+      "state": "战斗小结",
+      "name": "胜负标志与结算表",
+      "rect": [
+        50,
+        505,
+        1025,
+        1550
+      ],
+      "evidence": "g02-final.png"
+    }
+  ],
+  "maps": [
+    "(2) Icy Paths.aem",
+    "(2) Duel.aem",
+    "(2) Crossed swords.aem",
+    "(2) Liberty Port.aem",
+    "(2) Mourningstar.aem",
+    "(2) Peak Island.aem",
+    "(2) Swamplands.aem",
+    "(2) The Crossing.aem",
+    "(3) Frozen fields.aem",
+    "(3) Midway.aem"
+  ],
+  "flow": [
+    {
+      "phase": "连接检查",
+      "description": "adb devices -l；必须确认c2357770为device。"
+    },
+    {
+      "phase": "界面入口",
+      "description": "优先按包名am start启动原版；桌面坐标作为手动备用入口。"
+    },
+    {
+      "phase": "界面守卫",
+      "description": "核对1080×2248、440dpi、竖屏、版本4.2.5.1；读取当前窗口、原生场景、只读弹窗栈和可见文案。"
+    },
+    {
+      "phase": "计划冻结",
+      "description": "记录10张地图文件名、轮次、规则种子、每步AI种子策略、金币/单位/等级设置、APK和项目规则哈希。"
+    },
+    {
+      "phase": "采集驱动",
+      "description": "后台路径创建独立Java线程与原生引擎；直接载入APK地图/AI/controller.js，不通过UI逐步下棋。"
+    },
+    {
+      "phase": "逐步核对",
+      "description": "每次原生动作保留动作前状态、动作字段、序号；自然胜负读取winner_mask，不用截图识别结束。"
+    },
+    {
+      "phase": "性能测试",
+      "description": "分别测试1/2/4 worker；同样地图与重复次数，记录设备单调时钟、AI/结算/快照/IO耗时、温度与内存。"
+    },
+    {
+      "phase": "导出校验",
+      "description": "逐局检查result、动作数量、长度前缀states.bin与终局；立即备份到电脑、计算SHA256。"
+    },
+    {
+      "phase": "训练准备",
+      "description": "原生回放逐状态校验→项目当前strict合法动作校验→编码/mask/结果标签→按完整对局划分训练/验证集。尚未实现的步骤不得标记完成。"
+    },
+    {
+      "phase": "退出恢复",
+      "description": "中断本次aeii-*线程；保存已落盘记录；恢复临时息屏设置；关闭本次辅助服务和USB转发。"
+    }
+  ],
+  "swipe": {
+    "state": "地图列表",
+    "start": [
+      520,
+      1450
+    ],
+    "end": [
+      520,
+      780
+    ],
+    "duration_ms": 500,
+    "note": "滚动会改变地图行位置；不能把滚动后的旧坐标当成固定地图坐标。后台流程直接使用地图资产名。"
+  },
+  "guards": {
+    "main": {
+      "screen": "c.a.b.b.w.d",
+      "panel": null,
+      "labels": [
+        "遭遇战",
+        "读取游戏",
+        "4.2.5.1"
+      ]
+    },
+    "config": {
+      "panel": "c.a.b.b.t.h0"
+    },
+    "unknown_state": "停止点击并读取窗口/原生文案；不连续试点。"
+  }
+}

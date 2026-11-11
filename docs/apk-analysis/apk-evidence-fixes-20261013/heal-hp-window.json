@@ -1,0 +1,148 @@
+{
+  "rows": [
+    {
+      "record": 7720,
+      "player": 3,
+      "turn": 62,
+      "action": {
+        "type": "end_turn"
+      },
+      "beforeHp": 190,
+      "afterHp": 100
+    },
+    {
+      "record": 7772,
+      "player": 5,
+      "turn": 62,
+      "action": {
+        "type": "heal",
+        "healerId": "u_54",
+        "targetId": "u_76"
+      },
+      "beforeHp": 100,
+      "afterHp": 190
+    },
+    {
+      "record": 7817,
+      "player": 5,
+      "turn": 62,
+      "action": {
+        "type": "end_turn"
+      },
+      "beforeHp": 190,
+      "afterHp": 140
+    },
+    {
+      "record": 7818,
+      "player": 0,
+      "turn": 63,
+      "action": {
+        "type": "end_turn"
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7819,
+      "player": 1,
+      "turn": 63,
+      "action": {
+        "type": "end_turn"
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7820,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "move",
+        "unitId": "u_96",
+        "to": {
+          "x": 12,
+          "y": 11
+        }
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7820,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "heal",
+        "healerId": "u_96",
+        "targetId": "u_93"
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7821,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "move",
+        "unitId": "u_115",
+        "to": {
+          "x": 9,
+          "y": 12
+        }
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7821,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "heal",
+        "healerId": "u_115",
+        "targetId": "u_67"
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7822,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "move",
+        "unitId": "u_56",
+        "to": {
+          "x": 1,
+          "y": 13
+        }
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    },
+    {
+      "record": 7822,
+      "player": 3,
+      "turn": 63,
+      "action": {
+        "type": "heal",
+        "healerId": "u_56",
+        "targetId": "u_76"
+      },
+      "beforeHp": 140,
+      "afterHp": 140
+    }
+  ],
+  "tile": {
+    "terrainId": 10,
+    "ownerId": 0,
+    "apkTerrainId": 37,
+    "apkTerrainRaw": 151552,
+    "apkOwnerCode": 0,
+    "apkTerrainKind": 3,
+    "apkTerrainIsLand": true,
+    "apkMoveCost": 1
+  },
+  "failureRecord": 7822
+}

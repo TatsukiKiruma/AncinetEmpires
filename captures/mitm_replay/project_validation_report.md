@@ -1,42 +1,892 @@
 # AEII 远端回放项目规则校验报告
 
-- 生成时间：2026-07-05T03:35:45.547Z
+- 生成时间：2026-10-30T09:59:52.135Z
 - 输入目录：`C:\code\AncinetEmpires\captures\mitm_replay`
 - 规则模式：SD
 - 抽样跳过文件数：0
 - 抽样文件上限：全部
 - 唯一回放跳过数：未启用
 - 唯一回放上限：未启用
-- 招募歧义处理：允许选第一个合法部署点继续
+- 招募歧义处理：严格模式，缺少部署坐标即失败
 - APK 强制执行：关闭，严格要求项目合法动作
 - 地形处理：未映射地形使用道路兜底并记录
-- 文件数：1，唯一校验：1，重复跳过：0，通过：0，失败：1，解析错误：0
+- 信息损失验收：兼容执行，逐条记录跳过、替换和推断
+- 通过范围：仅表示所选配置下项目回放执行无错误；未比较 APK 逐步状态，不证明规则或终局状态等价。
+- 事件损失统计：跳过=0，替换=0，歧义推断=0
+- 文件数：125，唯一校验：0，重复跳过：13，通过：0，失败：0，解析错误：112
+
+## 分歧分类汇总
+
+- 无失败分歧。
 
 ## 汇总
 
 | 文件 | SHA256 | 地图 | 动作 | 结果 | 进度 | 首个问题 |
 | --- | --- | --- | ---: | --- | --- | --- |
-| game_get_20260704_132008_065.bin | 1269141a5313 | 13x13, P[4,1,0,5,2,3] | 1182 | 失败 | 37/1182 | 非法动作：当前玩家无法执行该动作 |
+| game_get_20260704_122310_001.bin | 8917e542b931 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_122329_002.bin | a706d70a4e6e | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_125148_001.bin | bf67e73547fc | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_125206_002.bin | bf67e73547fc | - | - | 重复(game_get_20260704_125148_001.bin) | - | - |
+| game_get_20260704_125247_003.bin | cfd8d0fadd57 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_125313_004.bin | 544233d74082 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_125336_005.bin | 81ca1179d3a4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131018_001.bin | 0e1dd9c4c506 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131048_002.bin | 31b6ac6e56fb | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131052_003.bin | bf67e73547fc | - | - | 重复(game_get_20260704_125148_001.bin) | - | - |
+| game_get_20260704_131100_004.bin | 8731fe932b23 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131113_005.bin | 8917e542b931 | - | - | 重复(game_get_20260704_122310_001.bin) | - | - |
+| game_get_20260704_131118_006.bin | 7a0dda589803 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131123_007.bin | 205dd6b03de1 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131130_008.bin | a706d70a4e6e | - | - | 重复(game_get_20260704_122329_002.bin) | - | - |
+| game_get_20260704_131132_009.bin | 55d597d21443 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131135_010.bin | c1e6247384bb | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131141_011.bin | e99b550fbb09 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131143_012.bin | ab67b766355c | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131146_013.bin | 59e88482f04e | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131151_014.bin | c3358fb41a8d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131157_015.bin | 235b2c26b3f4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131211_016.bin | a0aa3f4c9007 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131212_017.bin | a2e8d7cc8d35 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131221_018.bin | 022a8ed5f05c | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131229_019.bin | 1fa374fe09d3 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131235_020.bin | a0f4b5dde4a1 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131256_021.bin | cfd8d0fadd57 | - | - | 重复(game_get_20260704_125247_003.bin) | - | - |
+| game_get_20260704_131304_022.bin | ea7eaf070647 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131309_023.bin | c72987ab3319 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131316_024.bin | 5899b63571e1 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131318_025.bin | 5b0bf971c2bd | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131321_026.bin | ea66acda66a4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131324_027.bin | a68d4d267931 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131328_028.bin | 3e4458c04835 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131337_029.bin | 42f2ac258b2d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131343_030.bin | 47d22296f31a | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131347_031.bin | 2f5872f43c59 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131350_032.bin | 608cd9e1c9a4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131352_033.bin | db26bbedcec2 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131354_034.bin | fe56b1da2975 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131406_035.bin | f67ab981e561 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131408_036.bin | 2d00110ee597 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131410_037.bin | 12a4c44de944 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131412_038.bin | 3f238386c50e | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131421_039.bin | 544233d74082 | - | - | 重复(game_get_20260704_125313_004.bin) | - | - |
+| game_get_20260704_131425_040.bin | 89a01b2a2e97 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131454_041.bin | a0b823ff7921 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131501_042.bin | 85f9f7d03e9d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131505_043.bin | 07173e5fe079 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131516_044.bin | 6c0f7adb9593 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131520_045.bin | 2e80d20bb8c9 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131527_046.bin | fdd930816f17 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131533_047.bin | 8d6fb6d24278 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131544_048.bin | 6a48ded5ed13 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131546_049.bin | 2cf4fc701197 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131550_050.bin | ce00f36184c2 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131553_051.bin | ae7f357c5f36 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131557_052.bin | 3098127ae0b0 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131611_053.bin | ff19829e2243 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131614_054.bin | fee0fbc4bb4c | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131619_055.bin | d31cedae1332 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131621_056.bin | 3f59fff3dd1d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131627_057.bin | c3fa6b30880d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131630_058.bin | 33c0730721eb | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131634_059.bin | 81ca1179d3a4 | - | - | 重复(game_get_20260704_125336_005.bin) | - | - |
+| game_get_20260704_131641_060.bin | b33c5c245055 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131946_061.bin | 7b290a83da36 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_131949_062.bin | 5236a3848a31 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132000_063.bin | b3aded7d5ded | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132004_064.bin | 9e154cfaa4f9 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132008_065.bin | 1269141a5313 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132011_066.bin | 2b1581930ede | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132013_067.bin | e84f62fe505c | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132016_068.bin | 6a814640aada | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132017_069.bin | fc00b51de957 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132019_070.bin | f21cd5b527a9 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132021_071.bin | e7b1f6f047ef | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132024_072.bin | 5319a42c7cc1 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132027_073.bin | 1741789b010b | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132030_074.bin | eac2dc895fae | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132033_075.bin | 13c620f118b2 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132035_076.bin | ced80ac4fcc3 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132042_077.bin | 1f99596b6f21 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132050_078.bin | 72d58b04ba9f | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132053_079.bin | 9955f5ec484e | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132058_080.bin | a152374741c9 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132101_081.bin | 8585960f19d7 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132103_082.bin | 7e21d3c66796 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132113_083.bin | ae698fd18822 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132124_084.bin | 06b265cbfc85 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132153_085.bin | 38c4c4b2aea8 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132156_086.bin | 0739c244c5ca | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132201_087.bin | 3926858bd35a | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132207_088.bin | d59bd75aeb12 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132232_089.bin | b9eb0c06ceca | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132246_090.bin | d04de69792ee | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132248_091.bin | d1fdb97ed4ee | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132307_092.bin | f5d90b7debee | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132309_093.bin | 0f5d717f86a4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132315_094.bin | 72d837b6333a | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132325_095.bin | 36b18d37f221 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132329_096.bin | ded2b35e1078 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132339_097.bin | 5619d6a85c7d | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132403_098.bin | 3f3903b3f828 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132410_099.bin | f65872ca3530 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132412_100.bin | 723d92bcfc5c | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132449_101.bin | e46ae156ac04 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132512_102.bin | 93fe39b5da21 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132516_103.bin | af06567fa594 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132521_104.bin | 757699afd6d9 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132523_105.bin | 078ce64216da | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132524_106.bin | b332beea4d08 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132542_107.bin | e245fafae51e | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132551_108.bin | 3bef0550e1ba | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132603_109.bin | 2aa07d934087 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132655_110.bin | 2357e2bd64ef | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132701_111.bin | 48adad1584e4 | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260704_132710_112.bin | b28bd9a436ea | - | - | 解析失败 | - | 无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported |
+| game_get_20260705_142823_001.bin | 8917e542b931 | - | - | 重复(game_get_20260704_122310_001.bin) | - | - |
+| game_get_20260705_142823_002.bin | a706d70a4e6e | - | - | 重复(game_get_20260704_122329_002.bin) | - | - |
+| game_get_20260705_142902_001.bin | 8917e542b931 | - | - | 重复(game_get_20260704_122310_001.bin) | - | - |
+| game_get_20260705_142902_002.bin | a706d70a4e6e | - | - | 重复(game_get_20260704_122329_002.bin) | - | - |
+| game_get_20260705_143033_001.bin | 8917e542b931 | - | - | 重复(game_get_20260704_122310_001.bin) | - | - |
+| game_get_20260705_143033_002.bin | a706d70a4e6e | - | - | 重复(game_get_20260704_122329_002.bin) | - | - |
 
 ## 明细
 
+### game_get_20260704_122310_001.bin
+
+- 状态：解析/导入失败
+- SHA256：`8917e542b93108ff5f04e37750dfd6dfc45b62c02b2f856e8bd8183161e74758`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_122329_002.bin
+
+- 状态：解析/导入失败
+- SHA256：`a706d70a4e6e75918b599011c17bea27e81a13f7519b368847436a3c4747a48e`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_125148_001.bin
+
+- 状态：解析/导入失败
+- SHA256：`bf67e73547fcca11a4904c7b821c563163278ba8472ec35ba3f6b9e22511dd1d`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_125206_002.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_125148_001.bin`
+- SHA256：`bf67e73547fcca11a4904c7b821c563163278ba8472ec35ba3f6b9e22511dd1d`
+
+### game_get_20260704_125247_003.bin
+
+- 状态：解析/导入失败
+- SHA256：`cfd8d0fadd578adb2ce3529591d3de40709fe63d08139523b5635ae82813df11`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_125313_004.bin
+
+- 状态：解析/导入失败
+- SHA256：`544233d74082486be6e146e9cc7cc17672f4a0ba80646a5d952540a1972c3ed9`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_125336_005.bin
+
+- 状态：解析/导入失败
+- SHA256：`81ca1179d3a4e5a995773c8e989f1f2f4e026c40453c2e4cc006bdf2d33026cc`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131018_001.bin
+
+- 状态：解析/导入失败
+- SHA256：`0e1dd9c4c506943925c8426ef801716deaed09906128d3b258fb71840330e2b2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131048_002.bin
+
+- 状态：解析/导入失败
+- SHA256：`31b6ac6e56fb29a682d6716b74cca95993476aaf2b72156c1623484f887b2c7c`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131052_003.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_125148_001.bin`
+- SHA256：`bf67e73547fcca11a4904c7b821c563163278ba8472ec35ba3f6b9e22511dd1d`
+
+### game_get_20260704_131100_004.bin
+
+- 状态：解析/导入失败
+- SHA256：`8731fe932b239f4af5065b25cbf38d9b9d700b432558ba6e144a0166ddb0d3d9`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131113_005.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122310_001.bin`
+- SHA256：`8917e542b93108ff5f04e37750dfd6dfc45b62c02b2f856e8bd8183161e74758`
+
+### game_get_20260704_131118_006.bin
+
+- 状态：解析/导入失败
+- SHA256：`7a0dda5898039782af4e035b6a10628a7073c372d4dda827362db6e1d9b331c1`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131123_007.bin
+
+- 状态：解析/导入失败
+- SHA256：`205dd6b03de13f3ff2d878eaad18b680ab3c877de59c3270ef9cecd439e00b6d`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131130_008.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122329_002.bin`
+- SHA256：`a706d70a4e6e75918b599011c17bea27e81a13f7519b368847436a3c4747a48e`
+
+### game_get_20260704_131132_009.bin
+
+- 状态：解析/导入失败
+- SHA256：`55d597d2144349f82cb2d6c51b376aff7da2706d42c927ef7ec00ed422525e17`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131135_010.bin
+
+- 状态：解析/导入失败
+- SHA256：`c1e6247384bbfef7ee373ae1505a5518b7ab588e48aa8edb4477970fc50d7e62`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131141_011.bin
+
+- 状态：解析/导入失败
+- SHA256：`e99b550fbb093d32014aafb8f66fbc59b5f99976a1e182411ffd45e074233702`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131143_012.bin
+
+- 状态：解析/导入失败
+- SHA256：`ab67b766355ca64a8219c23043680d4b5d7f10bf22227fa196960c6c0319af00`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131146_013.bin
+
+- 状态：解析/导入失败
+- SHA256：`59e88482f04e72f7b63eae05a8b9bb01d1d291ff0f92460db734746939b2a72e`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131151_014.bin
+
+- 状态：解析/导入失败
+- SHA256：`c3358fb41a8d180bddbc0f41882aa0153eec66b0905b36e88ff9a24ee711a415`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131157_015.bin
+
+- 状态：解析/导入失败
+- SHA256：`235b2c26b3f45cb4b62530079cabb6f997906316e741246f2b6ffe6213a25a67`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131211_016.bin
+
+- 状态：解析/导入失败
+- SHA256：`a0aa3f4c900774d6979927748beee909a18ce405297cead0b352282064397211`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131212_017.bin
+
+- 状态：解析/导入失败
+- SHA256：`a2e8d7cc8d35ce0d09dfeceb26a7ec21060e0c90c9ddf19bc3d26c88273fcc1d`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131221_018.bin
+
+- 状态：解析/导入失败
+- SHA256：`022a8ed5f05cc9e87ec0f3e7f6d1a02b147db68392945b37fac1a1c0c313b423`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131229_019.bin
+
+- 状态：解析/导入失败
+- SHA256：`1fa374fe09d3ba5ca7ade09166bbdc5e179f1e302353ad986297854718e3e5a4`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131235_020.bin
+
+- 状态：解析/导入失败
+- SHA256：`a0f4b5dde4a1c7fbd92aeaf4a24ff3cae34ed292ee2a472049c85936e669cc0b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131256_021.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_125247_003.bin`
+- SHA256：`cfd8d0fadd578adb2ce3529591d3de40709fe63d08139523b5635ae82813df11`
+
+### game_get_20260704_131304_022.bin
+
+- 状态：解析/导入失败
+- SHA256：`ea7eaf070647f1e6c8120bed0fdca988bcd6c386ce39b2901347c1f2a39e62ec`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131309_023.bin
+
+- 状态：解析/导入失败
+- SHA256：`c72987ab331977bdb826a5f81defe3dd91b7737c856291cc2a9f426d95531c93`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131316_024.bin
+
+- 状态：解析/导入失败
+- SHA256：`5899b63571e1fc9894c99ab14bed94e53b6ce42a3db5383a29f2d20aefd9bf0c`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131318_025.bin
+
+- 状态：解析/导入失败
+- SHA256：`5b0bf971c2bd1f628115fbb116fddfd55dc897144830d5783ffb93d5f57e2400`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131321_026.bin
+
+- 状态：解析/导入失败
+- SHA256：`ea66acda66a4944e469a3978c094bf6b5fe9bed8ed625759dc732190ee53ae1b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131324_027.bin
+
+- 状态：解析/导入失败
+- SHA256：`a68d4d267931f7c06efe5c70180e0333367d395d3616cc5f1e7b217fa3838239`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131328_028.bin
+
+- 状态：解析/导入失败
+- SHA256：`3e4458c04835e340cd5fd0ec2c9eb932f1ff12c7a0d7acf5b93e1544db758a31`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131337_029.bin
+
+- 状态：解析/导入失败
+- SHA256：`42f2ac258b2d553738adef894869f75de174edf1d3c52844a4eab6761288ecd4`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131343_030.bin
+
+- 状态：解析/导入失败
+- SHA256：`47d22296f31a9e9354cb28a2f4c5750f6661af1d999c827f8f8b27268e1ad8ba`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131347_031.bin
+
+- 状态：解析/导入失败
+- SHA256：`2f5872f43c59165f8a636c0594c85938d950236fc55b82a6b96773bf70831706`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131350_032.bin
+
+- 状态：解析/导入失败
+- SHA256：`608cd9e1c9a4f714c29df68940d63837dfa9192440a971ad678d8ff57c3a4fa2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131352_033.bin
+
+- 状态：解析/导入失败
+- SHA256：`db26bbedcec2cbc8dc211c0a6461f1ca4075149c6a428f71b12d78e8a49bcbe2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131354_034.bin
+
+- 状态：解析/导入失败
+- SHA256：`fe56b1da297510f8740621f80e69eedb567b4fc42908d4228267e64af44d03f7`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131406_035.bin
+
+- 状态：解析/导入失败
+- SHA256：`f67ab981e5617a520bfa662c6ecf05d045f517e926dfda170660cbb6f4d57501`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131408_036.bin
+
+- 状态：解析/导入失败
+- SHA256：`2d00110ee5974d88fbdea5dd37e8060b21a773cf055c79f5f73cfb1af4e57217`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131410_037.bin
+
+- 状态：解析/导入失败
+- SHA256：`12a4c44de944904cdf62ec272c45d72e2f17aeb0a440b8e296326f6ea0a46121`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131412_038.bin
+
+- 状态：解析/导入失败
+- SHA256：`3f238386c50e8b3f066a01a2cb46fc87d57be8a9b2d6c983ae9b590126ea61de`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131421_039.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_125313_004.bin`
+- SHA256：`544233d74082486be6e146e9cc7cc17672f4a0ba80646a5d952540a1972c3ed9`
+
+### game_get_20260704_131425_040.bin
+
+- 状态：解析/导入失败
+- SHA256：`89a01b2a2e97312f141387b9763f6a2b54e5571a76bcc42e2282fc704e137564`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131454_041.bin
+
+- 状态：解析/导入失败
+- SHA256：`a0b823ff792100b6c5a257cd473398eec68bc0634c720f8c7db4767ae2cdb9f8`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131501_042.bin
+
+- 状态：解析/导入失败
+- SHA256：`85f9f7d03e9d3651c9740b7b22f3f63f2870d9d7fbee714adb78cc357f3583a0`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131505_043.bin
+
+- 状态：解析/导入失败
+- SHA256：`07173e5fe07924be14987ef50cd67c8aac7996392a79519e7d406d96250eb642`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131516_044.bin
+
+- 状态：解析/导入失败
+- SHA256：`6c0f7adb95931e5ba5ef625fd8c1f0e91fb0d82ac7845e849a4a3bc2610d3e89`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131520_045.bin
+
+- 状态：解析/导入失败
+- SHA256：`2e80d20bb8c915bd2ef8eb4d98b1e7b7d38b49857b41c9fd9e796427fe70c169`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131527_046.bin
+
+- 状态：解析/导入失败
+- SHA256：`fdd930816f175bac6da1bc95e7ebf5deba19f3e64152c2725944dff42fd8bef5`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131533_047.bin
+
+- 状态：解析/导入失败
+- SHA256：`8d6fb6d24278b5f1ecc55fbd5c88ba838d29dca835b1608d5748423c68c123f6`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131544_048.bin
+
+- 状态：解析/导入失败
+- SHA256：`6a48ded5ed13b5b4366b1399b2346d9d5eeccea609f48de4199fd52366f3c8e9`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131546_049.bin
+
+- 状态：解析/导入失败
+- SHA256：`2cf4fc701197769efbdf0bc135ccaa8357d9449922200810e5562e288c9953dd`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131550_050.bin
+
+- 状态：解析/导入失败
+- SHA256：`ce00f36184c219c2f82dddc06cf7b606c34883785c6499a122dc398770b03ecf`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131553_051.bin
+
+- 状态：解析/导入失败
+- SHA256：`ae7f357c5f3672c4037aa0c5940dc871473cadf4db273505d6062a31a9df83bc`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131557_052.bin
+
+- 状态：解析/导入失败
+- SHA256：`3098127ae0b0276d66a4d39299990e2a3a2505aab32105e271330ce9d59742a7`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131611_053.bin
+
+- 状态：解析/导入失败
+- SHA256：`ff19829e224309967f17723707ee41da961fc610066c79ca264960018aaa877f`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131614_054.bin
+
+- 状态：解析/导入失败
+- SHA256：`fee0fbc4bb4c11e379e9e72d77283f4ab719748c4ae78cfa9da6fe7847e88559`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131619_055.bin
+
+- 状态：解析/导入失败
+- SHA256：`d31cedae1332d3fe109e98ab8b55d01ae24a6a865cfa382793396ef5d7551e7a`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131621_056.bin
+
+- 状态：解析/导入失败
+- SHA256：`3f59fff3dd1dbf644b2309e98b8c57bb1088500ff92e102a06fd1858e9d6ae92`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131627_057.bin
+
+- 状态：解析/导入失败
+- SHA256：`c3fa6b30880d065cf36034b19079bdd846e67a9b92c5d6b6d4037d3f36da0961`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131630_058.bin
+
+- 状态：解析/导入失败
+- SHA256：`33c0730721ebf6df2e233d6b764c482bf84780005e13d33937ae921dfc06037f`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131634_059.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_125336_005.bin`
+- SHA256：`81ca1179d3a4e5a995773c8e989f1f2f4e026c40453c2e4cc006bdf2d33026cc`
+
+### game_get_20260704_131641_060.bin
+
+- 状态：解析/导入失败
+- SHA256：`b33c5c2450555d841e27fa7e0e65a7a560d636484f6d1b3f35a1323f0ae5f3d3`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131946_061.bin
+
+- 状态：解析/导入失败
+- SHA256：`7b290a83da36e26b7f81947a79f398cad86fbcd5c6ad941eab2e4ca23698f068`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_131949_062.bin
+
+- 状态：解析/导入失败
+- SHA256：`5236a3848a3189ee7148196376a0658bdc6b439a38d88288d95709b381df32d0`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132000_063.bin
+
+- 状态：解析/导入失败
+- SHA256：`b3aded7d5ded0f236ee6ea1ae7bab8060ea68e7008260df8f4628a02e35f16d3`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132004_064.bin
+
+- 状态：解析/导入失败
+- SHA256：`9e154cfaa4f9531a50dcc7b9f463965b9fbdffea1d696f5db5d69dc93d82bfbb`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
 ### game_get_20260704_132008_065.bin
 
-- 状态：失败
+- 状态：解析/导入失败
 - SHA256：`1269141a53135f4db64bcb35e1a8490431708306fd26a33e0a287f28a2361856`
-- 地图：13x13，玩家=[4,1,0,5,2,3]，初始单位=10，推荐金币=250
-- 项目开局：currentPlayer=0，activeTeams=[0,1,2,3,4,5]，initialGold=0，unitLimit=100，levelCap=9
-- 本局价格覆盖：soldier=150, archer=250, water_elemental=300, witch=400, elf=500, wolf=600, golem=600, catapult=800, dragon=1000, commander=400, paladin=400, berserker=500, ghost=200, dark_mage=300, wolf_archer=800, ice_elemental=600, slime=250, mermaid=200, druid=600
-- 动作：1182 条，remaining=0，事件=ATTACK=396, HEAL=37, NEXT_TURN=87, NONE=168, OCCUPY=22, REPAIR=6, STANDBY=399, SUMMON=26, SUPPORT=40, SURRENDER=1
-- 包诊断：topFields=[g]，topRemaining=0，onlyG=true，replayEOF=true，currentStep=0，replaySplitIndex=0，room=PUBLIC/CLOSED
-- 校验进度：已执行 37 / 1182 条 APK 记录，展开项目动作 55 个
-- 终局状态：turn=2，currentPlayer=1，winner=-
-- 首个问题：非法动作：当前玩家无法执行该动作
-- APK 记录：event=ATTACK，source=(10,7)，move=(9,8)，target=(9,5)，recruitId=-1
-- 问题位置：record=37, turn=2, currentPlayer=1, legalActions=44
-- 项目动作：`attack:u_11:apk_remote_u1`
-- 失败诊断：actor=u_11/soldier/P1@(9,8) hp=100/100 lv=0 exp=0 range=1-1 status=none；target=apk_remote_u1/ghost/P4@(9,5) hp=100/100 lv=0 exp=0 range=1-1 status=none；move占位=u_11/soldier/P1@(9,8) hp=100/100 lv=0 exp=0 range=1-1 status=none；sourceTargetDist=3；moveTargetDist=3
-- 引擎信息：非法动作：当前玩家无法执行该动作
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132011_066.bin
+
+- 状态：解析/导入失败
+- SHA256：`2b1581930ede32c0ace4fc23ca5158b660e9afa97c6eedd5ee5635ffa3a76460`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132013_067.bin
+
+- 状态：解析/导入失败
+- SHA256：`e84f62fe505cc76d693f801babdd016a66d8e21607e47ea00e1483ce2021d0c2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132016_068.bin
+
+- 状态：解析/导入失败
+- SHA256：`6a814640aadafb7f2816ec21cfbda084ce9a674c25f3563f8c368a6fbc71f346`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132017_069.bin
+
+- 状态：解析/导入失败
+- SHA256：`fc00b51de957581ba002a0a5176805877930a0c9461e3e8ae10a9d4873c2057b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132019_070.bin
+
+- 状态：解析/导入失败
+- SHA256：`f21cd5b527a9ff167ef62d0bb5229228514eba31bdeee2a91b76852ddb543e87`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132021_071.bin
+
+- 状态：解析/导入失败
+- SHA256：`e7b1f6f047ef7f50e1f468be97fd4539a7b45af39c603d211341a87a3a67121e`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132024_072.bin
+
+- 状态：解析/导入失败
+- SHA256：`5319a42c7cc16dc202fe3ce351014fbc37e30d5e5d22b743b493a68f4150bf91`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132027_073.bin
+
+- 状态：解析/导入失败
+- SHA256：`1741789b010b706c89f94a4166e8c7e41d6405a699fe53015e22b0118c50e930`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132030_074.bin
+
+- 状态：解析/导入失败
+- SHA256：`eac2dc895faef99c814c205ee1ccbb9a54fa8f609498939700691af8b34792fb`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132033_075.bin
+
+- 状态：解析/导入失败
+- SHA256：`13c620f118b2e736c7d9dfeaa32f80bfd09906a9713141d80b04d35ae61b7b49`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132035_076.bin
+
+- 状态：解析/导入失败
+- SHA256：`ced80ac4fcc355722762b82fc38bb444bfd7d13f4e265c352441e06e7c794588`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132042_077.bin
+
+- 状态：解析/导入失败
+- SHA256：`1f99596b6f21b8d225f09d52e74c9c2096a9b3f818986914ded9fb04785c96df`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132050_078.bin
+
+- 状态：解析/导入失败
+- SHA256：`72d58b04ba9f2e5d885e36a57d0dfaa608618916fa9d2cb38e2ece15d9312d4d`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132053_079.bin
+
+- 状态：解析/导入失败
+- SHA256：`9955f5ec484e329f101f28465b76b22c02eb5be5d6983ff3a1bcae467aa3fac0`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132058_080.bin
+
+- 状态：解析/导入失败
+- SHA256：`a152374741c90e42294aae89876195d291e28b85d8ba1ce17b70602bcd3b4d37`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132101_081.bin
+
+- 状态：解析/导入失败
+- SHA256：`8585960f19d7f4df3d86bb38c8650fba89f609f2f136f56c426629f4c414328e`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132103_082.bin
+
+- 状态：解析/导入失败
+- SHA256：`7e21d3c6679637d8f3005b0aeba236d4f3387c2cc45ac1e29879a4fac1bd095c`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132113_083.bin
+
+- 状态：解析/导入失败
+- SHA256：`ae698fd18822b2b62f3b4366d549fcfce2c171cb3e181e8c929999a920078801`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132124_084.bin
+
+- 状态：解析/导入失败
+- SHA256：`06b265cbfc8583510f9e1d75431f351e7f479e356ccbd3d8be99c635179a75b2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132153_085.bin
+
+- 状态：解析/导入失败
+- SHA256：`38c4c4b2aea8d154f3b9ce0c0b114d7035a12e5643ec065d7c2a03a8e9cef78b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132156_086.bin
+
+- 状态：解析/导入失败
+- SHA256：`0739c244c5cac78d04decf9c2c5843ff4de2f91d25f8954bea3f1cc404a8d031`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132201_087.bin
+
+- 状态：解析/导入失败
+- SHA256：`3926858bd35aacb3a4ace62a3f9b8b62ee51d2c6416bc899c3181a9d66e7f0b0`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132207_088.bin
+
+- 状态：解析/导入失败
+- SHA256：`d59bd75aeb125231860b9aa57518bb58cf3b97c4821887c81548e9908dfd1e4b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132232_089.bin
+
+- 状态：解析/导入失败
+- SHA256：`b9eb0c06ceca1a34c4653096b06a6c111c1db926709f2bc1a7537095f300e525`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132246_090.bin
+
+- 状态：解析/导入失败
+- SHA256：`d04de69792eeac987bdb4c9714ab7ca6887ca6e4c6fd62d983031f6e005ff5e8`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132248_091.bin
+
+- 状态：解析/导入失败
+- SHA256：`d1fdb97ed4ee48a3578c4d8fe89a373a2f621a1dd245a1a0c5d43c7f3a0041e6`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132307_092.bin
+
+- 状态：解析/导入失败
+- SHA256：`f5d90b7debee52db2bd93a279cd7ee1aeb762e747d9a9261fff66f9d1f8e1aef`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132309_093.bin
+
+- 状态：解析/导入失败
+- SHA256：`0f5d717f86a4ee463cc9d061dadc15839209fd93bb40b4f01a8ddd9d8fb055e2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132315_094.bin
+
+- 状态：解析/导入失败
+- SHA256：`72d837b6333af898e4f1efe77318a3f5aafa4edeaa78d7d229826b86d64accac`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132325_095.bin
+
+- 状态：解析/导入失败
+- SHA256：`36b18d37f221bbb097a6d7f8156c1762d28b0e28325fe4251ef68aefac9a06b8`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132329_096.bin
+
+- 状态：解析/导入失败
+- SHA256：`ded2b35e107898f2092de52bb95f408bfeb111dde8e2433523883da28771c2fa`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132339_097.bin
+
+- 状态：解析/导入失败
+- SHA256：`5619d6a85c7d6c93bed5b4dab762927dca38b5b64c1d599a3ddcf54c67d650f8`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132403_098.bin
+
+- 状态：解析/导入失败
+- SHA256：`3f3903b3f8289fc922095b3482af36afc7cb00281e659d45b69a8e3933decf6b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132410_099.bin
+
+- 状态：解析/导入失败
+- SHA256：`f65872ca3530cdae3433c1d7ab796fe08b6dbdd7f3bbda482ce808366eed079b`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132412_100.bin
+
+- 状态：解析/导入失败
+- SHA256：`723d92bcfc5c51a426424aebfc12974e1f00f1e6c768197c2ba3266fe39a19ee`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132449_101.bin
+
+- 状态：解析/导入失败
+- SHA256：`e46ae156ac04db5d1a212c0a3fd361e0dce8769ba55156d727cae57fcc8d5740`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132512_102.bin
+
+- 状态：解析/导入失败
+- SHA256：`93fe39b5da21aeec48d4162ab27f5918352e5a9f2f99afa430e2edd9d4675b67`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132516_103.bin
+
+- 状态：解析/导入失败
+- SHA256：`af06567fa59486e5f646f752436670733ffa55b89c066b4effc9a070bed82e77`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132521_104.bin
+
+- 状态：解析/导入失败
+- SHA256：`757699afd6d9d7414f9a9c70c75b3e0e1ba8db4697a94e0ee9fd2ca9c62af9cd`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132523_105.bin
+
+- 状态：解析/导入失败
+- SHA256：`078ce64216dad5483c9defbb93e1a5617afb6e5d810a5e5aaca89ec5786ea6e7`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132524_106.bin
+
+- 状态：解析/导入失败
+- SHA256：`b332beea4d087bf311a3d2e2d3db1d72a4b531e19cd3fb22c703fe592258f3de`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132542_107.bin
+
+- 状态：解析/导入失败
+- SHA256：`e245fafae51e7298bdcfe29bd691faa3d53e62d9b656f82f0ad1728a624469a2`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132551_108.bin
+
+- 状态：解析/导入失败
+- SHA256：`3bef0550e1baff22c716c30d3df87aabd3c731e9b7016416e5e1efe0c0da312c`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132603_109.bin
+
+- 状态：解析/导入失败
+- SHA256：`2aa07d93408778ac684ffc678c5901e17cdb3b49fd9616e0638ba0d580980c44`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132655_110.bin
+
+- 状态：解析/导入失败
+- SHA256：`2357e2bd64efa3cc07730b724b89043cbf6b4fe889aa4dadfe5a7cb134ea8112`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132701_111.bin
+
+- 状态：解析/导入失败
+- SHA256：`48adad1584e41db230ed8fcbed045f744eeaf7b8042d438ad41b3a385b392caf`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260704_132710_112.bin
+
+- 状态：解析/导入失败
+- SHA256：`b28bd9a436ea6ef2298d33ac6ba76d9bf83ed700f38424cea5fb5c2ad488a92e`
+- 错误：无法解析 game_get 响应。明文尝试: C1270o: 未知 magic 89145407；解密尝试: 当前 Node/OpenSSL 需要 legacy provider 才能使用 DES：请通过 npm run apk:map-report、npm run apk:script-report 或 node --openssl-legacy-provider 启动。 原始错误: error:0308010C:digital envelope routines::unsupported
+
+### game_get_20260705_142823_001.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122310_001.bin`
+- SHA256：`8917e542b93108ff5f04e37750dfd6dfc45b62c02b2f856e8bd8183161e74758`
+
+### game_get_20260705_142823_002.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122329_002.bin`
+- SHA256：`a706d70a4e6e75918b599011c17bea27e81a13f7519b368847436a3c4747a48e`
+
+### game_get_20260705_142902_001.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122310_001.bin`
+- SHA256：`8917e542b93108ff5f04e37750dfd6dfc45b62c02b2f856e8bd8183161e74758`
+
+### game_get_20260705_142902_002.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122329_002.bin`
+- SHA256：`a706d70a4e6e75918b599011c17bea27e81a13f7519b368847436a3c4747a48e`
+
+### game_get_20260705_143033_001.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122310_001.bin`
+- SHA256：`8917e542b93108ff5f04e37750dfd6dfc45b62c02b2f856e8bd8183161e74758`
+
+### game_get_20260705_143033_002.bin
+
+- 状态：重复回放，已跳过。重复对象：`game_get_20260704_122329_002.bin`
+- SHA256：`a706d70a4e6e75918b599011c17bea27e81a13f7519b368847436a3c4747a48e`
 
 ## 结论说明
 
