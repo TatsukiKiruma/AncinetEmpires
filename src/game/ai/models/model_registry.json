@@ -1,17 +1,17 @@
 {
   "registryVersion": "v9",
-  "updatedAt": "2026-09-22T07:58:35+08:00",
-  "defaultProductionPolicy": "heuristic",
+  "updatedAt": "2026-11-09T00:00:00+08:00",
+  "defaultProductionPolicy": "dual_v3_stage7_k1",
   "policies": {
     "heuristic": {
       "policyId": "heuristic",
       "title": "Heuristic AI (原生启发式)",
-      "isProductionDefault": true,
+      "isProductionDefault": false,
       "isExperimental": false,
       "architecture": "rule-based-expert",
       "checkpoint": null,
-      "qualification": "PRODUCTION_DEFAULT",
-      "description": "Production default AI based on tactical heuristics and expert scoring"
+      "qualification": "QUALIFIED_DEV_BASELINE",
+      "description": "可靠的启发式基线"
     },
     "spatial_v2_experimental": {
       "policyId": "spatial_v2_experimental",
@@ -178,6 +178,24 @@
       "checkpoint": null,
       "qualification": "BASELINE_RANDOM",
       "description": "Uniform random legal action selection"
+    },
+    "dual_v3_stage7_k1": {
+      "policyId": "dual_v3_stage7_k1",
+      "title": "Stage 7 K1 (Dual-Stream v3 2M 冠军模型)",
+      "isProductionDefault": true,
+      "isExperimental": false,
+      "architecture": "dual-stream-v3-2m-v1",
+      "checkpoint": {
+        "relativePath": "public/models/dual_v3_stage7_k1/final.bin",
+        "sha256": "81012a047520fe038ca93383a2620c4d89d87d4a825b79025c5dfd8fc121cb2e",
+        "architecture": "dual-stream-v3-2m-v1",
+        "encoderVersion": "dual-v3",
+        "featureSchema": "spatial34_entity66_rel16_global66",
+        "objective": "policy-and-value",
+        "valueHeadQualified": true
+      },
+      "qualification": "PRODUCTION_DEFAULT",
+      "description": "Stage 7 验收冠军；应用采用单线程有界网络束搜索。"
     }
   }
 }

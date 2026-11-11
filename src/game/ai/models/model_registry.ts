@@ -12,7 +12,7 @@ export interface CheckpointInfo {
     sha256: string;
     gitBlob?: string;
     architecture: string;
-    encoderVersion: 'v1' | 'v2' | 'dense-45';
+    encoderVersion: 'v1' | 'v2' | 'dense-45' | 'dual-v3';
     featureSchema: string;
     objective: 'policy-only' | 'policy-and-value';
     valueHeadQualified: boolean;

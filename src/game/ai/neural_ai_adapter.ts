@@ -8,25 +8,31 @@
  * 3. 取消信号返回 status: 'CANCELLED'，调用端拒绝执行作废动作。
  */
 
+import { getDualV3ChampionAction } from './dual_v3_champion_adapter';
 import { GameEngine } from '../engine';
 import type { Action } from '../types';
 import { HeuristicAI } from './heuristic_ai';
 import { RandomAI } from './random_ai';
-import { loadDualHeadModelFromJson, predictDecision, type DualHeadNet } from '../../../tools/skirmish_dual_head_net';
-import { createNetworkModelScorer } from '../../../tools/skirmish_neural_search';
-import { searchTeacherAction } from '../../../tools/skirmish_search_teacher';
-import { encodeGameState, encodeGameActionV2 } from '../../../tools/skirmish_network_features';
+import { loadDualHeadModelFromJson, predictDecision, type DualHeadNet } from './runtime/skirmish_dual_head_net';
+import { createNetworkModelScorer } from './runtime/skirmish_neural_search';
+import { searchTeacherAction } from './runtime/skirmish_search_teacher';
+import { encodeGameState, encodeGameActionV2 } from './runtime/skirmish_network_features';
 import netBData from './models/net_b_checkpoint.json';
 import {
     getSpatialAiActionSync,
     getSpatialPredictor
 } from './spatial_neural_adapter';
-import { runBoundedSearch } from '../../../tools/v7_heuristic_bounded_search';
+import { runBoundedSearch } from './runtime/v7_heuristic_bounded_search';
 import { getPolicyRegistryEntry } from './models/model_registry';
+import { OriginalApkLikeAI } from './original_apk_like_ai';
+import { OriginalApkLikeHardAI } from './original_apk_like_hard_ai';
 
 export type SupportedAiPolicy =
+    | 'dual_v3_stage7_k1'
     | 'heuristic'
     | 'random'
+    | 'original_apk_like'
+    | 'original_apk_like_hard'
     | 'spatial_v2_experimental'
     | 'spatial_dagger_experimental'
     | 's10_spatial_search'
@@ -36,6 +42,14 @@ export type SupportedAiPolicy =
     | 'net_b_s10'
     | 'net_b_1ply'
     | 'net_a';
+
+/**
+ * C1275a 计划跨多个项目原子动作（move → attack → post_attack_move）。
+ * 该实例保存计划；计划本身带状态签名，跨 GameEngine 克隆也不会串局。
+ */
+const originalApkLikeAi = new OriginalApkLikeAI();
+// 按队伍隔离 APK 脚本的回合计划，避免双方同时选择困难版时相互覆盖。
+const originalApkLikeHardAis = new Map<number, OriginalApkLikeHardAI>();
 
 export interface AiActionResult {
     action: Action;
@@ -115,6 +129,8 @@ export function getAiAction(
         return res;
     }
 
+    if (policy === 'dual_v3_stage7_k1') return getDualV3ChampionAction(engine, playerId, options);
+
     if (policy === 'random') {
         const ai = new RandomAI();
         const action = ai.getAction(engine, playerId);
@@ -142,9 +158,50 @@ export function getAiAction(
             status: 'OK',
             latencyMs: e2eMs,
             e2eMs,
-            source: 'HeuristicAI (Production Default)',
+            source: 'HeuristicAI（启发式基线）',
             requestedPolicy: 'heuristic',
             actualPolicy: 'heuristic',
+            deadlineMiss: e2eMs > deadlineMs
+        };
+        options?.onTelemetry?.(res);
+        return res;
+    }
+
+    if (policy === 'original_apk_like_hard') {
+        let ai = originalApkLikeHardAis.get(playerId);
+        if (!ai) {
+            ai = new OriginalApkLikeHardAI();
+            originalApkLikeHardAis.set(playerId, ai);
+        }
+        const beforeFallbacks = ai.telemetry.nativeFallbacks;
+        const action = ai.getAction(engine, playerId);
+        const e2eMs = Math.round(performance.now() - t0);
+        const fallbackUsed = ai.telemetry.nativeFallbacks > beforeFallbacks;
+        const res: AiActionResult = {
+            action, status: 'OK', latencyMs: e2eMs, e2eMs,
+            source: fallbackUsed ? 'Original-APKlikeAI-Hard（Java 困难规则回退）' : 'Original-APKlikeAI-Hard（APK 内嵌脚本）',
+            requestedPolicy: policy, actualPolicy: policy, encoderVersion: 'apk-hard-js-6076f354',
+            fallbackUsed, fallbackReason: fallbackUsed ? ai.telemetry.lastFallbackReason : null,
+            deadlineMiss: e2eMs > deadlineMs,
+        };
+        options?.onTelemetry?.(res);
+        return res;
+    }
+
+    if (policy === 'original_apk_like') {
+        const action = originalApkLikeAi.getAction(engine, playerId);
+        const e2eMs = Math.round(performance.now() - t0);
+        const res: AiActionResult = {
+            action,
+            status: 'OK',
+            latencyMs: e2eMs,
+            e2eMs,
+            source: 'OriginalApkLikeAI (C1275a 源码移植)',
+            requestedPolicy: 'original_apk_like',
+            actualPolicy: 'original_apk_like',
+            encoderVersion: 'c1275a-port',
+            fallbackUsed: false,
+            fallbackReason: null,
             deadlineMiss: e2eMs > deadlineMs
         };
         options?.onTelemetry?.(res);

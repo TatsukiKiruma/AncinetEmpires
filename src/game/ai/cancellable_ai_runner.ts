@@ -1,3 +1,4 @@
+import { preloadDualV3ChampionModel } from './dual_v3_champion_adapter';
 /**
  * Cancellable AI Runner (V9)
  *
@@ -88,6 +89,9 @@ export async function runCancellableAiAction(
 ): Promise<AiActionResult> {
     const t0 = performance.now();
     const deadlineMs = options.deadlineMs ?? 1000;
+    const champion = options.policy === 'dual_v3_stage7_k1';
+    let decisionStart = t0;
+    let loadingModel = champion;
     const requestStateVersion = String(options.stateVersion ?? options.engine.getState().turn);
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -123,6 +127,7 @@ export async function runCancellableAiAction(
         let watchdogTimer: any = null;
         let currentWorker: WorkerLike | null = null;
         let isUsingDefaultWorker = false;
+        let detachListeners = () => {};
 
         const cleanupAndTerminateWorker = () => {
             if (currentWorker) {
@@ -139,6 +144,7 @@ export async function runCancellableAiAction(
         const complete = (result: AiActionResult) => {
             if (isDone) return;
             isDone = true;
+            detachListeners();
             if (watchdogTimer) clearTimeout(watchdogTimer);
 
             if (options.signal?.aborted) {
@@ -181,6 +187,7 @@ export async function runCancellableAiAction(
         // 2. 监听外部取消信号
         if (options.signal) {
             options.signal.addEventListener('abort', () => {
+                if (isDone) return;
                 cleanupAndTerminateWorker();
                 const e2eMs = Math.round(performance.now() - t0);
                 let fallbackAction: Action = { type: 'end_turn' };
@@ -201,13 +208,13 @@ export async function runCancellableAiAction(
                     actualPolicy: options.allowInteractiveFallback ? 'heuristic' : options.policy,
                     fallbackUsed: true,
                     fallbackReason: 'ABORTED_IN_FLIGHT',
-                    deadlineMiss: e2eMs > deadlineMs
+                    deadlineMiss: !loadingModel && performance.now() - decisionStart > deadlineMs
                 });
             }, { once: true });
         }
 
         // 3. 设定硬看门狗定时器 (deadlineMs)：即使 Worker 陷入死循环也执行硬 terminate 恢复
-        watchdogTimer = setTimeout(() => {
+        const onTimeout = () => {
             cleanupAndTerminateWorker();
 
             const e2eMs = Math.round(performance.now() - t0);
@@ -229,10 +236,18 @@ export async function runCancellableAiAction(
                 requestedPolicy: options.policy,
                 actualPolicy: options.allowInteractiveFallback ? 'heuristic' : options.policy,
                 fallbackUsed: true,
-                fallbackReason: 'WATCHDOG_DEADLINE_EXCEEDED',
+                fallbackReason: loadingModel ? 'MODEL_LOADING_TIMEOUT' : 'WATCHDOG_DEADLINE_EXCEEDED',
                 deadlineMiss: true
             });
-        }, deadlineMs);
+        };
+        // 冠军资源加载独立限时；收到就绪消息后启用单步硬看门狗。
+        const startDecision = () => {
+            if (watchdogTimer) clearTimeout(watchdogTimer);
+            loadingModel = false;
+            decisionStart = performance.now();
+            watchdogTimer = setTimeout(onTimeout, deadlineMs);
+        };
+        watchdogTimer = setTimeout(onTimeout, champion ? 60000 : deadlineMs);
 
         // 4. 优先分配至 Web Worker 线程执行；Node/Vitest 或环境不支持时同构降级
         const worker = options.workerFactory ? options.workerFactory() : getDefaultWorker();
@@ -244,6 +259,8 @@ export async function runCancellableAiAction(
                 const data = ev.data;
                 if (!data || data.requestId !== requestId) return;
 
+                if (isDone) return;
+                if (data.ready && champion && loadingModel) { startDecision(); return; }
                 const e2eMs = Math.round(performance.now() - t0);
                 if (data.error) {
                     let fallbackAction: Action = { type: 'end_turn' };
@@ -264,13 +281,14 @@ export async function runCancellableAiAction(
                         actualPolicy: options.allowInteractiveFallback ? 'heuristic' : options.policy,
                         fallbackUsed: true,
                         fallbackReason: `WORKER_ERROR: ${data.error}`,
-                        deadlineMiss: e2eMs > deadlineMs
+                        deadlineMiss: !loadingModel && performance.now() - decisionStart > deadlineMs
                     });
                 } else if (data.result) {
                     complete({
                         ...data.result,
+                        status: data.result.status === 'OK' && performance.now() - decisionStart > deadlineMs ? 'TIMEOUT' : data.result.status,
                         e2eMs,
-                        deadlineMiss: e2eMs > deadlineMs
+                        deadlineMiss: !loadingModel && performance.now() - decisionStart > deadlineMs
                     });
                 }
             };
@@ -288,13 +306,17 @@ export async function runCancellableAiAction(
                     actualPolicy: options.policy,
                     fallbackUsed: true,
                     fallbackReason: `WORKER_ERROR_EVENT: ${ev?.message ?? String(ev)}`,
-                    deadlineMiss: e2eMs > deadlineMs
+                    deadlineMiss: !loadingModel && performance.now() - decisionStart > deadlineMs
                 });
             };
 
             if (typeof currentWorker.addEventListener === 'function') {
                 currentWorker.addEventListener('message', handleMessage);
                 currentWorker.addEventListener('error', handleError);
+                detachListeners = () => {
+                    worker.removeEventListener?.('message', handleMessage);
+                    worker.removeEventListener?.('error', handleError);
+                };
             } else {
                 currentWorker.onmessage = handleMessage;
                 currentWorker.onerror = handleError;
@@ -319,15 +341,20 @@ export async function runCancellableAiAction(
         }
 
         function runSyncFallback() {
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (isDone) return;
                 try {
+                    if (champion) {
+                        await preloadDualV3ChampionModel();
+                        if (isDone) return;
+                        startDecision();
+                    }
                     const res = getAiAction(options.policy, options.engine, options.playerId, {
                         deadlineMs,
                         signal: options.signal,
                         allowInteractiveFallback: options.allowInteractiveFallback
                     });
-                    complete(res);
+                    complete({ ...res, e2eMs: performance.now() - t0 });
                 } catch (err: any) {
                     const e2eMs = Math.round(performance.now() - t0);
                     let fallbackAction: Action = { type: 'end_turn' };
@@ -348,7 +375,7 @@ export async function runCancellableAiAction(
                         actualPolicy: options.allowInteractiveFallback ? 'heuristic' : options.policy,
                         fallbackUsed: true,
                         fallbackReason: `EXCEPTION: ${err?.message ?? String(err)}`,
-                        deadlineMiss: e2eMs > deadlineMs
+                        deadlineMiss: !loadingModel && performance.now() - decisionStart > deadlineMs
                     });
                 }
             }, 0);

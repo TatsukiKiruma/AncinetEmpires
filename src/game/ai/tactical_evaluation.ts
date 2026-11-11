@@ -103,6 +103,7 @@ export class RuleTacticalEvaluator {
     private readonly reachableCache = new Map<string, Position[]>();
     private readonly threatCache = new Map<string, number>();
     private readonly unitValueCache = new Map<string, number>();
+    private damageProjection?: GameState;
 
     constructor(private readonly state: GameState, private readonly playerId: number) {
         this.pathfinder = new TacticalPathfinder(state);
@@ -676,17 +677,26 @@ export class RuleTacticalEvaluator {
     }
 
     private estimateDamageAt(attacker: Unit, attackerPos: Position, defender: Unit, defenderPos: Position): number {
-        const cloned: GameState = JSON.parse(JSON.stringify(this.state));
+        // 同一次只读评分复用原样JSON投影；每次临时改位后恢复，避免逐射程格复制整张地图。
+        const cloned = this.damageProjection ??= JSON.parse(JSON.stringify(this.state)) as GameState;
         const clonedAttacker = cloned.units.find(unit => unit.id === attacker.id);
         let clonedDefender = cloned.units.find(unit => unit.id === defender.id);
         if (!clonedAttacker) return 0;
+        const virtual = !clonedDefender;
         if (!clonedDefender) {
             clonedDefender = { ...defender };
             cloned.units.push(clonedDefender);
         }
-        clonedAttacker.pos = { ...attackerPos };
-        clonedDefender.pos = { ...defenderPos };
-        return calculateDamage(cloned, clonedAttacker.id, clonedDefender.id);
+        const attackerBefore = clonedAttacker.pos, defenderBefore = clonedDefender.pos;
+        try {
+            clonedAttacker.pos = { ...attackerPos };
+            clonedDefender.pos = { ...defenderPos };
+            return calculateDamage(cloned, clonedAttacker.id, clonedDefender.id);
+        } finally {
+            clonedAttacker.pos = attackerBefore;
+            clonedDefender.pos = defenderBefore;
+            if (virtual) cloned.units.pop();
+        }
     }
 
     private getHealingTargets(unit: Unit): Position[] {

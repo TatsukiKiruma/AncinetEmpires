@@ -3,6 +3,7 @@ import { getMoveCostForUnit, isFlying } from '../abilities';
 import { createDemoState } from '../demo_map';
 import { GameEngine } from '../engine';
 import { areAlliedPlayers } from '../rule_config';
+import { getReachablePositions } from '../map';
 import type { GameState, Position, Unit, UnitClass } from '../types';
 import { HeuristicAI } from './heuristic_ai';
 import { TacticalPathfinder } from './tactical_pathfinding';
@@ -37,6 +38,22 @@ function referenceCost(state: GameState, unit: Unit, from: Position, target: Pos
 }
 
 describe('战术寻路等价优化', () => {
+    it('共享最短路表的可停留格与权威查询一致，包括堆叠回退', () => {
+        for (const stacked of [false, true]) for (const unitClass of ['soldier', 'dragon', 'mermaid', 'elf', 'golem'] as UnitClass[]) {
+            const state = createDemoState(); state.units[0].unitClass = unitClass;
+            if (stacked) state.units.push({ ...state.units[1], id: 'stack', pos: { ...state.units[1].pos } });
+            const finder = new TacticalPathfinder(state), unit = state.units[0];
+            const keys = (values: Position[]) => values.map(p => `${p.x},${p.y}`).sort();
+            for (const move of [1, 3, 6]) expect(keys(finder.reachablePositions(unit, move))).toEqual(keys(getReachablePositions(state, unit.id, move)));
+        }
+    });
+    it.each([0, 1, 3, 1.5, 40])('桶队列与通用堆在代价%s下保持全目标最短路径', cost => {
+        const state = createDemoState();
+        state.map = { width: 6, height: 4, tiles: Array.from({ length: 4 }, (_, y) => Array.from({ length: 6 }, (_, x) => ({ terrainId: 1, ownerId: null, apkMoveCost: (x + y) % 3 ? 1 : cost }))) };
+        state.units = [{ ...state.units[0], pos: { x: 0, y: 0 } }, { ...state.units[1], pos: { x: 3, y: 2 } }];
+        const finder = new TacticalPathfinder(state), unit = state.units[0];
+        for (let y = 0; y < 4; y++) for (let x = 0; x < 6; x++) expect(finder.cost(unit, unit.pos, { x, y })).toBe(referenceCost(state, unit, unit.pos, { x, y }));
+    });
     it.each<UnitClass>(['soldier', 'dragon', 'mermaid', 'elf', 'golem'])('保持 %s 所有目标的距离，包括移动覆盖和堆叠占位', unitClass => {
         const state = createDemoState();
         const unit = { ...state.units[0], unitClass, apkMoveOverrides: { 6: 0, 7: 4 } };

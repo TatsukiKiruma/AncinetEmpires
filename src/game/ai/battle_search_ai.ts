@@ -1,7 +1,7 @@
 import type { Action } from '../types';
 import { GameEngine } from '../engine';
 import { HeuristicAI } from './heuristic_ai';
-import { evaluatePositionHeuristic } from '../../../tools/v7_heuristic_bounded_search';
+import { evaluatePositionHeuristic } from './runtime/v7_heuristic_bounded_search';
 import { encodeAction } from '../env';
 
 export type Rng = () => number;

@@ -18,7 +18,7 @@ export async function playAutoGame(
     legacyOnStep?: (engine: GameEngine, turnInfo: string, meta?: AiActionResult) => void
 ) {
     let delayMs = 0;
-    let p0Policy: SupportedAiPolicy = 'heuristic';
+    let p0Policy: SupportedAiPolicy = 'dual_v3_stage7_k1';
     let p1Policy: SupportedAiPolicy = 'random';
     let deadlineMs = 1000;
     let maxSteps = 200;
@@ -30,7 +30,7 @@ export async function playAutoGame(
         onStep = legacyOnStep;
     } else {
         delayMs = delayOrOptions.delayMs ?? 0;
-        p0Policy = delayOrOptions.p0Policy ?? 'heuristic';
+        p0Policy = delayOrOptions.p0Policy ?? 'dual_v3_stage7_k1';
         p1Policy = delayOrOptions.p1Policy ?? 'random';
         deadlineMs = delayOrOptions.deadlineMs ?? 1000;
         maxSteps = delayOrOptions.maxSteps ?? 200;
@@ -65,7 +65,7 @@ export async function playAutoGame(
             stateVersion: currentVersion,
             getCurrentStateVersion: () => `${engine.getState().turn}_${engine.getState().currentPlayer}_${stepCount}`
         });
-        if (aiResult.status === 'CANCELLED' || aiResult.status === 'STALE') {
+        if (aiResult.status === 'CANCELLED' || aiResult.status === 'STALE' || aiResult.status === 'ERROR' || aiResult.status === 'TIMEOUT') {
             logs.push(`Step ${stepCount}: AI decision was ${aiResult.status} (${aiResult.fallbackReason ?? 'aborted'}). Not applying action.`);
             break;
         }

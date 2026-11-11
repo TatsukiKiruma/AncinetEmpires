@@ -1,3 +1,4 @@
+import { preloadDualV3ChampionModel } from './dual_v3_champion_adapter';
 /**
  * Web Worker for Off-Main-Thread AI Decision Computing
  *
@@ -24,10 +25,11 @@ export interface WorkerAiResponse {
     stateVersion?: string;
     result?: AiActionResult;
     error?: string;
+    ready?: boolean;
 }
 
 if (typeof self !== 'undefined' && typeof (self as any).postMessage === 'function') {
-    self.addEventListener('message', (event: MessageEvent<WorkerAiRequest>) => {
+    self.addEventListener('message', async (event: MessageEvent<WorkerAiRequest>) => {
         const { requestId, policy, state, playerId, deadlineMs, stateVersion, _debugSimulateInfiniteLoop } = event.data;
 
         if (_debugSimulateInfiniteLoop) {
@@ -36,6 +38,10 @@ if (typeof self !== 'undefined' && typeof (self as any).postMessage === 'functio
         }
 
         try {
+            if (policy === 'dual_v3_stage7_k1') {
+                await preloadDualV3ChampionModel();
+                self.postMessage({ requestId, ready: true });
+            }
             const engine = new GameEngine(state);
             const result = getAiAction(policy, engine, playerId, {
                 deadlineMs: deadlineMs ?? 1000
