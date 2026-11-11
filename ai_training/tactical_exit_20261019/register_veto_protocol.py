@@ -1,0 +1,7 @@
+"""在R15评测前登记Veto与普通排序分域，保留原始v1协议不动。"""
+from pathlib import Path
+from datetime import datetime,timezone
+import json,hashlib
+HERE=Path(__file__).resolve().parent;base=HERE/'search_scale_protocol.json';target=HERE/'search_scale_protocol_v2.json';assert not target.exists(),'不覆盖已登记协议'
+p=json.loads(base.read_text(encoding='utf-8'));p.update(version='search-scale-v2',registeredAt=datetime.now(timezone.utc).isoformat(),executeAfter='R14所有实际对局已结束；完成其strict后才进入R15资格',purpose='普通接管保留校准的策略置信度；已知致死否决中按风险调整叶子分选择，不继续追随已被否决策略的置信度',baseRootProtocol='search_scale_protocol.json',baseRootProtocolSha256=hashlib.sha256(base.read_bytes()).hexdigest(),rootPoolUnchanged=True,rankScore='普通排序leaf.score + alpha * hierarchicalPrior；Veto固定leaf.score，同分时优先原actor，叶子本身不改写',rankingModes={'policy_mixed':'按原候选网格校准alpha','veto_leaf':'固定alpha=0，不搜索新系数'},rankingModeSource='当前真实搜索是否触发Veto；采集时登记vetoLeafRanked，固定模式不读取policy标签或对战胜负',fitRule='沿用原开发条件NLL和top1不降规则；Veto样本的分数固定为leaf.score，普通样本使用待校准alpha，完整分母和各域数量保留',retiredExperiment='R14不论分数的绝对同actor优先未通过质量；保留原件但不作为R15规范，改为叶子同分时优先',designUsesConsumedBattleDiagnostics=True,selectionUsesBattleOutcomes=False)
+target.write_text(json.dumps(p,ensure_ascii=False,indent=2),encoding='utf-8');(HERE/'ACTIVE_SEARCH_PROTOCOL.json').write_text(json.dumps(dict(path=target.name,version=p['version'],sha256=hashlib.sha256(target.read_bytes()).hexdigest(),baseRootProtocol=base.name),ensure_ascii=False),encoding='utf-8');print('v2已登记，v1及固定根池不变')

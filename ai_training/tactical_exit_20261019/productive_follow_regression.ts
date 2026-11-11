@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { GameEngine } from '../../src/game/engine';
+import { encodeAction } from '../../src/game/env';
+import { getTileTerrainKey } from '../../src/game/terrain_rules';
+import { infer,legalActions } from './policy_runtime';
+import { ModelBattleSearchAI } from './model_battle_search_ai';
+import { auditSearchRisks } from './audit_search_risks';
+import { read,save } from './io';
+import type { GameState,Unit,UnitClass } from '../../src/game/types';
+const source=read('browser-states.json')[0].state as GameState,model=read('teacher-model.json'),old=read('old-schema.json');
+const tile=(key:string)=>structuredClone(source.map.tiles.flat().find(t=>getTileTerrainKey(t)===key)!);
+function unit(kind:UnitClass,id:string,ownerId:number,x:number,y:number):Unit{return {unitClass:kind,id,ownerId,pos:{x,y},hp:100,maxHp:100,level:0,exp:0,hasMoved:false,hasActed:false,hasPostAttackMoved:false};}
+const s=structuredClone(source);s.map={width:12,height:12,tiles:Array.from({length:12},()=>Array.from({length:12},()=>({...tile('road'),ownerId:null})))};
+s.map.tiles[0][0]={...tile('castle'),ownerId:0};s.map.tiles[11][11]={...tile('castle'),ownerId:1};s.map.tiles[5][4]={...tile('town'),ownerId:1};
+s.units=[unit('commander','己方指挥官',0,0,0),unit('commander','敌方指挥官',1,11,11),unit('soldier','占领士兵',0,2,5)];s.players.forEach(p=>{p.gold=0;p.isAlive=true;});s.currentPlayer=0;s.pendingUnitId=undefined;s.winner=null;
+const engine=new GameEngine(s),legal=legalActions(engine),root=infer(engine,legal,model,old),index=root.x.actions.findIndex(a=>a.type==='move'&&a.unitId==='占领士兵'&&a.to.x===4&&a.to.y===5);assert.ok(index>=0);
+root.out.best=index;root.prior=root.prior.map((_,i)=>i===index?0:-100-i);
+const ai=new ModelBattleSearchAI(model,old),memory:any={},action=ai.getAction(engine,0,legal,root,memory),trace=ai.lastDecision.traces.find((v:any)=>v.index===index);
+assert.equal(encodeAction(action),root.x.codes[index]);assert.ok(trace.complete&&trace.riskKnown&&!trace.commanderLethal&&!trace.actorLethal&&trace.captures===1);assert.ok(trace.plan.some((p:any)=>p.action.type==='capture'));
+assert.ok(ai.lastDecision.planCommitted&&memory.queue?.length,'已估值且安全有收益的默认同单位后续必须实际提交，不能只模拟占领却重新交给其他单位');
+assert.ok(ai.lastDecision.productiveFollowCommitted);const audit=auditSearchRisks(engine,ai.lastDecision);engine.step(action);
+const follow=ai.getAction(engine,0,legalActions(engine),undefined,memory);assert.equal(encodeAction(follow),'capture:占领士兵');engine.step(follow);
+const after=engine.getState();assert.equal(after.map.tiles[5][4].ownerId,0);assert.equal(after.currentPlayer,0);assert.equal(after.units.find(u=>u.id==='己方指挥官')!.hasActed,false);
+const result={passed:true,root:encodeAction(action),follow:encodeAction(follow),teammateStillReady:true,audit};if(process.env.STAGE5_PRODUCTIVE_RECEIPT)save(process.env.STAGE5_PRODUCTIVE_RECEIPT,result);console.log(result);

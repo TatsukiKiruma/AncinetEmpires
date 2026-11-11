@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+const here=path.dirname(fileURLToPath(import.meta.url)),read=n=>JSON.parse(fs.readFileSync(path.join(here,n),'utf8')),sha=n=>createHash('sha256').update(fs.readFileSync(path.join(here,n))).digest('hex');
+const protocol={...read('search_scale_protocol_v5.json'),version:'search-scale-v6-cache',candidateCollectionTag:'teacher-r18',registeredAt:new Date().toISOString(),executeAfter:'R17完整150槽失败并完成82912实际动作strict',purpose:'仅优化完全签名的有界地形及移动缓存；主策略、Value、全部候选、叶子、守卫及预算均保持',cacheReference:{path:'revisions/r18/focus_threat.ts.before.snapshot',sha256:sha('revisions/r18/focus_threat.ts.before.snapshot')},cacheSource:{focusSha256:sha('focus_threat.ts'),equalitySha256:sha('geometry_equal.ts')},requiredExactness:'73状态151维特征、1557根全部候选及输入逐项相同；风险见证strict；源码绑定的新三端校验',battleAdmission:'完整固定30及扩展20每臂共150槽，原胜率、根及全步p95<=600、0decision_timeout/0wall_truncation门禁不变；本轮不提前停槽',teacherExpertSamplingAllowedOnlyAfterQualified:true};
+fs.writeFileSync(path.join(here,'search_scale_protocol_v6_cache.json'),JSON.stringify(protocol,null,2),{flag:'wx'});
+fs.copyFileSync(path.join(here,'ACTIVE_SEARCH_PROTOCOL.json'),path.join(here,'revisions/r18/ACTIVE_SEARCH_PROTOCOL.before.json'));
+fs.writeFileSync(path.join(here,'ACTIVE_SEARCH_PROTOCOL.json'),JSON.stringify({path:'search_scale_protocol_v6_cache.json'}));
+fs.writeFileSync(path.join(here,'TASK_STATE.json'),JSON.stringify({status:'running',complete:false,phase:'R18缓存一致性和新三端复核，未通过教师前禁止专家采样'}));
+console.log({registered:true,protocolSha256:sha('search_scale_protocol_v6_cache.json')});

@@ -1,0 +1,70 @@
+# 阶段4配对实战
+
+固定五图双座位每臂30槽；额外10个开发父局前缀交换座位，每臂20槽。原定四臂200槽及事件守卫修订50槽，共250槽。全部为开发诊断，不是独立泛化评估。
+
+|面板|对手|模型|自然胜/负|截断|p50/p95/p99 ms|第10轮收入差/到达局数|漏招募|单军致死/集火致死/已知移动|strict动作|
+|---|---|---|---|---|---|---|---|---|---|
+|fixed|random|hierarchical|10/0|0|61.56/262.24/433.78|428.57/7|76|9/74/1286|4278|
+|fixed|random|pure|10/0|0|156.22/705.93/945.52|441.67/6|59|12/85/1509|4894|
+|fixed|random|value_rerank|10/0|0|224.74/1079.17/1718.97|300.00/10|68|53/151/2182|7782|
+|fixed|random|bounded|10/0|0|176.67/3809.90/7267.22|381.25/8|64|36/86/1618|5396|
+|fixed|apk_like|hierarchical|6/3|1|60.59/289.72/935.25|7.50/10|70|54/202/1639|7679|
+|fixed|apk_like|pure|6/4|0|172.19/1082.51/1777.79|16.67/9|47|59/195/1757|6270|
+|fixed|apk_like|value_rerank|1/7|2|454.15/2070.06/2779.84|-216.67/9|30|86/293/1292|8275|
+|fixed|apk_like|bounded|5/4|1|178.35/4458.13/9739.00|-13.89/9|39|48/148/1670|8525|
+|fixed|heuristic|hierarchical|6/4|0|59.31/316.44/933.82|58.33/9|64|95/346/2088|7832|
+|fixed|heuristic|pure|7/2|1|160.72/1158.36/1714.29|108.33/9|45|52/191/1830|5973|
+|fixed|heuristic|value_rerank|2/6|2|325.78/1718.30/2228.99|-175.00/9|49|93/305/1551|7850|
+|fixed|heuristic|bounded|7/3|0|173.25/4669.79/9214.61|112.50/10|31|32/120/1497|6487|
+|expanded|heuristic|hierarchical|13/6|1|144.28/834.01/1807.11|250.00/15|79|89/392/2877|10289|
+|expanded|heuristic|pure|11/7|2|317.81/1541.66/3315.81|76.92/13|64|127/434/2757|9915|
+|expanded|heuristic|value_rerank|7/7|6|734.18/3909.75/5454.33|-23.33/15|24|85/377/2042|9182|
+|expanded|heuristic|bounded|6/4|10|452.17/11520.73/21152.86|45.45/11|30|33/189/1428|5436|
+|fixed|random|bounded_verified|10/0|0|137.54/3570.28/7758.34|441.67/6|47|27/94/1416|4421|
+|fixed|apk_like|bounded_verified|6/4|0|143.47/4046.38/7973.85|75.00/9|29|53/166/1323|6148|
+|fixed|heuristic|bounded_verified|5/5|0|141.12/4045.84/7085.77|83.33/9|20|55/214/1170|4891|
+|expanded|heuristic|bounded_verified|6/4|10|348.05/11954.31/21090.66|97.22/9|33|55/207/1347|4988|
+
+自然胜率分母为该组全部槽位，截断不算自然胜利。第10轮仅统计实际到达对局。致死落点是落子后的反事实风险，不等同实际发生的死亡。集火为最多三不同敌军的可执行贪心见证，不能称完整最强对手搜索。严格重放复核全部已提交动作及前后状态，不重新运行双方策略。
+
+|面板/对手/模型|选择攻击/攻击机会|有招募却end/end总数|集火已知移动|搜索触发/改选/节点|
+|---|---|---|---|---|
+|fixed/random/hierarchical|338/992 (34.07%)|76/76|1286|0/0/0|
+|fixed/random/pure|376/1162 (32.36%)|59/59|1509|0/0/0|
+|fixed/random/value_rerank|552/1984 (27.82%)|68/68|2182|2100/260/23999|
+|fixed/random/bounded|403/1331 (30.28%)|64/64|1618|504/53/22552|
+|fixed/apk_like/hierarchical|658/1641 (40.10%)|70/70|1639|0/0/0|
+|fixed/apk_like/pure|635/1655 (38.37%)|47/47|1757|0/0/0|
+|fixed/apk_like/value_rerank|717/1630 (43.99%)|30/31|1292|1552/352/17139|
+|fixed/apk_like/bounded|620/1606 (38.61%)|39/39|1670|561/71/23931|
+|fixed/heuristic/hierarchical|863/2497 (34.56%)|64/64|2088|0/0/0|
+|fixed/heuristic/pure|635/1779 (35.69%)|45/45|1830|0/0/0|
+|fixed/heuristic/value_rerank|874/2113 (41.36%)|49/49|1551|1589/341/17538|
+|fixed/heuristic/bounded|547/1385 (39.49%)|31/31|1497|555/72/23999|
+|expanded/heuristic/hierarchical|1246/3451 (36.11%)|79/80|2877|0/0/0|
+|expanded/heuristic/pure|1238/3233 (38.29%)|64/65|2757|0/0/0|
+|expanded/heuristic/value_rerank|1051/2530 (41.54%)|24/42|2042|3277/712/37810|
+|expanded/heuristic/bounded|699/1656 (42.21%)|30/32|1428|882/90/39701|
+|fixed/random/bounded_verified|361/1249 (28.90%)|47/47|1416|477/25/21628|
+|fixed/apk_like/bounded_verified|538/1329 (40.48%)|29/29|1323|537/34/23999|
+|fixed/heuristic/bounded_verified|503/1471 (34.19%)|20/20|1170|519/37/23999|
+|expanded/heuristic/bounded_verified|742/1759 (42.18%)|33/34|1347|826/45/37205|
+
+|面板/对手/模型（相对阶段3配对）|新增自然胜/丢失自然胜|胜率差|双方均到第10轮的收入差变化/局数|
+|---|---|---|---|
+|fixed/random/pure|0/0|+0.0%|70.00/5|
+|fixed/random/value_rerank|0/0|+0.0%|-110.71/7|
+|fixed/random/bounded|0/0|+0.0%|-42.86/7|
+|fixed/apk_like/pure|3/3|+0.0%|50.00/9|
+|fixed/apk_like/value_rerank|0/5|-50.0%|-183.33/9|
+|fixed/apk_like/bounded|1/2|-10.0%|19.44/9|
+|fixed/heuristic/pure|1/0|+10.0%|71.88/8|
+|fixed/heuristic/value_rerank|0/4|-40.0%|-181.25/8|
+|fixed/heuristic/bounded|1/0|+10.0%|38.89/9|
+|expanded/heuristic/pure|0/2|-10.0%|-107.69/13|
+|expanded/heuristic/value_rerank|0/6|-30.0%|-202.08/12|
+|expanded/heuristic/bounded|0/7|-35.0%|90.62/8|
+|fixed/random/bounded_verified|0/0|+0.0%|70.00/5|
+|fixed/apk_like/bounded_verified|1/1|+0.0%|108.33/9|
+|fixed/heuristic/bounded_verified|1/2|-10.0%|28.12/8|
+|expanded/heuristic/bounded_verified|0/7|-35.0%|-119.44/9|

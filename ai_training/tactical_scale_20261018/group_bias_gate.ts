@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import { forwardGroup } from './group_model';
+import { read, save } from './io';
+const x=read('group-inputs.json')[0],model=read(`group-${process.argv[2]??'initial'}.json`);
+const counts=new Map<string,number>();for(const name of x.actionGroups)counts.set(name,(counts.get(name)??0)+1);
+const group=[...counts].sort((a,b)=>b[1]-a[1])[0][0];
+const output=forwardGroup(x,model),indexes=x.actionGroups.map((g:string,i:number)=>g===group?i:-1).filter((i:number)=>i>=0);
+const repeated={...x,candidates:[...x.candidates,...indexes.map((i:number)=>x.candidates[i])],refs:[...x.refs,...indexes.map((i:number)=>x.refs[i])],codes:[...x.codes,...indexes.map((i:number)=>x.codes[i])],actionGroups:[...x.actionGroups,...indexes.map(()=>group)]};
+const duplicate=forwardGroup(repeated,model);let error=0;
+output.groupLogits.forEach((v,i)=>error=Math.max(error,Math.abs(v-duplicate.groupLogits[i])));
+assert.ok(error<1e-12);
+save('group-size-invariance.json',{passed:true,maxGroupLogitError:error,duplicatedCandidates:indexes.length,scope:'完整重复一个动作组，均值组头不因基数翻倍增加分数'});

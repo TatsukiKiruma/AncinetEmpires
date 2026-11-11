@@ -1,0 +1,3 @@
+import esbuild from 'esbuild';import fs from 'node:fs';import path from 'node:path';import {spawn} from 'node:child_process';
+const o=path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Za-z]:)/,'$1');
+const r=await esbuild.build({entryPoints:[path.join(o,'robust_probe.ts')],bundle:true,platform:'node',format:'cjs',outfile:path.join(o,'robust/probe.cjs'),metafile:true});fs.writeFileSync(path.join(o,'robust/bundle_manifest.json'),JSON.stringify(r.metafile,null,2));const child=spawn(process.execPath,[path.join(o,'robust/probe.cjs')],{stdio:'inherit'});const timer=setTimeout(()=>child.kill(),240000);child.on('exit',code=>{clearTimeout(timer);process.exitCode=code??1;});

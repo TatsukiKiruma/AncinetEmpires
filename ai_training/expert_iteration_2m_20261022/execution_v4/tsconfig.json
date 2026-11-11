@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": ["./gzip_rows.ts", "./verify_game.ts", "./index_games.ts"],
+  "exclude": ["../../../node_modules"]
+}

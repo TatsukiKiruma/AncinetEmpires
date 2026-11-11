@@ -1,0 +1,89 @@
+{
+  "schema": "v14_task_status_1",
+  "runId": "v14_20260924_t14",
+  "generatedAt": "2026-09-25T03:20:00Z",
+  "note": "中文：DONE 仅表示该任务的验收实际完成；文件存在、脚本能导入、包已生成均不等于验收通过。缺失指标写 null 并记录原因。",
+  "ownership": "本轮由协调者 + 三个子审计共同执行：规则与 oracle（v14/tools/rule_fixtures.ts、rule_oracle.ts、rule_suite.test.ts）、数据与状态契约（collect_v14_roots.ts、build_v14_dataset.ts）、特征与训练（spatial_tensor_encoder.ts、train_spatial_resnet.py、v14_tiny_fit.py）、评测与统计（eval_v14_protocol.ts、eval_v14_aggregate.ts 由协调者负责，本执行者实现 eval_v14_match.ts 与对战驱动）。公共模块（engine/rules/encoder/trainer）由唯一负责人合并，未回滚任何既有修改。",
+  "tasks": [
+    {
+      "id": "T14-00",
+      "status": "DONE",
+      "basis": "source_snapshot.json / artifact_identity.json / environment.json 由本轮生成；HEAD=c1b9ac0 与文档基线一致；review 两 JSON 的输入 SHA 已复核（pool_v31_subset.jsonl=6f9fe516…、runs/s42/best.json=402b5a3e…）。v13/temp.md 未修改。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-00/source_snapshot.json", "v14/out/v14_20260924_t14/T14-00/artifact_identity.json", "v14/out/v14_20260924_t14/T14-00/environment.json"]
+    },
+    {
+      "id": "T14-01",
+      "status": "DONE",
+      "basis": "rule_suite.test.ts 实跑：54 夹具 / 145 条已验证谓词全部通过，0 UNKNOWN、0 失败；覆盖任务书列出的 14 个场景，并含正反例。规则 oracle 由真实 GameEngine 一步执行支撑。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-01/rule_suite_results.json", "v14/out/v14_20260924_t14/T14-01/fixture_manifest.json", "v14/out/v14_20260924_t14/T14-01/rule_contract.md"]
+    },
+    {
+      "id": "T14-02",
+      "status": "DONE",
+      "basis": "48 roots 全部 EXACT_SNAPSHOT 采集 + VERIFIED_REPLAY 重放；dataset 9547 行、0 quarantine、候选存储数=策略允许数=787200、目标映射错误 0、坐标错误 0、标签独立性 400 组全部通过、train/val/test lineage 交集为空。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-02/dataset_contract.json", "v14/out/v14_20260924_t14/T14-02/reconstruction_report.json", "v14/out/v14_20260924_t14/T14-02/codec_roundtrip.json", "v14/out/v14_20260924_t14/T14-02/candidate_coverage.json", "v14/out/v14_20260924_t14/T14-02/label_independence.json", "v14/out/v14_20260924_t14/T14-02/split_manifest.json"]
+    },
+    {
+      "id": "T14-03",
+      "status": "DONE",
+      "basis": "反击语义修复（含子审计发现的致盲状态遗漏）；编码器 schema v14 = 26 通道 + 53 维动作语义（含 21 维兵种 one-hot）；Python/TS 一致性 269 状态 / 712 case / 33556 候选全部在 1e-6 容差内；schema 兼容性 20/20；重排不变性 logit 1.49e-08、梯度 3.50e-07；状态别名审查 0 例「输入相同但合法动作不同」。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-03/feature_semantics_report.json", "v14/out/v14_20260924_t14/T14-03/python_ts_forward_parity.json", "v14/out/v14_20260924_t14/T14-03/candidate_permutation_invariance.json", "v14/out/v14_20260924_t14/T14-03/schema_compatibility.json", "v14/out/v14_20260924_t14/T14-03/state_aliasing_cases.json", "v14/out/v14_20260924_t14/T14-03/counter_audit/counter_audit.md"]
+    },
+    {
+      "id": "T14-04",
+      "status": "FAILED",
+      "basis": "128 状态记忆诊断：2000 次更新、128/128 样本被优化，final checkpoint 重评 top-1 = 96.09%（123/128），未达预登记的 99%。已定位并修复一个真实输入别名（招募兵种只用 7 类粗分类，same-class 兵种不可区分；补 21 维 one-hot 后该类错误消失）；剩余失败集中在 move/wait/heal 等不同类型，属该 32ch/2block 结构与预算下的记忆上限。任务书规定不得先换更大网络，故如实记录未达门槛。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-04/tiny_fixture_manifest.json", "v14/out/v14_20260924_t14/T14-04/tiny_fit_metrics.json", "v14/out/v14_20260924_t14/T14-04/run_s42/tiny_metrics.json", "v14/out/v14_20260924_t14/T14-04/tiny_fit_link_diagnosis.json"]
+    },
+    {
+      "id": "T14-05",
+      "status": "DONE",
+      "basis": "eval_v14_protocol.ts（镜像键含 7 个配置字段）+ eval_v14_aggregate.ts（聚类 bootstrap、截断区间、错误门）+ eval_v14.test.ts 由协调者实现并通过；本执行者实现 eval_v14_match.ts 并产出真实对局：6 组开发对战全部 pairs=totalPairs、orphans=0、errors=0、experimentValid=true。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-05/eval_protocol_v14.json", "v14/out/v14_20260924_t14/T14-06/matches/dev_matches_summary.json"]
+    },
+    {
+      "id": "T14-06",
+      "status": "DONE",
+      "basis": "三 seed 真实训练完成：每个 seed 3000 次更新、6400 个唯一优化样本、96000 次曝光、best val ≈ 38%；开发对战 2p Duel 三 seed 全座位配对差值均为 -0.5（0 胜 8 负），3p Frozen fields 完成率极低（12 对中仅 1 对自然完成）如实标注为截断为主。结果可解释即算完成，不要求正收益。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-06/c1_s42/c1_s42.ledger_summary.json", "v14/out/v14_20260924_t14/T14-06/c1_s1337/c1_s1337.ledger_summary.json", "v14/out/v14_20260924_t14/T14-06/c1_s2026/c1_s2026.ledger_summary.json", "v14/out/v14_20260924_t14/T14-06/matches/dev_matches_summary.json", "v14/out/v14_20260924_t14/T14-06/failure_taxonomy.json"]
+    },
+    {
+      "id": "T14-07",
+      "status": "INCONCLUSIVE",
+      "basis": "搜索教师四级资格（T-legal/T-label/T-strong/T-online）全部 NOT_QUALIFIED：本轮只做源码审查与历史证据复核，未重建教师内核、未运行独立开发对战。搜索蒸馏主实验按任务书标 DEFERRED；启发式基线与启发式纠错不受影响并已执行。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-07/teacher_qualification.json"]
+    },
+    {
+      "id": "T14-08",
+      "status": "DONE",
+      "basis": "三组受控对照完成：同一初始化（C1 seed42 best）、同一旧池与同一验证集、1:1 新数据混合、同一更新预算与数据顺序。D0=1000 更新（uniqueOptimized 6400/6400）、D1=1500（7470/12800）、D2=1500（11187/12800）。对战：D0 配对差值 -0.5（8/8 自然完成）、D2 -0.5（8/8）、D1 -0.4286（7/8，1 例截断）。未观察到任一组的正向改善。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-08/dagger_groups_summary.json", "v14/out/v14_20260924_t14/T14-08/dagger_D1_report.json", "v14/out/v14_20260924_t14/T14-08/dagger_D2_report.json", "v14/out/v14_20260924_t14/T14-08/matches/dagger_matches_manifest.json"]
+    },
+    {
+      "id": "T14-09",
+      "status": "INCONCLUSIVE",
+      "basis": "开发阶段结果明确为负（2p 配对差值 -0.5 且区间不跨 0），因此没有候选可以被预登记为「值得冻结确认」；3p 完成率过低使确认集无法给出有效区间。按任务书不启动新的确认批次，发布建议 NO_PROMOTION。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-09/promotion_decision.json"]
+    },
+    {
+      "id": "T14-10",
+      "status": "DEFERRED",
+      "basis": "条件任务，不在主路径；本轮数据没有可用于价值头的自然终局覆盖，启动条件不满足。",
+      "evidence": []
+    },
+    {
+      "id": "T14-11",
+      "status": "DONE",
+      "basis": "final_report.md、package_manifest.json、claim_ledger.json（子代理独立复核）、commands.ps1、task_status.json 齐备；包清单只扫描原始运行目录。",
+      "evidence": ["v14/out/v14_20260924_t14/T14-11/final_report.md", "v14/out/v14_20260924_t14/package_manifest.json", "v14/out/v14_20260924_t14/commands.ps1"]
+    }
+  ],
+  "gates": [
+    { "id": "G0", "status": "PASS", "basis": "T14-00 全部交付物存在且 HEAD 与文档基线一致；review 输入 SHA 复核 MATCH。" },
+    { "id": "G1", "status": "PASS", "basis": "T14-01 全套 145/145 谓词通过；T14-02 数据集硬检查全部为 0 错误且标签独立性通过；T14-03 一致性/重排/schema 检查全部通过。" },
+    { "id": "G2", "status": "FAIL", "basis": "T14-04 tiny-fit top-1 = 96.09% < 99%；诊断与最小反例已提交（兵种 one-hot 已修），残余失败如实记录。按任务书 G2 未通过时禁止扩大训练池、应继续定位；本轮在定位范围内执行了预登记的 lr 3e-4 对照（更差：95.31%）。" },
+    { "id": "G3", "status": "PASS", "basis": "T14-05 协议有效（errors=0、experimentValid=true）、T14-06 三 seed 基线与开发对战完成。G3 不等于战胜启发式。" },
+    { "id": "GT", "status": "FAIL", "basis": "T14-07 搜索教师四级资格均未通过；搜索蒸馏分支 DEFERRED。" },
+    { "id": "G4", "status": "FAIL", "basis": "T14-09 无候选具备可复核的正向改善，未进入冻结确认。" }
+  ]
+}

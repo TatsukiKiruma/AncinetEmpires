@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import { read, initialState, fileSha } from '../stage1/io';
+import { getAllianceId } from '../../../src/game/rule_config';
+import { allowSealed } from './sealed_io';
+allowSealed();
+const file = 'continuation_review_20261030/stage1/PARTITIONS.json';
+const parents = read(file).parents.filter((p: any) => p.admitted && p.corpus === 'new' && p.split === 'test');
+if (parents.length !== 329) throw Error('封存父局数量不符');
+const alliances = Object.fromEntries(parents.map((p: any) => {const state = initialState(p); return [p.parentId, Object.fromEntries(state.players.map(player => [player.id, getAllianceId(state, player.id)]))];}));
+fs.writeFileSync('continuation_review_20261030/stage5/SEALED_ALLIANCES.json', JSON.stringify({partitionsSha256: fileSha(file), alliances}), {flag: 'wx'});

@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+import { spawnSync } from 'node:child_process';
+const here=path.dirname(fileURLToPath(import.meta.url)),output=path.join(here,'defender-choice-probe.mjs');
+await build({entryPoints:[path.join(here,'causal_defender_regression.ts')],bundle:true,platform:'node',format:'esm',outfile:output,plugins:[{name:'只读记录安全守卫实际选择',setup(b){b.onLoad({filter:/causal_defender_regression\.ts$/},args=>{const source=fs.readFileSync(args.path,'utf8'),line=source.split('\n').find(v=>v.startsWith('assert.equal(encodeAction(action),p.root.x.codes[defenceIndex]'));if(!line)throw Error('诊断锚点缺失');return {contents:source.replace(line,"console.log(JSON.stringify({selected:encodeAction(action),reference:encodeAction(defence.action),referenceScore:defence.score,decision:ai.lastDecision}));process.exit(0);"),loader:'ts',resolveDir:path.dirname(args.path)};});}}]});
+const result=spawnSync(process.execPath,[output],{encoding:'utf8',windowsHide:true});if(result.status)throw Error(result.stderr);
+fs.writeFileSync(path.join(here,'revisions/r16/defender-choice-probe.json'),result.stdout,{flag:'wx'});
+const r=JSON.parse(result.stdout),selected=r.decision.traces.find(v=>v.index===r.decision.proposalIndex);console.log(JSON.stringify({selected:r.selected,reference:r.reference,referenceScore:r.referenceScore,reason:r.decision.reason,preservesActingDefender:r.decision.preservesActingDefender,proposal:selected}));

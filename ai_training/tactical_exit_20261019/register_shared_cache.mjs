@@ -1,0 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+const here=path.dirname(fileURLToPath(import.meta.url)),read=n=>JSON.parse(fs.readFileSync(path.join(here,n),'utf8')),sha=n=>createHash('sha256').update(fs.readFileSync(path.join(here,n))).digest('hex');
+const protocol={...read('search_scale_protocol_v6_cache.json'),version:'search-scale-v7-shared-cache-proof',candidateCollectionTag:'teacher-r19-cache',registeredAt:new Date().toISOString(),purpose:'同一权威移动查询供单军和集火共用，缩小onlyAttacks目标视图；逐状态/完整见证/151列/1557根完整记录必须精确相同',rootPolicyUnchanged:true,valueUnchanged:true,teacherModelSha256:sha('teacher-model.json'),sourceFiles:Object.fromEntries(['focus_threat.ts','movement_query_cache.ts','shared_single_threat.ts','model_battle_search_ai.ts','leaf.ts','combined_tactics.ts'].map(n=>[n,sha(n)])),qualificationScope:'本轮仅证明纯性能变更一致性，不将相同策略轨迹记作胜率改进；后续教师资格仍需原完整面板门禁'};
+fs.writeFileSync(path.join(here,'search_scale_protocol_v7_shared_cache.json'),JSON.stringify(protocol,null,2),{flag:'wx'});fs.copyFileSync(path.join(here,'ACTIVE_SEARCH_PROTOCOL.json'),path.join(here,'revisions/r19/ACTIVE_SEARCH_PROTOCOL.before.json'));fs.writeFileSync(path.join(here,'ACTIVE_SEARCH_PROTOCOL.json'),JSON.stringify({path:'search_scale_protocol_v7_shared_cache.json'}));console.log({registered:true,teacherModelSha256:protocol.teacherModelSha256});

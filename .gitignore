@@ -1,4 +1,6 @@
 node_modules/
+# 清理时提取的个人存档、配置和原 APK 仅保留在本机。
+ai_training/hard_native_3000_20261022/preserved-original-save-20261025/
 build/
 dist/
 coverage/
@@ -61,3 +63,71 @@ v13/out/**/data_v3_*/val.jsonl
 v13/out/**/teacher_provenance_by_row.txt
 
 
+
+# 整理后的研究目录：镜像旧忽略规则，不把历史已跟踪文件误当新产物。
+ai_training/training_runs/
+ai_training/docs/training/reports/**/checkpoints/
+ai_training/docs/training/reports/**/overfit_sanity/overfit_model_*.json
+ai_training/docs/training/reports/**/overfit_sanity/overfit_64_dataset.jsonl
+ai_training/docs/training/reports/**/overfit_sanity/overfit_model_*_last.json
+ai_training/docs/training/reports/**/closure_02_changes.patch
+ai_training/v12/out/spatial/diag_30k_with_roots.jsonl
+ai_training/v13/out/**/*.state.pt
+ai_training/v13/out/**/pool_v31.jsonl
+ai_training/v13/out/**/pool_v31_subset.jsonl
+ai_training/v13/out/**/pool_v3.jsonl
+ai_training/v13/out/**/data_v3_*/pool_v3.jsonl
+ai_training/v13/out/**/data_v3_*/train.jsonl
+ai_training/v13/out/**/data_v3_*/val.jsonl
+ai_training/v13/out/**/teacher_provenance_by_row.txt
+ai_training/src/
+ai_training/APK/
+ai_training/captures/
+ai_training/node_modules/
+ai_training/docs/apk-analysis/
+deliverables/
+.runtime/
+.pytest_cache/
+pytest-cache-files-*/
+
+ai_training/.venv-rocm/
+ai_training/gpu/runs/
+
+ai_training/hard_replica_gpu_20261029/production-*/
+ai_training/hard_replica_gpu_20261029/parallel-smoke*/
+ai_training/hard_replica_gpu_20261029/bench-*/
+ai_training/hard_replica_gpu_20261029/full-*/
+
+# 本批采集数据迁往D盘，旧位置只保留源码和迁移指引。
+ai_training/hard_gap_pc32_320_20261029_v1/*.json
+!ai_training/hard_gap_pc32_320_20261029_v1/STORAGE_LOCATION.json
+
+# 研究运行产物留在本地；发布权重仅放 public/models 或既有应用模型目录。
+ai_training/**/rootfs/
+ai_training/**/site-packages/
+ai_training/**/wheels/
+ai_training/**/runtime-assets/
+ai_training/**/preserved/
+ai_training/**/out/
+ai_training/**/source-snapshot/
+ai_training/**/source_snapshot/
+ai_training/**/source_bundle/
+ai_training/**/*.bundle.js
+ai_training/**/*.tar
+ai_training/**/*.zip
+ai_training/**/*.gz
+ai_training/**/*.whl
+ai_training/**/*.pt
+ai_training/**/*.bin
+ai_training/**/*.f32
+ai_training/**/*.jsonl
+ai_training/**/*.sqlite3
+ai_training/**/*.apk
+ai_training/**/*.jar
+ai_training/**/*.dex
+ai_training/**/.env*
+# 抓取原件按白名单选取；既有跟踪夹具不受本规则影响。
+captures/*
+
+# 临时编译出的带毫秒时间戳的研究脚本不作为源码归档。
+ai_training/**/*-1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].mjs

@@ -1,0 +1,80 @@
+{
+  "schema": "v14_collection_config_1",
+  "comment": "V14 基础训练数据采集配置。root 身份 = rootFamilyId（SDPLAN:<plan>:<map>#<seed>#<episodeIndex>），命名沿用 V13 形式，但 seed 由本轮 seedBase 与分区偏移计算，随机流与 V13 独立。",
+  "sdTrainingPlanFile": "training_configs/sd_training_plan_20260705.json",
+  "planId": "sd-normal",
+  "seedBase": 2026092401,
+  "partitionSeedOffset": { "train": 0, "val": 100000, "test": 200000 },
+  "maxPlies": 1200,
+  "behaviorPolicyId": "heuristic",
+  "labelTeacherId": "heuristic",
+  "labelTeacherVersion": "src/game/ai/heuristic_ai.ts@v14-run",
+  "budget": {
+    "stepCap": 12000,
+    "wallMsPerRoot": 150000,
+    "decisionsPerRootCap": 220
+  },
+  "partitions": {
+    "train": [
+      { "mapName": "(2) Duel.aem", "episodeIndex": 0 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 1 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 2 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 3 },
+      { "mapName": "(2) Icy Paths.aem", "episodeIndex": 0 },
+      { "mapName": "(2) Icy Paths.aem", "episodeIndex": 1 },
+      { "mapName": "(2) Crossed swords.aem", "episodeIndex": 0 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 0 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 1 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 2 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 3 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 0 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 1 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 2 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 3 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 0 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 1 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 2 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 3 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 0 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 1 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 2 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 3 },
+      { "mapName": "(4) Crossroads.aem", "episodeIndex": 0 },
+      { "mapName": "(4) Crossroads.aem", "episodeIndex": 1 },
+      { "mapName": "(4) Crossroads.aem", "episodeIndex": 2 },
+      { "mapName": "(4) Shadowlands.aem", "episodeIndex": 0 },
+      { "mapName": "(4) Shadowlands.aem", "episodeIndex": 1 },
+      { "mapName": "(4) Solitude.aem", "episodeIndex": 0 },
+      { "mapName": "(4) Waterways.aem", "episodeIndex": 0 },
+      { "mapName": "(4) Winterstorm.aem", "episodeIndex": 0 },
+      { "mapName": "(4) The Crucible.aem", "episodeIndex": 0 }
+    ],
+    "val": [
+      { "mapName": "(2) Duel.aem", "episodeIndex": 500 },
+      { "mapName": "(2) Icy Paths.aem", "episodeIndex": 500 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 500 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 500 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 500 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 500 },
+      { "mapName": "(4) Crossroads.aem", "episodeIndex": 500 },
+      { "mapName": "(4) Shadowlands.aem", "episodeIndex": 500 }
+    ],
+    "test": [
+      { "mapName": "(2) Duel.aem", "episodeIndex": 900 },
+      { "mapName": "(2) Icy Paths.aem", "episodeIndex": 900 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 900 },
+      { "mapName": "(3) Midway.aem", "episodeIndex": 900 },
+      { "mapName": "(3) Glu.aem", "episodeIndex": 900 },
+      { "mapName": "(3) classic 2.aem", "episodeIndex": 900 },
+      { "mapName": "(4) Crossroads.aem", "episodeIndex": 900 },
+      { "mapName": "(4) Shadowlands.aem", "episodeIndex": 900 }
+    ]
+  },
+  "notes": [
+    "seed = seedBase + partitionSeedOffset[partition] + episodeIndex。train 用 0-7、val 用 100000+500 起、test 用 200000+900 起，因此三个分区之间不存在相同 seed，随机流互相独立。",
+    "同一地图出现在多个分区是允许的：任务书要求按 root 家族分割，不要求按地图分割；分区之间不存在相同 rootFamilyId。",
+    "(4) Crossroads.aem 等四人图走 sd-normal plan（mapPlayerCounts=all），四人整局与其它人数使用同一 setup 采集。",
+    "mapHash 与 mapLayoutHash 在采集时按初始快照计算，用于事后查重与规则适配筛选。",
+    "stepCap=12000 与 wallMsPerRoot=150000 由 T14-00 成本预检校准：2p 长局在 20000 步内仍可能空转，采集器另有停滞检测。"
+  ]
+}

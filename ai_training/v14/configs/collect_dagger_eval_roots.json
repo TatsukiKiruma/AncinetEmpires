@@ -1,0 +1,27 @@
+{
+  "schema": "v14_collection_config_1",
+  "comment": "V14/T14-08 D1 分支：新采的启发式访问状态（fresh-offline）。seedBase 与 T14-02 不同，属独立随机流。",
+  "sdTrainingPlanFile": "training_configs/sd_training_plan_20260705.json",
+  "planId": "sd-normal",
+  "seedBase": 2026092501,
+  "partitionSeedOffset": { "train": 0 },
+  "maxPlies": 1200,
+  "behaviorPolicyId": "heuristic",
+  "labelTeacherId": "heuristic",
+  "labelTeacherVersion": "src/game/ai/heuristic_ai.ts@v14-run",
+  "budget": { "stepCap": 3000, "wallMsPerRoot": 45000, "decisionsPerRootCap": 300 },
+  "partitions": {
+    "train": [
+      { "mapName": "(2) Duel.aem", "episodeIndex": 0 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 1 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 2 },
+      { "mapName": "(2) Duel.aem", "episodeIndex": 3 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 0 },
+      { "mapName": "(3) Frozen fields.aem", "episodeIndex": 1 }
+    ]
+  },
+  "notes": [
+    "这些状态用于 T14-08 D1（仅新增独立教师数据）与 D2 的“旧池”混合，不作为 C1 的额外数据。",
+    "seed = seedBase + episodeIndex，与 T14-02/T14-04 的随机流完全独立。"
+  ]
+}

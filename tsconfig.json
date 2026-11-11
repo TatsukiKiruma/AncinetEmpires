@@ -28,11 +28,17 @@
     "dist",
     "build",
     "coverage",
-    "training_runs",
-    "v10/fix_01/_original_tools",
+    "ai_training",
+    "deliverables",
     "APK",
     "demo",
-    "_docx_render",
-    "_work"
+    "_work",
+    ".runtime"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tools/**/*.ts",
+    "vite.config.ts"
   ]
 }

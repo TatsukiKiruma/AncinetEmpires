@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import path from 'node:path';
+import { scores, pairedComparison } from './analysis';
+import { HERE, save } from './io';
+
+const baseline = [2, 3, 4].flatMap(n => Array.from({ length: n }, (_, seat) => ({ id: `p${n}-s${seat}`, players: n, slot: n, seed: 40 + n, seat, opponent: 'hard', initialSha256: `初态${n}`, natural: true, firstPlace: 0, normalizedRank: 0, classification: 'natural_loss' })));
+const candidate = baseline.map(r => ({ ...r, firstPlace: 1, normalizedRank: 1, classification: 'natural_win' }));
+const full = pairedComparison(baseline, candidate);
+assert.deepEqual(full.equal.completeNaturalCI, { win: [1, 1], rank: [1, 1] });
+assert.equal(scores(candidate).equalWin, 1);
+const missing: any[] = structuredClone(candidate);
+missing.find(r => r.players === 3).natural = false;
+Object.assign(missing.find(r => r.players === 3), { classification: 'round_truncation', firstPlace: null, normalizedRank: null });
+const bounded = pairedComparison(baseline, missing);
+assert.equal(bounded.byPlayers[3].completeNaturalCI, null); assert.equal(bounded.equal.completeNaturalCI, null);
+assert.equal(bounded.candidate.byPlayers[3].roundTruncations, 1);
+assert.deepEqual(bounded.candidate.byPlayers[3].winBounds, [2 / 3, 1]);
+assert.deepEqual(bounded.candidate.equalWinBounds, [8 / 9, 1]);
+const duplicate = structuredClone(candidate); duplicate[0] = duplicate[1];
+assert.throws(() => pairedComparison(baseline, duplicate), /局号/);
+const altered = structuredClone(candidate); altered[0].seed++;
+assert.throws(() => pairedComparison(baseline, altered), /种子/);
+assert.deepEqual(pairedComparison(baseline, candidate), full);
+if (!process.argv.includes('--probe')) await save(path.join(HERE, process.argv[2] ?? 'ANALYSIS_CONTRACT_CHECK.json'), { passed: true, bootstrapSamples: 10000, deterministic: true, missingNotNatural: true, duplicateAndIdentityMismatchRejected: true, syntheticOnly: true }, true);
+console.log(JSON.stringify({ passed: true }));

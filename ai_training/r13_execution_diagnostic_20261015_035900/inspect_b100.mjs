@@ -1,0 +1,1 @@
+import fs from 'node:fs';const a=fs.readFileSync('ai_training/r8_pure_policy_stage_20261014_125300/runs/dev_b100_q/game_0.jsonl','utf8').trim().split('\n').map(JSON.parse).find(x=>x.type==='step'&&x.diagnostics);console.log(JSON.stringify(a?.diagnostics,null,2).slice(0,5500));

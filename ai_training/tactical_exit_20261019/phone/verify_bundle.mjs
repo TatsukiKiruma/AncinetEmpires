@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import vm from 'node:vm';
+import { nodeWorkerShim } from './node_worker_shim.mjs';
+const assets=path.resolve(process.argv[2]);
+const worker=fs.existsSync(path.join(assets,'runtime-worker.js'))?nodeWorkerShim(path.join(assets,'runtime-worker.js')):null;
+const context=vm.createContext({TextEncoder,performance,navigator:{userAgent:'本机VM诊断',hardwareConcurrency:0},devicePixelRatio:1,...(worker?{Worker:worker.Worker,stage5PhoneWorkerUrl:'固定本机Worker验证'}:{})});
+vm.runInContext('delete Array.prototype.at; Object.hasOwn=undefined;',context);
+vm.runInContext(fs.readFileSync(path.join(assets,'runtime.js'),'utf8'),context);
+context.configText=fs.readFileSync(path.join(assets,'config.json'),'utf8');
+const result=await vm.runInContext(`(()=>{const c=JSON.parse(configText);return Stage5Phone.selfcheck({...c,rootStates:[],valueStates:[]},async()=>{});})()`,context).catch(async error=>{if(worker)await worker.close();throw error;});
+const report={passed:result.passed,decisionFixtures:result.fixtures.length,shaTests:result.shaTests.length,legacyArrayAtExercised:true,structuredClonePolyfillExercised:true,gamesStarted:0,physicalPhoneGatePassed:false,scope:'本机VM仅核验完整手机bundle的固定单状态决策；不执行对局，不替代真机速度'};
+fs.writeFileSync(path.join(assets,'LOCAL_BUNDLE_CHECK.json'),JSON.stringify(report,null,2),{flag:'wx'});console.log(JSON.stringify(report));
+if(worker)await worker.close();

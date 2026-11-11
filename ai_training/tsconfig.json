@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "include": [
+    "tools/**/*.ts",
+    "v*/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src",
+    "APK",
+    "captures",
+    "training_runs",
+    "migration",
+    "**/out/**",
+    "**/archive/**",
+    "**/tmp/**",
+    "**/_original_tools/**"
+  ]
+}

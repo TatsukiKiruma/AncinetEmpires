@@ -1,0 +1,22 @@
+/** 将已核验原件按引用迁入新版本；旧锁、STOP、结果和中断尝试全部保留。 */
+import fs from 'node:fs';
+import path from 'node:path';
+import {ROOT,OUT,read,fileSha} from './common.mjs';
+const recovery=read(path.join(OUT,'INTERRUPTION_RECOVERY.json'));
+if(recovery.rejected.length)throw Error('恢复静态检查有拒收结果，须先诊断');
+const destination=path.join(ROOT,'ai_training/hard_collection_pc64_v4_20261029');
+fs.mkdirSync(destination);
+const code=['common.mjs','audit.ts','drive.ts','supplement.ts','inventory.mjs','contracts.ts','record_contracts.ts','phone_history.mjs'];
+for(const file of [...code,'PHONE_AUDITED.json','HISTORICAL_INVENTORY.json','CONTRACTS.json','RECORD_CONTRACTS.json','ORIGINAL_PHONE_ATTEMPT_HISTORY.json'])fs.copyFileSync(path.join(OUT,file),path.join(destination,file));
+const put=(file,value)=>fs.writeFileSync(path.join(destination,file),JSON.stringify(value,null,2));
+put('INITIAL_RECONCILIATION.json',read(path.join(OUT,'RECOVERED_RECONCILIATION.json')));
+put('HISTORICAL_GPU_AUDITED.json',[...read(path.join(OUT,'HISTORICAL_GPU_AUDITED.json')),...recovery.qualified]);
+put('INHERITED_PC_ATTEMPTS.json',Object.fromEntries(recovery.incomplete.map(r=>[r.executionSequence,{starts:r.attempt,lastDirectory:r.directory,status:'stopped',seed:r.seed,parentId:r.parentId,interruptionEvidence:path.join(OUT,'INTERRUPTION_RECOVERY.json')}])));
+put('CONTINUATION.json',{created:new Date().toISOString(),fromDirectory:OUT,oldDriverAndCollectorAbsent:true,recoveryFile:path.join(OUT,'INTERRUPTION_RECOVERY.json'),recoverySha256:fileSha(path.join(OUT,'INTERRUPTION_RECOVERY.json')),oldLocksRetained:true,sourceFiles:Object.fromEntries(code.map(n=>[n,fileSha(path.join(OUT,n))])),launchMode:'Windows WMI独立进程宿主，后台采集不依附本次对话命令会话'});
+const driverFile=path.join(destination,'drive.ts');let driver=fs.readFileSync(driverFile,'utf8');
+driver=driver.replace("const historical=read(path.join(OUT,'HISTORICAL_INVENTORY.json'));","if(!fs.existsSync(stateFile)&&fs.existsSync(path.join(OUT,'INHERITED_PC_ATTEMPTS.json')))state.attempts=read(path.join(OUT,'INHERITED_PC_ATTEMPTS.json'));\nconst historical=read(path.join(OUT,'HISTORICAL_INVENTORY.json'));");
+driver=driver.replaceAll("'ai_training/hard_collection_pc64_v3_20261029/'+n","path.relative(ROOT,OUT).replaceAll('\\\\','/')+'/'+n");
+fs.writeFileSync(driverFile,driver);
+const launcher=`Set-Location -LiteralPath '${ROOT}'\n& 'C:\\Program Files\\nodejs\\node.exe' --openssl-legacy-provider --import tsx 'ai_training/hard_collection_pc64_v4_20261029/drive.ts' 1> '${destination}\\driver-001.stdout.log' 2> '${destination}\\driver-001.stderr.log'\n$pc64ExitCode = $LASTEXITCODE\n@{exitCode=$pc64ExitCode; exited=(Get-Date).ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath '${destination}\\LAUNCHER_EXIT.json'\nexit $pc64ExitCode\n`;
+fs.writeFileSync(path.join(destination,'launch.ps1'),launcher);
+console.log(JSON.stringify({destination,recovered:recovery.qualified.length,distinct:read(path.join(destination,'INITIAL_RECONCILIATION.json')).summary.distinct}));

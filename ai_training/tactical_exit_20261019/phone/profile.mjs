@@ -1,0 +1,26 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const sessionFile=path.resolve(process.argv[2]),session=JSON.parse(fs.readFileSync(sessionFile,'utf8'));
+const folder=path.dirname(sessionFile);if(!fs.existsSync(path.join(folder,'SELFCHECK.json')))throw Error('完整自检尚未结束，禁止并行剖析');
+const report=JSON.parse(fs.readFileSync(path.join(folder,'SELFCHECK.json'),'utf8'));
+const kind=process.argv[3]??'root';
+const stateIndex=kind==='value'?Math.floor(report.valueSamples.reduce((best,value,index,array)=>value>array[best]?index:best,0)/10):report.rootSamples.reduce((best,value,index,array)=>value>array[best]?index:best,0)>>1;
+const pages=await(await fetch('http://127.0.0.1:19224/json/list')).json(),page=pages.find(page=>page.url===session.url);
+if(!page)throw Error('未找到本任务手机页');
+const socket=new WebSocket(page.webSocketDebuggerUrl);await new Promise((resolve,reject)=>{socket.onopen=resolve;socket.onerror=reject;});
+let sequence=0;const pending=new Map();
+socket.onmessage=event=>{const message=JSON.parse(event.data);if(pending.has(message.id)){pending.get(message.id)(message);pending.delete(message.id);}};
+const call=(method,params={})=>new Promise(resolve=>{const id=++sequence;pending.set(id,resolve);socket.send(JSON.stringify({id,method,params}));});
+const evaluate=async expression=>{const response=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(response.error||response.result?.exceptionDetails)throw Error(JSON.stringify(response));return response.result.result.value;};
+await evaluate(`(async()=>{if(document.visibilityState!=='visible')throw Error('验证页不在前台');globalThis.stage5ProfileLock=await navigator.wakeLock.request('screen');globalThis.stage5ProfileConfig=await(await fetch('/config.json'+location.search)).json();return true;})()`);
+await call('Profiler.enable');await call('Profiler.setSamplingInterval',{interval:1000});await call('Profiler.start');
+const decision=await evaluate(kind==='value'?`(async()=>{const c=stage5ProfileConfig;const result=await Stage5Phone.selfcheck({...c,fixtures:[],rootStates:[],valueStates:Array.from({length:20},()=>c.valueStates[${stateIndex}])},async()=>{});return {valueLatency:result.valueLatency};})()`:`(async()=>{const c=stage5ProfileConfig;const start=performance.now();const result=await Stage5Phone.decisionFixture(c.rootStates[${stateIndex}],c.models.teacher_search,c.old,'teacher_search');return {ms:performance.now()-start,code:result.code,beforeHash:result.beforeHash};})()`);
+const response=await call('Profiler.stop');await evaluate('stage5ProfileLock.release().then(()=>true)');socket.close();
+const target=path.join(folder,'PROFILE-'+new Date().toISOString().replace(/[:.]/g,'-'));fs.mkdirSync(target);
+fs.writeFileSync(path.join(target,'phone.cpuprofile'),JSON.stringify(response.result.profile),{flag:'wx'});
+const profile=response.result.profile,nodes=new Map(profile.nodes.map(node=>[node.id,node])),parents=new Map(),counts=new Map(),inclusive=new Map();
+for(const node of profile.nodes)for(const child of node.children??[])parents.set(child,node.id);
+for(const sample of profile.samples){counts.set(sample,(counts.get(sample)??0)+1);for(let id=sample;id!==undefined;id=parents.get(id))inclusive.set(id,(inclusive.get(id)??0)+1);}
+const items=profile.nodes.map(node=>({name:node.callFrame.functionName,line:node.callFrame.lineNumber+1,self:counts.get(node.id)??0,inclusive:inclusive.get(node.id)??0}));
+const summary={kind,stateIndex,decision,samples:profile.samples.length,bySelf:[...items].sort((a,b)=>b.self-a.self).slice(0,35),byInclusive:[...items].sort((a,b)=>b.inclusive-a.inclusive).slice(0,25),bundleSha256:report.bundleSha256,performanceDiagnosticOnly:true};
+fs.writeFileSync(path.join(target,'SUMMARY.json'),JSON.stringify(summary,null,2),{flag:'wx'});console.log(JSON.stringify({output:target,...summary}));

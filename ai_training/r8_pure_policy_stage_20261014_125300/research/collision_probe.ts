@@ -1,0 +1,7 @@
+// 相同查询随机流复核隔离样本，不能把随机标签变化都解释成编码缺陷。
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import {GameEngine,features,inputHash,encodeAction} from './common';import {policy} from './policy';
+const S=path.resolve(__dirname,'..'),pairs=JSON.parse(fs.readFileSync(path.join(S,'data/collision_probe_pairs.json'),'utf8')),rows:any[]=[];
+for(const pair of pairs){const results:any[]=[];for(const seed of [1,2,3]){
+ const choices=([pair.a,pair.b] as any[]).map(s=>{const e=new GameEngine(s.stateJson),legal=e.getLegalActions(s.playerId);assert.equal(inputHash(features(e.getState(),legal)),pair.inputHash);const p=policy({type:'heuristic'},seed,s.playerId),a=p.act(structuredClone(s.stateJson),structuredClone(legal));return legal.map(encodeAction).indexOf(encodeAction(a));});results.push({seed,choices,equal:choices[0]===choices[1]});
+}rows.push({inputHash:pair.inputHash,sources:[[pair.a.gameId,pair.a.stepIndex],[pair.b.gameId,pair.b.stepIndex]],originalTargets:[pair.a.targetActionIndex,pair.b.targetActionIndex],sameSeedQueries:results,differentUnderSameSeed:results.some(r=>!r.equal)});}
+fs.writeFileSync(path.join(S,'evidence/collision_same_seed_probe.json'),JSON.stringify({pairs:rows.length,differentUnderSameSeed:rows.filter(r=>r.differentUnderSameSeed).length,rows,scope:'仅16对隔离状态的当前教师选择，不证明所有别名无未来决策影响。'},null,2));console.log({pairs:rows.length,differentUnderSameSeed:rows.filter(r=>r.differentUnderSameSeed).length});

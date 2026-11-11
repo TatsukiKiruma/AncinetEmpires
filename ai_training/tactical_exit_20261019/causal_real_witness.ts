@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { gunzipSync } from 'node:zlib';
+import assert from 'node:assert/strict';
+import { GameEngine } from '../../src/game/engine';
+import { encodeAction } from '../../src/game/env';
+import { ModelBattleSearchAI } from './model_battle_search_ai';
+import { infer,legalActions } from './policy_runtime';
+import { auditSearchRisks } from './audit_search_risks';
+import { read,save,hash,DIR } from './io';
+const plan=read('teacher-battle-plan.json'),id='expanded-teacher_search-r0-s0',slot=plan.slots.find((v:any)=>v.id===id),engine=new GameEngine(read(plan.maps[slot.mapIndex].path));
+const rows=gunzipSync(fs.readFileSync(path.join(DIR,`teacher-r4-battles/slots/${id}/actions.jsonl.gz`))).toString().trim().split('\n').map(v=>JSON.parse(v));
+engine.step(rows[0].action);assert.equal(hash(engine.getState()),rows[1].beforeHash);
+const model=read('teacher-model.json'),old=read('old-schema.json'),legal=legalActions(engine),root=infer(engine,legal,model,old),ai=new ModelBattleSearchAI(model,old),action=ai.getAction(engine,slot.seat,legal,root,{});
+assert.equal(root.x.codes[root.out.best],rows[1].search.preferred);assert.equal(encodeAction(action),rows[1].search.preferred);
+assert.equal(ai.lastDecision.commanderVetoDeferred,true);assert.ok(ai.lastDecision.baselineRisk.known&&ai.lastDecision.baselineRisk.risks.some((r:any)=>r.commander&&r.lethal));
+const audit=auditSearchRisks(engine,ai.lastDecision);assert.equal(audit.baselineProjections,1);assert.ok(audit.lethalWitnesses>0);
+const result={passed:true,source:`teacher-r4-battles/slots/${id}/actions.jsonl.gz`,row:1,stateHash:rows[1].beforeHash,old:rows[1].code,selected:encodeAction(action),originalPolicy:root.x.codes[root.out.best],audit};save('causal-real-witness-gate.json',result);console.log(result);

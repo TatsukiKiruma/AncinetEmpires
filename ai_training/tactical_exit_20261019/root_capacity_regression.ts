@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import { GameEngine } from '../../src/game/engine';
+import { encodeAction } from '../../src/game/env';
+import { ModelBattleSearchAI } from './model_battle_search_ai';
+import { auditSearchRisks } from './audit_search_risks';
+import { SEARCH_MAX_OWN_NODES,SEARCH_TOP_K } from './search_budget';
+import { read,save,hash } from './io';
+const reference=read('teacher-r16-root-coverage-gate.json');assert.ok(reference.passed&&reference.coverageGap);
+const engine=new GameEngine(reference.state),ai=new ModelBattleSearchAI(read('teacher-model.json'),read('old-schema.json')),action=ai.getAction(engine,reference.state.currentPlayer),d=ai.lastDecision,selected=d.traces.find((v:any)=>encodeAction(v.action)===d.selected);
+assert.equal(hash(engine.getState()),reference.beforeHash);
+assert.ok(encodeAction(action)!==reference.oldSelected&&selected.complete&&selected.riskKnown&&!selected.commanderLethal&&!selected.actorLethal&&selected.score>reference.oldScore+1e-10,'根候选容量必须覆盖真实安全且高于旧待机叶子的防守连动');
+assert.ok(d.reason.startsWith('Veto')&&d.traces.length<=SEARCH_TOP_K&&d.nodes<=SEARCH_MAX_OWN_NODES&&d.branchPolicyCalls===0);
+const smaller=new ModelBattleSearchAI(read('teacher-model.json'),read('old-schema.json'),{topK:6});smaller.getAction(engine,reference.state.currentPlayer);assert.ok(smaller.lastDecision.traces.every((v:any)=>d.traces.some((w:any)=>encodeAction(w.action)===encodeAction(v.action))),'扩容不得丢弃原六根');
+const audit=auditSearchRisks(engine,d),receipt={passed:true,beforeHash:reference.beforeHash,selected:encodeAction(action),score:selected.score,oldScore:reference.oldScore,originalSixPreserved:true,topK:SEARCH_TOP_K,maximumOwnNodes:SEARCH_MAX_OWN_NODES,nodes:d.nodes,audit};if(process.env.STAGE5_ROOT_CAPACITY_RECEIPT)save(process.env.STAGE5_ROOT_CAPACITY_RECEIPT,receipt);console.log(receipt);

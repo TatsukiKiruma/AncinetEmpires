@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { GameEngine } from '../../src/game/engine';
+import { observe } from '../../src/ai_runtime/sd_v1/observation';
+import { encodeAction, decodeAction } from '../../src/game/env';
+import { extractFeatures } from './complete_tactics';
+import { observationState, encodeFeatures } from './encoding';
+import { groupKey } from './sources';
+import { DIR,read,save } from './io';
+const inputs=read('group-inputs.json'),states=read('browser-states.json');
+if(inputs.length!==22)throw Error('只能扩充原始22探针一次');
+for(const name of ['group-inputs.json','browser-states.json'])fs.copyFileSync(path.join(DIR,name),path.join(DIR,name+'.initial22'),fs.constants.COPYFILE_EXCL);
+const probe=read('castle-aura-probe.json'),engine=new GameEngine(probe.state),legal=engine.getLegalActions(probe.state.currentPlayer).filter(a=>a.type!=='surrender');
+const packet=observe(observationState(probe.state),legal),actions=packet.codes.map(decodeAction),features=extractFeatures(engine,actions);
+const x={...encodeFeatures(packet,read('old-schema.json'),features),actionGroups:actions.map(groupKey),target:packet.codes.indexOf(encodeAction(probe.actions[0])),weight:1,parent:'castle-aura-edge',macro:0,type:'wait'};
+inputs.push(x);states.push({state:probe.state,codes:packet.codes});save('group-inputs.json',inputs);save('browser-states.json',states);

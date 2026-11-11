@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { build } from 'esbuild';
+import { fileURLToPath } from 'node:url';
+const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..'),folder=path.join(here,'revisions/r19'),sha=p=>createHash('sha256').update(fs.readFileSync(p)).digest('hex');
+const name=fs.readdirSync(folder).filter(n=>/^revision-ab-[0-9]+\.json$/.test(n)).sort().at(-1);assert.ok(name);const stamp=name.match(/[0-9]+/)[0],bundle=path.join(here,`revision-ab-current-${stamp}.mjs`);
+const built=await build({entryPoints:[path.join(here,'benchmark_root_entry.ts')],bundle:true,platform:'node',format:'esm',outfile:bundle,write:false,metafile:true});assert.ok(Buffer.from(built.outputFiles[0].contents).equals(fs.readFileSync(bundle)),'实际计时包必须与当前源码重新构建完全相同');
+const frozen=JSON.parse(fs.readFileSync(path.join(here,'source-freeze-search-scale-teacher-r19-cache.json'),'utf8'));for(const [n,item] of Object.entries(frozen.files))assert.equal(sha(path.join(repo,n)),item.sha256);
+const files=Object.fromEntries(Object.keys(built.metafile.inputs).map(n=>[path.relative(repo,path.resolve(n)).split(path.sep).join('/'),sha(path.resolve(n))]));
+const result={passed:true,benchmark:name,benchmarkSha256:sha(path.join(folder,name)),actualExecutedBundleSha256:sha(bundle),currentSourceRebuildExact:true,sourceFiles:files,freezeSha256:sha(path.join(here,'source-freeze-search-scale-teacher-r19-cache.json')),modelSha256:sha(path.join(here,'teacher-model.json'))};fs.writeFileSync(path.join(folder,name+'.runtime-binding.json'),JSON.stringify(result),{flag:'wx'});console.log({passed:true,benchmark:name,actualExecutedBundleSha256:result.actualExecutedBundleSha256,sourceFiles:Object.keys(files).length});

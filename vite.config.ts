@@ -13,7 +13,9 @@ export default defineConfig(() => {
       },
     },
     test: {
-      exclude: ['**/node_modules/**', '**/dist/**', '**/_work/**', '**/training_runs/**', '**/build/**', '**/coverage/**'],
+      include: ['src/**/*.test.ts', 'tools/**/*.test.ts'],
+      maxWorkers: 2,
+      exclude: ['**/ai_training/**', '**/deliverables/**', '**/node_modules/**', '**/dist/**', '**/_work/**', '**/training_runs/**', '**/build/**', '**/coverage/**'],
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

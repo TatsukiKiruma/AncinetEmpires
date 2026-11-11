@@ -1,0 +1,8 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+import { spawnSync } from 'node:child_process';
+const here=path.dirname(fileURLToPath(import.meta.url)),output=path.join(here,'proposal-coverage-probe.mjs');
+await build({entryPoints:[path.join(here,'veto_objective_regression.ts')],bundle:true,platform:'node',format:'esm',outfile:output,plugins:[{name:'记录候选提议覆盖的真实差异',setup(b){b.onLoad({filter:/veto_objective_regression\.ts$/},args=>{let source=fs.readFileSync(args.path,'utf8'),line=source.split('\n').find(v=>v.trim().startsWith('assert.ok(selected.score>=reference.score'));if(!line)throw Error('诊断锚点缺失');source="import { infer,legalActions } from './policy_runtime';\n"+source;return {contents:source.replace(line,"const proposed=infer(engine,legalActions(engine),read('base-policy-final.json'),old);console.log(JSON.stringify({slot,index,reference:encodeAction(referenceAction),referenceScore:reference.score,referenceCovered:d.traces.some((v:any)=>encodeAction(v.action)===encodeAction(referenceAction)),auxBest:proposed.x.codes[proposed.out.best],selected:d.selected,proposal:d.proposalIndex===undefined?null:proposed.x.codes[d.proposalIndex],traces:d.traces.map((v:any)=>({code:encodeAction(v.action),score:v.score,confidence:v.policyConfidence}))}));continue;"),loader:'ts',resolveDir:path.dirname(args.path)};});}}]});
+const result=spawnSync(process.execPath,[output],{encoding:'utf8',windowsHide:true});if(result.status)throw Error(result.stderr);fs.writeFileSync(path.join(here,'revisions/r16/proposal-coverage-probe.log'),result.stdout,{flag:'wx'});process.stdout.write(result.stdout);

@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
+const here=path.dirname(fileURLToPath(import.meta.url));
+const result=await build({entryPoints:[path.join(here,'search_verified.ts')],bundle:true,write:false,metafile:true,platform:'browser',target:'chrome120'});
+const inputs=Object.keys(result.metafile.inputs),forbidden=inputs.filter(n=>/(?:heuristic_ai|v7_heuristic_bounded_search|battle_search_ai)\.ts$/.test(n)&&!n.endsWith('model_battle_search_ai.ts'));
+const sourceBinding=Object.fromEntries(inputs.map(n=>[n,createHash('sha256').update(fs.readFileSync(n)).digest('hex')]));
+const reference=path.resolve(here,'../../src/game/ai/battle_search_ai.ts');
+const output={passed:forbidden.length===0,forbidden,modules:inputs.length,sourceBinding,frameworkReference:{path:reference,sha256:createHash('sha256').update(fs.readFileSync(reference)).digest('hex')},frameworkAdapted:true};
+fs.writeFileSync(path.join(here,'search-verified-purity-gate.json'),JSON.stringify(output));console.log(JSON.stringify({passed:output.passed,modules:inputs.length,forbidden}));if(!output.passed)process.exitCode=1;

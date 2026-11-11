@@ -1,0 +1,27 @@
+{
+  "name": "ancient-empires-research",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "train:skirmish:baseline": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_training_runner.ts",
+    "eval:skirmish:baseline": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_training_eval.ts",
+    "export:skirmish:dataset": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_dataset_export.ts",
+    "split:skirmish:dataset": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_dataset_split.ts",
+    "export:skirmish:features": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_feature_export.ts",
+    "export:skirmish:checkpoint-features": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_old_dataset_migrate.ts",
+    "export:skirmish:episode-features": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_episode_feature_export.ts",
+    "migrate:skirmish:old-data": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_old_dataset_migrate.ts",
+    "validate:skirmish:features": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_dataset_validate.ts",
+    "export:skirmish:distill": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_distill_export.ts",
+    "export:skirmish:curated": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_curated_feature_export.ts",
+    "train:skirmish:bc": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_bc_train.ts",
+    "report:skirmish:timeout": "node run.mjs node --openssl-legacy-provider --import tsx tools/skirmish_timeout_focus_report.ts",
+    "bench:sd:strategy-timing": "node run.mjs node --openssl-legacy-provider --import tsx tools/sd_strategy_timing_benchmark.ts",
+    "sd:training-plan": "node run.mjs node --openssl-legacy-provider --import tsx tools/sd_training_plan_runner.ts",
+    "sd:training-manifest": "node run.mjs node --openssl-legacy-provider --import tsx tools/sd_training_job_manifest.ts",
+    "sd:replay-clean": "node run.mjs node --openssl-legacy-provider --import tsx tools/sd_replay_cleaner.ts",
+    "prepare": "node run.mjs --prepare",
+    "lint": "node run.mjs node ../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json",
+    "test": "node run.mjs node ../node_modules/vitest/vitest.mjs run --config vitest.config.ts"
+  }
+}
