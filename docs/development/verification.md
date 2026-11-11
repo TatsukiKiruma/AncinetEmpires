@@ -2,6 +2,8 @@
 
 公共应用：
 
+首次安装依赖后执行 `node ai_training/run.mjs --prepare`，为手机采集工具与研究源码建立支持链接。此命令不启动任何采集或训练。
+
 ```text
 npm run lint
 npm test

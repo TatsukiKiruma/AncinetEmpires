@@ -131,3 +131,9 @@ captures/*
 
 # 临时编译出的带毫秒时间戳的研究脚本不作为源码归档。
 ai_training/**/*-1[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].mjs
+
+# 精确放行需要更新的验证摘要，不放行原始抓取目录。
+!captures/mitm_replay/
+captures/mitm_replay/*
+!captures/mitm_replay/project_validation_report.json
+!captures/mitm_replay/project_validation_report.md

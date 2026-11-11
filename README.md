@@ -6,6 +6,7 @@
 
 ```text
 npm ci
+node ai_training/run.mjs --prepare
 npm run dev
 npm run lint
 npm test
@@ -13,6 +14,8 @@ npm run build
 ```
 
 默认对局为官方 Duel 地图、SD 遭遇战。环境不依赖界面，可直接使用内置地图运行。
+
+`--prepare` 只建立公共源码与依赖的支持链接，不启动训练或采集。完整仓库的类型检查包含手机采集工具，需要这些研究支持链接；应用运行和生产构建不依赖历史训练数据。APK 原始资源测试需要本机解包目录，详见开发验证说明。
 
 ## 文档
 
